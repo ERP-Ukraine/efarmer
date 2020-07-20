@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+
+<record id="external_website_form_field_form" model="ir.ui.view">
+    <field name="name">external.website.form.field.form</field>
+    <field name="model">external.website.form.field</field>
+    <field name="arch" type="xml">
+        <form string="External Website Form Field">
+            <sheet>
+                <group name="base">
+                    <field name="website_field"/>
+                    <field name="odoo_field"/>
+                </group>
+            </sheet>
+        </form>
+    </field>
+</record>
+
+<record id="external_website_form_field_tree" model="ir.ui.view">
+    <field name="name">external.website.form.field.tree</field>
+    <field name="model">external.website.form.field</field>
+    <field name="arch" type="xml">
+        <tree string="External Website Form Fields">
+            <field name="website_field"/>
+            <field name="odoo_field"/>
+        </tree>
+    </field>
+</record>
+
+<record id="external_website_form_form" model="ir.ui.view">
+    <field name="name">external.website.form.form</field>
+    <field name="model">external.website.form</field>
+    <field name="arch" type="xml">
+        <form string="External Website Form">
+            <sheet>
+                <group name="base">
+                    <field name="referrer"/>
+                    <field name="form_uid"/>
+                    <field name="field_ids"/>
+                </group>
+            </sheet>
+        </form>
+    </field>
+</record>
+
+<record id="external_website_form_tree" model="ir.ui.view">
+    <field name="name">external.website.form.tree</field>
+    <field name="model">external.website.form</field>
+    <field name="arch" type="xml">
+        <tree string="External Website Forms">
+            <field name="form_uid"/>
+            <field name="referrer"/>
+        </tree>
+    </field>
+</record>
+
+<record id="external_website_form_action" model="ir.actions.act_window">
+    <field name="name">External Website Forms</field>
+    <field name="res_model">external.website.form</field>
+    <field name="view_mode">tree,form</field>
+</record>
+
+<menuitem
+    action="external_website_form_action"
+    name="External Website Forms" id="external_website_form_menuitem"
+    parent="crm.crm_menu_config"
+    groups="efarm_external_website_leads.group_external_website_leads"/>
+
+</odoo>
