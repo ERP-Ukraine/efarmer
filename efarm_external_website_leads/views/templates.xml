@@ -4,15 +4,17 @@
 <template id="script_extform" name="Form Script">
 <t t-translation="off">
 <![CDATA[
-jQuery(document).ajaxSuccess(function (ev, request, settings) {
-    var valid_url = settings && settings.url && settings.url.endsWith('/admin-ajax.php');
-    var success = request && request.responseJSON && request.responseJSON.success;
+jQuery(function() {
+    jQuery(document).ajaxSuccess(function (ev, request, settings) {
+        var valid_url = settings && settings.url && settings.url.endsWith('/admin-ajax.php');
+        var success = request && request.responseJSON && request.responseJSON.success;
 
-    if (valid_url && success) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', ']]><t t-esc="base_url" /><![CDATA[/extwebsite/lead', true);
-        xhr.send(settings.data);
-    }
+        if (valid_url && success) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', ']]><t t-esc="base_url" /><![CDATA[/extwebsite/lead', true);
+            xhr.send(settings.data);
+        }
+    });
 });
 ]]>
 </t>
