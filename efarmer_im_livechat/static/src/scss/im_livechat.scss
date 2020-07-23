@@ -1,0 +1,16 @@
+$bg-color: #5ab6ff;
+
+.o_thread_window .o_thread_window_header {
+    background-color: $bg-color !important;
+    height: 40px !important;
+
+    span.o_thread_window_title {
+        color: #fff !important;
+        font-size: 16px !important;
+    }
+}
+
+.o_livechat_button {
+    background-color: $bg-color !important;
+    border-width: 0 !important;
+}
