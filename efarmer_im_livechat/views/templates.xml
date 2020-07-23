@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+
+<template id="im_livechat_external_lib" inherit_id="im_livechat.external_lib">
+    <xpath expr="." position="inside">
+        <link rel="stylesheet" type="text/scss" href="/efarmer_im_livechat/static/src/scss/im_livechat.scss"/>
+    </xpath>
+</template>
+
+</odoo>
