@@ -38,6 +38,7 @@
                     <field name="form_uid"/>
                     <field name="team_id"/>
                     <field name="field_ids"/>
+                    <field name="tag_ids"/>
                 </group>
             </sheet>
         </form>
