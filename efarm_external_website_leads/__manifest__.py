@@ -24,6 +24,8 @@
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
+        'views/external_website_form_field.xml',
+        'views/external_website_form_tag.xml',
         'views/external_website_form.xml',
         'views/templates.xml',
     ],
