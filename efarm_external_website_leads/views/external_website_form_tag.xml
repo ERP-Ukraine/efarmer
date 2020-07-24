@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+
+<record id="external_website_form_tag_form" model="ir.ui.view">
+    <field name="name">external.website.form.tag.form</field>
+    <field name="model">external.website.form.tag</field>
+    <field name="arch" type="xml">
+        <form string="External Website Form Tag">
+            <sheet>
+                <group name="base">
+                    <field name="website_field"/>
+                    <field name="website_value"/>
+                    <field name="tag_id"/>
+                </group>
+            </sheet>
+        </form>
+    </field>
+</record>
+
+<record id="external_website_form_tag_tree" model="ir.ui.view">
+    <field name="name">external.website.form.tag.tree</field>
+    <field name="model">external.website.form.tag</field>
+    <field name="arch" type="xml">
+        <tree string="External Website Form Tags">
+            <field name="website_field"/>
+            <field name="website_value"/>
+            <field name="tag_id"/>
+        </tree>
+    </field>
+</record>
+
+</odoo>

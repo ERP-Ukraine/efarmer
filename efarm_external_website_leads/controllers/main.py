@@ -1,5 +1,6 @@
 import hashlib
 import logging
+from urllib.parse import urlparse
 
 from odoo.addons.base.models.assetsbundle import rjsmin
 from odoo.http import STATIC_CACHE, Controller, Response, request, route
@@ -14,7 +15,10 @@ class Main(Controller):
     def create_lead(self, **kwargs):
         '''Send here the request data for the origin server to create a new lead.'''
         referrer = request.httprequest and request.httprequest.referrer
-        if not referrer:
+        if referrer:
+            url = urlparse(referrer)
+            referrer = url._replace(query='', fragment='').geturl()
+        else:
             _logger.error('No referrer. Kwargs: %s', kwargs)
 
         form_uid = kwargs.get('form_id')
@@ -26,7 +30,13 @@ class Main(Controller):
             domain = [('referrer', '=', referrer), ('form_uid', '=', form_uid)]
             form = model_su.search(domain, limit=1)
             if form:
-                lead = form.create_lead(kwargs)
+                # request.httprequest.form is an ImmutableOrderedMultiDict object
+                # which allows to get a list of values with the same key.
+                #
+                # Example form data: 'mark=1&mark=2'
+                # `kwargs` will contain `{'mark': '1'}`
+                # `request.httprequest.form.getlist('mark')` returns `['1', '2']`
+                lead = form.create_lead(request.httprequest.form)
                 _logger.debug('A new lead was created with id=%s.', lead.id)
             else:
                 _logger.error('No form record. Referrer: %s. Kwargs: %s', referrer, kwargs)
