@@ -1,32 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <odoo>
 
-<record id="external_website_form_field_form" model="ir.ui.view">
-    <field name="name">external.website.form.field.form</field>
-    <field name="model">external.website.form.field</field>
-    <field name="arch" type="xml">
-        <form string="External Website Form Field">
-            <sheet>
-                <group name="base">
-                    <field name="website_field"/>
-                    <field name="odoo_field_id"/>
-                </group>
-            </sheet>
-        </form>
-    </field>
-</record>
-
-<record id="external_website_form_field_tree" model="ir.ui.view">
-    <field name="name">external.website.form.field.tree</field>
-    <field name="model">external.website.form.field</field>
-    <field name="arch" type="xml">
-        <tree string="External Website Form Fields">
-            <field name="website_field"/>
-            <field name="odoo_field_id"/>
-        </tree>
-    </field>
-</record>
-
 <record id="external_website_form_form" model="ir.ui.view">
     <field name="name">external.website.form.form</field>
     <field name="model">external.website.form</field>
@@ -37,10 +11,17 @@
                     <field name="referrer"/>
                     <field name="form_uid"/>
                     <field name="team_id"/>
+                    <field name="stage_id"/>
                     <field name="form_tag_ids" widget="many2many_tags"/>
-                    <field name="field_ids"/>
-                    <field name="tag_ids"/>
                 </group>
+                <notebook>
+                    <page name="fields_mapping" string="Fields Mapping">
+                        <field name="field_ids"/>
+                    </page>
+                    <page name="tags_mapping" string="Tags Mapping">
+                        <field name="tag_ids"/>
+                    </page>
+                </notebook>
             </sheet>
         </form>
     </field>
