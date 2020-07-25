@@ -12,6 +12,7 @@ class ExternalWebsiteForm(models.Model):
     form_uid = fields.Char('Form ID', required=True)
     referrer = fields.Char('Referrer', required=True)
     team_id = fields.Many2one('crm.team', 'Sales Team')
+    stage_id = fields.Many2one('crm.stage', 'Lead Stage')
     form_tag_ids = fields.Many2many('crm.lead.tag', string='Tags')
     field_ids = fields.One2many('external.website.form.field', 'form_id', 'Field Mapping')
     tag_ids = fields.One2many('external.website.form.tag', 'form_id', 'Tag Mapping')
@@ -19,7 +20,7 @@ class ExternalWebsiteForm(models.Model):
     def create_lead(self, vals):
         self.ensure_one()
         assert isinstance(vals, werkzeug.ImmutableOrderedMultiDict)
-        creation_values = {'type': 'lead'}
+        creation_values = {'type': 'opportunity'}
 
         for field in self.field_ids:
             value = vals.get(field.website_field)
@@ -40,6 +41,9 @@ class ExternalWebsiteForm(models.Model):
 
         if tags:
             creation_values['tag_ids'] = [(6, 0, tags.ids)]
+
+        if self.stage_id:
+            creation_values['stage_id'] = self.stage_id.id
 
         if 'name' not in creation_values:
             creation_values['name'] = 'A lead from {} form'.format(vals.get('form_id', ''))
