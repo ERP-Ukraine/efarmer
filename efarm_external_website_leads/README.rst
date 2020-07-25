@@ -9,6 +9,7 @@ Create a new record per form. Set form ID and referrer url there. Then ...
 
 * It's necessary to map technical form fields ('name' attribute in the input e.g.) to the Odoo ones.
 * (Optionally) tags can be added: if the website field has the value, then the tag will be set.
+* (Optionally) you can set particular tags for every lead from the form.
 * (Optionally) you can pin a team for the form leads.
 
 How to configure a form?
