@@ -12,8 +12,9 @@ class ExternalWebsiteForm(models.Model):
     form_uid = fields.Char('Form ID', required=True)
     referrer = fields.Char('Referrer', required=True)
     team_id = fields.Many2one('crm.team', 'Sales Team')
-    field_ids = fields.One2many('external.website.form.field', 'form_id', 'Fields')
-    tag_ids = fields.One2many('external.website.form.tag', 'form_id', 'Tags')
+    form_tag_ids = fields.Many2many('crm.lead.tag', string='Tags')
+    field_ids = fields.One2many('external.website.form.field', 'form_id', 'Field Mapping')
+    tag_ids = fields.One2many('external.website.form.tag', 'form_id', 'Tag Mapping')
 
     def create_lead(self, vals):
         self.ensure_one()
@@ -31,7 +32,7 @@ class ExternalWebsiteForm(models.Model):
 
             creation_values[field.odoo_field_id.name] = value
 
-        tags = self.env['crm.lead.tag']
+        tags = self.form_tag_ids
         for tag in self.tag_ids:
             values = vals.getlist(tag.website_field)
             if tag.website_value in values:

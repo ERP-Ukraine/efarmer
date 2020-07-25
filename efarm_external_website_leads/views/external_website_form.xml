@@ -37,6 +37,7 @@
                     <field name="referrer"/>
                     <field name="form_uid"/>
                     <field name="team_id"/>
+                    <field name="form_tag_ids" widget="many2many_tags"/>
                     <field name="field_ids"/>
                     <field name="tag_ids"/>
                 </group>
