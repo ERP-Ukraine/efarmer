@@ -10,9 +10,12 @@ class ServerActions(models.Model):
     _name = 'ir.actions.server'
     _inherit = ['ir.actions.server']
 
+    def _get_default_activity_record(self):
+        return '[]'
+
     activity_record = fields.Char(
         string='Activity Record',
-        default='_get_default_activity_record',
+        default=_get_default_activity_record,
         help='You should set the one tuple and only the first element is important.',
     )
 
@@ -50,6 +53,3 @@ class ServerActions(models.Model):
                 vals['user_id'] = user.id
             record.activity_schedule(**vals)
         return False
-
-    def _get_default_activity_record(self):
-        return '[]'

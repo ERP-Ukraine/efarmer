@@ -1,8 +1,6 @@
 Leads From External Websites
 ============================
 
-> An opportunity will be created despite the name.
-
 Put the script (from the **/extwebsite/client.js** endpoint) on a website.
 
 There is a **External Website Forms** tab in the **CRM > Configuration** dropdown.
@@ -11,9 +9,9 @@ Create a new record per form. Set form ID and referrer url there. Then ...
 
 * It's necessary to map technical form fields ('name' attribute in the input e.g.) to the Odoo ones.
 * (Optionally) tags can be added: if the website field has the value, then the tag will be set.
-* (Optionally) you can set particular tags for every opportunity from the form.
-* (Optionally) you can pin a team for the form opportunities.
-* (Optionally) you can select an opportunity stage for the form.
+* (Optionally) you can set particular tags for every lead from the form.
+* (Optionally) you can pin a team for the form leads.
+* (Optionally) you can select a lead stage for the form.
 
 How to configure a form?
 ========================
