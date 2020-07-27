@@ -2,7 +2,7 @@
 {
     'name': 'Leads From External Websites',
 
-    'version': '1.4',
+    'version': '1.5',
     'category': 'Other',
     'author': 'ERP Ukraine',
     'website': 'https://erp.co.ua',
