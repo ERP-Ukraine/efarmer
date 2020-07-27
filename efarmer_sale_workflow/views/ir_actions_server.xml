@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+
+<record id="efarmer_sale_workflow_mail_view_server_action_form_template" model="ir.ui.view">
+    <field name="name">efarmer_sale_workflow.mail.view_server_action_form_template</field>
+    <field name="model">ir.actions.server</field>
+    <field name="inherit_id" ref="mail.view_server_action_form_template"/>
+    <field name="arch" type="xml">
+        <xpath expr="//field[@name='activity_user_id']" position="after">
+            <field name="activity_record" widget="domain" options="{'model': 'model_name', 'in_dialog': True}"/>
+        </xpath>
+    </field>
+</record>
+
+</odoo>
