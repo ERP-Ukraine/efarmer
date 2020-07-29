@@ -1,0 +1,1988 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_nl
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 13.0+e-20200707\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-28 09:46+0000\n"
+"PO-Revision-Date: 2020-07-28 09:46+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4043
+msgid "\"Congressen, seminars en symposia\""
+msgstr "\"Conferences, seminars and symposia\""
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1509
+msgid "Aan mij verrichte leveringen binnen EU"
+msgstr "Deliveries made to me within the EU"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1508
+msgid "Aan mij verrichte leveringen buiten EU"
+msgstr "Deliveries made to me outside the EU"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0610
+msgid "Aandelenkapitaal"
+msgstr "Share capital"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0310
+msgid "Aanschafwaarde Bedrijfsinventaris"
+msgstr "Purchase value Company inventory"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0330
+msgid "Aanschafwaarde Fabrieksinventaris"
+msgstr "Purchase value Factory inventory"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0110
+msgid "Aanschafwaarde Gebouwen"
+msgstr "Purchase value Buildings"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0340
+msgid "Aanschafwaarde Gereedschappen"
+msgstr "Purchase value Tools"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0010
+msgid "Aanschafwaarde Goodwill"
+msgstr "Purchase value Goodwill"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0101
+msgid "Aanschafwaarde Grond "
+msgstr "Purchase value Land"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0370
+msgid "Aanschafwaarde Kantine-inventaris"
+msgstr "Purchase value Canteen inventory"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0350
+msgid "Aanschafwaarde Kantoorinventaris"
+msgstr "Purchase value Office inventory"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0360
+msgid "Aanschafwaarde Kantoormachines"
+msgstr "Purchase value Office machines"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0210
+msgid "Aanschafwaarde Machines 1"
+msgstr "Purchase value Machines 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0220
+msgid "Aanschafwaarde Machines 2"
+msgstr "Purchase value Machines 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0320
+msgid "Aanschafwaarde Magazijninventaris"
+msgstr "Purchase value Warehouse inventory"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0410
+msgid "Aanschafwaarde Personenauto's"
+msgstr "Purchase value Passenger cars"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0130
+msgid "Aanschafwaarde Verbouwingen"
+msgstr "Purchase value Renovations"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0430
+msgid "Aanschafwaarde Vrachtauto's"
+msgstr "Purchase value for trucks"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0120
+msgid "Aanschafwaarde Winkels"
+msgstr "Purchase value Shops"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0020
+msgid "Aanschafwaarde overige immateriele vaste activa"
+msgstr "Purchase value of other intangible fixed assets"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0420
+msgid "Aanschafwaarde overige vervoersmiddelen"
+msgstr "Purchase value of other means of transport"
+
+#. module: l10n_nl
+#: model:ir.model,name:l10n_nl.model_account_chart_template
+msgid "Account Chart Template"
+msgstr "Account Chart Template"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4601
+msgid "Accountantskosten"
+msgstr "Accountant fees"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4621
+msgid "Administratiekosten"
+msgstr "Administration costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4525
+msgid "Advertenties"
+msgstr "Advertisement"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4605
+msgid "Advieskosten"
+msgstr "Consultancy costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_payable_v
+msgid "Af te dragen BTW heffing verlegd"
+msgstr "VAT charge to be paid shifted"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_payable_v_d
+msgid "Af te dragen BTW heffing verlegd diensten"
+msgstr "VAT to be paid shifted services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_payable_h
+msgid "Af te dragen BTW hoog tarief"
+msgstr "High rate VAT to be paid"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_payable_h_eu
+msgid "Af te dragen BTW hoog tarief binnen de EU"
+msgstr "High rate VAT to be paid within the EU"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_payable_h_d_eu
+msgid "Af te dragen BTW hoog tarief binnen de EU diensten"
+msgstr "High rate VAT to be paid within the EU services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_payable_h_non_eu
+msgid "Af te dragen BTW hoog tarief buiten de EU"
+msgstr "High rate VAT to be paid outside the EU"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_payable_h_d_non_eu
+msgid "Af te dragen BTW hoog tarief buiten de EU diensten"
+msgstr "High rate VAT to be paid outside the EU services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_payable_h_d
+msgid "Af te dragen BTW hoog tarief diensten"
+msgstr "VAT high rate services to be paid"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_payable_l
+msgid "Af te dragen BTW laag tarief"
+msgstr "VAT to be paid at a low rate"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_payable_l_eu
+msgid "Af te dragen BTW laag tarief binnen de EU"
+msgstr "VAT to be paid at a low rate within the EU"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_payable_l_d_eu
+msgid "Af te dragen BTW laag tarief binnen de EU diensten"
+msgstr "Payable low VAT rate within the EU services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_payable_l_non_eu
+msgid "Af te dragen BTW laag tarief buiten de EU"
+msgstr "Low rate VAT to be paid outside the EU"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_payable_l_d_non_eu
+msgid "Af te dragen BTW laag tarief buiten de EU diensten"
+msgstr "VAT to be paid at a low rate outside the EU services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_payable_l_d
+msgid "Af te dragen BTW laag tarief diensten"
+msgstr "VAT to be paid on low rate services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_payable_0
+msgid "Af te dragen BTW overige tarieven"
+msgstr "VAT to be paid other rates"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_payable_0_eu
+msgid "Af te dragen BTW overige tarieven binnen de EU"
+msgstr "VAT to be paid other rates within the EU"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_payable_0_d_eu
+msgid "Af te dragen BTW overige tarieven binnen de EU diensten"
+msgstr "VAT to be paid other rates within the EU services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_payable_0_non_eu
+msgid "Af te dragen BTW overige tarieven buiten de EU"
+msgstr "VAT to be paid other rates outside the EU"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_payable_0_d_non_eu
+msgid "Af te dragen BTW overige tarieven buiten de EU diensten"
+msgstr "VAT to be paid other rates outside the EU services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_payable_0_d
+msgid "Af te dragen BTW overige tarieven diensten"
+msgstr "VAT to be paid on other rates for services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1503
+msgid "Af te dragen BTW privé-gebruik"
+msgstr "VAT to be paid for private use"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1635
+msgid "Afdracht loonheffing"
+msgstr "Payroll tax payment"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1615
+msgid "Afdracht pensioenpremies"
+msgstr "Payment of pension contributions"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1550
+msgid "Afdrachten/aangifte omzetbelasting"
+msgstr "Sales tax returns / declaration"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0319
+msgid "Afschrijving Bedrijfsinventaris"
+msgstr "Depreciation Company inventory"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0339
+msgid "Afschrijving Fabrieksinventaris"
+msgstr "Depreciation Factory inventory"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0119
+msgid "Afschrijving Gebouwen"
+msgstr "Depreciation Buildings"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0349
+msgid "Afschrijving Gereedschappen"
+msgstr "Depreciation Tools"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0019
+msgid "Afschrijving Goodwill"
+msgstr "Goodwill amortization"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0379
+msgid "Afschrijving Kantine-inventaris"
+msgstr "Depreciation Canteen inventory"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0359
+msgid "Afschrijving Kantoorinventaris"
+msgstr "Depreciation Office inventory"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0369
+msgid "Afschrijving Kantoormachines"
+msgstr "Depreciation Office machines"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0219
+msgid "Afschrijving Machines 1"
+msgstr "Depreciation Machines 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0229
+msgid "Afschrijving Machines 2"
+msgstr "Depreciation Machines 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0329
+msgid "Afschrijving Magazijninventaris"
+msgstr "Depreciation Warehouse inventory"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0419
+msgid "Afschrijving Personenauto's"
+msgstr "Depreciation Passenger cars"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0139
+msgid "Afschrijving Verbouwingen"
+msgstr "Depreciation Renovations"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0439
+msgid "Afschrijving Vrachtauto's"
+msgstr "Depreciation for Trucks"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0129
+msgid "Afschrijving Winkels"
+msgstr "Depreciation Shops"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4550
+msgid "Afschrijving dubieuze debiteuren"
+msgstr "Amortization of bad debts"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0029
+msgid "Afschrijving overige immateriele vaste activa"
+msgstr "Depreciation of other intangible fixed assets"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0429
+msgid "Afschrijving overige vervoersmiddelen"
+msgstr "Depreciation of other modes of transport"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0630
+msgid "Agioreserve"
+msgstr "Share premium reserve"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0640
+msgid "Algemene reserve"
+msgstr "General reserve"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4270
+msgid "Assurantie machines / inventaris"
+msgstr "Assurance machines / inventory"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4150
+msgid "Assurantie onroerend goed"
+msgstr "Real estate insurance"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4425
+msgid "Assurantie overige vervoermiddelen"
+msgstr "Insurance other means of transport"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4415
+msgid "Assurantie personenauto's"
+msgstr "Passenger car insurance"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4405
+msgid "Assurantie vrachtauto's"
+msgstr "Insurance trucks"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4620
+msgid "Assuranties"
+msgstr "Assurances"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4360
+msgid "Automatiseringskosten"
+msgstr "Automation costs"
+
+#. module: l10n_nl
+#: model:account.tax.group,name:l10n_nl.tax_group_0
+msgid "BTW 0%"
+msgstr "VAT 0%"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1505
+msgid "BTW 0% / niet bij mij belast"
+msgstr "VAT 0% / not taxed by me"
+
+#. module: l10n_nl
+#: model:account.tax.group,name:l10n_nl.tax_group_0_eu
+msgid "BTW 0% EU"
+msgstr "VAT 0% EU"
+
+#. module: l10n_nl
+#: model:account.tax.group,name:l10n_nl.tax_group_0_niet_eu
+msgid "BTW 0% Niet EU"
+msgstr "VAT 0% Not EU"
+
+#. module: l10n_nl
+#: model:account.tax.group,name:l10n_nl.tax_group_21
+msgid "BTW 21%"
+msgstr "VAT 21%"
+
+#. module: l10n_nl
+#: model:account.tax.group,name:l10n_nl.tax_group_21_eu
+msgid "BTW 21% EU"
+msgstr "VAT 21% EU"
+
+#. module: l10n_nl
+#: model:account.tax.group,name:l10n_nl.tax_group_21_niet_eu
+msgid "BTW 21% Niet EU"
+msgstr "VAT 21% Not EU"
+
+#. module: l10n_nl
+#: model:account.tax.group,name:l10n_nl.tax_group_6
+msgid "BTW 6%"
+msgstr "VAT 6%"
+
+#. module: l10n_nl
+#: model:account.tax.group,name:l10n_nl.tax_group_6_eu
+msgid "BTW 6% EU"
+msgstr "VAT 6% EU"
+
+#. module: l10n_nl
+#: model:account.tax.group,name:l10n_nl.tax_group_6_niet_eu
+msgid "BTW 6% Niet EU"
+msgstr "VAT 6% Not EU"
+
+#. module: l10n_nl
+#: model:account.tax.group,name:l10n_nl.tax_group_9
+msgid "BTW 9%"
+msgstr "VAT 9%"
+
+#. module: l10n_nl
+#: model:account.tax.group,name:l10n_nl.tax_group_9_eu
+msgid "BTW 9% EU"
+msgstr "VAT 9% EU"
+
+#. module: l10n_nl
+#: model:account.tax.group,name:l10n_nl.tax_group_9_niet_eu
+msgid "BTW 9% Niet EU"
+msgstr "VAT 9% Not EU"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_ink_0
+msgid "BTW af te dragen verlegd (inkopen)"
+msgstr "VAT to be transferred shifted (purchase)"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_verk_0
+msgid "BTW af te dragen verlegd (verkopen)"
+msgstr "VAT to be transferred shifted (sales)"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1531
+msgid "BTW oninbare vorderingen"
+msgstr "Bad debts on VAT"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_21_buy_incl
+msgid "BTW te vorderen hoog (inkopen incl. BTW)"
+msgstr "VAT to be claimed high (purchases incl. VAT)"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_21_buy
+msgid "BTW te vorderen hoog (inkopen)"
+msgstr "VAT to be claimed high (purchase)"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_21_buy_d
+msgid "BTW te vorderen hoog (inkopen) diensten"
+msgstr "VAT to be claimed on high (purchasing) services"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_6_buy_incl
+msgid "BTW te vorderen laag (inkopen incl. BTW) 6%"
+msgstr "VAT receivable low (purchases incl. VAT) 6%"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_9_buy_incl
+msgid "BTW te vorderen laag (inkopen incl. BTW) 9%"
+msgstr "VAT receivable low (purchases incl. VAT) 9%"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_6_buy
+msgid "BTW te vorderen laag (inkopen) 6%"
+msgstr "VAT receivable low (purchases) 6%"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_9_buy
+msgid "BTW te vorderen laag (inkopen) 9%"
+msgstr "VAT receivable low (purchases) 9%"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_6_buy_d
+msgid "BTW te vorderen laag (inkopen) diensten 6%"
+msgstr "VAT receivable low (purchasing) services 6%"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_9_buy_d
+msgid "BTW te vorderen laag (inkopen) diensten 9%"
+msgstr "VAT receivable low (purchasing) services 9%"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_overig_buy
+msgid "BTW te vorderen overig (inkopen)"
+msgstr "VAT to be claimed other (purchases)"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_overig_buy_d
+msgid "BTW te vorderen overig (inkopen) diensten"
+msgstr "VAT to be claimed on other (purchasing) services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4630
+msgid "Bankkosten"
+msgstr "Bank charges"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4041
+msgid "Bedrijfskleding"
+msgstr "Working Clothes"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4120
+msgid "Belastingen onroerend goed"
+msgstr "Real estate taxes"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4426
+msgid "Belastingen overige vervoermiddelen"
+msgstr "Taxes on other modes of transport"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4416
+msgid "Belastingen personenauto's"
+msgstr "Passenger car taxes"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4406
+msgid "Belastingen vrachtauto's"
+msgstr "Taxes on trucks"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1350
+msgid "Betalingen onderweg"
+msgstr "Payments on the way"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7065
+msgid "Betalingskorting crediteuren"
+msgstr "Payment discount creditors"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4930
+msgid "Betalingsverschillen"
+msgstr "Payment differences"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4530
+msgid "Beurskosten"
+msgstr "Scholarship costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4006
+msgid "Bijdrage zorgverzekeringswet (SVW)"
+msgstr "Contribution health insurance law (SVW)"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4902
+msgid "Boekverlies vaste activa"
+msgstr "Book loss fixed assets"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4901
+msgid "Boekwinst vaste activa"
+msgstr "Book profit fixed assets"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4002
+msgid "Bonussen en provisies"
+msgstr "Bonuses and Commissions"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1210
+msgid "Borg"
+msgstr "Deposit"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4421
+msgid "Brandstof overige vervoermiddelen"
+msgstr "Fuel other means of transport"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4411
+msgid "Brandstof personenauto's"
+msgstr "Passenger car fuel"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4401
+msgid "Brandstof vrachtauto's"
+msgstr "Fuel trucks"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4001
+msgid "Bruto lonen"
+msgstr "Gross wages"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4305
+msgid "Contributies / abonnementen"
+msgstr "Contributions / subscriptions"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_pay
+msgid "Crediteuren"
+msgstr "Сreditors"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_recv
+msgid "Debiteuren"
+msgstr "Debtors"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_recv_pos
+msgid "Debiteuren (PoS)"
+msgstr "Debtors (PoS)"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0510
+msgid "Deelneming 1"
+msgstr "Participation 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0520
+msgid "Deelneming 2"
+msgstr "Participation 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0530
+msgid "Deelneming 3"
+msgstr "Participation 3"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7020
+msgid "Directe loonkosten"
+msgstr "Direct labor costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_8090
+msgid "Diverse overige opbrengsten"
+msgstr "Various other income"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4029
+msgid "Doorbelasting directe loonkosten"
+msgstr "Invoice direct wage costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1150
+msgid "Dubieuze debiteuren"
+msgstr "Bad debtors"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0720
+msgid "Egalisatiereserve groot onderhoud"
+msgstr "Equalization reserve for major maintenance"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_3310
+msgid "Emballage"
+msgstr "Packaging"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4130
+msgid "Energiekosten"
+msgstr "Energy costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4260
+msgid "Energiekosten machines / inventaris"
+msgstr "Energy costs for machines / inventory"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4535
+msgid "Etalagekosten"
+msgstr "Display costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7070
+msgid "Garantiekosten"
+msgstr "Warranty costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0760
+msgid "Garantieverplichtingen"
+msgstr "Warranty obligations"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4810
+msgid "Gebouwen / verbouwingen"
+msgstr "Buildings / alterations"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_3200
+msgid "Gereed product 1"
+msgstr "Finished product 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_3210
+msgid "Gereed product 2"
+msgstr "Finished product 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4240
+msgid "Gereedschappen"
+msgstr "Tools"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4805
+msgid "Goodwill"
+msgstr "Goodwill"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_3001
+msgid "Grondstoffen 1"
+msgstr "Commodities 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_3002
+msgid "Grondstoffen 2"
+msgstr "Commodities 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4111
+msgid "Groot onderhoud onroerend goed"
+msgstr "Major maintenance of real estate"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_3100
+msgid "Hulpstoffen 1"
+msgstr "Excipients 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_3110
+msgid "Hulpstoffen 2"
+msgstr "Excipients 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4210
+msgid "Huur inventaris"
+msgstr "Rent inventory"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4321
+msgid "Huur kantoorapparatuur"
+msgstr "Rent office equipment"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4201
+msgid "Huur machines"
+msgstr "Rent machines"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4110
+msgid "Huur onroerend goed"
+msgstr "Rent real estate"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4423
+msgid "Huur overige vervoermiddelen"
+msgstr "Rent other means of transport"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4413
+msgid "Huur personenauto's"
+msgstr "Rent passenger cars"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4403
+msgid "Huur vrachtauto's"
+msgstr "Rent trucks"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0811
+msgid "Hypotheken o/g 1"
+msgstr "Mortgages o/g 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0812
+msgid "Hypotheken o/g 2"
+msgstr "Mortgages o/g 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0813
+msgid "Hypotheken o/g 3"
+msgstr "Mortgages o/g 3"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0814
+msgid "Hypotheken o/g 4"
+msgstr "Mortgages o/g 4"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0815
+msgid "Hypotheken o/g 5"
+msgstr "Mortgages o/g 5"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0561
+msgid "Hypotheken u/g 1"
+msgstr "Mortgages u/g 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0562
+msgid "Hypotheken u/g 2"
+msgstr "Mortgages u/g 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0563
+msgid "Hypotheken u/g 3"
+msgstr "Mortgages u/g 3"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4021
+msgid "Ingeleend personeel"
+msgstr "Hired personnel"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7064
+msgid "Inkoopbonussen"
+msgstr "Purchase bonuses"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7060
+msgid "Inkoopkosten"
+msgstr "Purchasing costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7061
+msgid "Inkoopprovisie"
+msgstr "Purchasing commission"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_I_21
+msgid "Inkopen import binnen EU hoog"
+msgstr "Purchases of imports within the EU are high"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_I_21_d
+msgid "Inkopen import binnen EU hoog diensten"
+msgstr "Purchasing imports within EU high services"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_I_6
+msgid "Inkopen import binnen EU laag 6%"
+msgstr "Purchases of imports within the EU are low at 6%"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_I_9
+msgid "Inkopen import binnen EU laag 9%"
+msgstr "Purchases of imports within the EU are low at 9%"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_I_6_d
+msgid "Inkopen import binnen EU laag diensten 6%"
+msgstr "Purchases of imports within the EU low services 6%"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_I_9_d
+msgid "Inkopen import binnen EU laag diensten 9%"
+msgstr "Purchases of imports within the EU low services 9%"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_I_overig
+msgid "Inkopen import binnen EU overig"
+msgstr "Purchasing imports within the EU other"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_I_overig_d
+msgid "Inkopen import binnen EU overig diensten"
+msgstr "Purchasing imports within other EU services"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_E2
+msgid "Inkopen import buiten EU hoog"
+msgstr "Purchases of imports from outside the EU are high"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_E2_d
+msgid "Inkopen import buiten EU hoog diensten"
+msgstr "Purchases of imports from outside the EU are high services"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_E1
+msgid "Inkopen import buiten EU laag 6%"
+msgstr "Purchases of imports from outside the EU are low at 6%"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_E1_9
+msgid "Inkopen import buiten EU laag 9%"
+msgstr "Purchases of imports from outside the EU are low at 9%"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_E1_d
+msgid "Inkopen import buiten EU laag diensten 6%"
+msgstr "Purchases of imports from outside the EU low services 6%"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_E1_d_9
+msgid "Inkopen import buiten EU laag diensten 9%"
+msgstr "Purchases of imports from outside the EU low services 9%"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_E_overig
+msgid "Inkopen import buiten EU overig"
+msgstr "Purchases from imports outside the EU other"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_E_overig_d
+msgid "Inkopen import buiten EU overig diensten"
+msgstr "Purchasing imports from other EU services"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_X2
+msgid "Installatie/afstandsverkopen binnen EU"
+msgstr "Installation / distance sales within EU"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_8110
+msgid "Installatie/afstandsverkopen binnen EU handelsgoederen 1"
+msgstr "Installation / distance sales within EU trade goods 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_8120
+msgid "Installatie/afstandsverkopen binnen EU handelsgoederen 2"
+msgstr "Installation / distance sales within EU trade goods 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_8130
+msgid "Installatie/afstandsverkopen binnen EU handelsgoederen 3"
+msgstr "Installation / distance sales within EU trade goods 3"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_X3
+msgid "Installatie/afstandsverkopen buiten EU"
+msgstr "Installation / distance sales outside the EU"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1507
+msgid "Installatie/televerkoop binnen de EU"
+msgstr "Installation / telesales within the EU"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4340
+msgid "Internet / e-mail"
+msgstr "Internet / email"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4830
+msgid "Inventaris"
+msgstr "Inventory"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7063
+msgid "Invoerkosten"
+msgstr "Import costs"
+
+#. module: l10n_nl
+#: model:ir.model,name:l10n_nl.model_account_journal
+msgid "Journal"
+msgstr "Journal"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4610
+msgid "Juridische kosten"
+msgstr "Legal costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4040
+msgid "Kantinekosten"
+msgstr "Canteen costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4310
+msgid "Kantoorbenodigdheden"
+msgstr "Office equipment"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4940
+msgid "Kasverschillen"
+msgstr "Cash differences"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4250
+msgid "Kleine aanschaffingen"
+msgstr "Small purchases"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1532
+msgid "Kleine ondernemersregeling"
+msgstr "Small business scheme"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4910
+msgid "Kleine ondernemingsregeling Omzetbelasting"
+msgstr "Small business scheme Turnover tax"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4920
+#: model:account.account,name:l10n_nl.1_8920
+msgid "Koersverschillen"
+msgstr "Exchange rate differences"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7004
+msgid "Kostprijs Intercompany handelsgoederen 1"
+msgstr "Cost of intercompany trading goods 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7008
+msgid "Kostprijs Intercompany handelsgoederen 2"
+msgstr "Cost of intercompany trading goods 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7012
+msgid "Kostprijs Intercompany handelsgoederen 3"
+msgstr "Cost of intercompany trading goods 3"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7001
+msgid "Kostprijs NL handelsgoederen 1"
+msgstr "Cost of NL trading goods 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7005
+msgid "Kostprijs NL handelsgoederen 2"
+msgstr "Cost of NL trading goods 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7009
+msgid "Kostprijs NL handelsgoederen 3"
+msgstr "Cost of NL trading goods 3"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7002
+msgid "Kostprijs binnen EU handelsgoederen 1"
+msgstr "Cost within EU trade goods 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7006
+msgid "Kostprijs binnen EU handelsgoederen 2"
+msgstr "Cost within EU trade goods 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7010
+msgid "Kostprijs binnen EU handelsgoederen 3"
+msgstr "Cost within EU trade goods 3"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7003
+msgid "Kostprijs buiten EU handelsgoederen 1"
+msgstr "Cost price outside EU trade goods 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7007
+msgid "Kostprijs buiten EU handelsgoederen 2"
+msgstr "Cost price outside EU trade goods 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7011
+msgid "Kostprijs buiten EU handelsgoederen 3"
+msgstr "Cost price outside EU trade goods 3"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7040
+msgid "Kostprijs werk derden"
+msgstr "Cost of work for third parties"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4560
+msgid "Kredietbeperking debiteuren"
+msgstr "Credit restriction on debtors"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0740
+msgid "Latente belastingverplichting"
+msgstr "Deferred tax liability"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4211
+msgid "Lease inventaris (operational lease)"
+msgstr "Lease inventory (operational lease)"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4322
+msgid "Lease kantoorinventaris (operational lease)"
+msgstr "Lease office inventory (operational lease)"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4202
+msgid "Lease machines (operational lease)"
+msgstr "Lease machines (operational lease)"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4424
+msgid "Lease overige vervoermiddelen (operational lease)"
+msgstr "Lease other means of transport (operational lease)"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4414
+msgid "Lease personenauto's (operational lease)"
+msgstr "Lease passenger cars (operational lease)"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4404
+msgid "Lease vrachtauto's (operational lease)"
+msgstr "Lease trucks (operational lease)"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0821
+msgid "Leningen o/g 1"
+msgstr "Loans o / g 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0822
+msgid "Leningen o/g 2"
+msgstr "Loans o / g 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0823
+msgid "Leningen o/g 3"
+msgstr "Loans o / g 3"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0824
+msgid "Leningen o/g 4"
+msgstr "Loans o / g 4"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0825
+msgid "Leningen o/g 5"
+msgstr "Loans o / g 5"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0565
+msgid "Leningen u/g 1"
+msgstr "Loans u / g 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0566
+msgid "Leningen u/g 2"
+msgstr "Loans u / g 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0567
+msgid "Leningen u/g 3"
+msgstr "Loans u / g 3"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_l10nnl_chart_template_liquidity_transfer
+msgid "Liquidity Transfer"
+msgstr "Liquidity Transfer"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1630
+msgid "Loonheffing"
+msgstr "Income tax"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4820
+msgid "Machines"
+msgstr "Machines"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4020
+msgid "Managementvergoedingen"
+msgstr "Management fees"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4280
+msgid "Milieukosten"
+msgstr "Environmental costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7071
+msgid "Mutatie garantieverplichting"
+msgstr "Change in warranty obligation"
+
+#. module: l10n_nl
+#: model:ir.ui.menu,name:l10n_nl.account_reports_nl_statements_menu
+msgid "Netherlands"
+msgstr "Netherlands"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1620
+msgid "Netto lonen"
+msgstr "Net wages"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1450
+msgid "Nog te ontvangen facturen"
+msgstr "Invoices to be received"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_8004
+msgid "Omzet Intercompany handelsgoederen 1"
+msgstr "Intercompany trade goods turnover 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_8014
+msgid "Omzet Intercompany handelsgoederen 2"
+msgstr "Intercompany trade goods turnover 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_8024
+msgid "Omzet Intercompany handelsgoederen 3"
+msgstr "Intercompany trade goods turnover 3"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_8044
+msgid "Omzet Intercompany werk derden"
+msgstr "Turnover Intercompany work third parties"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_8001
+msgid "Omzet NL handelsgoederen 1"
+msgstr "Turnover Dutch trading goods 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_8011
+msgid "Omzet NL handelsgoederen 2"
+msgstr "Turnover Dutch trading goods 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_8021
+msgid "Omzet NL handelsgoederen 3"
+msgstr "Turnover Dutch trading goods 3"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_8041
+msgid "Omzet NL werk derden"
+msgstr "Turnover NL work third parties"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_8002
+msgid "Omzet binnen EU handelsgoederen 1"
+msgstr "Turnover within EU trade goods 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_8012
+msgid "Omzet binnen EU handelsgoederen 2"
+msgstr "Turnover within EU trade goods 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_8022
+msgid "Omzet binnen EU handelsgoederen 3"
+msgstr "Turnover within EU trade goods 3"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_8042
+msgid "Omzet binnen EU werk derden"
+msgstr "Turnover within the EU employs third parties"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_8003
+msgid "Omzet buiten EU handelsgoederen 1"
+msgstr "Turnover outside EU trade goods 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_8013
+msgid "Omzet buiten EU handelsgoederen 2"
+msgstr "Turnover outside EU trade goods 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_8023
+msgid "Omzet buiten EU handelsgoederen 3"
+msgstr "Turnover outside EU trade goods 3"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_8043
+msgid "Omzet buiten EU werk derden"
+msgstr "Turnover outside EU work third parties"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4230
+msgid "Onderhoud inventaris"
+msgstr "Maintenance inventory"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4320
+msgid "Onderhoud kantoorinventaris"
+msgstr "Maintenance office inventory"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4220
+msgid "Onderhoud machines"
+msgstr "Maintenance machines"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4112
+msgid "Onderhoud onroerend goed"
+msgstr "Real estate maintenance"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4422
+msgid "Onderhoud overige vervoermiddelen"
+msgstr "Maintenance of other means of transport"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4412
+msgid "Onderhoud personenauto's"
+msgstr "Maintenance of passenger cars"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4402
+msgid "Onderhoud vrachtauto's"
+msgstr "Maintenance of trucks"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4690
+msgid "Overige algemene kosten"
+msgstr "Other general costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4950
+msgid "Overige baten"
+msgstr "Other income"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4970
+msgid "Overige baten voorgaande jaren"
+msgstr "Other income in previous years"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4290
+msgid "Overige bedrijfskosten"
+msgstr "Other operating expenses"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4190
+msgid "Overige huisvestingskosten"
+msgstr "Other housing costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4390
+msgid "Overige kantoorkosten"
+msgstr "Other office expenses"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1490
+msgid "Overige kortlopende schulden"
+msgstr "Other current liabilities"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1290
+msgid "Overige kortlopende vorderingen"
+msgstr "Other current receivables"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4419
+msgid "Overige kosten personenauto's"
+msgstr "Other costs for passenger cars"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4408
+msgid "Overige kosten vrachtauto's"
+msgstr "Other costs for trucks"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4960
+msgid "Overige lasten"
+msgstr "Other expenses"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4980
+msgid "Overige lasten voorgaande jaren"
+msgstr "Other expenses in previous years"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4428
+msgid "Overige overige vervoermiddelen"
+msgstr "Other means of transport"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4090
+msgid "Overige personeelskosten"
+msgstr "Other personnel costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4042
+msgid "Overige reiskosten"
+msgstr "Other travel expenses"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4795
+msgid "Overige rentebaten"
+msgstr "Other interest income"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4790
+msgid "Overige rentelasten"
+msgstr "Other interest expense"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0650
+msgid "Overige reserves"
+msgstr "Other reserves"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4590
+msgid "Overige verkoopkosten"
+msgstr "Other sales costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4490
+msgid "Overige vervoerskosten"
+msgstr "Other transport costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0750
+msgid "Overige voorzieningen"
+msgstr "Other provisions"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1610
+msgid "Pensioenpremies"
+msgstr "Pension contributions"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4350
+msgid "Porti"
+msgstr "Porti"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4418
+msgid "Privégebruik personenauto's"
+msgstr "Private use of passenger cars"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7030
+msgid "Produktiekosten"
+msgstr "Production costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4520
+msgid "Reclamekosten"
+msgstr "Advertising costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4510
+msgid "Reis- en verblijfkosten"
+msgstr "Travel and accommodation"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4024
+msgid "Reiskosten ingeleend personeel"
+msgstr "Travel costs for hired personnel"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4505
+msgid "Relatiegeschenken"
+msgstr "Business gifts"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4705
+msgid "Rente hypotheek"
+msgstr "Interest mortgage"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4710
+msgid "Rente lening"
+msgstr "Interest loan"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4720
+msgid "Rente rekening-courant bank"
+msgstr "Interest current account bank"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_9150
+msgid "Reorganisatiekosten"
+msgstr "Reorganization costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4515
+msgid "Representatiekosten"
+msgstr "Representation costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_9011
+msgid "Resultaat deelneming 1"
+msgstr "Result from participation 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_9012
+msgid "Resultaat deelneming 2"
+msgstr "Result from participation 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_9013
+msgid "Resultaat deelneming 3"
+msgstr "Result from participation 3"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4140
+msgid "Schoonmaakkosten"
+msgstr "Cleaning costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1599
+msgid "Schuld omzetbelasting (einde boekjaar)"
+msgstr "Sales tax debt (end of financial year)"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4045
+msgid "Studie- en opleidingskosten"
+msgstr "Study and training costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1560
+msgid "Suppletie omzetbelasting"
+msgstr "Sales tax supplement"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4004
+msgid "Tantièmes"
+msgstr "Bonuses"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1460
+msgid "Te betalen VPB"
+msgstr "VPB to be paid"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1470
+msgid "Te betalen VPB voorgaande jaren"
+msgstr "VPB to be paid in previous years"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1430
+msgid "Te betalen accountantskosten"
+msgstr "Auditor's fees to be paid"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1420
+msgid "Te betalen dividend"
+msgstr "Dividend to be paid"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1480
+msgid "Te betalen dividendbelasting"
+msgstr "Dividend tax to be paid"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1625
+msgid "Te betalen netto lonen"
+msgstr "Net wages to be paid"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1410
+msgid "Te betalen rente"
+msgstr "Interest payable"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1440
+msgid "Te betalen telefoonkosten"
+msgstr "Telephone costs to be paid"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1640
+msgid "Te betalen vakantiedagen"
+msgstr "Holidays to be paid"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1650
+msgid "Te betalen vakantiegeld"
+msgstr "Holiday pay payable"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1220
+msgid "Te ontvangen rente"
+msgstr "Interest to be received"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1230
+msgid "Te ontvangen ziekengeld"
+msgstr "Sickness benefits to be received"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4330
+msgid "Telefoon / telefax"
+msgstr "Telephone / telefax"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4113
+msgid "Toevoeging egalisatiereserve Groot onderhoud"
+msgstr "Addition of equalization reserve Major maintenance"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_2010
+msgid "Tussenrekening beginbalans"
+msgstr "Opening account opening balance"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4003
+msgid "Vakantietoeslag"
+msgstr "Holiday bonus"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_9900
+msgid "Vennootschapsbelasting"
+msgstr "Corporation tax"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_9950
+msgid "Vennootschapsbelasting voorgaande jaren"
+msgstr "Corporate tax previous years"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4019
+msgid "Vergoeding overige kosten"
+msgstr "Reimbursement of other costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4018
+msgid "Vergoeding overige reiskosten"
+msgstr "Reimbursement of other travel expenses"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4017
+msgid "Vergoeding studiekosten"
+msgstr "Study costs reimbursement"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4016
+msgid "Vergoeding woon- werkverkeer"
+msgstr "Commuting allowance"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_X0_diensten
+msgid "Verkopen export binnen EU (diensten)"
+msgstr "Sales of exports within the EU (services)"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_X0_producten
+msgid "Verkopen export binnen EU (producten)"
+msgstr "Sales of exports within the EU (products)"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_X1
+msgid "Verkopen export buiten EU"
+msgstr "Selling exports outside the EU"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_21
+msgid "Verkopen/omzet hoog"
+msgstr "Sales / turnover high"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_21_d
+msgid "Verkopen/omzet hoog diensten"
+msgstr "Sales / turnover high services"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_6
+msgid "Verkopen/omzet laag 6%"
+msgstr "Sales / turnover low 6%"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_9
+msgid "Verkopen/omzet laag 9%"
+msgstr "Sales / turnover low 9%"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_6_d
+msgid "Verkopen/omzet laag diensten 6%"
+msgstr "Sales / turnover low services 6%"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_9_d
+msgid "Verkopen/omzet laag diensten 9%"
+msgstr "Sales / turnover low services 9%"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_0
+msgid "Verkopen/omzet onbelast (nul-tarief)"
+msgstr "Sales / turnover tax-free (zero rate)"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_0_d
+msgid "Verkopen/omzet onbelast (nul-tarief) diensten"
+msgstr "Sales / turnover tax-free (zero-rate) services"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_overig
+msgid "Verkopen/omzet overig"
+msgstr "Sales / turnover other"
+
+#. module: l10n_nl
+#: model:account.tax,name:l10n_nl.1_btw_overig_d
+msgid "Verkopen/omzet overig diensten"
+msgstr "Sales / turnover other services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_3300
+msgid "Verpakkingsmateriaal"
+msgstr "Packing material"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4840
+msgid "Vervoermiddelen"
+msgstr "Means of transport"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_h
+msgid "Voorbelasting hoog"
+msgstr "Preload high"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_h_eu
+msgid "Voorbelasting hoog binnen de EU"
+msgstr "High input tax within the EU"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_h_d_eu
+msgid "Voorbelasting hoog binnen de EU diensten"
+msgstr "Pre-tax high within the EU services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_h_non_eu
+msgid "Voorbelasting hoog buiten EU"
+msgstr "High input tax outside the EU"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_h_d_non_eu
+msgid "Voorbelasting hoog buiten EU diensten"
+msgstr "High input tax outside EU services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_h_d
+msgid "Voorbelasting hoog diensten"
+msgstr "High input tax on services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_l
+msgid "Voorbelasting laag"
+msgstr "Preload low"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_l_eu
+msgid "Voorbelasting laag binnen de EU"
+msgstr "Pre-tax low within the EU"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_l_d_eu
+msgid "Voorbelasting laag binnen de EU diensten"
+msgstr "Pre-tax low within the EU services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_l_non_eu
+msgid "Voorbelasting laag buiten EU"
+msgstr "Pre-tax low outside the EU"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_l_d_non_eu
+msgid "Voorbelasting laag buiten EU diensten"
+msgstr "Pre-tax low outside EU services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_l_d
+msgid "Voorbelasting laag diensten"
+msgstr "Pre-tax low services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_0
+msgid "Voorbelasting overige"
+msgstr "Pre-tax other"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_0_eu
+msgid "Voorbelasting overige binnen de EU"
+msgstr "Other input tax within the EU"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_0_d_eu
+msgid "Voorbelasting overige binnen de EU diensten"
+msgstr "Pre-tax other intra-EU services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_0_non_eu
+msgid "Voorbelasting overige buiten EU"
+msgstr "Pre-tax other outside EU"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_0_d_non_eu
+msgid "Voorbelasting overige buiten EU diensten"
+msgstr "Pre-tax other non-EU services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_0_d
+msgid "Voorbelasting overige diensten"
+msgstr "Pre-tax other services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_v
+msgid "Voorbelasting verlegd"
+msgstr "Preload shifted"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_v_eu
+msgid "Voorbelasting verlegd binnen de EU"
+msgstr "Input tax charged within the EU"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_v_d_eu
+msgid "Voorbelasting verlegd binnen de EU diensten"
+msgstr "Input tax charged within the EU services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_v_non_eu
+msgid "Voorbelasting verlegd buiten EU"
+msgstr "Input tax shifted outside the EU"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_v_d_non_eu
+msgid "Voorbelasting verlegd buiten EU diensten"
+msgstr "Input tax shifted outside EU services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_vat_refund_v_d
+msgid "Voorbelasting verlegd diensten"
+msgstr "Pre-tax shifted services"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1621
+msgid "Voorschot loon"
+msgstr "Advance wage"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1405
+msgid "Vooruit ontvangen bedragen"
+msgstr "Deferred income"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1205
+msgid "Vooruitbetaalde kosten"
+msgstr "Costs paid up front"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0730
+msgid "Voorziening deelnemingen"
+msgstr "Provision for participating interests"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1160
+msgid "Voorziening dubieuze debiteuren"
+msgstr "Provision for bad debts"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7050
+msgid "Voorziening incourante voorraad grondstof"
+msgstr "Provision obsolete stock of raw material"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7052
+msgid "Voorziening incourante voorraad handelsgoederen"
+msgstr "Provision for obsolete stock of trading goods"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_7051
+msgid "Voorziening incourante voorraad hulpstof"
+msgstr "Provision obsolete stock of consumables"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0710
+msgid "Voorziening pensioenverplichtingen"
+msgstr "Pension obligations provision"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4015
+msgid "Voorziening vakantiedagen"
+msgstr "Holiday allowance"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0551
+msgid "Vorderingen op deelneming 1"
+msgstr "Receivables from participating interests 1"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0552
+msgid "Vorderingen op deelneming 2"
+msgstr "Receivables from participating interests 2"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0553
+msgid "Vorderingen op deelneming 3"
+msgstr "Receivables from participating interests 3"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_1040
+msgid "Vraagposten"
+msgstr "Question items"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4570
+#: model:account.account,name:l10n_nl.1_7062
+msgid "Vrachtkosten"
+msgstr "Freight costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0570
+msgid "Waarborgsommen"
+msgstr "Deposits"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4540
+msgid "Websitekosten"
+msgstr "Website costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4010
+msgid "Werkgeversdeel loonheffingen"
+msgstr "Employer's payroll taxes"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4011
+msgid "Werkgeversdeel pensioenen"
+msgstr "Employer's share of pensions"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4012
+msgid "Werkgeversdeel sociale lasten"
+msgstr "Employer's social security contributions"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4022
+msgid "Werkkostenregeling (WKR max 1.2% brutoloon)"
+msgstr "Work costs scheme (WKR max 1.2% gross wages)"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4005
+msgid "Werknemersbijdrage auto"
+msgstr "Employee contribution car"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4044
+msgid "Wervingskosten personeel"
+msgstr "Staff recruitment costs"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_0620
+msgid "Wettelijke reserves"
+msgstr "Lawful reserves"
+
+#. module: l10n_nl
+#: model:account.account,name:l10n_nl.1_4030
+msgid "Ziekteverzuimverzekering"
+msgstr "Sickness absence insurance"
