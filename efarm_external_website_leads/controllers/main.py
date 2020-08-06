@@ -14,7 +14,11 @@ class Main(Controller):
            methods=['POST'], cors='*', csrf=False)
     def create_lead(self, **kwargs):
         '''Send here the request data for the origin server to create a new lead.'''
-        referrer = request.httprequest and request.httprequest.referrer
+        referrer = kwargs.get('referrer')
+
+        if not referrer:
+            referrer = request.httprequest and request.httprequest.referrer
+
         if referrer:
             url = urlparse(referrer)
             referrer = url._replace(query='', fragment='').geturl()
