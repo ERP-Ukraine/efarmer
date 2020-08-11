@@ -24,8 +24,7 @@ Form ID is an alphanumeric. You can find it in the hidden atribute of the target
 
 The form ID is `w8b8l1b1` here.
 
-The referrer is a path to your form. Just open a page with the form
-and copy the url (without params and hash) e.g.: `https://www.example.com/form1/`.
+The referrer is a path to your form: host + path. E.g.: `www.example.com/form1/`.
 
 ACL
 ===

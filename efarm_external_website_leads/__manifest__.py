@@ -19,6 +19,7 @@
         'web',
         'crm',
         'sales_team',
+        'utm_extended',
     ],
 
     'data': [

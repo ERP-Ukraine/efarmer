@@ -1,5 +1,5 @@
 import werkzeug
-from odoo import fields, models
+from odoo import fields, models, SUPERUSER_ID
 
 FIELDS_SEPARATOR = '\n'
 
@@ -16,9 +16,11 @@ class ExternalWebsiteForm(models.Model):
     field_ids = fields.One2many('external.website.form.field', 'form_id', 'Field Mapping')
     tag_ids = fields.One2many('external.website.form.tag', 'form_id', 'Tag Mapping')
 
-    def create_lead(self, vals):
+    def create_lead(self, vals, kw_query):
         self.ensure_one()
         assert isinstance(vals, werkzeug.ImmutableOrderedMultiDict)
+        assert isinstance(kw_query, dict)
+        model = self.env['crm.lead'].with_context(mail_create_nosubscribe=True)
         creation_values = {'type': 'lead'}
 
         for field in self.field_ids:
@@ -38,6 +40,25 @@ class ExternalWebsiteForm(models.Model):
             if tag.website_value in values:
                 tags |= tag.tag_id
 
+        for param, field_name, __ in self.env['utm.mixin'].tracking_fields():
+            param_value = kw_query.get(param)
+            if param_value:
+                param_value = param_value[0].strip()  # parse_qs provides for multiple values of a key
+                res_model = getattr(model, field_name)
+
+                res_record = res_model.search([('name', '=', param_value)], limit=1)
+                if res_record:
+                    creation_values[field_name] = res_record.id
+                else:
+                    param_create_vals = {'name': param_value}
+                    # utm.campaign is more complicated than just label
+                    # and it has the necessary `user_id` field
+                    if field_name == 'campaign_id':
+                        param_create_vals['user_id'] = SUPERUSER_ID
+
+                    res_record = res_model.create(param_create_vals)
+                    creation_values[field_name] = res_record.id
+
         if tags:
             creation_values['tag_ids'] = [(6, 0, tags.ids)]
 
@@ -47,7 +68,6 @@ class ExternalWebsiteForm(models.Model):
         if self.team_id:
             creation_values['team_id'] = self.team_id.id
 
-        model = self.env['crm.lead'].with_context(mail_create_nosubscribe=True)
         return model.create(creation_values)
 
 
