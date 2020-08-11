@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+
+<record id="extended_utm_on_sale_order_form_view" model="ir.ui.view">
+    <field name="name">show UTM term and content parameters on the SO form view</field>
+    <field name="model">sale.order</field>
+    <field name="inherit_id" ref="sale.view_order_form"/>
+    <field name="arch" type="xml">
+        <xpath expr="//field[@name='source_id']" position="after">
+            <field name="utm_term_id"/>
+            <field name="utm_content_id"/>
+        </xpath>
+    </field>
+</record>
+
+</odoo>

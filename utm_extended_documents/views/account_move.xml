@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+
+<record id="extended_utm_on_account_move_form_view" model="ir.ui.view">
+    <field name="name">show UTM term and content parameters on the invoice form view</field>
+    <field name="model">account.move</field>
+    <field name="inherit_id" ref="sale.account_invoice_form"/>
+    <field name="arch" type="xml">
+        <xpath expr="//group[@name='utm_link']" position="inside">
+            <field name="utm_term_id"/>
+            <field name="utm_content_id"/>
+        </xpath>
+    </field>
+</record>
+
+</odoo>

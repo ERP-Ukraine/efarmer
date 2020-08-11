@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+
+<record id="extended_utm_on_lead_form_view" model="ir.ui.view">
+    <field name="name">show UTM term and content parameters on the lead form view</field>
+    <field name="model">crm.lead</field>
+    <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+    <field name="arch" type="xml">
+        <!-- show on Extra Info page (invisible for opportunities) -->
+        <xpath expr="(//field[@name='source_id'])[1]" position="after">
+            <field name="utm_term_id"/>
+            <field name="utm_content_id"/>
+        </xpath>
+        <!-- show on Follow-up page (invisible for leads) -->
+        <xpath expr="(//field[@name='source_id'])[2]" position="after">
+            <field name="utm_term_id"/>
+            <field name="utm_content_id"/>
+        </xpath>
+    </field>
+</record>
+
+</odoo>
