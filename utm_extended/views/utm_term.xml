@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+
+    <record id="utm_term_tree_view" model="ir.ui.view">
+        <field name="name">utm.term tree view</field>
+        <field name="model">utm.term</field>
+        <field name="arch" type="xml">
+            <tree string="Terms" editable="bottom">
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="utm_term_form_view" model="ir.ui.view">
+        <field name="name">utm.term form view</field>
+        <field name="model">utm.term</field>
+        <field name="arch" type="xml">
+            <form string="Term">
+                <sheet>
+                    <group name="base">
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="utm_term_action" model="ir.actions.act_window">
+        <field name="name">Terms</field>
+        <field name="res_model">utm.term</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_utm_term"
+        action="utm_term_action"
+        parent="utm.marketing_utm"
+        sequence="5"
+        groups="base.group_no_one"/>
+
+</odoo>
