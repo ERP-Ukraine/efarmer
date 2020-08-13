@@ -3,7 +3,10 @@
 
 <template id="report_commercial_invoice_document" inherit_id="sale.report_saleorder_document" primary="True">
     <xpath expr="//div[hasclass('page')]/h2" position="replace">
-        <h2>Сommercial Invoice</h2>
+        <h2>
+            <span>Сommercial Invoice # </span>
+            <span t-field="doc.name"/>
+        </h2>
     </xpath>
 </template>
 
