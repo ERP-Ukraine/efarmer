@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+
+<template id="report_commercial_invoice_document" inherit_id="sale.report_saleorder_document" primary="True">
+    <xpath expr="//div[hasclass('page')]/h2" position="replace">
+        <h2>Сommercial Invoice</h2>
+    </xpath>
+</template>
+
+<template id="report_commercial_invoice">
+    <t t-call="web.html_container">
+        <t t-set="is_pro_forma" t-value="True"/>
+        <t t-foreach="docs" t-as="doc">
+            <t t-call="efarmer_sale_workflow.report_commercial_invoice_document"
+                t-lang="doc.partner_id.lang"/>
+        </t>
+    </t>
+</template>
+
+<report
+    id="action_report_commercial_invoice"
+    string="Сommercial Invoice"
+    model="sale.order"
+    report_type="qweb-pdf"
+    file="efarmer_sale_workflow.report_commercial_invoice"
+    name="efarmer_sale_workflow.report_commercial_invoice"
+    print_report_name="'Сommercial Invoice - %s' % (object.name)"
+    />
+
+</odoo>
