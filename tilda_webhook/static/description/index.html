@@ -8,13 +8,27 @@
 <h3>Setup</h3>
 <p>
     Read <a href="https://help-ru.tilda.ws/formswebhook" target="_blank">Tilda manual</a>
-    to set up webhook on your website. There is no special settings on the Odoo side.
+    to set up webhook on your website.
 </p>
+<p>
+    There is a special security group for Tilda administators in Odoo. It's called <b>Manage Tilda Websites</b>.
+    Only its members can edit tilda website settings.
+</p>
+<p>For all your websites you should do the following:</p>
+<ol>
+    <li>Go to <b>CRM / Configuration / Tilda Websites</b>.</li>
+    <li>Set website host. You could see it on webhook settings page too.</li>
+    <li>
+        Map field names from Tilda forms to Odoo fields. You can find Tilda field name into
+        <b>Content / Input Fields / Variable Name</b> of the form settings.
+    </li>
+</ol>
+
 
 <br>
 <ul>
     <li>
-        You should set <b>Посылать UTM</b> and <b>Передавать данные по товарам в заказе - массивом</b>
+        You should set <b>Send UTM</b> and <b>Transfer data for goods in the order - as array</b>
         on the webhook settings page.
     </li>
     <li>Don't forget to set webhook reception service on the required forms.</li>
