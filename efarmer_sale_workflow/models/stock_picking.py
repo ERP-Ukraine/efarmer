@@ -9,3 +9,9 @@ class StockPicking(models.Model):
         string='Sale Status',
         readonly=False,
     )
+    opportunity_stage_id = fields.Many2one(
+        comodel_name='crm.stage',
+        string='Opportunity Stage',
+        related='sale_id.opportunity_id.stage_id',
+        readonly=False,
+    )
