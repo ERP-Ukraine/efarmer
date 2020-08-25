@@ -1,3 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_tilda_website,access_tilda_website,model_tilda_website,tilda_webhook.tilda_website_group_admin,1,1,1,1
-access_tilda_website_field,access_tilda_website_field,model_tilda_website_field,tilda_webhook.tilda_website_group_admin,1,1,1,1
