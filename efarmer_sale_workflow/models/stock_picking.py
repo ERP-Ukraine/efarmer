@@ -15,3 +15,11 @@ class StockPicking(models.Model):
         related='sale_id.opportunity_id.stage_id',
         readonly=False,
     )
+
+    def action_done(self):
+        res = super().action_done()
+        # THERE IS COSTYL' (FIXME)
+        # In case of backorder creation (at least)
+        # the original picking isn't recompute his state.
+        self._compute_state()
+        return res
