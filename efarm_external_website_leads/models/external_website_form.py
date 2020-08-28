@@ -19,7 +19,7 @@ class ExternalWebsiteForm(models.Model):
     def create_lead(self, vals, referrer):
         self.ensure_one()
         assert isinstance(vals, werkzeug.ImmutableOrderedMultiDict)
-        assert isinstance(kw_query, dict)
+        assert isinstance(referrer, str)
         model = self.env['crm.lead'].with_context(mail_create_nosubscribe=True)
         creation_values = {'type': 'lead', 'referred': referrer}
 
