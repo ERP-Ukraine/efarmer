@@ -16,12 +16,12 @@ class ExternalWebsiteForm(models.Model):
     field_ids = fields.One2many('external.website.form.field', 'form_id', 'Field Mapping')
     tag_ids = fields.One2many('external.website.form.tag', 'form_id', 'Tag Mapping')
 
-    def create_lead(self, vals, kw_query):
+    def create_lead(self, vals, referrer):
         self.ensure_one()
         assert isinstance(vals, werkzeug.ImmutableOrderedMultiDict)
         assert isinstance(kw_query, dict)
         model = self.env['crm.lead'].with_context(mail_create_nosubscribe=True)
-        creation_values = {'type': 'lead'}
+        creation_values = {'type': 'lead', 'referred': referrer}
 
         for field in self.field_ids:
             value = vals.get(field.website_field)
@@ -41,9 +41,9 @@ class ExternalWebsiteForm(models.Model):
                 tags |= tag.tag_id
 
         for param, field_name, __ in self.env['utm.mixin'].tracking_fields():
-            param_value = kw_query.get(param)
+            param_value = vals.get(param)
             if param_value:
-                param_value = param_value[0].strip()  # parse_qs provides for multiple values of a key
+                param_value = param_value.strip()
                 res_model = getattr(model, field_name)
 
                 res_record = res_model.search([('name', '=', param_value)], limit=1)

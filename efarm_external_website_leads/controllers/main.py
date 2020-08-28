@@ -19,10 +19,8 @@ class Main(Controller):
         if not referrer:
             referrer = request.httprequest and request.httprequest.referrer
 
-        kw_query = {}
         if referrer:
             url = urlparse(unquote(referrer))
-            kw_query = parse_qs(url.query)
             referrer = url.netloc + url.path
         else:
             _logger.error('No referrer. Kwargs: %s', kwargs)
@@ -42,7 +40,7 @@ class Main(Controller):
                 # Example form data: 'mark=1&mark=2'
                 # `kwargs` will contain `{'mark': '1'}`
                 # `request.httprequest.form.getlist('mark')` returns `['1', '2']`
-                lead = form.create_lead(request.httprequest.form, kw_query)
+                lead = form.create_lead(request.httprequest.form, referrer)
                 _logger.debug('A new lead was created with id=%s.', lead.id)
             else:
                 _logger.error('No form record. Referrer: %s. Kwargs: %s', referrer, kwargs)
