@@ -10,12 +10,9 @@ class ServerActions(models.Model):
     _name = 'ir.actions.server'
     _inherit = ['ir.actions.server']
 
-    def _get_default_activity_record(self):
-        return '[]'
-
     activity_record = fields.Char(
         string='Activity Record',
-        default=_get_default_activity_record,
+        default='[]',
         help='You should set the one tuple and only the first element is important.',
     )
 
@@ -29,7 +26,7 @@ class ServerActions(models.Model):
 
         # [CHANGE] check activity_record field to be able to set an activity for another model
         activity_record = action.activity_record and action.activity_record.strip()
-        if activity_record and activity_record != self._get_default_activity_record():
+        if activity_record and activity_record != '[]':
             try:
                 found = re.search('\[\["(.+?)"', activity_record)
                 if found:
