@@ -36,7 +36,7 @@ class ExternalWebsiteForm(models.Model):
 
         tags = self.form_tag_ids
         for tag in self.tag_ids:
-            values = vals.getlist(tag.website_field)
+            values = [x.strip() for x in vals.getlist(tag.website_field)]
             if tag.website_value in values:
                 tags |= tag.tag_id
 
