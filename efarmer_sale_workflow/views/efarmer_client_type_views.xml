@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<record id="efarmer_client_type_view_tree" model="ir.ui.view">
+    <field name="name">efarmer.client.type.view.tree</field>
+    <field name="model">efarmer.client.type</field>
+    <field name="arch" type="xml">
+        <tree string="Client Types" editable="bottom">
+            <field name="name"/>
+        </tree>
+    </field>
+</record>
+
+<record id="efarmer_client_type_action" model="ir.actions.act_window">
+    <field name="name">Client Types</field>
+    <field name="res_model">efarmer.client.type</field>
+    <field name="view_mode">tree</field>
+</record>
+
+</odoo>
