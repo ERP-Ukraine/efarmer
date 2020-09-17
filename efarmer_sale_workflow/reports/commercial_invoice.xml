@@ -8,6 +8,7 @@
             <span t-field="doc.name"/>
         </h2>
     </xpath>
+    <xpath expr="//p[@t-if='doc.payment_term_id.note']" position="replace"/>
 </template>
 
 <template id="report_commercial_invoice">
