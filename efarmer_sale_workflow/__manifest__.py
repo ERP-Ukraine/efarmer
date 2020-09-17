@@ -20,6 +20,7 @@
         'web',
         'mail',
         'sale',
+        'stock',
         'sale_crm',
         'sale_stock',
         'sales_team',
@@ -28,6 +29,7 @@
     'data': [
         'security/ir.model.access.csv',
         'reports/commercial_invoice.xml',
+        'reports/stock_picking_templates.xml',
         'views/ir_actions_server_views.xml',
         'views/res_partner_views.xml',
         'views/efarmer_client_type_views.xml',

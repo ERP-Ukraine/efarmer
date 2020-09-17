@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+
+<template id="report_delivery_document" inherit_id="stock.report_delivery_document">
+    <xpath expr="//div[@t-esc='partner']" position="after">
+        <div t-if="partner.email" t-field="partner.email"/>
+    </xpath>
+</template>
+
+</odoo>
