@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="mail_message_menu_conv_history_lead"
+        action="mail_message_action_conv_history_lead"
+        parent="crm.crm_menu_config"
+        name="Conversations History"/>
+
+    <menuitem id="mail_message_menu_conv_history_ticket"
+        action="mail_message_action_conv_history_ticket"
+        parent="helpdesk.helpdesk_menu_config"
+        name="Conversations History"/>
+
+</odoo>

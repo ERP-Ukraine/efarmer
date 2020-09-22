@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="mail_message_view_tree_conv_history" model="ir.ui.view">
+        <field name="name">mail.message.view.tree.conv.history</field>
+        <field name="model">mail.message</field>
+        <field name="arch" type="xml">
+            <tree string="Conversations History" create="false" edit="false" delete="false">
+                <field name="author_id"/>
+                <field name="body"/>
+                <button type="object" name="action_open_conv_doc" icon="fa-external-link"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="mail_message_view_form_conv_history" model="ir.ui.view">
+        <field name="name">mail.message.view.form.conv.history</field>
+        <field name="model">mail.message</field>
+        <field name="arch" type="xml">
+            <form string="Conversation History" create="false" edit="false" delete="false">
+                <sheet>
+                    <group name="base">
+                        <field name="author_id" readonly="1"/>
+                        <field name="lead_id" attrs="{'invisible': [('lead_id', '=', False)]}"/>
+                        <field name="ticket_id" attrs="{'invisible': [('ticket_id', '=', False)]}"/>
+                    </group>
+                    <field name="body" readonly="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="mail_message_search_form_conv_history" model="ir.ui.view">
+        <field name="name">mail.message.search.form.conv.history</field>
+        <field name="model">mail.message</field>
+        <field name="arch" type="xml">
+            <search string="Search in history">
+                <field name="body" string="Content" filter_domain="['|', ('subject', 'ilike', self), ('body', 'ilike', self)]" />
+                <field name="author_id"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="mail_message_action_conv_history_lead" model="ir.actions.server">
+        <field name="name">Conversations History</field>
+        <field name="model_id" ref="mail.model_mail_message"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_open_conv_history('crm.lead')</field>
+    </record>
+
+    <record id="mail_message_action_conv_history_ticket" model="ir.actions.server">
+        <field name="name">Conversations History</field>
+        <field name="model_id" ref="mail.model_mail_message"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_open_conv_history('helpdesk.ticket')</field>
+    </record>
+
+</odoo>
