@@ -31,7 +31,7 @@ class MailMessage(models.Model):
 
         domain = [
             '|',
-            ('message_type', '=', 'comment'), ('subtype_id', 'in', (discussions.id, note.id)),
+            '&', ('message_type', '=', 'comment'), ('subtype_id', 'in', (discussions.id, note.id)),
             ('message_type', '=', 'email'),
             ('model', '=', model_tech_name),
         ]
