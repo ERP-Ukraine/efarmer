@@ -55,4 +55,18 @@
         <field name="code">action = model.action_open_conv_history('helpdesk.ticket')</field>
     </record>
 
+    <!-- set particular views to Settings / Technical / Messages -->
+    <record id="mail_message_action_tree_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="mail.view_message_tree"/>
+        <field name="act_window_id" ref="mail.action_view_mail_message"/>
+    </record>
+    <record id="mail_message_action_form_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="mail.view_message_form"/>
+        <field name="act_window_id" ref="mail.action_view_mail_message"/>
+    </record>
+
 </odoo>

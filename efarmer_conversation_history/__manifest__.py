@@ -1,7 +1,7 @@
 {
     'name': 'Conversation History, eFarmer',
 
-    'version': '1.0',
+    'version': '1.1',
     'category': 'Other',
     'author': 'ERP Ukraine',
     'website': 'https://erp.co.ua',
@@ -14,6 +14,7 @@
     'demo': [],
 
     'depends': [
+        'mail',
         'crm',
         'helpdesk',
     ],
