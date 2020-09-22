@@ -30,8 +30,9 @@ class MailMessage(models.Model):
         note = self.env.ref('mail.mt_note')
 
         domain = [
-            ('message_type', 'in', ('email', 'comment')),
-            ('subtype_id', 'in', (discussions.id, note.id)),
+            '|',
+            ('message_type', '=', 'comment'), ('subtype_id', 'in', (discussions.id, note.id)),
+            ('message_type', '=', 'email'),
             ('model', '=', model_tech_name),
         ]
 
