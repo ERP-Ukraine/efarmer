@@ -1,7 +1,7 @@
 {
     'name': 'Sale Workflow, eFarmer',
 
-    'version': '1.6',
+    'version': '1.7',
     'category': 'Other',
     'author': 'ERP Ukraine',
     'website': 'https://erp.co.ua',
@@ -30,8 +30,10 @@
         'security/ir.model.access.csv',
         'reports/commercial_invoice.xml',
         'reports/stock_picking_templates.xml',
+        'views/assets.xml',
         'views/ir_actions_server_views.xml',
         'views/res_partner_views.xml',
+        'views/stock_location_views.xml',
         'views/efarmer_client_type_views.xml',
         'views/efarmer_sale_workflow_menus.xml',
     ],
