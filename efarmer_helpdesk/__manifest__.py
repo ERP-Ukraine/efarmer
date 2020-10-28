@@ -1,7 +1,7 @@
 {
     'name': 'Helpdesk, eFarmer',
 
-    'version': '1.0',
+    'version': '1.1',
     'category': 'Other',
     'author': 'ERP Ukraine',
     'website': 'https://erp.co.ua',
@@ -17,9 +17,11 @@
         'helpdesk',
         'stock',
         'helpdesk_stock',
+        'efarmer_sale_workflow',
     ],
 
     'data': [
         'views/stock_production_lot_views.xml',
+        'views/helpdesk_ticket_views.xml',
     ],
 }
