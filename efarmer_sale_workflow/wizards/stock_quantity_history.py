@@ -12,8 +12,7 @@ class StockQuantityHistory(models.TransientModel):
         if inventorization_location_id:
             location = self.env['stock.location'].browse(int(inventorization_location_id)).exists()
             if location:
-                products = self.env['stock.quant'].search([('location_id', 'child_of', location.ids)]).mapped('product_id')
-                action['domain'] = expression.AND([action['domain'], [('id', 'in', products.ids)]])
                 action['context']['location'] = location.id  # to compute product qty correctly
+                action['context']['search_default_nonzero_qty_available'] = True
 
         return action
