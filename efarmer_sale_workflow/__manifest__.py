@@ -1,7 +1,7 @@
 {
     'name': 'Sale Workflow, eFarmer',
 
-    'version': '1.8',
+    'version': '1.9',
     'category': 'Other',
     'author': 'ERP Ukraine',
     'website': 'https://erp.co.ua',
