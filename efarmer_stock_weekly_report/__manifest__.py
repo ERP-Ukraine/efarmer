@@ -1,7 +1,7 @@
 {
     'name': 'Stock Weekly Report, eFarmer',
 
-    'version': '1.0',
+    'version': '1.1',
     'category': 'Other',
     'author': 'ERP Ukraine',
     'website': 'https://erp.co.ua',

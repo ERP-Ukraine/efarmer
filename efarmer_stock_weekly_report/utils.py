@@ -1,37 +1,44 @@
 import io
 import base64
-import typing
 import logging
-from datetime import datetime
 from itertools import groupby
 from collections import defaultdict
-from dataclasses import dataclass, asdict
 
 from odoo import api, fields
 from odoo.exceptions import UserError
 from odoo.tools.misc import PatchedXlsxWorkbook
 
-@dataclass(frozen=True)
 class OrderpointInfo:
-    orderpoint_id: int
-    code: str
-    product_name: str
-    min_qty: float
-    max_qty: float
-    lead_time: typing.Iterable
-    avail_qty: float
-    forecasted_qty: float
+
+    def __init__(self, orderpoint_id, code, product_name, min_qty, max_qty, lead_time, avail_qty, forecasted_qty):
+        self.orderpoint_id = orderpoint_id
+        self.code = code
+        self.product_name = product_name
+        self.min_qty = min_qty
+        self.max_qty = max_qty
+        self.lead_time = lead_time
+        self.avail_qty = avail_qty
+        self.forecasted_qty = forecasted_qty
 
     def get_public_items(self):
-        return ((k, v) for k, v in asdict(self).items() if k != 'orderpoint_id')
+        return (
+            ('code', self.code),
+            ('product_name', self.product_name),
+            ('min_qty', self.min_qty),
+            ('max_qty', self.max_qty),
+            ('lead_time', self.lead_time),
+            ('avail_qty', self.avail_qty),
+            ('forecasted_qty', self.forecasted_qty),
+        )
 
-@dataclass(frozen=True)
 class PurchaseInfo:
-    code: str
-    title: str
-    date: datetime
-    week_no: int
-    state: str
+
+    def __init__(self, code, title, date, week_no, state):
+        self.code = code
+        self.title = title
+        self.date = date
+        self.week_no = week_no
+        self.state = state
 
     @classmethod
     def create(cls, code, po, date):
@@ -45,14 +52,15 @@ class PurchaseInfo:
     def at_start(self):
         return self.state in ('draft', 'sent', 'to approve')
 
-@dataclass(frozen=True)
 class TableCell:
-    row_no: int
-    col_no: int
-    rowspan: int
-    colspan: int
-    value: typing.Any
-    format: typing.Any  # https://xlsxwriter.readthedocs.io/format.html
+
+    def __init__(self, row_no, col_no, rowspan, colspan, value, format):
+        self.row_no = row_no
+        self.col_no = col_no
+        self.rowspan = rowspan
+        self.colspan = colspan
+        self.value = value
+        self.format = format
 
 class Table:
 
