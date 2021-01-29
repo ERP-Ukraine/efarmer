@@ -1,4 +1,4 @@
-# efarmer
+# eFarmer
 
 > IMPORTANT! **efarmer_sale_workflow** is the base addon.
 > It's should be called **efarmer**, but smth. went wrong.
