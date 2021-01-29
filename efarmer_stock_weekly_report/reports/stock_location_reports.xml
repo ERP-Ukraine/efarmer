@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<record id="action_stock_weekly_report" model="ir.actions.server">
+    <field name="name">Weekly Report</field>
+    <field name="model_id" ref="stock.model_stock_location"/>
+    <field name="state">code</field>
+    <field name="code">
+data = model.build_weekly_report()
+
+attach = model.env['ir.attachment'].create({
+    'name': 'Weekly Report.xlsx',
+    'datas': data,
+    'type': 'binary',
+})
+
+action = {
+    'type': 'ir.actions.act_url',
+    'url': '/web/content/{}/{}'.format(attach.id, 'Weekly Report.xlsx'),
+    'target': 'self',
+}
+    </field>
+</record>
+
+</odoo>

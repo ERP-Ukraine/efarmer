@@ -1,6 +1,7 @@
 import io
 import base64
 import logging
+import datetime
 from itertools import groupby
 from collections import defaultdict
 
@@ -43,7 +44,12 @@ class PurchaseInfo:
     @classmethod
     def create(cls, code, po, date):
         title_tmpl = '{code} {po.name} {date:%d.%m.%Y} {po.partner_id.display_name}'
-        week_no = int(date.strftime('%U'))
+
+        week_no = int(date.strftime('%W'))
+        first_week_of_year = int(datetime.date(date.year, 1, 1).strftime('%W'))
+        if not first_week_of_year:  # when Monday is the first day of the year, the first week value is 1
+            week_no += 1  # increment it beacase the %W value is zero-based
+
         return cls(code, title_tmpl.format(code=code, po=po, date=date), date, week_no, po.state)
 
     def at_finish(self):
@@ -245,8 +251,8 @@ class StockWeeklyReportProvider:
         orderpoints = Orderpoint.sudo().search([]).with_context({'location': location.id})
 
         table = Table()
-        self.put_orderpoints_to_table(orderpoints, table)
-        self.put_purchases_to_table(orderpoints, table)
+        self._put_orderpoints_to_table(orderpoints, table)
+        self._put_purchases_to_table(orderpoints, table)
 
         stream = io.BytesIO()
         with PatchedXlsxWorkbook(stream) as workbook:
@@ -275,7 +281,7 @@ class StockWeeklyReportProvider:
         stream.seek(0)
         return stream
 
-    def put_orderpoints_to_table(self, orderpoints, table):
+    def _put_orderpoints_to_table(self, orderpoints, table):
         def map_sellers_to_lead_time(sellers):
             if len(sellers) > 1:
                 return sellers.mapped(lambda x: '{} days - {}'.format(x.delay, x.name.display_name or ''))
@@ -296,60 +302,96 @@ class StockWeeklyReportProvider:
                 orderpoint.product_id.virtual_available,
             ))
 
-    def put_purchases_to_table(self, orderpoints, table):
-        POLSu = self._env['purchase.order.line'].sudo()
-        purchase_order_lines = POLSu.search([('orderpoint_id', 'in', orderpoints.ids)])
+    def _put_purchases_to_table(self, orderpoints, table):
+        orderpoint_products = orderpoints.mapped('product_id')
 
-        for po in purchase_order_lines.mapped('order_id'):
-            if po.is_shipped or po.state == 'cancel':
+        for po in self._env['purchase.order'].sudo().search([('state', '!=', 'cancel')]):
+            valid_po_lines = po.order_line.filtered(lambda x: x.product_id in orderpoint_products)
+
+            if po.is_shipped or not valid_po_lines:
                 continue
 
             # create a record from the RFQ
             purchase_info = PurchaseInfo.create('RFQ', po, po.date_order)
             table.append_purchase_info(purchase_info)
 
-            for pol in po.order_line.filtered(lambda x: x.orderpoint_id):
-                table.add_qty(pol.orderpoint_id.id, purchase_info, pol.product_uom_qty)
+            for pol in valid_po_lines:
+                orderpoint = orderpoints.filtered(lambda x: x.product_id == pol.product_id)[:1].ensure_one()
+                table.add_qty(orderpoint.id, purchase_info, pol.product_uom_qty)
 
             # create a record per po picking
             if purchase_info.at_finish():
-                po_lines = po.order_line.filtered(lambda x: x.qty_received_method == 'stock_moves')
                 for picking in po.picking_ids:
-                    moves = po_lines.move_ids.filtered(lambda x: x.picking_id == picking)
-                    if not moves:
+                    moves, bom_moves = self._get_valid_moves(picking, orderpoint_products)
+                    if not moves and not bom_moves:
                         continue
 
                     purchase_info = PurchaseInfo.create('PO', po, picking.scheduled_date)
                     table.append_purchase_info(purchase_info)
 
-                    groupby_iter = groupby(moves, key=lambda x: (x.purchase_line_id, x.purchase_line_id.orderpoint_id))
-                    for (line, orderpoint), moves in groupby_iter:
-                        if not orderpoint:
-                            continue
+                    for move in moves:
+                        orderpoint = orderpoints.filtered(lambda x: x.product_id == move.product_id)[:1].ensure_one()
+                        table.add_qty(orderpoint.id, purchase_info, self._get_qty_from_move(move))
 
-                        total = 0.0
-                        # In case of a BOM in kit, the products delivered do not correspond to the products in
-                        # the PO. Therefore, we can skip them since they will be handled later on.
-                        for move in (move for move in moves if move.product_id == line.product_id):
-                            # a copy from purchase_stock / purchase.order.line:_compute_qty_received()
-                            if move.location_dest_id.usage == "supplier":
-                                if move.to_refund:
-                                    total -= move.product_uom._compute_quantity(move.product_uom_qty, line.product_uom)
-                            elif move.origin_returned_move_id and move.origin_returned_move_id._is_dropshipped() and not move._is_dropshipped_returned():
-                                # Edge case: the dropship is returned to the stock, no to the supplier.
-                                # In this case, the received quantity on the PO is set although we didn't
-                                # receive the product physically in our stock. To avoid counting the
-                                # quantity twice, we do nothing.
-                                pass
-                            elif (
-                                move.location_dest_id.usage == "internal"
-                                and move.to_refund
-                                and move.location_dest_id
-                                not in self.env["stock.location"].search(
-                                    [("id", "child_of", move.warehouse_id.view_location_id.id)]
-                                )
-                            ):
-                                total -= move.product_uom._compute_quantity(move.product_uom_qty, line.product_uom)
+                    if bom_moves:
+                        for bom, move_iter in groupby(bom_moves, lambda x: x.bom_line_id.bom_id):
+                            move_list = list(move_iter)
+
+                            if bom.product_id:
+                                orderpoint = orderpoints.filtered(lambda x: x.product_id == bom.product_id)[:1].ensure_one()
                             else:
-                                total += move.product_uom._compute_quantity(move.product_uom_qty, line.product_uom)
-                        table.add_qty(orderpoint.id, purchase_info, total)
+                                orderpoint = orderpoints.filtered(lambda x: x.product_id.product_tmpl_id == bom.product_tmpl_id)[:1].ensure_one()
+
+                            component_info = {bom_line.product_id: 0 for bom_line in bom.bom_line_ids}
+                            for move in move_list:
+                                qty = move.product_uom._compute_quantity(move.product_uom_qty, move.product_id.uom_po_id)
+                                component_info[move.product_id] += qty // move.bom_line_id.product_qty
+
+                            qty = min(component_info.values())
+                            table.add_qty(orderpoint.id, purchase_info, qty)
+
+    def _get_valid_moves(self, picking, orderpoint_products):
+        moves = self._env['stock.move']
+        bom_moves = self._env['stock.move']
+
+        for move in picking.move_lines:
+            bom = move.bom_line_id.bom_id
+            if bom and bom.type == 'phantom':
+                product = bom.product_id
+                product_tmpl = bom.product_tmpl_id
+                if product in orderpoint_products or product_tmpl in orderpoint_products.mapped('product_tmpl_id'):
+                    bom_moves |= move
+            elif move.product_id in orderpoint_products:
+                moves |= move
+
+        return moves, bom_moves
+
+    def _get_qty_from_move(self, move):
+        total = 0.0
+
+        def _convert_qty(move):
+            return move.product_uom._compute_quantity(move.product_uom_qty, move.product_id.uom_po_id)
+
+        # a copy from purchase_stock / purchase.order.line:_compute_qty_received()
+        if move.location_dest_id.usage == "supplier":
+            if move.to_refund:
+                total -= _convert_qty(move)
+        elif move.origin_returned_move_id and move.origin_returned_move_id._is_dropshipped() and not move._is_dropshipped_returned():
+            # Edge case: the dropship is returned to the stock, no to the supplier.
+            # In this case, the received quantity on the PO is set although we didn't
+            # receive the product physically in our stock. To avoid counting the
+            # quantity twice, we do nothing.
+            pass
+        elif (
+            move.location_dest_id.usage == "internal"
+            and move.to_refund
+            and move.location_dest_id
+            not in self._env["stock.location"].search(
+                [("id", "child_of", move.warehouse_id.view_location_id.id)]
+            )
+        ):
+            total -= _convert_qty(move)
+        else:
+            total += _convert_qty(move)
+
+        return total
