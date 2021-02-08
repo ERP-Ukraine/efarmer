@@ -7,7 +7,7 @@ from collections import defaultdict
 
 from odoo import api, fields
 from odoo.exceptions import UserError
-from odoo.tools.misc import PatchedXlsxWorkbook
+from odoo.tools import PatchedXlsxWorkbook, float_is_zero
 
 class OrderpointInfo:
 
@@ -321,9 +321,9 @@ class StockWeeklyReportProvider:
 
             # create a record per po picking
             if purchase_info.at_finish():
-                for picking in po.picking_ids:
-                    moves, bom_moves = self._get_valid_moves(picking, orderpoint_products)
-                    if not moves and not bom_moves:
+                for picking in po.picking_ids.filtered(lambda x: x.state != 'cancel'):
+                    moves, kit_moves = self._get_valid_moves(picking, orderpoint_products)
+                    if not moves and not kit_moves:
                         continue
 
                     purchase_info = PurchaseInfo.create('PO', po, picking.scheduled_date)
@@ -333,38 +333,31 @@ class StockWeeklyReportProvider:
                         orderpoint = orderpoints.filtered(lambda x: x.product_id == move.product_id)[:1].ensure_one()
                         table.add_qty(orderpoint.id, purchase_info, self._get_qty_from_move(move))
 
-                    if bom_moves:
-                        for bom, move_iter in groupby(bom_moves, lambda x: x.bom_line_id.bom_id):
-                            move_list = list(move_iter)
+                    if kit_moves:
+                        for pol, move_iter in groupby(kit_moves, lambda x: x.purchase_line_id):
+                            moves = list(move_iter)
 
-                            if bom.product_id:
-                                orderpoint = orderpoints.filtered(lambda x: x.product_id == bom.product_id)[:1].ensure_one()
-                            else:
-                                orderpoint = orderpoints.filtered(lambda x: x.product_id.product_tmpl_id == bom.product_tmpl_id)[:1].ensure_one()
-
-                            component_info = {bom_line.product_id: 0 for bom_line in bom.bom_line_ids}
-                            for move in move_list:
-                                qty = move.product_uom._compute_quantity(move.product_uom_qty, move.product_id.uom_po_id)
-                                component_info[move.product_id] += qty // move.bom_line_id.product_qty
-
-                            qty = min(component_info.values())
-                            table.add_qty(orderpoint.id, purchase_info, qty)
+                            orderpoint = orderpoints.filtered(lambda x: x.product_id == pol.product_id)[:1].ensure_one()
+                            table.add_qty(orderpoint.id, purchase_info, self._get_qty_from_kit_moves(pol, moves))
 
     def _get_valid_moves(self, picking, orderpoint_products):
         moves = self._env['stock.move']
-        bom_moves = self._env['stock.move']
+        kit_moves = self._env['stock.move']
 
         for move in picking.move_lines:
             bom = move.bom_line_id.bom_id
             if bom and bom.type == 'phantom':
                 product = bom.product_id
                 product_tmpl = bom.product_tmpl_id
-                if product in orderpoint_products or product_tmpl in orderpoint_products.mapped('product_tmpl_id'):
-                    bom_moves |= move
+
+                fst = bom.product_id and product in orderpoint_products
+                snd = not bom.product_id and product_tmpl in orderpoint_products.mapped('product_tmpl_id')
+                if fst or snd:
+                    kit_moves |= move
             elif move.product_id in orderpoint_products:
                 moves |= move
 
-        return moves, bom_moves
+        return moves, kit_moves
 
     def _get_qty_from_move(self, move):
         total = 0.0
@@ -395,3 +388,34 @@ class StockWeeklyReportProvider:
             total += _convert_qty(move)
 
         return total
+
+    def _get_qty_from_kit_moves(self, pol, moves):
+        component_info = {}
+
+        MrpBom = self._env['mrp.bom'].sudo()
+        bom = MrpBom._bom_find(product=pol.product_id, company_id=pol.company_id.id, bom_type='phantom')
+        bom.ensure_one()
+
+        for bom_line, info in bom.explode(bom.product_id, 1)[1]:
+            rounding = bom_line.product_uom_id.rounding
+
+            has_zero_qty = float_is_zero(bom_line.product_qty, precision_rounding=rounding)
+            if has_zero_qty or bom_line.product_id.type not in ('product', 'consu'):
+                continue
+
+            component_info[bom_line.product_id.id] = 0.0
+
+        for move in moves:
+            move_qty = self._get_qty_from_move(move)
+
+            has_zero_qty = float_is_zero(move_qty, precision_rounding=move.product_id.uom_po_id.rounding)
+            if has_zero_qty:
+                continue
+
+            bom_line = move.bom_line_id.ensure_one()
+            product_purchase_uom = move.product_id.uom_po_id.ensure_one()
+            bom_line_qty = bom_line.product_uom_id._compute_quantity(bom_line.product_qty, product_purchase_uom)
+
+            component_info[move.product_id.id] += move_qty // (bom_line_qty or 1)
+
+        return min(component_info.values())
