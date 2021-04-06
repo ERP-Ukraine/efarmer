@@ -1,9 +1,12 @@
 import io
 import base64
 import logging
+import operator
 import datetime
 from itertools import groupby
 from collections import defaultdict
+
+from xlsxwriter.utility import xl_rowcol_to_cell
 
 from odoo import api, fields
 from odoo.exceptions import UserError
@@ -11,17 +14,19 @@ from odoo.tools import PatchedXlsxWorkbook, float_is_zero
 
 class OrderpointInfo:
 
-    def __init__(self, orderpoint_id, code, product_name, min_qty, max_qty, lead_time, avail_qty, forecasted_qty):
-        self.orderpoint_id = orderpoint_id
-        self.code = code
-        self.product_name = product_name
-        self.min_qty = min_qty
-        self.max_qty = max_qty
-        self.lead_time = lead_time
-        self.avail_qty = avail_qty
-        self.forecasted_qty = forecasted_qty
+    def __init__(self, orderpoint):
+        self.orderpoint = orderpoint
+        self.product_categ = orderpoint.product_id.categ_id.display_name
 
-    def get_public_items(self):
+        self.code = orderpoint.product_id.default_code or ''
+        self.product_name = orderpoint.product_id.name
+        self.min_qty = orderpoint.product_min_qty
+        self.max_qty = orderpoint.product_max_qty
+        self.lead_time = self.map_sellers_to_lead_time(orderpoint.product_id.seller_ids)
+        self.avail_qty = orderpoint.product_id.qty_available
+        self.forecasted_qty = orderpoint.product_id.virtual_available
+
+    def get_columns(self):
         return (
             ('code', self.code),
             ('product_name', self.product_name),
@@ -31,6 +36,64 @@ class OrderpointInfo:
             ('avail_qty', self.avail_qty),
             ('forecasted_qty', self.forecasted_qty),
         )
+
+    @property
+    def rowspan(self):
+        return len(self.lead_time) or 1
+
+    @classmethod
+    def make_fake_orderpoint(cls, kit_orderpoint, component):
+        """Mock orderpoint with a component data."""
+        orderpoint_info = cls(kit_orderpoint)
+        orderpoint_info.code = component.default_code or ''
+        orderpoint_info.product_name = component.name
+        orderpoint_info.min_qty = 0
+        orderpoint_info.max_qty = 0
+        orderpoint_info.lead_time = cls.map_sellers_to_lead_time([])
+        orderpoint_info.avail_qty = component.qty_available
+        orderpoint_info.forecasted_qty = component.virtual_available
+        return orderpoint_info
+
+    @staticmethod
+    def map_sellers_to_lead_time(sellers):
+        if len(sellers) > 1:
+            return sellers.mapped(lambda x: '{} days - {}'.format(x.delay, x.name.display_name or ''))
+        elif sellers:
+            return [str(sellers.delay) + ' days']
+        else:
+            return []
+
+class BOMInfo:
+
+    def  __init__(self, bom, product, kit_orderpoint, orderpoints):
+        self.bom = bom
+        self.product = product
+        self.lines = self._make_lines(kit_orderpoint, orderpoints)
+
+    def __hash__(self):
+        return hash(self.bom)
+
+    def __eq__(self, other):
+        return operator.eq(self.bom, other.bom)
+
+    def _make_lines(self, kit_orderpoint, orderpoints):
+        res = []
+
+        picking_type = self.bom.picking_type_id
+        lines = self.bom.sudo().explode(self.product, 1, picking_type=picking_type)[1]
+        for bom_line, info in lines:
+            component = bom_line.product_id
+            orderpoint = orderpoints.filtered(lambda x: x.product_id == component)[:1]
+
+            if orderpoint:
+                data = OrderpointInfo(orderpoint)
+                data.orderpoint = kit_orderpoint
+            else:
+                data = OrderpointInfo.make_fake_orderpoint(kit_orderpoint, component)
+
+            res.append((component, data))
+
+        return res
 
 class PurchaseInfo:
 
@@ -58,6 +121,16 @@ class PurchaseInfo:
     def at_start(self):
         return self.state in ('draft', 'sent', 'to approve')
 
+class WorksheetSetRowParams:
+
+    def __init__(self, row, height, cell_format, options):
+        self.unpack_me = (row, height, cell_format, options)
+
+class WorksheetFormulaParams:
+
+    def __init__(self, row, height, formula):
+        self.unpack_me = (row, height, formula)
+
 class TableCell:
 
     def __init__(self, row_no, col_no, rowspan, colspan, value, format):
@@ -74,12 +147,20 @@ class Table:
         self._orderpoints = []
         self._red_orderpoint_ids = set()
 
+        self._orderpoints_to_bom_map = defaultdict(set)
+
         self._purchases = []
         self._quantities = defaultdict(float)
         self._cell_formats = {}
 
+        self.fold_groups = []  # append WorksheetSetRowParams objects here
+        self.formulas = []  # append WorksheetFormulaParams objects here
+
     def append_orderpoint_info(self, record):
         self._orderpoints.append(record)
+
+    def append_bom_info(self, orderpoint_id, data):
+        self._orderpoints_to_bom_map[orderpoint_id].add(data)
 
     def append_purchase_info(self, data):
         if isinstance(data, list):
@@ -87,10 +168,10 @@ class Table:
         else:
             self._purchases.append(data)
 
-    def add_qty(self, orderpoint_id, purchase_info, qty):
+    def add_qty(self, orderpoint_id, purchase_info, qty, bom_id=False, product_id=False):
         if purchase_info.at_start():
             self._red_orderpoint_ids.add(orderpoint_id)
-        self._quantities[(orderpoint_id, purchase_info)] += qty
+        self._quantities[(orderpoint_id, purchase_info, bom_id, product_id)] += qty
 
     def set_cell_formats(self, workbook):
         regular_font = {'font_name': 'Arial', 'font_size': 10}
@@ -124,6 +205,8 @@ class Table:
         self._cell_formats['rfq'] = workbook.add_format(dict(regular_font, **center_vcenter, **border, **rfq))
         self._cell_formats['po'] = workbook.add_format(dict(regular_font, **center_vcenter, **border, **po))
 
+        self._cell_formats['categ'] = workbook.add_format(dict(regular_font, **left_vcenter, **border, bold=True))
+
     def get_frezee_col_count(self):
         return len(self._get_orderpoints_titles())
 
@@ -134,6 +217,7 @@ class Table:
             yield TableCell(0, col_no, 2, 1, title, self._cell_formats['header_green'])
 
         # rfq / po titles
+
         ordered_purchase_info = []
         col_no = len(orderpoints_titles)
         for week_no, purchases in groupby(sorted(self._purchases, key=lambda x: x.date), key=lambda x: x.week_no):
@@ -149,13 +233,16 @@ class Table:
             yield TableCell(1, col_no, 1, 1, purchase_info.title, cell_format)
 
         # other rows
-        row_no = 2
-        for orderpoint_info in self._orderpoints:
+
+        def fill_line(orderpoint_info, bom_id=False, product_id=False):
+            nonlocal row_no
+            orderpoint_id = orderpoint_info.orderpoint.id
+
             # This field is an array and there should be the one value per row,
             # but at least one row must exist.
-            rowspan = len(orderpoint_info.lead_time) or 1
+            rowspan = orderpoint_info.rowspan
 
-            for col_no, (field, value) in enumerate(orderpoint_info.get_public_items()):
+            for col_no, (field, value) in enumerate(orderpoint_info.get_columns()):
                 cell_format = self._get_orderpoint_cell_format(orderpoint_info, field)
                 if field == 'lead_time':
                     for i in range(rowspan):
@@ -168,10 +255,50 @@ class Table:
 
             for col_no, purchase_info in enumerate(ordered_purchase_info, start=len(orderpoints_titles)):
                 cell_format = self._get_qty_cell_format(orderpoint_info, purchase_info)
-                qty = self._quantities.get((orderpoint_info.orderpoint_id, purchase_info), '')
+                qty = self._quantities.get((orderpoint_id, purchase_info, bom_id, product_id), '')
                 yield TableCell(row_no, col_no, rowspan, 1, qty, cell_format)
 
             row_no += rowspan
+
+        row_no = 2
+        for categ, records in groupby(sorted(self._orderpoints, key=lambda x: x.product_categ), key=lambda x: x.product_categ):
+            categ_row_no = row_no
+            product_rows_numbers = []
+
+            # fill the categ row later
+            row_no += 1
+
+            for orderpoint_info in records:
+                product_rows_numbers.append(row_no)
+                yield from fill_line(orderpoint_info)
+
+                bom_info_records = self._orderpoints_to_bom_map.get(orderpoint_info.orderpoint.id)
+                if bom_info_records:
+                    for bom_info in bom_info_records:
+                        for component, orderpoint_info in bom_info.lines:
+                            rowspan = orderpoint_info.rowspan
+                            self.fold_groups.extend(WorksheetSetRowParams(row_no+i, None, None, {'level': 2, 'hidden': True}) for i in range(rowspan))
+                            yield from fill_line(orderpoint_info, bom_id=bom_info.bom.id, product_id=component.id)
+
+            # the categ name
+            yield TableCell(categ_row_no, 0, 1, 5, categ, self._cell_formats['categ'])
+
+            # the avail qty column
+            value = '=SUM({})'.format(','.join(xl_rowcol_to_cell(x, 5) for x in product_rows_numbers))
+            self.formulas.append(WorksheetFormulaParams(categ_row_no, 5, value))
+
+            # the forecasted qty column
+            value = '=SUM({})'.format(','.join(xl_rowcol_to_cell(x, 6) for x in product_rows_numbers))
+            self.formulas.append(WorksheetFormulaParams(categ_row_no, 6, value))
+
+            # RFQ / PO columns
+            start = len(orderpoints_titles)
+            end = start + len(ordered_purchase_info)
+            for col_no in range(start, end):
+                value = '=SUM({})'.format(','.join(xl_rowcol_to_cell(x, col_no) for x in product_rows_numbers))
+                self.formulas.append(WorksheetFormulaParams(categ_row_no, col_no, value))
+
+            self.fold_groups.extend(WorksheetSetRowParams(i, None, None, {'level': 1, 'hidden': True}) for i in range(categ_row_no+1, row_no))
 
     def _get_orderpoints_titles(self):
         today = fields.Date.today()
@@ -188,7 +315,7 @@ class Table:
     def _is_red_row(self, orderpoint_info):
         return any((
             orderpoint_info.forecasted_qty < 0,
-            orderpoint_info.orderpoint_id in self._red_orderpoint_ids,
+            orderpoint_info.orderpoint.id in self._red_orderpoint_ids,
         ))
 
     def _get_orderpoint_cell_format(self, orderpoint_info, field):
@@ -276,31 +403,28 @@ class StockWeeklyReportProvider:
                 else:
                     worksheet.write(cell.row_no, cell.col_no, cell.value, cell.format)
 
+            formula_format = workbook.add_format({
+                'font_name': 'Arial',
+                'font_size': 10,
+                'align': 'center',
+                'valign': 'vcenter',
+                'border': True,
+                'bold': True,
+            })
+            for params in table.formulas:
+                worksheet.write_formula(*params.unpack_me, cell_format=formula_format)
+
+            for params in reversed(table.fold_groups):
+                worksheet.set_row(*params.unpack_me)
+
             worksheet.freeze_panes(2, table.get_frezee_col_count())
 
         stream.seek(0)
         return stream
 
     def _put_orderpoints_to_table(self, orderpoints, table):
-        def map_sellers_to_lead_time(sellers):
-            if len(sellers) > 1:
-                return sellers.mapped(lambda x: '{} days - {}'.format(x.delay, x.name.display_name or ''))
-            elif sellers:
-                return [str(sellers.delay) + ' days']
-            else:
-                return []
-
         for orderpoint in orderpoints:
-            table.append_orderpoint_info(OrderpointInfo(
-                orderpoint.id,
-                orderpoint.product_id.default_code or '',
-                orderpoint.product_id.name,
-                orderpoint.product_min_qty,
-                orderpoint.product_max_qty,
-                map_sellers_to_lead_time(orderpoint.product_id.seller_ids),
-                orderpoint.product_id.qty_available,
-                orderpoint.product_id.virtual_available,
-            ))
+            table.append_orderpoint_info(OrderpointInfo(orderpoint))
 
     def _put_purchases_to_table(self, orderpoints, table):
         orderpoint_products = orderpoints.mapped('product_id')
@@ -316,8 +440,23 @@ class StockWeeklyReportProvider:
             table.append_purchase_info(purchase_info)
 
             for pol in valid_po_lines:
-                orderpoint = orderpoints.filtered(lambda x: x.product_id == pol.product_id)[:1].ensure_one()
-                table.add_qty(orderpoint.id, purchase_info, pol.product_uom_qty)
+                product = pol.product_id
+                orderpoint = orderpoints.filtered(lambda x: x.product_id == product)[:1].ensure_one()
+
+                bom = self._env['mrp.bom'].sudo()._bom_find(product=product, company_id=pol.company_id.id, bom_type='phantom')
+                if bom:
+                    bom_info = BOMInfo(bom, product, orderpoint, orderpoints)
+                    table.append_bom_info(orderpoint.id, bom_info)
+
+                    # append the kit qty
+                    table.add_qty(orderpoint.id, purchase_info, pol.product_uom_qty)
+
+                    # append the kit components qty
+                    boms, lines = bom.sudo().explode(product, pol.product_uom_qty, picking_type=bom.picking_type_id)
+                    for bom_line, info in lines:
+                        table.add_qty(orderpoint.id, purchase_info, info['qty'], bom_id=bom.id, product_id=bom_line.product_id.id)
+                else:
+                    table.add_qty(orderpoint.id, purchase_info, pol.product_uom_qty)
 
             # create a record per po picking
             if purchase_info.at_finish():
@@ -339,6 +478,16 @@ class StockWeeklyReportProvider:
 
                             orderpoint = orderpoints.filtered(lambda x: x.product_id == pol.product_id)[:1].ensure_one()
                             table.add_qty(orderpoint.id, purchase_info, self._get_qty_from_kit_moves(pol, moves))
+
+                            bom = self._env['mrp.bom'].sudo()._bom_find(product=pol.product_id, company_id=pol.company_id.id, bom_type='phantom')
+                            bom.ensure_one()
+                            for move in moves:
+                                product = move.product_id
+
+                                bom_info = BOMInfo(bom, product, orderpoint, orderpoints)
+                                table.append_bom_info(orderpoint.id, bom_info)
+
+                                table.add_qty(orderpoint.id, purchase_info, self._get_qty_from_move(move), bom_id=bom.id, product_id=product.id)
 
     def _get_valid_moves(self, picking, orderpoint_products):
         moves = self._env['stock.move']
