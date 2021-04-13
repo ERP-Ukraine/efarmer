@@ -424,7 +424,15 @@ class StockWeeklyReportProvider:
 
     def _put_orderpoints_to_table(self, orderpoints, table):
         for orderpoint in orderpoints:
+            # Append an orderpoint row.
             table.append_orderpoint_info(OrderpointInfo(orderpoint))
+
+            # Append a component row if it exists.
+            product = orderpoint.product_id
+            bom = self._env['mrp.bom'].sudo()._bom_find(product=product, company_id=orderpoint.company_id.id, bom_type='phantom')
+            if bom:
+                bom_info = BOMInfo(bom, product, orderpoint, orderpoints)
+                table.append_bom_info(orderpoint.id, bom_info)
 
     def _put_purchases_to_table(self, orderpoints, table):
         orderpoint_products = orderpoints.mapped('product_id')
