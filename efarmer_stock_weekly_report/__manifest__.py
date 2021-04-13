@@ -2,7 +2,7 @@
     'name': 'Stock Weekly Report, eFarmer',
     'summary': 'It is very important to have only one orderpoint per product.',
 
-    'version': '2.1',
+    'version': '2.2',
     'category': 'Other',
     'author': 'ERP Ukraine',
     'website': 'https://erp.co.ua',

@@ -1,4 +1,5 @@
 import io
+import enum
 import base64
 import logging
 import operator
@@ -11,6 +12,14 @@ from xlsxwriter.utility import xl_rowcol_to_cell
 from odoo import api, fields
 from odoo.exceptions import UserError
 from odoo.tools import PatchedXlsxWorkbook, float_is_zero
+
+class BackgroundColor(enum.Enum):
+    DEFAULT = '#ffffff'
+    GREEN = '#b7d8a9'
+    GREY = '#efefef'
+    RED = '#e34138'
+    RFQ = '#fbd965'
+    PO = '#94c57e'
 
 class OrderpointInfo:
 
@@ -143,7 +152,9 @@ class TableCell:
 
 class Table:
 
-    def __init__(self):
+    def __init__(self, workbook):
+        self._workbook = workbook
+
         self._orderpoints = []
         self._red_orderpoint_ids = set()
 
@@ -173,39 +184,25 @@ class Table:
             self._red_orderpoint_ids.add(orderpoint_id)
         self._quantities[(orderpoint_id, purchase_info, bom_id, product_id)] += qty
 
-    def set_cell_formats(self, workbook):
-        regular_font = {'font_name': 'Arial', 'font_size': 10}
-        header_font = {'font_name': 'Arial', 'font_size': 12}
+    def get_cell_format(self, font_size=10, bg_color=BackgroundColor.DEFAULT, align='left', valign='vcenter', bold=False, text_wrap=False, rotation=0):
+        args = (font_size, bg_color, align, valign, bold, text_wrap, rotation)
 
-        border = {'border': True}
+        if args in self._cell_formats:
+            return self._cell_formats[args]
 
-        left_vcenter = {'align': 'left', 'valign': 'vcenter'}
-        center_vcenter = {'align': 'center', 'valign': 'vcenter'}
-        center_bottom = {'align': 'center', 'valign': 'bottom'}
-
-        header = dict(header_font, **center_vcenter, **border, text_wrap=True)
-
-        red = {'bg_color': '#e34138'}
-        rfq = {'bg_color': '#fbd965'}
-        po = {'bg_color': '#94c57e'}
-
-        self._cell_formats['default_left'] = workbook.add_format(dict(regular_font, **left_vcenter, **border))
-        self._cell_formats['default_center'] = workbook.add_format(dict(regular_font, **center_vcenter, **border))
-        self._cell_formats['lead_time'] = workbook.add_format(dict(regular_font, **center_vcenter, **border, bg_color='#efefef'))
-
-        self._cell_formats['red_default_left'] = workbook.add_format(dict(regular_font, **left_vcenter, **border, **red))
-        self._cell_formats['red_default_center'] = workbook.add_format(dict(regular_font, **center_vcenter, **border, **red))
-
-        self._cell_formats['header'] = workbook.add_format(dict(header, bold=True))
-        self._cell_formats['header_green'] = workbook.add_format(dict(header, **center_bottom, bold=True, bg_color='#b7d8a9'))
-
-        self._cell_formats['header_rotated_rfq'] = workbook.add_format(dict(header, **rfq, rotation=90))
-        self._cell_formats['header_rotated_po'] = workbook.add_format(dict(header, **po, rotation=90))
-
-        self._cell_formats['rfq'] = workbook.add_format(dict(regular_font, **center_vcenter, **border, **rfq))
-        self._cell_formats['po'] = workbook.add_format(dict(regular_font, **center_vcenter, **border, **po))
-
-        self._cell_formats['categ'] = workbook.add_format(dict(regular_font, **left_vcenter, **border, bold=True))
+        wb_format = self._workbook.add_format({
+            'font_name': 'Arial',
+            'font_size': font_size,
+            'text_wrap': text_wrap,
+            'rotation': rotation,
+            'bold': bold,
+            'border': True,
+            'align': align,
+            'valign': valign,
+            'bg_color': bg_color.value,
+        })
+        self._cell_formats[args] = wb_format
+        return wb_format
 
     def get_frezee_col_count(self):
         return len(self._get_orderpoints_titles())
@@ -214,7 +211,8 @@ class Table:
         # orderpoints titles
         orderpoints_titles = self._get_orderpoints_titles()
         for col_no, title in enumerate(orderpoints_titles):
-            yield TableCell(0, col_no, 2, 1, title, self._cell_formats['header_green'])
+            cell_format = self.get_cell_format(font_size=12, align='center', valign='bottom', text_wrap=True, bold=True, bg_color=BackgroundColor.GREEN)
+            yield TableCell(0, col_no, 2, 1, title, cell_format)
 
         # rfq / po titles
 
@@ -224,17 +222,19 @@ class Table:
             purchases = list(purchases)
             col_width = len(purchases)
 
-            yield TableCell(0, col_no, 1, col_width, 'week {:02d}'.format(week_no), self._cell_formats['header'])
+            cell_format = self.get_cell_format(font_size=12, align='center', text_wrap=True, bold=True)
+            yield TableCell(0, col_no, 1, col_width, 'week {:02d}'.format(week_no), cell_format)
             ordered_purchase_info.extend(purchases)
             col_no += col_width
 
         for col_no, purchase_info in enumerate(ordered_purchase_info, start=len(orderpoints_titles)):
-            cell_format = self._cell_formats['header_rotated_rfq'] if purchase_info.code == 'RFQ' else self._cell_formats['header_rotated_po']
+            bg_color = BackgroundColor.RFQ if purchase_info.code == 'RFQ' else BackgroundColor.PO
+            cell_format = self.get_cell_format(font_size=12, align='center', text_wrap=True, rotation=90, bg_color=bg_color)
             yield TableCell(1, col_no, 1, 1, purchase_info.title, cell_format)
 
         # other rows
 
-        def fill_line(orderpoint_info, bom_id=False, product_id=False):
+        def fill_line(orderpoint_info, bom_id=False, product_id=False, bold=False):
             nonlocal row_no
             orderpoint_id = orderpoint_info.orderpoint.id
 
@@ -243,7 +243,7 @@ class Table:
             rowspan = orderpoint_info.rowspan
 
             for col_no, (field, value) in enumerate(orderpoint_info.get_columns()):
-                cell_format = self._get_orderpoint_cell_format(orderpoint_info, field)
+                cell_format = self._get_orderpoint_cell_format(orderpoint_info, field, bold=bold)
                 if field == 'lead_time':
                     for i in range(rowspan):
                         # If there is no vendors, no TableCell record is yield.
@@ -254,7 +254,7 @@ class Table:
                     yield TableCell(row_no, col_no, rowspan, 1, value, cell_format)
 
             for col_no, purchase_info in enumerate(ordered_purchase_info, start=len(orderpoints_titles)):
-                cell_format = self._get_qty_cell_format(orderpoint_info, purchase_info)
+                cell_format = self._get_qty_cell_format(orderpoint_info, purchase_info, bold=bold)
                 qty = self._quantities.get((orderpoint_id, purchase_info, bom_id, product_id), '')
                 yield TableCell(row_no, col_no, rowspan, 1, qty, cell_format)
 
@@ -269,11 +269,13 @@ class Table:
             row_no += 1
 
             for orderpoint_info in records:
-                product_rows_numbers.append(row_no)
-                yield from fill_line(orderpoint_info)
-
                 bom_info_records = self._orderpoints_to_bom_map.get(orderpoint_info.orderpoint.id)
-                if bom_info_records:
+                is_kit = bool(bom_info_records)
+
+                product_rows_numbers.append(row_no)
+                yield from fill_line(orderpoint_info, bold=is_kit)
+
+                if is_kit:
                     for bom_info in bom_info_records:
                         for component, orderpoint_info in bom_info.lines:
                             rowspan = orderpoint_info.rowspan
@@ -281,7 +283,8 @@ class Table:
                             yield from fill_line(orderpoint_info, bom_id=bom_info.bom.id, product_id=component.id)
 
             # the categ name
-            yield TableCell(categ_row_no, 0, 1, 5, categ, self._cell_formats['categ'])
+            cell_format = self.get_cell_format(bold=True)
+            yield TableCell(categ_row_no, 0, 1, 5, categ, cell_format)
 
             # the avail qty column
             value = '=SUM({})'.format(','.join(xl_rowcol_to_cell(x, 5) for x in product_rows_numbers))
@@ -318,25 +321,18 @@ class Table:
             orderpoint_info.orderpoint.id in self._red_orderpoint_ids,
         ))
 
-    def _get_orderpoint_cell_format(self, orderpoint_info, field):
-        if self._is_red_row(orderpoint_info):
-            cell_format_name = 'red_default_left' if field in ('code', 'product_name') else 'red_default_center'
-            return self._cell_formats[cell_format_name]
+    def _get_orderpoint_cell_format(self, orderpoint_info, field, bold=False):
+        bg_color = (BackgroundColor.RED if self._is_red_row(orderpoint_info) else
+                    BackgroundColor.GREY if field == 'lead_time' else
+                    BackgroundColor.DEFAULT)
+        align = 'left' if field in ('code', 'product_name') else 'center'
+        return self.get_cell_format(bg_color=bg_color, align=align, bold=bold)
 
-        if field == 'lead_time':
-            return self._cell_formats['lead_time']
-        elif field in ('code', 'product_name'):
-            return self._cell_formats['default_left']
-        else:
-            return self._cell_formats['default_center']
-
-    def _get_qty_cell_format(self, orderpoint_info, purchase_info):
-        if self._is_red_row(orderpoint_info):
-            return self._cell_formats['red_default_center']
-        elif purchase_info.code == 'RFQ':
-            return self._cell_formats['rfq']
-        else:
-            return self._cell_formats['po']
+    def _get_qty_cell_format(self, orderpoint_info, purchase_info, bold=False):
+        bg_color = (BackgroundColor.RED if self._is_red_row(orderpoint_info) else
+                    BackgroundColor.RFQ if purchase_info.code == 'RFQ' else
+                    BackgroundColor.PO)
+        return self.get_cell_format(bg_color=bg_color, align='center', bold=bold)
 
 class StockWeeklyReportProvider:
     """
@@ -377,13 +373,12 @@ class StockWeeklyReportProvider:
         Orderpoint = self._env['stock.warehouse.orderpoint']
         orderpoints = Orderpoint.sudo().search([]).with_context({'location': location.id})
 
-        table = Table()
-        self._put_orderpoints_to_table(orderpoints, table)
-        self._put_purchases_to_table(orderpoints, table)
-
         stream = io.BytesIO()
         with PatchedXlsxWorkbook(stream) as workbook:
-            table.set_cell_formats(workbook)
+            table = Table(workbook)
+            self._put_orderpoints_to_table(orderpoints, table)
+            self._put_purchases_to_table(orderpoints, table)
+
             worksheet = workbook.add_worksheet()
 
             worksheet.set_row(1, 150)
