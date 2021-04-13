@@ -1,7 +1,7 @@
 {
     'name': 'Stock Weekly Report, eFarmer',
 
-    'version': '1.2',
+    'version': '2.0',
     'category': 'Other',
     'author': 'ERP Ukraine',
     'website': 'https://erp.co.ua',
@@ -18,6 +18,7 @@
         'stock',
         'purchase',
         'purchase_stock',
+        'mrp',
     ],
 
     'data': [
