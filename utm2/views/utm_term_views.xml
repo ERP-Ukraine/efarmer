@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8'?><odoo>
+
+<record id="utm_term_view_tree" model="ir.ui.view">
+    <field name="name">utm.term.view.tree</field>
+    <field name="model">utm.term</field>
+    <field name="arch" type="xml">
+        <tree string="Term" editable="top">
+            <field name="name"/>
+        </tree>
+    </field>
+</record>
+
+<record id="utm_term_view_form" model="ir.ui.view">
+    <field name="name">utm.term.view.form</field>
+    <field name="model">utm.term</field>
+    <field name="arch" type="xml">
+        <form string="Term">
+            <group>
+                <field name="name"/>
+            </group>
+        </form>
+    </field>
+</record>
+
+<record id="utm_term_action" model="ir.actions.act_window">
+    <field name="name">Term</field>
+    <field name="res_model">utm.term</field>
+    <field name="view_mode">tree</field>
+    <field name="view_id" ref="utm_term_view_tree"/>
+</record>
+
+<menuitem action="utm_term_action" id="utm_term_menuitem" sequence="4"
+          groups="base.group_no_one" parent="utm.marketing_utm"/>
+
+</odoo>

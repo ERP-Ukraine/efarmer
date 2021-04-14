@@ -1,0 +1,118 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* flexbe
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 13.0+e-20210320\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-04-14 16:48+0000\n"
+"PO-Revision-Date: 2021-04-14 16:48+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: flexbe
+#: model:ir.model,name:flexbe.model_res_config_settings
+msgid "Config Settings"
+msgstr "Налаштування"
+
+#. module: flexbe
+#: model:ir.model.fields,field_description:flexbe.field_flexbe_domain__create_uid
+msgid "Created by"
+msgstr "Створено (ким)"
+
+#. module: flexbe
+#: model:ir.model.fields,field_description:flexbe.field_flexbe_domain__create_date
+msgid "Created on"
+msgstr "Створено (коли)"
+
+#. module: flexbe
+#: model:ir.model.fields,field_description:flexbe.field_flexbe_domain__display_name
+msgid "Display Name"
+msgstr "Відображувана назва"
+
+#. module: flexbe
+#: model:ir.model.fields,field_description:flexbe.field_flexbe_domain__name
+#: model_terms:ir.ui.view,arch_db:flexbe.flexbe_domain_view_form
+msgid "Domain"
+msgstr "Домен"
+
+#. module: flexbe
+#: model_terms:ir.ui.view,arch_db:flexbe.flexbe_domain_view_tree
+msgid "Domains"
+msgstr "Домени"
+
+#. module: flexbe
+#: model_terms:ir.ui.view,arch_db:flexbe.res_config_settings_view_form
+msgid "Flexbe"
+msgstr "Flexbe"
+
+#. module: flexbe
+#: model:ir.model,name:flexbe.model_flexbe_domain
+msgid "Flexbe Domain"
+msgstr "Flexbe Домен"
+
+#. module: flexbe
+#: model:ir.actions.act_window,name:flexbe.flexbe_domain_action
+#: model:ir.ui.menu,name:flexbe.flexbe_domain_menuitem
+msgid "Flexbe Domains"
+msgstr "Flexbe Домени"
+
+#. module: flexbe
+#: model:ir.model.fields,field_description:flexbe.field_res_config_settings__config_flexbe_lead_type
+msgid "Flexbe Lead Type"
+msgstr "Flexbe Тип Ліда"
+
+#. module: flexbe
+#: model:res.groups,name:flexbe.flexbe_group_manager
+msgid "Flexbe Manager"
+msgstr "Flexbe Менеджер"
+
+#. module: flexbe
+#: model:ir.model.fields,field_description:flexbe.field_crm_lead__from_flexbe
+msgid "From Flexbe"
+msgstr "З Flexbe"
+
+#. module: flexbe
+#: model:ir.model.fields,field_description:flexbe.field_flexbe_domain__id
+msgid "ID"
+msgstr "ID"
+
+#. module: flexbe
+#: model:ir.model.fields,field_description:flexbe.field_flexbe_domain____last_update
+msgid "Last Modified on"
+msgstr "Останні зміни на"
+
+#. module: flexbe
+#: model:ir.model.fields,field_description:flexbe.field_flexbe_domain__write_uid
+msgid "Last Updated by"
+msgstr "Востаннє оновив"
+
+#. module: flexbe
+#: model:ir.model.fields,field_description:flexbe.field_flexbe_domain__write_date
+msgid "Last Updated on"
+msgstr "Останнє оновлення"
+
+#. module: flexbe
+#: model:ir.model.fields.selection,name:flexbe.selection__res_config_settings__config_flexbe_lead_type__lead
+msgid "Lead"
+msgstr "Лід"
+
+#. module: flexbe
+#: model:ir.model,name:flexbe.model_crm_lead
+msgid "Lead/Opportunity"
+msgstr "Лід/Нагода"
+
+#. module: flexbe
+#: model:ir.model.fields.selection,name:flexbe.selection__res_config_settings__config_flexbe_lead_type__opportunity
+msgid "Opportunity"
+msgstr "Нагода"
+
+#. module: flexbe
+#: model_terms:ir.ui.view,arch_db:flexbe.res_config_settings_view_form
+msgid "The initial state of new leads from Flexbe."
+msgstr "Початкова стадія нового ліда з Flexbe."

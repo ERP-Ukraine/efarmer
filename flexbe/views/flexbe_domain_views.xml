@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8'?><odoo>
+
+<record id="flexbe_domain_view_tree" model="ir.ui.view">
+    <field name="name">flexbe.domain.view.tree</field>
+    <field name="model">flexbe.domain</field>
+    <field name="arch" type="xml">
+        <tree string="Domains" editable="top">
+            <field name="name"/>
+        </tree>
+    </field>
+</record>
+
+<record id="flexbe_domain_view_form" model="ir.ui.view">
+    <field name="name">flexbe.domain.view.form</field>
+    <field name="model">flexbe.domain</field>
+    <field name="arch" type="xml">
+        <form string="Domain">
+            <group>
+                <field name="name"/>
+            </group>
+        </form>
+    </field>
+</record>
+
+<record id="flexbe_domain_action" model="ir.actions.act_window">
+    <field name="name">Flexbe Domains</field>
+    <field name="res_model">flexbe.domain</field>
+    <field name="view_mode">tree</field>
+    <field name="view_id" ref="flexbe_domain_view_tree"/>
+</record>
+
+<menuitem action="flexbe_domain_action" id="flexbe_domain_menuitem" sequence="4"
+          groups="base.group_no_one" parent="crm.crm_menu_config"/>
+
+</odoo>

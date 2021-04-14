@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8'?><odoo>
+
+<record id="utm_content_view_tree" model="ir.ui.view">
+    <field name="name">utm.content.view.tree</field>
+    <field name="model">utm.content</field>
+    <field name="arch" type="xml">
+        <tree string="Content" editable="top">
+            <field name="name"/>
+        </tree>
+    </field>
+</record>
+
+<record id="utm_content_view_form" model="ir.ui.view">
+    <field name="name">utm.content.view.form</field>
+    <field name="model">utm.content</field>
+    <field name="arch" type="xml">
+        <form string="Content">
+            <group>
+                <field name="name"/>
+            </group>
+        </form>
+    </field>
+</record>
+
+<record id="utm_content_action" model="ir.actions.act_window">
+    <field name="name">Content</field>
+    <field name="res_model">utm.content</field>
+    <field name="view_mode">tree</field>
+    <field name="view_id" ref="utm_content_view_tree"/>
+</record>
+
+<menuitem action="utm_content_action" id="utm_content_menuitem" sequence="4"
+          groups="base.group_no_one" parent="utm.marketing_utm"/>
+
+</odoo>
