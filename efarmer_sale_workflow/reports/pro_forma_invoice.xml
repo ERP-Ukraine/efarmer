@@ -4,20 +4,20 @@
 <template id="proforma_external_layout_clean" inherit_id="web.external_layout_clean">
     <!-- Don't print the company info on pro-forma docs. -->
     <xpath expr="//div[@name='company_address']" position="attributes">
-        <attribute name="t-if">not is_pro_forma</attribute>
+        <attribute name="t-if">not (is_pro_forma or env.context.get('proforma'))</attribute>
     </xpath>
 </template>
 
 <template id="proforma_address_layout" inherit_id="web.address_layout">
     <!-- Print the payment term note on pro-forma docs instead of invoice and delivery addresses. -->
     <xpath expr="//t[@t-if='information_block']" position="replace">
-        <t t-if="information_block and not is_pro_forma">
+        <t t-if="information_block and not (is_pro_forma or env.context.get('proforma'))">
             <t t-set="colclass" t-value="'col-5 offset-1'"/>
             <div name="information_block" class="col-6">
                 <t t-raw="information_block"/>
             </div>
         </t>
-        <t t-elif="is_pro_forma and o.payment_term_id.note">
+        <t t-elif="(is_pro_forma or env.context.get('proforma')) and o.payment_term_id.note">
             <t t-set="colclass" t-value="'col-5 offset-1'"/>
             <div name="proforma_payment_term" class="col-6">
                 <div t-field="o.payment_term_id.note"/>
@@ -34,14 +34,14 @@
     </xpath>
     <!-- Don't print the payment term below after the total block on pro-forma docs. -->
     <xpath expr="//p[@t-if='doc.payment_term_id.note']" position="attributes">
-        <attribute name="t-if">doc.payment_term_id.note and not is_pro_forma</attribute>
+        <attribute name="t-if">doc.payment_term_id.note and not (is_pro_forma or env.context.get('proforma'))</attribute>
     </xpath>
     <!-- Print the payment term before the total block on pro-forma docs. -->
     <xpath expr="//div[@id='total']/*[1]" position="attributes">
-        <attribute name="t-attf-class">#{'col-4' if report_type != 'html' else 'col-sm-5'} #{'' if is_pro_forma else 'ml-auto'}</attribute>
+        <attribute name="t-attf-class">#{'col-4' if report_type != 'html' else 'col-sm-5'} #{'' if is_pro_forma or env.context.get('proforma') else 'ml-auto'}</attribute>
     </xpath>
     <xpath expr="//div[@id='total']/*[1]" position="before">
-        <div name="proforma-payment-term" t-if="is_pro_forma" t-attf-class="#{'col-8' if report_type != 'html' else 'col-sm-7'}">
+        <div name="proforma-payment-term" t-if="is_pro_forma or env.context.get('proforma')" t-attf-class="#{'col-8' if report_type != 'html' else 'col-sm-7'}">
             <div t-if="doc.payment_term_id" style="padding-top: 15px;">
                 <strong>Payment terms: <span t-field="doc.payment_term_id"/></strong>
             </div>
