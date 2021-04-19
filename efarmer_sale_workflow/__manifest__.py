@@ -1,7 +1,7 @@
 {
     'name': 'eFarmer',
 
-    'version': '1.13',
+    'version': '1.14',
     'category': 'Other',
     'author': 'ERP Ukraine',
     'website': 'https://erp.co.ua',
@@ -25,6 +25,7 @@
         'sale_stock',
         'sales_team',
         'account',
+        'account_intrastat',
     ],
 
     'data': [
@@ -32,6 +33,7 @@
         'security/ir.model.access.csv',
         'reports/pro_forma_invoice.xml',
         'reports/commercial_invoice.xml',
+        'reports/account_commercial_invoice.xml',
         'reports/stock_picking_templates.xml',
         'views/assets.xml',
         'views/ir_actions_server_views.xml',

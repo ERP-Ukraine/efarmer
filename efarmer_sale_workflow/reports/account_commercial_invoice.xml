@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+
+<template id="report_account_commercial_invoice_document" inherit_id="account.report_invoice_document_with_payments" primary="True">
+    <!-- Change the header. -->
+    <xpath expr="//div[hasclass('page')]/h2" position="replace">
+        <h2>
+            <span>Сommercial Invoice # </span>
+            <span t-field="doc.name"/>
+        </h2>
+    </xpath>
+    <!-- Display HS code on the table lines. -->
+    <xpath expr="//table[@name='invoice_line_table']//th[@name='th_description']" position="after">
+        <th name="th_intrastat_code" class="text-left"><span>HS Code</span></th>
+    </xpath>
+    <xpath expr="//table[@name='invoice_line_table']//td[@name='account_invoice_line_name']" position="after">
+        <td name="td_intrastat_code"><span t-field="line.product_id.intrastat_id.code"/></td>
+    </xpath>
+</template>
+
+<template id="report_account_commercial_invoice">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="doc">
+            <t t-set="o" t-value="doc"/>
+            <t t-set="lang" t-value="o.invoice_user_id.sudo().lang if o.type in ('in_invoice', 'in_refund') else o.partner_id.lang"/>
+            <t t-call="efarmer_sale_workflow.report_account_commercial_invoice_document" t-lang="lang"/>
+        </t>
+    </t>
+</template>
+
+<report
+    id="action_report_account_commercial_invoice"
+    string="Сommercial Invoice"
+    model="account.move"
+    report_type="qweb-pdf"
+    file="efarmer_sale_workflow.report_account_commercial_invoice"
+    name="efarmer_sale_workflow.report_account_commercial_invoice"
+    print_report_name="'Сommercial Invoice - %s' % (object.name)"
+    />
+
+</odoo>
