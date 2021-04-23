@@ -9,13 +9,6 @@
             <span t-field="doc.name"/>
         </h2>
     </xpath>
-    <!-- Display HS code on the table lines. -->
-    <xpath expr="//table[@name='invoice_line_table']//th[@name='th_description']" position="after">
-        <th name="th_intrastat_code" class="text-left"><span>HS Code</span></th>
-    </xpath>
-    <xpath expr="//table[@name='invoice_line_table']//td[@name='account_invoice_line_name']" position="after">
-        <td name="td_intrastat_code"><span t-field="line.product_id.intrastat_id.code"/></td>
-    </xpath>
 </template>
 
 <template id="report_account_commercial_invoice">
