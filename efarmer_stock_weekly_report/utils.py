@@ -14,6 +14,9 @@ from odoo import api, fields
 from odoo.exceptions import UserError
 from odoo.tools import PatchedXlsxWorkbook, float_is_zero
 
+def get_week_no(date):
+    return date.isocalendar()[1]
+
 class BackgroundColor(enum.Enum):
     DEFAULT = '#ffffff'
     GREEN = '#b7d8a9'
@@ -151,12 +154,7 @@ class PurchaseInfo:
     @classmethod
     def create(cls, code, po, date):
         title_tmpl = '{code} {po.name} {date:%d.%m.%Y} {po.partner_id.display_name}'
-
-        week_no = int(date.strftime('%W'))
-        first_week_of_year = int(datetime.date(date.year, 1, 1).strftime('%W'))
-        if not first_week_of_year:  # when Monday is the first day of the year, the first week value is 1
-            week_no += 1  # increment it beacase the %W value is zero-based
-
+        week_no = get_week_no(date)
         return cls(code, title_tmpl.format(code=code, po=po, date=date), date, week_no, po.state)
 
     def at_finish(self):
