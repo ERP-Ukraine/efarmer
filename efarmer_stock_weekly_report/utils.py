@@ -5,6 +5,7 @@ import logging
 import operator
 import datetime
 from itertools import groupby
+from datetime import timedelta
 from collections import defaultdict
 
 from xlsxwriter.utility import xl_rowcol_to_cell
@@ -24,16 +25,21 @@ class BackgroundColor(enum.Enum):
 class OrderpointInfo:
 
     def __init__(self, orderpoint):
-        self.orderpoint = orderpoint
-        self.product_categ = orderpoint.product_id.categ_id.display_name
+        product = orderpoint.product_id
+        now = fields.Datetime.now()
 
-        self.code = orderpoint.product_id.default_code or ''
-        self.product_name = orderpoint.product_id.name
+        self.orderpoint = orderpoint
+        self.product_categ = product.categ_id.display_name
+
+        self.code = product.default_code or ''
+        self.product_name = product.name
         self.min_qty = orderpoint.product_min_qty
         self.max_qty = orderpoint.product_max_qty
-        self.lead_time = self.map_sellers_to_lead_time(orderpoint.product_id.seller_ids)
-        self.avail_qty = orderpoint.product_id.qty_available
-        self.forecasted_qty = orderpoint.product_id.virtual_available
+        self.lead_time = self.map_sellers_to_lead_time(product.seller_ids)
+        self.avail_qty = product.qty_available
+        self.forecasted_qty = product.virtual_available
+        self.avail_to_promise = self.get_avail_to_promise(product)
+        self.avail_to_promise_next_week = self.get_avail_to_promise_next_week(product, now)
 
     def get_columns(self):
         return (
@@ -44,6 +50,8 @@ class OrderpointInfo:
             ('lead_time', self.lead_time),
             ('avail_qty', self.avail_qty),
             ('forecasted_qty', self.forecasted_qty),
+            ('avail_to_promise', self.avail_to_promise),
+            ('avail_to_promise_next_week', self.avail_to_promise_next_week),
         )
 
     @property
@@ -53,6 +61,8 @@ class OrderpointInfo:
     @classmethod
     def make_fake_orderpoint(cls, kit_orderpoint, component):
         """Mock orderpoint with a component data."""
+        now = fields.Datetime.now()
+
         orderpoint_info = cls(kit_orderpoint)
         orderpoint_info.code = component.default_code or ''
         orderpoint_info.product_name = component.name
@@ -61,6 +71,8 @@ class OrderpointInfo:
         orderpoint_info.lead_time = cls.map_sellers_to_lead_time([])
         orderpoint_info.avail_qty = component.qty_available
         orderpoint_info.forecasted_qty = component.virtual_available
+        orderpoint_info.avail_to_promise = cls.get_avail_to_promise(component)
+        orderpoint_info.avail_to_promise_next_week = cls.get_avail_to_promise_next_week(component, now)
         return orderpoint_info
 
     @staticmethod
@@ -71,6 +83,29 @@ class OrderpointInfo:
             return [str(sellers.delay) + ' days']
         else:
             return []
+
+    @staticmethod
+    def get_avail_to_promise(product):
+        """
+        Available to Promise = (
+            остатки на складе на момент выгрузки - резерв + запланированные поступления -
+            запланированные отгрузки на момент выгрузки отчета.
+        )
+        """
+        product = product.with_context(to_date=False)
+        return product.free_qty - product.outgoing_qty + product.incoming_qty
+
+    @staticmethod
+    def get_avail_to_promise_next_week(product, now):
+        """
+        Available to Promise + 1 week = (
+            остатки на складе на момент выгрузки - резерв + запланированные поступления -
+            запланированные отгрузки  на момент выгрзки отчета + 1 неделя
+        )
+        """
+        to_date = now + timedelta(days=7)
+        product = product.with_context(to_date=to_date)
+        return product.free_qty - product.outgoing_qty + product.incoming_qty
 
 class BOMInfo:
 
@@ -294,6 +329,14 @@ class Table:
             value = '=SUM({})'.format(','.join(xl_rowcol_to_cell(x, 6) for x in product_rows_numbers))
             self.formulas.append(WorksheetFormulaParams(categ_row_no, 6, value))
 
+            # the 'avail to promise' qty column
+            value = '=SUM({})'.format(','.join(xl_rowcol_to_cell(x, 7) for x in product_rows_numbers))
+            self.formulas.append(WorksheetFormulaParams(categ_row_no, 7, value))
+
+            # the 'avail to promise + 1 week' qty column
+            value = '=SUM({})'.format(','.join(xl_rowcol_to_cell(x, 8) for x in product_rows_numbers))
+            self.formulas.append(WorksheetFormulaParams(categ_row_no, 8, value))
+
             # RFQ / PO columns
             start = len(orderpoints_titles)
             end = start + len(ordered_purchase_info)
@@ -313,6 +356,8 @@ class Table:
             'Lead Time',
             'CURRENT AMS/STOCK on {}'.format(today.strftime('%d/%m')),
             'Forecasted Stock',
+            'Available to Promise',
+            'Available to Promise + 1 week',
         )
 
     def _is_red_row(self, orderpoint_info):
@@ -389,6 +434,8 @@ class StockWeeklyReportProvider:
             worksheet.set_column(4, 4, 25)
             worksheet.set_column(5, 5, 15)
             worksheet.set_column(6, 6, 15)
+            worksheet.set_column(7, 7, 15)
+            worksheet.set_column(8, 8, 15)
 
             for cell in table:
                 if cell.rowspan > 1 or cell.colspan > 1:
