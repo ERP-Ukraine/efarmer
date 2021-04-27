@@ -38,7 +38,7 @@ class OrderpointInfo:
         self.lead_time = self.map_sellers_to_lead_time(product.seller_ids)
         self.avail_qty = product.qty_available
         self.forecasted_qty = product.virtual_available
-        self.avail_to_promise = self.get_avail_to_promise(product)
+        self.avail_to_promise = self.get_avail_to_promise(product, now)
         self.avail_to_promise_next_week = self.get_avail_to_promise_next_week(product, now)
 
     def get_columns(self):
@@ -71,7 +71,7 @@ class OrderpointInfo:
         orderpoint_info.lead_time = cls.map_sellers_to_lead_time([])
         orderpoint_info.avail_qty = component.qty_available
         orderpoint_info.forecasted_qty = component.virtual_available
-        orderpoint_info.avail_to_promise = cls.get_avail_to_promise(component)
+        orderpoint_info.avail_to_promise = cls.get_avail_to_promise(component, now)
         orderpoint_info.avail_to_promise_next_week = cls.get_avail_to_promise_next_week(component, now)
         return orderpoint_info
 
@@ -85,15 +85,15 @@ class OrderpointInfo:
             return []
 
     @staticmethod
-    def get_avail_to_promise(product):
+    def get_avail_to_promise(product, now):
         """
         Available to Promise = (
             остатки на складе на момент выгрузки - резерв + запланированные поступления -
             запланированные отгрузки на момент выгрузки отчета.
         )
         """
-        product = product.with_context(to_date=False)
-        return product.free_qty - product.outgoing_qty + product.incoming_qty
+        product = product.with_context(to_date=now)
+        return product.virtual_available
 
     @staticmethod
     def get_avail_to_promise_next_week(product, now):
@@ -105,7 +105,7 @@ class OrderpointInfo:
         """
         to_date = now + timedelta(days=7)
         product = product.with_context(to_date=to_date)
-        return product.free_qty - product.outgoing_qty + product.incoming_qty
+        return product.virtual_available
 
 class BOMInfo:
 
