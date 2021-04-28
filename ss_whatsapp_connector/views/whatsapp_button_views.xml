@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="whatsapp_res_view_form" model="ir.ui.view">
+            <field name="name">whatsapp.view.form.inherit.res</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='image_1920']" position="before">
+                    <div class="oe_button_box" name="button_box">
+                        <button name="contacts_whatsapp" string="Whatsapp Message" type="object" class="oe_stat_button" icon="fa-whatsapp" style="background-color:#b7ff8a"/>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+        <record id="whatsapp_crm_view_form" model="ir.ui.view">
+            <field name="name">whatsapp.view.form.inherit.crm</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+            <field name="arch" type="xml">
+                <header>
+                    <button name="crm_whatsapp" string="Send Whatsapp" type="object" class="btn-secondary" icon="fa-whatsapp" style="background-color:#b7ff8a"/>
+                </header>
+            </field>
+        </record>
+        <record id="whatsapp_account_view_form" model="ir.ui.view">
+            <field name="name">whatsapp.view.form.inherit.account</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <header>
+                    <button name="invoice_whatsapp" string="Send Whatsapp" type="object" class="btn-secondary" icon="fa-whatsapp" context="{'default_user_id' : partner_id}" states="posted" style="background-color:#b7ff8a"/>
+                </header>
+            </field>
+        </record>
+        <record id="whatsapp_purchase_view_form" model="ir.ui.view">
+            <field name="name">whatsapp.view.form.inherit.purchase</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <header>
+                    <button name="purchase_whatsapp" string="Send Whatsapp" type="object" class="btn-secondary" icon="fa-whatsapp" context="{'default_user_id' : partner_id}" style="background-color:#b7ff8a"/>
+                </header>
+            </field>
+        </record>
+        <record id="whatsapp_sale_view_form" model="ir.ui.view">
+            <field name="name">whatsapp.view.form.inherit.sale</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <header>
+                    <button name="sale_whatsapp" string="Send Whatsapp" type="object" class="btn-secondary" icon="fa-whatsapp" context="{'default_user_id' : partner_id}" states="sale" style="background-color:#b7ff8a"/>
+                </header>
+            </field>
+        </record>
+        <record id="whatsapp_stock_view_form" model="ir.ui.view">
+            <field name="name">whatsapp.view.form.inherit.stock</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <header>
+                    <button name="stock_whatsapp" string="Send Whatsapp" type="object" class="btn-secondary" icon="fa-whatsapp" style="background-color:#b7ff8a"/>
+                </header>
+            </field>
+        </record>
+    </data>
+</odoo>
