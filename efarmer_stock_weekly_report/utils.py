@@ -477,10 +477,9 @@ class StockWeeklyReportProvider:
     def _put_purchases_to_table(self, orderpoints, table):
         orderpoint_products = orderpoints.mapped('product_id')
 
-        for po in self._env['purchase.order'].sudo().search([('state', '!=', 'cancel')]):
+        for po in self._env['purchase.order'].sudo().search([('state', '!=', 'cancel'), ('all_received', '!=', True)]):
             valid_po_lines = po.order_line.filtered(lambda x: x.product_id in orderpoint_products)
-
-            if po.is_all_delivered() or not valid_po_lines:
+            if not valid_po_lines:
                 continue
 
             # create a record from the RFQ
