@@ -480,7 +480,7 @@ class StockWeeklyReportProvider:
         for po in self._env['purchase.order'].sudo().search([('state', '!=', 'cancel')]):
             valid_po_lines = po.order_line.filtered(lambda x: x.product_id in orderpoint_products)
 
-            if po.is_shipped or not valid_po_lines:
+            if po.is_all_delivered() or not valid_po_lines:
                 continue
 
             # create a record from the RFQ
