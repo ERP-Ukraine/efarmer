@@ -15,11 +15,13 @@
     <xpath expr="//div[@name='due_date']" position="replace"/>
     <!-- Append phone and email fields below the partner address. -->
     <xpath expr="//t[@t-set='address']" position="inside">
-        <div t-if="o.partner_id.phone">Phone: <span t-field="o.partner_id.phone"/></div>
+        <div t-if="o.partner_id.phone or o.partner_id.mobile">Phone: <span t-esc="o.partner_id.phone or o.partner_id.mobile"/></div>
         <div t-if="o.partner_id.email">Email: <span t-field="o.partner_id.email"/></div>
     </xpath>
     <!-- Remove the payment term notes. -->
-    <xpath expr="//p[@name='payment_term']" position="replace"/>
+    <xpath expr="//span[@t-field='o.invoice_payment_term_id.note']" position="replace">
+        <span>Payment Terms: <span t-field="o.invoice_payment_term_id.name"/></span>
+    </xpath>
 </template>
 
 <template id="report_account_commercial_invoice">
