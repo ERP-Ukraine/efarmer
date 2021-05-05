@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="external_layout_clean" inherit_id="web.external_layout_clean">
+    <!-- Don't print the company info. -->
+    <xpath expr="//div[@name='company_address']" position="attributes">
+        <attribute name="t-if">not (is_pro_forma or efarmer_address_placement or env.context.get('proforma'))</attribute>
+    </xpath>
+</template>
+
+<template id="address_layout" inherit_id="web.address_layout">
+    <!-- Print the payment term note instead of invoice and delivery addresses. -->
+    <xpath expr="//t[@t-if='information_block']" position="replace">
+        <t t-if="information_block and not (is_pro_forma or efarmer_address_placement or env.context.get('proforma'))">
+            <t t-set="colclass" t-value="'col-5 offset-1'"/>
+            <div name="information_block" class="col-6">
+                <t t-raw="information_block"/>
+            </div>
+        </t>
+        <t t-elif="(is_pro_forma or efarmer_address_placement or env.context.get('proforma'))">
+            <t t-set="colclass" t-value="'col-5 offset-1'"/>
+            <div name="proforma_payment_term" class="col-6">
+                <div t-if="o._name == 'sale.order'" t-field="o.payment_term_id.note"/>
+                <div t-if="o._name == 'account.move'" t-field="o.invoice_payment_term_id.note"/>
+            </div>
+        </t>
+    </xpath>
+</template>
+
+</odoo>

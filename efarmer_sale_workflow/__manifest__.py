@@ -1,7 +1,7 @@
 {
     'name': 'eFarmer',
 
-    'version': '1.17',
+    'version': '1.18',
     'category': 'Other',
     'author': 'ERP Ukraine',
     'website': 'https://erp.co.ua',
@@ -31,6 +31,7 @@
     'data': [
         'security/efarmer_sale_workflow_groups.xml',
         'security/ir.model.access.csv',
+        'reports/layout.xml',
         'reports/pro_forma_invoice.xml',
         'reports/commercial_invoice.xml',
         'reports/account_commercial_invoice.xml',

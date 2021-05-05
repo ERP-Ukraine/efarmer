@@ -9,10 +9,22 @@
             <span t-field="doc.name"/>
         </h2>
     </xpath>
+    <!-- Remove "Please use the following communication for your payment". -->
+    <xpath expr="//span[@t-field='o.invoice_payment_ref']/../.." position="replace"/>
+    <!-- Remove "Due date". -->
+    <xpath expr="//div[@name='due_date']" position="replace"/>
+    <!-- Append phone and email fields below the partner address. -->
+    <xpath expr="//t[@t-set='address']" position="inside">
+        <div t-if="o.partner_id.phone">Phone: <span t-field="o.partner_id.phone"/></div>
+        <div t-if="o.partner_id.email">Email: <span t-field="o.partner_id.email"/></div>
+    </xpath>
+    <!-- Remove the payment term notes. -->
+    <xpath expr="//p[@name='payment_term']" position="replace"/>
 </template>
 
 <template id="report_account_commercial_invoice">
     <t t-call="web.html_container">
+        <t t-set="efarmer_address_placement" t-value="True"/>
         <t t-foreach="docs" t-as="doc">
             <t t-set="o" t-value="doc"/>
             <t t-set="lang" t-value="o.invoice_user_id.sudo().lang if o.type in ('in_invoice', 'in_refund') else o.partner_id.lang"/>
