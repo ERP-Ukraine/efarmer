@@ -1,0 +1,67 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Odoo: Start",
+            "type": "shell",
+            "group": "build",
+            "command": "odoo",
+            "args": [
+                "-c",
+                "./odoo.conf"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Odoo: Shell",
+            "type": "shell",
+            "command": "odoo",
+            "args": [
+                "shell",
+                "--no-http"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Odoo: Run Tests",
+            "type": "shell",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "group": "test",
+            "options": {
+                "env": {
+                    "MARICHKA_KEY": ""
+                }
+            },
+            "command": "./run-tests-in-container.sh",
+            "args": [
+                "${input:addonsToTest}"
+            ]
+        },
+        {
+            "label": "Odoo: Drop Tests DB",
+            "type": "shell",
+            "command": "./run-tests-in-container.sh",
+            "args": [
+                "rm"
+            ],
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "type": "promptString",
+            "id": "addonsToTest",
+            "description": "Comma-separated Addons",
+            "default": "base"
+        }
+      ]
+}

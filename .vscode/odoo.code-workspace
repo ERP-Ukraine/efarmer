@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{	"name": "Project Addons",
+			"path": "/mnt/erpu-addons"
+		},
+		{	"name": "Odoo Core",
+			"path": "/usr/lib/python3/dist-packages/odoo"
+		},
+		{	"name": "Odoo EE",
+			"path": "/mnt/enterprise-addons"
+		}
+	],
+	"settings": {
+		"cSpell.words": [
+			"astimezone",
+			"curr",
+			"erpu",
+			"exigibility",
+			"hrdc",
+			"pytz",
+			"tax",
+			"tzinfo"
+		]
+	}
+}
