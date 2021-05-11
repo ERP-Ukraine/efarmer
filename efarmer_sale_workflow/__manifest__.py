@@ -1,7 +1,7 @@
 {
     'name': 'eFarmer',
 
-    'version': '1.19',
+    'version': '1.20',
     'category': 'Other',
     'author': 'ERP Ukraine',
     'website': 'https://erp.co.ua',
@@ -35,6 +35,7 @@
         'reports/pro_forma_invoice.xml',
         'reports/commercial_invoice.xml',
         'reports/account_commercial_invoice.xml',
+        'reports/account_invoice_wo_downpayment.xml',
         'reports/stock_picking_templates.xml',
         'views/assets.xml',
         'views/ir_actions_server_views.xml',
