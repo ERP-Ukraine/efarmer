@@ -55,7 +55,7 @@
 </template>
 
 <report
-    id="action_report_account_commercial_invoice"
+    id="action_report_account_invoice_wo_downpayment"
     string="Invoices without Downpayment"
     model="account.move"
     report_type="qweb-pdf"
