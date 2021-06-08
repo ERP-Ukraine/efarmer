@@ -29,6 +29,15 @@
     <xpath expr="//span[@t-field='o.invoice_payment_term_id.note']" position="replace">
         <span>Payment Terms: <span t-field="o.invoice_payment_term_id.name"/></span>
     </xpath>
+    <!-- Display `HS Code` and `Country of origin` into the description column. -->
+    <xpath expr="//table[@name='invoice_line_table']//td[@name='account_invoice_line_name']" position="inside">
+        <div name="hs_code" t-if="line.product_id.intrastat_id.code">
+            HS Code: <span t-field="line.product_id.intrastat_id.code"/>
+        </div>
+        <div name="country_of_origin" t-if="line.product_id.intrastat_origin_country_id.name">
+            Country of Origin: <span t-field="line.product_id.intrastat_origin_country_id.name"/>
+        </div>
+    </xpath>
 </template>
 
 <template id="report_account_commercial_invoice">
