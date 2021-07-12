@@ -177,6 +177,7 @@ class EfarmerHelpdeskRepair(models.TransientModel):
             'product_id': self.product_id.id,
             'product_uom': self.product_id.uom_id.id,
             'product_uom_qty': 1,
+            'helpdesk_repair_lot_id': self.lot_id.id,
         }
 
         if move_date is not None:
