@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?><odoo>
+
+<record id="stock_warehouse_lot_prefix_view_tree" model="ir.ui.view">
+    <field name="name">stock.warehouse.lot.prefix.view.tree</field>
+    <field name="model">stock.warehouse.lot.prefix</field>
+    <field name="arch" type="xml">
+        <tree string="Warehouse - Lots" editable="top">
+            <field name="warehouse_id"/>
+            <field name="lot_prefix"/>
+        </tree>
+    </field>
+</record>
+
+<record id="stock_warehouse_lot_prefix_action" model="ir.actions.act_window">
+    <field name="name">Warehouse - Lots</field>
+    <field name="res_model">stock.warehouse.lot.prefix</field>
+    <field name="view_mode">form</field>
+    <field name="view_mode">tree</field>
+    <field name="view_id" ref="stock_warehouse_lot_prefix_view_tree"/>
+</record>
+
+<menuitem action="stock_warehouse_lot_prefix_action" id="stock_warehouse_lot_prefix_menuitem" parent="stock.menu_stock_inventory_control" sequence="102"/>
+
+</odoo>

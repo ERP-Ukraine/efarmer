@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<record id="helpdesk_ticket_view_form_inherit_helpdesk_stock" model="ir.ui.view">
+    <field name="name">helpdesk.ticket.view.form</field>
+    <field name="model">helpdesk.ticket</field>
+    <field name="inherit_id" ref="helpdesk_stock.helpdesk_ticket_view_form_inherit_helpdesk_stock"/>
+    <field name="arch" type="xml">
+        <xpath expr="//header/button[last()]" position="after">
+            <button
+                type="action" name="%(efarmer_helpdesk_repair.efarmer_helpdesk_repair_action_view_form)d"
+                string="Repair/Replace" context="{'default_ticket_id': id}"/>
+        </xpath>
+        <xpath expr="//field[@name='product_id']" position="replace">
+            <field name="product_id" string="Product"/>
+        </xpath>
+        <xpath expr="//field[@name='lot_id']" position="replace">
+            <field name="lot_id" string="Lot Number" context="{'default_product_id': product_id, 'default_company_id': company_id}"/>
+            <field name="factory_id" string="Factory"/>
+        </xpath>
+    </field>
+</record>
+
+</odoo>
