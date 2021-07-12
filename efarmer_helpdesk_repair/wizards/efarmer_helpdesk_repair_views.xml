@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<record id="efarmer_helpdesk_repair_view_form" model="ir.ui.view">
+    <field name="name">efarmer.helpdesk.repair.view.form</field>
+    <field name="model">efarmer.helpdesk.repair</field>
+    <field name="arch" type="xml">
+        <form>
+            <sheet>
+                <group name="wrap">
+                    <group>
+                        <field name="ticket_id"/>
+                        <field name="product_id"/>
+                        <field name="lot_id"/>
+                        <field name="factory_id"/>
+                    </group>
+                    <group>
+                        <field name="operation_type"/>
+
+                        <label for="return_warehouse_id"/>
+                        <div name="return_warehouse_id">
+                            <field name="return_warehouse_id" attrs="{'required': [('operation_type', '=', 'repair_replace_return')]}" options="{'no_create': True}"/>
+                            <span attrs="{'invisible': [('return_warehouse_id', '!=', False)]}" class="text-muted">Send to the factory directly.</span>
+                        </div>
+
+                        <label for="weeks_to_repair"/>
+                        <div name="weeks_to_repair">
+                            <field name="weeks_to_repair" class="oe_inline"/>
+                            <span>weeks</span>
+                        </div>
+
+                        <field name="return_date"/>
+                    </group>
+                    <group>
+                        <field name="used_location_id"
+                            attrs="{'invisible': [('operation_type', 'not in', ('repair_replace', 'repair_replace_return'))], 'required': [('operation_type', 'in', ('repair_replace', 'repair_replace_return'))]}"/>
+                        <field name="replacement_product_id" options="{'no_create': True}"
+                            attrs="{'invisible': [('operation_type', 'not in', ('repair_replace', 'repair_replace_return'))], 'required': [('operation_type', 'in', ('repair_replace', 'repair_replace_return'))]}"/>
+                        <field name="stock_location_id"
+                            attrs="{'invisible': [('operation_type', '!=', 'repair_replace')], 'required': [('operation_type', '=', 'repair_replace')]}"/>
+                    </group>
+                </group>
+            </sheet>
+            <footer>
+                <button string="Create Transfers" name="action_run" type="object" class="btn-primary"/>
+                <button string="Cancel" special="cancel" class="btn-secondary"/>
+            </footer>
+        </form>
+    </field>
+</record>
+
+<record id="efarmer_helpdesk_repair_action_view_form" model="ir.actions.act_window">
+    <field name="name">Repair/Replace</field>
+    <field name="res_model">efarmer.helpdesk.repair</field>
+    <field name="view_mode">form</field>
+    <field name="view_id" ref="efarmer_helpdesk_repair_view_form"/>
+    <field name="target">new</field>
+</record>
+
+</odoo>
