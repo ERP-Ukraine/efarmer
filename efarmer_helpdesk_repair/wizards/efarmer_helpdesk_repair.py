@@ -15,8 +15,9 @@ class EfarmerHelpdeskRepair(models.TransientModel):
     ticket_id = fields.Many2one('helpdesk.ticket', 'Helpdesk Ticket', readonly=True, required=True)
 
     product_id = fields.Many2one('product.product', 'Product', related='ticket_id.product_id', readonly=True, required=True)
-    lot_id = fields.Many2one('stock.production.lot', 'Lot Number', related='ticket_id.lot_id', readonly=True, required=True)
+    product_tracking = fields.Selection(related='ticket_id.product_id.tracking')
     factory_id = fields.Many2one('stock.warehouse', 'Factory', related='ticket_id.factory_id', readonly=True, required=True)
+    lot_id = fields.Many2one('stock.production.lot', 'Lot Number', related='ticket_id.lot_id', readonly=True)
 
     operation_type = fields.Selection(
         string='Operation Type',
