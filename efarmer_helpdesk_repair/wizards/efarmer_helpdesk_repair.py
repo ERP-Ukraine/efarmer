@@ -197,6 +197,9 @@ class EfarmerHelpdeskRepair(models.TransientModel):
             'move_lines': [(0, 0, move_values)],
         })
 
+        picking.action_confirm()
+        picking.action_assign()
+
         self.ticket_id.picking_ids = [(4, picking.id)]
 
         return picking
