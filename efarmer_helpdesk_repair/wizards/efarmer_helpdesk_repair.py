@@ -184,23 +184,23 @@ class EfarmerHelpdeskRepair(models.TransientModel):
             'helpdesk_repair_lot_id': self.lot_id.id,
         }
 
-        if move_date is not None:
-            move_values.update({
-                'date': move_date,
-                'date_expected': move_date,
-            })
-
-        if prev_move is not None:
-            move_values['move_orig_ids'] = [(4, prev_move.id)]
-
-        picking = self.env['stock.picking'].create({
+        picking_values = {
             'user_id': self.ticket_id.user_id.id,
             'picking_type_id': picking_type.id,
             'origin': self.ticket_id.display_name,
             'location_id': src_location.id,
             'location_dest_id': dst_location.id,
-            'move_lines': [(0, 0, move_values)],
-        })
+        }
+
+        if move_date is not None:
+            picking_values['scheduled_date'] = move_date
+            move_values['date_expected'] = move_date
+            move_values['date'] = move_date
+
+        if prev_move is not None:
+            move_values['move_orig_ids'] = [(4, prev_move.id)]
+
+        picking = self.env['stock.picking'].create(dict(picking_values, move_lines=[(0, 0, move_values)]))
 
         picking.action_confirm()
         picking.action_assign()
