@@ -15,8 +15,9 @@ class EfarmerHelpdeskRepair(models.TransientModel):
     ticket_id = fields.Many2one('helpdesk.ticket', 'Helpdesk Ticket', readonly=True, required=True)
 
     product_id = fields.Many2one('product.product', 'Product', related='ticket_id.product_id', readonly=True, required=True)
-    lot_id = fields.Many2one('stock.production.lot', 'Lot Number', related='ticket_id.lot_id', readonly=True, required=True)
+    product_tracking = fields.Selection(related='ticket_id.product_id.tracking')
     factory_id = fields.Many2one('stock.warehouse', 'Factory', related='ticket_id.factory_id', readonly=True, required=True)
+    lot_id = fields.Many2one('stock.production.lot', 'Lot Number', related='ticket_id.lot_id', readonly=True)
 
     operation_type = fields.Selection(
         string='Operation Type',
@@ -38,15 +39,16 @@ class EfarmerHelpdeskRepair(models.TransientModel):
     weeks_to_repair = fields.Integer('Repair Time', default=_get_default_weeks_to_repair, required=True)
 
     replacement_product_id = fields.Many2one('product.product', 'Replacement Product')
-    used_location_id = fields.Many2one('stock.location', 'Used Location')
-    stock_location_id = fields.Many2one('stock.location', 'Stock Location')
+    used_warehouse_id = fields.Many2one('stock.warehouse', 'Used Warehouse')
+    stock_warehouse_id = fields.Many2one('stock.warehouse', 'Stock Warehouse')
 
-    @api.onchange('used_location_id')
-    def _onchange_used_location_id(self):
+    @api.onchange('used_warehouse_id')
+    def _onchange_used_warehouse_id(self):
         replacement_product_domain = []
-        if self.used_location_id:
-            all_products = self.env['stock.quant'].search([('location_id', 'child_of', self.used_location_id.id)]).mapped('product_id')
-            avail_products = all_products.with_context(location=self.used_location_id.id).filtered(lambda x: x.qty_available > 0)
+        if self.used_warehouse_id:
+            location = self.used_warehouse_id.lot_stock_id
+            all_products = self.env['stock.quant'].search([('location_id', 'child_of', location.id)]).mapped('product_id')
+            avail_products = all_products.with_context(location=location.id).filtered(lambda x: x.qty_available > 0)
             replacement_product_domain.append(('id', 'in', avail_products.ids))
 
         return {
@@ -71,6 +73,9 @@ class EfarmerHelpdeskRepair(models.TransientModel):
 
         return_internal_picking_type = self.return_warehouse_id.int_type_id
 
+        used_location = self.used_warehouse_id.lot_stock_id
+        stock_location = self.stock_warehouse_id.lot_stock_id
+
         if not all((
             # These picking types below are necassary anyway.
             incoming_picking_type and outgoing_picking_type,
@@ -88,10 +93,10 @@ class EfarmerHelpdeskRepair(models.TransientModel):
             if self.return_warehouse_id:
                 # customer > return > factory
                 picking = self._create_picking(incoming_picking_type, customers_location, return_location, move_date=date_of_delivering_to_factory)
-                self._create_picking(return_internal_picking_type, return_location, factory_location, prev_move=picking.move_lines, move_date=date_of_delivering_to_factory)
+                self._create_picking(return_internal_picking_type, return_location, factory_location, prev_move=picking and picking.move_lines, move_date=date_of_delivering_to_factory)
                 # factory > return > customer
                 picking = self._create_picking(return_internal_picking_type, factory_location, return_location, move_date=date_of_repair_completion)
-                self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking.move_lines, move_date=date_of_repair_completion)
+                self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking and picking.move_lines, move_date=date_of_repair_completion)
             else:
                 # customer > factory
                 self._create_picking(incoming_picking_type, customers_location, factory_location, move_date=date_of_delivering_to_factory)
@@ -103,47 +108,47 @@ class EfarmerHelpdeskRepair(models.TransientModel):
             if self.return_warehouse_id:
                 # customer > return > factory
                 picking = self._create_picking(incoming_picking_type, customers_location, return_location, move_date=date_of_delivering_to_factory)
-                self._create_picking(return_internal_picking_type, return_location, factory_location, prev_move=picking.move_lines, move_date=date_of_delivering_to_factory)
+                self._create_picking(return_internal_picking_type, return_location, factory_location, prev_move=picking and picking.move_lines, move_date=date_of_delivering_to_factory)
                 # used > return > customer
-                picking = self._create_picking(return_internal_picking_type, self.used_location_id, return_location)
-                self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking.move_lines)
+                picking = self._create_picking(return_internal_picking_type, used_location, return_location)
+                self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking and picking.move_lines)
                 # factory > return > stock
                 picking = self._create_picking(internal_picking_type, factory_location, return_location, move_date=date_of_repair_completion)
-                self._create_picking(internal_picking_type, return_location, self.stock_location_id, prev_move=picking.move_lines, move_date=date_of_repair_completion)
+                self._create_picking(internal_picking_type, return_location, stock_location, prev_move=picking and picking.move_lines, move_date=date_of_repair_completion)
             else:
                 # customer > factory
                 self._create_picking(incoming_picking_type, customers_location, factory_location, move_date=date_of_delivering_to_factory)
                 # used > customer
-                self._create_picking(outgoing_picking_type, self.used_location_id, customers_location)
+                self._create_picking(outgoing_picking_type, used_location, customers_location)
                 # factory > stock
-                self._create_picking(internal_picking_type, factory_location, self.stock_location_id, move_date=date_of_repair_completion)
+                self._create_picking(internal_picking_type, factory_location, stock_location, move_date=date_of_repair_completion)
 
         elif self.operation_type == 'repair_replace_return':
 
             if self.return_warehouse_id:
                 # customer > return > factory
                 picking = self._create_picking(incoming_picking_type, customers_location, return_location, move_date=date_of_delivering_to_factory)
-                self._create_picking(return_internal_picking_type, return_location, factory_location, prev_move=picking.move_lines, move_date=date_of_delivering_to_factory)
+                self._create_picking(return_internal_picking_type, return_location, factory_location, prev_move=picking and picking.move_lines, move_date=date_of_delivering_to_factory)
                 # used > return > customer
-                picking = self._create_picking(return_internal_picking_type, self.used_location_id, return_location)
-                self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking.move_lines)
+                picking = self._create_picking(return_internal_picking_type, used_location, return_location)
+                self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking and picking.move_lines)
                 # factory > return > customer
                 picking = self._create_picking(return_internal_picking_type, factory_location, return_location, move_date=date_of_repair_completion)
-                self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking.move_lines, move_date=date_of_repair_completion)
+                self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking and picking.move_lines, move_date=date_of_repair_completion)
                 # customer > return > used
                 picking = self._create_picking(incoming_picking_type, customers_location, return_location, move_date=date_of_repair_completion)
-                self._create_picking(return_internal_picking_type, return_location, self.used_location_id, prev_move=picking.move_lines, move_date=date_of_repair_completion)
+                self._create_picking(return_internal_picking_type, return_location, used_location, prev_move=picking and picking.move_lines, move_date=date_of_repair_completion)
             else:
                 # customer > factory
                 self._create_picking(incoming_picking_type, customers_location, factory_location, move_date=date_of_delivering_to_factory)
                 # used > return > customer
-                picking = self._create_picking(return_internal_picking_type, self.used_location_id, return_location)
-                self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking.move_lines)
+                picking = self._create_picking(return_internal_picking_type, used_location, return_location)
+                self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking and picking.move_lines)
                 # factory > customer
                 self._create_picking(outgoing_picking_type, factory_location, customers_location, move_date=date_of_repair_completion)
                 # customer > return > used
                 picking = self._create_picking(incoming_picking_type, customers_location, return_location, move_date=date_of_repair_completion)
-                self._create_picking(return_internal_picking_type, return_location, self.used_location_id, prev_move=picking.move_lines, move_date=date_of_repair_completion)
+                self._create_picking(return_internal_picking_type, return_location, used_location, prev_move=picking and picking.move_lines, move_date=date_of_repair_completion)
 
         else:
             raise UserError('Invalid operation type.')
@@ -157,6 +162,7 @@ class EfarmerHelpdeskRepair(models.TransientModel):
         )
 
     def _create_picking(self, picking_type, src_location, dst_location, prev_move=None, move_date=None):
+        """Return a new picking or None (the latter if the source and the destination is the same place)."""
         self.ensure_one()
 
         picking_type.ensure_one()
@@ -169,6 +175,9 @@ class EfarmerHelpdeskRepair(models.TransientModel):
         assert prev_move is None or (prev_move._name == 'stock.move' and len(prev_move) == 1)
         assert move_date is None or isinstance(move_date, date)
 
+        if src_location == dst_location:
+            return None
+
         move_values = {
             'name': self.ticket_id.display_name,
             'company_id': self.ticket_id.company_id.id,
@@ -180,22 +189,26 @@ class EfarmerHelpdeskRepair(models.TransientModel):
             'helpdesk_repair_lot_id': self.lot_id.id,
         }
 
-        if move_date is not None:
-            move_values.update({
-                'date': move_date,
-                'date_expected': move_date,
-            })
-
-        if prev_move is not None:
-            move_values['move_orig_ids'] = [(4, prev_move.id)]
-
-        picking = self.env['stock.picking'].create({
+        picking_values = {
+            'user_id': self.ticket_id.user_id.id,
             'picking_type_id': picking_type.id,
             'origin': self.ticket_id.display_name,
             'location_id': src_location.id,
             'location_dest_id': dst_location.id,
-            'move_lines': [(0, 0, move_values)],
-        })
+        }
+
+        if move_date is not None:
+            picking_values['scheduled_date'] = move_date
+            move_values['date_expected'] = move_date
+            move_values['date'] = move_date
+
+        if prev_move is not None:
+            move_values['move_orig_ids'] = [(4, prev_move.id)]
+
+        picking = self.env['stock.picking'].create(dict(picking_values, move_lines=[(0, 0, move_values)]))
+
+        picking.action_confirm()
+        picking.action_assign()
 
         self.ticket_id.picking_ids = [(4, picking.id)]
 

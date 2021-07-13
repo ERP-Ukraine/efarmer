@@ -11,7 +11,10 @@
                     <group>
                         <field name="ticket_id"/>
                         <field name="product_id"/>
-                        <field name="lot_id"/>
+
+                        <field name="product_tracking" invisible="1"/>
+                        <field name="lot_id" attrs="{'required': [('product_tracking', 'in', ['lot', 'serial'])]}"/>
+
                         <field name="factory_id"/>
                     </group>
                     <group>
@@ -32,11 +35,11 @@
                         <field name="return_date"/>
                     </group>
                     <group>
-                        <field name="used_location_id"
+                        <field name="used_warehouse_id"
                             attrs="{'invisible': [('operation_type', 'not in', ('repair_replace', 'repair_replace_return'))], 'required': [('operation_type', 'in', ('repair_replace', 'repair_replace_return'))]}"/>
                         <field name="replacement_product_id" options="{'no_create': True}"
                             attrs="{'invisible': [('operation_type', 'not in', ('repair_replace', 'repair_replace_return'))], 'required': [('operation_type', 'in', ('repair_replace', 'repair_replace_return'))]}"/>
-                        <field name="stock_location_id"
+                        <field name="stock_warehouse_id"
                             attrs="{'invisible': [('operation_type', '!=', 'repair_replace')], 'required': [('operation_type', '=', 'repair_replace')]}"/>
                     </group>
                 </group>
