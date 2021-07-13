@@ -38,8 +38,8 @@ class EfarmerHelpdeskRepair(models.TransientModel):
     weeks_to_repair = fields.Integer('Repair Time', default=_get_default_weeks_to_repair, required=True)
 
     replacement_product_id = fields.Many2one('product.product', 'Replacement Product')
-    used_warehouse_id = fields.Many2one('stock.location', 'Used Warehouse')
-    stock_warehouse_id = fields.Many2one('stock.location', 'Stock Warehouse')
+    used_warehouse_id = fields.Many2one('stock.warehouse', 'Used Warehouse')
+    stock_warehouse_id = fields.Many2one('stock.warehouse', 'Stock Warehouse')
 
     @api.onchange('used_warehouse_id')
     def _onchange_used_warehouse_id(self):
