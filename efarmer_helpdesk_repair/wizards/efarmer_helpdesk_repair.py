@@ -92,10 +92,10 @@ class EfarmerHelpdeskRepair(models.TransientModel):
             if self.return_warehouse_id:
                 # customer > return > factory
                 picking = self._create_picking(incoming_picking_type, customers_location, return_location, move_date=date_of_delivering_to_factory)
-                self._create_picking(return_internal_picking_type, return_location, factory_location, prev_move=picking.move_lines, move_date=date_of_delivering_to_factory)
+                self._create_picking(return_internal_picking_type, return_location, factory_location, prev_move=picking and picking.move_lines, move_date=date_of_delivering_to_factory)
                 # factory > return > customer
                 picking = self._create_picking(return_internal_picking_type, factory_location, return_location, move_date=date_of_repair_completion)
-                self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking.move_lines, move_date=date_of_repair_completion)
+                self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking and picking.move_lines, move_date=date_of_repair_completion)
             else:
                 # customer > factory
                 self._create_picking(incoming_picking_type, customers_location, factory_location, move_date=date_of_delivering_to_factory)
@@ -107,13 +107,13 @@ class EfarmerHelpdeskRepair(models.TransientModel):
             if self.return_warehouse_id:
                 # customer > return > factory
                 picking = self._create_picking(incoming_picking_type, customers_location, return_location, move_date=date_of_delivering_to_factory)
-                self._create_picking(return_internal_picking_type, return_location, factory_location, prev_move=picking.move_lines, move_date=date_of_delivering_to_factory)
+                self._create_picking(return_internal_picking_type, return_location, factory_location, prev_move=picking and picking.move_lines, move_date=date_of_delivering_to_factory)
                 # used > return > customer
                 picking = self._create_picking(return_internal_picking_type, used_location, return_location)
-                self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking.move_lines)
+                self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking and picking.move_lines)
                 # factory > return > stock
                 picking = self._create_picking(internal_picking_type, factory_location, return_location, move_date=date_of_repair_completion)
-                self._create_picking(internal_picking_type, return_location, stock_location, prev_move=picking.move_lines, move_date=date_of_repair_completion)
+                self._create_picking(internal_picking_type, return_location, stock_location, prev_move=picking and picking.move_lines, move_date=date_of_repair_completion)
             else:
                 # customer > factory
                 self._create_picking(incoming_picking_type, customers_location, factory_location, move_date=date_of_delivering_to_factory)
@@ -127,27 +127,27 @@ class EfarmerHelpdeskRepair(models.TransientModel):
             if self.return_warehouse_id:
                 # customer > return > factory
                 picking = self._create_picking(incoming_picking_type, customers_location, return_location, move_date=date_of_delivering_to_factory)
-                self._create_picking(return_internal_picking_type, return_location, factory_location, prev_move=picking.move_lines, move_date=date_of_delivering_to_factory)
+                self._create_picking(return_internal_picking_type, return_location, factory_location, prev_move=picking and picking.move_lines, move_date=date_of_delivering_to_factory)
                 # used > return > customer
                 picking = self._create_picking(return_internal_picking_type, used_location, return_location)
-                self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking.move_lines)
+                self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking and picking.move_lines)
                 # factory > return > customer
                 picking = self._create_picking(return_internal_picking_type, factory_location, return_location, move_date=date_of_repair_completion)
-                self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking.move_lines, move_date=date_of_repair_completion)
+                self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking and picking.move_lines, move_date=date_of_repair_completion)
                 # customer > return > used
                 picking = self._create_picking(incoming_picking_type, customers_location, return_location, move_date=date_of_repair_completion)
-                self._create_picking(return_internal_picking_type, return_location, used_location, prev_move=picking.move_lines, move_date=date_of_repair_completion)
+                self._create_picking(return_internal_picking_type, return_location, used_location, prev_move=picking and picking.move_lines, move_date=date_of_repair_completion)
             else:
                 # customer > factory
                 self._create_picking(incoming_picking_type, customers_location, factory_location, move_date=date_of_delivering_to_factory)
                 # used > return > customer
                 picking = self._create_picking(return_internal_picking_type, used_location, return_location)
-                self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking.move_lines)
+                self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking and picking.move_lines)
                 # factory > customer
                 self._create_picking(outgoing_picking_type, factory_location, customers_location, move_date=date_of_repair_completion)
                 # customer > return > used
                 picking = self._create_picking(incoming_picking_type, customers_location, return_location, move_date=date_of_repair_completion)
-                self._create_picking(return_internal_picking_type, return_location, used_location, prev_move=picking.move_lines, move_date=date_of_repair_completion)
+                self._create_picking(return_internal_picking_type, return_location, used_location, prev_move=picking and picking.move_lines, move_date=date_of_repair_completion)
 
         else:
             raise UserError('Invalid operation type.')
@@ -161,6 +161,7 @@ class EfarmerHelpdeskRepair(models.TransientModel):
         )
 
     def _create_picking(self, picking_type, src_location, dst_location, prev_move=None, move_date=None):
+        """Return a new picking or None (the latter if the source and the destination is the same place)."""
         self.ensure_one()
 
         picking_type.ensure_one()
@@ -172,6 +173,9 @@ class EfarmerHelpdeskRepair(models.TransientModel):
         assert dst_location._name == 'stock.location'
         assert prev_move is None or (prev_move._name == 'stock.move' and len(prev_move) == 1)
         assert move_date is None or isinstance(move_date, date)
+
+        if src_location == dst_location:
+            return None
 
         move_values = {
             'name': self.ticket_id.display_name,
