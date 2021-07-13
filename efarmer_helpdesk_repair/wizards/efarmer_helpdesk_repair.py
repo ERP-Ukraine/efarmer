@@ -194,6 +194,7 @@ class EfarmerHelpdeskRepair(models.TransientModel):
             move_values['move_orig_ids'] = [(4, prev_move.id)]
 
         picking = self.env['stock.picking'].create({
+            'user_id': self.ticket_id.user_id.id,
             'picking_type_id': picking_type.id,
             'origin': self.ticket_id.display_name,
             'location_id': src_location.id,
