@@ -32,7 +32,7 @@
                         <field name="return_date"/>
                     </group>
                     <group>
-                        <field name="used_location_id"
+                        <field name="used_warehouse_id"
                             attrs="{'invisible': [('operation_type', 'not in', ('repair_replace', 'repair_replace_return'))], 'required': [('operation_type', 'in', ('repair_replace', 'repair_replace_return'))]}"/>
                         <field name="replacement_product_id" options="{'no_create': True}"
                             attrs="{'invisible': [('operation_type', 'not in', ('repair_replace', 'repair_replace_return'))], 'required': [('operation_type', 'in', ('repair_replace', 'repair_replace_return'))]}"/>
