@@ -39,7 +39,7 @@ class EfarmerHelpdeskRepair(models.TransientModel):
 
     replacement_product_id = fields.Many2one('product.product', 'Replacement Product')
     used_warehouse_id = fields.Many2one('stock.location', 'Used Warehouse')
-    stock_location_id = fields.Many2one('stock.location', 'Stock Location')
+    stock_warehouse_id = fields.Many2one('stock.location', 'Stock Warehouse')
 
     @api.onchange('used_warehouse_id')
     def _onchange_used_warehouse_id(self):
@@ -73,6 +73,7 @@ class EfarmerHelpdeskRepair(models.TransientModel):
         return_internal_picking_type = self.return_warehouse_id.int_type_id
 
         used_location = self.used_warehouse_id.lot_stock_id
+        stock_location = self.stock_warehouse_id.lot_stock_id
 
         if not all((
             # These picking types below are necassary anyway.
@@ -112,14 +113,14 @@ class EfarmerHelpdeskRepair(models.TransientModel):
                 self._create_picking(outgoing_picking_type, return_location, customers_location, prev_move=picking.move_lines)
                 # factory > return > stock
                 picking = self._create_picking(internal_picking_type, factory_location, return_location, move_date=date_of_repair_completion)
-                self._create_picking(internal_picking_type, return_location, self.stock_location_id, prev_move=picking.move_lines, move_date=date_of_repair_completion)
+                self._create_picking(internal_picking_type, return_location, stock_location, prev_move=picking.move_lines, move_date=date_of_repair_completion)
             else:
                 # customer > factory
                 self._create_picking(incoming_picking_type, customers_location, factory_location, move_date=date_of_delivering_to_factory)
                 # used > customer
                 self._create_picking(outgoing_picking_type, used_location, customers_location)
                 # factory > stock
-                self._create_picking(internal_picking_type, factory_location, self.stock_location_id, move_date=date_of_repair_completion)
+                self._create_picking(internal_picking_type, factory_location, stock_location, move_date=date_of_repair_completion)
 
         elif self.operation_type == 'repair_replace_return':
 
