@@ -205,7 +205,7 @@ class EfarmerHelpdeskRepair(models.TransientModel):
         if prev_move is not None:
             move_values['move_orig_ids'] = [(4, prev_move.id)]
 
-        picking = self.env['stock.picking'].create(dict(picking_values, move_lines=[(0, 0, move_values)]))
+        picking = self.env['stock.picking'].sudo().create(dict(picking_values, move_lines=[(0, 0, move_values)]))
 
         picking.action_confirm()
         picking.action_assign()
