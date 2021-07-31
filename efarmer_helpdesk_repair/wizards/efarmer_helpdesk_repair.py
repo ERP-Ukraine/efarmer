@@ -162,11 +162,13 @@ class EfarmerHelpdeskRepair(models.TransientModel):
         else:
             raise UserError('Invalid operation type.')
 
+        assigned_user = self.ticket_id.user_id
+        if assigned_user:
         # Create a reminder.
         self.ticket_id.activity_schedule(
             act_type_xmlid='mail.mail_activity_data_todo',
             summary='Check the repair process.',
-            user_id=self.ticket_id.user_id.id,
+                user_id=assigned_user.id,
             date_deadline=date_of_repair_completion,
         )
 
