@@ -164,13 +164,13 @@ class EfarmerHelpdeskRepair(models.TransientModel):
 
         assigned_user = self.ticket_id.user_id
         if assigned_user:
-        # Create a reminder.
-        self.ticket_id.activity_schedule(
-            act_type_xmlid='mail.mail_activity_data_todo',
-            summary='Check the repair process.',
+            # Create a reminder.
+            self.ticket_id.activity_schedule(
+                act_type_xmlid='mail.mail_activity_data_todo',
+                summary='Check the repair process.',
                 user_id=assigned_user.id,
-            date_deadline=date_of_repair_completion,
-        )
+                date_deadline=date_of_repair_completion,
+            )
 
     def _create_picking(self, picking_type, src_location, dst_location, prev_move=None, move_date=None):
         """Return a new picking or None (the latter if the source and the destination is the same place)."""
@@ -206,6 +206,13 @@ class EfarmerHelpdeskRepair(models.TransientModel):
             'origin': self.ticket_id.display_name,
             'location_id': src_location.id,
             'location_dest_id': dst_location.id,
+
+            # Actually "company_id" is a related field. Here is assigned the same value but directly.
+            # It fixes an issue when "_read" runs but the "company_id" field have not been set in the DB yet. (idk why =_=)
+            #
+            # Long story short the "_read" method fetches an actual record via an SQL request (models.py:3066 for now).
+            # The request query filters out records by "id" and "company_id". So the record must have a company in the DB at that moment!
+            'company_id': picking_type.company_id.id,
         }
 
         if move_date is not None:
@@ -216,7 +223,7 @@ class EfarmerHelpdeskRepair(models.TransientModel):
         if prev_move is not None:
             move_values['move_orig_ids'] = [(4, prev_move.id)]
 
-        picking = self.env['stock.picking'].sudo().create(dict(picking_values, move_lines=[(0, 0, move_values)]))
+        picking = self.env['stock.picking'].create(dict(picking_values, move_lines=[(0, 0, move_values)]))
 
         picking.action_confirm()
         picking.action_assign()
