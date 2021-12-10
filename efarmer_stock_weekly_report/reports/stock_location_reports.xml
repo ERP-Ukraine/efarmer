@@ -8,11 +8,17 @@
     <field name="code">
 data = model.build_weekly_report()
 
-attach = model.env['ir.attachment'].create({
-    'name': 'Weekly Report.xlsx',
-    'datas': data,
-    'type': 'binary',
-})
+report_mark = 'Weekly Report'
+attach = model.env['ir.attachment'].search([('description', '=', report_mark)], limit=1)
+if attach:
+    attach.write({'datas': data})
+else:
+    attach = model.env['ir.attachment'].create({
+        'name': 'Weekly Report.xlsx',
+        'description': report_mark,
+        'datas': data,
+        'type': 'binary',
+    })
 
 action = {
     'type': 'ir.actions.act_url',
