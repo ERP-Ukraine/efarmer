@@ -163,16 +163,15 @@ class EfarmerShipingReport(models.TransientModel):
                 for product in report_data['products']:
                     moves = move_info.get(product.id)
                     if moves:
+                        lot_names = moves.mapped('move_line_ids.lot_id.name')
 
                         # Display either lots (if exists)
-                        lot_names = moves.mapped('move_line_ids.lot_id.name')
                         if lot_names:
                             worksheet.write(row_no, col_no, ',\n'.join(lot_names), product_cell_format)
-                            continue
-
                         # Or quantity
-                        qty = sum(moves.mapped(lambda x: x.quantity_done if x.state == 'done' else x.reserved_availability))
-                        worksheet.write(row_no, col_no, str(qty), product_cell_format)
+                        else:
+                            qty = sum(moves.mapped(lambda x: x.quantity_done if x.state == 'done' else x.reserved_availability))
+                            worksheet.write(row_no, col_no, str(qty), product_cell_format)
 
                     col_no += 1
 
