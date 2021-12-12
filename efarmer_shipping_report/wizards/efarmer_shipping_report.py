@@ -68,34 +68,32 @@ class EfarmerShipingReport(models.TransientModel):
         """Returns
         {
             products: <<product.product recordset>>,
-                lots: {
+            moves: {
                 (order, picking, partner): {
-                    product_id: [ lot names ]
+                    product_id: <<stock.move recordset>>
                 }
             }
         }
         """
         report_data = {
             'products': self.env['product.product'],
-            'lots': {},
+            'moves': {},
         }
 
         for move in pickings.mapped('move_lines').filtered(lambda x: x.state != 'cancel'):
             order = move.sale_line_id.order_id
             picking = move.picking_id
             partner = picking.partner_id or order.partner_id
-
             product = move.product_id
-            lot_names = move.mapped('move_line_ids.lot_id.name')
 
             report_data['products'] |= product
 
             data_key = (order, picking, partner)
-            data_by_key = report_data['lots'].get(data_key)
+            data_by_key = report_data['moves'].get(data_key)
             if not data_by_key:
-                data_by_key = defaultdict(list)
-                report_data['lots'][data_key] = data_by_key
-            data_by_key[product.id] += lot_names
+                data_by_key = defaultdict(self.get_empty_stock_move_recordset)
+                report_data['moves'][data_key] = data_by_key
+            data_by_key[product.id] |= move
 
         return report_data
 
@@ -118,7 +116,7 @@ class EfarmerShipingReport(models.TransientModel):
                 'valign': 'bottom',
             })
 
-            lot_cell_format = workbook.add_format({
+            product_cell_format = workbook.add_format({
                 'align': 'center',
                 'valign': 'vcenter',
             })
@@ -149,7 +147,7 @@ class EfarmerShipingReport(models.TransientModel):
 
             # Other rows
 
-            for data_key, lot_info in report_data['lots'].items():
+            for data_key, move_info in report_data['moves'].items():
                 order, picking, partner = data_key
                 row_no += 1
 
@@ -163,9 +161,19 @@ class EfarmerShipingReport(models.TransientModel):
                 col_no = 7
 
                 for product in report_data['products']:
-                    lot_names = lot_info.get(product.id)
-                    if lot_names:
-                        worksheet.write(row_no, col_no, ',\n'.join(lot_names), lot_cell_format)
+                    moves = move_info.get(product.id)
+                    if moves:
+
+                        # Display either lots (if exists)
+                        lot_names = moves.mapped('move_line_ids.lot_id.name')
+                        if lot_names:
+                            worksheet.write(row_no, col_no, ',\n'.join(lot_names), product_cell_format)
+                            continue
+
+                        # Or quantity
+                        qty = sum(moves.mapped(lambda x: x.quantity_done if x.state == 'done' else x.reserved_availability))
+                        worksheet.write(row_no, col_no, str(qty), product_cell_format)
+
                     col_no += 1
 
             worksheet.freeze_panes(1, 0)
@@ -183,3 +191,7 @@ class EfarmerShipingReport(models.TransientModel):
                 parts.append(value.name if field_ == 'state_id' or field_ == 'country_id' else value)
 
         return ',\n'.join(parts)
+
+    @api.model
+    def get_empty_stock_move_recordset(self):
+        return self.env['stock.move']
