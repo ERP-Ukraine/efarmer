@@ -1,5 +1,6 @@
 from odoo import api, models
 from odoo.exceptions import Warning as oWarning
+from odoo.tools import config
 
 
 class ProductCategory(models.Model):
@@ -8,7 +9,9 @@ class ProductCategory(models.Model):
     @api.model
     def create(self, vals):
         group_name = 'efarmer_sale_workflow.efarmer_sale_workflow_group_prod_categ_creator'
-        if not self.env.user.has_group(group_name):
+        if (not config['test_enable']
+                and not config['test_file']
+                and not self.env.user.has_group(group_name)):
             raise oWarning("You're not allowed to create a product category.")
 
         return super().create(vals)
