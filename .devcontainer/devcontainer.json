@@ -64,7 +64,9 @@
 		"sibiraj-s.vscode-scss-formatter",
 		"streetsidesoftware.code-spell-checker",
 		"streetsidesoftware.code-spell-checker-ukrainian",
-		"tyriar.sort-lines"
+		"tyriar.sort-lines",
+		"ms-python.vscode-pylance",
+		"trond-snekvik.simple-rst"
 	],
 	"remoteEnv": {
 		"MARICHKA_KEY": "",
