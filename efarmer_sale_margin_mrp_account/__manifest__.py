@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'eFarmer MRP Account',
+    'name': 'eFarmer Sale Marging for Kits',
     'version': '1.0',
     'category': 'Manufacturing',
     'author': 'ERP Ukraine',
     'website': 'https://erp.co.ua',
     'support': 'support@erp.co.ua',
     'license': 'OPL-1',
-    'depends': ['mrp_account'],
+    'depends': ['sale_margin', 'mrp_account'],
     'description': "",
     'data': [],
-    'auto_install': False,
+    'auto_install': True,
     'installable': True,
     'application': False,
 }
