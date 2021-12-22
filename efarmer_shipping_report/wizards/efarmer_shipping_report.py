@@ -11,10 +11,23 @@ class EfarmerShipingReport(models.TransientModel):
 
     date_from = fields.Datetime()
     date_to = fields.Datetime()
+    picking_status = fields.Selection(
+        string='Status',
+        selection='_get_picking_status_variants',
+        default='done',
+        required=True,
+    )
 
     _sql_constraints = [
         ('valid_dates', 'CHECK(date_from <= date_to)', 'Date from must be greater than or equal to that date to.'),
     ]
+
+    @api.model
+    def _get_picking_status_variants(self):
+        return [
+            ('assigned', 'Ready'),
+            ('done', 'Done'),
+        ]
 
     def build(self):
         self.ensure_one()
@@ -24,7 +37,8 @@ class EfarmerShipingReport(models.TransientModel):
         report_bytes = self._get_report_bytes(report_data)
         report_encoded_bytes = base64.b64encode(report_bytes.read())
 
-        report_name = 'Shipping Report'
+        picking_status_label = next(y for x, y in self._get_picking_status_variants() if x == self.picking_status)
+        report_name = 'Shipping Report ({})'.format(picking_status_label)
         if self.date_from:
             report_name += ' from {0:%d.%m.%Y}'.format(self.date_from)
         if self.date_to:
@@ -54,7 +68,7 @@ class EfarmerShipingReport(models.TransientModel):
 
     def _get_filtered_pickings(self):
         self.ensure_one()
-        domain = [('state', 'in', ['assigned', 'done']), ('picking_type_code', '=', 'outgoing')]
+        domain = [('state', '=', self.picking_status), ('picking_type_code', '=', 'outgoing')]
 
         if self.date_from:
             domain.extend(['|', ('date_done', '=', False), ('date_done', '>=', self.date_from)])
