@@ -6,7 +6,8 @@ class SaleOrderLine(models.Model):
 
     def has_kit_product(self):
         """Checks if current line has Kit Product"""
-        self.ensure_one()
+        if not len(self) == 1 or not self.product_id:
+            return False
         boms = self.env['mrp.bom']._bom_find(product=self.product_id,
                                              company_id=self.company_id.id,
                                              bom_type='phantom')
