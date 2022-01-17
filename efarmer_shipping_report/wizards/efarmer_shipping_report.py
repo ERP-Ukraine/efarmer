@@ -4,6 +4,9 @@ from collections import defaultdict
 from odoo import api, fields, models
 from odoo.tools import PatchedXlsxWorkbook
 
+PICKING_STATUS_WAITING_AND_READY = 'waiting_and_ready'
+PICKING_STATUS_DONE = 'done'
+
 
 class EfarmerShipingReport(models.TransientModel):
     _name = 'efarmer.shipping.report'
@@ -25,8 +28,8 @@ class EfarmerShipingReport(models.TransientModel):
     @api.model
     def _get_picking_status_variants(self):
         return [
-            ('assigned', 'Ready'),
-            ('done', 'Done'),
+            (PICKING_STATUS_WAITING_AND_READY, 'Waiting or Ready'),
+            (PICKING_STATUS_DONE, 'Done'),
         ]
 
     def build(self):
@@ -68,7 +71,13 @@ class EfarmerShipingReport(models.TransientModel):
 
     def _get_filtered_pickings(self):
         self.ensure_one()
-        domain = [('state', '=', self.picking_status), ('picking_type_code', '=', 'outgoing')]
+        domain = [('picking_type_code', '=', 'outgoing')]
+
+        if self.picking_status == PICKING_STATUS_WAITING_AND_READY:
+            domain.append(('state', 'in', ('waiting', 'confirmed', 'partially_available', 'assigned')))
+
+        elif self.picking_status == PICKING_STATUS_DONE:
+            domain.append(('state', '=', 'done'))
 
         if self.date_from:
             domain.extend(['|', ('date_done', '=', False), ('date_done', '>=', self.date_from)])
@@ -180,12 +189,12 @@ class EfarmerShipingReport(models.TransientModel):
                         lot_names = moves.mapped('move_line_ids.lot_id.name')
 
                         # Display either lots (if exists)
-                        if lot_names:
+                        if self.picking_status != PICKING_STATUS_WAITING_AND_READY and lot_names:
                             worksheet.write(row_no, col_no, ',\n'.join(lot_names), product_cell_format)
                         # Or quantity
                         else:
-                            qty = sum(moves.mapped(lambda x: x.quantity_done if x.state == 'done' else x.reserved_availability))
-                            worksheet.write(row_no, col_no, str(qty), product_cell_format)
+                            qty = sum(moves.mapped(get_sm_qty))
+                            worksheet.write(row_no, col_no, str(int(qty) if qty.is_integer() else qty), product_cell_format)
 
                     col_no += 1
 
@@ -208,3 +217,10 @@ class EfarmerShipingReport(models.TransientModel):
     @api.model
     def get_empty_stock_move_recordset(self):
         return self.env['stock.move']
+
+
+def get_sm_qty(sm):
+    if sm.state == 'done':
+        return sm.quantity_done
+    else:
+        return sm.product_qty

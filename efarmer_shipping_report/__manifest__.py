@@ -1,7 +1,7 @@
 {
     'name': 'Shipping Report, eFarmer',
 
-    'version': '1.2',
+    'version': '1.3',
     'category': 'Other',
     'author': 'ERP Ukraine',
     'website': 'https://erp.co.ua',
