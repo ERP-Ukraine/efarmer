@@ -74,7 +74,7 @@ class EfarmerShipingReport(models.TransientModel):
         domain = [('picking_type_code', '=', 'outgoing')]
 
         if self.picking_status == PICKING_STATUS_WAITING_AND_READY:
-            domain.append(('state', 'in', ('waiting', 'confirmed', 'partially_available', 'assigned')))
+            domain.append(('state', 'in', ('waiting', 'confirmed', 'assigned')))
 
         elif self.picking_status == PICKING_STATUS_DONE:
             domain.append(('state', '=', 'done'))
