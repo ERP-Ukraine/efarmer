@@ -1,3 +1,7 @@
+import csv
+csv_columns = ['product','name','qty_invoiced', 'price_unit_untaxed', 'unit_cost', 'order', 'invoices', 'invoices_dates', 'deliveries', 'delivery_dates']
+csv_file = "/tmp/sales.csv"
+
 domain = [
     ('order_id.date_order', '>=', '2020-12-01 00:00:00'),
     ('order_id.date_order', '<=', '2021-12-31 23:59:59'),
@@ -11,7 +15,7 @@ for sol in sols:
     amls = sol.invoice_lines.filtered(lambda x: x.move_id.state == 'posted')
     sms = sol.move_ids.filtered(lambda x: x.state == 'done')
     svls = sms.mapped('stock_valuation_layer_ids')
-    cost = sum(-svl.unit_cost if svl.quantity > 0 else svl.unit_cost for svl in svls) / (len(svls) or 1)
+    cost = sum(-svl.value if svl.quantity > 0 else svl.value for svl in svls) / (sol.qty_delivered or 1)
     if not amls or not sms or not svls or not sol.qty_invoiced:
         continue
     if any(d.year != 2021 for d in amls.mapped('move_id.invoice_date')):
@@ -30,9 +34,6 @@ for sol in sols:
     }
     res.append(line)
 
-import csv
-csv_columns = ['product','name','qty_invoiced', 'price_unit_untaxed', 'unit_cost', 'order', 'invoices', 'invoices_dates', 'deliveries', 'delivery_dates']
-csv_file = "/tmp/sales.csv"
 with open(csv_file, 'w') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
     writer.writeheader()
