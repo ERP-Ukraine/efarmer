@@ -22,10 +22,10 @@ class EfarmerSaleReport(models.Model):
         tools.drop_view_if_exists(self.env.cr, self._table)
         self.env.cr.execute('''
             CREATE OR REPLACE VIEW %s AS (
-                %s %s %s
+                %s %s %s %s
             )
         ''' % (
-            self._table, self._select(), self._from(), self._group_by()
+            self._table, self._select(), self._from(), self._where(), self._group_by()
         ))
 
     @api.model
@@ -86,6 +86,13 @@ class EfarmerSaleReport(models.Model):
 
                 ) AS move_payment_rel ON move_payment_rel.move_id = aml.move_id
                 LEFT JOIN account_payment AS payment ON payment.id = move_payment_rel.payment_id
+        '''
+
+    @api.model
+    def _where(self):
+        return '''
+            WHERE
+                product.id != CAST((COALESCE((SELECT value FROM ir_config_parameter WHERE key='sale.default_deposit_product_id'), '-1')) as INT)
         '''
 
     @api.model
