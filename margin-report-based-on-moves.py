@@ -1,5 +1,5 @@
 import csv
-csv_columns = ['product','name','qty_invoiced', 'price_unit_untaxed', 'unit_cost', 'order', 'invoices', 'invoices_dates', 'deliveries', 'delivery_dates']
+csv_columns = ['product','name','qty_invoiced', 'price_unit_untaxed', 'unit_cost', 'order', 'customer', 'invoices', 'invoices_dates', 'deliveries', 'delivery_dates']
 csv_file = "/tmp/sales.csv"
 
 domain = [
@@ -27,6 +27,7 @@ for sol in sols:
         'price_unit_untaxed': sol.untaxed_amount_invoiced / sol.qty_invoiced,
         'unit_cost': cost,
         'order': sol.order_id.name,
+        'customer': sol.order_id.partner_id.name,
         'invoices': ', '.join(amls.mapped('move_id.name')),
         'invoices_dates': ', '.join(d.strftime('%d.%m.%Y') for d in amls.mapped('move_id.invoice_date')),
         'deliveries': ', '.join(sms.mapped('picking_id.name')),
