@@ -13,6 +13,7 @@
                 <field name="margin" widget="integer"/>
                 <field name="country_id"/>
                 <field name="sales_person_id"/>
+                <field name="invoice_no"/>
                 <field name="invoice_create_date" widget="date"/>
                 <field name="invoice_paid_date" widget="date"/>
             </tree>

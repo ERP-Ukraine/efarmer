@@ -15,6 +15,7 @@ class EfarmerSaleReport(models.Model):
     country_id = fields.Many2one('res.country', 'Country', readonly=True)
     sales_person_id = fields.Many2one('res.users', 'Sale Person', readonly=True)
 
+    invoice_no = fields.Char('Invoice #', readonly=True)
     invoice_create_date = fields.Datetime('Invoice create date', readonly=True)
     invoice_paid_date = fields.Datetime('Invoice paid date', readonly=True)
 
@@ -43,6 +44,7 @@ class EfarmerSaleReport(models.Model):
 
                 customer.country_id AS country_id,
 
+                string_agg(DISTINCT am.name, ', ') AS invoice_no,
                 MIN(aml.create_date) AS invoice_create_date,
                 MAX(payment.create_date) AS invoice_paid_date
         '''
@@ -56,6 +58,7 @@ class EfarmerSaleReport(models.Model):
 
                 LEFT JOIN sale_order_line_invoice_rel AS sol_aml_rel ON sol_aml_rel.order_line_id = sol.id
                 LEFT JOIN account_move_line AS aml ON aml.id = sol_aml_rel.invoice_line_id
+                LEFT JOIN account_move AS am ON am.id = aml.move_id
 
                 -- The nested select is used to bind moves (invoices) with their payments.
                 LEFT JOIN (
@@ -67,6 +70,7 @@ class EfarmerSaleReport(models.Model):
                     JOIN account_partial_reconcile AS apc ON apc.credit_move_id = payment_aml.id
                     JOIN account_move_line AS invoice_aml ON invoice_aml.id = apc.debit_move_id
                     JOIN account_move AS am ON am.id = invoice_aml.move_id
+                    WHERE payment_aml.payment_id IS NOT NULL
                     GROUP BY
                         am.id,
                         payment_aml.payment_id
@@ -80,11 +84,12 @@ class EfarmerSaleReport(models.Model):
                     JOIN account_partial_reconcile AS apc ON apc.debit_move_id = payment_aml.id
                     JOIN account_move_line AS invoice_aml ON invoice_aml.id = apc.credit_move_id
                     JOIN account_move AS am ON am.id = invoice_aml.move_id
+                    WHERE payment_aml.payment_id IS NOT NULL
                     GROUP BY
                         am.id,
                         payment_aml.payment_id
 
-                ) AS move_payment_rel ON move_payment_rel.move_id = aml.move_id
+                ) AS move_payment_rel ON move_payment_rel.move_id = am.id
                 LEFT JOIN account_payment AS payment ON payment.id = move_payment_rel.payment_id
         '''
 
