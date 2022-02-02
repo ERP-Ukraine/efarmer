@@ -14,6 +14,7 @@ class EfarmerSaleReport(models.Model):
     margin = fields.Float('Margin', readonly=True, group_operator='sum')
     country_id = fields.Many2one('res.country', 'Country', readonly=True)
     sales_person_id = fields.Many2one('res.users', 'Sale Person', readonly=True)
+    sale_order_no = fields.Char('Quotation Number', readonly=True)
 
     invoice_no = fields.Char('Invoice #', readonly=True)
     invoice_create_date = fields.Datetime('Invoice create date', readonly=True)
@@ -43,6 +44,7 @@ class EfarmerSaleReport(models.Model):
                 product.id AS product_id,
 
                 customer.country_id AS country_id,
+                so.name AS sale_order_no,
 
                 string_agg(DISTINCT am.name, ', ') AS invoice_no,
                 MIN(aml.create_date) AS invoice_create_date,
@@ -53,6 +55,7 @@ class EfarmerSaleReport(models.Model):
     def _from(self):
         return '''
             FROM sale_order_line AS sol
+                LEFT JOIN sale_order AS so ON so.id = sol.order_id
                 LEFT JOIN product_product AS product ON product.id = sol.product_id
                 LEFT JOIN res_partner AS customer ON customer.id = sol.order_partner_id
 
@@ -111,5 +114,6 @@ class EfarmerSaleReport(models.Model):
                 sol.price_total,
                 product.default_code,
                 product.id,
-                customer.country_id
+                customer.country_id,
+                so.name
         '''
