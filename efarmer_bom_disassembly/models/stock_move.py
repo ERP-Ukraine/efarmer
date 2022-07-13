@@ -49,7 +49,7 @@ class StockMove(models.Model):
                     qty_done += move_line.product_uom_id._compute_quantity(move_line.qty_done, move.product_id.uom_id)
 
                 qty = forced_qty or qty_done
-                price_unit = move.product_id.with_context(force_company=move.company_id.id).standard_price
+                price_unit = move.product_id.with_company(move.company_id).standard_price
 
                 in_total_qty += qty
                 in_total_value += price_unit * qty
@@ -68,7 +68,7 @@ class StockMove(models.Model):
                     price = move_data[move.id]['price_unit'] + extra_price_unit
                 price = float_round(price, precision_digits=sale_price_digits)
 
-                move.product_id.with_context(force_company=move.company_id.id).sudo().write({'standard_price': price})
+                move.product_id.with_company(move.company_id).sudo().write({'standard_price': price})
                 in_total_value_new += price * move_data[move.id]['qty']
 
         return moves
