@@ -8,22 +8,22 @@ class SaleOrderLine(models.Model):
         """Checks if current line has Kit Product"""
         if not len(self) == 1 or not self.product_id:
             return False
-        boms = self.env['mrp.bom']._bom_find(product=self.product_id,
+        boms = self.env['mrp.bom']._bom_find(self.product_id,
                                              company_id=self.company_id.id,
                                              bom_type='phantom')
         return bool(boms)
 
-    def _compute_margin(self, order_id, product_id, product_uom_id):
-        # recompute product cost from BoM when computing margin
-        if self.has_kit_product():
-            self.product_id.button_bom_cost()
-        return super()._compute_margin(order_id, product_id, product_uom_id)
+    @api.depends('product_id', 'company_id', 'currency_id', 'product_uom')
+    def _compute_purchase_price(self):
+        for line in self.filtered(lambda x: x.has_kit_product()):
+            line.product_id.button_bom_cost()
+        super()._compute_purchase_price()
 
     @api.returns('self', lambda value: value.id)
     def copy(self, default=None):
         rec = super().copy(default)
         if rec.has_kit_product():
-            rec._recompute_margin()
+            rec._compute_purchase_price()
         return rec
 
 
@@ -32,9 +32,8 @@ class SaleOrder(models.Model):
 
     def _action_confirm(self):
         res = super()._action_confirm()
-        for order_line in self.mapped('order_line'):
-            order_line.purchase_price = order_line._compute_margin(
-                order_line.order_id,
-                order_line.product_id,
-                order_line.product_uom)
+
+        # Explicitly recompute sale.order.line:purchase_price
+        self.mapped('order_line')._compute_purchase_price()
+
         return res
