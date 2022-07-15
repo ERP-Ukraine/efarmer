@@ -217,7 +217,6 @@ class EfarmerHelpdeskRepair(models.TransientModel):
 
         if move_date is not None:
             picking_values['scheduled_date'] = move_date
-            move_values['date_expected'] = move_date
             move_values['date'] = move_date
 
         if prev_move is not None:
