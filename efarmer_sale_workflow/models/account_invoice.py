@@ -1,86 +1,59 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 
-from odoo import api, fields, models
+from odoo import api, models
 from odoo.tools import float_compare
-from odoo.tools.misc import formatLang
 
 
 class AccountMove(models.Model):
     _inherit = "account.move"
 
-    def _get_deposit_line_taxes(self):
-        self.ensure_one()
-        tax_grouped = {}
-        round_curr = self.currency_id.round
-        for line in self.invoice_line_ids:
-            if not line.has_deposit_deducted():
-                continue
-            price_unit = line.price_unit * (1 - (line.discount / 100.0))
-            taxes = line.tax_ids.compute_all(price_unit, currency=self.currency_id,
-                                             quantity=line.quantity, product=line.product_id,
-                                             partner=self.partner_id)['taxes']
-            for tax in taxes:
-                # if tax['tax_exigibility'] != 'on_invoice':
-                #     continue
-                tax_id = self.env['account.tax'].browse(tax['id'])
-                group_key = (tax_id.id, tax_id.tax_group_id.id)
-                tax_grouped.setdefault(group_key, {'base': 0.0, 'amount': 0.0})
-                tax_grouped[group_key]['amount'] += round_curr(tax['amount'])
-                tax_grouped[group_key]['base'] += round_curr(tax['base'])
-        return tax_grouped
+    def _recompute_amount(self):
+        """ Before turning data into JSON we need to filter account move lines
+            so there no deposit lines left
+            same logic as in move._compute_amount()
+        """
+        currencies = self._get_lines_onchange_currency().currency_id
+        total = 0.0
+        total_currency = 0.0
+        total_untaxed = 0.0
+        total_untaxed_currency = 0.0
+        for line in self.line_ids.filtered(lambda line: not line.has_deposit_deducted()):
+            if self._payment_state_matters():
+                # === Invoices ===
+                if not line.exclude_from_invoice_tab:
+                    total_untaxed += line.balance
+                    total_untaxed_currency += line.amount_currency
+                    total += line.balance
+                    total_currency += line.amount_currency
+                elif line.tax_line_id:
+                    total += line.balance
+                    total_currency += line.amount_currency
+            else:
+                if line.debit:
+                    total += line.balance
+                    total_currency += line.amount_currency
 
-    @api.depends('line_ids.price_subtotal', 'line_ids.tax_base_amount',
-                 'line_ids.tax_line_id', 'partner_id', 'currency_id')
-    def _compute_invoice_taxes_by_group(self):
-        """Helper to get the taxes grouped according their account.tax.group.
+        sign = 1 if self.move_type == 'entry' or self.is_outbound() else -1
+        amount_untaxed = sign * (total_untaxed_currency if len(currencies) == 1 else total_untaxed)
+        amount_total = sign * (total_currency if len(currencies) == 1 else total)
+        return amount_total, amount_untaxed
 
-        This method is only used when printing the invoice."""
-
+    def _prepare_tax_lines_data_for_totals_from_invoice(self, tax_line_id_filter=None, tax_ids_filter=None):
         skip_deposit = self._context.get('without_deposit')
-        for move in self:
-            # added lines
-            deposit_taxes = move._get_deposit_line_taxes() if skip_deposit else {}
-            # end of added lines
-            lang_env = move.with_context(lang=move.partner_id.lang).env
-            tax_lines = move.line_ids.filtered(lambda line: line.tax_line_id)
-            res = {}
-            # There are as many tax line as there are repartition lines
-            done_taxes = set()
-            for line in tax_lines:
-                # added lines: skip cash basis tax lines
-                # if line.tax_line_id.tax_exigibility != 'on_invoice':
-                #     continue
-                # end of added lines
-                res.setdefault(line.tax_line_id.tax_group_id, {'base': 0.0, 'amount': 0.0})
-                # added lines: compensate negative deposit taxes
-                group_key = (line.tax_line_id.id, line.tax_line_id.tax_group_id.id)
-                tax_group = line.tax_line_id.tax_group_id
-                if skip_deposit and group_key in deposit_taxes:
-                    res[tax_group]['amount'] -= deposit_taxes[group_key]['amount']
-                    res[tax_group]['base'] -= deposit_taxes[group_key]['base']
-                # end of added lines
-                res[line.tax_line_id.tax_group_id]['amount'] += line.price_subtotal
-                tax_key_add_base = tuple(move._get_tax_key_for_group_add_base(line))
-                if tax_key_add_base not in done_taxes:
-                    if line.currency_id != self.company_id.currency_id:
-                        amount = self.company_id.currency_id._convert(
-                            line.tax_base_amount, line.currency_id, self.company_id,
-                            line.date or fields.Date.today())
-                    else:
-                        amount = line.tax_base_amount
-                    res[line.tax_line_id.tax_group_id]['base'] += amount
-                    # The base should be added ONCE
-                    done_taxes.add(tax_key_add_base)
-            res = sorted(res.items(), key=lambda l: l[0].sequence)
-            move.amount_by_group = [(
-                group.name, amounts['amount'],
-                amounts['base'],
-                formatLang(lang_env, amounts['amount'], currency_obj=move.currency_id),
-                formatLang(lang_env, amounts['base'], currency_obj=move.currency_id),
-                len(res),
-                group.id
-            ) for group, amounts in res]
+        if not skip_deposit:
+            return super()._prepare_tax_lines_data_for_totals_from_invoice(tax_line_id_filter, tax_ids_filter)
+
+        return super()._prepare_tax_lines_data_for_totals_from_invoice(lambda aml, tax: not aml.has_deposit_deducted(), lambda aml, tax: not aml.has_deposit_deducted())
+
+    @api.model
+    def _get_tax_totals(self, partner, tax_lines_data, amount_total, amount_untaxed, currency):
+        skip_deposit = self._context.get('without_deposit')
+        if not skip_deposit:
+            return super()._get_tax_totals(partner, tax_lines_data, amount_total, amount_untaxed, currency)
+
+        amount_total_skip_deposit, amount_untaxed_skip_deposit = self._recompute_amount()
+        return super()._get_tax_totals(partner, tax_lines_data, amount_total_skip_deposit, amount_untaxed_skip_deposit, currency)
 
 
 class AccountMoveLine(models.Model):
