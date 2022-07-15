@@ -37,13 +37,16 @@
         'reports/account_commercial_invoice.xml',
         'reports/account_invoice_wo_downpayment.xml',
         'reports/stock_picking_templates.xml',
-        'views/assets.xml',
-        'views/ir_actions_server_views.xml',
         'views/res_partner_views.xml',
         'views/stock_location_views.xml',
         'views/efarmer_client_type_views.xml',
         'views/efarmer_sale_workflow_menus.xml',
         'views/product_template_views.xml',
-        'views/account_move_views.xml',
     ],
+
+    'assets': {
+        'web.assets_backend': [
+            'efarmer_sale_workflow/static/src/js/inventory_report_list_controller.js',
+        ],
+    },
 }

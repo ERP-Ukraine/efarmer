@@ -4,7 +4,7 @@
 <template id="report_commercial_invoice_document" inherit_id="sale.report_saleorder_document" primary="True">
     <!-- Set a custom header format. -->
     <xpath expr="//div[hasclass('page')]/h2" position="replace">
-        <h2>
+        <h2 class="mt16">
             <span>Сommercial Invoice # </span>
             <span t-field="doc.name"/>
         </h2>
@@ -32,14 +32,15 @@
     </t>
 </template>
 
-<report
-    id="action_report_commercial_invoice"
-    string="Сommercial Invoice"
-    model="sale.order"
-    report_type="qweb-pdf"
-    file="efarmer_sale_workflow.report_commercial_invoice"
-    name="efarmer_sale_workflow.report_commercial_invoice"
-    print_report_name="'Сommercial Invoice - %s' % (object.name)"
-    />
+<record id="action_report_commercial_invoice" model="ir.actions.report">
+    <field name="name">Сommercial Invoice</field>
+    <field name="model">sale.order</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">efarmer_sale_workflow.report_commercial_invoice</field>
+    <field name="report_file">efarmer_sale_workflow.report_commercial_invoice</field>
+    <field name="print_report_name">'Сommercial Invoice - %s' % (object.name)</field>
+    <field name="binding_model_id" ref="sale.model_sale_order"/>
+    <field name="binding_type">report</field>
+</record>
 
 </odoo>

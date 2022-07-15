@@ -1,8 +1,2 @@
-from . import efarmer_client_type
-from . import sale_order
-from . import stock_picking
-from . import ir_actions_server
-from . import res_partner
-from . import product_template
-from . import product_category
-from . import account_invoice
+from . import (account_invoice, efarmer_client_type, product_category,
+               product_template, res_partner, sale_order, stock_picking)

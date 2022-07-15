@@ -1,5 +1,5 @@
 from odoo import api, models
-from odoo.exceptions import Warning as oWarning
+from odoo.exceptions import UserError
 from odoo.tools import config
 
 
@@ -12,6 +12,6 @@ class ProductCategory(models.Model):
         if (not config['test_enable']
                 and not config['test_file']
                 and not self.env.user.has_group(group_name)):
-            raise oWarning("You're not allowed to create a product category.")
+            raise UserError("You're not allowed to create a product category.")
 
         return super().create(vals)

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <odoo>
 
-<template id="report_account_commercial_invoice_document" inherit_id="account.report_invoice_document_with_payments" primary="True">
+<template id="report_account_commercial_invoice_document" inherit_id="account.report_invoice_document" primary="True">
     <!-- Change the header. -->
     <xpath expr="//div[hasclass('page')]/h2" position="replace">
         <h2>
@@ -10,13 +10,13 @@
         </h2>
     </xpath>
     <!-- Remove "Please use the following communication for your payment". -->
-    <xpath expr="//span[@t-field='o.invoice_payment_ref']/../.." position="replace"/>
+    <xpath expr="//span[@t-field='o.payment_reference']/../.." position="replace"/>
     <!-- Remove "Due date". -->
     <xpath expr="//div[@name='due_date']" position="replace"/>
     <!-- Head the company address with a title. The partner is a "Consignee" of invoices and a "Sender" of vendor bills. -->
     <xpath expr="//t[@t-set='address']/address" position="before">
         <div class="address_title mb-2">
-            <strong t-if="o.type.startswith('out_')">Consignee:</strong>
+            <strong t-if="o.move_type.startswith('out_')">Consignee:</strong>
             <strong t-else="">Sender:</strong>
         </div>
     </xpath>
@@ -43,22 +43,24 @@
 <template id="report_account_commercial_invoice">
     <t t-call="web.html_container">
         <t t-set="efarmer_address_placement" t-value="True"/>
+        <t t-set="print_with_payments" t-value="True"/>
         <t t-foreach="docs" t-as="doc">
             <t t-set="o" t-value="doc"/>
-            <t t-set="lang" t-value="o.invoice_user_id.sudo().lang if o.type in ('in_invoice', 'in_refund') else o.partner_id.lang"/>
+            <t t-set="lang" t-value="o.invoice_user_id.sudo().lang if o.move_type in ('in_invoice', 'in_refund') else o.partner_id.lang"/>
             <t t-call="efarmer_sale_workflow.report_account_commercial_invoice_document" t-lang="lang"/>
         </t>
     </t>
 </template>
 
-<report
-    id="action_report_account_commercial_invoice"
-    string="Сommercial Invoice"
-    model="account.move"
-    report_type="qweb-pdf"
-    file="efarmer_sale_workflow.report_account_commercial_invoice"
-    name="efarmer_sale_workflow.report_account_commercial_invoice"
-    print_report_name="'Сommercial Invoice - %s' % (object.name)"
-    />
+<record id="action_report_account_commercial_invoice" model="ir.actions.report">
+    <field name="name">Сommercial Invoice</field>
+    <field name="model">account.move</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">efarmer_sale_workflow.report_account_commercial_invoice</field>
+    <field name="report_file">efarmer_sale_workflow.report_account_commercial_invoice</field>
+    <field name="print_report_name">'Сommercial Invoice - %s' % (object.name)</field>
+    <field name="binding_model_id" ref="account.model_account_move"/>
+    <field name="binding_type">report</field>
+</record>
 
 </odoo>
