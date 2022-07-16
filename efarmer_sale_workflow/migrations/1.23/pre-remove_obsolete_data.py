@@ -31,9 +31,29 @@ def remove_fields(cr):
             )
     """)
 
+def remove_irrelevant_modules(env):
+    modules = [
+        'efarm_external_website_leads',
+        'efarmer_im_livechat',
+        'efarmer_stock',
+        'efarmer_stock_weekly_report',
+        'flexbe',
+        'google_calendar_recurring_fix',
+        'utm2',
+        'utm_extended',
+        'utm_extended_documents',
+    ]
+    domain = [
+        ("name", "in", modules),
+        ('state', 'in', ('installed', 'to upgrade')),
+    ]
+    env["ir.module.module"].search(domain).button_immediate_uninstall()
+
+
 def migrate(cr, version):
     env = api.Environment(cr, SUPERUSER_ID, dict())
-    remove_fields()
+    remove_fields(cr)
+    remove_irrelevant_modules(env)
     delete_records_safely_by_xml_id(env, [
         'efarmer_sale_workflow.assets_backend',
         'efarmer_sale_workflow.report_assets_common',
