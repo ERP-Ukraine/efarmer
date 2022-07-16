@@ -8,7 +8,7 @@
     'support': 'support@erp.co.ua',
     'license': 'OPL-1',
     'auto_install': False,
-    'installable': True,
+    'installable': False,
     'application': True,
 
     'demo': [],

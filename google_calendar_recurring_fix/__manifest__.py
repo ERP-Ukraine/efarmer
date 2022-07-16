@@ -9,7 +9,7 @@ Can be removed when [PR 52989](https://github.com/odoo/odoo/pull/52989) will be 
 """,
     'version': '1.1',
     'category': 'Tools',
-    'installable': True,
+    'installable': False,
     'auto_install': True,
     'depends': ['google_calendar']
 }

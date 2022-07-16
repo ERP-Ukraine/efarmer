@@ -11,7 +11,7 @@
     'license': 'OPL-1',
 
     'auto_install': True,
-    'installable': True,
+    'installable': False,
     'application': False,
 
     'demo': [],
