@@ -11,6 +11,6 @@
     'description': "",
     'data': [],
     'auto_install': False,
-    'installable': False,
+    'installable': True,
     'application': False,
 }
