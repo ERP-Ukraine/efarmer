@@ -10,12 +10,11 @@ def delete_records_safely_by_xml_id(env, xml_ids):
     passed as argument.
     :param xml_ids: List of XML-ID string identifiers of the records to remove.
     """
-    IMD = env['ir.model.data'].with_context(active_test=False, _force_unlink=True)
     for xml_id in xml_ids:
         logger.debug('Deleting record for XML-ID %s', xml_id)
         try:
             with env.cr.savepoint():
-                view = IMD.xmlid_to_object(xml_id, raise_if_not_found=False)
+                view = env.ref(xml_id, raise_if_not_found=False)
                 if view:
                     view.unlink()
         except Exception as e:
