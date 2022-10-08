@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-
-<menuitem id="menu_stock_weekly_report" name="Weekly Report"
-    parent="stock.menu_warehouse_report" action="efarmer_stock_weekly_report.action_stock_weekly_report"/>
-
-</odoo>

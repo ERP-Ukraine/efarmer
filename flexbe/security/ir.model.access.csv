@@ -1,3 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_flexbe_domain_user,access_flexbe_domain_user,model_flexbe_domain,base.group_user,1,0,0,0
-access_flexbe_domain_manager,access_flexbe_domain_manager,model_flexbe_domain,flexbe.flexbe_group_manager,1,1,1,1

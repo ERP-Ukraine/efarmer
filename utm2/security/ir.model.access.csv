@@ -1,5 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_utm_content,access_utm_content,model_utm_content,base.group_user,1,1,1,0
-access_utm_content_system,access_utm_content_system,model_utm_content,base.group_system,1,1,1,1
-access_utm_term,access_utm_term,model_utm_term,base.group_user,1,1,1,0
-access_utm_term_system,access_utm_term_system,model_utm_term,base.group_user,1,1,1,1
