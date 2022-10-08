@@ -2,7 +2,7 @@
 <odoo>
 
 <template id="report_delivery_document" inherit_id="stock.report_delivery_document">
-    <xpath expr="//div[@t-field='partner.self']" position="after">
+    <xpath expr="//div[@t-field='partner.commercial_partner_id']" position="after">
         <div t-if="partner.sudo().email" t-field="partner.sudo().email"/>
     </xpath>
 </template>
