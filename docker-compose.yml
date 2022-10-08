@@ -7,13 +7,13 @@ volumes:
   # influxdbdata:
   #   driver: local
 
-  pg10data13:
+  pg10data15:
     driver: local
 
-  odoo13erpu-container-data:
+  odoo15erpu-container-data:
     driver: local
 
-  odoo13erpu-data:
+  odoo15erpu-data:
     driver: local
 
   vscode-data:
@@ -36,7 +36,7 @@ services:
   #   volumes:
   #     - influxdbdata:/data
 
-  db-custom13:
+  db-custom15:
     image: postgres:10.5
     ports:
       - "5555:5432"
@@ -44,26 +44,26 @@ services:
       - POSTGRES_PASSWORD=odoo
       - POSTGRES_USER=odoo
     volumes:
-      - pg10data13:/var/lib/postgresql/data
+      - pg10data15:/var/lib/postgresql/data
 
-  web-custom13:
+  web-custom15:
     links:
-      - db-custom13
+      - db-custom15
       - redis
     tty: true
-    image: erpukraine/custom:odoo-13.0ee-erpu-latest
+    image: erpukraine/custom:odoo-15.0ee-erpu-latest
     depends_on:
-      - db-custom13
+      - db-custom15
       - redis
     environment:
-      - HOST=db-custom13
+      - HOST=db-custom15
     ports:
       - "3000:3000"
       - "8069:8069"
     volumes:
       - ./:/mnt/erpu-addons:cached
-      - odoo13erpu-container-data:/home/vscode/.local/share/Odoo
-      - odoo13erpu-data:/var/lib/odoo
+      - odoo15erpu-container-data:/home/vscode/.local/share/Odoo
+      - odoo15erpu-data:/var/lib/odoo
       - ./odoo.conf:/etc/odoo/odoo.conf
       - vscode-data:/home/vscode/.vscode-server
-    command: odoo -d odoo13-payroll --workers=0
+    command: odoo -d odoo15-payroll --workers=0
