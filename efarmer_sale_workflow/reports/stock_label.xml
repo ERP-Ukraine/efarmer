@@ -23,7 +23,7 @@
                     <t t-set="valid_qty" t-value="qty if isinstance(qty,str) or not qty.is_integer() else str(qty).split('.')[0]"/>
                 </t>
 
-                <t t-set="upper_amendment" t-value="lambda s,n,t: int(t and sum(1 for c in s[:n] if c.isupper())//5 + bool(sum(1 for c in s[:n] if c.isupper())%5)*1)"/>
+                <t t-set="upper_amendment" t-value="lambda s,n,t: int(t and sum(1 for c in s[:n] if c.isupper() or c == '-')//5 + bool(sum(1 for c in s[:n] if c.isupper())%5)*1)"/>
                 <t t-set="cutter" t-value="lambda s,n,t: s[:n-upper_amendment(s,n,t)] + bool(s[n-upper_amendment(s,n,t):]) * '..'"/>
 ^XA
 ^PW812
@@ -48,10 +48,10 @@
 </t>
 ^FD<t t-esc="cutter((lot_name if lot_name else ''), 18, True)"/>^FS
 ^FO18,225.0
-^FB430,2,6,L,0
+^FB420,2,6,L,0
 ^A0N,24
 ^FH`
-^FD<t t-esc="cutter((product.default_code if product.default_code else ''), 32, True)"/>^FS
+^FD<t t-esc="cutter((product.default_code if product.default_code else ''), 30, True)"/>^FS
 ^FO18,95
 ^BQN,2,4
 ^FDMA,<t t-esc="product.default_code or ''"/>^FS
@@ -61,7 +61,7 @@
 ^FH`
 ^FD<t t-esc="valid_qty"/>^FS
 ^FO10,25.0
-^FB450,2,7,L,0
+^FB440,2,7,L,0
 ^A0N,25
 ^FH`
 ^FD<t t-raw="cutter((product.name if product.name else ''), 75, True)"/>^FS
