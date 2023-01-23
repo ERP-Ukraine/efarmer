@@ -37,7 +37,7 @@
 ^FDX^FS
 ^FH`
 </t>
-<t t-if="product.tracking != 'none'">
+<t t-if="lot_name">
 ^FO215,95
 ^BQN,2,3
 ^FDMA,<t t-esc="lot_name or ''"/>^FS
