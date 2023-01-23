@@ -37,6 +37,7 @@
 ^FDX^FS
 ^FH`
 </t>
+<t t-if="product.tracking != 'none'">
 ^FO215,95
 ^BQN,2,3
 ^FDMA,<t t-esc="lot_name or ''"/>^FS
@@ -44,6 +45,7 @@
 ^FB240,2,7,L,0
 ^A0N,23
 ^FH`
+</t>
 ^FD<t t-esc="cutter((lot_name if lot_name else ''), 18, True)"/>^FS
 ^FO18,225.0
 ^FB430,2,6,L,0
@@ -62,7 +64,7 @@
 ^FB450,2,7,L,0
 ^A0N,25
 ^FH`
-^FD<t t-raw="cutter((product.name if product.name else ''), 80, True)"/>^FS
+^FD<t t-raw="cutter((product.name if product.name else ''), 75, True)"/>^FS
 ^XZ
 </t>
 </t>
