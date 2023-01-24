@@ -1,0 +1,69 @@
+<odoo>
+    <data>
+
+    <record id="youtrack_operations_wizard_view_form" model="ir.ui.view">
+        <field name="name">youtrack_operations_wizard.form</field>
+        <field name="model">youtrack.operations.wizard</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form>
+                <div class="row">
+                    <div class="col-6">
+                        <h3 class="text-primary">Projects</h3>
+                        <group>
+                            <field name="import_all_projects"/>
+                            <field name="import_project_by_code"/>
+                            <field name="project_code" attrs="{'invisible': [('import_project_by_code', '=', False)]}"/>
+                        </group>
+                    </div>
+                    <div class="col-6">
+                        <h3 class="text-primary">Tasks</h3>
+                        <group>
+                            <field name="import_all_tasks"/>
+                        </group>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <h3 class="text-primary">Employees</h3>
+                        <group>
+                            <field name="import_all_employees"/>
+                            <field name="import_employee_by_email"/>
+                            <field name="email" attrs="{'invisible': [('import_employee_by_email', '=', False)]}"/>
+                        </group>
+                    </div>
+                    <div class="col-6">
+                        <h3 class="text-primary">Timesheets (Work Items)</h3>
+                        <group>
+                        <field name="import_all_timesheets"/>
+                        <field name="import_timesheet_for_period"/>
+                        <field name="date_from" attrs="{'invisible': [('import_timesheet_for_period', '=', False)]}"/>
+                        <field name="date_to" attrs="{'invisible': [('import_timesheet_for_period', '=', False)]}"/>
+                        </group>
+                    </div>
+                </div>
+                <footer>
+                    <button string="Execute" name="run_integration" type="object" class="oe_highlight"/>
+                    <button string="Cancel" class="btn btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="launch_youtrack_operations_wizard" model="ir.actions.act_window">
+        <field name="name">YouTrack Operations</field>
+        <field name="res_model">youtrack.operations.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+        id="menu_project_youtrack_operations"
+        name="YouTrack Operations"
+        parent="project.menu_main_pm"
+        sequence="99"
+        action="launch_youtrack_operations_wizard"
+    />
+
+    </data>
+</odoo>
