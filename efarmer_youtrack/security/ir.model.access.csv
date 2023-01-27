@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 youtrack_operations_wizard_group_user,youtrack.operations.wizard.user,model_youtrack_operations_wizard,,1,1,1,1
+youtrack_inegration_group_user,youtrack.inegration.user,model_youtrack_inegration,,1,1,1,1

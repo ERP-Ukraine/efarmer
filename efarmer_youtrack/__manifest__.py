@@ -25,6 +25,8 @@
         'wizard/youtrack_operations_wizard.xml',
         # Model Views
         'views/res_config_settings_views.xml',
+        'views/youtrack_integration_views.xml',
+        'views/youtrack_integration_menus.xml',
     ],
     'installable': True,
     'application': True,

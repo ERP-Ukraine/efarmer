@@ -1,0 +1,60 @@
+<odoo>
+    <data>
+
+        <record id="youtrack_integration_tree" model="ir.ui.view">
+            <field name="name">youtrack_integration.tree</field>
+            <field name="model">youtrack.inegration</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="YouTrack Integrations">
+                    <field name="name" />
+                    <field name="is_active" />
+                    <field name="endpoint" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="youtrack_integration_form" model="ir.ui.view">
+            <field name="name">youtrack_integration.form</field>
+            <field name="model">youtrack.inegration</field>
+            <field name="arch" type="xml">
+                <form string="YouTrack Integration Form">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" />
+                                <field name="is_active" />
+                            </group>
+                            <group>
+                                <field name="api_key_attr" />
+                                <field name="api_key" />
+                                <field name="endpoint" />
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <page string="Operations">
+                                <group>
+                                    <group>
+                                        <field name="api_method" />
+                                        <field name="project_code" attrs="{'invisible': [('api_method', '!=', 'youtrackIntegrationApiGetProjectByCode')]}" />
+                                    </group>
+                                </group>
+                                <button string="Execute" name="run_operation" type="object" class="oe_highlight" />
+                            </page>
+                        </notebook>
+                            
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id='youtrack_integration_list_action' model='ir.actions.act_window'>
+            <field name="name">YouTrack Integrations</field>
+            <field name="res_model">youtrack.inegration</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="youtrack_integration_tree"/>
+        </record>
+
+    </data>
+</odoo>

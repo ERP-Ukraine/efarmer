@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <menuitem
+            id="menu_project_youtrack_operations"
+            name="YouTrack"
+            parent="project.menu_main_pm"
+            sequence="99"
+        />
+
+        <menuitem
+            id="youtrack_integrations"
+            name="YouTrack Integrations"
+            parent="menu_project_youtrack_operations"
+            sequence="5"
+            action="youtrack_integration_list_action"
+        />
+
+        <menuitem 
+            id="youtrack_operations"
+            name="Operations"
+            parent="menu_project_youtrack_operations"
+            sequence="5"
+        />
+
+        <menuitem
+            id="youtrack_operations_wizard"
+            name="YouTrack Operations"
+            parent="youtrack_operations"
+            sequence="10"
+            action="launch_youtrack_operations_wizard"
+        />
+
+    </data>
+</odoo>

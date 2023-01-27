@@ -1,13 +1,10 @@
 from odoo import fields, models, _
+from ..models.youtrack_integration import YoutrackIntegration
 
 
 class YoutrackOperationsWizard(models.TransientModel):
     _name = 'youtrack.operations.wizard'
     _description = 'YouTrack Operations Wizard'
-
-    import_all_projects = fields.Boolean(
-        string='Import All Projects',
-    )
 
     import_project_by_code = fields.Boolean(
         string='Import Project By Code',
@@ -45,5 +42,6 @@ class YoutrackOperationsWizard(models.TransientModel):
         string='To',
     )
 
-    def run_integration(self):
-        pass
+    def get_project_by_code(self):
+        integration = self.env['youtrack.inegration']
+        integration.get_project_by_code(self.project_code)
