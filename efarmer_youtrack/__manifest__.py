@@ -14,6 +14,7 @@
     'license': 'OPL-1',
     'depends': [
         'project',
+        'account_asset',
     ],
     'data': [
         # Security
@@ -21,10 +22,9 @@
         'security/ir.model.access.csv',
         # Initial Data
         # 'data/ir_actions_server_data.xml',
-        # Wizards
-        'wizard/youtrack_operations_wizard.xml',
         # Model Views
-        'views/res_config_settings_views.xml',
+        'views/project_project_views.xml',
+        'views/project_task_views.xml',
         'views/youtrack_integration_views.xml',
         'views/youtrack_integration_menus.xml',
     ],

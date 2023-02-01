@@ -1,0 +1,44 @@
+from odoo import api, fields, models
+
+
+class Task(models.Model):
+    _inherit = 'project.task'
+
+
+    youtrack_id = fields.Char()
+
+    task_code = fields.Char(
+        string='Task Code',
+    )
+
+    product_version_id = fields.Many2one(
+        comodel_name='youtrack.product.version',
+        string='Product Version',
+    )
+
+    issue_type_id = fields.Many2one(
+        comodel_name='youtrack.issue.type',
+        string='Issue Type',
+    )
+
+    name_pl = fields.Char(
+        string='Name PL',
+    )
+
+    is_epic = fields.Boolean(
+        string="Is Epic",
+        default=False,
+        readonly=True,
+    )
+
+    epic_id = fields.Many2one(
+        comodel_name='project.task',
+        string='Epic Task',
+        readonly=True,
+    )
+
+    product_id = fields.Many2one(
+        comodel_name='account.asset',
+        string='Product',
+        readonly=True,
+    )

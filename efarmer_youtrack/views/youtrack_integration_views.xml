@@ -37,10 +37,11 @@
                                 <group>
                                     <group>
                                         <field name="api_method" />
-                                        <field name="project_code" attrs="{'invisible': [('api_method', '!=', 'youtrackIntegrationApiGetProjectByCode')]}" />
+                                        <field name="project_code" attrs="{'invisible': [('api_method', 'not in', ('youtrackIntegrationApiGetProject', 'youtrackIntegrationApiGetTasks'))]}" />
+                                        <field name="date_from" attrs="{'invisible': [('api_method', '!=', 'youtrackIntegrationApiGetWorItems')]}" />
                                     </group>
                                 </group>
-                                <button string="Execute" name="run_operation" type="object" class="oe_highlight" />
+                                <button string="Execute" name="run_operation" type="object" class="oe_highlight oe_read_only" />
                             </page>
                         </notebook>
                             
