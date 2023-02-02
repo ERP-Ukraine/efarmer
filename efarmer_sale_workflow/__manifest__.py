@@ -38,6 +38,7 @@
         'reports/account_invoice_wo_downpayment.xml',
         'reports/stock_picking_templates.xml',
         'reports/stock_label.xml',
+        'reports/device_label.xml',
         'views/res_partner_views.xml',
         'views/stock_location_views.xml',
         'views/efarmer_client_type_views.xml',
