@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="device_label">
+
+            <t t-foreach="docs" t-as="doc">
+                <t t-set="lot" t-value="doc.lot_producing_id if doc._name == 'mrp.production' else doc.lot_id"/>
+                <t t-set="upper_amendment"
+                   t-value="lambda s,n,t: int(t and sum(1 for c in s[:n] if c.isupper() or c == '-')//5 + bool(sum(1 for c in s[:n] if c.isupper())%5)*1)"/>
+                <t t-set="cutter"
+                   t-value="lambda s,n,t: s[:n-upper_amendment(s,n,t)] + bool(s[n-upper_amendment(s,n,t):]) * '..'"/>
+
+
+                ~DGR:IMG1675332444807,1196,13,0000000FFFFFFFFFFFC0000000
+                0000003FFFFFFFFFFFF0000000
+                000000FFFFFFFFFFFFFC000000
+                000001FFFFFFFFFFFFFE000000
+                000003FFFFFFFFFFFFFF000000
+                000007FFFFFFFFFFFFFF800000
+                000007FFFFFFFFFFFFFF800000
+                00000FFFFFFFFFFFFFFFC00000
+                00000FFFFFFFFFFFFFFFC00000
+                00001FFE0000000001FFE00000
+                00003FF800000000007FF00000
+                00003FF800000000007FF00000
+                00007FF000000000003FF80000
+                00007FE000000000001FF80000
+                0000FFE000000000001FFC0000
+                0000FFC00000C000000FFC0000
+                0001FFC00000C000000FFE0000
+                0001FF800001C0000007FE0000
+                0003FF000001C0000003FF0000
+                0007FF00000180000003FF8000
+                0007FE00000180000001FF8000
+                000FFE00000380000001FFC000
+                000FFC00000380000000FFC000
+                001FFC00000F80000000FFE000
+                003FF800001F800000007FF000
+                003FF000007FC00078003FF000
+                007FF00001FFE003FF003FF800
+                007FE00007FFE01FFFC01FF800
+                00FFE0380FFFF03FFFE01FFC00
+                00FFC07FBFFFF07FFFF00FFC00
+                01FFC01FFFFFF8FFCFF80FFE00
+                03FF8001FFFFF9FE01F807FF00
+                03FF00007FFFF3F800FC03FF00
+                07FF00007FFFF3F0007C03FF80
+                07FE00003FFFE7E0007C01FF80
+                0FFE00003FFFC7C0003E01FFC0
+                0FFC00001FFFCFC0003E00FFC0
+                1FF800000FFF8F80003E00FFE0
+                3FF800000FFF9F80003E007FF0
+                3FF0000007FF1F00003E003FF0
+                7FF0000000001F00007E003FF8
+                7FE0000000003F00007C001FF8
+                FFE000001FFC3E0000FC001FFC
+                FFC00000FFFFFE0001FC000FFC
+                FF800003FFFFFE0003F80007FC
+                FF800007FFFFFFC00FF00007FC
+                FF80000FFFFFFFFFFFE00007FC
+                FF80001FE007FFFFFFC0000FFC
+                FFC0003F8000FFFFFF80000FFC
+                FFE0007F0000FFFFFE00001FF8
+                7FE0007E0000F87FF800001FF8
+                7FF0007C0001F8000000003FF8
+                3FF000FC0001F8000000003FF0
+                3FF800F80001F003FE00007FF0
+                1FFC00F80003F00FFF0000FFE0
+                0FFC00F80003E07FFF0000FFC0
+                0FFE00F80007E0FFFF0001FFC0
+                07FE00FC0007C3FE000001FF80
+                07FF007C000FC7F0000003FF80
+                03FF007E001F8FC1FF0003FF00
+                03FF807E003F9F87FE0007FF00
+                01FFC03F80FF3F1FFE000FFE00
+                01FFC01FE7FE7E3FFE000FFC00
+                00FFE01FFFFC7CFF00001FFC00
+                007FE00FFFF8F8FC00001FF800
+                007FF003FFF1F1F0FE003FF800
+                003FF001FFC1F3E3FE003FF000
+                003FF8003C00E7C7FE007FF000
+                001FFC000000478FFE00FFE000
+                000FFC0000000F9F8000FFC000
+                000FFE000000073F0C01FFC000
+                0007FE000000013C7C01FF8000
+                0007FF000000007CFC03FF8000
+                0003FF0000000009FC07FF0000
+                0003FF8000000001FC07FE0000
+                0001FFC000000000780FFE0000
+                0000FFC000000000080FFC0000
+                0000FFE000000000001FFC0000
+                00007FE000000000001FF80000
+                00007FF000000000003FF80000
+                00003FF800000000007FF00000
+                00003FF800000000007FF00000
+                00001FFE0000000001FFE00000
+                00000FFFFFFFFFFFFFFFC00000
+                00000FFFFFFFFFFFFFFFC00000
+                000007FFFFFFFFFFFFFF800000
+                000007FFFFFFFFFFFFFF800000
+                000003FFFFFFFFFFFFFF000000
+                000001FFFFFFFFFFFFFE000000
+                000000FFFFFFFFFFFFFC000000
+                0000003FFFFFFFFFFFF0000000
+                0000000FFFFFFFFFFFC0000000
+
+
+                ~DGR:IMG1675332878859,192,6,000000000000
+                0003C00001E0
+                003FC0000FE0
+                007FC0003FE0
+                01FFC000FFE0
+                03FFC001FFE0
+                07F00003FC00
+                0FE00003F000
+                0F800007E000
+                1F00000FC000
+                1F00000F8000
+                3E00000F0000
+                3E00001F0000
+                3C00001F0000
+                3C00001FFF00
+                3C00001FFF00
+                3C00001FFF00
+                3C00001FFF00
+                3C00001F0000
+                3E00001F0000
+                3E00000F0000
+                1F00000F8000
+                1F000007C000
+                0F800007E000
+                0FE00003F000
+                07F00003FC00
+                03FFC001FFE0
+                01FFC000FFE0
+                007FC0003FE0
+                003FC0000FE0
+                0003C00001E0
+                000000000000
+
+
+                ~DGR:IMG1675333303253,205,5,0000000000
+                8000000004
+                4000000008
+                20007E0010
+                100E43C020
+                083C003460
+                0C0C000EC0
+                06FFFFFF80
+                0320001700
+                01A0001600
+                00E0001E00
+                0060001200
+                0030003200
+                0010002000
+                00087F4000
+                00147FA000
+                0012012000
+                0013022000
+                0011842000
+                0010C82000
+                0010702000
+                0010302000
+                0010582000
+                00108C2000
+                0011862000
+                0003022000
+                0006010000
+                000C008000
+                0018004000
+                0038006000
+                0068007000
+                00C801F800
+                0188001C00
+                030802C600
+                060FFEE300
+                0402020180
+                08060110C0
+                1000000040
+                2000000020
+                4000000010
+                0000000010
+
+
+                ^XA
+                ^FO17,186
+                ^FB250,3,7,R,0
+                ^A0N,24
+                ^FH`
+                ^FD<t
+                    t-esc="cutter((doc.product_id.description_label if doc.product_id.description_label else ''), 75, True)"/>
+                ^FS
+
+                <t t-if="lot">
+                ^FO560,20
+                ^FB154,2,1,C,0
+                ^A0B,27
+                ^FH`
+                ^FD<t t-esc="lot.display_name"/>\&amp;^FS
+
+                ^FO425,24
+                ^BQN,2,6
+                ^FDMA,<t t-esc="lot.display_name"/>^FS
+
+                ^FO321,78.0
+                ^FB83,2,7,L,0
+                ^A0N,20
+                ^FH`
+                ^FDSerial No:^FS
+                </t>
+
+                ^FO350,178
+                ^FB227,2,6,C,0
+                ^A0N,18
+                ^FH`
+                ^FD<t t-esc="doc.product_id.default_code"/>\&amp;^FS
+                ^FO425,199
+                ^BXN,7,200
+                ^FDMA,<t t-esc="doc.product_id.default_code"/>^FS
+                ^FO321,176.0
+                ^FB48,2,7,L,0
+                ^A0N,20
+                ^FH`
+                ^FDType:^FS
+
+                ^FO321,258.66
+                ^FB85,2,8,L,0
+                ^A0N,24
+                ^FH`
+                ^FDPart No:^FS
+
+                ^FO119,42.31
+                ^FB204,2,13,L,0
+                ^A0N,50
+                ^FH`
+                ^FDFieldBee^FS
+
+                ^FO119,105
+                ^FB186,2,8,L,0
+                ^A0N,30
+                ^FH`
+                ^FDFieldbee.com^FS
+                ^FO17,150.54
+                ^FB257,2,8,L,0
+                ^A0N,24
+                ^FH`
+                ^FDGNSS RTK precision^FS
+                ^FO17,278.59
+                ^FB72,2,10,L,0
+                ^A0N,31
+                ^FH`
+                ^FDRoHS^FS
+                ^FO17,330
+                ^FB500,2,7,L,0
+                ^A0N,19
+                ^FH`
+                ^FDDESIGNED IN UKRAINE MANUFACTURED IN POLAND^FS
+
+                ^FO17,40
+                ^XGR:IMG1675332444807,1,1^FS
+                ^FO123,274
+                ^XGR:IMG1675332878859,1,1^FS
+                ^FO201,269
+                ^XGR:IMG1675333303253,1,1^FS
+                ^XZ
+            </t>
+
+        </template>
+
+
+        <template id="device_label_mrp_production">
+            <t t-call="efarmer_sale_workflow.device_label"/>
+        </template>
+
+        <template id="device_label_stock_quant">
+            <t t-call="efarmer_sale_workflow.device_label"/>
+        </template>
+
+        <record id="action_device_label_mrp_production" model="ir.actions.report">
+            <field name="name">Product Device Label</field>
+            <field name="model">mrp.production</field>
+            <field name="report_type">qweb-text</field>
+            <field name="report_name">efarmer_sale_workflow.device_label_mrp_production</field>
+            <field name="report_file">efarmer_sale_workflow.device_label_mrp_production</field>
+            <field name="print_report_name">'Stock Label - %s' % (object.product_id.default_code)</field>
+            <field name="binding_model_id" ref="mrp.model_mrp_production"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <record id="action_stock_device_label_quant" model="ir.actions.report">
+            <field name="name">Product Device Label</field>
+            <field name="model">stock.quant</field>
+            <field name="report_type">qweb-text</field>
+            <field name="report_name">efarmer_sale_workflow.device_label_stock_quant</field>
+            <field name="report_file">efarmer_sale_workflow.device_label_stock_quant</field>
+            <field name="print_report_name">'Stock Label - %s' % (object.product_id.default_code)</field>
+            <field name="binding_model_id" ref="stock.model_stock_quant"/>
+            <field name="binding_type">report</field>
+        </record>
+
+    </data>
+</odoo>

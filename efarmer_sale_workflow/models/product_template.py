@@ -1,10 +1,12 @@
-from odoo import api, models
+from odoo import api, models, fields
 from odoo.exceptions import UserError
 from odoo.tools import config
 
 
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
+
+    description_label = fields.Text('Description for Product Labels', translate=True)
 
     @api.model
     def create(self, vals):

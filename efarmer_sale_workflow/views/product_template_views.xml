@@ -1,15 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-<record id="product_template_search_view" model="ir.ui.view">
-    <field name="name">product.template.search</field>
-    <field name="model">product.template</field>
-    <field name="inherit_id" ref="product.product_template_search_view"/>
-    <field name="arch" type="xml">
-        <xpath expr="//filter[@name='inactive']" position="after">
-            <filter string="Nonzero qty" name="nonzero_qty_available" domain="[('qty_available','!=', 0.0)]"/>
-        </xpath>
-    </field>
-</record>
+    <record id="product_template_search_view" model="ir.ui.view">
+        <field name="name">product.template.search</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='inactive']" position="after">
+                <filter string="Nonzero qty" name="nonzero_qty_available" domain="[('qty_available','!=', 0.0)]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_template_label_form" model="ir.ui.view">
+        <field name="name">label.product.template.form.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="stock.view_template_property_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='inventory']/group[3]" position="inside">
+                <group string="Description for Product Labels">
+                    <field name="description_label" nolabel="1"
+                           placeholder="The note is added to product labels."/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
 
 </odoo>
