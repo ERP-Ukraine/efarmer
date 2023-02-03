@@ -183,49 +183,44 @@
 
 
                 ^XA
-                ^FO17,186
-                ^FB250,3,7,R,0
+                ^FO17,152.4
+                ^FB341,4,7,L,0
                 ^A0N,24
                 ^FH`
                 ^FD<t
-                    t-esc="cutter((doc.product_id.description_label if doc.product_id.description_label else ''), 75, True)"/>
+                    t-esc="cutter((doc.product_id.description_label if doc.product_id.description_label else ''), 130, True)"/>
                 ^FS
 
                 <t t-if="lot">
-                ^FO560,20
-                ^FB154,2,1,C,0
-                ^A0B,27
-                ^FH`
-                ^FD<t t-esc="lot.display_name"/>\&amp;^FS
+                    ^FO556,5
+                    ^FB335,1,1,L,0
+                    ^A0B,27
+                    ^FH`
+                    ^FD<t t-esc="lot.display_name"/>\&amp;^FS
 
-                ^FO425,24
-                ^BQN,2,6
-                ^FDMA,<t t-esc="lot.display_name"/>^FS
+                    ^FO422,199
+                    ^BQN,2,6
+                    ^FDMA,<t t-esc="lot.display_name"/>^FS
 
-                ^FO321,78.0
-                ^FB83,2,7,L,0
-                ^A0N,20
-                ^FH`
-                ^FDSerial No:^FS
+                    ^FO395,213
+                    ^FB101,2,7,L,0
+                    ^A0B,20
+                    ^FH`
+                    ^FDSerial No:^FS
                 </t>
 
-                ^FO350,178
-                ^FB227,2,6,C,0
-                ^A0N,18
-                ^FH`
-                ^FD<t t-esc="doc.product_id.default_code"/>\&amp;^FS
-                ^FO425,199
-                ^BXN,7,200
-                ^FDMA,<t t-esc="doc.product_id.default_code"/>^FS
-                ^FO321,176.0
-                ^FB48,2,7,L,0
+                ^FO300,40
+                ^FB253,1,6,R,0
                 ^A0N,20
                 ^FH`
-                ^FDType:^FS
+                ^FD<t t-esc="doc.product_id.default_code"/>^FS
+                ^FO422,65
+                ^BXN,7,200
+                ^FDMA,<t t-esc="doc.product_id.default_code"/>^FS
 
-                ^FO321,258.66
-                ^FB85,2,8,L,0
-                ^A0N,24
+                ^FO393,60
+                ^FB103,2,8,L,0
+                ^A0B,20
                 ^FH`
                 ^FDPart No:^FS
 
@@ -240,27 +235,23 @@
                 ^A0N,30
                 ^FH`
                 ^FDFieldbee.com^FS
-                ^FO17,150.54
-                ^FB257,2,8,L,0
-                ^A0N,24
-                ^FH`
-                ^FDGNSS RTK precision^FS
-                ^FO17,278.59
+
+                ^FO295,275
                 ^FB72,2,10,L,0
-                ^A0N,31
+                ^A0N,27
                 ^FH`
                 ^FDRoHS^FS
-                ^FO17,330
-                ^FB500,2,7,L,0
-                ^A0N,19
+                ^FO17,295
+                ^FB300,2,10,L,0
+                ^A0N,22
                 ^FH`
-                ^FDDESIGNED IN UKRAINE MANUFACTURED IN POLAND^FS
+                ^FDDESIGNED IN UKRAINE \&amp;MANUFACTURED IN POLAND^FS
 
                 ^FO17,40
                 ^XGR:IMG1675332444807,1,1^FS
-                ^FO123,274
+                ^FO295,311
                 ^XGR:IMG1675332878859,1,1^FS
-                ^FO201,269
+                ^FO347,306
                 ^XGR:IMG1675333303253,1,1^FS
                 ^XZ
             </t>
@@ -282,7 +273,7 @@
             <field name="report_type">qweb-text</field>
             <field name="report_name">efarmer_sale_workflow.device_label_mrp_production</field>
             <field name="report_file">efarmer_sale_workflow.device_label_mrp_production</field>
-            <field name="print_report_name">'Stock Label - %s' % (object.product_id.default_code)</field>
+            <field name="print_report_name">'Stock Device Label - %s' % (object.product_id.default_code)</field>
             <field name="binding_model_id" ref="mrp.model_mrp_production"/>
             <field name="binding_type">report</field>
         </record>
@@ -293,7 +284,7 @@
             <field name="report_type">qweb-text</field>
             <field name="report_name">efarmer_sale_workflow.device_label_stock_quant</field>
             <field name="report_file">efarmer_sale_workflow.device_label_stock_quant</field>
-            <field name="print_report_name">'Stock Label - %s' % (object.product_id.default_code)</field>
+            <field name="print_report_name">'Stock Device Label - %s' % (object.product_id.default_code)</field>
             <field name="binding_model_id" ref="stock.model_stock_quant"/>
             <field name="binding_type">report</field>
         </record>
