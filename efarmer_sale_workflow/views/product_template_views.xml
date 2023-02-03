@@ -19,7 +19,7 @@
         <field name="arch" type="xml">
             <xpath expr="//page[@name='inventory']/group[3]" position="inside">
                 <group string="Description for Product Labels">
-                    <field name="description_labels" nolabel="1"
+                    <field name="description_label" nolabel="1"
                            placeholder="The note is added to product labels."/>
                 </group>
             </xpath>

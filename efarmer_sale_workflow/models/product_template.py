@@ -6,7 +6,7 @@ from odoo.tools import config
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
-    description_labels = fields.Text('Description for Product Labels', translate=True)
+    description_label = fields.Text('Description for Product Labels', translate=True)
 
     @api.model
     def create(self, vals):
