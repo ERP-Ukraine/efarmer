@@ -214,11 +214,11 @@
                 ^A0N,20
                 ^FH`
                 ^FD<t t-esc="doc.product_id.default_code"/>^FS
-                ^FO422,57
+                ^FO422,65
                 ^BXN,7,200
                 ^FDMA,<t t-esc="doc.product_id.default_code"/>^FS
 
-                ^FO393,50
+                ^FO393,60
                 ^FB103,2,8,L,0
                 ^A0B,20
                 ^FH`
