@@ -192,7 +192,7 @@
                 ^FS
 
                 <t t-if="lot">
-                    ^FO556,5
+                    ^FO556
                     ^FB335,1,1,L,0
                     ^A0B,27
                     ^FH`
@@ -210,8 +210,8 @@
                 </t>
 
                 ^FO300,40
-                ^FB253,1,6,R,0
-                ^A0N,20
+                ^FB250,1,6,R,0
+                ^A0N,24
                 ^FH`
                 ^FD<t t-esc="doc.product_id.default_code"/>^FS
                 ^FO422,65
