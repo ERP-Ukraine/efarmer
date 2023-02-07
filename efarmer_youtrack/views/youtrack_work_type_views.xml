@@ -1,0 +1,51 @@
+<odoo>
+    <data>
+
+        <record id="youtrack_work_type_tree" model="ir.ui.view">
+            <field name="name">youtrack_work_type.tree</field>
+            <field name="model">youtrack.work.type</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="YouTrack Work Types">
+                    <field name="name" />
+                    <field name="youtrack_id" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="youtrack_work_type_form" model="ir.ui.view">
+            <field name="name">youtrack_work_type.form</field>
+            <field name="model">youtrack.work.type</field>
+            <field name="arch" type="xml">
+                <form string="YouTrack Work Type Form">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" />
+                            </group>
+                            <group>
+                                <field name="youtrack_id" />
+                            </group>
+                        </group>                            
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id='youtrack_work_type_list_action' model='ir.actions.act_window'>
+            <field name="name">YouTrack Work Types</field>
+            <field name="res_model">youtrack.work.type</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="youtrack_work_type_tree"/>
+        </record>
+
+        <menuitem
+            id="menu_project_config_work_types"
+            action="youtrack_work_type_list_action" 
+            name="Work Types"
+            parent="project.menu_project_config"
+            sequence="32"
+        />
+
+    </data>
+</odoo>

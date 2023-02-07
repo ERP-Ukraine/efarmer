@@ -1,4 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-youtrack_inegration_group_user,youtrack.inegration.user,model_youtrack_inegration,,1,1,1,1
+youtrack_integration_group_user,youtrack.integration.user,model_youtrack_integration,,1,1,1,1
 youtrack_product_version_group_user,youtrack.product.version.user,model_youtrack_product_version,,1,1,1,1
 youtrack_issue_type_group_user,youtrack.issue.type.user,model_youtrack_issue_type,,1,1,1,1
+youtrack_work_type_group_user,youtrack.work.type.user,model_youtrack_work_type,,1,1,1,1

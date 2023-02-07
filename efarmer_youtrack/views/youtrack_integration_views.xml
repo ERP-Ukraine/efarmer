@@ -3,7 +3,7 @@
 
         <record id="youtrack_integration_tree" model="ir.ui.view">
             <field name="name">youtrack_integration.tree</field>
-            <field name="model">youtrack.inegration</field>
+            <field name="model">youtrack.integration</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree string="YouTrack Integrations">
@@ -16,7 +16,7 @@
 
         <record id="youtrack_integration_form" model="ir.ui.view">
             <field name="name">youtrack_integration.form</field>
-            <field name="model">youtrack.inegration</field>
+            <field name="model">youtrack.integration</field>
             <field name="arch" type="xml">
                 <form string="YouTrack Integration Form">
                     <sheet>
@@ -38,7 +38,7 @@
                                     <group>
                                         <field name="api_method" />
                                         <field name="project_code" attrs="{'invisible': [('api_method', 'not in', ('youtrackIntegrationApiGetProject', 'youtrackIntegrationApiGetTasks'))]}" />
-                                        <field name="date_from" attrs="{'invisible': [('api_method', '!=', 'youtrackIntegrationApiGetWorItems')]}" />
+                                        <field name="date_from" attrs="{'invisible': [('api_method', '!=', 'youtrackIntegrationApiGetWorkItems')]}" />
                                     </group>
                                 </group>
                                 <button string="Execute" name="run_operation" type="object" class="oe_highlight oe_read_only" />
@@ -52,10 +52,26 @@
 
         <record id='youtrack_integration_list_action' model='ir.actions.act_window'>
             <field name="name">YouTrack Integrations</field>
-            <field name="res_model">youtrack.inegration</field>
+            <field name="res_model">youtrack.integration</field>
             <field name="view_mode">tree,form</field>
             <field name="view_id" ref="youtrack_integration_tree"/>
         </record>
+
+        <menuitem
+            id="menu_project_youtrack_operations"
+            name="YouTrack"
+            parent="project.menu_main_pm"
+            groups="youtrack_integration_manager_group"
+            sequence="99"
+        />
+
+        <menuitem
+            id="youtrack_integrations"
+            name="Integration"
+            parent="menu_project_youtrack_operations"
+            sequence="5"
+            action="youtrack_integration_list_action"
+        />
 
     </data>
 </odoo>

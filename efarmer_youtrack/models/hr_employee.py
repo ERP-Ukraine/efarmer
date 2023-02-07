@@ -1,8 +1,13 @@
-from odoo import api, fields, models
+# Copyright 2023 VentorTech OU
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
+
+
+from odoo import fields, models
 
 
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
 
-
-    youtrack_id = fields.Char()
+    youtrack_id = fields.Char(
+        string='YouTrack ID',
+    )
