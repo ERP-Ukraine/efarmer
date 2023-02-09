@@ -211,7 +211,7 @@
 
                 ^FO300,40
                 ^FB250,1,6,R,0
-                ^A0N,24
+                ^A0N,24,20
                 ^FH`
                 ^FD<t t-esc="doc.product_id.default_code"/>^FS
                 ^FO422,65
