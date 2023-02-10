@@ -13,6 +13,7 @@
     'website': 'https://ventor.tech',
     'license': 'LGPL-3',
     'depends': [
+        'hr',
         'project',
         'account_asset',
         'queue_job',
