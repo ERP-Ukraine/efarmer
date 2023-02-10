@@ -66,7 +66,7 @@ class YoutrackIntegration(models.Model):
             api_method()
         return True
 
-    def _get_api_parameters(self, integration_id):
+    def __get_api_parameters(self, integration_id):
         integration = self.env['youtrack.integration'].browse(integration_id)
         if not integration or not integration.is_active:
             raise ValidationError(_('No active YouTrack Integration found!'))
@@ -77,7 +77,7 @@ class YoutrackIntegration(models.Model):
         Send request with Permanent API key
         """
         if integration_id:
-            endpoint, api_key_attr, api_key = self._get_api_parameters(integration_id)
+            endpoint, api_key_attr, api_key = self.__get_api_parameters(integration_id)
         else:
             endpoint, api_key_attr, api_key = self.endpoint, self.api_key_attr, self.api_key
 
@@ -106,10 +106,10 @@ class YoutrackIntegration(models.Model):
     def _get_object(self, model, field, value, operator='=', limit=None, check_unique=False):
         obj = self.env[model].search([(field, operator, value)], limit=limit)
         if check_unique:
-            self._check_unique(obj, field)
+            self.__check_unique(obj, field)
         return obj
 
-    def _check_unique(self, object, field):
+    def __check_unique(self, object, field):
         if len(object) > 1:
             raise ValidationError(_(
                 'There are more than one objects of model {} with the same {}!!'
@@ -140,11 +140,11 @@ class YoutrackIntegration(models.Model):
             obj = self._create_object(model, vals)
         return obj
 
-    def _minutes_to_hours(self, minutes):
+    def __minutes_to_hours(self, minutes):
         hours = float(minutes // 60 + minutes % 60 / 60)
         return hours
 
-    def _get_api_customs_values(self, vals):
+    def __get_api_customs_values(self, vals):
         CUSTOM_FIELDS_MAP = {
             'Estimation': ('planned_hours', None),
             'Type': ('issue_type_id', 'youtrack.issue.type'),
@@ -166,7 +166,7 @@ class YoutrackIntegration(models.Model):
                         if custom_data else None
 
         if custom_values.get('planned_hours', False):
-            planned_hours = self._minutes_to_hours(custom_values['planned_hours']['minutes'])
+            planned_hours = self.__minutes_to_hours(custom_values['planned_hours']['minutes'])
             custom_values['planned_hours'] = planned_hours
 
         return custom_values
@@ -191,7 +191,7 @@ class YoutrackIntegration(models.Model):
                            if empl['email'] in empls_no_ext_ids}
         return empls_to_create, update_data
 
-    def _timestamp_to_date(self, timestamp):
+    def __timestamp_to_date(self, timestamp):
         if len(str(timestamp)) == 13:
             res = date.fromtimestamp(timestamp / 1000)
         elif len(str(timestamp)) == 15:
@@ -214,7 +214,7 @@ class YoutrackIntegration(models.Model):
             vals['project']['id'],
             check_unique=True,
         )
-        custom_values = self._get_api_customs_values(vals)
+        custom_values = self.__get_api_customs_values(vals)
 
         new_vals = {
             'name': vals.get('summary') or '',
@@ -243,13 +243,13 @@ class YoutrackIntegration(models.Model):
         )
         work_type_id = self._get_object_by_name('youtrack.work.type', vals['type']).id \
             if vals.get('type') else None
-        date = self._timestamp_to_date(vals.get('date'))
+        date = self.__timestamp_to_date(vals.get('date'))
 
         self.env['account.analytic.line'].create({
             'youtrack_id': vals.get('id'),
             'name': vals.get('text', ''),
             'date': date,
-            'unit_amount': self._minutes_to_hours(vals['duration']['minutes']),
+            'unit_amount': self.__minutes_to_hours(vals['duration']['minutes']),
             'employee_id': employee.id,
             'work_type_id': work_type_id,
             'project_id': task.project_id.id if task.project_id else None,
@@ -279,15 +279,15 @@ class YoutrackIntegration(models.Model):
                     if epic.product_version_id else None
 
     def _validate_project_request(self):
-        if self.project_code:
-            if self._get_object('project.project', 'project_code', self.project_code, limit=1):
-                raise ValidationError(_(
-                    'Project with code "{}" already exists in Odoo.'
-                ).format(self.project_code))
-        else:
+        if not self.project_code:
             raise ValidationError(_(
                 'You need to set Project Code for importing Project.'
             ))
+
+        if self._get_object('project.project', 'project_code', self.project_code, limit=1):
+            raise ValidationError(_(
+                'Project with code "{}" already exists in Odoo.'
+            ).format(self.project_code))
 
     def _validate_work_items_request(self):
         if not self.date_from:
