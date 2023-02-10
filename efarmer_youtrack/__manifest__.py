@@ -14,6 +14,7 @@
     'license': 'LGPL-3',
     'depends': [
         'hr',
+        'hr_timesheet',
         'project',
         'account_asset',
         'queue_job',
