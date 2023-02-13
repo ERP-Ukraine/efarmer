@@ -180,7 +180,7 @@
                 <div class="oe_structure"/>
                 <p>
                     <strong>Weight: </strong>
-                    <span t-esc="weight_sum"/>
+                    <span t-esc="str(round(weight_sum, 2))"/>
                     <strong> kg.</strong>
                 </p>
                 <br>
