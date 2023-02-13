@@ -60,24 +60,10 @@
                     </ul>
                 </div>
                 <div class="col-6">
-
                     <strong>Consignee: </strong>
-                    <div t-field="doc.sale_id.partner_id"
-                         t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
-                    <p t-if="doc.sale_id.partner_id.vat"><t
-                            t-esc="doc.sale_id.company_id.account_fiscal_country_id.vat_label or 'Tax ID'"/>: <span
-                            t-field="doc.partner_id.vat"/></p>
-
-                    <t t-if="doc.sale_id.partner_shipping_id == doc.sale_id.partner_invoice_id
-                             and doc.sale_id.partner_invoice_id != doc.sale_id.partner_id
-                             or doc.sale_id.partner_shipping_id != doc.sale_id.partner_invoice_id">
-
-                        <t t-if="doc.sale_id.partner_shipping_id != doc.sale_id.partner_invoice_id">
-                            <strong>Shipping Address:</strong>
-                            <div t-field="doc.sale_id.partner_shipping_id"
-                                 t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'/>
-                        </t>
-
+                    <t t-if="doc.sale_id.partner_shipping_id">
+                        <div t-field="doc.sale_id.partner_shipping_id"
+                             t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'/>
                     </t>
                 </div>
             </div>
@@ -92,9 +78,9 @@
                         <strong>Delivery Date:</strong>
                         <p class="m-0" t-field="doc.date_done"/>
                     </div>
-                    <div t-if="doc.sale_id.user_id.name" class="col-auto col-3 mw-100 mb-2">
+                    <div t-if="doc.user_id.name" class="col-auto col-3 mw-100 mb-2">
                         <strong>Salesperson:</strong>
-                        <p class="m-0" t-field="doc.sale_id.user_id"/>
+                        <p class="m-0" t-field="doc.user_id"/>
                     </div>
                 </div>
                 <!-- Is there a discount on at least one line? -->
