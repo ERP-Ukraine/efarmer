@@ -61,29 +61,23 @@
                 </div>
                 <div class="col-6">
 
-                        <strong>Consignee: </strong>
-                        <div t-field="doc.sale_id.partner_id"
-                             t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
-                        <p t-if="doc.sale_id.partner_id.vat"><t
-                                t-esc="doc.sale_id.company_id.account_fiscal_country_id.vat_label or 'Tax ID'"/>: <span
-                                t-field="doc.partner_id.vat"/></p>
+                    <strong>Consignee: </strong>
+                    <div t-field="doc.sale_id.partner_id"
+                         t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
+                    <p t-if="doc.sale_id.partner_id.vat"><t
+                            t-esc="doc.sale_id.company_id.account_fiscal_country_id.vat_label or 'Tax ID'"/>: <span
+                            t-field="doc.partner_id.vat"/></p>
 
                     <t t-if="doc.sale_id.partner_shipping_id == doc.sale_id.partner_invoice_id
                              and doc.sale_id.partner_invoice_id != doc.sale_id.partner_id
                              or doc.sale_id.partner_shipping_id != doc.sale_id.partner_invoice_id">
-                        <t t-set="information_block">
-                            <strong t-if="doc.sale_id.partner_shipping_id == doc.sale_id.partner_invoice_id">Invoicing
-                                and Shipping Address:</strong>
-                            <strong t-if="doc.sale_id.partner_shipping_id != doc.sale_id.partner_invoice_id">Invoicing
-                                Address:</strong>
-                            <div t-field="doc.sale_id.partner_invoice_id"
+
+                        <t t-if="doc.sale_id.partner_shipping_id != doc.sale_id.partner_invoice_id">
+                            <strong>Shipping Address:</strong>
+                            <div t-field="doc.sale_id.partner_shipping_id"
                                  t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'/>
-                            <t t-if="doc.sale_id.partner_shipping_id != doc.sale_id.partner_invoice_id">
-                                <strong>Shipping Address:</strong>
-                                <div t-field="doc.sale_id.partner_shipping_id"
-                                     t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'/>
-                            </t>
                         </t>
+
                     </t>
                 </div>
             </div>
@@ -109,12 +103,10 @@
                     <!-- In case we want to repeat the header, remove "display: table-row-group" -->
                     <thead style="display: table-row-group">
                         <tr>
-                            <th name="th_description" class="text-left">Description</th>
+                            <th name="th_name" class="text-left">Description</th>
                             <th name="th_quantity" class="text-right">Quantity</th>
                             <th name="th_priceunit" class="text-right">Unit Price</th>
-                            <th name="th_discount" class="text-right">
-                                <span>Disc.%</span>
-                            </th>
+                            <th name="th_discount" class="text-right">Disc.%</th>
                             <th name="th_subtotal" class="text-right">
                                 <span groups="account.group_show_line_subtotals_tax_excluded">Amount</span>
                                 <span groups="account.group_show_line_subtotals_tax_included">Total Price</span>
@@ -135,7 +127,17 @@
 
                             <tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''">
                                 <t t-if="not line.display_type">
-                                    <td name="td_name"><span t-field="line.name"/></td>
+                                    <td name="td_name">
+                                        <span t-field="line.name"/>
+                                        <div name="hs_code" t-if="line.product_id.intrastat_id.code">
+                                            HS Code: <span t-field="line.product_id.intrastat_id.code"/>
+                                        </div>
+                                        <div name="country_of_origin"
+                                             t-if="line.product_id.intrastat_origin_country_id.name">
+                                            Country of Origin: <span
+                                                t-field="line.product_id.intrastat_origin_country_id.name"/>
+                                        </div>
+                                    </td>
                                     <td name="td_quantity" class="text-right">
                                         <span t-field="line.product_uom_qty"/>
                                         <span t-field="line.product_uom"/>
@@ -143,8 +145,7 @@
                                     <td name="td_priceunit" class="text-right">
                                         <span t-field="line.price_unit"/>
                                     </td>
-                                    <td t-if="display_discount" class="text-right"
-                                        groups="product.group_discount_per_so_line">
+                                    <td name="td_discount" class="text-right">
                                         <span t-field="line.discount"/>
                                     </td>
                                     <td name="td_subtotal" class="text-right o_price_total">
@@ -177,7 +178,7 @@
 
 
                 <div class="oe_structure"/>
-                <p t-if="not is_html_empty(doc.sale_id.payment_term_id.name)">
+                <p>
                     <strong>Weight: </strong>
                     <span t-esc="weight_sum"/>
                     <strong> kg.</strong>
