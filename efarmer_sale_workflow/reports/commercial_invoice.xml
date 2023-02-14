@@ -115,8 +115,8 @@
                                 <t t-if="not line.display_type">
                                     <td name="td_name">
                                         <span t-field="line.name"/>
-                                        <div name="hs_code" t-if="line.product_id.intrastat_id.code">
-                                            HS Code: <span t-field="line.product_id.intrastat_id.code"/>
+                                        <div name="hs_code" t-if="line.product_id.hs_code">
+                                            HS Code: <span t-field="line.product_id.hs_code"/>
                                         </div>
                                         <div name="country_of_origin"
                                              t-if="line.product_id.intrastat_origin_country_id.name">
