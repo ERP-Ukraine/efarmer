@@ -216,7 +216,7 @@
                 ^FD<t t-esc="doc.product_id.default_code"/>^FS
                 ^FO422,65
                 ^BXN,7,200
-                ^FDMA,<t t-esc="doc.product_id.default_code"/>^FS
+                ^FD<t t-esc="doc.product_id.default_code"/>^FS
 
                 ^FO393,60
                 ^FB103,2,8,L,0
