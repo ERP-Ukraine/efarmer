@@ -72,22 +72,6 @@
 </t>
         </template>
 
-        <template id="stock_label_picking">
-            <t t-call="efarmer_sale_workflow.stock_label"/>
-        </template>
-
-        <template id="stock_label_mrp_production">
-            <t t-call="efarmer_sale_workflow.stock_label"/>
-        </template>
-
-        <template id="stock_label_product_template">
-            <t t-call="efarmer_sale_workflow.stock_label"/>
-        </template>
-
-        <template id="stock_label_product_product">
-            <t t-call="efarmer_sale_workflow.stock_label"/>
-        </template>
-
         <record id="action_stock_label_quant" model="ir.actions.report">
             <field name="name">Stock Label</field>
             <field name="model">stock.quant</field>
@@ -103,8 +87,8 @@
             <field name="name">Stock Label</field>
             <field name="model">stock.picking</field>
             <field name="report_type">qweb-text</field>
-            <field name="report_name">efarmer_sale_workflow.stock_label_picking</field>
-            <field name="report_file">efarmer_sale_workflow.stock_label_picking</field>
+            <field name="report_name">efarmer_sale_workflow.stock_label</field>
+            <field name="report_file">efarmer_sale_workflow.stock_label</field>
             <field name="print_report_name">'Stock Label - %s' % (object.product_id.default_code)</field>
             <field name="binding_model_id" ref="stock.model_stock_picking"/>
             <field name="binding_type">report</field>
@@ -114,8 +98,8 @@
             <field name="name">Stock Label</field>
             <field name="model">mrp.production</field>
             <field name="report_type">qweb-text</field>
-            <field name="report_name">efarmer_sale_workflow.stock_label_mrp_production</field>
-            <field name="report_file">efarmer_sale_workflow.stock_label_mrp_production</field>
+            <field name="report_name">efarmer_sale_workflow.stock_label</field>
+            <field name="report_file">efarmer_sale_workflow.stock_label</field>
             <field name="print_report_name">'Stock Label - %s' % (object.product_id.default_code)</field>
             <field name="binding_model_id" ref="mrp.model_mrp_production"/>
             <field name="binding_type">report</field>
@@ -125,8 +109,8 @@
             <field name="name">Stock Label</field>
             <field name="model">product.template</field>
             <field name="report_type">qweb-text</field>
-            <field name="report_name">efarmer_sale_workflow.stock_label_product_template</field>
-            <field name="report_file">efarmer_sale_workflow.stock_label_product_template</field>
+            <field name="report_name">efarmer_sale_workflow.stock_label</field>
+            <field name="report_file">efarmer_sale_workflow.stock_label</field>
             <field name="print_report_name">'Stock Label - %s' % (object.default_code)</field>
             <field name="binding_model_id" ref="product.model_product_template"/>
             <field name="binding_type">report</field>
@@ -136,14 +120,14 @@
             <field name="name">Stock Label</field>
             <field name="model">product.product</field>
             <field name="report_type">qweb-text</field>
-            <field name="report_name">efarmer_sale_workflow.stock_label_product_product</field>
-            <field name="report_file">efarmer_sale_workflow.stock_label_product_product</field>
+            <field name="report_name">efarmer_sale_workflow.stock_label</field>
+            <field name="report_file">efarmer_sale_workflow.stock_label</field>
             <field name="print_report_name">'Stock Label - %s' % (object.default_code)</field>
             <field name="binding_model_id" ref="product.model_product_product"/>
             <field name="binding_type">report</field>
         </record>
 
-        <template id="stock_label_quant_without_qty">
+        <template id="stock_label_without_qty">
             <t t-set="is_without_qty" t-value="True"/>
             <t t-call="efarmer_sale_workflow.stock_label"/>
         </template>
@@ -152,24 +136,19 @@
             <field name="name">Stock Label (without qty)</field>
             <field name="model">stock.quant</field>
             <field name="report_type">qweb-text</field>
-            <field name="report_name">efarmer_sale_workflow.stock_label_quant_without_qty</field>
-            <field name="report_file">efarmer_sale_workflow.stock_label_quant_without_qty</field>
+            <field name="report_name">efarmer_sale_workflow.stock_label_without_qty</field>
+            <field name="report_file">efarmer_sale_workflow.stock_label_without_qty</field>
             <field name="print_report_name">'Stock Label (without qty) - %s' % (object.product_id.default_code)</field>
             <field name="binding_model_id" ref="stock.model_stock_quant"/>
             <field name="binding_type">report</field>
         </record>
 
-        <template id="stock_label_picking_without_qty">
-            <t t-set="is_without_qty" t-value="True"/>
-            <t t-call="efarmer_sale_workflow.stock_label"/>
-        </template>
-
         <record id="action_stock_label_picking_without_qty" model="ir.actions.report">
             <field name="name">Stock Label (without qty)</field>
             <field name="model">stock.picking</field>
             <field name="report_type">qweb-text</field>
-            <field name="report_name">efarmer_sale_workflow.stock_label_picking_without_qty</field>
-            <field name="report_file">efarmer_sale_workflow.stock_label_picking_without_qty</field>
+            <field name="report_name">efarmer_sale_workflow.stock_label_without_qty</field>
+            <field name="report_file">efarmer_sale_workflow.stock_label_without_qty</field>
             <field name="print_report_name">'Stock Label (without qty) - %s' % (object.product_id.default_code)</field>
             <field name="binding_model_id" ref="stock.model_stock_picking"/>
             <field name="binding_type">report</field>
