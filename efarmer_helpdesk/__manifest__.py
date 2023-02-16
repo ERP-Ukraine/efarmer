@@ -18,6 +18,7 @@
         'helpdesk_fsm',
         'stock',
         'helpdesk_stock',
+        'helpdesk_sale',
         'efarmer_sale_workflow',
     ],
 
