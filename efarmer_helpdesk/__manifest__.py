@@ -15,6 +15,7 @@
 
     'depends': [
         'helpdesk',
+        'helpdesk_fsm',
         'stock',
         'helpdesk_stock',
         'efarmer_sale_workflow',
