@@ -55,7 +55,7 @@
 ^FO18,95
 ^BQN,2,4
 ^FDMA,<t t-esc="product.default_code or ''"/>^FS
-<t t-if="not is_without_qty">
+<t t-if="not is_without_qty or valid_qty == 'S/N'">
 ^FO340.48,108
 ^FB102,2,5,R,0
 ^A0N,26
