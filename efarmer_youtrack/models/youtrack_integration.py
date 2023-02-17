@@ -10,6 +10,8 @@ from odoo.exceptions import ValidationError
 
 
 PROJECT_KEY = 'shortName'
+COMPANY_DEPENDENT_MODELS = ['account.analytic.line', 'project.project',
+    'project.task', 'account.asset', 'hr.employee',]
 
 
 class YoutrackIntegration(models.Model):
@@ -50,7 +52,6 @@ class YoutrackIntegration(models.Model):
         comodel_name='res.company',
         string='Company',
         required=True,
-        default=lambda self: self.env.company,
     )
 
     project_code = fields.Char()
@@ -66,30 +67,19 @@ class YoutrackIntegration(models.Model):
             api_method()
         return True
 
-    def __get_api_parameters(self, integration_id):
-        integration = self.env['youtrack.integration'].browse(integration_id)
-        if not integration or not integration.is_active:
-            raise ValidationError(_('No active YouTrack Integration found!'))
-        return integration.endpoint, integration.api_key_attr, integration.api_key
-
-    def _send_youtrack_request(self, uri, integration_id=None):
+    def _send_youtrack_request(self, uri):
         """
         Send request with Permanent API key
         """
-        if integration_id:
-            endpoint, api_key_attr, api_key = self.__get_api_parameters(integration_id)
-        else:
-            endpoint, api_key_attr, api_key = self.endpoint, self.api_key_attr, self.api_key
-
         headers = {
-            'Authorization': '{} {}'.format(api_key_attr, api_key),
+            'Authorization': '{} {}'.format(self.api_key_attr, self.api_key),
             'Accept': 'application/json',
         }
 
-        if endpoint.endswith('/'):
-            endpoint = endpoint[:-1]
+        if self.endpoint.endswith('/'):
+            self.endpoint = self.endpoint[:-1]
 
-        request_url = '{}/{}'.format(endpoint, uri)
+        request_url = '{}/{}'.format(self.endpoint, uri)
         resp = requests.get(request_url, headers=headers)
 
         if resp.status_code != 200:
@@ -103,17 +93,20 @@ class YoutrackIntegration(models.Model):
         res = [project for project in ext_projects if project[PROJECT_KEY] == self.project_code]
         return res
 
-    def _get_object(self, model, field, value, operator='=', limit=None, check_unique=False):
-        obj = self.env[model].search([(field, operator, value)], limit=limit)
+    def _get_object(self, model, domain, limit=None, check_unique=False):
+        if model in COMPANY_DEPENDENT_MODELS:
+            domain += [('company_id', '=', self.company_id.id)]
+            self = self.with_company(self.company_id)
+        obj = self.env[model].search(domain, limit=limit)
         if check_unique:
-            self.__check_unique(obj, field)
+            self.__check_unique(obj)
         return obj
 
-    def __check_unique(self, object, field):
+    def __check_unique(self, object):
         if len(object) > 1:
             raise ValidationError(_(
-                'There are more than one objects of model {} with the same {}!!'
-            ).format(object[0]._name, field))
+                'There are more than one objects of model {} with the same name "{}"!'
+            ).format(object[0]._name, object[0].name))
         return True
 
     def _create_object(self, model, vals):
@@ -121,9 +114,9 @@ class YoutrackIntegration(models.Model):
         return obj
 
     def _get_ts_to_create(self, ext_ts):
-        exist_ts = self._get_object('account.analytic.line', 'youtrack_id', False, operator='!=')
+        exist_ts = self._get_object('account.analytic.line', [('youtrack_id', '!=', False)])
         exist_ts_ext_ids = exist_ts.mapped('youtrack_id')
-        exist_projects = self._get_object('project.project', 'youtrack_id', False, operator='!=')
+        exist_projects = self._get_object('project.project', [('youtrack_id', '!=', False)])
         exist_project_ext_ids = exist_projects.mapped('youtrack_id')
 
         ts_to_create = [ts for ts in ext_ts if ts['id'] not in exist_ts_ext_ids
@@ -131,7 +124,8 @@ class YoutrackIntegration(models.Model):
         return ts_to_create
 
     def _get_object_by_name(self, model, custom_data):
-        obj = self._get_object(model, 'name', custom_data['name'], check_unique=True)
+        domain = [('name', '=', custom_data['name'])]
+        obj = self._get_object(model, domain, check_unique=True)
         if not obj:
             vals = {
                 'name': custom_data['name'] or '',
@@ -139,6 +133,30 @@ class YoutrackIntegration(models.Model):
             }
             obj = self._create_object(model, vals)
         return obj
+
+    def _get_account_asset(self, custom_data):
+        domain = [
+            ('name', '=', custom_data['name']),
+            ('active', '=', True),
+        ]
+        obj = self._get_object('account.asset', domain, check_unique=True)
+        if not obj:
+            vals = {
+                'name': custom_data['name'] or '',
+                'youtrack_id': custom_data['id'],
+                'asset_type': 'purchase',
+                'company_id': self.company_id.id,
+            }
+            obj = self._create_object('account.asset', vals)
+        return obj
+
+    def _get_api_integration(self, integration_id):
+        if not integration_id:
+            raise ValidationError(_('You need to set parameter integration_id.'))
+        integration = self.browse(integration_id)
+        if not integration.is_active:
+            raise ValidationError(_('No active YouTrack Integration found!'))
+        return integration
 
     def __minutes_to_hours(self, minutes):
         hours = float(minutes // 60 + minutes % 60 / 60)
@@ -150,7 +168,7 @@ class YoutrackIntegration(models.Model):
             'Type': ('issue_type_id', 'youtrack.issue.type'),
             'Product version': ('product_version_id', 'youtrack.product.version'),
             'Name PL': ('name_pl', None),
-            'Product': ('product_id', 'account.asset'),
+            'Product': ('product_id', None),
         }
 
         custom_values = {}
@@ -169,13 +187,16 @@ class YoutrackIntegration(models.Model):
             planned_hours = self.__minutes_to_hours(custom_values['planned_hours']['minutes'])
             custom_values['planned_hours'] = planned_hours
 
+        if custom_values.get('product_id', False):
+            custom_values['product_id'] = self._get_account_asset(custom_values['product_id']).id
+
         return custom_values
 
     def _get_employees_data(self, ext_empls):
         update_data = {}
         # find employees in Odoo with emails from YouTrack
         ext_emails = [employee['email'] for employee in ext_empls]
-        empls = self.env['hr.employee'].search([('work_email', 'in', ext_emails)])
+        empls = self._get_object('hr.employee', [('work_email', 'in', ext_emails)])
         empls_emails = empls.mapped('work_email')
         # define create list of YouTrack employees which have
         # email and don't exist in Odoo
@@ -196,7 +217,6 @@ class YoutrackIntegration(models.Model):
             res = date.fromtimestamp(timestamp / 1000)
         elif len(str(timestamp)) == 15:
             res = date.fromtimestamp(timestamp / 100000)
-
         return res
 
     def _create_project(self, vals):
@@ -204,14 +224,14 @@ class YoutrackIntegration(models.Model):
             'name': vals.get('name', ''),
             'project_code': vals.get(PROJECT_KEY, ''),
             'youtrack_id': vals.get('id', ''),
+            'company_id': self.company_id.id,
         })
         return True
 
     def _create_task(self, vals):
         project = self._get_object(
             'project.project',
-            'youtrack_id',
-            vals['project']['id'],
+            [('youtrack_id', '=', vals['project']['id'])],
             check_unique=True,
         )
         custom_values = self.__get_api_customs_values(vals)
@@ -225,6 +245,7 @@ class YoutrackIntegration(models.Model):
             'product_version_id': custom_values.get('product_version_id'),
             'issue_type_id': custom_values.get('issue_type_id'),
             'name_pl': custom_values.get('name_pl'),
+            'company_id': self.company_id.id,
         }
         if custom_values.get('product_id'):
             new_vals.update({
@@ -237,8 +258,7 @@ class YoutrackIntegration(models.Model):
     def _create_ts(self, vals, employee):
         task = self._get_object(
             'project.task',
-            'youtrack_id',
-            vals['issue']['id'],
+            [('youtrack_id', '=', vals['issue']['id'])],
             check_unique=True,
         )
         work_type_id = self._get_object_by_name('youtrack.work.type', vals['type']).id \
@@ -254,6 +274,7 @@ class YoutrackIntegration(models.Model):
             'work_type_id': work_type_id,
             'project_id': task.project_id.id if task.project_id else None,
             'task_id': task.id if task else None,
+            'company_id': self.company_id.id,
         })
         return True
 
@@ -262,17 +283,14 @@ class YoutrackIntegration(models.Model):
             'name': vals.get('fullName', ''),
             'work_email': vals.get('email', ''),
             'youtrack_id': vals.get('id', ''),
+            'company_id': self.company_id.id,
         })
         return True
 
     def _create_epic_links(self):
-        epic_tasks = self.env['project.task'].search([
-            ('is_epic', '=', True)
-        ])
+        epic_tasks = self._get_object('project.task', [('is_epic', '=', True)])
         for epic in epic_tasks:
-            childs = self.env['project.task'].search([
-                ('id', 'child_of', epic.child_ids.ids)
-            ])
+            childs = self._get_object('project.task', [('id', 'child_of', epic.child_ids.ids)])
             for child in childs:
                 child.epic_id = epic.id
                 child.product_version_id = epic.product_version_id.id \
@@ -284,7 +302,7 @@ class YoutrackIntegration(models.Model):
                 'You need to set Project Code for importing Project.'
             ))
 
-        if self._get_object('project.project', 'project_code', self.project_code, limit=1):
+        if self._get_object('project.project', [('project_code', '=', self.project_code)], limit=1):
             raise ValidationError(_(
                 'Project with code "{}" already exists in Odoo.'
             ).format(self.project_code))
@@ -310,7 +328,7 @@ class YoutrackIntegration(models.Model):
         get_employee_url = "users?fields=id,fullName,email&$top=100000"
         ext_employees = self._send_youtrack_request(get_employee_url) or []
         if ext_employees:
-            # create employee if employee with imported email doesn't exists
+            # create employee if employee with imported email doesn't exist
             # in Odoo, otherwise write youtrack_id if it's empty
             empls_to_create, update_data = self._get_employees_data(ext_employees)
 
@@ -322,7 +340,7 @@ class YoutrackIntegration(models.Model):
                 for youtrack_id, employee in update_data.items():
                     employee.youtrack_id = youtrack_id
 
-    def api_get_task(self, task_ext_id, integration_id, child=None):
+    def api_get_task(self, task_ext_id, child=None):
         """
         Check if task exists in Odoo, otherwise get it from
         integration and repeat this operation recursively
@@ -330,7 +348,7 @@ class YoutrackIntegration(models.Model):
         After each recursive execution create link between parent
         and child tasks.
         """
-        task = self._get_object('project.task', 'youtrack_id', task_ext_id, check_unique=True)
+        task = self._get_object('project.task', [('youtrack_id', '=', task_ext_id)], check_unique=True)
         if task:
             if child:
                 child.parent_id = task.id
@@ -341,7 +359,7 @@ class YoutrackIntegration(models.Model):
                         'value(id,name,minutes))&customFields=type&'\
                         'customFields=Estimation&customFields=Product version&'\
                         'customFields=Product&customFields=Name PL&$top=1'.format(task_ext_id)
-        ext_task = self._send_youtrack_request(get_tasks_url, integration_id=integration_id) or []
+        ext_task = self._send_youtrack_request(get_tasks_url) or []
         if ext_task:
             task = self._create_task(ext_task)
             if child:
@@ -354,28 +372,27 @@ class YoutrackIntegration(models.Model):
                 parent_project_id = parent_task[0]['project']['id']
                 parent_project = self._get_object(
                     'project.project',
-                    'youtrack_id',
-                    parent_project_id,
+                    [('youtrack_id', '=', parent_project_id)],
                     check_unique=True,
                 )
                 # create task if project exists in Odoo
                 if parent_project:
-                    self.api_get_task(parent_id, integration_id, child=task)
+                    self.api_get_task(parent_id, child=task)
             return True
 
-    def api_get_work_items(self, start, integration_id):
+    def api_get_work_items(self, start):
         # import work items (timesheets) for all existing employees with yourack_id
-        employees = self._get_object('hr.employee', 'youtrack_id', False, operator='!=')
+        employees = self._get_object('hr.employee', [('youtrack_id', '!=', False)])
         for employee in employees:
             get_ts_url = 'workItems?fields=date,duration(minutes),author(id),text,'\
                          'type,id,type(id,name),issue(id,project(id))&startDate={}'\
                          '&author={}&$top=100000'.format(start, employee.youtrack_id)
-            ext_ts = self._send_youtrack_request(get_ts_url, integration_id=integration_id) or []
+            ext_ts = self._send_youtrack_request(get_ts_url) or []
             if ext_ts:
                 # filter out existing ts and ts with project, that doesn't exist in Odoo
                 ts_to_create = self._get_ts_to_create(ext_ts)
                 for ts in ts_to_create:
-                    self.api_get_task(ts['issue']['id'], integration_id)
+                    self.api_get_task(ts['issue']['id'])
                     self._create_ts(ts, employee)
         # create links for all childs to its epic task
         self._create_epic_links()
@@ -386,12 +403,13 @@ class YoutrackIntegration(models.Model):
 
     def youtrackIntegrationApiGetWorkItems(self, integration_id=None, period=None):
         if self.env.context.get('with_cron', False):
+            self = self._get_api_integration(integration_id)
             start = (datetime.today() - timedelta(days=period)).strftime('%Y-%m-%d')
         else:
             self._validate_work_items_request()
             start = self.date_from.strftime('%Y-%m-%d')
 
-        self.with_delay().api_get_work_items(start, integration_id)
+        self.with_delay().api_get_work_items(start)
 
     def youtrackIntegrationApiGetEmployees(self):
         self.with_delay().api_get_employees()
