@@ -10,18 +10,17 @@
     'website': 'https://ventor.tech',
     'license': 'LGPL-3',
     'depends': [
-        # 'hr',
-        # 'hr_timesheet',
-        # 'project',
+        'hr',
+        'hr_timesheet',
     ],
     'data': [
         # Initial Data
-        # 'data/ir_cron_data.xml',
+        'data/ir_cron_data.xml',
         # Security
         # 'security/security.xml',
         # 'security/ir.model.access.csv',
         # Model Views
-        # 'views/project_project_views.xml',
+        'views/hr_views.xml',
     ],
     'installable': True,
     'application': True,

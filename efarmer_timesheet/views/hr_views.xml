@@ -1,0 +1,32 @@
+<odoo>
+    <data>
+
+        <record id="view_employee_form_timesheet_inherit" model="ir.ui.view">
+        <field name="name">hr.employee.form.timesheet.inherit</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <notebook position="inside">
+                <page string="Salary Information" >
+                    <group name="salary_info" >
+                        <group name="salary_info_left" string="Bamboo HR">
+                            <field name="salary_type" string="Salary Type"/>
+                            <field name="pay_rate" string="Pay Rate "/>
+                            <field name="med_insurance_rate" string="Medical Insurance Rate"/>
+                            <field name="bamboo_currency_id" string="Currency"/>
+                        </group>
+                        <group name="salary_info_right" string="Annual Timesheet Costs">
+                            <field name="ann_gross_salary" string="Annual Gross Salary"/>
+                            <field name="ann_payroll_tax" string="Annual Payroll Tax Cost to Employer"/>
+                            <field name="ann_med_insurance_cost" string="Annual Medical Insurance Costs"/>
+                            <field name="ann_bonus" string="Annual Bonus"/>
+                            <field name="other_allowances" string="Other Allowances"/>
+                        </group>
+                    </group>
+                </page>
+            </notebook>
+        </field>
+    </record>
+
+    </data>
+</odoo>
