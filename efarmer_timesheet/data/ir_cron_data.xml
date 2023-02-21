@@ -12,7 +12,7 @@
             <field name="numbercall">-1</field>
             <field name="doall" eval="False" />
             <field name="model_id" ref="model_hr_employee" />
-            <field name="code">model.compute_timesheet_cost(company_id=None)</field>
+            <field name="code">model.with_delay().compute_timesheet_cost()</field>
         </record>
 
     </data>

@@ -10,17 +10,18 @@
                 <page string="Salary Information" >
                     <group name="salary_info" >
                         <group name="salary_info_left" string="Bamboo HR">
-                            <field name="salary_type" string="Salary Type"/>
-                            <field name="pay_rate" string="Pay Rate "/>
-                            <field name="med_insurance_rate" string="Medical Insurance Rate"/>
-                            <field name="bamboo_currency_id" string="Currency"/>
+                            <field name="salary_type" />
+                            <field name="paid_per" />
+                            <field name="pay_rate" />
+                            <field name="med_insurance_rate" />
+                            <field name="bamboo_currency_id" />
                         </group>
                         <group name="salary_info_right" string="Annual Timesheet Costs">
-                            <field name="ann_gross_salary" string="Annual Gross Salary"/>
-                            <field name="ann_payroll_tax" string="Annual Payroll Tax Cost to Employer"/>
-                            <field name="ann_med_insurance_cost" string="Annual Medical Insurance Costs"/>
-                            <field name="ann_bonus" string="Annual Bonus"/>
-                            <field name="other_allowances" string="Other Allowances"/>
+                            <field name="ann_gross_salary" />
+                            <field name="ann_payroll_tax" />
+                            <field name="ann_med_insurance_cost" />
+                            <field name="ann_bonus" />
+                            <field name="other_allowances" />
                         </group>
                     </group>
                 </page>

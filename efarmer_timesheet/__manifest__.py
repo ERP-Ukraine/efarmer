@@ -16,9 +16,6 @@
     'data': [
         # Initial Data
         'data/ir_cron_data.xml',
-        # Security
-        # 'security/security.xml',
-        # 'security/ir.model.access.csv',
         # Model Views
         'views/hr_views.xml',
     ],
