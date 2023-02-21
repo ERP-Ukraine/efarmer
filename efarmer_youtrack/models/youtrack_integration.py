@@ -11,7 +11,7 @@ from odoo.exceptions import ValidationError
 
 PROJECT_KEY = 'shortName'
 COMPANY_DEPENDENT_MODELS = ['account.analytic.line', 'project.project',
-    'project.task', 'account.asset', 'hr.employee',]
+                            'project.task', 'account.asset', 'hr.employee',]
 
 
 class YoutrackIntegration(models.Model):
@@ -319,10 +319,10 @@ class YoutrackIntegration(models.Model):
         ext_project = self._send_youtrack_request(get_project_url) or []
         if ext_project:
             # we can't receive exact response with such request,
-            # and we need to avoid creation of more than one projects
-            if len(ext_project) > 1:
-                ext_project = self._filter_project_response(ext_project)
-            self._create_project(ext_project[0])
+            # and we need to avoid creation of more than one project
+            project_to_create = self._filter_project_response(ext_project)
+            if project_to_create:
+                self._create_project(project_to_create[0])
 
     def api_get_employees(self):
         get_employee_url = "users?fields=id,fullName,email&$top=100000"

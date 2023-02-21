@@ -10,11 +10,12 @@ from odoo.exceptions import ValidationError
 
 from .common import TestYoutrackIntegrationCommon, API_PROJECT_RESPONSE, \
     API_EMPLOYEE_RESPONSE, API_WORK_ITEM_RESPONSE, API_TASK_RESPONSE, \
-        API_PARENT_TASK_RESPONSE
+    API_PARENT_TASK_RESPONSE
 
 
 class TestYoutrackIntegration(TestYoutrackIntegrationCommon):
 
+    # disable jobs for all tests methods
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -26,7 +27,8 @@ class TestYoutrackIntegration(TestYoutrackIntegrationCommon):
     def setUp(self):
         super(TestYoutrackIntegration, self).setUp()
 
-        self.company = self.env['res.company'].create({'name': 'Test Company'})
+        self.company_1 = self.env['res.company'].create({'name': 'Test Company'})
+        self.company_2 = self.env['res.company'].create({'name': 'Test Company 2'})
 
         self.yt_integration = self.env['youtrack.integration'].create({
             'name': 'Test Integration',
@@ -34,15 +36,16 @@ class TestYoutrackIntegration(TestYoutrackIntegrationCommon):
             'api_key_attr': 'test_api_key_attr',
             'is_active': True,
             'endpoint': 'https://fieldbee.youtrack.cloud.test/api',
-            'company_id': self.company.id,
+            'company_id': self.company_1.id,
         })
 
-    def _create_project(self):
+    def _create_project(self, company):
         project = self.env['project.project'].create(
             {
                 'name': 'Test Project',
+                'project_code': 'TEST',
                 'youtrack_id': '1-1',
-                'company_id': self.company.id,
+                'company_id': company.id,
             }
         )
         return project
@@ -53,7 +56,7 @@ class TestYoutrackIntegration(TestYoutrackIntegrationCommon):
                 'name': 'Test Task',
                 'youtrack_id': '99-99',
                 'project_id': project.id,
-                'company_id': self.company.id,
+                'company_id': self.company_1.id,
             }
         )
         return task
@@ -64,7 +67,7 @@ class TestYoutrackIntegration(TestYoutrackIntegrationCommon):
                 'name': 'Test User 1',
                 'youtrack_id': youtrack_id if youtrack_id else '',
                 'work_email': 'test@user_1.com',
-                'company_id': self.company.id,
+                'company_id': self.company_1.id,
             }
         )
 
@@ -128,6 +131,7 @@ class TestYoutrackIntegration(TestYoutrackIntegrationCommon):
         Testing functionality of importing project.
         """
         project_code = 'TEST'
+        exist_project = self._create_project(self.company_1)
 
         msg = 'You need to set Project Code for importing Project.'
         with self.assertRaises(ValidationError, msg=msg):
@@ -137,16 +141,20 @@ class TestYoutrackIntegration(TestYoutrackIntegrationCommon):
         mock_request.return_value = API_PROJECT_RESPONSE
 
         self.yt_integration.project_code = project_code
+
+        # expect to get an error because project with such company_id already exists
+        msg = 'Project with code "{}" already exists in Odoo.'.format(project_code)
+        with self.assertRaises(ValidationError, msg=msg):
+            self.yt_integration.youtrackIntegrationApiGetProject()
+
+        exist_project.unlink()
         self.yt_integration.youtrackIntegrationApiGetProject()
 
         # check that project was created with wright attributes
         project = self.env['project.project'].search([('project_code', '=', project_code)])
         self.assertEqual(project.name, API_PROJECT_RESPONSE[0].get('name', ''))
         self.assertEqual(project.youtrack_id, API_PROJECT_RESPONSE[0].get('id', ''))
-
-        msg = 'Project with code "{}" already exists in Odoo.'.format(project_code)
-        with self.assertRaises(ValidationError, msg=msg):
-            self.yt_integration.youtrackIntegrationApiGetProject()
+        self.assertEqual(project.company_id, self.yt_integration.company_id)
 
         mock_request.assert_called_once()
 
@@ -171,7 +179,7 @@ class TestYoutrackIntegration(TestYoutrackIntegrationCommon):
             'name': API_EMPLOYEE_RESPONSE[1].get('fullName', ''),
             'work_email': API_EMPLOYEE_RESPONSE[1].get('email', ''),
             'youtrack_id': API_EMPLOYEE_RESPONSE[1].get('id', ''),
-            'company_id': self.company.id,
+            'company_id': self.company_1.id,
         }
         expected_update_vals = {
             'youtrack_id': API_EMPLOYEE_RESPONSE[0].get('id', ''),
@@ -210,7 +218,7 @@ class TestYoutrackIntegration(TestYoutrackIntegrationCommon):
         self.assertFalse(created)
 
         # creating project and simulating process of importing task
-        project = self._create_project()
+        project = self._create_project(self.company_1)
         task = self._create_task(project)
 
         mock_create_work_type = self._create_patch_object(type(self.env['youtrack.work.type']), 'create')
@@ -238,7 +246,7 @@ class TestYoutrackIntegration(TestYoutrackIntegrationCommon):
         Making request for task, and if t has parent making
         requests until parent will not be found.
         """
-        self._create_project()
+        self._create_project(self.company_1)
 
         mock_request = self._create_patch_object(type(self.yt_integration), '_send_youtrack_request')
         # define several return values through side_effect to simulate
@@ -257,7 +265,7 @@ class TestYoutrackIntegration(TestYoutrackIntegrationCommon):
         self.assertTrue(parent_task)
         # check field values
         self.assertTrue(all([parent_task.is_epic, parent_task.product_id, parent_task.task_code,
-            parent_task.product_version_id, parent_task.issue_type_id, parent_task.name_pl]))
+                        parent_task.product_version_id, parent_task.issue_type_id, parent_task.name_pl]))
         self.assertEqual(parent_task.planned_hours, 550 // 60 + 550 % 60 / 60)
 
         self.assertTrue(child_task)
