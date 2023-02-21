@@ -19,18 +19,21 @@ API_EMPLOYEE_RESPONSE = [
         'email': 'test@user_1.com',
         'fullName': 'Test User 1',
         'id': '11-11',
+        'banned': False,
         '$type': 'User',
     },
     {
         'email': 'test@user_2.com',
         'fullName': 'Test User 2',
         'id': '22-22',
+        'banned': True,
         '$type': 'User',
     },
     {
         'email': None,
         'fullName': 'Test User 3',
         'id': '33-33',
+        'banned': False,
         '$type': 'User',
     }
 ]

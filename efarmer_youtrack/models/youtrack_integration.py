@@ -279,12 +279,17 @@ class YoutrackIntegration(models.Model):
         return True
 
     def _create_employee(self, vals):
-        self.env['hr.employee'].create({
+        new_vals = {
             'name': vals.get('fullName', ''),
             'work_email': vals.get('email', ''),
             'youtrack_id': vals.get('id', ''),
             'company_id': self.company_id.id,
-        })
+        }
+        if vals.get('banned'):
+            new_vals.update({
+                'active': False,
+            })
+        self.env['hr.employee'].create(new_vals)
         return True
 
     def _create_epic_links(self):
@@ -325,7 +330,7 @@ class YoutrackIntegration(models.Model):
                 self._create_project(project_to_create[0])
 
     def api_get_employees(self):
-        get_employee_url = "users?fields=id,fullName,email&$top=100000"
+        get_employee_url = "users?fields=id,fullName,email,banned&&$top=100000"
         ext_employees = self._send_youtrack_request(get_employee_url) or []
         if ext_employees:
             # create employee if employee with imported email doesn't exist

@@ -180,6 +180,7 @@ class TestYoutrackIntegration(TestYoutrackIntegrationCommon):
             'work_email': API_EMPLOYEE_RESPONSE[1].get('email', ''),
             'youtrack_id': API_EMPLOYEE_RESPONSE[1].get('id', ''),
             'company_id': self.company_1.id,
+            'active': False,
         }
         expected_update_vals = {
             'youtrack_id': API_EMPLOYEE_RESPONSE[0].get('id', ''),
