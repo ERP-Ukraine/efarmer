@@ -48,6 +48,7 @@ API_WORK_ITEM_RESPONSE = [
         'issue': {
             'project': {
                 'id': '1-1',
+                'shortName': 'TEST',
                 '$type': 'Project'
             },
             'id': '99-99',
@@ -73,6 +74,7 @@ API_TASK_RESPONSE = {
     'summary': 'Summary of Test Task ',
     'project': {
             'id': '1-1',
+            'shortName': 'TEST',
             '$type': 'Project'
             },
     'customFields': [
@@ -115,6 +117,7 @@ API_TASK_RESPONSE = {
                         {
                             'project': {
                                     'id': '1-1',
+                                    'shortName': 'TEST',
                                     '$type': 'Project'
                                     },
                             'id': '93-28945',
@@ -132,6 +135,7 @@ API_PARENT_TASK_RESPONSE = {
     'summary': 'Summary of Parent Test Task ',
     'project': {
             'id': '1-1',
+            'shortName': 'TEST',
             '$type': 'Project'
             },
     'customFields': [

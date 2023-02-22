@@ -116,11 +116,11 @@ class YoutrackIntegration(models.Model):
     def _get_ts_to_create(self, ext_ts):
         exist_ts = self._get_object('account.analytic.line', [('youtrack_id', '!=', False)])
         exist_ts_ext_ids = exist_ts.mapped('youtrack_id')
-        exist_projects = self._get_object('project.project', [('youtrack_id', '!=', False)])
-        exist_project_ext_ids = exist_projects.mapped('youtrack_id')
+        exist_projects = self._get_object('project.project', [('project_code', '!=', False)])
+        exist_project_codes = exist_projects.mapped('project_code')
 
         ts_to_create = [ts for ts in ext_ts if ts['id'] not in exist_ts_ext_ids
-                        and ts['issue']['project']['id'] in exist_project_ext_ids]
+                        and ts['issue']['project']['shortName'] in exist_project_codes]
         return ts_to_create
 
     def _get_object_by_name(self, model, custom_data):
@@ -231,7 +231,7 @@ class YoutrackIntegration(models.Model):
     def _create_task(self, vals):
         project = self._get_object(
             'project.project',
-            [('youtrack_id', '=', vals['project']['id'])],
+            [('project_code', '=', vals['project']['shortName'])],
             check_unique=True,
         )
         custom_values = self.__get_api_customs_values(vals)
@@ -359,8 +359,8 @@ class YoutrackIntegration(models.Model):
                 child.parent_id = task.id
             return True
 
-        get_tasks_url = 'issues/{}?fields=id,idReadable,summary,project(id),'\
-                        'parent(issues(id,project(id))),customFields(name,'\
+        get_tasks_url = 'issues/{}?fields=id,idReadable,summary,project(id,shortName),'\
+                        'parent(issues(id,project(id,shortName))),customFields(name,'\
                         'value(id,name,minutes))&customFields=type&'\
                         'customFields=Estimation&customFields=Product version&'\
                         'customFields=Product&customFields=Name PL&$top=1'.format(task_ext_id)
@@ -374,10 +374,10 @@ class YoutrackIntegration(models.Model):
             # get and create parent task recursively
             if parent_task:
                 parent_id = parent_task[0]['id']
-                parent_project_id = parent_task[0]['project']['id']
+                parent_project_code = parent_task[0]['project']['shortName']
                 parent_project = self._get_object(
                     'project.project',
-                    [('youtrack_id', '=', parent_project_id)],
+                    [('project_code', '=', parent_project_code)],
                     check_unique=True,
                 )
                 # create task if project exists in Odoo
@@ -390,7 +390,7 @@ class YoutrackIntegration(models.Model):
         employees = self._get_object('hr.employee', [('youtrack_id', '!=', False)])
         for employee in employees:
             get_ts_url = 'workItems?fields=date,duration(minutes),author(id),text,'\
-                         'type,id,type(id,name),issue(id,project(id))&startDate={}'\
+                         'type,id,type(id,name),issue(id,project(id,shortName))&startDate={}'\
                          '&author={}&$top=100000'.format(start, employee.youtrack_id)
             ext_ts = self._send_youtrack_request(get_ts_url) or []
             if ext_ts:
