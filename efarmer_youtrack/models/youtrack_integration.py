@@ -196,7 +196,10 @@ class YoutrackIntegration(models.Model):
         update_data = {}
         # find employees in Odoo with emails from YouTrack
         ext_emails = [employee['email'] for employee in ext_empls]
-        empls = self._get_object('hr.employee', [('work_email', 'in', ext_emails)])
+        empls = self._get_object(
+            'hr.employee',
+            [('work_email', 'in', ext_emails), ('active', 'in', [True, False])]
+        )
         empls_emails = empls.mapped('work_email')
         # define create list of YouTrack employees which have
         # email and don't exist in Odoo
