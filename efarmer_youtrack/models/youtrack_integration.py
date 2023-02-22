@@ -11,7 +11,7 @@ from odoo.exceptions import ValidationError
 
 PROJECT_KEY = 'shortName'
 COMPANY_DEPENDENT_MODELS = ['account.analytic.line', 'project.project',
-    'project.task', 'account.asset', 'hr.employee',]
+                            'project.task', 'account.asset', 'hr.employee',]
 
 
 class YoutrackIntegration(models.Model):
@@ -116,11 +116,11 @@ class YoutrackIntegration(models.Model):
     def _get_ts_to_create(self, ext_ts):
         exist_ts = self._get_object('account.analytic.line', [('youtrack_id', '!=', False)])
         exist_ts_ext_ids = exist_ts.mapped('youtrack_id')
-        exist_projects = self._get_object('project.project', [('youtrack_id', '!=', False)])
-        exist_project_ext_ids = exist_projects.mapped('youtrack_id')
+        exist_projects = self._get_object('project.project', [('project_code', '!=', False)])
+        exist_project_codes = exist_projects.mapped('project_code')
 
         ts_to_create = [ts for ts in ext_ts if ts['id'] not in exist_ts_ext_ids
-                        and ts['issue']['project']['id'] in exist_project_ext_ids]
+                        and ts['issue']['project']['shortName'] in exist_project_codes]
         return ts_to_create
 
     def _get_object_by_name(self, model, custom_data):
@@ -231,7 +231,7 @@ class YoutrackIntegration(models.Model):
     def _create_task(self, vals):
         project = self._get_object(
             'project.project',
-            [('youtrack_id', '=', vals['project']['id'])],
+            [('project_code', '=', vals['project']['shortName'])],
             check_unique=True,
         )
         custom_values = self.__get_api_customs_values(vals)
@@ -279,12 +279,17 @@ class YoutrackIntegration(models.Model):
         return True
 
     def _create_employee(self, vals):
-        self.env['hr.employee'].create({
+        new_vals = {
             'name': vals.get('fullName', ''),
             'work_email': vals.get('email', ''),
             'youtrack_id': vals.get('id', ''),
             'company_id': self.company_id.id,
-        })
+        }
+        if vals.get('banned'):
+            new_vals.update({
+                'active': False,
+            })
+        self.env['hr.employee'].create(new_vals)
         return True
 
     def _create_epic_links(self):
@@ -319,13 +324,13 @@ class YoutrackIntegration(models.Model):
         ext_project = self._send_youtrack_request(get_project_url) or []
         if ext_project:
             # we can't receive exact response with such request,
-            # and we need to avoid creation of more than one projects
-            if len(ext_project) > 1:
-                ext_project = self._filter_project_response(ext_project)
-            self._create_project(ext_project[0])
+            # and we need to avoid creation of more than one project
+            project_to_create = self._filter_project_response(ext_project)
+            if project_to_create:
+                self._create_project(project_to_create[0])
 
     def api_get_employees(self):
-        get_employee_url = "users?fields=id,fullName,email&$top=100000"
+        get_employee_url = "users?fields=id,fullName,email,banned&&$top=100000"
         ext_employees = self._send_youtrack_request(get_employee_url) or []
         if ext_employees:
             # create employee if employee with imported email doesn't exist
@@ -354,8 +359,8 @@ class YoutrackIntegration(models.Model):
                 child.parent_id = task.id
             return True
 
-        get_tasks_url = 'issues/{}?fields=id,idReadable,summary,project(id),'\
-                        'parent(issues(id,project(id))),customFields(name,'\
+        get_tasks_url = 'issues/{}?fields=id,idReadable,summary,project(id,shortName),'\
+                        'parent(issues(id,project(id,shortName))),customFields(name,'\
                         'value(id,name,minutes))&customFields=type&'\
                         'customFields=Estimation&customFields=Product version&'\
                         'customFields=Product&customFields=Name PL&$top=1'.format(task_ext_id)
@@ -369,10 +374,10 @@ class YoutrackIntegration(models.Model):
             # get and create parent task recursively
             if parent_task:
                 parent_id = parent_task[0]['id']
-                parent_project_id = parent_task[0]['project']['id']
+                parent_project_code = parent_task[0]['project']['shortName']
                 parent_project = self._get_object(
                     'project.project',
-                    [('youtrack_id', '=', parent_project_id)],
+                    [('project_code', '=', parent_project_code)],
                     check_unique=True,
                 )
                 # create task if project exists in Odoo
@@ -385,7 +390,7 @@ class YoutrackIntegration(models.Model):
         employees = self._get_object('hr.employee', [('youtrack_id', '!=', False)])
         for employee in employees:
             get_ts_url = 'workItems?fields=date,duration(minutes),author(id),text,'\
-                         'type,id,type(id,name),issue(id,project(id))&startDate={}'\
+                         'type,id,type(id,name),issue(id,project(id,shortName))&startDate={}'\
                          '&author={}&$top=100000'.format(start, employee.youtrack_id)
             ext_ts = self._send_youtrack_request(get_ts_url) or []
             if ext_ts:

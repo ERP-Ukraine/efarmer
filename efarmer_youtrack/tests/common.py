@@ -19,18 +19,21 @@ API_EMPLOYEE_RESPONSE = [
         'email': 'test@user_1.com',
         'fullName': 'Test User 1',
         'id': '11-11',
+        'banned': False,
         '$type': 'User',
     },
     {
         'email': 'test@user_2.com',
         'fullName': 'Test User 2',
         'id': '22-22',
+        'banned': True,
         '$type': 'User',
     },
     {
         'email': None,
         'fullName': 'Test User 3',
         'id': '33-33',
+        'banned': False,
         '$type': 'User',
     }
 ]
@@ -45,6 +48,7 @@ API_WORK_ITEM_RESPONSE = [
         'issue': {
             'project': {
                 'id': '1-1',
+                'shortName': 'TEST',
                 '$type': 'Project'
             },
             'id': '99-99',
@@ -70,6 +74,7 @@ API_TASK_RESPONSE = {
     'summary': 'Summary of Test Task ',
     'project': {
             'id': '1-1',
+            'shortName': 'TEST',
             '$type': 'Project'
             },
     'customFields': [
@@ -112,6 +117,7 @@ API_TASK_RESPONSE = {
                         {
                             'project': {
                                     'id': '1-1',
+                                    'shortName': 'TEST',
                                     '$type': 'Project'
                                     },
                             'id': '93-28945',
@@ -129,6 +135,7 @@ API_PARENT_TASK_RESPONSE = {
     'summary': 'Summary of Parent Test Task ',
     'project': {
             'id': '1-1',
+            'shortName': 'TEST',
             '$type': 'Project'
             },
     'customFields': [
