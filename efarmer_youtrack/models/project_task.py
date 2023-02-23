@@ -42,8 +42,7 @@ class Task(models.Model):
         readonly=True,
     )
 
-    product_id = fields.Many2one(
+    asset_id = fields.Many2one(
         comodel_name='account.asset',
         string='Product',
-        readonly=True,
     )

@@ -22,6 +22,7 @@
     'data': [
         # Initial Data
         'data/ir_cron_data.xml',
+        'data/work_type_demo.xml',
         # Security
         'security/security.xml',
         'security/ir.model.access.csv',

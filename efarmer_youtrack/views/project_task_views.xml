@@ -17,7 +17,7 @@
             </xpath>
 
             <xpath expr="//field[@name='recurring_task']" position="before">
-                <field name="product_id" />
+                <field name="asset_id" readonly="1" />
             </xpath>
 
             <xpath expr="//form[1]/sheet[1]/group[1]/group[1]/field[@name='project_id']" position="before">
