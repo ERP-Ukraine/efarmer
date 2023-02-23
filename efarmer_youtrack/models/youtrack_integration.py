@@ -126,6 +126,10 @@ class YoutrackIntegration(models.Model):
     def _get_object_by_name(self, model, custom_data):
         domain = [('name', '=', custom_data['name'])]
         obj = self._get_object(model, domain, check_unique=True)
+
+        if obj and not obj.youtrack_id:
+            obj.youtrack_id = custom_data['id']
+
         if not obj:
             vals = {
                 'name': custom_data['name'] or '',
@@ -168,7 +172,7 @@ class YoutrackIntegration(models.Model):
             'Type': ('issue_type_id', 'youtrack.issue.type'),
             'Product version': ('product_version_id', 'youtrack.product.version'),
             'Name PL': ('name_pl', None),
-            'Product': ('product_id', None),
+            'Product': ('asset_id', None),
         }
 
         custom_values = {}
@@ -187,24 +191,20 @@ class YoutrackIntegration(models.Model):
             planned_hours = self.__minutes_to_hours(custom_values['planned_hours']['minutes'])
             custom_values['planned_hours'] = planned_hours
 
-        if custom_values.get('product_id', False):
-            custom_values['product_id'] = self._get_account_asset(custom_values['product_id']).id
+        if custom_values.get('asset_id', False):
+            custom_values['asset_id'] = self._get_account_asset(custom_values['asset_id']).id
 
         return custom_values
 
     def _get_employees_data(self, ext_empls):
         update_data = {}
-        # find employees in Odoo with emails from YouTrack
-        ext_emails = [employee['email'] for employee in ext_empls]
-        empls = self._get_object(
-            'hr.employee',
-            [('work_email', 'in', ext_emails), ('active', 'in', [True, False])]
-        )
-        empls_emails = empls.mapped('work_email')
+        # search emails of employees case-insensitively in the system
+        empls = self._get_object('hr.employee', [('active', 'in', [True, False])])
+        empls_emails = list(map(lambda x: x.lower(), empls.mapped('work_email')))
         # define create list of YouTrack employees which have
         # email and don't exist in Odoo
         empls_to_create = [empl for empl in ext_empls
-                           if empl['email'] and empl['email'] not in empls_emails]
+                           if empl['email'] and empl['email'].lower() not in empls_emails]
 
         # check if there are employees in Odoo without youtrack_id
         # and prepare data for updating them
@@ -250,10 +250,10 @@ class YoutrackIntegration(models.Model):
             'name_pl': custom_values.get('name_pl'),
             'company_id': self.company_id.id,
         }
-        if custom_values.get('product_id'):
+        if custom_values.get('asset_id'):
             new_vals.update({
                 'is_epic': True,
-                'product_id': custom_values.get('product_id'),
+                'asset_id': custom_values.get('asset_id'),
             })
         new_task = self.env['project.task'].create(new_vals)
         return new_task
@@ -264,8 +264,12 @@ class YoutrackIntegration(models.Model):
             [('youtrack_id', '=', vals['issue']['id'])],
             check_unique=True,
         )
-        work_type_id = self._get_object_by_name('youtrack.work.type', vals['type']).id \
-            if vals.get('type') else None
+
+        if vals.get('type'):
+            work_type_id = self._get_object_by_name('youtrack.work.type', vals['type']).id
+        else:
+            work_type_id = self._get_object('youtrack.work.type', [('is_default', '=', True)]).id
+
         date = self.__timestamp_to_date(vals.get('date'))
 
         self.env['account.analytic.line'].create({
@@ -303,6 +307,8 @@ class YoutrackIntegration(models.Model):
                 child.epic_id = epic.id
                 child.product_version_id = epic.product_version_id.id \
                     if epic.product_version_id else None
+                child.asset_id = epic.asset_id.id if epic.asset_id else None
+                child.name_pl = epic.name_pl if epic.name_pl else None
 
     def _validate_project_request(self):
         if not self.project_code:
