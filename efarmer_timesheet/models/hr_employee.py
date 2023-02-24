@@ -87,24 +87,28 @@ class Employee(models.Model):
     )
 
     def compute_timesheet_cost(self):
-        """ Calculate Timesheet Cost only for employees with type 'employee'
-        and employees with type 'contractor'/'outstaff' and
-        'year', 'month', 'hour' periods of payment
+        """ Calculate Timesheet Cost only for employees with type
+        'employee' and employees with type 'contractor'/'outstaff'
+        and 'year', 'month', 'hour' periods of payment.
+        Set Timesheet Cost = 0 if above parameters were changed for employee.
         """
-        all_empls = self.search([])
-        paid_periods = ['year', 'month', 'hour']
-        empls_to_compute = all_empls.filtered(lambda empl: empl.employee_type == 'employee'
-            or (empl.employee_type in ['contractor', 'outstaff'] and empl.paid_per in paid_periods))
+        empls_to_compute = self.search([
+            '|',
+            ('employee_type', '=', 'employee'),
+            '&',
+            ('employee_type', 'in', ['contractor', 'outstaff']),
+            ('paid_per', 'in', ['year', 'month', 'hour'])
+        ])
 
         if empls_to_compute:
             current_year = datetime.today().year
             year_start = datetime(current_year, 1, 1)
             year_end = datetime(current_year, 12, 31)
+            work_time_data_ids = empls_to_compute._get_work_days_data_batch(year_start, year_end)
 
             for employee in empls_to_compute:
                 # get work hours
-                work_time_data = employee._get_work_days_data_batch(
-                    year_start, year_end, calendar=employee.resource_calendar_id)[employee.id]
+                work_time_data = work_time_data_ids[employee.id]
                 work_hours = work_time_data.get('hours', 0)
                 ts_cost_value = 0
                 # set 0 cost if employee hasn't working hours to avoid ZeroDivisionError
@@ -114,9 +118,14 @@ class Employee(models.Model):
 
                 # compute cost for employees
                 if employee.employee_type == 'employee':
-                    cost_values = [employee.ann_gross_salary, employee.ann_payroll_tax,
-                        employee.ann_med_insurance_cost, employee.ann_bonus, employee.other_allowances]
-                    annual_ts_cost = sum(cost_values)
+                    annual_ts_cost = employee.mapped(
+                        lambda x:
+                            x.ann_gross_salary +
+                            x.ann_payroll_tax +
+                            x.ann_med_insurance_cost +
+                            x.ann_bonus +
+                            x.other_allowances
+                    )[0]
                     ts_cost_value = annual_ts_cost / work_hours
                 else:
                     # get currency rate
@@ -138,9 +147,11 @@ class Employee(models.Model):
 
                 employee.timesheet_cost = ts_cost_value
 
-        # update employees that had timesheet cost but now has employee_type or paid_per
-        # that not provide calculation of timesheet cost
-        empls_to_update = (all_empls - empls_to_compute).filtered(lambda empl: empl.timesheet_cost != 0.00)
+        # update employees that had timesheet cost but now has employee_type
+        # or paid_per that not provide calculation of timesheet cost
+        empls_to_update = self.search([
+            ('id', 'not in', empls_to_compute.ids),
+            ('timesheet_cost', '!=', '0.00')
+        ])
         if empls_to_update:
-            for employee in empls_to_update:
-                employee.timesheet_cost = 0
+            empls_to_update.timesheet_cost = 0
