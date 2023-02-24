@@ -1,11 +1,17 @@
-import json
 import re
-import requests
 
 from odoo import api, exceptions, fields, models, _
 from odoo.tools.safe_eval import safe_eval
 
-from .constants import Constants
+
+PLACEHOLDER_REGEX = r'\%\%[a-z_\d\.]+?\%\%'
+FIELD_PLACEHOLDER = '<t t-esc="doc.{}"/>'
+TEMPLATE_BASE = '<t t-foreach="docs" t-as="doc">{content}</t>'
+SPECIAL_CHARACTERS = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+}
 
 
 class Label(models.Model):
@@ -15,54 +21,44 @@ class Label(models.Model):
     name = fields.Char(
         string='Name',
         required=True,
-    )
-
-    blob = fields.Text(
-        string='Blob',
-        default='{}',
+        readonly=True,
     )
 
     zpl = fields.Text(
         string="ZPL",
         default='',
+        readonly=True,
     )
 
     preview = fields.Text(
         string="Preview (with demo data)",
         default=False,
+        readonly=True,
     )
 
     width = fields.Float(
         string="Width, inch",
         default=5,
         required=True,
+        readonly=True,
     )
 
     height = fields.Float(
         string="Height, inch",
         default=2.5,
         required=True,
+        readonly=True,
     )
 
-    dpi = fields.Selection(
+    dpi = fields.Integer(
         string="DPI",
-        default='152',
-        selection=[
-            ('152', '6dpmm (152 dpi)'),
-            ('203', '8dpmm (203 dpi)'),
-            ('300', '12dpmm (300 dpi)'),
-            ('600', '24dpmm (600 dpi)'),
-        ],
         required=True,
+        readonly=True,
     )
 
-    orientation = fields.Selection(
+    orientation = fields.Char(
         string="Orientation",
-        default="normal",
-        selection=[
-            ('normal', 'Normal'),
-            ('inverted', 'Inverted'),
-        ],
+        readonly=True,
     )
 
     is_published = fields.Boolean(
@@ -73,7 +69,7 @@ class Label(models.Model):
 
     is_modified = fields.Boolean(
         string="Is Modified After Publishing?",
-        compute='_compute_is_modified',
+        default=False,
     )
 
     action_report_id = fields.Many2one(
@@ -93,10 +89,9 @@ class Label(models.Model):
         string='Label Model',
         ondelete='cascade',
         required=True,
-        domain=lambda self: self._get_allowed_models(),
+        readonly=True,
     )
 
-    # This is experimental functionality: allow to set custom print report name
     print_report_name = fields.Char(
         string='Report Name',
         help=(
@@ -111,11 +106,16 @@ class Label(models.Model):
         compute='_compute_print_report_name_preview',
     )
 
+    designer_label_id = fields.Char(
+        string='Designer Label ID',
+        readonly=True,
+    )
+
     @api.depends('name', 'print_report_name')
     def _compute_print_report_name_preview(self):
         for rec in self:
             if rec.print_report_name:
-                random_record = rec._get_random_record()
+                random_record = rec._get_random_record(rec.zpl, rec.model_id.model)
                 rec.print_report_name_preview = safe_eval(
                     rec.print_report_name,
                     {'object': random_record}
@@ -134,56 +134,58 @@ class Label(models.Model):
                     _('Invalid Print Report Name expression: {}').format(e)
                 )
 
-    @api.constrains('width', 'height')
-    def _check_dimensions(self):
-        """
-        Do now allow to set negative width.
-        """
-        if self.width <= 0 or self.height <= 0:
-            raise exceptions.ValidationError(_('Width and height must be positive'))
-
     def copy(self, default=None):
-        default = dict(default or {})
-        default['name'] = "Copy of " + self.name
-
-        return super().copy(default=default)
+        raise exceptions.UserError(_(
+            "You can't duplicate a label. Please, go to the ZPL Label Designer to create labels."
+        ))
 
     def unlink(self):
         for label in self:
             if label.is_published:
                 raise exceptions.UserError(_('Cannot delete published label'))
 
+            if not self.env.is_superuser() and label.designer_label_id:
+                raise exceptions.UserError(_(
+                    "You can't delete a label from Odoo that is synced with labels.ventor.tech. "
+                    "Please, go to the labels.ventor.tech to do this."
+                ))
+
         return super().unlink()
 
-    def generate_zpl(self):
-        """
-        Generate ZPL content for current state of label. Used as button callback.
-        """
-        self.ensure_one()
-
-        self.zpl = self._get_zpl_label()
-        # TODO: Refactor? Looks like we can easily miss validation of label fields with
-        # this approach
-        self._validate_placeholders()
-        self.preview = self._generate_preview()
-
+    #
+    # Button actions
+    #
     def publish(self):
         """
         This method publish label to Odoo. It creates (or updates) ir.action.report and ir.ui.view.
         """
         self.ensure_one()
 
-        # Update label
-        self.generate_zpl()
+        # Validate label before publishing
+        self._validate_placeholders(self.zpl, self.model_id.model)
 
         if not self.zpl.strip():  # Strip is just in case
             raise exceptions.UserError(
                 _('Label is empty. Please add at least one element to the label'))
 
         if self.action_report_id:
-            # Do update of label content and exit
-            self._update_label()
-            return
+            # Label already published. Do update of label content and exit
+            self._update_label_content()
+
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Label was updated'),
+                    'message': _('Label {} was successfully updated').format(self.name),
+                    'type': 'success',
+                    'sticky': False,
+                    'next': {
+                        'type': 'ir.actions.client',
+                        'tag': 'reload',
+                    }
+                },
+            }
 
         view_xmlid = f'zpl_label_designer.{self.model_id.model.replace(".", "_")}_label_{self.id}'
         label_view_id = self.env['ir.ui.view'].create({
@@ -227,16 +229,7 @@ class Label(models.Model):
         self.action_report_id = label_action_report
         self.is_published = True
 
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Label was published'),
-                'message': _('Label {} was successfully published').format(self.name),
-                'type': 'success',
-                'sticky': False,
-            },
-        }
+        return True
 
     def unpublish(self):
         self.ensure_one()
@@ -247,16 +240,11 @@ class Label(models.Model):
 
         self.is_published = False
 
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Label was unpublished'),
-                'message': _('Label {} was successfully unpublished').format(self.name),
-                'type': 'success',
-                'sticky': False,
-            },
-        }
+        return True
+
+    def update_published_label(self):
+        self.publish()
+        self.is_modified = False
 
     def open_view(self):
         self.ensure_one()
@@ -270,63 +258,93 @@ class Label(models.Model):
             'res_id': self.view_id.id,
             'view_mode': 'form',
             'target': 'current',
+            'context': {
+                'no_breadcrumbs': False,
+            }
         }
 
-    @api.depends('view_id')
-    def _compute_is_modified(self):
-        for label in self:
-            label.is_modified = bool(label.view_id and label.view_id.write_date < label.write_date)
-
-    def get_allowed_fields(self, model_name=None):
-        """
-        This method returns list of fields to use in label design (sorted by label)
-        like [{name: ..., label: ..., type: ..., comodel: ...}, ...]
-
-        :param model_name: optional str: 'res.company', 'res.partner', ...
-        """
+    def open_in_designer(self):
         self.ensure_one()
 
-        model_name = model_name or self.model_id.model
+        return {
+            'type': 'ir.actions.act_url',
+            'url': self.get_label_designer_url(self.designer_label_id),
+            'target': 'blank',
+        }
+
+    def update_demo(self):
+        """
+        This method update label preview with demo data.
+        """
+        self.ensure_one()
+        self.preview = self.generate_demo(self.zpl, self.model_id.model)
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }
+
+    #
+    # Public methods
+    #
+    @api.model
+    def create_label(self, attrs):
+        # Replace model with model_id. It's a bit hacky but for now it's the easiest way
+        model_name = attrs.get('model')
         if not model_name:
-            return {}
+            raise exceptions.UserError(_('Model is not specified'))
 
-        fields_ = []
+        del attrs['model']
 
-        for field_name, field in self.env[model_name]._fields.items():
-            if field_name in Constants.FIELDS_TO_IGNORE or field_name.startswith('_'):
-                continue
+        attrs['model_id'] = self.env['ir.model'].search([('model', '=', model_name)]).id
+        label = self.create([attrs])
 
-            if any([isinstance(field, FieldType) for FieldType in Constants.ALLOWED_FIELDS]):
+        label.update_demo()
 
-                attributes_field = {
-                    'name': field_name,
-                    'label': field.string,
-                    'type': type(field).type,
-                    'comodel': getattr(field, 'comodel_name', False),
-                }
+        return label.id
 
-                # Remove special characters at the beginning of the string from the label
-                # for correct sorting by labels
-                while not attributes_field['label'][0].isalpha():
-                    attributes_field['label'] = attributes_field['label'][1:]
+    @api.model
+    def update_label(self, label_id, attrs):
+        # Use exists to make sure that label really exists
+        label = self.browse(label_id).exists()
 
-                fields_.append(attributes_field)
+        if not label:
+            # Create new label if it doesn't exist
+            label_id = self.create_label(attrs)
+            return label_id
 
-        fields_.sort(key=lambda d: d['label'])
+        attrs.pop('model', None)  # Model can not be changed, used only on create
+        label.write(attrs)
 
-        return fields_
+        label.update_demo()
+        label.is_modified = True
 
-    def _generate_preview(self):
+        return label.id
+
+    @api.model
+    def delete_label(self, label_id):
+        label = self.browse(label_id).exists()
+
+        if not label:
+            # TODO: Maybe it's better just to return success?
+            raise ValueError(_('Not label with such ID found in Odoo'))
+
+        # This will raise exception if label published
+        label.unlink()
+
+    @api.model
+    def generate_demo(self, zpl, model_name):
         """
         This method replaces placeholders with demo data.
         """
-        self.ensure_one()
+        label_preview = zpl
 
-        label_preview = self.zpl
-        placeholders = re.findall(Constants.PLACEHOLDER_REGEX, label_preview)
+        # Validate label before generating preview
+        self._validate_placeholders(zpl, model_name)
 
-        random_record = self._get_random_record()
+        random_record = self._get_random_record(zpl, model_name)
 
+        placeholders = re.findall(PLACEHOLDER_REGEX, label_preview)
         # Replace placeholders with data
         for placeholder in placeholders:
             placeholder_attr = placeholder[2:-2]  # Remove %% from start and end
@@ -345,14 +363,15 @@ class Label(models.Model):
 
         return label_preview
 
-    def _validate_placeholders(self):
+    #
+    # Internal methods
+    #
+    def _validate_placeholders(self, zpl, model_name):
         """
         This method validates placeholders in label design.
         """
-        self.ensure_one()
-
-        placeholders = re.findall(Constants.PLACEHOLDER_REGEX, self.zpl)
-        Model = self.env[self.model_id.model]
+        placeholders = re.findall(PLACEHOLDER_REGEX, zpl)
+        Model = self.env[model_name]
 
         for placeholder in placeholders:
             placeholder_attr = placeholder[2:-2]  # Remove %% from start and end
@@ -395,45 +414,23 @@ class Label(models.Model):
 
         return True
 
-    def _get_random_record(self):
+    def _get_random_record(self, zpl, model_name):
         """
         This method returns random record from model
         (tries to find record with fields that are not empty)
         """
-        self.ensure_one()
-
-        placeholders = re.findall(Constants.PLACEHOLDER_REGEX, self.zpl)
+        placeholders = re.findall(PLACEHOLDER_REGEX, zpl)
 
         # Try to find objects with not empty fields
         not_empty_fields = [p[2:-2] for p in placeholders]
         domain = [(f, '!=', False) for f in not_empty_fields]
-        random_record = self.env[self.model_id.model].search(domain, limit=1)
+        random_record = self.env[model_name].search(domain, limit=1)
 
         if not random_record:
             # If no object found, try to find any object
-            random_record = self.env[self.model_id.model].search([], limit=1)
+            random_record = self.env[model_name].search([], limit=1)
 
         return random_record
-
-    def _get_zpl_label(self):
-        self.ensure_one()
-
-        payload = {
-            "name": self.name,
-            "inverted": self.orientation == 'inverted',
-            "dpi": self.dpi,
-            "content": json.loads(self.blob),
-        }
-        resp = requests.post(self._get_converter_url('convert-label'), json=payload)
-
-        if resp.status_code >= 500:  # Can be 500 or 502 if server is down
-            raise exceptions.UserError(Constants.SERVER_DOWN_MESSAGE)
-
-        data = resp.json()
-        if data.get('status_code') != 200:
-            raise exceptions.UserError(data.get('message', Constants.SERVER_DOWN_MESSAGE))
-
-        return resp.json().get('data', {})
 
     def _prepare_label_template(self):
         self.ensure_one()
@@ -442,22 +439,22 @@ class Label(models.Model):
         label_content = self.zpl
 
         # Replace special characters in placeholders with html entities
-        for char, replacement in Constants.SPECIAL_CHARACTERS.items():
+        for char, replacement in SPECIAL_CHARACTERS.items():
             label_content = label_content.replace(char, replacement)
 
-        placeholders = re.findall(Constants.PLACEHOLDER_REGEX, label_content)
+        placeholders = re.findall(PLACEHOLDER_REGEX, label_content)
 
         for placeholder in placeholders:
             placeholder_attr = placeholder[2:-2]  # Remove %% from start and end
-            placeholder_value = Constants.FIELD_PLACEHOLDER.format(placeholder_attr)
+            placeholder_value = FIELD_PLACEHOLDER.format(placeholder_attr)
 
             label_content = label_content.replace(placeholder, placeholder_value)
 
-        template = Constants.TEMPLATE_BASE.format(content=label_content)
+        template = TEMPLATE_BASE.format(content=label_content)
 
         return template
 
-    def _update_label(self):
+    def _update_label_content(self):
         self.ensure_one()
 
         # Update label with new content
@@ -467,25 +464,15 @@ class Label(models.Model):
         self.action_report_id.name = self.name
         self.action_report_id.print_report_name = self.print_report_name or f"'{self.name}'"
 
-    def _get_converter_url(self, uri=''):
-        base_url = self.env['ir.config_parameter'].sudo()\
-            .get_param('zpl_label_designer.zld_converter_url')
-        return f'{base_url}/{uri}' if uri else base_url
+    #
+    # Method to call from UI
+    #
+    @api.model
+    def get_label_designer_url(self, label_id=None):
+        base_url = self.env['ir.config_parameter'].sudo() \
+            .get_param('zpl_label_designer.designer_url')
 
-    def _get_quick_fields(self):
-        self.ensure_one()
+        if not label_id:
+            return f'{base_url}/'
 
-        return Constants.FIELDS_FOR_QUICK_BUTTONS.get(self.model_id.model, {})
-
-    def get_settings(self):
-        self.ensure_one()
-
-        return {
-            'converter_url': self._get_converter_url(),
-            'allowed_fields': self.get_allowed_fields(),
-            'quick_fields': self._get_quick_fields(),
-        }
-
-    def _get_allowed_models(self):
-        allowed_models = [model.model for model in self.env.company.zld_allowed_models]
-        return [("model", "in", allowed_models)] if allowed_models else None
+        return f'{base_url}/{label_id}'

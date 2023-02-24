@@ -1,6 +1,10 @@
 from odoo import api, fields, models
 
-from .constants import Constants
+
+ALLOWED_MODELS_TO_ZLD_LABEL = [
+    "product.product", "product.template",
+    "stock.lot", "stock.quant.package"
+]
 
 
 class Company(models.Model):
@@ -17,7 +21,7 @@ class Company(models.Model):
         Set default models for the 'zld_allowed_models' field for all existing companies
         """
         allowed_model_ids = self.env['ir.model'].search([(
-            "model", "in", Constants.ALLOWED_MODELS_TO_ZLD_LABEL)])
+            "model", "in", ALLOWED_MODELS_TO_ZLD_LABEL)])
 
         for company in self.env['res.company'].search([]):
             company.sudo().zld_allowed_models = [

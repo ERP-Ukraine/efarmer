@@ -4,8 +4,6 @@ import config from 'web.config';
 import fieldRegistry from 'web.field_registry';
 import { FieldText } from 'web.basic_fields';
 
-import { _t } from 'web.core';
-
 const DENSITY = {
   152: '6dpmm',
   203: '8dpmm',
@@ -13,7 +11,7 @@ const DENSITY = {
   600: '24dpmm',
 };
 
-const PreviewField = FieldText.extend({
+const LabelContentField = FieldText.extend({
   init: function (parent) {
     // Save form object for later use
     this.parent = parent;
@@ -24,37 +22,34 @@ const PreviewField = FieldText.extend({
   _renderZPLContent: function () {
     // Show raw label content only in debug mode
     if (config.isDebug()) {
-      const textarea = document.createElement('textarea');
-      textarea.classList.add('zpl-preview-content', 'mt-4');
-      textarea.value = this._formatValue(this.value);
-      textarea.readOnly = true;
+      const div = document.createElement('div');
+      div.classList.add('zld-content-container', 'mb-4');
+      div.textContent = this._formatValue(this.value);
+      div.readOnly = true;
 
       // Select preview content on double click
-      textarea.addEventListener('dblclick', (e) => {
+      div.addEventListener('dblclick', (e) => {
         e.preventDefault();
-        textarea.select();
+        // Select all text in the content element
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(div);
+        selection.removeAllRanges();
+        selection.addRange(range);
       });
 
-      this.$el.append(textarea);
+      this.$el.append(div);
     }
   },
 
   _renderEdit: function () {
-    // This field looks the same in readonly and edit modes
     this._renderZPLContent();
+    this._renderZPLPreview();
   },
 
   _renderReadonly: function () {
-    // this._super();
     this._renderZPLContent();
-
-    // Load preview only in readonly mode. We also hide it in edit mode but this method
-    // is called anyway
-    if (this.parent.mode === 'readonly') {
-      this._renderZPLPreview();
-    } else {
-      this.$el.text(_t('Preview is not available in edit mode'));
-    }
+    this._renderZPLPreview();
   },
 
   _renderZPLPreview: function () {
@@ -66,7 +61,7 @@ const PreviewField = FieldText.extend({
       const labelaryUrl = `https://api.labelary.com/v1/printers/${dpmm}/labels/${width}x${height}/0/`;
 
       const formData = new FormData();
-      formData.append('file', this.record.data.preview);
+      formData.append('file', this.value);
 
       fetch(labelaryUrl, { method: 'POST', body: formData })
         .then((response) => response.blob())
@@ -77,11 +72,11 @@ const PreviewField = FieldText.extend({
           imageEl.classList.add('border');
           imageEl.src = previewURL;
 
-          this.$el.prepend(imageEl);
+          this.$el.append(imageEl);
         });
       // TODO: Add error catching
     }
   },
 });
 
-fieldRegistry.add('zld_preview', PreviewField);
+fieldRegistry.add('zld_label_content', LabelContentField);
