@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="seq_project_capitalization" model="ir.sequence">
+        <field name="name">Project Capitalization Sequence</field>
+        <field name="code">project.capitalization.sequence</field>
+        <field name="prefix">CAP</field>
+        <field name="padding">5</field>
+    </record>
+
+    <record id="view_project_capitalization_form" model="ir.ui.view">
+        <field name="name">project.capitalization.form</field>
+        <field name="model">project.capitalization</field>
+        <field name="arch" type="xml">
+            <form string="Project Capitalization">
+                <header>
+                    <button name="generate_report" string="Generate Report" type="object" class="oe_highlight"
+                            attrs="{'invisible': [('status', '=', 'done')]}"/>
+                    <button name="capitalization" string="CAPITALIZE" type="object" class="oe_highlight"
+                            attrs="{'invisible': [('status', '=', 'done')]}"/>
+                    <field name="status" widget="statusbar" statusbar_visible="new,in_progress,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" name="open_analytic_lines" string="REPORT" type="object" icon="fa-bars" attrs="{'invisible': [('status', 'in', ['new','done'])]}">
+                        </button>
+                    </div>
+                    <group>
+                        <field name="name" readonly="1"/>
+                        <field name="company_id"/>
+                    </group>
+                    <group>
+                        <field name="start_date"/>
+                        <field name="end_date"/>
+                    </group>
+                    <group string="Capitalization Rules">
+                        <field name="work_types" widget="many2many_tags"/>
+                        <field name="account_asset_counterpart_id" required="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Capitalization Lines">
+                            <field name="capitalization_line_ids" nolabel="1">
+                                <tree editable="top">
+                                    <field name="asset_id"/>
+                                    <field name="account_asset_counterpart_id"/>
+                                    <field name="hours_spent"/>
+                                    <field name="amount"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+
+            </form>
+        </field>
+    </record>
+
+    <record id="view_project_capitalization_tree" model="ir.ui.view">
+        <field name="name">project.capitalization.tree</field>
+        <field name="model">project.capitalization</field>
+        <field name="arch" type="xml">
+            <tree string="Project Capitalizations">
+                <field name="name"/>
+                <field name="company_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="status"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_view_project_capitalization" model="ir.actions.act_window">
+        <field name="name">Capitalizations</field>
+        <field name="res_model">project.capitalization</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to create a new capitalization.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_view_project_capitalization" model="ir.actions.act_window">
+        <field name="name">Capitalizations</field>
+        <field name="res_model">project.capitalization</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to create a new capitalization.
+            </p>
+        </field>
+    </record>
+    <menuitem id="menu_capitalization" name="Capitalization" parent="project.menu_main_pm" sequence="15"/>
+    <menuitem id="menu_action_project_capitalization" name="Capitalizations" parent="menu_capitalization"
+              action="action_view_project_capitalization" sequence="10"/>
+
+
+</odoo>
