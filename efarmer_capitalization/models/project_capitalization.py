@@ -47,6 +47,7 @@ class ProjectCapitalization(models.Model):
         'capitalization_id',
         'tag_id',
         string='Work Types',
+        required=True,
     )
     account_asset_counterpart_id = fields.Many2one(
         'account.account',
