@@ -31,5 +31,5 @@ class AccountAnalyticLine(models.Model):
     def write(self, vals):
         for line in self:
             if line.is_capitalized:
-                raise UserError(_('You cannot delete a Capitalized analytic line.'))
+                raise UserError(_('You cannot edit a Capitalized analytic line.'))
         return super(AccountAnalyticLine, self).write(vals)
