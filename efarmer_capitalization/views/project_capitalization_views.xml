@@ -15,14 +15,14 @@
             <form string="Project Capitalization">
                 <header>
                     <button name="generate_report" string="Generate Report" type="object" class="oe_highlight"
-                            attrs="{'invisible': [('status', '=', 'done')]}"/>
+                            attrs="{'invisible': [('state', '=', 'done')]}"/>
                     <button name="capitalization" string="CAPITALIZE" type="object" class="oe_highlight"
-                            attrs="{'invisible': [('status', '=', 'done')]}"/>
-                    <field name="status" widget="statusbar" statusbar_visible="new,in_progress,done"/>
+                            attrs="{'invisible': [('state', '=', 'done')]}"/>
+                    <field name="state" widget="statusbar" statusbar_visible="new,in_progress,done"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button class="oe_stat_button" name="open_analytic_lines" string="REPORT" type="object" icon="fa-bars" attrs="{'invisible': [('status', 'in', ['new','done'])]}">
+                        <button class="oe_stat_button" name="open_analytic_lines" string="REPORT" type="object" icon="fa-bars" attrs="{'invisible': [('state', 'in', ['new','done'])]}">
                         </button>
                     </div>
                     <group>
@@ -34,16 +34,16 @@
                         <field name="end_date"/>
                     </group>
                     <group string="Capitalization Rules">
-                        <field name="work_types" widget="many2many_tags"/>
+<!--                        <field name="work_type_ids" widget="many2many_tags"/>-->
                         <field name="account_asset_counterpart_id" required="1"/>
                     </group>
                     <notebook>
                         <page string="Capitalization Lines">
                             <field name="capitalization_line_ids" nolabel="1">
                                 <tree editable="top">
-                                    <field name="asset_id"/>
+                                    <field name="asset_id" readonly="1"/>
                                     <field name="account_asset_counterpart_id"/>
-                                    <field name="hours_spent"/>
+                                    <field name="hours_spent" readonly="1"/>
                                     <field name="amount"/>
                                 </tree>
                             </field>
@@ -64,7 +64,7 @@
                 <field name="company_id"/>
                 <field name="start_date"/>
                 <field name="end_date"/>
-                <field name="status"/>
+                <field name="state"/>
             </tree>
         </field>
     </record>
