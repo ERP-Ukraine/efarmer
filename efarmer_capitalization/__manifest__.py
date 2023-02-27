@@ -6,7 +6,15 @@
     'author': 'VentorTech',
     'website': 'https://ventor.tech/',
     'category': 'Project',
-    'depends': ['base', 'project', 'hr_timesheet', 'product', 'account', 'account_asset', 'efarmer_youtrack',],
+    'depends': [
+        'base',
+        'project',
+        'hr_timesheet',
+        'product',
+        'account',
+        'account_asset',
+        'efarmer_youtrack',
+    ],
     'data': [
         'security/ir.model.access.csv',
         'views/project_capitalization_views.xml',
