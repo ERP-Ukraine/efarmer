@@ -1,6 +1,7 @@
 # Copyright 2023 VentorTech OU
 # Part of Ventor modules. See LICENSE file for full copyright and licensing details.
-from odoo import models, fields
+from odoo import models, fields, _
+from odoo.exceptions import UserError
 
 
 class AccountAnalyticLine(models.Model):
@@ -20,3 +21,15 @@ class AccountAnalyticLine(models.Model):
         comodel_name='youtrack.work.type',
         string='Work Type',
     )
+
+    def unlink(self):
+        for line in self:
+            if line.is_capitalized:
+                raise UserError(_('You cannot delete a Capitalized analytic line.'))
+        return super(AccountAnalyticLine, self).unlink()
+
+    def write(self, vals):
+        for line in self:
+            if line.is_capitalized:
+                raise UserError(_('You cannot delete a Capitalized analytic line.'))
+        return super(AccountAnalyticLine, self).write(vals)
