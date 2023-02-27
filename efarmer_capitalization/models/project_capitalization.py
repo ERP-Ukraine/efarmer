@@ -64,7 +64,7 @@ class ProjectCapitalization(models.Model):
              'new': [('readonly', False)],
              'in_progress': [('readonly', False)],
              'done': [('readonly', True)]
-             },
+        },
     )
     account_asset_counterpart_id = fields.Many2one(
         'account.account',
@@ -158,7 +158,7 @@ class ProjectCapitalization(models.Model):
                 ('work_type_id', 'in', capitalization.work_type_ids.ids),
                 ('is_timesheet', '=', True),
             ]
-            capitalization.env['account.analytic.line'].search(domain).update({'is_capitalized': lambda is_capitalized: True})
+            capitalization.env['account.analytic.line'].search(domain).write({'is_capitalized': True})
 
     def open_analytic_lines(self):
         analytic_lines = self.env['account.analytic.line'].search([('id', 'in', self.analytic_line_ids.ids)])
