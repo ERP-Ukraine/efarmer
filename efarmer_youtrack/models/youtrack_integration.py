@@ -10,8 +10,6 @@ from odoo.exceptions import ValidationError
 
 
 PROJECT_KEY = 'shortName'
-COMPANY_DEPENDENT_MODELS = ['account.analytic.line', 'project.project',
-                            'project.task', 'account.asset', 'hr.employee',]
 
 
 class YoutrackIntegration(models.Model):
@@ -94,7 +92,9 @@ class YoutrackIntegration(models.Model):
         return res
 
     def _get_object(self, model, domain, limit=None, check_unique=False):
-        if model in COMPANY_DEPENDENT_MODELS:
+        company_dependent_models = ['account.analytic.line', 'project.project',
+            'project.task', 'account.asset', 'hr.employee',]
+        if model in company_dependent_models:
             domain += [('company_id', '=', self.company_id.id)]
             self = self.with_company(self.company_id)
         obj = self.env[model].search(domain, limit=limit)
@@ -199,7 +199,11 @@ class YoutrackIntegration(models.Model):
     def _get_employees_data(self, ext_empls):
         update_data = {}
         # search emails of employees case-insensitively in the system
-        empls = self._get_object('hr.employee', [('active', 'in', [True, False])])
+        empls = self._get_object('hr.employee', [
+                ('work_email', '!=', False),
+                ('active', 'in', [True, False])
+            ]
+        )
         empls_emails = list(map(lambda x: x.lower(), empls.mapped('work_email')))
         # define create list of YouTrack employees which have
         # email and don't exist in Odoo

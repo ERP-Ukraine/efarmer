@@ -13,7 +13,7 @@ class Task(models.Model):
     )
 
     task_code = fields.Char(
-        string='Task Code',
+        string='Issue Code',
     )
 
     product_version_id = fields.Many2one(
