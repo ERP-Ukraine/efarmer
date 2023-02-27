@@ -10,8 +10,6 @@ from odoo.exceptions import ValidationError
 
 
 PROJECT_KEY = 'shortName'
-COMPANY_DEPENDENT_MODELS = ['account.analytic.line', 'project.project',
-                            'project.task', 'account.asset', 'hr.employee',]
 
 
 class YoutrackIntegration(models.Model):
@@ -94,7 +92,9 @@ class YoutrackIntegration(models.Model):
         return res
 
     def _get_object(self, model, domain, limit=None, check_unique=False):
-        if model in COMPANY_DEPENDENT_MODELS:
+        company_dependent_models = ['account.analytic.line', 'project.project',
+            'project.task', 'account.asset', 'hr.employee',]
+        if model in company_dependent_models:
             domain += [('company_id', '=', self.company_id.id)]
             self = self.with_company(self.company_id)
         obj = self.env[model].search(domain, limit=limit)
