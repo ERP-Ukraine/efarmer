@@ -199,7 +199,11 @@ class YoutrackIntegration(models.Model):
     def _get_employees_data(self, ext_empls):
         update_data = {}
         # search emails of employees case-insensitively in the system
-        empls = self._get_object('hr.employee', [('active', 'in', [True, False])])
+        empls = self._get_object('hr.employee', [
+                ('work_email', '!=', False),
+                ('active', 'in', [True, False])
+            ]
+        )
         empls_emails = list(map(lambda x: x.lower(), empls.mapped('work_email')))
         # define create list of YouTrack employees which have
         # email and don't exist in Odoo

@@ -265,7 +265,7 @@ class TestYoutrackIntegration(TestYoutrackIntegrationCommon):
 
         self.assertTrue(parent_task)
         # check field values
-        self.assertTrue(all([parent_task.is_epic, parent_task.product_id, parent_task.task_code,
+        self.assertTrue(all([parent_task.is_epic, parent_task.asset_id, parent_task.task_code,
                         parent_task.product_version_id, parent_task.issue_type_id, parent_task.name_pl]))
         self.assertEqual(parent_task.planned_hours, 550 // 60 + 550 % 60 / 60)
 
@@ -311,7 +311,7 @@ class TestYoutrackIntegration(TestYoutrackIntegrationCommon):
 
         expected_create_vals = {
             'name': custom_data['name'],
-            'youtrack_id': custom_data['id']
+            'youtrack_id': custom_data['id'],
         }
         mock_create_work_type.assert_called_once_with(expected_create_vals)
 
@@ -326,3 +326,22 @@ class TestYoutrackIntegration(TestYoutrackIntegrationCommon):
         res = self.yt_integration._filter_project_response(response)
         self.assertEqual(len(res), 1)
         self.assertEqual(res[0]['shortName'], self.yt_integration.project_code)
+
+    def test_unique_default_work_type(self):
+        """
+        Testing of restriction of having more than one default work types.
+        Default work type is created through demo data.
+        """
+        vals = {
+            'name': 'Test Work Type',
+            'is_default': True,
+        }
+        with self.assertRaises(ValidationError):
+            self.env['youtrack.work.type'].create(vals)
+
+        vals.update({'is_default': False})
+
+        work_type = self.env['youtrack.work.type'].create(vals)
+
+        with self.assertRaises(ValidationError):
+            work_type.is_default = True
