@@ -15,3 +15,8 @@ class AccountAnalyticLine(models.Model):
         related='task_id.asset_id',
         store=True,
     )
+
+    work_type_id = fields.Many2one(
+        comodel_name='youtrack.work.type',
+        string='Work Type',
+    )

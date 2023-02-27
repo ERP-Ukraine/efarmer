@@ -14,7 +14,7 @@ class ProjectCapitalization(models.Model):
         readonly=True,
     )
 
-    status = fields.Selection(
+    state = fields.Selection(
         [('new', 'New'),
          ('in_progress', 'In Progress'),
          ('done', 'Done')],
@@ -27,12 +27,22 @@ class ProjectCapitalization(models.Model):
         string='Start Date',
         required=True,
         default=fields.Date.context_today,
-        tracking=True
+        tracking=True,
+        states={
+            'new': [('readonly', False)],
+            'in_progress': [('readonly', False)],
+            'done': [('readonly', True)]
+        },
     )
     end_date = fields.Date(
         string='End Date',
         required=True,
-        tracking=True
+        tracking=True,
+        states={
+            'new': [('readonly', False)],
+            'in_progress': [('readonly', False)],
+            'done': [('readonly', True)]
+        },
     )
     company_id = fields.Many2one(
         'res.company',
@@ -40,28 +50,44 @@ class ProjectCapitalization(models.Model):
         required=True,
         index=True,
         default=lambda self: self.env.company,
+        states={
+            'new': [('readonly', False)],
+            'in_progress': [('readonly', False)],
+            'done': [('readonly', True)]
+        },
     )
-    work_types = fields.Many2many(
-        'account.analytic.tag',
-        'project_capitalization_work_types_rel',
-        'capitalization_id',
-        'tag_id',
+    work_type_ids = fields.Many2many(
+        comodel_name='youtrack.work.type',
         string='Work Types',
         required=True,
+        states={
+             'new': [('readonly', False)],
+             'in_progress': [('readonly', False)],
+             'done': [('readonly', True)]
+             },
     )
     account_asset_counterpart_id = fields.Many2one(
         'account.account',
         string='Account Asset Counterpart',
         check_company=True,
-        domain="[('internal_type','=','other'), ('deprecated', '=', False), ('company_id', '=', company_id)]",
         help="Account used as counterpart for entries related to this asset.",
         required=True,
-        tracking=True
+        tracking=True,
+        states={
+            'new': [('readonly', False)],
+            'in_progress': [('readonly', False)],
+            'done': [('readonly', True)]
+        },
     )
     capitalization_line_ids = fields.One2many(
         'project.capitalization.line',
         'capitalization_id',
         string='Capitalize To',
+        states={
+            'new': [('readonly', False)],
+            'in_progress': [('readonly', False)],
+            'done': [('readonly', True)]
+        },
     )
     analytic_line_ids = fields.Many2many(
         'account.analytic.line',
@@ -75,7 +101,7 @@ class ProjectCapitalization(models.Model):
             ('date', '<=', self.end_date),
             ('task_product_id', '!=', False),
             ('is_capitalized', '=', False),
-            ('task_id.analytic_tag_ids', 'in', self.work_types.ids),
+            ('work_type_id', 'in', self.work_type_ids.ids),
         ]
         grouped_data = self.env['account.analytic.line'].read_group(
             domain,
@@ -100,7 +126,7 @@ class ProjectCapitalization(models.Model):
         self.write({
             'analytic_line_ids': analytic_line_ids,
             'capitalization_line_ids': capitalized_lines,
-            'status': 'in_progress',
+            'state': 'in_progress',
         })
 
     def capitalization(self):
@@ -119,7 +145,7 @@ class ProjectCapitalization(models.Model):
                 'account_depreciation_expense_id': line.asset_id.account_depreciation_expense_id.id,
             })
             asset_child.compute_depreciation_board()
-        self.status = 'done'
+        self.state = 'done'
 
     def line_capitalize(self):
         for capitalization in self:
@@ -128,7 +154,7 @@ class ProjectCapitalization(models.Model):
                 ('date', '<=', capitalization.end_date),
                 ('task_product_id', '!=', False),
                 ('is_capitalized', '=', False),
-                ('task_id.analytic_tag_ids', 'in', capitalization.work_types.ids),
+                ('work_type_id', 'in', capitalization.work_type_ids.ids),
             ]
             capitalization.env['account.analytic.line'].search(domain).update({'is_capitalized': lambda is_capitalized: True})
 
