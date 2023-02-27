@@ -1,6 +1,7 @@
 # Copyright 2023 VentorTech OU
 # Part of Ventor modules. See LICENSE file for full copyright and licensing details.
-from odoo import models, fields
+from odoo import models, fields, _
+from odoo.exceptions import UserError
 
 
 class ProjectCapitalization(models.Model):
@@ -166,6 +167,18 @@ class ProjectCapitalization(models.Model):
         action['domain'] = [('id', 'in', analytic_lines.ids)]
         action['context'] = {'group_by': 'task_product_id'}
         return action
+
+    def unlink(self):
+        for line in self:
+            if line.state == 'done':
+                raise UserError(_('You cannot delete a locked Capitalization.'))
+        return super(ProjectCapitalization, self).unlink()
+
+    def write(self, vals):
+        for line in self:
+            if line.state == 'done':
+                raise UserError(_('You cannot edit a locked Capitalization.'))
+        return super(ProjectCapitalization, self).write(vals)
 
 
 class Task(models.Model):
