@@ -102,6 +102,7 @@ class ProjectCapitalization(models.Model):
             ('task_product_id', '!=', False),
             ('is_capitalized', '=', False),
             ('work_type_id', 'in', self.work_type_ids.ids),
+            ('is_timesheet', '=', True),
         ]
         grouped_data = self.env['account.analytic.line'].read_group(
             domain,
@@ -119,7 +120,7 @@ class ProjectCapitalization(models.Model):
             capitalized_lines.append((0, 0, {
                 'account_asset_counterpart_id': self.account_asset_counterpart_id.id,
                 'hours_spent': hours_spent,
-                'amount': amount,
+                'amount': abs(amount),
                 'capitalization_id': self.id,
                 'asset_id': task_product_id,
             }))
@@ -155,6 +156,7 @@ class ProjectCapitalization(models.Model):
                 ('task_product_id', '!=', False),
                 ('is_capitalized', '=', False),
                 ('work_type_id', 'in', capitalization.work_type_ids.ids),
+                ('is_timesheet', '=', True),
             ]
             capitalization.env['account.analytic.line'].search(domain).update({'is_capitalized': lambda is_capitalized: True})
 
