@@ -12,6 +12,7 @@ class HrEmployeePrivate(models.Model):
         check_company=True,
         help="Account used as counterpart for entries related to this asset.",
         tracking=True,
+        store=True,
     )
 
 
