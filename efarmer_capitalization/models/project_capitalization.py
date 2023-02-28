@@ -96,6 +96,7 @@ class ProjectCapitalization(models.Model):
 
     def generate_report(self):
         self.ensure_one()
+        self.env['project.capitalization.line'].search([('capitalization_id', '=', self.id)]).unlink()
         domain = [
             ('date', '>=', self.start_date),
             ('date', '<=', self.end_date),
@@ -104,31 +105,39 @@ class ProjectCapitalization(models.Model):
             ('work_type_id', 'in', self.work_type_ids.ids),
             ('is_timesheet', '=', True),
         ]
-        grouped_data = self.env['account.analytic.line'].read_group(
-            domain,
-            ['task_product_id', 'account_asset_counterpart_id', 'unit_amount', 'amount'],
-            ['task_product_id', 'account_asset_counterpart_id'],
-        )
-
+        analytic_lines = self.env['account.analytic.line'].search(domain)
         capitalized_lines = []
-        analytic_line_ids = self.env['account.analytic.line'].search(domain)
-        self.env['project.capitalization.line'].search([('capitalization_id', '=', self.id)]).unlink()
-        for data in grouped_data:
-            task_product_id = data['task_product_id'][0]
-            hours_spent = data['unit_amount']
-            amount = data['amount']
-            account_asset_counterpart_id = data.get('account_asset_counterpart_id')
-            if account_asset_counterpart_id is None:
-                account_asset_counterpart_id = False
-            capitalized_lines.append((0, 0, {
-                'account_asset_counterpart_id': account_asset_counterpart_id,
-                'hours_spent': hours_spent,
-                'amount': abs(amount),
-                'capitalization_id': self.id,
-                'asset_id': task_product_id,
-            }))
+        task_product_ids = set(analytic_lines.mapped('task_product_id'))
+        for task_product_id in task_product_ids:
+            lines_by_task_product_id = analytic_lines.filtered(lambda line: line.task_product_id == task_product_id)
+            account_asset_counterpart_ids = set(lines_by_task_product_id.mapped('account_asset_counterpart_id'))
+            for account_asset_counterpart_id in account_asset_counterpart_ids:
+                lines_by_account_asset_counterpart_id = lines_by_task_product_id.filtered(
+                    lambda line: line.account_asset_counterpart_id == account_asset_counterpart_id)
+                hours_spent = sum(lines_by_account_asset_counterpart_id.mapped('unit_amount'))
+                amount = sum(lines_by_account_asset_counterpart_id.mapped('amount'))
+                capitalized_lines.append((0, 0, {
+                    'account_asset_counterpart_id': account_asset_counterpart_id.id,
+                    'hours_spent': hours_spent,
+                    'amount': abs(amount),
+                    'capitalization_id': self.id,
+                    'asset_id': task_product_id.id,
+                }))
+
+            lines_without_account_asset_counterpart_id = lines_by_task_product_id.filtered(
+                lambda line: not line.account_asset_counterpart_id)
+            if lines_without_account_asset_counterpart_id:
+                hours_spent = sum(lines_without_account_asset_counterpart_id.mapped('unit_amount'))
+                amount = sum(lines_without_account_asset_counterpart_id.mapped('amount'))
+                capitalized_lines.append((0, 0, {
+                    'account_asset_counterpart_id': False,
+                    'hours_spent': hours_spent,
+                    'amount': abs(amount),
+                    'capitalization_id': self.id,
+                    'asset_id': task_product_id.id,
+                }))
         self.write({
-            'analytic_line_ids': analytic_line_ids,
+            'analytic_line_ids': analytic_lines.ids,
             'capitalization_line_ids': capitalized_lines,
             'state': 'in_progress',
         })
@@ -158,8 +167,8 @@ class ProjectCapitalization(models.Model):
                 ('date', '<=', capitalization.end_date),
                 ('task_product_id', '!=', False),
                 ('is_capitalized', '=', False),
-                ('work_type_id', 'in', capitalization.work_type_ids.ids),
-                ('is_timesheet', '=', True),
+                # ('work_type_id', 'in', capitalization.work_type_ids.ids),
+                # ('is_timesheet', '=', True),
             ]
             capitalization.env['account.analytic.line'].search(domain).write({'is_capitalized': True})
 
