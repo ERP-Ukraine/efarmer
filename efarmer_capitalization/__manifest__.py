@@ -14,10 +14,12 @@
         'account',
         'account_asset',
         'efarmer_youtrack',
+        'hr',
     ],
     'data': [
         'security/ir.model.access.csv',
         'views/project_capitalization_views.xml',
+        'views/hr_employee_views.xml',
     ],
     'installable': True,
     'application': True,
