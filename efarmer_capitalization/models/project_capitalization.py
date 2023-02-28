@@ -117,7 +117,7 @@ class ProjectCapitalization(models.Model):
             task_product_id = data['task_product_id'][0]
             hours_spent = data['unit_amount']
             amount = data['amount']
-            account_asset_counterpart_id = data['account_asset_counterpart_id'][0]
+            account_asset_counterpart_id = data['account_asset_counterpart_id']
             capitalized_lines.append((0, 0, {
                 'account_asset_counterpart_id': account_asset_counterpart_id,
                 'hours_spent': hours_spent,
