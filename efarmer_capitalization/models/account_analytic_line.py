@@ -22,14 +22,14 @@ class AccountAnalyticLine(models.Model):
         string='Work Type',
     )
 
-    def unlink(self):
-        for line in self:
-            if line.is_capitalized:
-                raise UserError(_('You cannot delete a Capitalized analytic line.'))
-        return super(AccountAnalyticLine, self).unlink()
-
-    def write(self, vals):
-        for line in self:
-            if line.is_capitalized:
-                raise UserError(_('You cannot edit a Capitalized analytic line.'))
-        return super(AccountAnalyticLine, self).write(vals)
+    # def unlink(self):
+    #     for line in self:
+    #         if line.is_capitalized:
+    #             raise UserError(_('You cannot delete a Capitalized analytic line.'))
+    #     return super(AccountAnalyticLine, self).unlink()
+    #
+    # def write(self, vals):
+    #     for line in self:
+    #         if line.is_capitalized:
+    #             raise UserError(_('You cannot edit a Capitalized analytic line.'))
+    #     return super(AccountAnalyticLine, self).write(vals)
