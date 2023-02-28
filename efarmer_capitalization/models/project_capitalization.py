@@ -60,7 +60,7 @@ class ProjectCapitalization(models.Model):
     work_type_ids = fields.Many2many(
         comodel_name='youtrack.work.type',
         string='Work Types',
-        # required=True,
+        required=True,
         states={
              'new': [('readonly', False)],
              'in_progress': [('readonly', False)],
@@ -167,8 +167,8 @@ class ProjectCapitalization(models.Model):
                 ('date', '<=', capitalization.end_date),
                 ('task_product_id', '!=', False),
                 ('is_capitalized', '=', False),
-                # ('work_type_id', 'in', capitalization.work_type_ids.ids),
-                # ('is_timesheet', '=', True),
+                ('work_type_id', 'in', capitalization.work_type_ids.ids),
+                ('is_timesheet', '=', True),
             ]
             capitalization.env['account.analytic.line'].search(domain).write({'is_capitalized': True})
 
