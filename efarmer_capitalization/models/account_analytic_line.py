@@ -22,6 +22,13 @@ class AccountAnalyticLine(models.Model):
         string='Work Type',
     )
 
+    account_asset_counterpart_id = fields.Many2one(
+        related="employee_id.account_asset_counterpart_id",
+        string='Account Asset Counterpart',
+        store=True,
+    )
+
+
     # def unlink(self):
     #     for line in self:
     #         if line.is_capitalized:

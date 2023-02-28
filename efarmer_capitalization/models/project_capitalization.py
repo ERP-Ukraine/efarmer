@@ -60,7 +60,7 @@ class ProjectCapitalization(models.Model):
     work_type_ids = fields.Many2many(
         comodel_name='youtrack.work.type',
         string='Work Types',
-        required=True,
+        # required=True,
         states={
              'new': [('readonly', False)],
              'in_progress': [('readonly', False)],
@@ -72,7 +72,6 @@ class ProjectCapitalization(models.Model):
         string='Account Asset Counterpart',
         check_company=True,
         help="Account used as counterpart for entries related to this asset.",
-        required=True,
         tracking=True,
         states={
             'new': [('readonly', False)],
@@ -107,8 +106,8 @@ class ProjectCapitalization(models.Model):
         ]
         grouped_data = self.env['account.analytic.line'].read_group(
             domain,
-            ['task_product_id', 'unit_amount', 'amount'],
-            ['task_product_id'],
+            ['task_product_id', 'account_asset_counterpart_id', 'unit_amount', 'amount'],
+            ['task_product_id', 'account_asset_counterpart_id'],
         )
 
         capitalized_lines = []
@@ -118,8 +117,9 @@ class ProjectCapitalization(models.Model):
             task_product_id = data['task_product_id'][0]
             hours_spent = data['unit_amount']
             amount = data['amount']
+            account_asset_counterpart_id = data['account_asset_counterpart_id'][0]
             capitalized_lines.append((0, 0, {
-                'account_asset_counterpart_id': self.account_asset_counterpart_id.id,
+                'account_asset_counterpart_id': account_asset_counterpart_id,
                 'hours_spent': hours_spent,
                 'amount': abs(amount),
                 'capitalization_id': self.id,

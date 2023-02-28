@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record model="ir.ui.view" id="hr_employee_form_view_custom">
+        <field name="name">hr.employee.form.custom</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page[@name='hr_settings']" position="inside">
+                    <group>
+                        <field name="account_asset_counterpart_id" string="Account Asset Counterpart"/>
+                    </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
