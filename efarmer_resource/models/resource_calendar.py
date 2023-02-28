@@ -20,16 +20,22 @@ class ResourceCalendar(models.Model):
         readonly=True,
     )
 
+    def _get_year_selection(self):
+        # need to show 2 previous, current and next 5 years
+        year_from, year_to = -2, 6
+        current_year = datetime.now().year
+        return [(str(current_year+i), str(current_year+i)) for i in range(year_from, year_to)]
+
     year = fields.Selection(
-        [(str(datetime.now().year+i), str(datetime.now().year+i)) for i in range(6)],
+        _get_year_selection,
         string="Year",
         default=str(datetime.now().year),
         required=True,
     )
 
     def write(self, vals):
-        if 'year' in vals and vals['year']:
-            year = vals.get('year')
+        year = vals.get('year')
+        if year:
             month_hours = self.env['resource.calendar.hours'].search(
                 [
                     ('year', '=', year),
@@ -37,7 +43,7 @@ class ResourceCalendar(models.Model):
                 ]
             )
             exist_months = month_hours.mapped('month')
-            if not exist_months or (exist_months and len(exist_months) != 12):
+            if not exist_months or len(exist_months) != 12:
                 expected_month_list = [x[0] for x in MONTH_SELECTION]
                 to_create = set(expected_month_list) - set(exist_months)
                 for month in to_create:
