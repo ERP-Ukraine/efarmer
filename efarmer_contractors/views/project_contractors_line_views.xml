@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_project_contractors_line_form" model="ir.ui.view">
+    <field name="name">project.contractors.line.form</field>
+    <field name="model">project.contractors.line</field>
+    <field name="arch" type="xml">
+        <form string="Contractors Line">
+            <group>
+                <field name="contractors_id"/>
+                <field name="analytic_line_id"/>
+                <field name="asset_analytic_line"/>
+            </group>
+        </form>
+    </field>
+</record>
+
+    <record id="view_project_contractors_line_tree" model="ir.ui.view">
+    <field name="name">project.contractors.line.tree</field>
+    <field name="model">project.contractors.line</field>
+    <field name="arch" type="xml">
+        <tree string="Contractors Lines">
+            <field name="contractors_id"/>
+                <field name="analytic_line_id"/>
+                <field name="asset_analytic_line"/>
+        </tree>
+    </field>
+</record>
+    <record id="action_view_project_contractors_line" model="ir.actions.act_window">
+        <field name="name">Contractors Lines</field>
+        <field name="res_model">project.contractors.line</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to create a new contractors line.
+            </p>
+        </field>
+    </record>
+
+</odoo>
+

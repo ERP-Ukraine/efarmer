@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="seq_project_contractors" model="ir.sequence">
+        <field name="name">Project Contractors Sequence</field>
+        <field name="code">project.contractors.sequence</field>
+        <field name="prefix">B2B</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="view_project_contractors_form" model="ir.ui.view">
+        <field name="name">project.contractors.form</field>
+        <field name="model">project.contractors</field>
+        <field name="arch" type="xml">
+            <form string="Project Contractors">
+<!--                <header>-->
+<!--                    <button name="generate_report" string="Generate Report" type="object" class="oe_highlight"-->
+<!--                            attrs="{'invisible': [('state', '=', 'done')]}"/>-->
+<!--                    <button name="capitalization" string="CAPITALIZE" type="object" class="oe_highlight"-->
+<!--                            attrs="{'invisible': [('state', '=', 'done')]}"/>-->
+<!--                    <field name="state" widget="statusbar" statusbar_visible="new,in_progress,done"/>-->
+<!--                </header>-->
+                <sheet>
+<!--                    <div class="oe_button_box" name="button_box">-->
+<!--                        <button class="oe_stat_button" name="open_analytic_lines" string="REPORT" type="object" icon="fa-bars" attrs="{'invisible': [('state', 'in', ['new','done'])]}">-->
+<!--                        </button>-->
+<!--                    </div>-->
+                    <group>
+                        <field name="name"/>
+                        <field name="company_id"/>
+                    </group>
+                    <group>
+                        <field name="start_date"/>
+                        <field name="end_date"/>
+                    </group>
+<!--                    <group string="Capitalization Rules">-->
+<!--                        <field name="work_type_ids" widget="many2many_tags"/>-->
+<!--&lt;!&ndash;                        <field name="account_asset_counterpart_id" required="1"/>&ndash;&gt;-->
+<!--                    </group>-->
+                    <notebook>
+                        <page string="Contractors Lines">
+                            <field name="contractors_line_ids" nolabel="1">
+                                <tree editable="top">
+                                    <field name="contractors_id"/>
+                                    <field name="analytic_line_id"/>
+                                    <field name="asset_analytic_line"/>
+<!--                                    <field name="amount"/>-->
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+
+            </form>
+        </field>
+    </record>
+
+    <record id="view_project_contractors_tree" model="ir.ui.view">
+        <field name="name">project.contractors.tree</field>
+        <field name="model">project.contractors</field>
+        <field name="arch" type="xml">
+            <tree string="Project Contractors">
+                <field name="name"/>
+                <field name="company_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_view_project_contractors" model="ir.actions.act_window">
+        <field name="name">Contractors</field>
+        <field name="res_model">project.contractors</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to create a new contractors
+            </p>
+        </field>
+    </record>
+
+
+    <menuitem id="menu_contractors" name="B2B Invoice" parent="project.menu_main_pm" sequence="15"/>
+    <menuitem id="menu_action_project_contractors" name="B2B Invoice" parent="menu_contractors"
+              action="action_view_project_contractors" sequence="10"/>
+
+
+</odoo>
