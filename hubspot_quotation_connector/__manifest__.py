@@ -17,8 +17,11 @@
     'data': [
         'security/res_groups.xml',
         'security/ir.model.access.csv',
+        'data/ir_actions_server_data.xml',
         'views/hubspot_config_views.xml',
         'views/res_config_settings_views.xml',
+        'views/sale_order_views.xml',
+        'wizard/assign_sale_deals_wizard_views.xml',
     ],
     'external_dependencies': {
         'python': ['hubspot-api-client'],
