@@ -1,7 +1,13 @@
 # -*- coding: UTF-8 -*-
 # Copyright 2023 Solvve, Inc. <sales@solvve.com>
 
-from odoo import api, fields, models
+from typing import Dict
+from hubspot.crm.deals import (
+    SimplePublicObjectInput as DealInput,
+)
+
+from odoo import api, fields, models, _
+from odoo.tools.safe_eval import safe_eval
 from odoo.addons.hubspot_quotation_connector.fields import BigInteger
 
 
@@ -27,6 +33,20 @@ class AssignSaleDealsWizard(models.TransientModel):
         compute='_compute_deal_ids',
     )
 
+    def _sale_order_field_map(self) -> Dict[str, str]:
+        sale_order_field_map = self.env['ir.config_parameter'].sudo().get_param(
+            'hubspot_quotation_connector.sale_order_field_map', '{}'
+        )
+        return safe_eval(sale_order_field_map)
+
+    def _hubspot_field_convert(self, props: Dict) -> Dict:
+        field_map = self._sale_order_field_map()
+        return {
+            field_map[key]: value
+            for key, value in props.items()
+            if key in field_map
+        }
+
     @api.depends('hubspot_id')
     def _compute_deal_ids(self):
         create_deal_line = self.env['assign.sale.deals.line.wizard'].create
@@ -46,8 +66,32 @@ class AssignSaleDealsWizard(models.TransientModel):
                 'amount': float(deal.properties['amount']),
             } for deal in deal_items])
 
+    def _update_deal(self, values: Dict):
+        return self.hubspot_id._client.crm.deals.basic_api.update(
+            deal_id=self.assigned_deal_object_id,
+            simple_public_object_input=DealInput(
+                properties=self._hubspot_field_convert(values)
+            )
+        )
+
     def assign(self):
         self.order_id.hubspot_deal_object_id = self.assigned_deal_object_id
+        self._update_deal({
+            'order_amount': self.order_id.amount_total,
+            'order_margin': self.order_id.margin,
+            'order_number': self.order_id.name,
+        })
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('HubSpot'),
+                'message': _('Successfully assigned'),
+                'type': 'success',
+                'sticky': False,
+                'next': {'type': 'ir.actions.act_window_close'},
+            },
+        }
 
 
 class AssignSaleDealsLineWizard(models.TransientModel):

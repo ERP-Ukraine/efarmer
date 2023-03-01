@@ -13,11 +13,13 @@
     'depends': [
         'base',
         'sale_management',
+        'sale_margin',
     ],
     'data': [
         'security/res_groups.xml',
         'security/ir.model.access.csv',
         'data/ir_actions_server_data.xml',
+        'data/ir_config_parameter_data.xml',
         'views/hubspot_config_views.xml',
         'views/res_config_settings_views.xml',
         'views/sale_order_views.xml',

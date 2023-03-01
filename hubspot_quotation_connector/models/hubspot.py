@@ -38,7 +38,8 @@ class HubSpotConfig(models.Model):
     def get_deals_by_partner(
             self,
             partner_id: 'odoo.model.res_partner',
-            limit: int = 1
+            properties: List[str] = None,
+            limit: int = None,
     ) -> List[SimplePublicObject]:
         contact_items = self.get_contact_by_email(partner_id.email)
         if not contact_items:
@@ -57,6 +58,7 @@ class HubSpotConfig(models.Model):
                     ),
                 ],
                 limit=limit,
+                properties=properties
             )
         )
         return response.results

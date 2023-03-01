@@ -10,9 +10,10 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
             <xpath expr="//page[@name='other_information']//group[@name='sale_reporting']" position="after">
-                <group string="HubSpot">
+                <group string="HubSpot" groups="hubspot_quotation_connector.hubspot_user">
                     <field name="hubspot_deal_object_id"
                            string="Deal ID"
+                           attrs="{'invisible': [('hubspot_deal_object_id', 'in', (False, 0))]}"
                            readonly="True"
                            options="{'format': false}"/>
                 </group>
