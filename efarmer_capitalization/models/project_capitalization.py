@@ -147,8 +147,8 @@ class ProjectCapitalization(models.Model):
         lines = self.capitalization_line_ids
 
         for line in lines:
-            currency = line.asset_id.currency_id
-            original_value = currency._convert(line.amount, line.currency_id, self.company_id, fields.Date.today())
+            currency = line.currency_id
+            original_value = currency._convert(line.amount, line.asset_id.currency_id, self.company_id, fields.Date.today())
             asset_child = line.asset_id.env['account.asset'].create({
                 'parent_id': line.asset_id.id,
                 'state': 'open',
