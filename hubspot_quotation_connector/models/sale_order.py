@@ -1,6 +1,10 @@
 # -*- coding: UTF-8 -*-
 # Copyright 2023 Solvve, Inc. <sales@solvve.com>
 
+from hubspot.crm.deals.models import (
+    BatchInputSimplePublicObjectBatchInput as DealsBatchInput
+)
+
 from odoo import api, fields, models, _
 from odoo.tools.safe_eval import safe_eval
 from odoo.addons.hubspot_quotation_connector.fields import BigInteger
@@ -15,24 +19,30 @@ class SaleOrder(models.Model):
     @api.model_create_multi
     def create(self, vals):
         order_ids = super(SaleOrder, self).create(vals)
-        order_ids._update_hubspot_field()
+        order_ids.filtered(lambda order: order.state == 'sale')._update_hubspot_field()
         return order_ids
 
     def write(self, values):
         response = super(SaleOrder, self).write(values)
-        self._update_hubspot_field()
+        if values.get('state') == 'sale':
+            self._update_hubspot_field()
         return response
 
     def _update_hubspot_field(self):
+        if not self:
+            return None
         hubspot_id = self.env[self._name]._get_hubspot_id()
+        if not hubspot_id:
+            return None
         now_timestamp = hubspot_id.datetime_parse(fields.Datetime.now())
-        for order_id in self:
-            if order_id.state != 'sale':
-                continue
-            hubspot_id.update_deal(
-                deal_object_id=order_id.hubspot_deal_object_id,
-                values={'order_date': now_timestamp},
-            )
+        inputs = [{
+            'id': order_id.hubspot_deal_object_id,
+            'properties': hubspot_id._hubspot_field_convert({
+                'order_date': now_timestamp
+            })
+        } for order_id in self if order_id.hubspot_deal_object_id]
+        if inputs:
+            hubspot_id._client.crm.deals.batch_api.update(DealsBatchInput(inputs))
 
     def _active_hubspot_connector(self) -> bool:
         get_param = self.env['ir.config_parameter'].sudo().get_param
