@@ -59,17 +59,7 @@ class AssignSaleDealsWizard(models.TransientModel):
                 'order_number': self.order_id.name,
             }
         )
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('HubSpot'),
-                'message': _('Successfully assigned'),
-                'type': 'success',
-                'sticky': False,
-                'next': {'type': 'ir.actions.act_window_close'},
-            },
-        }
+        return self.hubspot_id.notification(_('Successfully assigned'))
 
 
 class AssignSaleDealsLineWizard(models.TransientModel):

@@ -16,5 +16,18 @@
                         ref('hubspot_quotation_connector.hubspot_user'),
                    ])]"/>
         </record>
+
+        <record id="unassign_sale_order_hubspot_deal_action" model="ir.actions.server">
+            <field name="name">Unassign HubSpot Deal</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="binding_view_types">form</field>
+            <field name="state">code</field>
+            <field name="code">action = records.action_unassign_hubspot_deal()</field>
+            <field name="groups_id"
+                   eval="[(6, 0, [
+                        ref('hubspot_quotation_connector.hubspot_user'),
+                   ])]"/>
+        </record>
     </data>
 </odoo>

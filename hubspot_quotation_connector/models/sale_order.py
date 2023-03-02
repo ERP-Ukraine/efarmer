@@ -31,6 +31,8 @@ class SaleOrder(models.Model):
     def _update_hubspot_field(self):
         if not self:
             return None
+        if not self._active_hubspot_connector():
+            return None
         hubspot_id = self.env[self._name]._get_hubspot_id()
         if not hubspot_id:
             return None
@@ -62,15 +64,25 @@ class SaleOrder(models.Model):
         action = self.env['ir.actions.actions']._for_xml_id(action_xmlid)
         hubspot_id = self._get_hubspot_id()
         if not (self._active_hubspot_connector() and hubspot_id):
-            return {
-                'warning': {
-                    'title': _("Warning!"),
-                    'message': _('HubSpot is not active'),
-                }
-            }
+            return hubspot_id.notification(_('Is not active'), 'warning')
         action['context'] = {
             **safe_eval(action['context']),
             'default_order_id': self.id,
             'default_hubspot_id': hubspot_id.id
         }
         return action
+
+    def action_unassign_hubspot_deal(self):
+        if not self.hubspot_deal_object_id:
+            return None
+        hubspot_id = self._get_hubspot_id()
+        if not (self._active_hubspot_connector() and hubspot_id):
+            return hubspot_id.notification(_('Is not active'), 'warning')
+        if not hubspot_id:
+            return hubspot_id.notification(_('Is not active'), 'warning')
+        hubspot_id.update_deal(self.hubspot_deal_object_id, {'order_number': ''})
+        self.write({
+            'hubspot_deal_object_id': None,
+            'hubspot_deal_name': '',
+        })
+        return hubspot_id.notification(_('Successfully unassigned'))

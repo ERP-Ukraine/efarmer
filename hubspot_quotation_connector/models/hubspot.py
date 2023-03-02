@@ -17,7 +17,7 @@ from hubspot.crm.deals import (
 )
 from datetime import datetime, date
 
-from odoo import fields, models
+from odoo import fields, models, _
 from odoo.tools.cache import ormcache
 from odoo.tools.safe_eval import safe_eval
 
@@ -117,3 +117,17 @@ class HubSpotConfig(models.Model):
         if isinstance(value, date):
             value = datetime.combine(value, datetime.min.time())
         return int(value.timestamp() * 1000)
+
+    @staticmethod
+    def notification(message: str, message_type: str = 'success'):
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('HubSpot'),
+                'message': message,
+                'type': message_type,
+                'sticky': False,
+                'next': {'type': 'ir.actions.act_window_close'},
+            },
+        }
