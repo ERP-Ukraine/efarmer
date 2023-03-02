@@ -21,13 +21,13 @@
                     </group>
                 </sheet>
                 <footer>
-                    <button string="Discard"
-                            class="btn btn-secondary"
-                            special="cancel"/>
                     <button name="assign"
                             type="object"
                             string="Assign"
                             class="btn btn-primary"/>
+                    <button string="Discard"
+                            class="btn btn-secondary"
+                            special="cancel"/>
                 </footer>
             </form>
         </field>

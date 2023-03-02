@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 # Copyright 2023 Solvve, Inc. <sales@solvve.com>
 
-from typing import List
+from typing import List, Dict, Union
 from hubspot import HubSpot
 from hubspot.crm.deals.models import SimplePublicObject
 from hubspot.crm.contacts import (
@@ -13,9 +13,13 @@ from hubspot.crm.deals import (
     PublicObjectSearchRequest as DealsSearchRequest,
     Filter as DealsFilter,
     FilterGroup as DealsFilterGroup,
+    SimplePublicObjectInput as DealInput,
 )
+from datetime import datetime, date
+
 from odoo import fields, models
 from odoo.tools.cache import ormcache
+from odoo.tools.safe_eval import safe_eval
 
 
 class HubSpotConfig(models.Model):
@@ -35,6 +39,19 @@ class HubSpotConfig(models.Model):
         self.ensure_one()
         return HubSpot(access_token=self.access_token)
 
+    def _sale_order_field_map(self) -> Dict[str, str]:
+        get_param = self.env['ir.config_parameter'].sudo().get_param
+        xmlid = 'hubspot_quotation_connector.sale_order_field_map'
+        return safe_eval(get_param(xmlid, default='{}'))
+
+    def _hubspot_field_convert(self, props: Dict) -> Dict:
+        field_map = self._sale_order_field_map()
+        return {
+            field_map[key]: value
+            for key, value in props.items()
+            if key in field_map
+        }
+
     def get_deals_by_partner(
             self,
             partner_id: 'odoo.model.res_partner',
@@ -44,19 +61,24 @@ class HubSpotConfig(models.Model):
         contact_items = self.get_contact_by_email(partner_id.email)
         if not contact_items:
             return []
+        deal_filters = [
+            DealsFilter(
+                property_name='associations.contact',
+                operator='IN',
+                values=[item.id for item in contact_items],
+            )
+        ]
+        order_number_field = self._sale_order_field_map().get('order_number')
+        if order_number_field:
+            deal_filters.append(
+                DealsFilter(
+                    property_name=order_number_field,
+                    operator='NOT_HAS_PROPERTY',
+                )
+            )
         response = self._client.crm.deals.search_api.do_search(
             public_object_search_request=DealsSearchRequest(
-                filter_groups=[
-                    DealsFilterGroup(
-                        filters=[
-                            DealsFilter(
-                                property_name='associations.contact',
-                                operator='IN',
-                                values=[item.id for item in contact_items],
-                            )
-                        ]
-                    ),
-                ],
+                filter_groups=[DealsFilterGroup(deal_filters)],
                 limit=limit,
                 properties=properties
             )
@@ -70,8 +92,8 @@ class HubSpotConfig(models.Model):
                     ContactFilterGroup(
                         filters=[
                             ContactFilter(
-                                operator='EQ',
                                 property_name='email',
+                                operator='EQ',
                                 value=email
                             )
                         ]
@@ -81,3 +103,17 @@ class HubSpotConfig(models.Model):
             )
         )
         return response.results
+
+    def update_deal(self, deal_object_id: int, values: Dict):
+        return self._client.crm.deals.basic_api.update(
+            deal_id=deal_object_id,
+            simple_public_object_input=DealInput(
+                properties=self._hubspot_field_convert(values)
+            )
+        )
+
+    @staticmethod
+    def datetime_parse(value: Union[date, datetime]) -> int:
+        if isinstance(value, date):
+            value = datetime.combine(value, datetime.min.time())
+        return int(value.timestamp() * 1000)

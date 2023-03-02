@@ -11,18 +11,40 @@ class SaleOrder(models.Model):
 
     hubspot_deal_object_id = BigInteger()
 
+    @api.model_create_multi
+    def create(self, vals):
+        order_ids = super(SaleOrder, self).create(vals)
+        order_ids._update_hubspot_field()
+        return order_ids
+
+    def write(self, values):
+        response = super(SaleOrder, self).write(values)
+        self._update_hubspot_field()
+        return response
+
+    def _update_hubspot_field(self):
+        hubspot_id = self.env[self._name]._get_hubspot_id()
+        now_timestamp = hubspot_id.datetime_parse(fields.Datetime.now())
+        for order_id in self:
+            if order_id.state != 'sale':
+                continue
+            hubspot_id.update_deal(
+                deal_object_id=order_id.hubspot_deal_object_id,
+                values={'order_date': now_timestamp},
+            )
+
     def _active_hubspot_connector(self) -> bool:
         get_param = self.env['ir.config_parameter'].sudo().get_param
         return bool(get_param('hubspot_quotation_connector.use_sale_hubspot_connector'))
 
+    @api.model
     def _get_hubspot_id(self) -> 'odoo.model.hubspot_config':
-        hubspot_pure_id = self.env['ir.config_parameter'].sudo().get_param(
-            'hubspot_quotation_connector.sale_hubspot_config_id'
-        )
+        get_param = self.env['ir.config_parameter'].sudo().get_param
+        hubspot = get_param('hubspot_quotation_connector.sale_hubspot_config_id')
         config_env = self.env['hubspot.config']
-        if not hubspot_pure_id:
+        if not hubspot:
             return config_env
-        return config_env.browse(int(hubspot_pure_id))
+        return config_env.browse(int(hubspot))
 
     def action_assign_hubspot_deal(self):
         action_xmlid = 'hubspot_quotation_connector.assign_hubspot_deals_wizard_act_window'
