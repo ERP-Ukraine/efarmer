@@ -10,6 +10,7 @@ class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
     hubspot_deal_object_id = BigInteger()
+    hubspot_deal_name = fields.Char()
 
     @api.model_create_multi
     def create(self, vals):

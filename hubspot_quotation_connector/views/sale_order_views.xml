@@ -16,6 +16,9 @@
                            attrs="{'invisible': [('hubspot_deal_object_id', 'in', (False, 0))]}"
                            readonly="True"
                            options="{'format': false}"/>
+                    <field name="hubspot_deal_name"
+                           readonly="True"
+                           string="Deal Name"/>
                 </group>
             </xpath>
         </field>

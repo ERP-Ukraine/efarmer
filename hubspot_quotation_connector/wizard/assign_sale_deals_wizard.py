@@ -47,7 +47,10 @@ class AssignSaleDealsWizard(models.TransientModel):
             } for deal in deal_items])
 
     def assign(self):
-        self.order_id.hubspot_deal_object_id = self.assigned_deal_object_id
+        self.order_id.write({
+            'hubspot_deal_name': self.assigned_deal_id.name,
+            'hubspot_deal_object_id': self.assigned_deal_object_id,
+        })
         self.hubspot_id.update_deal(
             deal_object_id=self.assigned_deal_object_id,
             values={
