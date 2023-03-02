@@ -14,38 +14,44 @@
         <field name="model">project.contractors</field>
         <field name="arch" type="xml">
             <form string="Project Contractors">
-<!--                <header>-->
-<!--                    <button name="generate_report" string="Generate Report" type="object" class="oe_highlight"-->
-<!--                            attrs="{'invisible': [('state', '=', 'done')]}"/>-->
-<!--                    <button name="capitalization" string="CAPITALIZE" type="object" class="oe_highlight"-->
-<!--                            attrs="{'invisible': [('state', '=', 'done')]}"/>-->
-<!--                    <field name="state" widget="statusbar" statusbar_visible="new,in_progress,done"/>-->
-<!--                </header>-->
+                <header>
+                    <button name="generate_report" string="Generate Report" type="object" class="oe_highlight"/>
+                    <button name="generate_invoice" string="Generate Invoices" type="object" class="oe_highlight"/>
+                    <field name="state" widget="statusbar" statusbar_visible="new,in_progress,done"/>
+                </header>
                 <sheet>
 <!--                    <div class="oe_button_box" name="button_box">-->
 <!--                        <button class="oe_stat_button" name="open_analytic_lines" string="REPORT" type="object" icon="fa-bars" attrs="{'invisible': [('state', 'in', ['new','done'])]}">-->
 <!--                        </button>-->
 <!--                    </div>-->
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
                     <group>
-                        <field name="name"/>
                         <field name="company_id"/>
                     </group>
                     <group>
                         <field name="start_date"/>
                         <field name="end_date"/>
                     </group>
-<!--                    <group string="Capitalization Rules">-->
-<!--                        <field name="work_type_ids" widget="many2many_tags"/>-->
-<!--&lt;!&ndash;                        <field name="account_asset_counterpart_id" required="1"/>&ndash;&gt;-->
-<!--                    </group>-->
+                    <group>
+                        <field name="employee_type"/>
+                        <field name="product_id"/>
+                    </group>
                     <notebook>
-                        <page string="Contractors Lines">
+                        <page string="Invoice to">
                             <field name="contractors_line_ids" nolabel="1">
                                 <tree editable="top">
-                                    <field name="contractors_id"/>
-                                    <field name="analytic_line_id"/>
-                                    <field name="asset_analytic_line"/>
-<!--                                    <field name="amount"/>-->
+                                    <field name="employee_id"/>
+<!--                                    <field name="analytic_line_id"/>-->
+<!--                                    <field name="asset_analytic_line"/>-->
+                                    <field name="description"/>
+                                    <field name="hours_spent"/>
+                                    <field name="pay_rate"/>
+                                    <field name="currency_id"/>
+                                    <field name="amount"/>
                                 </tree>
                             </field>
                         </page>

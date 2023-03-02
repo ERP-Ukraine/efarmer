@@ -20,7 +20,6 @@ class ProjectContractors(models.Model):
          ('in_progress', 'In Progress'),
          ('done', 'Paid')],
         string='Status',
-        # required=True,
         default='new',
         tracking=True,
     )
@@ -57,6 +56,16 @@ class ProjectContractors(models.Model):
         #     'done': [('readonly', True)]
         # },
     )
+    employee_id = fields.Many2one(comodel_name='hr.employee')
+
+    employee_type = fields.Selection(
+        related='employee_id.employee_type',
+        string='Employee Type',
+        store=True,
+    )
+    product_id = fields.Many2one('product.product', 'Product')
+
+
     # work_type_ids = fields.Many2many(
     #     comodel_name='youtrack.work.type',
     #     string='Work Types',
@@ -94,7 +103,8 @@ class ProjectContractors(models.Model):
         string='Analytic Line',
     )
 
-    # def generate_report(self):
+    def generate_report(self):
+        pass
     #     self.ensure_one()
     #     self.env['project.capitalization.line'].search([('capitalization_id', '=', self.id)]).unlink()
     #     domain = [
@@ -142,7 +152,8 @@ class ProjectContractors(models.Model):
     #         'state': 'in_progress',
     #     })
 
-    # def capitalization(self):
+    def generate_invoice(self):
+        pass
     #     self.line_capitalize()
     #     lines = self.capitalization_line_ids
     #     for line in lines:

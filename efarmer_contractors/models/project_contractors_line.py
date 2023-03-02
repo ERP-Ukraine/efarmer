@@ -11,16 +11,16 @@ class ProjectContractorsLine(models.Model):
     #     'account.account',
     #     string='Account Asset Counterpart',
     # )
-    # hours_spent = fields.Float(string='Hours Spent')
-    # amount = fields.Monetary(
-    #     string='Amount',
-    #     currency_field='currency_id',
-    # )
-    # currency_id = fields.Many2one(
-    #     'res.currency',
-    #     string='Currency',
-    #     default=lambda self: self.env.company.currency_id,
-    # )
+    hours_spent = fields.Float(string='Hours Spent')
+    amount = fields.Monetary(
+        string='Amount',
+        currency_field='currency_id',
+    )
+    currency_id = fields.Many2one(
+        'res.currency',
+        string='Currency',
+        default=lambda self: self.env.company.currency_id,
+    )
     contractors_id = fields.Many2one(
         'project.contractors',
         string='Contractors',
@@ -34,6 +34,14 @@ class ProjectContractorsLine(models.Model):
         related='analytic_line_id.task_product_id',
         string='Asset Analytic Line',
     )
+    employee_id = fields.Many2one(comodel_name='hr.employee')
+    pay_rate = fields.Float(
+        string='Pay Rate',
+        related='employee_id.pay_rate',
+        store=True,
+    )
+    description = fields.Char(string='Description')
+
     # asset_id = fields.Many2one(
     #     comodel_name='account.asset',
     #     string='Product',
