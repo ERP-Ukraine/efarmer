@@ -145,13 +145,16 @@ class ProjectCapitalization(models.Model):
     def capitalization(self):
         self.line_capitalize()
         lines = self.capitalization_line_ids
+
         for line in lines:
+            currency = line.asset_id.currency_id
+            original_value = currency._convert(line.amount, line.currency_id, self.company_id, fields.Date.today())
             asset_child = line.asset_id.env['account.asset'].create({
                 'parent_id': line.asset_id.id,
                 'state': 'open',
                 'name': f"{self.name} {fields.Date.today()}",
                 'method_number': line.asset_id.method_number,
-                'original_value': line.amount,
+                'original_value': original_value,
                 'journal_id': line.asset_id.journal_id.id,
                 'account_asset_id': line.account_asset_counterpart_id.id,
                 'account_depreciation_id': line.asset_id.account_depreciation_id.id,
