@@ -154,6 +154,7 @@ class ProjectCapitalization(models.Model):
                 'state': 'open',
                 'name': f"{self.name} {fields.Date.today()}",
                 'method_number': line.asset_id.method_number,
+                'currency_id': line.asset_id.currency_id.id,
                 'original_value': original_value,
                 'journal_id': line.asset_id.journal_id.id,
                 'account_asset_id': line.account_asset_counterpart_id.id,
