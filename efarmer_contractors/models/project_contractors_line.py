@@ -42,6 +42,13 @@ class ProjectContractorsLine(models.Model):
     )
     description = fields.Char(string='Description')
 
+    bamboo_currency_id = fields.Many2one(
+        'res.currency',
+        string='Pay Rate Currency',
+        related='employee_id.bamboo_currency_id',
+        store=True,
+    )
+
     # asset_id = fields.Many2one(
     #     comodel_name='account.asset',
     #     string='Product',

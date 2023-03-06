@@ -62,6 +62,7 @@ class ProjectContractors(models.Model):
         related='employee_id.employee_type',
         string='Employee Type',
         store=True,
+        readonly=False,
     )
     product_id = fields.Many2one('product.product', 'Product')
 
@@ -104,109 +105,103 @@ class ProjectContractors(models.Model):
     )
 
     def generate_report(self):
-        pass
-    #     self.ensure_one()
-    #     self.env['project.capitalization.line'].search([('capitalization_id', '=', self.id)]).unlink()
-    #     domain = [
-    #         ('date', '>=', self.start_date),
-    #         ('date', '<=', self.end_date),
-    #         ('task_product_id', '!=', False),
-    #         ('is_capitalized', '=', False),
-    #         ('work_type_id', 'in', self.work_type_ids.ids),
-    #         ('is_timesheet', '=', True),
-    #     ]
-    #     analytic_lines = self.env['account.analytic.line'].search(domain)
-    #     capitalized_lines = []
-    #     task_product_ids = set(analytic_lines.mapped('task_product_id'))
-    #     for task_product_id in task_product_ids:
-    #         lines_by_task_product_id = analytic_lines.filtered(lambda line: line.task_product_id == task_product_id)
-    #         account_asset_counterpart_ids = set(lines_by_task_product_id.mapped('account_asset_counterpart_id'))
-    #         for account_asset_counterpart_id in account_asset_counterpart_ids:
-    #             lines_by_account_asset_counterpart_id = lines_by_task_product_id.filtered(
-    #                 lambda line: line.account_asset_counterpart_id == account_asset_counterpart_id)
-    #             hours_spent = sum(lines_by_account_asset_counterpart_id.mapped('unit_amount'))
-    #             amount = sum(lines_by_account_asset_counterpart_id.mapped('amount'))
-    #             capitalized_lines.append((0, 0, {
-    #                 'account_asset_counterpart_id': account_asset_counterpart_id.id,
-    #                 'hours_spent': hours_spent,
-    #                 'amount': abs(amount),
-    #                 'capitalization_id': self.id,
-    #                 'asset_id': task_product_id.id,
-    #             }))
-    #
-    #         lines_without_account_asset_counterpart_id = lines_by_task_product_id.filtered(
-    #             lambda line: not line.account_asset_counterpart_id)
-    #         if lines_without_account_asset_counterpart_id:
-    #             hours_spent = sum(lines_without_account_asset_counterpart_id.mapped('unit_amount'))
-    #             amount = sum(lines_without_account_asset_counterpart_id.mapped('amount'))
-    #             capitalized_lines.append((0, 0, {
-    #                 'account_asset_counterpart_id': False,
-    #                 'hours_spent': hours_spent,
-    #                 'amount': abs(amount),
-    #                 'capitalization_id': self.id,
-    #                 'asset_id': task_product_id.id,
-    #             }))
-    #     self.write({
-    #         'analytic_line_ids': analytic_lines.ids,
-    #         'capitalization_line_ids': capitalized_lines,
-    #         'state': 'in_progress',
-    #     })
+        self.ensure_one()
+        self.env['project.contractors.line'].search([('contractors_id', '=', self.id)]).unlink()
+        # domain = [
+        #     ('date', '>=', self.start_date),
+        #     ('date', '<=', self.end_date),
+        #     ('is_paid', '=', False),
+        #     ('employee_type', '=', self.employee_type),
+        # ]
+        analytic_lines = self.env['account.analytic.line'].search([])
+        contractors_lines = []
+        employee_ids = set(analytic_lines.mapped('employee_id'))
+        for employee_id in employee_ids:
+            lines_by_employee_ids = analytic_lines.filtered(lambda line: line.employee_id == employee_id)
+            data_dict = {}
+            for line in lines_by_employee_ids:
+                hours_spent = line.unit_amount
+                pay_rate = line.employee_id.pay_rate
+                params = []
+                if line.project_id.project_code:
+                    params.append(line.project_id.project_code)
+                if line.product_version_id.name:
+                    params.append(line.product_version_id.name)
+                if line.work_type_id.name:
+                    params.append(line.work_type_id.name)
+                if line.epic_id.name:
+                    params.append(line.epic_id.name)
+                if line.name_pl:
+                    params.append('/' + line.name_pl)
+                data = '. '.join(params)
+                if data not in data_dict:
+                    data_dict[data] = {
+                        'employee_id': employee_id.id,
+                        'description': data,
+                        'hours_spent': hours_spent,
+                        'pay_rate': pay_rate,
+                        'bamboo_currency_id': line.employee_id.bamboo_currency_id.id,
+                        'amount': pay_rate * hours_spent,
+                        'contractors_id': self.id,
+                    }
+                else:
+                    data_dict[data]['hours_spent'] += hours_spent
+                    data_dict[data]['amount'] += pay_rate * hours_spent
+
+            for data in data_dict.values():
+                contractors_lines.append((0, 0, data))
+
+        self.write({
+            'analytic_line_ids': analytic_lines.ids,
+            'contractors_line_ids': contractors_lines,
+            'state': 'in_progress',
+        })
 
     def generate_invoice(self):
-        pass
-    #     self.line_capitalize()
-    #     lines = self.capitalization_line_ids
-    #     for line in lines:
-    #         asset_child = line.asset_id.env['account.asset'].create({
-    #             'parent_id': line.asset_id.id,
-    #             'state': 'open',
-    #             'name': f"{self.name} {fields.Date.today()}",
-    #             'method_number': line.asset_id.method_number,
-    #             'original_value': line.amount,
-    #             'journal_id': line.asset_id.journal_id.id,
-    #             'account_asset_id': line.account_asset_counterpart_id.id,
-    #             'account_depreciation_id': line.asset_id.account_depreciation_id.id,
-    #             'account_depreciation_expense_id': line.asset_id.account_depreciation_expense_id.id,
-    #         })
-    #         asset_child.compute_depreciation_board()
-    #     self.state = 'done'
+        # self.line_is_paid()
+        for contractor in self:
+            vendor_bills = {}
+            for line in contractor.contractors_line_ids:
+                employee = line.employee_id
+                if employee not in vendor_bills:
+                    vendor_bills[employee] = {
+                        'partner_id': employee.id,
+                        'type': 'in_invoice',
+                        'invoice_line_ids': [],
+                    }
+                vendor_bill = vendor_bills[employee]
+                vendor_bill['invoice_line_ids'].append((0, 0, {
+                    'name': line.description,
+                    'quantity': line.hours_spent,
+                    'price_unit': line.pay_rate,
+                }))
 
-    # def line_capitalize(self):
-    #     for capitalization in self:
-    #         domain = [
-    #             ('date', '>=', capitalization.start_date),
-    #             ('date', '<=', capitalization.end_date),
-    #             ('task_product_id', '!=', False),
-    #             ('is_capitalized', '=', False),
-    #             ('work_type_id', 'in', capitalization.work_type_ids.ids),
-    #             ('is_timesheet', '=', True),
-    #         ]
-    #         capitalization.env['account.analytic.line'].search(domain).write({'is_capitalized': True})
+            for vendor_bill_data in vendor_bills.values():
+                vendor_bill = self.env['account.move'].create(vendor_bill_data)
+                vendor_bill.action_post()
 
-    # def open_analytic_lines(self):
-    #     analytic_lines = self.env['account.analytic.line'].search([('id', 'in', self.analytic_line_ids.ids)])
-    #     action = self.env.ref('analytic.account_analytic_line_action').read()[0]
-    #     action['domain'] = [('id', 'in', analytic_lines.ids)]
-    #     action['context'] = {'group_by': ['task_product_id', 'account_asset_counterpart_id']}
-    #     return action
+        # self.state = 'done'
+
+    def line_is_paid(self):
+        for contractors in self:
+            contractors.env['account.analytic.line'].search([('id', 'in', self.analytic_line_ids.ids)]).write({'is_paid': True})
+
+    def open_analytic_lines(self):
+        analytic_lines = self.env['account.analytic.line'].search([('id', 'in', self.analytic_line_ids.ids)])
+        action = self.env.ref('analytic.account_analytic_line_action').read()[0]
+        action['domain'] = [('id', 'in', analytic_lines.ids)]
+        action['context'] = {'group_by': ['employee_id', 'project_id', 'product_version_id', 'work_type_id', 'epic_id']}
+        return action
 
     # def unlink(self):
     #     for line in self:
     #         if line.state == 'done':
-    #             raise UserError(_('You cannot delete a locked Capitalization.'))
-    #     return super(ProjectCapitalization, self).unlink()
+    #             raise UserError(_('You cannot delete a locked Project Invoice B2B Contactors.'))
+    #     return super(ProjectContractors, self).unlink()
     #
     # def write(self, vals):
     #     for line in self:
     #         if line.state == 'done':
-    #             raise UserError(_('You cannot edit a locked Capitalization.'))
-    #     return super(ProjectCapitalization, self).write(vals)
+    #             raise UserError(_('You cannot edit a locked Project Invoice B2B Contactors.'))
+    #     return super(ProjectContractors, self).write(vals)
 
-
-# class Task(models.Model):
-#     _inherit = 'project.task'
-#
-#     asset_id = fields.Many2one(
-#         comodel_name='account.asset',
-#         string='Product',
-#     )
