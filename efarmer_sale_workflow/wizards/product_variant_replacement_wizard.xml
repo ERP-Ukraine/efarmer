@@ -1,0 +1,31 @@
+<odoo>
+    <data>
+
+    <record id="product_variant_replacement_wizard_view_form" model="ir.ui.view">
+        <field name="name">product_variant_replacement_wizard.form</field>
+        <field name="model">product.variant.replacement.wizard</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="sale_line_id" invisible='1' />
+                    <field name="product_tmpl_id" />
+                    <field name="replacement_product_id" />
+                </group>
+                <footer>
+                    <button string="Apply" name="apply_replacement" type="object" class="oe_highlight" />
+                    <button string="Cancel" class="btn btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="launch_sale_order_line_product_variant_wizard" model="ir.actions.act_window">
+        <field name="name">Product Variant Replacement</field>
+        <field name="res_model">product.variant.replacement.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    </data>
+</odoo>

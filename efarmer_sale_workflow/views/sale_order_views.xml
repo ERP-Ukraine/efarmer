@@ -1,0 +1,34 @@
+<odoo>
+    <data>
+
+        <record id="sale_order_view_form_inherit" model="ir.ui.view">
+            <field name="name">sale.order.view.form.inherit.sale.workflow</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='order_line']//tree//field[@name='name']" position="before">
+                    <button name="open_replacement_wizard"
+                            type="object"
+                            icon="fa-edit" 
+                            states="to_confirm" />
+                </xpath>
+
+                <xpath expr="//button[@name='action_confirm'][2]" position="replace">
+                    <button name="approve_to_confirm" string="To Confirm" states="draft,sent"
+                            type="object" />
+                </xpath>
+
+                <xpath expr="//button[@name='action_confirm'][1]" position="attributes">
+                    <attribute name="attrs">
+                        {'invisible': [('state', 'not in', ['to_confirm'])]}
+                    </attribute>
+                </xpath>
+
+                <field name="state" position="attributes">
+                    <attribute name="statusbar_visible">draft,sent,to_confirm,sale</attribute>
+                </field>  
+            </field>
+        </record>
+
+    </data>
+</odoo>
