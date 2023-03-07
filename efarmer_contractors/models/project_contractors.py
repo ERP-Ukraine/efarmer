@@ -139,7 +139,6 @@ class ProjectContractors(models.Model):
         })
 
     def generate_invoice(self):
-        # self.line_is_paid()
         account_move_ids = []
         for contractor in self:
             vendor_bills = {}
@@ -153,10 +152,9 @@ class ProjectContractors(models.Model):
                     employee.write({
                         'related_contact_id': partner.id,
                     })
-
                 if employee not in vendor_bills:
                     vendor_bills[employee] = {
-                        'partner_id': employee.related_contact_id,
+                        'partner_id': employee.related_contact_id.id,
                         'move_type': 'in_invoice',
                         'invoice_line_ids': [],
                     }
@@ -167,11 +165,9 @@ class ProjectContractors(models.Model):
                     'quantity': line.hours_spent,
                     'price_unit': line.pay_rate,
                 }))
-
-            for vendor_bill_data in vendor_bills.values():
-                vendor_bill = self.env['account.move'].create(vendor_bill_data)
-                account_move_ids.append(vendor_bill.id)
-
+            vendor_bills_list = list(vendor_bills.values())
+            vendor_bills_objs = self.env['account.move'].create(vendor_bills_list)
+            account_move_ids += vendor_bills_objs.ids
         self.write({
             'account_move_ids': account_move_ids,
             'state': 'done',
@@ -180,7 +176,8 @@ class ProjectContractors(models.Model):
     def line_is_paid(self):
         for contractors in self:
             contractors.env['account.analytic.line'].search([('id', 'in', self.analytic_line_ids.ids)]).write(
-                {'is_paid': True})
+                {'is_paid': True}
+            )
 
     def open_analytic_lines(self):
         analytic_lines = self.env['account.analytic.line'].search([('id', 'in', self.analytic_line_ids.ids)])
