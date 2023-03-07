@@ -14,7 +14,6 @@ class ProjectContractors(models.Model):
         default=lambda self: self.env['ir.sequence'].next_by_code('project.contractors.sequence'),
         readonly=True,
     )
-
     state = fields.Selection(
         [('new', 'New'),
          ('in_progress', 'In Progress'),
@@ -79,7 +78,6 @@ class ProjectContractors(models.Model):
         'account.analytic.line',
         string='Analytic Line',
     )
-
     account_move_ids = fields.Many2many(
         'account.move',
         string='Vendor Bills',
