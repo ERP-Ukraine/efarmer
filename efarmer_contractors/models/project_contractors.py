@@ -139,6 +139,7 @@ class ProjectContractors(models.Model):
         })
 
     def generate_invoice(self):
+        # self.line_is_paid()
         account_move_ids = []
         for contractor in self:
             vendor_bills = {}
