@@ -1,24 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<!--    <record id="view_account_analytic_line_tree" model="ir.ui.view">-->
-<!--        <field name="name">account.analytic.line.tree</field>-->
-<!--        <field name="model">account.analytic.line</field>-->
-<!--        <field name="arch" type="xml">-->
-<!--            <tree string="Analytic Entries">-->
-<!--                <field name="date" optional="show"/>-->
-<!--                <field name="name"/>-->
-<!--                <field name="account_id"/>-->
-<!--                <field name="currency_id" invisible="1"/>-->
-<!--                <field name="unit_amount" sum="Quantity" optional="hide"/>-->
-<!--                <field name="product_uom_id" optional="hide"/>-->
-<!--                <field name="partner_id" optional="hide"/>-->
-<!--                <field name="company_id" groups="base.group_multi_company" optional="show"/>-->
-<!--                <field name="amount" sum="Total" optional="show"/>-->
-<!--                <field name="tag_ids" optional="hide" widget="many2many_tags"/>-->
-<!--            </tree>-->
-<!--        </field>-->
-<!--    </record>-->
-
     <record id="view_account_analytic_line_tree_inherit_efarmer" model="ir.ui.view">
             <field name="name">account.analytic.line.tree.inherit</field>
             <field name="model">account.analytic.line</field>

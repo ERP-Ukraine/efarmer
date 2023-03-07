@@ -7,8 +7,6 @@
             <form string="Contractors Line">
                 <group>
                     <field name="employee_id"/>
-                    <!--                                    <field name="analytic_line_id"/>-->
-                    <!--                                    <field name="asset_analytic_line"/>-->
                     <field name="description"/>
                     <field name="hours_spent"/>
                     <field name="pay_rate"/>
@@ -25,8 +23,6 @@
         <field name="arch" type="xml">
             <tree string="Contractors Lines">
                 <field name="employee_id"/>
-                <!--                                    <field name="analytic_line_id"/>-->
-                <!--                                    <field name="asset_analytic_line"/>-->
                 <field name="description"/>
                 <field name="hours_spent"/>
                 <field name="pay_rate"/>

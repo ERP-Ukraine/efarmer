@@ -10,5 +10,3 @@ class HrEmployee(models.Model):
         'res.partner',
         string='Related Contact',
     )
-
-

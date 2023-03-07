@@ -23,6 +23,8 @@
                     <div class="oe_button_box" name="button_box">
                         <button class="oe_stat_button" name="open_analytic_lines" string="REPORT" type="object" icon="fa-bars" attrs="{'invisible': [('state', 'in', ['new'])]}">
                         </button>
+                        <button class="oe_stat_button" name="open_vendor_bills" string="Vendor Bills" type="object" icon="fa-edit" attrs="{'invisible': [('state', 'in', ['new', 'in_progress'])]}">
+                        </button>
                     </div>
                     <div class="oe_title">
                         <h1>
@@ -45,8 +47,6 @@
                             <field name="contractors_line_ids" nolabel="1">
                                 <tree editable="top">
                                     <field name="employee_id"/>
-<!--                                    <field name="analytic_line_id"/>-->
-<!--                                    <field name="asset_analytic_line"/>-->
                                     <field name="description"/>
                                     <field name="hours_spent"/>
                                     <field name="pay_rate"/>

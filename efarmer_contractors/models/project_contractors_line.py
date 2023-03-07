@@ -7,10 +7,6 @@ class ProjectContractorsLine(models.Model):
     _name = 'project.contractors.line'
     _description = 'Project Contractors Line'
 
-    # account_asset_counterpart_id = fields.Many2one(
-    #     'account.account',
-    #     string='Account Asset Counterpart',
-    # )
     hours_spent = fields.Float(string='Hours Spent')
     amount = fields.Monetary(
         string='Amount',
@@ -48,9 +44,3 @@ class ProjectContractorsLine(models.Model):
         related='employee_id.bamboo_currency_id',
         store=True,
     )
-
-    # asset_id = fields.Many2one(
-    #     comodel_name='account.asset',
-    #     string='Product',
-    # )
-

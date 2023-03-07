@@ -12,7 +12,7 @@ class ProjectContractors(models.Model):
     name = fields.Char(
         string='Name',
         default=lambda self: self.env['ir.sequence'].next_by_code('project.contractors.sequence'),
-        # readonly=True,
+        readonly=True,
     )
 
     state = fields.Selection(
@@ -25,36 +25,35 @@ class ProjectContractors(models.Model):
     )
     start_date = fields.Date(
         string='Start Date',
-        # required=True,
+        required=True,
         default=fields.Date.context_today,
         tracking=True,
-        # states={
-        #     'new': [('readonly', False)],
-        #     'in_progress': [('readonly', False)],
-        #     'done': [('readonly', True)]
-        # },
+        states={
+            'new': [('readonly', False)],
+            'in_progress': [('readonly', False)],
+            'done': [('readonly', True)]
+        },
     )
     end_date = fields.Date(
         string='End Date',
-        # required=True,
+        required=True,
         tracking=True,
-        # states={
-        #     'new': [('readonly', False)],
-        #     'in_progress': [('readonly', False)],
-        #     'done': [('readonly', True)]
-        # },
+        states={
+            'new': [('readonly', False)],
+            'in_progress': [('readonly', False)],
+            'done': [('readonly', True)]
+        },
     )
     company_id = fields.Many2one(
         'res.company',
         'Company',
-        # required=True,
         index=True,
         default=lambda self: self.env.company,
-        # states={
-        #     'new': [('readonly', False)],
-        #     'in_progress': [('readonly', False)],
-        #     'done': [('readonly', True)]
-        # },
+        states={
+            'new': [('readonly', False)],
+            'in_progress': [('readonly', False)],
+            'done': [('readonly', True)]
+        },
     )
     employee_id = fields.Many2one(comodel_name='hr.employee')
 
@@ -66,54 +65,36 @@ class ProjectContractors(models.Model):
     )
     product_id = fields.Many2one('product.product', 'Product')
 
-
-    # work_type_ids = fields.Many2many(
-    #     comodel_name='youtrack.work.type',
-    #     string='Work Types',
-    #     required=True,
-    #     states={
-    #          'new': [('readonly', False)],
-    #          'in_progress': [('readonly', False)],
-    #          'done': [('readonly', True)]
-    #     },
-    # )
-    # account_asset_counterpart_id = fields.Many2one(
-    #     'account.account',
-    #     string='Account Asset Counterpart',
-    #     check_company=True,
-    #     help="Account used as counterpart for entries related to this asset.",
-    #     tracking=True,
-    #     states={
-    #         'new': [('readonly', False)],
-    #         'in_progress': [('readonly', False)],
-    #         'done': [('readonly', True)]
-    #     },
-    # )
     contractors_line_ids = fields.One2many(
         'project.contractors.line',
         'contractors_id',
         string='Contractors To',
-        # states={
-        #     'new': [('readonly', False)],
-        #     'in_progress': [('readonly', False)],
-        #     'done': [('readonly', True)]
-        # },
+        states={
+            'new': [('readonly', False)],
+            'in_progress': [('readonly', False)],
+            'done': [('readonly', True)]
+        },
     )
     analytic_line_ids = fields.Many2many(
         'account.analytic.line',
         string='Analytic Line',
     )
 
+    account_move_ids = fields.Many2many(
+        'account.move',
+        string='Vendor Bills',
+    )
+
     def generate_report(self):
         self.ensure_one()
         self.env['project.contractors.line'].search([('contractors_id', '=', self.id)]).unlink()
-        # domain = [
-        #     ('date', '>=', self.start_date),
-        #     ('date', '<=', self.end_date),
-        #     ('is_paid', '=', False),
-        #     ('employee_type', '=', self.employee_type),
-        # ]
-        analytic_lines = self.env['account.analytic.line'].search([])
+        domain = [
+            ('date', '>=', self.start_date),
+            ('date', '<=', self.end_date),
+            ('is_paid', '=', False),
+            ('employee_type', 'in', [self.employee_type]),
+        ]
+        analytic_lines = self.env['account.analytic.line'].search(domain)
         contractors_lines = []
         employee_ids = set(analytic_lines.mapped('employee_id'))
         for employee_id in employee_ids:
@@ -159,18 +140,29 @@ class ProjectContractors(models.Model):
 
     def generate_invoice(self):
         # self.line_is_paid()
+        account_move_ids = []
         for contractor in self:
             vendor_bills = {}
             for line in contractor.contractors_line_ids:
                 employee = line.employee_id
+                if not employee.related_contact_id:
+                    partner = self.env['res.partner'].create({
+                        'name': employee.name,
+                        'email': employee.work_email,
+                    })
+                    employee.write({
+                        'related_contact_id': partner.id,
+                    })
+
                 if employee not in vendor_bills:
                     vendor_bills[employee] = {
-                        'partner_id': employee.id,
-                        'type': 'in_invoice',
+                        'partner_id': employee.related_contact_id,
+                        'move_type': 'in_invoice',
                         'invoice_line_ids': [],
                     }
                 vendor_bill = vendor_bills[employee]
                 vendor_bill['invoice_line_ids'].append((0, 0, {
+                    'product_id': contractor.product_id.id,
                     'name': line.description,
                     'quantity': line.hours_spent,
                     'price_unit': line.pay_rate,
@@ -178,19 +170,30 @@ class ProjectContractors(models.Model):
 
             for vendor_bill_data in vendor_bills.values():
                 vendor_bill = self.env['account.move'].create(vendor_bill_data)
-                vendor_bill.action_post()
+                account_move_ids.append(vendor_bill.id)
 
-        # self.state = 'done'
+        self.write({
+            'account_move_ids': account_move_ids,
+            'state': 'done',
+        })
 
     def line_is_paid(self):
         for contractors in self:
-            contractors.env['account.analytic.line'].search([('id', 'in', self.analytic_line_ids.ids)]).write({'is_paid': True})
+            contractors.env['account.analytic.line'].search([('id', 'in', self.analytic_line_ids.ids)]).write(
+                {'is_paid': True})
 
     def open_analytic_lines(self):
         analytic_lines = self.env['account.analytic.line'].search([('id', 'in', self.analytic_line_ids.ids)])
         action = self.env.ref('analytic.account_analytic_line_action').read()[0]
         action['domain'] = [('id', 'in', analytic_lines.ids)]
         action['context'] = {'group_by': ['employee_id', 'project_id', 'product_version_id', 'work_type_id', 'epic_id']}
+        return action
+
+    def open_vendor_bills(self):
+        vendor_bills = self.env['account.move'].search([('id', 'in', self.account_move_ids.ids)])
+        action = self.env.ref('account.action_move_in_invoice_type').read()[0]
+        action['domain'] = [('id', 'in', vendor_bills.ids)]
+        action['context'] = {'group_by': ['partner_id']}
         return action
 
     # def unlink(self):
@@ -204,4 +207,3 @@ class ProjectContractors(models.Model):
     #         if line.state == 'done':
     #             raise UserError(_('You cannot edit a locked Project Invoice B2B Contactors.'))
     #     return super(ProjectContractors, self).write(vals)
-
