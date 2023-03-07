@@ -100,7 +100,7 @@ class ProjectContractors(models.Model):
             data_dict = {}
             for line in lines_by_employee_ids:
                 hours_spent = line.unit_amount
-                pay_rate = line.employee_id.pay_rate
+                contract_pay_rate = line.employee_id.contract_pay_rate
                 params = []
                 if line.project_id.project_code:
                     params.append(line.project_id.project_code)
@@ -118,14 +118,14 @@ class ProjectContractors(models.Model):
                         'employee_id': employee_id.id,
                         'description': data,
                         'hours_spent': hours_spent,
-                        'pay_rate': pay_rate,
+                        'contract_pay_rate': contract_pay_rate,
                         'bamboo_currency_id': line.employee_id.bamboo_currency_id.id,
-                        'amount': pay_rate * hours_spent,
+                        'amount': contract_pay_rate * hours_spent,
                         'contractors_id': self.id,
                     }
                 else:
                     data_dict[data]['hours_spent'] += hours_spent
-                    data_dict[data]['amount'] += pay_rate * hours_spent
+                    data_dict[data]['amount'] += contract_pay_rate * hours_spent
 
             for data in data_dict.values():
                 contractors_lines.append((0, 0, data))
@@ -162,7 +162,7 @@ class ProjectContractors(models.Model):
                     'product_id': contractor.product_id.id,
                     'name': line.description,
                     'quantity': line.hours_spent,
-                    'price_unit': line.pay_rate,
+                    'price_unit': line.contract_pay_rate,
                 }))
             vendor_bills_list = list(vendor_bills.values())
             vendor_bills_objs = self.env['account.move'].create(vendor_bills_list)
