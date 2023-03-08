@@ -170,7 +170,7 @@ class ProjectContractors(models.Model):
             vendor_bills_objs = self.env['account.move'].create(vendor_bills_list)
             account_move_ids += vendor_bills_objs.ids
 
-        self.line_is_paid()
+        # self.line_is_paid()
         self.write({
             'account_move_ids': account_move_ids,
             'state': 'done',
@@ -188,7 +188,7 @@ class ProjectContractors(models.Model):
 
     def open_vendor_bills(self):
         action = self.env.ref('account.action_move_in_invoice_type').read()[0]
-        action['domain'] = [('id', 'in', self.analytic_line_ids.ids)]
+        action['domain'] = [('id', 'in', self.account_move_ids.ids)]
         action['context'] = {'group_by': ['partner_id']}
         return action
 
