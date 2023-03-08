@@ -59,6 +59,7 @@ class ProjectContractors(models.Model):
     employee_type = fields.Selection(
         related='employee_id.employee_type',
         string='Employee Type',
+        store=True,
         readonly=False,
     )
     product_id = fields.Many2one('product.product', 'Product')
@@ -139,7 +140,6 @@ class ProjectContractors(models.Model):
         })
 
     def generate_invoice(self):
-        self.line_is_paid()
         account_move_ids = []
         for contractor in self:
             vendor_bills = {}
@@ -169,6 +169,8 @@ class ProjectContractors(models.Model):
             vendor_bills_list = list(vendor_bills.values())
             vendor_bills_objs = self.env['account.move'].create(vendor_bills_list)
             account_move_ids += vendor_bills_objs.ids
+
+        self.line_is_paid()
         self.write({
             'account_move_ids': account_move_ids,
             'state': 'done',
