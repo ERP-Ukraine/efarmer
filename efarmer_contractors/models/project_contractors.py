@@ -1,6 +1,7 @@
 # Copyright 2023 VentorTech OU
 # Part of Ventor modules. See LICENSE file for full copyright and licensing details.
 from odoo import models, fields, _
+from functools import reduce
 from odoo.exceptions import UserError
 
 
@@ -55,11 +56,9 @@ class ProjectContractors(models.Model):
         },
     )
     employee_id = fields.Many2one(comodel_name='hr.employee')
-
     employee_type = fields.Selection(
         related='employee_id.employee_type',
         string='Employee Type',
-        store=True,
         readonly=False,
     )
     product_id = fields.Many2one('product.product', 'Product')
@@ -90,15 +89,18 @@ class ProjectContractors(models.Model):
             ('date', '>=', self.start_date),
             ('date', '<=', self.end_date),
             ('is_paid', '=', False),
-            ('employee_type', 'in', [self.employee_type]),
+            ('employee_type', '=', self.employee_type),
         ]
-        analytic_lines = self.env['account.analytic.line'].search(domain)
         contractors_lines = []
-        employee_ids = set(analytic_lines.mapped('employee_id'))
-        for employee_id in employee_ids:
-            lines_by_employee_ids = analytic_lines.filtered(lambda line: line.employee_id == employee_id)
-            data_dict = {}
-            for line in lines_by_employee_ids:
+        data_dict = {}
+        analytic_lines = self.env['account.analytic.line'].search(domain).mapped(
+            lambda line: data_dict.update(
+                {line.employee_id.id: data_dict.get(line.employee_id.id, self.env['account.analytic.line']) + line}
+            )
+        )
+        for key in data_dict.keys():
+            lines_data = {}
+            for line in data_dict[key]:
                 hours_spent = line.unit_amount
                 contract_pay_rate = line.employee_id.contract_pay_rate
                 params = []
@@ -113,9 +115,9 @@ class ProjectContractors(models.Model):
                 if line.name_pl:
                     params.append('/' + line.name_pl)
                 data = '. '.join(params)
-                if data not in data_dict:
-                    data_dict[data] = {
-                        'employee_id': employee_id.id,
+                if data not in lines_data:
+                    lines_data[data] = {
+                        'employee_id': key,
                         'description': data,
                         'hours_spent': hours_spent,
                         'contract_pay_rate': contract_pay_rate,
@@ -124,20 +126,20 @@ class ProjectContractors(models.Model):
                         'contractors_id': self.id,
                     }
                 else:
-                    data_dict[data]['hours_spent'] += hours_spent
-                    data_dict[data]['amount'] += contract_pay_rate * hours_spent
+                    lines_data[data]['hours_spent'] += hours_spent
+                    lines_data[data]['amount'] += contract_pay_rate * hours_spent
 
-            for data in data_dict.values():
-                contractors_lines.append((0, 0, data))
+            for c_line in lines_data.values():
+                contractors_lines.append((0, 0, c_line))
 
         self.write({
-            'analytic_line_ids': analytic_lines.ids,
             'contractors_line_ids': contractors_lines,
             'state': 'in_progress',
+            'analytic_line_ids': reduce(lambda x, y: x + y, list(data_dict.values())),
         })
 
     def generate_invoice(self):
-        # self.line_is_paid()
+        self.line_is_paid()
         account_move_ids = []
         for contractor in self:
             vendor_bills = {}
@@ -174,21 +176,17 @@ class ProjectContractors(models.Model):
 
     def line_is_paid(self):
         for contractors in self:
-            contractors.env['account.analytic.line'].search([('id', 'in', self.analytic_line_ids.ids)]).write(
-                {'is_paid': True}
-            )
+            contractors.analytic_line_ids.write({'is_paid': True})
 
     def open_analytic_lines(self):
-        analytic_lines = self.env['account.analytic.line'].search([('id', 'in', self.analytic_line_ids.ids)])
         action = self.env.ref('analytic.account_analytic_line_action').read()[0]
-        action['domain'] = [('id', 'in', analytic_lines.ids)]
+        action['domain'] = [('id', 'in', self.analytic_line_ids.ids)]
         action['context'] = {'group_by': ['employee_id', 'project_id', 'product_version_id', 'work_type_id', 'epic_id']}
         return action
 
     def open_vendor_bills(self):
-        vendor_bills = self.env['account.move'].search([('id', 'in', self.account_move_ids.ids)])
         action = self.env.ref('account.action_move_in_invoice_type').read()[0]
-        action['domain'] = [('id', 'in', vendor_bills.ids)]
+        action['domain'] = [('id', 'in', self.analytic_line_ids.ids)]
         action['context'] = {'group_by': ['partner_id']}
         return action
 

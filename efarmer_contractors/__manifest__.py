@@ -7,10 +7,8 @@
     'website': 'https://ventor.tech/',
     'category': 'Project',
     'depends': [
-        'base',
         'project',
         'hr_timesheet',
-        # 'product',
         'account',
         'analytic',
         'account_asset',

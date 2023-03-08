@@ -12,12 +12,10 @@ class AccountAnalyticLine(models.Model):
         related='task_id.asset_id',
         store=True,
     )
-
     is_paid = fields.Boolean(
         string="Paid",
         default=False,
     )
-
     epic_id = fields.Many2one(
         string='Epic Task',
         related='task_id.epic_id',
@@ -33,7 +31,6 @@ class AccountAnalyticLine(models.Model):
         related='task_id.product_version_id',
         store=True,
     )
-
     employee_type = fields.Selection(
         related='employee_id.employee_type',
         string='Employee Type',
