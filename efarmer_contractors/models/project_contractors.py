@@ -47,7 +47,6 @@ class ProjectContractors(models.Model):
     company_id = fields.Many2one(
         'res.company',
         'Company',
-        index=True,
         default=lambda self: self.env.company,
         states={
             'new': [('readonly', False)],
@@ -136,7 +135,7 @@ class ProjectContractors(models.Model):
         self.write({
             'contractors_line_ids': contractors_lines,
             'state': 'in_progress',
-            'analytic_line_ids': reduce(lambda x, y: x + y, list(data_dict.values())),
+            'analytic_line_ids': reduce(lambda x, y: x + y, data_dict.values()),
         })
 
     def generate_invoice(self):
@@ -170,7 +169,7 @@ class ProjectContractors(models.Model):
             vendor_bills_objs = self.env['account.move'].create(vendor_bills_list)
             account_move_ids += vendor_bills_objs.ids
 
-        # self.line_is_paid()
+        self.line_is_paid()
         self.write({
             'account_move_ids': account_move_ids,
             'state': 'done',
