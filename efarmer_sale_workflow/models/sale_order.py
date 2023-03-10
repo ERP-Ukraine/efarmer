@@ -13,10 +13,14 @@ class SaleOrder(models.Model):
 
     state = fields.Selection(
         selection_add=[
+            ('to_payment', 'To Payment'),
             ('to_confirm', 'To Confirm'),
             ('sale',)
         ],
     )
 
-    def approve_to_confirm(self):
+    def action_to_confirm(self):
         return self.write({'state': 'to_confirm'})
+
+    def action_to_payment(self):
+        return self.write({'state': 'to_payment'})
