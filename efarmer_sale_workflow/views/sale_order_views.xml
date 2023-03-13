@@ -14,7 +14,7 @@
                             width="0.1" />
                 </xpath>
 
-                <xpath expr="//button[@name='action_confirm'][2]" position="replace">
+                <xpath expr="//button[@name='action_confirm'][1]" position="after">
                     <button name="action_to_payment"
                             string="To Payment"
                             class="btn-primary"
@@ -27,6 +27,10 @@
                             states="to_payment"
                             type="object"
                             groups='efarmer_sale_workflow.convert_sale_state_to_confirm_group' />
+                </xpath>
+
+                <xpath expr="//button[@name='action_confirm'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute>
                 </xpath>
 
                 <xpath expr="//button[@name='action_confirm'][1]" position="attributes">
