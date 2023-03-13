@@ -30,10 +30,6 @@
                 </xpath>
 
                 <xpath expr="//button[@name='action_confirm'][2]" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-
-                <xpath expr="//button[@name='action_confirm'][1]" position="attributes">
                     <attribute name="attrs">
                         {'invisible': [('state', 'not in', ['to_confirm'])]}
                     </attribute>
