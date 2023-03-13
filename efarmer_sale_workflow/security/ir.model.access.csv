@@ -1,3 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_efarmer_client_type_user,access_efarmer_client_type_user,model_efarmer_client_type,base.group_user,1,0,0,0
 access_efarmer_client_type_sale_admin,access_efarmer_client_type_sale_admin,model_efarmer_client_type,sales_team.group_sale_manager,1,1,1,1
+order_line_product_replacement_wizard_group_manager,order.line.product.replacement.wizard.manager,model_order_line_product_replacement_wizard,,1,1,1,1
+product_replacement_lines_group_manager,product.replacement.lines.manager,model_product_replacement_lines,,1,1,1,1
