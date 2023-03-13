@@ -15,14 +15,8 @@ class SaleOrderLine(models.Model):
                 'sale_line_id': self.id,
             }
         )
-        view_id = self.env.ref('efarmer_sale_workflow.order_line_product_replacement_wizard_view_form').id
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('Select Product Replacement'),
-            'res_model': 'order.line.product.replacement.wizard',
-            'view_mode': 'form',
-            'res_id': new_wizard.id,
-            'view_id': view_id,
-            'target': 'new',
-            'context': self.env.context,
-        }
+        action = self.env['ir.actions.act_window']._for_xml_id(
+            'efarmer_sale_workflow.launch_order_line_product_replacement_wizard')
+        action['res_id'] = new_wizard.id
+        action['name'] = _('Select Product Replacement')
+        return action
