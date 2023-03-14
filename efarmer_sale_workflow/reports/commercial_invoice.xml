@@ -55,10 +55,16 @@
                         <li><t t-esc="doc.company_id.name"/></li>
                         <li><t t-esc="doc.company_id.street"/></li>
                         <li><t t-esc="doc.company_id.city"/></li>
-                        <li><t t-esc="doc.company_id.email"/></li>
-                        <li><t t-esc="doc.company_id.phone"/></li>
+                    </ul>
+                    <ul class="list-unstyled">
+                        <strong>Responsible: </strong>
+                        <li><t t-esc="doc.user_id.name"/></li>
+                        <li><t t-esc="doc.user_id.email"/></li>
+                        <li><t t-esc="doc.user_id.phone"/></li>
+                        <li><t t-esc="doc.user_id.mobile"/></li>
                     </ul>
                 </div>
+
                 <div class="col-6">
                     <strong>Consignee: </strong>
                     <t t-if="doc.sale_id.partner_shipping_id">
@@ -77,10 +83,6 @@
                     <div t-if="doc.date_done" class="col-auto col-3 mw-100 mb-2">
                         <strong>Delivery Date:</strong>
                         <p class="m-0" t-field="doc.date_done"/>
-                    </div>
-                    <div t-if="doc.user_id.name" class="col-auto col-3 mw-100 mb-2">
-                        <strong>Responsible:</strong>
-                        <p class="m-0" t-field="doc.user_id"/>
                     </div>
                 </div>
                 <!-- Is there a discount on at least one line? -->
@@ -102,15 +104,18 @@
                     <tbody class="sale_tbody">
 
                         <t t-set="current_subtotal" t-value="0"/>
+                        <t t-set="tax_totals" t-value="0"/>
                         <t t-set="weight_sum" t-value="0"/>
                         <t t-set="lines" t-value="list(set(doc.move_lines.sale_line_id))"/>
                         <t t-foreach="lines" t-as="line">
+
                             <t t-set="weight_sum" t-value="weight_sum + line.product_id.weight * line.product_uom_qty"/>
                             <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"
                                groups="account.group_show_line_subtotals_tax_excluded"/>
                             <t t-set="current_subtotal" t-value="current_subtotal + line.price_total"
                                groups="account.group_show_line_subtotals_tax_included"/>
-
+                            <t t-set="tax_totals" t-value="tax_totals + line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+                            <t t-set="tax_totals" t-value="tax_totals + line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
                             <tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''">
                                 <t t-if="not line.display_type">
                                     <td name="td_name">
@@ -150,11 +155,10 @@
                     <div id="total" class="row" name="total">
                         <div t-attf-class="#{'col-6' if report_type != 'html' else 'col-sm-7 col-md-6'} ml-auto">
                             <table class="table table-sm">
-                                <t t-set="tax_totals" t-value="json.loads(doc.sale_id.tax_totals_json)"/>
                                 <tr class="border-black o_total">
                                     <td><strong>Total</strong></td>
                                     <td class="text-right">
-                                        <span t-esc="tax_totals['formatted_amount_total']"/>
+                                        <span t-esc="tax_totals"/>
                                     </td>
                                 </tr>
                             </table>
