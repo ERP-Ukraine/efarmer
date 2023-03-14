@@ -158,7 +158,7 @@ class ProjectCapitalization(models.Model):
                 'salvage_value': original_value,
                 'original_value': original_value,
                 'journal_id': line.asset_id.journal_id.id,
-                'asset_type': 'sale',
+                'asset_type': 'purchase',
                 'account_asset_id': line.account_asset_counterpart_id.id,
                 'account_depreciation_id': line.asset_id.account_depreciation_id.id,
                 'account_depreciation_expense_id': line.asset_id.account_depreciation_expense_id.id,
