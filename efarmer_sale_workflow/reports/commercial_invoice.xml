@@ -158,7 +158,7 @@
                                 <tr class="border-black o_total">
                                     <td><strong>Total</strong></td>
                                     <td class="text-right">
-                                        <span t-esc="tax_totals"/>
+                                        <span t-esc="tax_totals" t-options='{"widget": "monetary", "display_currency": doc.sale_id.currency_id}'/>
                                     </td>
                                 </tr>
                             </table>
