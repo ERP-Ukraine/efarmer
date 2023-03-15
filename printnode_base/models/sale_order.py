@@ -1,7 +1,7 @@
 # Copyright 2021 VentorTech OU
 # See LICENSE file for full copyright and licensing details.
 
-from odoo import models
+from odoo import models, _
 
 
 class SaleOrder(models.Model):
@@ -45,3 +45,17 @@ class SaleOrder(models.Model):
             )
 
         return printed
+
+    def open_print_order_line_reports_wizard(self):
+        self.ensure_one()
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Print Order Lines Reports Wizard'),
+            'res_model': 'printnode.print.sale.order.line.reports.wizard',
+            'view_mode': 'form',
+            'view_id': self.env.ref(
+                'printnode_base.printnode_print_sale_order_line_reports_wizard_form').id,
+            'target': 'new',
+            'context': self.env.context,
+        }

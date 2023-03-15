@@ -7,10 +7,22 @@ Change Log
 
 |
 
+* 2.5.0 (2023-02-27)
+    - [NEW] Added "Print Operation Reports" wizard to print reports based on stock.move model
+    - [NEW] Added "Print Order Line Reports" wizard to print reports based on sale.order.line model
+    - [NEW] Added possibility to set printer for report (through Report Settings)
+    - [NEW] Added button to remove old devices (computers / scales / printers)
+    - [NEW] Added a new checkbox "Allow to execute printing scenarios from crons" to control scenarios execution from crons
+    - Updated workstation feature to store default device in DB to provide reliable performance
+    - Improved performance while printing shipping labels
+    - Updated status menu to show all levels of default devices (workstation, user and company levels)
+    - Fixed issue with shipping label printer selection in multi-company mode
+    - Fixed some small issues that were affecting the user experience
+
 * 2.4.0 (2022-11-10)
-    - Added advanced logging feature
-    - Improved logic of workstation devices feature: devices won't be cleaned on user change
-    - Improved logic of computer/printer status updates in Odoo
+    - Added an advanced logging feature
+    - Improved the logic of the workstation devices feature: devices won't be cleaned on user change
+    - Improved the logic of computer/printer status updates in Odoo
     - Fixed issue with broken Print Reports wizard when trying to print reports with quantity > 1
     - Cleaned module code
 

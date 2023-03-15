@@ -147,13 +147,16 @@ class PrintNodeScenario(models.Model):
         Returns True when at least a single scenario found. In other cases returns False.
         """
         user = self.env.user
-        if (
-            not self.env.company.printnode_enabled
-            or not user.has_group(SECURITY_GROUP)
-            or not user.printnode_enabled
-        ):
-            # It is possible to execute scanarios from scheduled actions
-            if not self.env.context.get('from_cron', False):
+        company = self.env.company
+
+        if not company.printnode_enabled:
+            return False
+
+        if not user.has_group(SECURITY_GROUP) or not user.printnode_enabled:
+
+            # It is possible to execute scenarios from scheduled actions
+            if not self.env.context.get('printnode_from_cron', False) \
+                    or not company.printing_scenarios_from_crons:
                 return False
 
         scenarios = self.sudo().search([

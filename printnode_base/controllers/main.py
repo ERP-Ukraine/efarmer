@@ -46,10 +46,7 @@ class DataSetProxy(DataSet):
             return super(DataSetProxy, self)._call_kw(model, method, args, kwargs)
 
         # Get context parameters with keys starting with 'printnode_' (workstation devices)
-        printnode_context = {
-            k: v for k, v in kwargs.get('context', {}).items()
-            if k.startswith('printnode_')
-        }
+        printnode_context = dict(filter(lambda i: i[0].startswith('printnode_'), kwargs.get('context', {}).items()))  # NOQA
 
         ActionButton = request.env['printnode.action.button']
         post_action_ids, pre_action_ids = \
@@ -57,9 +54,8 @@ class DataSetProxy(DataSet):
 
         report_object_ids = args[0] if args else None
 
-        ActionButton.browse(pre_action_ids) \
-            .with_context(**printnode_context) \
-            .print_reports(report_object_ids)
+        ActionButton.browse(pre_action_ids).with_context(**printnode_context).\
+            print_reports(report_object_ids)
 
         # We need to update variables 'post_action_ids' and 'printnode_object_id' from context.
         args_, kwargs_ = deepcopy(args[1:]), deepcopy(kwargs)
@@ -86,27 +82,20 @@ class DataSetProxy(DataSet):
         if not post_action_ids:
             return result
 
-        ActionButton.browse(post_action_ids) \
-            .with_context(**printnode_context) \
-            .print_reports(report_object_ids)
+        ActionButton.browse(post_action_ids).with_context(**printnode_context).\
+            print_reports(report_object_ids)
 
         return result
 
 
 class ReportControllerProxy(ReportController):
 
-    def _check_direct_print(self, data):
+    def _check_direct_print(self, data, context):
         print_data = {'can_print': False}
         request_content = json.loads(data)
 
         report_url, report_type, printer_id, printer_bin = \
             request_content[0], request_content[1], request_content[2], request_content[3]
-
-        # Get workstation devices from request (if specified)
-        # Moved to separate block for backward compatibility with old versions
-        workstation_devices = {}
-        if len(request_content) > 4:
-            workstation_devices = request_content[4]
 
         print_data['report_type'] = report_type
 
@@ -114,13 +103,6 @@ class ReportControllerProxy(ReportController):
             printer_id = request.env['printnode.printer'].browse(printer_id)
         if printer_bin:
             printer_bin = request.env['printnode.printer.bin'].browse(printer_bin)
-
-        # Add workstations devices to context (if presented)
-        new_context = request.env.context.copy()
-        workstation_devices = {k: v for k, v in workstation_devices.items() if v is not None}
-
-        if workstation_devices:
-            new_context.update(workstation_devices)
 
         # STEP 1: First check if direct printing is enabled for user at all.
         # If no - not need to go further
@@ -146,7 +128,7 @@ class ReportControllerProxy(ReportController):
             report_name, ids = report_name.split('/')
 
             if ids:
-                ids = [int(x) for x in ids.split(",")]
+                ids = [int(x) for x in ids.split(",") if x.isdigit()]
                 print_data['ids'] = ids
 
         report = request.env['ir.actions.report']._get_report_from_name(report_name)
@@ -166,6 +148,11 @@ class ReportControllerProxy(ReportController):
         # STEP 4. Now let's check if we can define printer for the current report.
         # If not - just reset to default
         if not printer_id:
+            # Update context (there can be information about workstation devices)
+            new_context = dict(request.env.context)
+            context = json.loads(context or '{}')
+            new_context.update(context)
+
             printer_id, printer_bin = user.with_context(new_context).get_report_printer(report.id)
 
         if not printer_id:
@@ -179,15 +166,14 @@ class ReportControllerProxy(ReportController):
 
     @http.route('/report/check', type='http', auth="user")
     def report_check(self, data, context=None):
-        print_data = self._check_direct_print(data)
+        print_data = self._check_direct_print(data, context)
         if print_data['can_print']:
             return "true"
         return "false"
 
     @http.route('/report/print', type='http', auth="user")
     def report_print(self, data, context=None):
-
-        print_data = self._check_direct_print(data)
+        print_data = self._check_direct_print(data, context)
         if not print_data['can_print']:
             return json.dumps({
                 'title': _('Printing not allowed!'),

@@ -88,7 +88,7 @@ class PrintNodeAccount(models.Model):
         ('api_key', 'unique(api_key)', 'API Key (token) must be unique.'),
     ]
 
-    @api.model
+    @api.model_create_multi
     def create(self, vals):
         account = super(PrintNodeAccount, self).create(vals)
 
@@ -217,18 +217,23 @@ class PrintNodeAccount(models.Model):
                 # Splitted to 2 checks because capabilities can include None values in some cases
                 if printer.get('capabilities') and printer.get('capabilities').get('bins'):
                     for bin_name in printer.get('capabilities', {}).get('bins'):
-                        bin_values = {'name': bin_name, 'printer_id': odoo_printer.id}
-                        existing_bin = self.env['printnode.printer.bin'].search(
-                            [('name', '=', bin_name), ('printer_id', '=', odoo_printer.id)],
-                            limit=1,
-                        )
-                        if not existing_bin:
-                            self.env['printnode.printer.bin'].create(bin_values)
+                        self._create_printer_bin(bin_name, odoo_printer)
 
             # Downloading scales
             get_scales_url = 'computer/{}/scales'.format(computer['id'])
             for scales in self._send_printnode_request(get_scales_url):
                 self._create_or_update_scales(scales, odoo_computer)
+
+    def _create_printer_bin(self, bin_name, odoo_printer):
+        existing_bin = self.env['printnode.printer.bin'].search(
+            [('name', '=', bin_name), ('printer_id', '=', odoo_printer.id)],
+            limit=1,
+        )
+        if not existing_bin:
+            self.env['printnode.printer.bin'].create({
+                'name': bin_name,
+                'printer_id': odoo_printer.id,
+            })
 
     def _create_or_update_scales(self, scales, odoo_computer):
         scales_env = self.env['printnode.scales']
@@ -515,7 +520,7 @@ class PrintNodeAccount(models.Model):
         """
         Check conditions and notify the customer if limits are close to exceed
         """
-        company = self.env.user.company_id
+        company = self.env.company
 
         if company.printnode_notification_email and company.printnode_notification_page_limit:
             accounts_to_notify = self.env['printnode.account'].search([]).filtered(
@@ -554,3 +559,56 @@ class PrintNodeAccount(models.Model):
         accounts = self.env['printnode.account'].search([]).sorted(key=lambda r: r.id)
 
         return accounts[0] if accounts else False
+
+    def clear_devices_from_odoo(self):
+        """
+        Delete devices from Odoo if it is not connected to Printnode Account
+        """
+
+        self.import_devices()
+
+        def unset_printers(model_name, printer_ids):
+            """ Unset printers for all records of model
+
+            :param str model_name: 'printnode.scenario', 'delivery.carrier', ...
+            :param list[int] printer_ids: list of printer ids
+            """
+            domain = [('printer_id', 'in', printer_ids)]
+            records = self.env[model_name].sudo().with_context(active_test=False).search(domain)
+            for rec in records:
+                rec.printer_id = None
+
+        # Step 1: Find computers that are not in Printnode and delete them.
+        list_printnode_computer_ids = list(map(
+            lambda pc: pc.get('id'),
+            self._send_printnode_request('computers') or []
+        ))
+        odoo_computer_ids = self.with_context(active_test=False).computer_ids
+
+        odoo_computers_to_delete = odoo_computer_ids.filtered(
+            lambda comp: comp.printnode_id not in list_printnode_computer_ids
+        )
+
+        # Unset printers
+        for model in ['printnode.scenario', 'delivery.carrier', 'printnode.action.button']:
+            unset_printers(model, odoo_computers_to_delete.printer_ids.ids)
+
+        odoo_computers_to_delete.unlink()
+
+        # Step 2: Find printers that are not in Printnode and delete them.
+        list_printnode_printer_ids = list(map(
+            lambda pp: pp.get('id'),
+            self._send_printnode_request('printers'),
+        ))
+        odoo_printer_ids = self.env['printnode.printer'].sudo().with_context(active_test=False). \
+            search([('account_id', '=', self.id)])
+
+        odoo_printers_to_delete = odoo_printer_ids.filtered(
+            lambda printer: printer.printnode_id not in list_printnode_printer_ids
+        )
+
+        # Unset printers
+        for model in ['printnode.scenario', 'delivery.carrier', 'printnode.action.button']:
+            unset_printers(model, odoo_printers_to_delete.ids)
+
+        odoo_printers_to_delete.unlink()

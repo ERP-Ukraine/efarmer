@@ -42,8 +42,7 @@ class PrintnodeAttachUniversalWizard(models.TransientModel):
         Returns default printer to print attachments
         """
         # Workstation printer
-        workstation_printer_id = self.env.user._get_workstation_device(
-            'printnode_workstation_printer_id')
+        workstation_printer_id = self.env.user._get_workstation_device('printer_id')
 
         # Priority:
         # 1. Default Workstation Printer (User preferences)

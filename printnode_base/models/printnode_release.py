@@ -76,3 +76,10 @@ class PrintNodeRelease(models.Model):
         self.env['printnode.release'].search([]).unlink()
 
         return True
+
+    @api.model
+    def get_releases(self):
+        """
+        Returns all releases
+        """
+        return self.search_read([])

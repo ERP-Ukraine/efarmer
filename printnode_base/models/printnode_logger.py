@@ -22,7 +22,6 @@ class PrintNodeLoggerMixin(models.AbstractModel):
         :param str log_type: required type of logs
         :param str log_string: required event string for logging
         """
-        self.ensure_one()
 
         company = self.env.company
         if not company.debug_logging:

@@ -16,13 +16,13 @@ class DownloadDDMenu extends DropdownMenu { }
 DownloadDDMenu.template = 'printnode.DownloadDDMenu';
 DownloadDDMenu.components = { DownloadDDMenuItem };
 
-const ActionMenus = require("web.ActionMenus");
+const ActionMenus = require('web.ActionMenus');
 
 class DownloadActionMenus extends ActionMenus {
 
     async willStart() {
         await super.willStart(...arguments);
-        this.printnode_enabled = this.env.session.printnode_enabled;
+        this.printnode_enabled = this.env.session.dpc_user_enabled;
     }
 
     async _executeAction(action) {
@@ -76,7 +76,7 @@ class DownloadActionMenus extends ActionMenus {
 
 DownloadActionMenus.components.DownloadDDMenu = DownloadDDMenu;
 
-const ControlPanel = require("web.ControlPanel");
+const ControlPanel = require('web.ControlPanel');
 ControlPanel.components.ActionMenus = DownloadActionMenus;
 
 export { DownloadDDMenu, DownloadDDMenu, DownloadActionMenus };

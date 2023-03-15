@@ -57,10 +57,13 @@ class ProductLabelLayout(models.TransientModel):
 
     def _get_default_printer(self):
         """
-        Returns default printer for the user if DPC module enabled, otherwise - returns None
+        Returns default printer for the user if DPC module enabled, otherwise - returns False
         """
+        printer = False
+        printer_bin = False
+
         if self._is_dpc_enabled():
-            # User rules
+            # Get report
             try:
                 report_xml_id, _ = self._prepare_report_data()
                 report_id = self.env.ref(report_xml_id)
@@ -68,29 +71,9 @@ class ProductLabelLayout(models.TransientModel):
                 # Skip custom interface errors
                 report_id = self.env['ir.actions.report']
 
-            user_rules = self.env['printnode.rule'].search([
-                ('user_id', '=', self.env.uid),
-                ('report_id', '=', report_id.id),  # There will be no rules for report_id = False
-            ], limit=1)
+            printer, printer_bin = self.env.user.get_report_printer(report_id.id)
 
-            # Workstation printer
-            workstation_printer_id = self.env.user._get_workstation_device(
-                'printnode_workstation_printer_id')
-
-            # Priority:
-            # 1. Printer from User Rules (if exists)
-            # 2. Default Workstation Printer (User preferences)
-            # 3. Default printer for current user (User Preferences)
-            # 4. Default printer for current company (Settings)
-
-            printer = user_rules.printer_id or workstation_printer_id or \
-                self.env.user.printnode_printer or self.env.company.printnode_printer
-            printer_bin = user_rules.printer_bin if user_rules.printer_id else \
-                printer.default_printer_bin
-
-            return printer, printer_bin
-
-        return False, False
+        return printer, printer_bin
 
     @api.onchange("print_format")
     def _onchange_print_format(self):

@@ -22,7 +22,7 @@ class PrintnodePrintReportsUniversalWizard(models.TransientModel):
 
     report_id = fields.Many2one(
         comodel_name='ir.actions.report',
-        domain=lambda self: self._get_available_reports()
+        domain=lambda self: self._get_reports_domain()
     )
 
     number_copy = fields.Integer(
@@ -70,23 +70,9 @@ class PrintnodePrintReportsUniversalWizard(models.TransientModel):
         # to report_id will be applied)
         report_id = self.report_id
 
-        # User rules
-        user_rules_printer_id = self.env['printnode.rule'].search([
-            ('user_id', '=', self.env.uid),
-            ('report_id', '=', report_id.id),  # There will be no rules for report_id = False
-        ], limit=1).printer_id
+        printer_id, _ = self.env.user.get_report_printer(report_id.id)
 
-        # Workstation printer
-        workstation_printer_id = self.env.user._get_workstation_device(
-            'printnode_workstation_printer_id')
-
-        # Priority:
-        # 1. Printer from User Rules (if exists)
-        # 2. Default Workstation Printer (User preferences)
-        # 3. Default printer for current user (User Preferences)
-        # 4. Default printer for current company (Settings)
-        return user_rules_printer_id or workstation_printer_id or \
-            self.env.user.printnode_printer or self.env.company.printnode_printer
+        return printer_id
 
     @api.constrains('number_copy')
     def _check_quantity(self):
@@ -138,7 +124,7 @@ class PrintnodePrintReportsUniversalWizard(models.TransientModel):
             ]
             self.record_names = ", ".join(record_names)
 
-    def _get_available_reports(self):
+    def _get_reports_domain(self):
         active_model = self.env.context.get('active_model')
         return [*REPORT_DOMAIN, ('model', '=', active_model)]
 
@@ -235,7 +221,7 @@ class PrintnodePrintReportsUniversalWizardLine(models.TransientModel):
                         product=rec.product_id.display_name)
                 )
 
-    @api.model
+    @api.model_create_multi
     def create(self, vals):
         # Update type of record_id field based on active_model value from context
         self._update_record_id_field()

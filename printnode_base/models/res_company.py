@@ -113,3 +113,8 @@ class Company(models.Model):
         string='Logs to write',
         required=False,
     )
+
+    printing_scenarios_from_crons = fields.Boolean(
+        string='Allow to execute printing scenarios from crons',
+        default=True,
+    )

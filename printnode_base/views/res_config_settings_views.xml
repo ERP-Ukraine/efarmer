@@ -34,10 +34,17 @@
                                     <br />
 
                                     <div class="mt-4 mb-4" groups="base.group_no_one">
-                                        <button name="activate_account" string="Activate" type="object" class="oe_highlight" />
+                                        <button name="activate_account" string=" ACTIVATE" type="object" class="btn btn-outline-primary" icon="fa-warning" />
                                         <br />
                                         <small>
-                                            <strong>NOTE:</strong> Click on this button will clear all printers and devices loaded in Odoo
+                                            <strong>NOTE:</strong> Re-activate the account with a complete removal of all devices from Odoo and import them again
+                                        </small>
+                                    </div>
+                                    <div class="mt-4 mb-4" groups="base.group_no_one">
+                                        <button name="clear_devices_from_odoo" string=" CLEAR DEVICES FROM ODOO" type="object" class="btn btn-outline-danger" icon="fa-trash" />
+                                        <br />
+                                        <small>
+                                            <strong>NOTE:</strong> Click on this button will remove all devices from Odoo that are not connected to the Printnode account
                                         </small>
                                     </div>
 
@@ -83,7 +90,7 @@
                                     <div class="content-group">
                                         <div class="mt16 row">
                                             <label for="printnode_printer" string="Default Printer" class="col-4 col-lg-4 o_light_label" />
-                                            <field name="printnode_printer" class="oe_inline" />
+                                            <field name="printnode_printer" class="oe_inline" options="{'no_open': [('printnode_enabled', '=', False)]}" attrs="{'readonly': [('printnode_enabled', '=', False)]}" />
                                         </div>
                                     </div>
                                 </div>
@@ -237,6 +244,43 @@
                             </div>
                         </div>
 
+                        <h2>Workstation Devices</h2>
+                        <div class="row mt16 o_settings_container">
+                            <div class="col-12">
+                                <div class="alert alert-info" role="alert">
+                                    Workstation devices allow to set default printer, shipping label printer and scales
+                                    for the current computer
+                                </div>
+                                <div class="alert alert-warning" role="alert" attrs="{'invisible': [('printnode_enabled', '=', True)]}">
+                                    To set Workstation devices, please enable Direct Printing
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"></div>
+                                <div class="o_setting_right_pane">
+                                    <label for="printnode_workstation_printer_id" class="o_form_label d-block" />
+                                    <field name="printnode_workstation_printer_id" options="{'no_open': [('printnode_enabled', '=', False)]}" attrs="{'readonly': [('printnode_enabled', '=', False)]}"/>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"></div>
+                                <div class="o_setting_right_pane">
+                                    <label for="printnode_workstation_label_printer_id" class="o_form_label d-block" />
+                                    <field name="printnode_workstation_label_printer_id" options="{'no_open': [('printnode_enabled', '=', False)]}" attrs="{'readonly': [('printnode_enabled', '=', False)]}"/>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"></div>
+                                <div class="o_setting_right_pane">
+                                    <label for="printnode_workstation_scales_id" class="o_form_label d-block" />
+                                    <field name="printnode_workstation_scales_id" options="{'no_open': [('printnode_enabled', '=', False)]}" attrs="{'readonly': [('printnode_enabled', '=', False)]}"/>
+                                </div>
+                            </div>
+                        </div>
+
                         <h2>Notifications</h2>
                         <div class="row mt16 o_settings_container">
                             <div class="col-12 col-lg-6 o_setting_box">
@@ -327,16 +371,29 @@
                                         Switch on/off logging
                                     </div>
 
-                                    <div class="content-group">
+                                    <div class="content-group" attrs="{'invisible': [('debug_logging', '=', False)]}">
                                         <div class="mt16">
                                             <label for="log_type_ids" string="Types of Logs" />
                                             <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." groups="base.group_multi_company"/>
                                             <br />
                                             <field name="log_type_ids" widget="many2many_tags" options="{'no_create': True, 'no_open': True}" attrs="{'readonly': [('debug_logging', '=', False)]}" />
                                         </div>
+                                        <div class="text-muted">
+                                            Types of logs to collect
+                                        </div>
                                     </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                    <field name="printing_scenarios_from_crons" />
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="printing_scenarios_from_crons" />
+                                    <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." groups="base.group_multi_company"/>
                                     <div class="text-muted">
-                                        Types of logs to collect
+                                        Set this checkbox to allow to execute printing scenarios from crons.
                                     </div>
                                 </div>
                             </div>

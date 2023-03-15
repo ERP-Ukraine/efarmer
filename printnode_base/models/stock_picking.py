@@ -91,11 +91,12 @@ class StockPicking(models.Model):
         Redefining a standard method
         """
         user = self.env.user
+        company = self.env.company
 
-        auto_print = user.company_id.auto_send_slp and \
-            user.company_id.printnode_enabled and user.printnode_enabled
+        auto_print = company.auto_send_slp and \
+            company.printnode_enabled and user.printnode_enabled
 
-        if auto_print and user.company_id.print_package_with_label:
+        if auto_print and company.print_package_with_label:
             if self.picking_type_id == self.picking_type_id.warehouse_id.out_type_id:
                 move_lines_without_package = self.move_line_ids_without_package.filtered(
                     lambda l: not l.result_package_id)
@@ -119,13 +120,14 @@ class StockPicking(models.Model):
             ('model', '=', 'stock.picking'),
             ('res_id', '=', self.id),
             ('message_type', '=', 'notification'),
-            ('attachment_ids', '!=', False),
             ('body', 'ilike', tracking_ref),
         ])
+        messages_to_parse = messages_to_parse.filtered('attachment_ids')
+
         for message in messages_to_parse:
             self._create_shipping_label(message)
 
-        if auto_print and (self.shipping_label_ids or user.company_id.print_sl_from_attachment):
+        if auto_print and (self.shipping_label_ids or company.print_sl_from_attachment):
             self.with_context(raise_exception_slp=False).print_last_shipping_label()
 
     def _print_sl_from_attachment(self, raise_exception=True):
@@ -193,9 +195,16 @@ class StockPicking(models.Model):
             ('model', '=', 'stock.picking'),
             ('res_id', '=', self.id),
             ('message_type', '=', 'notification'),
-            ('attachment_ids.description', 'like', '%s%%' % return_label_prefix),
             ('create_date', '>=', message.create_date),
         ])
+
+        def filter_return_label_messages(message):
+            for attach_id in message.attachment_ids:
+                if attach_id.description and attach_id.description.find(return_label_prefix) != -1:
+                    return True
+            return False
+
+        return_label_messages = return_label_messages.filtered(filter_return_label_messages)
 
         return_label_attachments = []
         if return_label_messages:
@@ -312,7 +321,7 @@ class StockPicking(models.Model):
 
         prepared_data = self._prepare_data_for_scenarios_to_print_product_labels(
             scenario,
-            move_lines=self.move_lines,
+            move_lines=kwargs.get('new_move_lines', self.move_line_ids),
             **kwargs,
         )
 
@@ -338,7 +347,7 @@ class StockPicking(models.Model):
         """
         prepared_data = self._prepare_data_for_scenarios_to_print_product_labels(
             scenario,
-            move_lines=self.move_lines,
+            move_lines=kwargs.get('new_move_lines', self.move_line_ids),
             with_qty=True,
             **kwargs,
         )
@@ -414,45 +423,23 @@ class StockPicking(models.Model):
 
         return new_custom_barcodes
 
-    def _get_product_lines_from_stock_moves(self, move_lines, **kwargs):
-        """
-        This method returns product_lines with product_id and quantity from stock_move.
-        """
-        product_lines = []
-        unit_uom = self.env.ref('uom.product_uom_unit')
-
-        move_lines_with_qty_done = move_lines.filtered(lambda ml: ml.quantity_done > 0)
-
-        for move_line in move_lines_with_qty_done:
-            quantity_done = 1
-            if move_line.product_uom == unit_uom:
-                quantity_done = move_line.quantity_done
-
-            product_lines.append((0, 0, {
-                'product_id': move_line.product_id.id,
-                'quantity': quantity_done,
-            }))
-
-        return product_lines
-
     def _get_product_lines_from_stock_move_lines(self, move_lines, **kwargs):
         """This method returns product_lines with product_id and quantity from stock_move_lines.
         """
-        product_lines = []
+        product_lines = {}
         unit_uom = self.env.ref('uom.product_uom_unit')
 
-        move_lines_with_lots_and_qty_done = move_lines.filtered(
-            lambda ml: ml.qty_done > 0 and (ml.lot_id or ml.lot_name)
-        )
-        for move_line in move_lines_with_lots_and_qty_done:
+        move_lines_qty_done = move_lines.filtered(lambda ml: ml.qty_done > 0)
+        for move_line in move_lines_qty_done:
             quantity_done = 1
             if move_line.product_uom_id == unit_uom:
                 quantity_done = move_line.qty_done
+            if move_line.product_id.id not in product_lines:
+                product_lines[move_line.product_id.id] = quantity_done
+            else:
+                product_lines[move_line.product_id.id] += quantity_done
 
-            product_lines.append((0, 0, {
-                'product_id': move_line.product_id.id,
-                'quantity': quantity_done,
-            }))
+        product_lines = [(0, 0, {'product_id': k, 'quantity': v}) for k, v in product_lines.items()]
 
         return product_lines
 
@@ -501,9 +488,9 @@ class StockPicking(models.Model):
         :param move_lines: required stock moves from stock picking
         :param with_qty: optional boolean to change the picking_quantity mode of wizard
         """
-        product_lines = self._get_product_lines_from_stock_moves(move_lines=move_lines)
+        product_lines = self._get_product_lines_from_stock_move_lines(move_lines=move_lines)
 
-        move_lines_with_qty_done = move_lines.filtered(lambda ml: ml.quantity_done > 0)
+        move_lines_with_qty_done = move_lines.filtered(lambda ml: ml.qty_done > 0)
 
         product_ids = move_lines_with_qty_done.mapped('product_id')
 
@@ -577,4 +564,18 @@ class StockPicking(models.Model):
             'report_id': report_id,
             'data': data,
             'print_options': print_options,
+        }
+
+    def open_print_operation_reports_wizard(self):
+        self.ensure_one()
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Print Operation Reports Wizard'),
+            'res_model': 'printnode.print.stock.move.reports.wizard',
+            'view_mode': 'form',
+            'view_id': self.env.ref(
+                'printnode_base.printnode_print_stock_move_reports_wizard_form').id,
+            'target': 'new',
+            'context': self.env.context,
         }

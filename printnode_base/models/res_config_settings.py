@@ -92,11 +92,11 @@ class ResConfigSettings(models.TransientModel):
 
     printnode_account_id = fields.Many2one(
         comodel_name='printnode.account',
-        default=lambda self: self.get_printnode_account()
+        default=lambda self: self.get_main_printnode_account()
     )
 
     dpc_api_key = fields.Char(
-        string='API Key',
+        string='DPC API Key',
         related='printnode_account_id.api_key',
         readonly=False,
     )
@@ -121,6 +121,27 @@ class ResConfigSettings(models.TransientModel):
         comodel_name='printnode.log.type',
         readonly=False,
         related='company_id.log_type_ids',
+    )
+
+    # Workstation devices
+    printnode_workstation_printer_id = fields.Many2one(
+        'printnode.printer',
+        string='Default Workstation Printer',
+    )
+
+    printnode_workstation_label_printer_id = fields.Many2one(
+        'printnode.printer',
+        string='Default Workstation Shipping Label Printer',
+    )
+
+    printnode_workstation_scales_id = fields.Many2one(
+        'printnode.scales',
+        string='Default Workstation Scales',
+    )
+
+    printing_scenarios_from_crons = fields.Boolean(
+        readonly=False,
+        related='company_id.printing_scenarios_from_crons',
     )
 
     @api.onchange('debug_logging', 'log_type_ids')
@@ -157,30 +178,81 @@ class ResConfigSettings(models.TransientModel):
                 }
             }
 
+    def get_values(self):
+        res = super(ResConfigSettings, self).get_values()
+
+        workstation_devices = self._get_workstation_devices()
+        res.update(**workstation_devices)
+
+        return res
+
     def set_values(self):
         if self.print_package_with_label and not self.group_stock_tracking_lot:
             self.group_stock_tracking_lot = True
 
+        self._set_workstation_devices()
+
         super(ResConfigSettings, self).set_values()
+
+    def _get_workstation_devices(self):
+        workstation = self.env['printnode.workstation']._get_or_create_workstation()
+
+        if workstation:
+            return {
+                'printnode_workstation_printer_id': workstation.printer_id.id,
+                'printnode_workstation_label_printer_id': workstation.label_printer_id.id,
+                'printnode_workstation_scales_id': workstation.scales_id.id,
+            }
+
+        return {}
+
+    def _set_workstation_devices(self):
+        workstation = self.env['printnode.workstation']._get_or_create_workstation()
+
+        if workstation:
+            # Update devices
+            workstation.update({
+                'printer_id': self.printnode_workstation_printer_id.id,
+                'label_printer_id': self.printnode_workstation_label_printer_id.id,
+                'scales_id': self.printnode_workstation_scales_id.id,
+            })
+
+        return True
+
+    # Buttons
+
+    # TODO: Perhaps this concept should be reconsidered, because there can be two or more
+    #  accounts. In this case, actions like ('activate_account', 'import_devices',
+    #  'clear_devices_from_odoo', ...) must be performed not for the main account with
+    #  index [0], but for the account that is selected in the "dpc_api_key" field!
+    def get_main_printnode_account(self):
+        return self.env['printnode.account'].get_main_printnode_account()
 
     def activate_account(self):
         """
         Callback for activate button. Finds and activates the main account
         """
-        accounts = self.env['printnode.account'].search([]).sorted(key=lambda r: r.id)
+        account = self.get_main_printnode_account()
 
-        if accounts:
-            return accounts[0].activate_account()
+        if account:
+            return account.activate_account()
         else:
             raise exceptions.UserError(_('Please, add an account before activation'))
 
     def import_devices(self):
-        accounts = self.env['printnode.account'].search([]).sorted(key=lambda r: r.id)
+        account = self.get_main_printnode_account()
 
-        if accounts:
-            return accounts[0].import_devices()
+        if account:
+            return account.import_devices()
         else:
             raise exceptions.UserError(_('Please, add an account before importing printers'))
 
-    def get_printnode_account(self):
-        return self.env['printnode.account'].get_main_printnode_account()
+    def clear_devices_from_odoo(self):
+        """ Callback for "Clear Devices from Odoo" button.
+        """
+        account = self.get_main_printnode_account()
+
+        if account:
+            return account.clear_devices_from_odoo()
+        else:
+            raise exceptions.UserError(_('Please, add an account before clearing devices'))

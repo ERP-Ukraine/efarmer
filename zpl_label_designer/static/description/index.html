@@ -40,7 +40,7 @@
 
   
     <div class="pb32 pt32" style="margin:0 auto; display:flex; max-width:348px">
-    <div class="s_panel_video" data-video-id="IX8jyFIIsng">
+    <div class="s_panel_video" data-video-id="OBmL-8PQaCw">
         <h3 style="color:#2e7dda; font-family:Montserrat; font-weight:600; text-align:center; font-size:17px; opacity:1; margin:8px 0 16px" class="oe_slogan">WATCH DEMO HERE</h3>
         <div class="position-relative">
             <a class="s_figure_link d-inline-block p-0 position-absolute d-flex align-items-center justify-content-center" style="width: 100%; height: 100%;" href="#">
@@ -176,6 +176,26 @@
   
 
   
+    <div class="alert alert-warning">
+  <h3 style="color:#105fa9; font-family:Montserrat; font-weight:600; text-align:center; font-size:17px; opacity:1; margin:8px 0 16px" class="oe_slogan">IMPORTANT NOTICE</h3>
+  <p class="text-center mb-3">
+    Please note that our label designer has been moved to an external application (<a href="https://labels.ventor.tech" target="_blank">https://labels.ventor.tech</a>) due to technical limitations of the Odoo UI. In order to use the label designer, you will need to purchase this module. The external application is provided as a complimentary tool to enhance the functionality of this module and streamline the label design process.
+  </p>
+  <p>
+    <ul>
+      <li>
+        We do not store any sensitive information from your Odoo instance, only label templates content and API key. API key needed to get list of models and fields to use while designing labels. It doesn't allow us to get any other information (like products, orders, etc.)
+      </li>
+      <li>
+        Our service (labels.ventor.tech) requires connectivity to Odoo through API (provided by this module). If Odoo is behind a VPN, our application will not work properly. To ensure the proper functioning of our service, we recommend that Odoo is accessible through a public IP address or that appropriate VPN configuration is put in place to allow API connections. Please contact us (support@ventor.tech) before purchasing"
+      </li>
+    </ul>
+  </p>
+</div>
+
+  
+
+  
     <section class="oe_container">
   <div class="row">
     <div class="col-sm-12">
@@ -217,8 +237,8 @@ Create custom label in a few minutes without coding
   <div class="row">
     <div class="col-sm-8">
       <div class="oe_row_img oe_centered">
-        <a href="images/2022-08-30_16-25-21_3b0a9529fdf642.png">
-          <img class="oe_picture oe_screenshot" src="images/2022-08-30_16-25-21_3b0a9529fdf642.png" style="width: 100%">
+        <a href="images/zld-1_3b5dff7f0b8cfc.png">
+          <img class="oe_picture oe_screenshot" src="images/zld-1_3b5dff7f0b8cfc.png" style="width: 100%">
         </a>
       </div>
     </div>
@@ -237,17 +257,26 @@ Change label size (width, height, DPI) and change orientation if needed
   <div class="row">
     <div class="col-sm-8">
       <div class="oe_row_img oe_centered">
-        <a href="images/odoo zpl designer_3b101055c21d8c.jpeg">
-          <img class="oe_picture oe_screenshot" src="images/odoo zpl designer_3b101055c21d8c.jpeg" style="width: 100%">
+        <a href="images/zld-2_3b5e0032e59bc6.png">
+          <img class="oe_picture oe_screenshot" src="images/zld-2_3b5e0032e59bc6.png" style="width: 100%">
         </a>
       </div>
     </div>
     <div class="col-sm-4 pt-sm-4 pb-sm-4 pl-sm-1 pr-sm-5 pl-5 pr-5">
       <h4>Attach label to model</h4>
 
-Attach the label to one of four models: Product, Product Templates, Lot/Serial, or Packages. After that, you can add any fields from the selected model.
+<p>
+    Attach the label to one of four default models (Product, Product Templates, Lot/Serial, or Packages) or create labels for any custom model.
+</p>
 
-Drag&Drop to place elements in necessary position (including images).
+<p>
+    After selecting a model, you can add almost any type of field, including custom fields. However, please note that our application only supports the following types of fields: Char, Text, Integer, Float, Boolean, Many2one, Selection, and Datetime.
+</p>
+
+<p>
+    Drag&Drop to place elements in necessary position (including images).
+</p>
+
     </div>
   </div>
 </section>
@@ -285,9 +314,9 @@ Use "Publish" button to make the label available to download or print
       </div>
     </div>
     <div class="col-sm-4 pt-sm-4 pb-sm-4 pl-sm-1 pr-sm-5 pl-5 pr-5">
-      <h4>Can be used in Odoo 15.0 Print Label wizard</h4>
+      <h4>Can be used in Odoo 16.0 Print Label wizard</h4>
 
-You can add created labels to Print Label wizard from Odoo 15.0
+You can add created labels to Print Label wizard from Odoo 16.0
     </div>
   </div>
 </section>

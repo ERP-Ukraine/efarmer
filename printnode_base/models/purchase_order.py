@@ -8,8 +8,8 @@ class PurchaseOrder(models.Model):
     _name = "purchase.order"
     _inherit = ['purchase.order', 'printnode.mixin', 'printnode.scenario.mixin']
 
-    def button_approve(self):
-        res = super(PurchaseOrder, self).button_approve()
+    def button_approve(self, force=False):
+        res = super(PurchaseOrder, self).button_approve(force=force)
 
         self.print_scenarios(action='print_document_on_purchase_order')
         self.print_scenarios(action='print_picking_document_after_po_confirmation')

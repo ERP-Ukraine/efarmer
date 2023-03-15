@@ -14,10 +14,22 @@ Change Log
 
 |
 
+* 2.5.0 (2023-02-27)
+    - [NEW] Added "Print Operation Reports" wizard to print reports based on stock.move model
+    - [NEW] Added "Print Order Line Reports" wizard to print reports based on sale.order.line model
+    - [NEW] Added possibility to set printer for report (through Report Settings)
+    - [NEW] Added button to remove old devices (computers / scales / printers)
+    - [NEW] Added a new checkbox "Allow to execute printing scenarios from crons" to control scenarios execution from crons
+    - Updated workstation feature to store default device in DB to provide reliable performance
+    - Improved performance while printing shipping labels
+    - Updated status menu to show all levels of default devices (workstation, user and company levels)
+    - Fixed issue with shipping label printer selection in multi-company mode
+    - Fixed some small issues that were affecting the user experience
+
 * 2.4.0 (2022-11-10)
-    - Added advanced logging feature
-    - Improved logic of workstation devices feature: devices won't be cleaned on user change
-    - Improved logic of computer/printer status updates in Odoo
+    - Added an advanced logging feature
+    - Improved the logic of the workstation devices feature: devices won't be cleaned on user change
+    - Improved the logic of computer/printer status updates in Odoo
     - Fixed issue with broken Print Reports wizard when trying to print reports with quantity > 1
     - Cleaned module code
 
@@ -26,22 +38,22 @@ Change Log
     - Fix issue with printing from wizards (i.e. with "Print & Send" button on Invoice view)
 
 * 2.3.1 (2022-07-20)
-    - NEW! Added new settings: allow to print document without auto-fitting to the page
+    - [NEW] Added new settings: allow to print document without auto-fitting to the page
     - Printing statistics and information about new releases in status menu visible only for managers
     - Fixed issue with new releases in status menu after module upgrade
 
 * 2.3.0 (2022-06-20)
-    - NEW! Added possibility to set number of copies for specific record in Print Report / Print Attachments wizards
-    - NEW! Added new scenarios: Print single / multiple lot label on Transfer (after validation)
-    - NEW! Added possibility to define printer for delivery carriers
+    - [NEW] Added possibility to set number of copies for specific record in Print Report / Print Attachments wizards
+    - [NEW] Added new scenarios: Print single / multiple lot label on Transfer (after validation)
+    - [NEW] Added possibility to define printer for delivery carriers
     - Fixed issue with duplicated printjobs (under heavy load)
     - Fixed issue with ignored workstation printers when printing through Action menu (Odoo 15)
     - Fixed issues with Odoo JS tests (related to workstation devices feature)
     - After module upgrade print wizards are no longer deleted
 
 * 2.2.0 (2022-05-16)
-    - NEW! Added functionality to mass print lot labels (from list of Lots/Serial Numbers)
-    - NEW! Allow to add new Print Report action to any model (through Configure Print Wizard menu)
+    - [NEW] Added functionality to mass print lot labels (from list of Lots/Serial Numbers)
+    - [NEW] Allow to add new Print Report action to any model (through Configure Print Wizard menu)
     - Display inactive Computers, Printers, Scales in Configuration menu (usability improvement)
     - Improved status menu to update workstation devices dynamically after change in user settings
     - Fixed issue with missed ir.model.data records

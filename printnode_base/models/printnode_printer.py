@@ -233,7 +233,7 @@ class PrintNodePrinter(models.Model):
             error = self.printnode_check(report)
 
         if error and raise_exception:
-            _logger.warning('Direct Print: {}'.format(error))
+            self.printnode_logger(Constants.REPORTS_LOG_TYPE, str(error))
             raise UserError(error)
 
         return error
@@ -246,7 +246,7 @@ class PrintNodePrinter(models.Model):
         error = self.printnode_check(report)
 
         if error:
-            _logger.warning('Direct Print: {}'.format(error))
+            self.printnode_logger(Constants.REPORTS_LOG_TYPE, str(error))
             raise UserError(error)
 
     def printnode_check(self, report=None):
