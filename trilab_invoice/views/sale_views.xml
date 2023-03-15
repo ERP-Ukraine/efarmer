@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_order_form" model="ir.ui.view">
+        <field name="name">trilab_invoice sale.order.form.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='%(sale.action_view_sale_advance_payment_inv)d'][1]" position="attributes">
+                <attribute name="attrs">{
+                    'invisible': ['|', ('invoice_status', '!=', 'to invoice'), ('x_is_poland', '=', True)]}</attribute>
+            </xpath>
+            <xpath expr="//button[@name='%(sale.action_view_sale_advance_payment_inv)d'][2]" position="attributes">
+                <attribute name="attrs">{'invisible': ['|', ('x_is_poland', '=', True), '|', ('state', '!=', 'sale'), ('invoice_status', '!=', 'no')]}</attribute>
+            </xpath>
+            <xpath expr="//button[@name='%(sale.action_view_sale_advance_payment_inv)d'][2]" position="after">
+                <field name="x_is_poland" invisible="1"/>
+                <button name="%(trilab_invoice.action_view_sale_advance_payment_inv_pl)d" string="Create Invoice PL"
+                        type="action" class="btn-primary"
+                        attrs="{'invisible': ['|', ('invoice_status', 'not in', ['no', 'to invoice']),('x_is_poland', '=', False)]}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

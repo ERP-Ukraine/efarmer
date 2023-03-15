@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="account_tag_view_form_jpk" model="ir.ui.view">
+        <field name="model">account.account.tag</field>
+        <field name="inherit_id" ref="account.account_tag_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet[1]" position="inside">
+                <field name="jpk_account_tag_ids" widget="one2many_list" nolabel="1" mode="tree">
+                    <tree editable="bottom">
+                        <field name="jpk_document_type"/>
+                        <field name="jpk_markup"/>
+                        <field name="jpk_section"/>
+                        <field name="jpk_v7_group"/>
+                    </tree>
+                </field>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

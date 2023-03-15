@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="view_sale_advance_payment_inv_inherit" model="ir.ui.view">
+        <field name="name">view_sale_advance_payment_inv_inherit</field>
+        <field name="model">sale.advance.payment.inv</field>
+        <field name="mode">primary</field>
+        <field name="inherit_id" ref="sale.view_sale_advance_payment_inv"/>
+        <field name="arch" type="xml">
+
+            <field name="advance_payment_method" position="before">
+                <field name="order_ids" options="{'no_open': 1}" invisible="1"/>
+                <field name="has_advances" invisible="1" readonly="1"/>
+            </field>
+
+            <field name="advance_payment_method" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+
+            <field name="advance_payment_method" position="after">
+                <field name="x_journal_id" domain="[('type', '=', 'sale')]" options="{'no_create': True, 'no_open': True}"/>
+                <field name="advance_payment_method_2"/>
+                <field name="x_allowed_partner_bank_ids" invisible="1"/>
+                <field name="x_partner_bank_id" domain="[('id', 'in', x_allowed_partner_bank_ids)]"/>
+            </field>
+
+            <group position="after">
+                <field name="order_line" readonly="1" invisible="1"/>
+                <label for="invoice_lines" attrs="{'invisible': ['|', ('has_advances', '=', False), ('advance_payment_method', 'in', ('fixed','percentage'))]}"/>
+                <field name="invoice_lines" options="{'no_create': 1}" domain="[('id', 'in', order_line), ('invoice_status', '=', 'to_invoice')]"
+                       attrs="{'invisible': ['|', ('has_advances', '=', False), ('advance_payment_method', 'in', ('fixed','percentage'))]}">
+                    <tree>
+                        <!-- TODO: Zmodyfikowac widok szukania -->
+                        <field name="product_id"/>
+                        <field name="name"/>
+                        <field name="product_uom_qty"/>
+                        <field name="qty_delivered"/>
+                        <field name="qty_invoiced"/>
+                        <field name="price_unit"/>
+                        <field name="tax_id" widget="many2many_tags"/>
+                        <field name="price_subtotal"/>
+                    </tree>
+                </field>
+
+                <label for="advance_lines" attrs="{'invisible': [('advance_payment_method', 'not in', ('fixed','percentage'))]}"/>
+                <field name="advance_lines" attrs="{'invisible': [('advance_payment_method', 'not in', ('fixed','percentage'))]}">
+                    <tree editable="bottom" create="false" delete="false">
+                        <field name="tax_id" readonly="1" force_save="1"/>
+                        <field name="value" context="{'value': 1}"/>
+                        <field name="value_total" context="{'value_total': 1}"/>
+                        <field name="percent" context="{'percent': 1}"/>
+                        <field name="original_subtotal" readonly="1" force_save="1"/>
+                        <field name="original_total" readonly="1" force_save="1"/>
+                        <field name="currency_id" invisible="1" readonly="1" force_save="1"/>
+                    </tree>
+                </field>
+            </group>
+
+            <label for="amount" position="attributes">
+                <attribute name="attrs"/>
+                <attribute name="invisible">True</attribute>
+            </label>
+
+            <xpath expr="//div[@id='payment_method_details']" position="attributes">
+                <attribute name="attrs"/>
+                <attribute name="invisible">True</attribute>
+            </xpath>
+
+            <field name="deposit_account_id" position="attributes">
+                <attribute name="attrs"/>
+                <attribute name="invisible">True</attribute>
+            </field>
+
+            <field name="deposit_taxes_id" position="attributes">
+                <attribute name="attrs"/>
+                <attribute name="invisible">True</attribute>
+            </field>
+
+            <xpath expr="//div/field[@name='deduct_down_payments']" position="attributes">
+                <attribute name="attrs">{'invisible': True}</attribute>
+            </xpath>
+            <xpath expr="//div/label[@for='deduct_down_payments']" position="attributes">
+                <attribute name="attrs">{'invisible': True}</attribute>
+            </xpath>
+
+            <xpath expr="//form" position="inside">
+                <group name="convert_invoice">
+                    <field name="x_is_convertible" invisible="1"/>
+                    <field name="x_orders_currency_id" attrs="{'invisible': [('x_is_convertible', '=', False)]}"/>
+                    <field name="x_convert_to_pln" attrs="{'invisible': [('x_is_convertible', '=', False)]}"/>
+                    <field name="x_convert_rate" widget="many2one"
+                           attrs="{'invisible': ['|', ('x_is_convertible', '=', False), ('x_convert_to_pln', '=', False)], 'required': [('x_convert_to_pln', '=', True)]}"
+                           domain="[('currency_id', '=', x_orders_currency_id)]"/>
+                </group>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="action_view_sale_advance_payment_inv_pl" model="ir.actions.act_window">
+        <field name="name">Create invoices PL</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">sale.advance.payment.inv</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="trilab_invoice.view_sale_advance_payment_inv_inherit"/>
+        <field name="groups_id" eval="[(4,ref('sales_team.group_sale_salesman'))]"/>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_view_types">list</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_jpk_vat7m_user,"JPK Document Type User Access",model_jpk_vat_7m,account.group_account_user,1,1,1,0
+access_jpk_vat_ue_user,"VAT UE Document Type User Access",model_jpk_vat_ue,account.group_account_user,1,1,1,0
+access_jpk_vat_ue_group_user,"VAT UE Group Line Document Type User Access",model_jpk_vat_ue_group,account.group_account_user,1,1,1,0

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="jpk_document_type_tree" model="ir.ui.view">
+        <field name="name">jpk_document_type_tree</field>
+        <field name="model">jpk.document.type</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="system_code"/>
+                <field name="schema_version"/>
+                <field name="jpk_type"/>
+                <field name="description"/>
+                <field name="xsd_id" invisible="1"/>
+                <field name="xsd_id_datas" widget="binary" filename="xsd_id_name"/>
+                <field name="xsd_id_name" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="jpk_document_type_form" model="ir.ui.view">
+        <field name="name">jpk_document_type_form</field>
+        <field name="model">jpk.document.type</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <h1><field name="name"/></h1>
+                    <group>
+                        <group>
+                            <field name="system_code"/>
+                            <field name="schema_version"/>
+                            <field name="jpk_type"/>
+                            <field name="xsd_id" invisible="1"/>
+                            <field name="xsd_id_datas" widget="binary" filename="xsd_id_name" readonly="0"/>
+                            <field name="xsd_id_name" readonly="0" invisible="1"/>
+                        </group>
+                        <group/>
+                    </group>
+                    <label for="description"/>
+                    <field name="description"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>
