@@ -179,9 +179,8 @@ class ProjectCapitalization(models.Model):
             capitalization.env['account.analytic.line'].search(domain).write({'is_capitalized': True})
 
     def open_analytic_lines(self):
-        analytic_lines = self.env['account.analytic.line'].search([('id', 'in', self.analytic_line_ids.ids)])
         action = self.env.ref('analytic.account_analytic_line_action').read()[0]
-        action['domain'] = [('id', 'in', analytic_lines.ids)]
+        action['domain'] = [('id', 'in', self.analytic_line_ids.ids)]
         action['context'] = {'group_by': ['task_product_id', 'account_asset_counterpart_id']}
         return action
 
