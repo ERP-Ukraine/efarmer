@@ -1,0 +1,182 @@
+<head>
+    <meta charset="UTF-8">
+</head>
+<section class="oe_container app">
+    <div class="oe_row oe_spaced" style="max-width: 95%;">
+        <div class="oe_span12">
+            <h2 class="oe_slogan">Trilab JPK - VAT</h2>
+            <div class="oe_demo" style=" margin: 30px auto 0; padding: 0 15px 0 0; border:none; width: 96%;">
+                <p>
+                    Moduł do generowania plików JPK VAT. Wraz z modułem Trilab JPK Transfer zapewnia pełną obsługę
+                    procesu sprawozdawczość JPK VAT.<br>
+                    Źródłem danych do JPK VAT są zapisy księgowe z modułu Księgowość rozbudowane o dodatkowe pole
+                    kwalifikujące dokumenty do okresu sprawozdawczego VAT
+                    (jest to konieczne w przypadkach gdy okres kwalifikacji rachunkowej jest różny od
+                    kwalifikacji podatkowej).
+                </p>
+                <p>
+                   <img src="scr1.png" width="600" />
+                </p>
+
+                <p>
+                    Mechanizm doboru danych jest elastyczny i parametryzowany – oznaczenie kwalifikacji dokumentów
+                    do poszczególnych pozycji/znaczników w  JPK VAT bazuje na kodach podatku i ich tagach:
+                </p>
+
+                <p>
+                   <img src="scr2.png" width="300" />
+                   <img src="scr3.png" width="300" />
+                </p>
+
+                <p>
+                    Mechanizm raportujący działa sposób analogiczny do Raportów Finansowych
+                </p>
+
+                <p>
+                   <img src="scr4.png" width="600" />
+                </p>
+
+                <p>
+                    i umożliwia:
+                </p>
+
+                <ul>
+                    <li>podgląd danych,</li>
+                    <li>wygenerowanie danych do Excel,</li>
+                    <li>wygenerowania pliku XML,</li>
+                    <li>wygenerowanie pliku XML z utworzeniem wysyłki w module JPK Transfer.</li>
+                 </ul>
+
+                <p>
+                   <img src="scr5.png" width="600" />
+                </p>
+
+                <p>
+                    Parametrami uruchomieniowymi są:
+                </p>
+
+                <ul>
+                    <li>Okres (bazujący na okresie sprawozdawczości VAT),</li>
+                    <li>Opcja statusów zapisów (zaksięgowane lub wraz z niezaksięgowanymi),</li>
+                    <li>Cel złożenia (Nowa deklaracja, lub kolejne korekty).</li>
+                </ul>
+
+                <p>
+                    Dodatkowo (do czasu obwiązywanie JPK_VAT wersja 3 i sprawozdań VAT7 w ramach aplikacji zawarto
+                    dedykowany raport finansowy prezentujący dane zgodnie z układem VAT7
+                    (z możliwością uzupełnienia interaktywnego PDF dostarczanego przez Ministerstwo):
+                </br>
+                    <img src="scr6.jpg" width="600" />
+
+                </br>
+                    Istnieje możliwość wykorzystania nowej w wersji 13 funkcjonalności Tax Report -> z automatycznym tworzeniem dziennika rozksiegowujacego zamknięcie kont VAT i rozliczneie z US.
+                </p>
+
+                <p>
+                    UWAGA:
+                </p>
+
+                <ul>
+                    <li>Moduł wymaga wcześniejszej instalacji modułów Trilab JPK Base.
+                    <li>Moduł przeznaczony dla wersji Enterprise</li>
+                    <li>Opcjonalny moduł Trilab JPK Transfer pozwala na wysłanie plików JPK z poziomu Odoo.</li>
+                    <li>Po instalacji konieczne jest wykonanie parametryzacji kodów podatków i tagów podatków -
+                        możemy zaoferować usługę instalacji i konfiguracji kodów podatków</li>
+                </ul>
+
+                <p>Wspiera wersję 15 Odoo.</p>
+
+                <hr>
+
+                <p>English Description:</p>
+
+                <p>
+                    Module for generating JPK VAT XML files. Together with the Trilab JPK Transfer module provides
+                    full support for the JPK VAT reporting process.
+                </p>
+                <p>
+                    The source data for JPK VAT are accounting entries from the Accounting module extended with
+                    an additional field - qualifying documents for the VAT reporting period
+                    (this is necessary in cases where the accounting qualification period is different
+                    from the tax qualification).
+                </p>
+                <p>
+                    The data selection mechanism is flexible and fully parametrised - document qualifications
+                    for individual items/markers in JPK VAT is based on tax codes and their tags.
+                </p>
+                <p>
+                    The reporting mechanism works in similar to to Financial Reports and enables:
+                </p>
+                <ul>
+                    <li>data preview,</li>
+                    <li>generating data for Excel,</li>
+                    <li>generate an XML file,</li>
+                    <li>generating an XML file with shipping creation in JPK Transfer models.</li>
+                </ul>
+
+                <p>
+                    The parameters are:
+                </p>
+                <ul>
+                    <li>Period (based on the VAT reporting period),</li>
+                    <li>Subscription statuses option (posted or together with not booked),</li>
+                    <li>Purpose of submission (new declaration or subsequent corrections).</li>
+                </ul>
+                <p>
+				Additionally (until validity JPK_VAT version 3 and VAT7 report, the application includes
+                    a dedicated financial report presenting data in accordance with the VAT7 (to be entered
+                    into the interactive PDF provided by the Ministry).
+                    It is possible to use the new Tax Report functionality in version 13 -> with the automatic creation of a journal that closes VAT accounts and settlements with tax office.
+                </p>
+
+                <p>Warning:</p>
+                <ul>
+                    <li>This module requires prior installation of the Trilab JPK Base.
+                    <li>Optional module Trilab JPK Transfer allows to send JPK files directly from Odoo.</li>
+                    <li>Module for Enterprise version.</li>
+                    <li>After instalation, it is necessary to setup the tax codes and tax tags -
+                        we are offering installation and configuration services.</li>
+                </ul>
+
+                <p>Supports Odoo version 15.</p>
+
+                <h3>Changelog</h3>
+                <ul>
+                    <li>
+                        <b>1.40 06/11/2021</b><br/>
+                        report fixes
+                    </li>
+                    <li>
+                        <b>1.36 22/09/2021</b><br/>
+                        R15 port
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="oe_row oe_spaced text-center">
+        <div class="oe_span12">
+            <h2 class="oe_slogan">Technical Help & Support</h2>
+        </div>
+        <div class="col-md-12 pad0">
+            <div class="oe_mt16">
+                <h4>For any type of technical help & support requests, Feel free to contact us</h4>
+                <p>
+                <a style="background: #002e5a  none repeat scroll 0% 0%; color: rgb(255, 255, 255);position: relative; overflow: hidden;"
+                   class="btn btn-warning btn-lg" rel="nofollow" href="mailto:odoo@trilab.pl"><span
+                        style="height: 354px; width: 354px; top: -147.433px; left: -6.93335px;" class="o_ripple"></span>
+                    <i class="fa fa-envelope"></i> odoo@trilab.pl</a>
+                <p>
+            </div>
+            <div class="oe_mt16">
+                <h4>Visit our website for more support.</h4>
+                <p>
+                <a style="background: #002e5a  none repeat scroll 0% 0%; color: rgb(255, 255, 255);position: relative; overflow: hidden;"
+                   class="btn btn-warning btn-lg" rel="nofollow" href="https://trilab.pl" target="_blank"><span
+                        style="height: 354px; width: 354px; top: -147.433px; left: -6.93335px;" class="o_ripple"></span>
+                    <i class="fa fa-web"></i>https://trilab.pl</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>

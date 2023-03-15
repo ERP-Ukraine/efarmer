@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_jpk_document_type_user,"JPK Document Type User Access",model_jpk_document_type,jpk_user,1,0,0,0
+access_jpk_document_type_account_user,"JPK Document Type User Access",model_jpk_document_type,account.group_account_user,1,0,0,0
+access_jpk_document_type_account_invoice,"JPK Document Type User Access",model_jpk_document_type,account.group_account_invoice,1,0,0,0
+access_jpk_document_type_manager,"JPK Document Type User Access",model_jpk_document_type,jpk_manager,1,1,1,0
+access_jpk_tax_office_group_all,"jpk_tax_office group_all",model_jpk_taxoffice,,1,0,0,0
+access_jpk_gtu_user,"JPK GTU Read Access",model_jpk_gtu,,1,0,0,0
+access_jpk_gtu_manager,"JPK GTU Read Access",model_jpk_gtu,jpk_manager,1,1,1,0
+access_jpk_account_tag_user,"JPK Tag Access",model_jpk_account_tag,account.group_account_user,1,1,1,1
+access_jpk_account_tag_invoice,"JPK Tag Access",model_jpk_account_tag,account.group_account_invoice,1,0,0,0
