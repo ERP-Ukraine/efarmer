@@ -19,6 +19,7 @@ class TestHrTimesheet(TransactionCase):
             type(self.env['hr.employee']),
             '_get_work_days_data_batch'
         )
+        self.employee_obj = self.env['hr.employee']
 
     def _create_patch_object(self, target, attribute):
         patcher = patch.object(target, attribute)
@@ -30,7 +31,7 @@ class TestHrTimesheet(TransactionCase):
         """
         Testing the logic calculation of employee Timesheet Cost.
         """
-        employee = self.env['hr.employee'].create(
+        employee = self.employee_obj.create(
             {
                 'name': 'Test Employee',
                 'employee_type': 'employee',
@@ -45,13 +46,18 @@ class TestHrTimesheet(TransactionCase):
 
         self.mock_work_hours.return_value = {employee.id: {'hours': 2008.0}}
 
+        mock_employee_search = self._create_patch_object(type(self.employee_obj), 'search')
+        # define the search results in compute_timesheet_cost() to avoid existing
+        # employees being included in the search results.
+        mock_employee_search.side_effect = [employee, self.employee_obj]
+
         # expected res: (30000 + 100 + 50 + 70 + 200) / 2008 = 15.15
         employee.compute_timesheet_cost()
 
         self.assertEqual(employee.timesheet_cost, 15.15)
 
     def test_compute_outstaff_timesheet_cost(self):
-        outstaff = self.env['hr.employee'].create(
+        outstaff = self.employee_obj.create(
             {
                 'name': 'Test Outstaff',
                 'paid_per': 'month',
@@ -65,6 +71,13 @@ class TestHrTimesheet(TransactionCase):
 
         mock_currency = self._create_patch_object(type(self.env['res.currency']), '_get_conversion_rate')
         mock_currency.return_value = 1.2
+
+        mock_employee_search = self._create_patch_object(type(self.employee_obj), 'search')
+
+        # define the search results in compute_timesheet_cost() to avoid existing
+        # employees being included in the search results.
+        mock_employee_search.side_effect = [outstaff, self.employee_obj, outstaff,
+            self.employee_obj, outstaff, self.employee_obj, self.employee_obj, outstaff]
 
         # expected res: (1000 * 1.2 * 12) / 2008 = 7.17
         outstaff.compute_timesheet_cost()

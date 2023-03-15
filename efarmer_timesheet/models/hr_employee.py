@@ -22,11 +22,13 @@ class Employee(models.Model):
         ],
         string='Salary Type',
         copy=False,
+        groups='hr.group_hr_user',
     )
 
     pay_rate = fields.Float(
         string='Pay Rate',
         copy=False,
+        groups='hr.group_hr_user',
     )
 
     paid_per = fields.Selection(
@@ -42,48 +44,56 @@ class Employee(models.Model):
         ],
         string='Paid Per',
         copy=False,
+        groups='hr.group_hr_user',
     )
 
     med_insurance_rate = fields.Float(
         string='Medical Insurance Rate',
         copy=False,
+        groups='hr.group_hr_user',
     )
 
     ann_gross_salary = fields.Monetary(
         string='Annual Gross Salary',
         currency_field='currency_id',
         copy=False,
+        groups='hr.group_hr_user',
     )
 
     ann_payroll_tax = fields.Monetary(
         string='Annual Payroll Tax Cost to Employer',
         currency_field='currency_id',
         copy=False,
+        groups='hr.group_hr_user',
     )
 
     ann_med_insurance_cost = fields.Monetary(
         string='Annual Medical Insurance Costs',
         currency_field='currency_id',
         copy=False,
+        groups='hr.group_hr_user',
     )
 
     ann_bonus = fields.Monetary(
         string='Annual Bonus',
         currency_field='currency_id',
         copy=False,
+        groups='hr.group_hr_user',
     )
 
     other_allowances = fields.Monetary(
         string='Other Allowances',
         currency_field='currency_id',
         copy=False,
+        groups='hr.group_hr_user',
     )
 
     bamboo_currency_id = fields.Many2one(
         comodel_name='res.currency',
         string="Currency",
         copy=False,
-        default=lambda self: self.env.company.currency_id.id
+        default=lambda self: self.env.company.currency_id.id,
+        groups='hr.group_hr_user',
     )
 
     contract_pay_rate = fields.Monetary(

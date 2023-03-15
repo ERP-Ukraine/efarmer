@@ -10,4 +10,5 @@ class HrEmployee(models.Model):
 
     youtrack_id = fields.Char(
         string='YouTrack ID',
+        groups='hr.group_hr_user',
     )
