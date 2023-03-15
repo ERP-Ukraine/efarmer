@@ -3,3 +3,4 @@
 
 
 from . import models
+from . tests import patch_sale_timesheet
