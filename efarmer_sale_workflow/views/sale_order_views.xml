@@ -29,15 +29,17 @@
                             groups='efarmer_sale_workflow.convert_sale_state_to_confirm_group' />
                 </xpath>
 
-                <xpath expr="//button[@name='action_confirm'][1]" position="attributes">
-                    <attribute name="groups">sales_team.group_sale_manager</attribute>
-                </xpath>
-
                 <xpath expr="//button[@name='action_confirm'][2]" position="attributes">
                     <attribute name="groups">sales_team.group_sale_manager</attribute>
-                    <attribute name="class">btn-primary</attribute>
                     <attribute name="attrs">
-                        {'invisible': [('state', 'not in', ['draft','to_confirm'])]}
+                        {'invisible': [('state', 'not in', ['draft','sent'])]}
+                    </attribute>
+                </xpath>
+
+                <xpath expr="//button[@name='action_confirm'][1]" position="attributes">
+                    <attribute name="groups">sales_team.group_sale_manager</attribute>
+                    <attribute name="attrs">
+                        {'invisible': [('state', 'not in', ['to_confirm'])]}
                     </attribute>
                 </xpath>
 
