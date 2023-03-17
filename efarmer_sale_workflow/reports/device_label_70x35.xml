@@ -290,23 +290,23 @@
         </template>
 
         <record id="action_device_label_mrp_production" model="ir.actions.report">
-            <field name="name">Product Device Label</field>
+            <field name="name">Product Device Label (70x35)</field>
             <field name="model">mrp.production</field>
             <field name="report_type">qweb-text</field>
             <field name="report_name">efarmer_sale_workflow.device_label_70x35_mrp_production</field>
             <field name="report_file">efarmer_sale_workflow.device_label_70x35_mrp_production</field>
-            <field name="print_report_name">'Product Device Label - %s' % (object.product_id.default_code)</field>
+            <field name="print_report_name">'Product Device Label 70x35 - %s' % (object.product_id.default_code)</field>
             <field name="binding_model_id" ref="mrp.model_mrp_production"/>
             <field name="binding_type">report</field>
         </record>
 
         <record id="action_stock_device_label_quant" model="ir.actions.report">
-            <field name="name">Product Device Label</field>
+            <field name="name">Product Device Label (70x35)</field>
             <field name="model">stock.quant</field>
             <field name="report_type">qweb-text</field>
             <field name="report_name">efarmer_sale_workflow.device_label_70x35_stock_quant</field>
             <field name="report_file">efarmer_sale_workflow.device_label_70x35_stock_quant</field>
-            <field name="print_report_name">'Product Device Label - %s' % (object.product_id.default_code)</field>
+            <field name="print_report_name">'Product Device Label 70x35 - %s' % (object.product_id.default_code)</field>
             <field name="binding_model_id" ref="stock.model_stock_quant"/>
             <field name="binding_type">report</field>
         </record>

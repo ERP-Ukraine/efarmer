@@ -273,7 +273,7 @@
             <field name="report_type">qweb-text</field>
             <field name="report_name">efarmer_sale_workflow.device_label_50x30_mrp_production</field>
             <field name="report_file">efarmer_sale_workflow.device_label_50x30_mrp_production</field>
-            <field name="print_report_name">'Product Device Label - %s' % (object.product_id.default_code)</field>
+            <field name="print_report_name">'Product Device Label 50x30 - %s' % (object.product_id.default_code)</field>
             <field name="binding_model_id" ref="mrp.model_mrp_production"/>
             <field name="binding_type">report</field>
         </record>
@@ -284,7 +284,7 @@
             <field name="report_type">qweb-text</field>
             <field name="report_name">efarmer_sale_workflow.device_label_50x30_stock_quant</field>
             <field name="report_file">efarmer_sale_workflow.device_label_50x30_stock_quant</field>
-            <field name="print_report_name">'Product Device Label - %s' % (object.product_id.default_code)</field>
+            <field name="print_report_name">'Product Device Label 50x30 - %s' % (object.product_id.default_code)</field>
             <field name="binding_model_id" ref="stock.model_stock_quant"/>
             <field name="binding_type">report</field>
         </record>
