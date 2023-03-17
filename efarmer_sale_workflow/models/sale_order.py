@@ -10,3 +10,17 @@ class SaleOrder(models.Model):
         related='opportunity_id.stage_id',
         readonly=False,
     )
+
+    state = fields.Selection(
+        selection_add=[
+            ('to_payment', 'To Payment'),
+            ('to_confirm', 'To Confirm'),
+            ('sale',)
+        ],
+    )
+
+    def action_to_confirm(self):
+        return self.write({'state': 'to_confirm'})
+
+    def action_to_payment(self):
+        return self.write({'state': 'to_payment'})
