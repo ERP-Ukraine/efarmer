@@ -1,0 +1,3004 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* trilab_jpk_vat
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-03-08 20:17+0000\n"
+"PO-Revision-Date: 2023-03-08 20:17+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_10
+msgid ""
+"1. Dostawa towarów oraz świadczenie usług na terytorium kraju, zwolnione od podatku\n"
+"    "
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "10."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_25
+msgid "10. Import towarów podlegający rozliczeniu zgodnie z art. 33a ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "11."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_27
+msgid "11. Import towarów podlegający rozliczeniu zgodnie z art. 33a ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "12."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_29
+msgid ""
+"12. Import usług nabywanych od podatników podatku od wartości dodanej, do których stosuje\n"
+"      się art. 28b ustawy\n"
+"    "
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "13."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_31
+msgid ""
+"13. Dostawa towarów oraz świadczenie usług, dla których podatnikiem jest nabywca...\n"
+"    "
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "14."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_32
+msgid ""
+"14. Dostawa towarów, dla których podatnikiem jest nabywca zgodnie z art. 17 ust. 1 pkt 5\n"
+"      ustawy\n"
+"    "
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "15."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_34
+msgid ""
+"15. Dostawa towarów oraz świadczenie usług, dla których podatnikiem jest nabywca...\n"
+"    "
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "16."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_36
+msgid ""
+"16. Kwota podatku należnego od towarów i usług objętych spisem z natury, o którym mowa w\n"
+"      art. 14 ust. 5 ustawy\n"
+"    "
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "17."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_37
+msgid ""
+"17. Zwrot odliczonej lub zwróconej kwoty wydatkowanej na zakup kas rejestrujących...\n"
+"    "
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "18."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_38
+msgid ""
+"18. Kwota podatku należnego od wewnątrzwspólnotowego nabycia środków transportu,\n"
+"      wykazanego w poz. 24 ...\n"
+"    "
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "19."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_39
+msgid ""
+"19. Kwota podatku od wewnątrzwspólnotowego nabycia paliw silnikowych, podlegająca wpłacie\n"
+"      w terminach ...\n"
+"    "
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_11
+msgid "2. Dostawa towarów oraz świadczenie usług poza terytorium kraju"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "20."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "21."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "22."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "23."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "24."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "25."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "26."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "27."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "28."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "29."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_12
+msgid ""
+"2a. w tym świadczenie usług, o których mowa w art. 100 ust. 1 pkt 4 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_13
+msgid ""
+"3. Dostawa towarów oraz świadczenie usług na terytorium kraju, opodatkowane stawką 0%\n"
+"    "
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "30."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "31."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "32."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "33."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "34."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "35."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "36."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "37."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "38."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "39."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_14
+msgid "3a. w tym dostawa towarów, o której mowa w art. 129 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_15
+msgid ""
+"4. Dostawa towarów oraz świadczenie usług na terytorium kraju, opodatkowane stawką 5%\n"
+"    "
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "40."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "41."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "42."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "43."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "44."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "45."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "46."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "47."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "48."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "49."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_17
+msgid ""
+"5. Dostawa towarów oraz świadczenie usług na terytorium kraju, opodatkowane stawką 7%\n"
+"      albo 8%\n"
+"    "
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "50."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "51."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "52."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "53."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "54."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "540."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "55-58."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "560."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "59."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_19
+msgid ""
+"6. Dostawa towarów oraz świadczenie usług na terytorium kraju, opodatkowane stawką 22%\n"
+"      albo 23%\n"
+"    "
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "60."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "61."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "62."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "63."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "64."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "65."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "66."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "660."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "67."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "68."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "69."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_21
+msgid "7. Wewnątrzwspólnotowa dostawa towarów"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_22
+msgid "8. Eksport towarów"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_23
+msgid "9. Wewnątrzwspólnotowe nabycie towarów"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_vat_ue
+msgid "<b>Cel Złożenia:</b>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<b>Część deklaracyjna:</b>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<b>Część ewidencyjna:</b>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_vat_ue
+msgid "<b>Month:</b>"
+msgstr "<b>Miesiąc</b>"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_vat_ue
+msgid "<b>Version:</b>"
+msgstr "<b>Wersja:</b>"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_vat_ue
+msgid "<b>Year:</b>"
+msgstr "<b>Rok:</b>"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template_pl_vat_date_filter
+msgid "<span class=\"fa fa-calendar\" title=\"Dates\" role=\"img\" aria-label=\"Dates\"/>"
+msgstr "<span class=\"fa fa-calendar\" title=\"Daty\" role=\"img\" aria-label=\"Daty\"/>"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template
+msgid "<span class=\"fa fa-filter\"/> Cel złożenia:"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"<span class=\"pl-4 mt-0\">\n"
+"                                        W tym dostawa towarów, o których mowa w art. 129 ustawy\n"
+"                                    </span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">10.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">11.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">12.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">13.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">14.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">15.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">16.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">17.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">18.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">19.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">20.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">21.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">22.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">23.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">24.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">25.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">26.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">27.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">28.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">29.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">30.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">31.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">32.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">33.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">34.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">35.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">36.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">37.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">38.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">39.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">40.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">41.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">42.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">43.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">44.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">45.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">46.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">47.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">48.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">49.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">50.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">51.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">52.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">53.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">54.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">55-58.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">59.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">60.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">61.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">62.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">63.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">64.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">65.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">66.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">67.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">68.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "<span class=\"text-muted\">69.</span>"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model,name:trilab_jpk_vat.model_account_account_tag
+msgid "Account Tag"
+msgstr "Znacznik konta"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "Address"
+msgstr "Adres"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue_group__amount
+msgid "Amount"
+msgstr "Łączna wartość transakcji w zł"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template_pl_vat_date_filter
+msgid "Apply"
+msgstr "Zastosuj"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_ue_view_form
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_vat_ue
+msgid "C. Informacja o Wewnątrzwspólnotowych Dostawach Towarów"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_C
+msgid "C. ROZLICZENIE PODATKU NALEŻNEGO"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_ue_view_form
+msgid "Cancel"
+msgstr "Anuluj"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__cel_zlozenia
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__cel_zlozenia
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_ue_view_form
+msgid "Cel złożenia"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "City"
+msgstr "Miasto"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "Code"
+msgstr "Kod pocztowy"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "Company"
+msgstr "Firma"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "Correction Invoice Number"
+msgstr "Numer korekty"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue_group__country_code
+msgid "Country Code"
+msgstr "Kod kraju"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__create_uid
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__create_uid
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue_group__create_uid
+msgid "Created by"
+msgstr "Utworzone przez"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__create_date
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__create_date
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue_group__create_date
+msgid "Created on"
+msgstr "Data utworzone"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "Currency"
+msgstr "Waluta"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template_pl_vat_date_filter
+msgid "Custom"
+msgstr "Własny"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__czesc_deklaracyjna
+msgid "Część deklaracyjna"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__czesc_ewidencyjna
+msgid "Część ewidencyjna"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_ue_view_form
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_vat_ue
+msgid "D. Informacja o Wewnątrzwspólnotowych Nabyciach Towarów"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_D
+msgid "D. ROZLICZENIE PODATKU NALICZONEGO"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_D1
+msgid "D.1. PRZENIESIENIA"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_D2
+msgid ""
+"D.2. NABYCIE TOWARÓW I USŁUG ORAZ PODATEK NALICZONY Z UWZGLĘDNIENIEM KOREKT"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_D3
+msgid "D.3. PODATEK NALICZONY – DO ODLICZENIA (w zł)"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "Date Due"
+msgstr "Termin płatności"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template_pl_vat_date_filter
+msgid "Date:"
+msgstr "Data:"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "Deklaracja zwrotu"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__display_name
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__display_name
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue_group__display_name
+msgid "Display Name"
+msgstr "Nazwa wyświetlana"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Dostawa towarów oraz świadczenia usług na terytorium kraju, opodatkowanych\n"
+"                                        stawką 0%"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Dostawa towarów oraz świadczenia usług na terytorium kraju, opodatkowanych\n"
+"                                        stawką 22% albo 23%"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Dostawa towarów oraz świadczenia usług na terytorium kraju, opodatkowanych\n"
+"                                        stawką 5%"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Dostawa towarów oraz świadczenia usług na terytorium kraju, opodatkowanych\n"
+"                                        stawką 7% albo 8%"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Dostawa towarów oraz świadczenia usług na terytorium kraju, zwolnione od "
+"podatku"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "Dostawa towarów oraz świadczenia usług poza terytorium kraju"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Dostawy towarów, dla których podatnikiem jest nabywca zgodnie z art. 17 ust. 1\n"
+"                                        pkt 5 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_ue_view_form
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_vat_ue
+msgid "E. Informacja o Wewnątrzwspólnotowym Świadczeniu Usług"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_E
+msgid ""
+"E. OBLICZENIE WYSOKOŚCI ZOBOWIĄZANIA PODATKOWEGO LUB KWOTY ZWROTU (w zł)"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "Eksport towarów"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "Empty Tax"
+msgstr "Brak podatku"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template_pl_vat_date_filter
+msgid ""
+"End\n"
+"                    Date:"
+msgstr ""
+"Data\n"
+"                    Do:"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template_pl_vat_date_filter
+msgid "End of Last Financial Year"
+msgstr "Koniec poprzedniego roku fiskalnego"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template_pl_vat_date_filter
+msgid "End of Last Month"
+msgstr "Koniec poprzedniego miesiąca"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template_pl_vat_date_filter
+msgid "End of Last Quarter"
+msgstr "Koniec poprzedniego kwartału"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/jpk_report.py:0
+#, python-format
+msgid "Export (XLSX)"
+msgstr "Eksport (XLSX)"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "Export PDF"
+msgstr "Eksportuj PDF"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/jpk_vat7m_report.py:0
+#, python-format
+msgid "Export XLSX - Extract"
+msgstr "Eksportuj XLSX - Ekstrakt"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/jpk_vat7m_report.py:0
+#, python-format
+msgid "Export XLSX - Report"
+msgstr "Eksportuj XLSX - Raport"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/jpk_report.py:0
+#: code:addons/trilab_jpk_vat/models/jpk_vat7m_report.py:0
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_ue_view_form
+#, python-format
+msgid "Export XML"
+msgstr "Eksportuj XML"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/jpk_vat7m_report.py:0
+#, python-format
+msgid "Export XML (VAT UE)"
+msgstr "Eksportuj XML (VAT UE)"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/jpk_report.py:0
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_ue_view_form
+#, python-format
+msgid "Export XML and send"
+msgstr "Eksportuj XML i wyślij"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "Fiscal Position"
+msgstr "Obszar podatkowy"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template_pl_vat_date_filter
+msgid "From:"
+msgstr "Od:"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields.selection,name:trilab_jpk_vat.selection__jpk_vat_ue_group__group__group1
+msgid "Group 1"
+msgstr "Grupa 1"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields.selection,name:trilab_jpk_vat.selection__jpk_vat_ue_group__group__group2
+msgid "Group 2"
+msgstr "Grupa 2"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields.selection,name:trilab_jpk_vat.selection__jpk_vat_ue_group__group__group3
+msgid "Group 3"
+msgstr "Grupa 3"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields.selection,name:trilab_jpk_vat.selection__jpk_vat_ue_group__group__group4
+msgid "Group 4"
+msgstr "Grupa 4"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__group_line_ids
+msgid "Group Lines"
+msgstr "Linie grup"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__group1_line_ids
+msgid "Group1 Lines"
+msgstr "Linie Grupy1"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__group2_line_ids
+msgid "Group2 Lines"
+msgstr "Linie Grupy2"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__group3_line_ids
+msgid "Group3 Lines"
+msgstr "Linie Grupy3"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__group4_line_ids
+msgid "Group4 Lines"
+msgstr "Linie Grupy4"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__id
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__id
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue_group__id
+msgid "ID"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "Import towarów rozliczany zgodnie z art. 33a ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Import usług nabywanych od podatników podatku od wartości dodanej, do których\n"
+"                                        stosuje się art. 28b ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Import usług, z wyłączeniem usług nabywanych od podatników podatku od wartości\n"
+"                                        dodanej, do których stosuje się art. 28b ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "Invoice Date"
+msgstr "Data faktury"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "Invoice Report"
+msgstr "Raport faktury"
+
+#. module: trilab_jpk_vat
+#: model:ir.actions.server,name:trilab_jpk_vat.x_action_invoice_report_xlsx
+msgid "Invoice Report (XLSX)"
+msgstr "Raport faktury (XLSX)"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__is_jpk_transfer_installed
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__is_jpk_transfer_installed
+msgid "Is Jpk Transfer Installed"
+msgstr "Czy jest zainstalowany JPK Transfer"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.account_tag_view_form_jpk
+msgid "JPK"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue_group__group
+msgid "JPK UE Group"
+msgstr "Grupa JPK UE"
+
+#. module: trilab_jpk_vat
+#: model:ir.model,name:trilab_jpk_vat.model_jpk_vat_7m
+msgid "JPK V7M/V7K"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.actions.client,name:trilab_jpk_vat.action_account_report_jpk_vat
+msgid "JPK VAT"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "JPK VAT 7M"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model,name:trilab_jpk_vat.model_account_report_jpk_vat7m_v2
+msgid "JPK VAT 7M 1.0E Report"
+msgstr "Raport JPK VAT 7M 1.0E"
+
+#. module: trilab_jpk_vat
+#: model:ir.model,name:trilab_jpk_vat.model_account_report_jpk_vat7m
+msgid "JPK VAT 7M Report"
+msgstr "Raport JPK VAT 7M"
+
+#. module: trilab_jpk_vat
+#: model:ir.model,name:trilab_jpk_vat.model_account_report_jpk_vat
+msgid "JPK VAT Report"
+msgstr "Raport JPK VAT"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "JPK VAT V7M"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.actions.client,name:trilab_jpk_vat.action_account_report_jpk_vat7m
+#: model:ir.actions.report,name:trilab_jpk_vat.report_jpk_vat_7m_pdf
+msgid "JPK VAT7M"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.actions.client,name:trilab_jpk_vat.action_account_report_jpk_vat7m_v2
+msgid "JPK VAT7M 1.0E"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__version
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__version
+msgid "JPK Version"
+msgstr "Wersja JPK"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/jpk_report.py:0
+#: code:addons/trilab_jpk_vat/models/jpk_vat7m_report.py:0
+#, python-format
+msgid "Jednolity Plik Kontrolny - VAT"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model,name:trilab_jpk_vat.model_account_move
+msgid "Journal Entry"
+msgstr "Zapis dziennika"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_account_account_tag__jpk_document_type
+msgid "Jpk Document Type"
+msgstr "Typ dokumentu JPK"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_account_account_tag__jpk_markup
+msgid "Jpk Markup"
+msgstr "Oznaczenie JPK"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_account_account_tag__jpk_section
+msgid "Jpk Section"
+msgstr "Sekcja JPK"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_account_account_tag__jpk_v7_group
+msgid "Jpk V7 Group"
+msgstr "Grupa JPK v7"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_ue_view_form
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template
+msgid "Korekta"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_47
+msgid "Korekta podatku naliczonego od nabycia środków trwałych"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_48
+msgid "Korekta podatku naliczonego od pozostałych nabyć"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_49
+msgid "Korekta podatku naliczonego, o której mowa w art. 89b ust. 1 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_50
+msgid "Korekta podatku naliczonego, o której mowa w art. 89b ust. 4 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_42
+msgid "Kwota nadwyżki z poprzedniej deklaracji"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_53
+msgid "Kwota podatku objęta zaniechaniem poboru"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_54
+msgid "Kwota podatku podlegającego wpłacie do urzędu skarbowego"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "Kwota wydana na zakup kas rejestrujących"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Kwota wydana na zakup kas rejestrujących, do odliczenia w danym okresie\n"
+"                                        rozliczeniowym pomniejszająca wysokość podatku należnego"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_49
+msgid ""
+"Kwota wydana na zakup kas rejestrujących, do odliczenia w danym okresie "
+"rozliczeniowym pomniejszająca wysokość podatku należnego (pole opcjonalne). "
+"W przypadku wystąpienia nadwyżki podatku należnego nad naliczonym - w P_49 "
+"podaje się wysokość ulgi na zakup kas rejestrujących, w części "
+"przysługującej do odliczenia w danym okresie rozliczeniowym, do wysokości "
+"tej nadwyżki."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_52
+msgid ""
+"Kwota wydana na zakup kas rejestrujących, do odliczenia w danym okresie "
+"rozliczeniowym przysługująca do zwrotu w danym okresie rozliczeniowym lub "
+"powiększająca wysokość podatku naliczonego do przeniesienia na następny "
+"okres rozliczeniowy. W przypadku gdy wysokość podatku naliczonego jest "
+"większa lub równa wysokości podatku należnego w danym okresie rozliczeniowym"
+" lub wysokość ulgi na zakup kas rejestrujących jest większa od wysokości "
+"nadwyżki podatku należnego nad naliczonym – w P_52 podaje się pozostałą "
+"nieodliczoną w P_49 wysokość ulgi na zakup kas rejestrujących, przysługującą"
+" podatnikowi do zwrotu lub do odliczenia od podatku należnego za następne "
+"okresy rozliczeniowe."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_52
+msgid ""
+"Kwota wydatkowana na zakup kas rejestrujących, do odliczenia w danym okresie\n"
+"      rozliczeniowym\n"
+"    "
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_55
+msgid ""
+"Kwota wydatkowana na zakup kas rejestrujących, przysługująca do zwrotu w danym okresie\n"
+"      rozliczeniowym\n"
+"    "
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template_pl_vat_date_filter
+msgid "Last Financial Year"
+msgstr "Koniec roku fiskalnego"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m____last_update
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue____last_update
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue_group____last_update
+msgid "Last Modified on"
+msgstr "Data ostatniej modyfikacji"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template_pl_vat_date_filter
+msgid "Last Month"
+msgstr "Poprzedni miesiąc"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template_pl_vat_date_filter
+msgid "Last Quarter"
+msgstr "Poprzedni kwartał"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__write_uid
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__write_uid
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue_group__write_uid
+msgid "Last Updated by"
+msgstr "Aktualizował"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__write_date
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__write_date
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue_group__write_date
+msgid "Last Updated on"
+msgstr "Data aktualizacji"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/jpk_vat7m_report.py:0
+#, python-format
+msgid "Load more... "
+msgstr "Pokaż więcej... "
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/jpk_report.py:0
+#: code:addons/trilab_jpk_vat/models/jpk_vat7m_report.py:0
+#: code:addons/trilab_jpk_vat/models/jpk_vat7m_v2_report.py:0
+#: code:addons/trilab_jpk_vat/models/vat_ue_report.py:0
+#, python-format
+msgid "Make sure that Company's VAT number is correct"
+msgstr "Upewnij się, że NIP firmy jest poprawny"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__month
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__month
+msgid "Month"
+msgstr "Miesiąc"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue_group__nip
+#, python-format
+msgid "NIP"
+msgstr "Numer Identyfikacyjny VAT kontrahenta"
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_45
+msgid "Nabycie towarów i usług pozostałych"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_43
+msgid "Nabycie towarów i usług zaliczanych u podatnika do środków trwałych"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_56
+msgid "Nadwyżka podatku naliczonego nad należnym"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template
+msgid "Nowa Deklaracja"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "Number"
+msgstr "Numer"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "Origin"
+msgstr "Pochodzenie"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_55_58
+msgid "P 55 58"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/jpk_vat7m_report.py:0
+#: code:addons/trilab_jpk_vat/models/jpk_vat7m_v2_report.py:0
+#: code:addons/trilab_jpk_vat/models/vat_ue_report.py:0
+#, python-format
+msgid "PL Tax Office is not set for company %s"
+msgstr "Numer urzędu skarbowego nie jest ustawiony dla firmy %s"
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report,name:trilab_jpk_vat.trilab_VAT7_19
+#: model:ir.actions.client,name:trilab_jpk_vat.account_financial_html_report_action_7
+#: model:ir.ui.menu,name:trilab_jpk_vat.account_financial_html_report_menu_7
+msgid "PL VAT 7"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_10
+msgid "P_10"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_11
+msgid "P_11"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_12
+msgid "P_12"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_13
+msgid "P_13"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_14
+msgid "P_14"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_15
+msgid "P_15"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_16
+msgid "P_16"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_17
+msgid "P_17"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_18
+msgid "P_18"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_19
+msgid "P_19"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_20
+msgid "P_20"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_21
+msgid "P_21"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_22
+msgid "P_22"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_23
+msgid "P_23"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_24
+msgid "P_24"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_25
+msgid "P_25"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_26
+msgid "P_26"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_27
+msgid "P_27"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_28
+msgid "P_28"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_29
+msgid "P_29"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_30
+msgid "P_30"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_31
+msgid "P_31"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_32
+msgid "P_32"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_33
+msgid "P_33"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_34
+msgid "P_34"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_35
+msgid "P_35"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_36
+msgid "P_36"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_37
+msgid "P_37"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_38
+msgid "P_38"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_39
+msgid "P_39"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_40
+msgid "P_40"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_41
+msgid "P_41"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_42
+msgid "P_42"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_43
+msgid "P_43"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_44
+msgid "P_44"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_45
+msgid "P_45"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_46
+msgid "P_46"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_47
+msgid "P_47"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_48
+msgid "P_48"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_49
+msgid "P_49"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_50
+msgid "P_50"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_51
+msgid "P_51"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_52
+msgid "P_52"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_53
+msgid "P_53"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_54
+msgid "P_54"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_540
+msgid "P_540"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_560
+msgid "P_560"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_59
+msgid "P_59"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_60
+msgid "P_60"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_61
+msgid "P_61"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_62
+msgid "P_62"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_63
+msgid "P_63"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_64
+msgid "P_64"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_65
+msgid "P_65"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_66
+msgid "P_66"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_660
+msgid "P_660"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_67
+msgid "P_67"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_68
+msgid "P_68"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_69
+msgid "P_69"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_ordzu
+msgid "P_ORDZU"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "Partner ID"
+msgstr "ID Klienta"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "Partner Name"
+msgstr "Nazwa kontrahenta"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/jpk_vat7m_v2_report.py:0
+#, python-format
+msgid "Please set company email"
+msgstr "Adres email firmy nie jest ustawiony"
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_15_v
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_17_v
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_19_v
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_23_v
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_25_v
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_27_v
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_29_v
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_32_v
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_34_v
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_36_v
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_37_v
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_38_v
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_39_v
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_40_41_v
+msgid "Podatek należny w zł"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_43_v
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_45_v
+msgid "Podatek naliczony w zł"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Podatnik korzysta z obniżenia zobowiązania podatkowego, o którym mowa w art.\n"
+"                                        108d ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_67
+msgid ""
+"Podatnik korzysta z obniżenia zobowiązania podatkowego, o którym mowa w art."
+" 108d ustawy. Podaje się „1” - w przypadku gdy podatnik korzystał z "
+"obniżenia zobowiązania podatkowego, jeżeli zapłaty zobowiązania podatkowego "
+"dokonuje w całości z rachunku VAT w terminie wcześniejszym niż termin "
+"zapłaty podatku."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_660
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"Podatnik ułatwiał w okresie rozliczeniowym dokonanie czynności, o których "
+"mowa w art. 109b ust. 4 ustawy."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Podatnik wykonywał w okresie rozliczeniowym czynności, o których mowa w art. 119\n"
+"                                        ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_63
+msgid ""
+"Podatnik wykonywał w okresie rozliczeniowym czynności, o których mowa w art."
+" 119 ustawy. Podaje się „1” w przypadku świadczenia usług turystyki "
+"opodatkowanych na zasadach marży."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Podatnik wykonywał w okresie rozliczeniowym czynności, o których mowa w art. 120\n"
+"                                        ust. 4 lub 5 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_64
+msgid ""
+"Podatnik wykonywał w okresie rozliczeniowym czynności, o których mowa w art."
+" 120 ust. 4 lub 5 ustawy. Podaje się „1” w przypadku dostawy towarów "
+"używanych, dzieł sztuki, przedmiotów kolekcjonerskich lub antyków nabytych "
+"uprzednio przez podatnika w ramach prowadzonej działalności gospodarczej, w "
+"celu odprzedaży, opodatkowanych na zasadach marży."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Podatnik wykonywał w okresie rozliczeniowym czynności, o których mowa w art. 122\n"
+"                                        ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_65
+msgid ""
+"Podatnik wykonywał w okresie rozliczeniowym czynności, o których mowa w art."
+" 122 ustawy. Podaje się „1” w przypadku wykonywania czynności polegających "
+"na dostawie, wewnątrzwspólnotowym nabyciu lub imporcie złota inwestycyjnego,"
+" zwolnionych od podatku zgodnie zart.122 ust. 1 ustawy, lub gdy podatnik, "
+"będąc agentem działającym w imieniu i na rzecz innych osób, pośredniczył w "
+"dostawie takiego złota dla swojego zleceniodawcy, zgodnie z art. 122 ust. 2 "
+"ustawy."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Podatnik wykonywał w okresie rozliczeniowym czynności, o których mowa w art. 136\n"
+"                                        ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_66
+msgid ""
+"Podatnik wykonywał w okresie rozliczeniowym czynności, o których mowa w art."
+" 136 ustawy. Podaje się „1” - w przypadku gdy podatnik, będąc drugim w "
+"kolejności podatnikiem VAT, dokonał transakcji trójstronnej w procedurze "
+"uproszczonej."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_10_b
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_11_b
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_12_b
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_13_b
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_14_b
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_15_b
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_17_b
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_19_b
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_21_b
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_22_b
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_23_b
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_25_b
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_27_b
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_29_b
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_31_b
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_32_b
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_34_b
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_40_41_b
+msgid "Podstawa opodatkowania w zł"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "Przyczyna złożenia korekty"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_51
+msgid "Razem kwota podatku naliczonego do odliczenia"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "Razem podatek należny"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_40_41
+msgid "Razem: (Poz. 40, 41)"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue_group__vat_ue_id
+msgid "Report"
+msgstr "Raport"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "Rodzaj przyszłego zobowiązania podatkowego"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_61
+msgid ""
+"Rodzaj przyszłego zobowiązania podatkowego. Podaje się rodzaj przyszłego "
+"zobowiązania podatkowego, na poczet którego zalicza się zwrot podatku."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "Rozliczenie podatku należnego"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "Rozliczenie podatku naliczonego"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "Sale Date"
+msgstr "Data sprzedaży"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "Salesperson"
+msgstr "Sprzedawca"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__source_xml
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__source_xml
+msgid "Source Xml"
+msgstr "Źródłowy XML"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template_pl_vat_date_filter
+msgid "Start Date:"
+msgstr "Data początku:"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "State"
+msgstr "Status"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template_pl_vat_date_filter
+msgid "This Financial Year"
+msgstr "Ten rok finansowy"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template_pl_vat_date_filter
+msgid "This Month"
+msgstr "Ten miesiąc"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template_pl_vat_date_filter
+msgid "This Quarter"
+msgstr "Ten kwartał"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template_pl_vat_date_filter
+msgid "Today"
+msgstr "Dzisiaj"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "Total Gross in Currency"
+msgstr "Wartość brutto w walucie"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "Total Gross in PLN"
+msgstr "Wartość brutto w PLN"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "Total Net in PLN"
+msgstr "Wartość netto w PLN"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue_group__tt
+msgid "Trilateral Transaction"
+msgstr "Transakcja trójstronne"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_ordzu
+msgid "Uzasadnienie przyczyn złożenia korekty (pole fakultatywne)."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.ui.menu,name:trilab_jpk_vat.menu_action_account_report_jpk_vat
+#: model:ir.ui.menu,name:trilab_jpk_vat.menu_action_account_report_jpk_vat_t
+msgid "VAT"
+msgstr "NIP"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template_pl_vat_date_filter
+msgid "VAT Date:"
+msgstr "Data VAT:"
+
+#. module: trilab_jpk_vat
+#: model:ir.actions.report,name:trilab_jpk_vat.report_vat_ue_pdf
+#: model:ir.model,name:trilab_jpk_vat.model_jpk_vat_ue
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_ue_view_form
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_vat_ue
+msgid "VAT UE"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model,name:trilab_jpk_vat.model_jpk_vat_ue_group
+msgid "VAT UE Group"
+msgstr "Sekcja VAT UE"
+
+#. module: trilab_jpk_vat
+#: model:ir.model,name:trilab_jpk_vat.model_account_report_vat_ue
+msgid "VAT UE Report"
+msgstr "Raport VAT UE"
+
+#. module: trilab_jpk_vat
+#: model:ir.ui.menu,name:trilab_jpk_vat.menu_action_account_report_jpk_vat7m
+#: model:ir.ui.menu,name:trilab_jpk_vat.menu_action_account_report_jpk_vat7m_t
+msgid "VAT7M"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.ui.menu,name:trilab_jpk_vat.menu_action_account_report_jpk_vat7m_v2
+#: model:ir.ui.menu,name:trilab_jpk_vat.menu_action_account_report_jpk_vat7m_v2_t
+msgid "VAT7M 1.0E"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "Vat Date"
+msgstr "Data VAT"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "W tym świadczenie usług, o których mowa w art. 100 ust. 1 pkt 4 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_43_b
+#: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_45_b
+msgid "Wartość netto w zł"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "Wartość netto z tytułu nabycia pozostałych towarów i usług"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Wartość netto z tytułu nabycia towarów i usług zaliczanych upodatnika do środków\n"
+"                                        trwałych"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "Wewnątrzwspólnotowa dostawa towarów"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "Wewnątrzwspólnotowe nabycie towarów"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Wysokość korekty podatku należnego, o której mowa w art. 89a ust. 1 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Wysokość korekty podstawy opodatkowania, o której mowa w art. 89a ust. 1 "
+"ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "Wysokość nadwyżki podatku naliczonego nad należnym"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Wysokość nadwyżki podatku naliczonego nad należnym do przeniesienia na następny\n"
+"                                        okres rozliczeniowy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_62
+msgid ""
+"Wysokość nadwyżki podatku naliczonego nad należnym do przeniesienia na "
+"następny okres rozliczeniowy."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "Wysokość nadwyżki podatku naliczonego nad należnym do zwrotu"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_54
+msgid ""
+"Wysokość nadwyżki podatku naliczonego nad należnym do zwrotu na rachunek "
+"wskazany przez podatnika. Podaje się wysokość różnicy podatku podlegającą "
+"zwrotowi na rachunek bankowy podatnika oraz do zaliczenia na poczet "
+"przyszłych zobowiązań podatkowych."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Wysokość nadwyżki podatku naliczonego nad należnym z poprzedniej deklaracji"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_39
+msgid ""
+"Wysokość nadwyżki podatku naliczonego nad należnym z poprzedniej deklaracji "
+"(pole opcjonalne). Wykazuje się kwotę z P_62 z poprzedniej deklaracji lub "
+"kwotę wynikającą z decyzji."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_53
+msgid ""
+"Wysokość nadwyżki podatku naliczonego nad należnym. Podaje się również "
+"podatek naliczony, który w związku z brakiem czynności opodatkowanych "
+"podlega przeniesieniu na następny okres rozliczeniowy lub zwrotowi. W tym "
+"polu podaje się także wysokość ulgi na zakup kas rejestrujących nieodliczoną"
+" od podatku należnego w danym okresie rozliczeniowym."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Wysokość podatku należnego od towarów objętych spisem z natury, o którym mowa w\n"
+"                                        art. 14 ust. 5 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Wysokość podatku należnego od wewnątrzwspólnotowego nabycia towarów, o których\n"
+"                                        mowa w art. 103 ust. 5aa ustawy, podlegająca wpłacie w terminach, o których mowa\n"
+"                                        w art. 103 ust. 5a i 5b ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Wysokość podatku należnego od wewnątrzwspólnotowego nabycia środków transportu,\n"
+"                                        wykazana w wysokości podatku należnego z tytułu określonego w P_24, podlegająca\n"
+"                                        wpłacie w terminie, o którym mowa w art. 103 ust. 3, w związku z ust. 4 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Wysokość podatku naliczonego z tytułu korekty podatku naliczonego od nabycia\n"
+"                                        pozostałych towarów i usług"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Wysokość podatku naliczonego z tytułu korekty podatku naliczonego od nabycia\n"
+"                                        towarów i usług zaliczanych u podatnika do środków trwałych"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "Wysokość podatku objęta zaniechaniem poboru"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_50
+msgid ""
+"Wysokość podatku objęta zaniechaniem poboru. Podaje się wysokość podatku "
+"objętą zaniechaniem poboru na podstawie art. 22 ustawy z dnia 29 sierpnia "
+"1997 r. – Ordynacja podatkowa (Dz. U. z 2019 r. poz. 900, z późn. zm.), do "
+"wysokości nadwyżki podatku należnego nad naliczonym pomniejszonej o wysokość"
+" ulgi na zakup kas rejestrujących, do odliczenia w danym okresie "
+"rozliczeniowym."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_51
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "Wysokość podatku podlegająca wpłacie do urzędu skarbowego"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Wysokość zwrotu do zaliczenia na poczet przyszłych zobowiązań podatkowych"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_60
+msgid ""
+"Wysokość zwrotu do zaliczenia na poczet przyszłych zobowiązań podatkowych. "
+"Podaje się wysokość zwrotu podatku do zaliczenia na poczet przyszłych "
+"zobowiązań podatkowych."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"Wysokość zwrotu odliczonej lub zwróconej kwoty wydanej na zakup kas\n"
+"                                        rejestrujących, o którym mowa w art. 111 ust. 6 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__year
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__year
+msgid "Year"
+msgstr "Rok"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "Zaliczenie zwrotu podatku na poczet przyszłych zobowiązań podatkowych"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_59
+msgid ""
+"Zaliczenie zwrotu podatku na poczet przyszłych zobowiązań podatkowych. "
+"Podaje się „1” w przypadku wnioskowania przez podatnika o zaliczenie zwrotu "
+"podatku na poczet przyszłych zobowiązań podatkowych, zgodnie z art. 76 § 1 i"
+" art. 76b § 1 ustawy z dnia 29 sierpnia 1997 r. - Ordynacja podatkowa (Dz. "
+"U. z 2019 r. poz. 900, z późn. zm.)."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_42
+msgid ""
+"Zbiorcza wartość netto z tytułu nabycia pozostałych towarów i usług – "
+"wykazana w K_42"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_40
+msgid ""
+"Zbiorcza wartość netto z tytułu nabycia towarów i usług zaliczanych "
+"upodatnika do środków trwałych – wykazana w K_40"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_69
+msgid ""
+"Zbiorcza wysokość korekty podatku należnego, o której mowa w art. 89a ust. 1"
+" ustawy. Podaje się wysokość korekty podatku należnego, o której mowa w art."
+" 89a ust. 1 ustawy, która została uwzględniona w pozycjach: K_16, K_18 i "
+"K_20."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_68
+msgid ""
+"Zbiorcza wysokość korekty podstawy opodatkowania, o której mowa w art. 89a "
+"ust. 1 ustawy. Podaje się wysokość korekty podstawy opodatkowania, o której "
+"mowa w art. 89a ust. 1 ustawy, która została uwzględniona w pozycjach: K_15,"
+" K_17 i K_19."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_33
+msgid ""
+"Zbiorcza wysokość podatku należnego od towarów objętych spisem z natury, o "
+"którym mowa w art. 14 ust. 5 ustawy – wykazana w K_33"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_36
+msgid ""
+"Zbiorcza wysokość podatku należnego od wewnątrzwspólnotowego nabycia "
+"towarów, o których mowa w art. 103 ust. 5aa ustawy, podlegająca wpłacie w "
+"terminach, o których mowa w art. 103 ust. 5a i 5b ustawy – wykazana w K_36"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_35
+msgid ""
+"Zbiorcza wysokość podatku należnego od wewnątrzwspólnotowego nabycia środków"
+" transportu, wykazana w wysokości podatku należnego z tytułu określonego w "
+"P_24, podlegająca wpłacie w terminie, o którym mowa w art. 103 ust. 3, w "
+"związku z ust. 4 ustawy – wykazana w K_35"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_20
+msgid ""
+"Zbiorcza wysokość podatku należnego z tytułu dostawy towarów oraz "
+"świadczenia usług na terytorium kraju, opodatkowanych stawką 22% albo 23%, "
+"oraz korekty dokonanej zgodnie z art. 89a ust. 1 i 4 ustawy – wykazana w "
+"K_20"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_16
+msgid ""
+"Zbiorcza wysokość podatku należnego z tytułu dostawy towarów oraz "
+"świadczenia usług na terytorium kraju, opodatkowanych stawką 5%, oraz "
+"korekty dokonanej zgodnie z art. 89a ust. 1 i 4 ustawy – wykazana w K_16"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_18
+msgid ""
+"Zbiorcza wysokość podatku należnego z tytułu dostawy towarów oraz "
+"świadczenia usług na terytorium kraju, opodatkowanych stawką 7% albo 8%, "
+"oraz korekty dokonanej zgodnie z art. 89a ust. 1 i 4 ustawy – wykazana w "
+"K_18"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_32
+msgid ""
+"Zbiorcza wysokość podatku należnego z tytułu dostawy towarów, dla których "
+"podatnikiem jest nabywca zgodnie z art. 17 ust. 1 pkt 5 ustawy – wykazana w "
+"K_32"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_26
+msgid ""
+"Zbiorcza wysokość podatku należnego z tytułu importu towarów rozliczanego "
+"zgodnie z art. 33a ustawy – wykazana w K_26"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_30
+msgid ""
+"Zbiorcza wysokość podatku należnego z tytułu importu usług nabywanych od "
+"podatników podatku od wartości dodanej, do których stosuje się art. 28b "
+"ustawy – wykazana w K_30"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_28
+msgid ""
+"Zbiorcza wysokość podatku należnego z tytułu importu usług, zwyłączeniem "
+"usług nabywanych od podatników podatku od wartości dodanej, do których "
+"stosuje się art. 28b ustawy – wykazana w K_28"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_24
+msgid ""
+"Zbiorcza wysokość podatku należnego z tytułu wewnątrzwspólnotowego nabycia "
+"towarów – wykazana w K_24"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_45
+msgid ""
+"Zbiorcza wysokość podatku naliczonego z tytułu korekty podatku naliczonego "
+"od nabycia pozostałych towarów i usług – wykazana w K_45"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_44
+msgid ""
+"Zbiorcza wysokość podatku naliczonego z tytułu korekty podatku naliczonego "
+"od nabycia towarów i usług zaliczanych u podatnika do środków trwałych – "
+"wykazana w K_44"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_46
+msgid ""
+"Zbiorcza wysokość podatku naliczonego z tytułu korekty podatku naliczonego, "
+"o której mowa w art. 89b ust. 1 ustawy – wykazana w K_46"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_47
+msgid ""
+"Zbiorcza wysokość podatku naliczonego z tytułu korekty podatku naliczonego, "
+"o której mowa w art. 89b ust. 4 ustawy – wykazana w K_47"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_43
+msgid ""
+"Zbiorcza wysokość podatku naliczonego z tytułu nabycia pozostałych towarów i"
+" usług – wykazana w K_43"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_41
+msgid ""
+"Zbiorcza wysokość podatku naliczonego z tytułu nabycia towarów i usług "
+"zaliczanych u podatnika do środków trwałych – wykazana w K_41"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_13
+msgid ""
+"Zbiorcza wysokość podstawy opodatkowania z tytułu dostawy towarów oraz "
+"świadczenia usług na terytorium kraju, opodatkowanych stawką 0% – wykazana w"
+" K_13"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_19
+msgid ""
+"Zbiorcza wysokość podstawy opodatkowania z tytułu dostawy towarów oraz "
+"świadczenia usług na terytorium kraju, opodatkowanych stawką 22% albo 23%, "
+"oraz korekty dokonanej zgodnie z art. 89a ust. 1 i 4 ustawy – wykazana w "
+"K_19"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_15
+msgid ""
+"Zbiorcza wysokość podstawy opodatkowania z tytułu dostawy towarów oraz "
+"świadczenia usług na terytorium kraju, opodatkowanych stawką 5%, oraz "
+"korekty dokonanej zgodnie z art. 89a ust. 1 i 4 ustawy – wykazana w K_15"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_17
+msgid ""
+"Zbiorcza wysokość podstawy opodatkowania z tytułu dostawy towarów oraz "
+"świadczenia usług na terytorium kraju, opodatkowanych stawką 7% albo 8%, "
+"oraz korekty dokonanej zgodnie z art. 89a ust. 1 i 4 ustawy – wykazana w "
+"K_17"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_10
+msgid ""
+"Zbiorcza wysokość podstawy opodatkowania z tytułu dostawy towarów oraz "
+"świadczenia usług na terytorium kraju, zwolnionych od podatku – wykazana w "
+"K_10"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_11
+msgid ""
+"Zbiorcza wysokość podstawy opodatkowania z tytułu dostawy towarów oraz "
+"świadczenia usług poza terytorium kraju – wykazana w K_11"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_31
+msgid ""
+"Zbiorcza wysokość podstawy opodatkowania z tytułu dostawy towarów, dla "
+"których podatnikiem jest nabywca zgodnie z art. 17 ust. 1 pkt 5 ustawy – "
+"wykazana w K_31"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_14
+msgid ""
+"Zbiorcza wysokość podstawy opodatkowania z tytułu dostawy towarów, o której "
+"mowa w art. 129 ustawy – wykazana w K_14"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_22
+msgid ""
+"Zbiorcza wysokość podstawy opodatkowania z tytułu eksportu towarów – "
+"wykazana w K_22"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_25
+msgid ""
+"Zbiorcza wysokość podstawy opodatkowania z tytułu importu towarów "
+"rozliczanego zgodnie z art. 33a ustawy – wykazana w K_25"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_29
+msgid ""
+"Zbiorcza wysokość podstawy opodatkowania z tytułu importu usług nabywanych "
+"od podatników podatku od wartości dodanej, do których stosuje się art. 28b "
+"ustawy – wykazana w K_29"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_27
+msgid ""
+"Zbiorcza wysokość podstawy opodatkowania z tytułu importu usług, "
+"zwyłączeniem usług nabywanych od podatników podatku od wartości dodanej, do "
+"których stosuje się art. 28b ustawy – wykazana w K_27"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_23
+msgid ""
+"Zbiorcza wysokość podstawy opodatkowania z tytułu wewnątrzwspólnotowego "
+"nabycia towarów – wykazana w K_23"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_21
+msgid ""
+"Zbiorcza wysokość podstawy opodatkowania z tytułu wewnątrzwspólnotowej "
+"dostawy towarów – wykazana w K_21"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_12
+msgid ""
+"Zbiorcza wysokość podstawy opodatkowania z tytułu świadczenia usług, o "
+"których mowa w art. 100 ust. 1 pkt 4 ustawy – wykazana w K_12"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_34
+msgid ""
+"Zbiorcza wysokość zwrotu odliczonej lub zwróconej kwoty wydanej na zakup kas"
+" rejestrujących, o którym mowa w art. 111 ust. 6 ustawy – wykazana w K_34"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields.selection,name:trilab_jpk_vat.selection__jpk_vat_7m__p_55_58__p_55
+msgid "Zwrot na rachunek VAT, o którym mowa w art. 87 ust. 6a ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "Zwrot na rachunek rozliczeniowy podatnika w terminie 15 dni"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_540
+msgid "Zwrot na rachunek rozliczeniowy podatnika w terminie 15 dni."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "Zwrot na rachunek rozliczeniowy podatnika w terminie 40 dni"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_560
+msgid "Zwrot na rachunek rozliczeniowy podatnika w terminie 40 dni."
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields.selection,name:trilab_jpk_vat.selection__jpk_vat_7m__p_55_58__p_58
+msgid ""
+"Zwrot w terminie 180 dni od dnia złożenia rozliczenia (art. 87 ust. 5a "
+"zdanie pierwsze ustawy)"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields.selection,name:trilab_jpk_vat.selection__jpk_vat_7m__p_55_58__p_56
+msgid ""
+"Zwrot w terminie 25 dni od dnia złożenia rozliczenia (art. 87 ust. 6 ustawy)"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields.selection,name:trilab_jpk_vat.selection__jpk_vat_7m__p_55_58__p_57
+msgid ""
+"Zwrot w terminie 60 dni od dnia złożenia rozliczenia (art. 87 ust. 2 ustawy)"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "deklaracja zwrotu"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"dostawa towarów oraz świadczenia usług na terytorium kraju, opodatkowanych "
+"stawką 0%"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"dostawa towarów oraz świadczenia usług na terytorium kraju, opodatkowanych "
+"stawką 22% albo 23%"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"dostawa towarów oraz świadczenia usług na terytorium kraju, opodatkowanych "
+"stawką 5%"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"dostawa towarów oraz świadczenia usług na terytorium kraju, opodatkowanych "
+"stawką 7% albo 8%"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"dostawa towarów oraz świadczenia usług na terytorium kraju, zwolnione od "
+"podatku"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "dostawa towarów oraz świadczenia usług poza terytorium kraju"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"dostawy towarów, dla których podatnikiem jest nabywca zgodnie z art. 17 ust."
+" 1 pkt 5 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "eksport towarów"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "import towarów rozliczany zgodnie z art. 33a ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"import usług nabywanych od podatników podatku od wartości dodanej, do "
+"których stosuje się art. 28b ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"import usług, zwyłączeniem usług nabywanych od podatników podatku od "
+"wartości dodanej, do których stosuje się art. 28b ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/account_move.py:0
+#, python-format
+msgid "invoices-report-%s"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "kwota wydana na zakup kas rejestrujących"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"kwota wydana na zakup kas rejestrujących, do odliczenia w danym okresie "
+"rozliczeniowym pomniejszająca wysokość podatku należnego"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"podatnik korzysta z obniżenia zobowiązania podatkowego, o którym mowa w art."
+" 108d ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"podatnik wykonywał w okresie rozliczeniowym czynności, o których mowa w art."
+" 119 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"podatnik wykonywał w okresie rozliczeniowym czynności, o których mowa w art."
+" 120 ust. 4 lub 5 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"podatnik wykonywał w okresie rozliczeniowym czynności, o których mowa w art."
+" 122 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"podatnik wykonywał w okresie rozliczeniowym czynności, o których mowa w art."
+" 136 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "razem podatek należny"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "rodzaj przyszłego zobowiązania podatkowego"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template_pl_vat_date_filter
+msgid "to:"
+msgstr "do:"
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "w tym dostawa towarów, o których mowa w art. 129 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "w tym świadczenie usług, o których mowa w art. 100 ust. 1 pkt 4 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "wartość netto z tytułu nabycia pozostałych towarów i usług"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"wartość netto z tytułu nabycia towarów i usług zaliczanych upodatnika do "
+"środków trwałych"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "wewnątrzwspólnotowa dostawa towarów"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "wewnątrzwspólnotowe nabycie towarów"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"wysokość korekty podatku należnego, o której mowa w art. 89a ust. 1 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"wysokość korekty podstawy opodatkowania, o której mowa w art. 89a ust. 1 "
+"ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "wysokość nadwyżki podatku naliczonego nad należnym"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"wysokość nadwyżki podatku naliczonego nad należnym do przeniesienia na "
+"następny okres rozliczeniowy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "wysokość nadwyżki podatku naliczonego nad należnym do zwrotu"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"wysokość nadwyżki podatku naliczonego nad należnym z poprzedniej deklaracji"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"wysokość podatku należnego od towarów objętych spisem z natury, o którym "
+"mowa w art. 14 ust. 5 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"wysokość podatku należnego od wewnątrzwspólnotowego nabycia towarów, o "
+"których mowa w art. 103 ust. 5aa ustawy, podlegająca wpłacie w terminach, o "
+"których mowa w art. 103 ust. 5a i 5b ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"wysokość podatku należnego od wewnątrzwspólnotowego nabycia środków "
+"transportu, wykazana w wysokości podatku należnego z tytułu określonego w "
+"P_24, podlegająca wpłacie w terminie, o którym mowa w art. 103 ust. 3, w "
+"związku z ust. 4 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"wysokość podatku naliczonego z tytułu korekty podatku naliczonego od nabycia"
+" pozostałych towarów i usług"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"wysokość podatku naliczonego z tytułu korekty podatku naliczonego od nabycia"
+" towarów i usług zaliczanych u podatnika do środków trwałych"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"wysokość podatku naliczonego z tytułu korekty podatku naliczonego, o której mowa\n"
+"                                        w art. 89b ust. 1 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid ""
+"wysokość podatku naliczonego z tytułu korekty podatku naliczonego, o której mowa\n"
+"                                        w art. 89b ust. 4 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"wysokość podatku naliczonego z tytułu korekty podatku naliczonego, o której "
+"mowa w art. 89b ust. 1 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"wysokość podatku naliczonego z tytułu korekty podatku naliczonego, o której "
+"mowa w art. 89b ust. 4 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "wysokość podatku objęta zaniechaniem poboru"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "wysokość podatku podlegająca wpłacie do urzędu skarbowego"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"wysokość zwrotu do zaliczenia na poczet przyszłych zobowiązań podatkowych"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid ""
+"wysokość zwrotu odliczonej lub zwróconej kwoty wydanej na zakup kas "
+"rejestrujących, o którym mowa w art. 111 ust. 6 ustawy"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "zaliczenie zwrotu podatku na poczet przyszłych zobowiązań podatkowych"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_38
+msgid ""
+"Łączna wysokość podatku należnego. Suma kwot z P_16, P_18, P_20, P_24, P_26,"
+" P_28, P_30, P_32, P_33, P_34 pomniejszona kwotę z P_35 i P_36"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
+msgid "Łączna wysokość podatku naliczonego do odliczenia"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_48
+msgid ""
+"Łączna wysokość podatku naliczonego do odliczenia. Suma kwot z P_39, P_41, "
+"P_43, P_44, P_45, P_46 i P_47"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,help:trilab_jpk_vat.field_jpk_vat_7m__p_37
+msgid ""
+"Łączna wysokość podstawy opodatkowania. Suma kwot z P_10, P_11, P_13, P_15, "
+"P_17, P_19, P_21, P_22, P_23, P_25, P_27, P_29, P_31"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
+msgid "łączna wysokość podatku naliczonego do odliczenia"
+msgstr ""

@@ -1,0 +1,799 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="report_jpk_vat_7m">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <center>
+                            <h2>JPK VAT 7M</h2>
+                        </center>
+                        <table width="100%">
+                            <tr>
+                                <td width="20%">
+                                    <b>Version:</b>
+                                </td>
+                                <td width="80%">
+                                    <span t-field="doc.version"/>
+                                </td>
+                                <td/>
+                                <td/>
+                            </tr>
+                            <tr>
+                                <td width="20%">
+                                    <b>Month:</b>
+                                </td>
+                                <td width="80%">
+                                    <span t-field="doc.month"/>
+                                </td>
+                                <td/>
+                                <td/>
+                            </tr>
+                            <tr>
+                                <td width="20%">
+                                    <b>Year:</b>
+                                </td>
+                                <td width="80%">
+                                    <span t-out="doc.year"/>
+                                </td>
+                            </tr>
+                            <hr/>
+                            <div t-if="cel_zlozenia == 1">
+                                <tr>
+                                    <td width="40%">
+                                        <p style="margin:0;">
+                                            <b>Cel Złożenia:</b>
+                                        </p>
+                                        <p style="margin:0;">
+                                            <b>Część deklaracyjna:</b>
+                                        </p>
+                                        <p style="margin:0;">
+                                            <b>Część ewidencyjna:</b>
+                                        </p>
+                                    </td>
+                                    <td width="60%">
+                                        <p style="margin:0;">Korekta</p>
+                                        <p style="margin:0;">
+                                            <input t-if="doc.czesc_deklaracyjna" type="checkbox" class="checkbox"
+                                                   checked="True"/>
+                                            <input t-else="" type="checkbox" class="checkbox"/>
+                                        </p>
+                                        <p style="margin:0;">
+                                            <input t-if="doc.czesc_ewidencyjna" type="checkbox" class="checkbox"
+                                                   checked="True"/>
+                                            <input t-else="" type="checkbox" class="checkbox"/>
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="30%">
+                                        <p>Przyczyna złożenia korekty</p>
+                                    </td>
+                                    <td width="70%">
+                                        <span t-if="doc.p_ordzu">
+                                            <span t-field="doc.p_ordzu"/>
+                                        </span>
+                                        <span t-else="">
+                                            -
+                                        </span>
+                                    </td>
+                                </tr>
+                            </div>
+                        </table>
+                        <div style="padding-top:20px;"/>
+                        <center width="100%">
+                            <h3>Rozliczenie podatku należnego</h3>
+                        </center>
+                        <table width="100%">
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Dostawa towarów oraz świadczenia usług na terytorium kraju, zwolnione od podatku
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">10.</span>
+                                        <span t-field="doc.p_10" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="mb-0 font-weight-bold">
+                                        Dostawa towarów oraz świadczenia usług poza terytorium kraju
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <p class="pl-4">
+                                        <span class="text-muted">11.</span>
+                                        <span t-field="doc.p_11" class="text-right"/>
+                                    </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="pl-4 mt-0">
+                                        W tym świadczenie usług, o których mowa w art. 100 ust. 1 pkt 4 ustawy
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">12.</span>
+                                        <span t-field="doc.p_12" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="mb-0 font-weight-bold">
+                                        Dostawa towarów oraz świadczenia usług na terytorium kraju, opodatkowanych
+                                        stawką 0%
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">13.</span>
+                                        <span t-field="doc.p_13" class="text-right"/>
+                                    </span>
+
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <span class="pl-4 mt-0">
+                                        W tym dostawa towarów, o których mowa w art. 129 ustawy
+                                    </span>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">14.</span>
+                                        <span t-field="doc.p_14" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Dostawa towarów oraz świadczenia usług na terytorium kraju, opodatkowanych
+                                        stawką 5%
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">15.</span>
+                                        <span t-field="doc.p_15" class="text-right"/>
+                                    </span>
+                                    <span class="pl-4">
+                                        <span class="text-muted">16.</span>
+                                        <span t-field="doc.p_16" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Dostawa towarów oraz świadczenia usług na terytorium kraju, opodatkowanych
+                                        stawką 7% albo 8%
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">17.</span>
+                                        <span t-field="doc.p_17" class="text-right"/>
+                                    </span>
+                                    <span class="pl-4">
+                                        <span class="text-muted">18.</span>
+                                        <span t-field="doc.p_18" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Dostawa towarów oraz świadczenia usług na terytorium kraju, opodatkowanych
+                                        stawką 22% albo 23%
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">19.</span>
+                                        <span t-field="doc.p_19" class="text-right"/>
+                                    </span>
+                                    <span class="pl-4">
+                                        <span class="text-muted">20.</span>
+                                        <span t-field="doc.p_20" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Wewnątrzwspólnotowa dostawa towarów
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">21.</span>
+                                        <span t-field="doc.p_21" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Eksport towarów
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">22.</span>
+                                        <span t-field="doc.p_22" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Wewnątrzwspólnotowe nabycie towarów
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">23.</span>
+                                        <span t-field="doc.p_23" class="text-right"/>
+                                    </span>
+                                    <span class="pl-4">
+                                        <span class="text-muted">24.</span>
+                                        <span t-field="doc.p_24" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Import towarów rozliczany zgodnie z art. 33a ustawy
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">25.</span>
+                                        <span t-field="doc.p_25" class="text-right"/>
+                                    </span>
+                                    <span class="pl-4">
+                                        <span class="text-muted">26.</span>
+                                        <span t-field="doc.p_26" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Import usług, z wyłączeniem usług nabywanych od podatników podatku od wartości
+                                        dodanej, do których stosuje się art. 28b ustawy
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">27.</span>
+                                        <span t-field="doc.p_27" class="text-right"/>
+                                    </span>
+                                    <span class="pl-4">
+                                        <span class="text-muted">28.</span>
+                                        <span t-field="doc.p_28" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Import usług nabywanych od podatników podatku od wartości dodanej, do których
+                                        stosuje się art. 28b ustawy
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">29.</span>
+                                        <span t-field="doc.p_29" class="text-right"/>
+                                    </span>
+                                    <span class="pl-4">
+                                        <span class="text-muted">30.</span>
+                                        <span t-field="doc.p_30" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Dostawy towarów, dla których podatnikiem jest nabywca zgodnie z art. 17 ust. 1
+                                        pkt 5 ustawy
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">31.</span>
+                                        <span t-field="doc.p_31" class="text-right"/>
+                                    </span>
+                                    <span class="pl-4">
+                                        <span class="text-muted">32.</span>
+                                        <span t-field="doc.p_32" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Wysokość podatku należnego od towarów objętych spisem z natury, o którym mowa w
+                                        art. 14 ust. 5 ustawy
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">33.</span>
+                                        <span t-field="doc.p_33" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Wysokość zwrotu odliczonej lub zwróconej kwoty wydanej na zakup kas
+                                        rejestrujących, o którym mowa w art. 111 ust. 6 ustawy
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">34.</span>
+                                        <span t-field="doc.p_34" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Wysokość podatku należnego od wewnątrzwspólnotowego nabycia środków transportu,
+                                        wykazana w wysokości podatku należnego z tytułu określonego w P_24, podlegająca
+                                        wpłacie w terminie, o którym mowa w art. 103 ust. 3, w związku z ust. 4 ustawy
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">35.</span>
+                                        <span t-field="doc.p_35" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Wysokość podatku należnego od wewnątrzwspólnotowego nabycia towarów, o których
+                                        mowa w art. 103 ust. 5aa ustawy, podlegająca wpłacie w terminach, o których mowa
+                                        w art. 103 ust. 5a i 5b ustawy
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">36.</span>
+                                        <span t-field="doc.p_36" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Razem podatek należny
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">37.</span>
+                                        <span t-field="doc.p_37" class="text-right"/>
+                                    </span>
+                                    <span class="pl-4">
+                                        <span class="text-muted">38.</span>
+                                        <span t-field="doc.p_38" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                        <div style="padding-top:20px;"/>
+                        <center width="100%">
+                            <h3>Rozliczenie podatku naliczonego</h3>
+                        </center>
+                        <table>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Wysokość nadwyżki podatku naliczonego nad należnym z poprzedniej deklaracji
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">39.</span>
+                                        <span t-field="doc.p_39" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Wartość netto z tytułu nabycia towarów i usług zaliczanych upodatnika do środków
+                                        trwałych
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">40.</span>
+                                        <span t-field="doc.p_40" class="text-right"/>
+                                    </span>
+                                    <span class="pl-4">
+                                        <span class="text-muted">41.</span>
+                                        <span t-field="doc.p_41" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Wartość netto z tytułu nabycia pozostałych towarów i usług
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">42.</span>
+                                        <span t-field="doc.p_42" class="text-right"/>
+                                    </span>
+                                    <span class="pl-4">
+                                        <span class="text-muted">43.</span>
+                                        <span t-field="doc.p_43" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Wysokość podatku naliczonego z tytułu korekty podatku naliczonego od nabycia
+                                        towarów i usług zaliczanych u podatnika do środków trwałych
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">44.</span>
+                                        <span t-field="doc.p_44" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Wysokość podatku naliczonego z tytułu korekty podatku naliczonego od nabycia
+                                        pozostałych towarów i usług
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">45.</span>
+                                        <span t-field="doc.p_45" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        wysokość podatku naliczonego z tytułu korekty podatku naliczonego, o której mowa
+                                        w art. 89b ust. 1 ustawy
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">46.</span>
+                                        <span t-field="doc.p_46" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        wysokość podatku naliczonego z tytułu korekty podatku naliczonego, o której mowa
+                                        w art. 89b ust. 4 ustawy
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">47.</span>
+                                        <span t-field="doc.p_47" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Łączna wysokość podatku naliczonego do odliczenia
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">48.</span>
+                                        <span t-field="doc.p_48" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Kwota wydana na zakup kas rejestrujących, do odliczenia w danym okresie
+                                        rozliczeniowym pomniejszająca wysokość podatku należnego
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">49.</span>
+                                        <span t-field="doc.p_49" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Wysokość podatku objęta zaniechaniem poboru
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">50.</span>
+                                        <span t-field="doc.p_50" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Wysokość podatku podlegająca wpłacie do urzędu skarbowego
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">51.</span>
+                                        <span t-field="doc.p_51" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Kwota wydana na zakup kas rejestrujących
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">52.</span>
+                                        <span t-field="doc.p_52" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Wysokość nadwyżki podatku naliczonego nad należnym
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">53.</span>
+                                        <span t-field="doc.p_53" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Wysokość nadwyżki podatku naliczonego nad należnym do zwrotu
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">54.</span>
+                                        <span t-field="doc.p_54" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Deklaracja zwrotu
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">55-58.</span>
+                                        <p t-field="doc.p_55_58" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Zaliczenie zwrotu podatku na poczet przyszłych zobowiązań podatkowych
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">59.</span>
+                                        <span class="text-right">
+                                            <input t-if="doc.p_59" type="checkbox" class="checkbox" checked="True"/>
+                                            <input t-else="" type="checkbox" class="checkbox"/>
+                                        </span>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Wysokość zwrotu do zaliczenia na poczet przyszłych zobowiązań podatkowych
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">60.</span>
+                                        <span t-field="doc.p_60" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Rodzaj przyszłego zobowiązania podatkowego
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">61.</span>
+                                        <span t-field="doc.p_61" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Wysokość nadwyżki podatku naliczonego nad należnym do przeniesienia na następny
+                                        okres rozliczeniowy
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">62.</span>
+                                        <span t-field="doc.p_62" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Podatnik wykonywał w okresie rozliczeniowym czynności, o których mowa w art. 119
+                                        ustawy
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">63.</span>
+                                        <span class="text-right">
+                                            <input t-if="doc.p_63" type="checkbox" class="checkbox" checked="True"/>
+                                            <input t-else="" type="checkbox" class="checkbox"/>
+                                        </span>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Podatnik wykonywał w okresie rozliczeniowym czynności, o których mowa w art. 120
+                                        ust. 4 lub 5 ustawy
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">64.</span>
+                                        <span class="text-right">
+                                            <input t-if="doc.p_64" type="checkbox" class="checkbox" checked="True"/>
+                                            <input t-else="" type="checkbox" class="checkbox"/>
+                                        </span>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Podatnik wykonywał w okresie rozliczeniowym czynności, o których mowa w art. 122
+                                        ustawy
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">65.</span>
+                                        <span class="text-right">
+                                            <input t-if="doc.p_65" type="checkbox" class="checkbox" checked="True"/>
+                                            <input t-else="" type="checkbox" class="checkbox"/>
+                                        </span>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Podatnik wykonywał w okresie rozliczeniowym czynności, o których mowa w art. 136
+                                        ustawy
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">66.</span>
+                                        <span class="text-right">
+                                            <input t-if="doc.p_66" type="checkbox" class="checkbox" checked="True"/>
+                                            <input t-else="" type="checkbox" class="checkbox"/>
+                                        </span>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Podatnik korzysta z obniżenia zobowiązania podatkowego, o którym mowa w art.
+                                        108d ustawy
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">67.</span>
+                                        <span class="text-right">
+                                            <input t-if="doc.p_67" type="checkbox" class="checkbox" checked="True"/>
+                                            <input t-else="" type="checkbox" class="checkbox"/>
+                                        </span>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Wysokość korekty podstawy opodatkowania, o której mowa w art. 89a ust. 1 ustawy
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">68.</span>
+                                        <span t-field="doc.p_68" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <p class="font-weight-bold">
+                                        Wysokość korekty podatku należnego, o której mowa w art. 89a ust. 1 ustawy
+                                    </p>
+                                </td>
+                                <td width="50%">
+                                    <span class="pl-4">
+                                        <span class="text-muted">69.</span>
+                                        <span t-field="doc.p_69" class="text-right"/>
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                        <br/>
+                        <br/>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="report_jpk_vat_7m_pdf" model="ir.actions.report">
+        <field name="name">JPK VAT7M</field>
+        <field name="model">jpk.vat.7m</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">trilab_jpk_vat.report_jpk_vat_7m</field>
+        <field name="report_file">trilab_jpk_vat.report_jpk_vat_7m</field>
+        <field name="binding_model_id" ref="trilab_jpk_vat.model_jpk_vat_7m"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,62 @@
+div.header {
+  background-color: transparent;
+}
+
+.o_report_layout_standard {
+  padding-top: 20px;
+}
+
+.o_report_layout_boxed {
+    /*Total table*/
+    /* row div rule compat 12.0 */
+    .row > div > table,
+    div#total table {
+      tr {
+        &:first-child,
+        &.o_subtotal {
+          td:first-child {
+            border-right: 1px solid gray('700');
+          }
+        }
+      }
+
+      tr.border-inside-white {
+        td:not(:last-child) {
+          border-right: 1px solid white;
+        }
+      }
+    }
+
+  table.correction-table {
+    border: none;
+
+    tbody {
+      border: 1px solid gray('700');
+    }
+  }
+
+  thead.before-correction,
+  thead.after-correction {
+    .table-title {
+      th {
+        border-top: none;
+        border-left: none;
+        border-right: none;
+      }
+    }
+  }
+
+  thead.after-correction {
+    .table-title {
+      th {
+        padding-top: 30px;
+      }
+    }
+  }
+
+}
+
+.x_mtl {
+  margin-top: 2em;
+}
+
