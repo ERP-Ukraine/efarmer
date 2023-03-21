@@ -111,10 +111,8 @@ class HrPayslipImportWizard(models.TransientModel):
         return input_types
 
     def get_last_contract(self, employee):
-        last_contract = self.env['hr.contract'].search([
-            ('employee_id', '=', employee.id),
-            ('state', '!=', 'cancel')
-        ], order='date_start desc', limit=1)
+        valid_contracts = employee.contract_ids.filtered(lambda c: c.state != 'cancel')
+        last_contract = valid_contracts.sorted(key='date_start', reverse=True)[0]
         return last_contract
 
     def create_batch(self):
@@ -170,18 +168,25 @@ class HrPayslipImportWizard(models.TransientModel):
             raise UserError('Only Excel files are supported.')
 
         sheet = workbook.sheet_by_index(0)
-        input_types_names = sheet.row_values(1)[2:]
-        last_data_row = len([x for x in sheet.col_values(0) if x])
-        employee_names = sheet.col_values(1)[2:last_data_row]
+        input_types_row = 1
+        employee_col = 1
+        first_row_data = 2
+        last_row_data = len([x for x in sheet.col_values(0) if x])
+
+        # input type names are started from 2 position in a row
+        input_type_names = sheet.row_values(input_types_row)[2:]
+        # employee names are started from 2 position in a column
+        employee_names = sheet.col_values(employee_col)[2:last_row_data]
+
         employee_data = self.validate_employees(employee_names)
-        input_types = self.validate_input_types(input_types_names)
+        input_types = self.validate_input_types(input_type_names)
 
         # finish import after validation if there are problems with data
         if self.alert:
             return self.finish_import(fileobj)
 
         payslip_vals = []
-        for row in range(2, last_data_row):
+        for row in range(first_row_data, last_row_data):
             row_dict = {}
             row_values = sheet.row_values(row)
             employee = employee_data.get(row_values[1])
