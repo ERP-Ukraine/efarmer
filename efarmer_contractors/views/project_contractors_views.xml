@@ -16,9 +16,9 @@
             <form string="Project Contractors">
                 <header>
                     <button name="generate_report" string="Generate Report" type="object" class="oe_highlight"
-                    attrs="{'invisible': [('state', 'in', ['in_progress', 'done'])]}"/>
+                    attrs="{'invisible': [('state', 'in', ['done'])]}"/>
                     <button name="generate_invoice" string="Generate Invoices" type="object" class="oe_highlight"
-                    attrs="{'invisible': [('state', 'in', ['new', 'done'])]}"/>
+                    attrs="{'invisible': [('state', 'in', ['done'])]}"/>
                     <field name="state" widget="statusbar" statusbar_visible="new,in_progress,done"/>
                 </header>
                 <sheet>
