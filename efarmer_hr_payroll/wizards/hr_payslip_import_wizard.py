@@ -2,11 +2,11 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
 import base64
+import io
 import xlrd
 
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
-from tempfile import NamedTemporaryFile
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
@@ -61,19 +61,15 @@ class HrPayslipImportWizard(models.TransientModel):
             )
         self.last_period = last_period_value
 
-    def _create_temp_file(self, file):
+    def _decode_file(self, file):
         try:
             decoded_file = base64.b64decode(file)
         except Exception as e:
             raise ValueError('Invalid base64 input: %s' % e)
 
-        fileobj = NamedTemporaryFile('wb')
-        fileobj.write(decoded_file)
-        fileobj.seek(0)
-        return fileobj
+        return io.BytesIO(decoded_file)
 
-    def finish_import(self, fileobj):
-        fileobj.close()
+    def finish_import(self):
         return {
             'name': _('Import Payslips'),
             'type': 'ir.actions.act_window',
@@ -92,14 +88,14 @@ class HrPayslipImportWizard(models.TransientModel):
         if len(not_empty_names) != len(names):
             self.alert += 'File contains empty values in the {} data!\n'.format(data_name)
 
-        objects = self.env[model].search([
+        objs = self.env[model].search([
             ('name', 'in', not_empty_names)
         ])
-        dif = set(not_empty_names) - set(objects.mapped('name'))
+        dif = set(not_empty_names) - set(objs.mapped('name'))
         if dif:
             self.alert += '{}s with the following names '\
                 'were not found in the system: \n{}\n'.format(data_name, ', '.join(dif))
-        return objects or []
+        return objs
 
     def validate_employees(self, empl_names):
         employees = self._get_existing_data('hr.employee', empl_names, 'Employee')
@@ -111,8 +107,10 @@ class HrPayslipImportWizard(models.TransientModel):
         return input_types
 
     def get_last_contract(self, employee):
+        last_contract = None
         valid_contracts = employee.contract_ids.filtered(lambda c: c.state != 'cancel')
-        last_contract = valid_contracts.sorted(key='date_start', reverse=True)[0]
+        if valid_contracts:
+            last_contract = valid_contracts.sorted(key='date_start', reverse=True)[0]
         return last_contract
 
     def create_batch(self):
@@ -145,7 +143,7 @@ class HrPayslipImportWizard(models.TransientModel):
                     'employee_id': employee.id,
                     'date_from': self.date_from,
                     'date_to': self.date_to,
-                    'contract_id': last_contract.id,
+                    'contract_id': last_contract.id if last_contract else None,
                     'input_line_ids': input_lines
                 })
                 # _compute_name() isn't run while creating object, run it explicitly
@@ -161,9 +159,9 @@ class HrPayslipImportWizard(models.TransientModel):
         if self.alert:
             self.alert = ''
 
-        fileobj = self._create_temp_file(self.import_file)
+        fileobj = self._decode_file(self.import_file)
         try:
-            workbook = xlrd.open_workbook(fileobj.name)
+            workbook = xlrd.open_workbook(file_contents=fileobj.read())
         except xlrd.biffh.XLRDError:
             raise UserError('Only Excel files are supported.')
 
@@ -183,7 +181,7 @@ class HrPayslipImportWizard(models.TransientModel):
 
         # finish import after validation if there are problems with data
         if self.alert:
-            return self.finish_import(fileobj)
+            return self.finish_import()
 
         payslip_vals = []
         for row in range(first_row_data, last_row_data):
@@ -194,4 +192,4 @@ class HrPayslipImportWizard(models.TransientModel):
             payslip_vals.append(row_dict)
 
         self.create_payslip(payslip_vals)
-        return self.finish_import(fileobj)
+        return self.finish_import()
