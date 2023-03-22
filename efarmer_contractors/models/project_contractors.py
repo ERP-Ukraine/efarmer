@@ -1,6 +1,6 @@
 # Copyright 2023 VentorTech OU
 # Part of Ventor modules. See LICENSE file for full copyright and licensing details.
-from odoo import models, fields, _
+from odoo import api, models, fields, _
 from functools import reduce
 from odoo.exceptions import UserError
 
@@ -82,6 +82,29 @@ class ProjectContractors(models.Model):
         string='Vendor Bills',
     )
 
+    is_paid = fields.Boolean(
+        string='Is Paid?',
+    )
+
+    # @api.depends('state', 'account_move_ids.state')
+    # def _compute_delivery_status(self):
+    #     for rec in self:
+    #         pickings = self.env['stock.picking'].search([('sale_id', '=', rec.id)])
+    #         orderlines = rec.mapped('order_line').filtered(lambda x: x.product_id.type != 'service')
+    #         service_orderlines = rec.mapped('order_line').filtered(lambda x: x.product_id.type == 'service')
+    #         if not pickings and not service_orderlines:
+    #             rec.delivery_status = 'nothing'
+    #         elif all(o.qty_delivered == 0 for o in orderlines):
+    #             rec.delivery_status = 'to_deliver'
+    #         elif orderlines.filtered(lambda x: x.qty_delivered < x.product_uom_qty):
+    #             rec.delivery_status = 'partial'
+    #         elif all(o.qty_delivered == o.product_uom_qty for o in orderlines):
+    #             rec.delivery_status = 'delivered'
+    #         elif any(p.state in ('waiting', 'confirmed') for p in pickings):
+    #             rec.delivery_status = 'processing'
+    #         if not orderlines and service_orderlines and rec.state == 'sale':
+    #             rec.delivery_status = 'delivered'
+
     def generate_report(self):
         self.ensure_one()
         self.env['project.contractors.line'].search([('contractors_id', '=', self.id)]).unlink()
@@ -134,7 +157,6 @@ class ProjectContractors(models.Model):
 
         self.write({
             'contractors_line_ids': contractors_lines,
-            'state': 'in_progress',
             'analytic_line_ids': reduce(lambda x, y: x + y, data_dict.values()),
         })
 
@@ -172,7 +194,7 @@ class ProjectContractors(models.Model):
         self.line_is_paid()
         self.write({
             'account_move_ids': account_move_ids,
-            'state': 'done',
+            'state': 'in_progress',
         })
 
     def line_is_paid(self):
