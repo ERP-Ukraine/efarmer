@@ -82,6 +82,22 @@ class ProjectContractors(models.Model):
         string='Vendor Bills',
     )
 
+    is_paid = fields.Boolean(
+        string='Is Paid?',
+        compute='_compute_is_paid',
+    )
+
+    def _compute_is_paid(self):
+        for rec in self:
+            is_paid = False
+            if rec.account_move_ids and rec.state != 'done':
+                if all(o.state == 'posted' for o in rec.account_move_ids):
+                    is_paid = True
+                    rec.write({
+                        'state': 'done',
+                    })
+            rec.is_paid = is_paid
+
     def generate_report(self):
         self.ensure_one()
         self.env['project.contractors.line'].search([('contractors_id', '=', self.id)]).unlink()
@@ -134,7 +150,6 @@ class ProjectContractors(models.Model):
 
         self.write({
             'contractors_line_ids': contractors_lines,
-            'state': 'in_progress',
             'analytic_line_ids': reduce(lambda x, y: x + y, data_dict.values()),
         })
 
@@ -157,6 +172,7 @@ class ProjectContractors(models.Model):
                         'partner_id': employee.related_contact_id.id,
                         'move_type': 'in_invoice',
                         'invoice_line_ids': [],
+                        'currency_id': employee.bamboo_currency_id.id,
                     }
                 vendor_bill = vendor_bills[employee]
                 vendor_bill['invoice_line_ids'].append((0, 0, {
@@ -164,6 +180,7 @@ class ProjectContractors(models.Model):
                     'name': line.description,
                     'quantity': line.hours_spent,
                     'price_unit': line.contract_pay_rate,
+                    'currency_id': employee.bamboo_currency_id.id,
                 }))
             vendor_bills_list = list(vendor_bills.values())
             vendor_bills_objs = self.env['account.move'].create(vendor_bills_list)
@@ -172,7 +189,7 @@ class ProjectContractors(models.Model):
         self.line_is_paid()
         self.write({
             'account_move_ids': account_move_ids,
-            'state': 'done',
+            'state': 'in_progress',
         })
 
     def line_is_paid(self):

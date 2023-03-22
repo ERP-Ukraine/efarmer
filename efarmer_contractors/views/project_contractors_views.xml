@@ -15,20 +15,23 @@
         <field name="arch" type="xml">
             <form string="Project Contractors">
                 <header>
-                    <button name="generate_report" string="Generate Report" type="object" class="oe_highlight"/>
-                    <button name="generate_invoice" string="Generate Invoices" type="object" class="oe_highlight"/>
+                    <button name="generate_report" string="Generate Report" type="object" class="oe_highlight"
+                    attrs="{'invisible': [('state', 'in', ['done'])]}"/>
+                    <button name="generate_invoice" string="Generate Invoices" type="object" class="oe_highlight"
+                    attrs="{'invisible': [('state', 'in', ['done'])]}"/>
                     <field name="state" widget="statusbar" statusbar_visible="new,in_progress,done"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button class="oe_stat_button" name="open_analytic_lines" string="REPORT" type="object" icon="fa-bars" attrs="{'invisible': [('state', 'in', ['new'])]}">
+                        <button class="oe_stat_button" name="open_analytic_lines" string="REPORT" type="object" icon="fa-bars">
                         </button>
-                        <button class="oe_stat_button" name="open_vendor_bills" string="Vendor Bills" type="object" icon="fa-edit" attrs="{'invisible': [('state', 'in', ['new', 'in_progress'])]}">
+                        <button class="oe_stat_button" name="open_vendor_bills" string="Vendor Bills" type="object" icon="fa-edit" attrs="{'invisible': [('state', 'in', ['new'])]}">
                         </button>
                     </div>
                     <div class="oe_title">
                         <h1>
                             <field name="name" readonly="1"/>
+                            <field name="is_paid" invisible="1"/>
                         </h1>
                     </div>
                     <group>
@@ -50,7 +53,7 @@
                                     <field name="description"/>
                                     <field name="hours_spent"/>
                                     <field name="pay_rate"/>
-                                    <field name="currency_id"/>
+                                    <field name="bamboo_currency_id"/>
                                     <field name="amount"/>
                                 </tree>
                             </field>

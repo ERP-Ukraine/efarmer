@@ -40,7 +40,6 @@ class ProjectContractorsLine(models.Model):
     bamboo_currency_id = fields.Many2one(
         'res.currency',
         string='Pay Rate Currency',
-        related='employee_id.bamboo_currency_id',
         store=True,
     )
     contract_pay_rate = fields.Float(
