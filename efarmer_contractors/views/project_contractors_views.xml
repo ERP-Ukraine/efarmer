@@ -31,6 +31,7 @@
                     <div class="oe_title">
                         <h1>
                             <field name="name" readonly="1"/>
+                            <field name="is_paid" invisible="1"/>
                         </h1>
                     </div>
                     <group>

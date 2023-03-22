@@ -84,26 +84,19 @@ class ProjectContractors(models.Model):
 
     is_paid = fields.Boolean(
         string='Is Paid?',
+        compute='_compute_is_paid',
     )
 
-    # @api.depends('state', 'account_move_ids.state')
-    # def _compute_delivery_status(self):
-    #     for rec in self:
-    #         pickings = self.env['stock.picking'].search([('sale_id', '=', rec.id)])
-    #         orderlines = rec.mapped('order_line').filtered(lambda x: x.product_id.type != 'service')
-    #         service_orderlines = rec.mapped('order_line').filtered(lambda x: x.product_id.type == 'service')
-    #         if not pickings and not service_orderlines:
-    #             rec.delivery_status = 'nothing'
-    #         elif all(o.qty_delivered == 0 for o in orderlines):
-    #             rec.delivery_status = 'to_deliver'
-    #         elif orderlines.filtered(lambda x: x.qty_delivered < x.product_uom_qty):
-    #             rec.delivery_status = 'partial'
-    #         elif all(o.qty_delivered == o.product_uom_qty for o in orderlines):
-    #             rec.delivery_status = 'delivered'
-    #         elif any(p.state in ('waiting', 'confirmed') for p in pickings):
-    #             rec.delivery_status = 'processing'
-    #         if not orderlines and service_orderlines and rec.state == 'sale':
-    #             rec.delivery_status = 'delivered'
+    def _compute_is_paid(self):
+        for rec in self:
+            is_paid = False
+            if rec.account_move_ids and rec.state != 'done':
+                if all(o.state == 'posted' for o in rec.account_move_ids):
+                    is_paid = True
+                    rec.write({
+                        'state': 'done',
+                    })
+            rec.is_paid = is_paid
 
     def generate_report(self):
         self.ensure_one()
@@ -179,6 +172,7 @@ class ProjectContractors(models.Model):
                         'partner_id': employee.related_contact_id.id,
                         'move_type': 'in_invoice',
                         'invoice_line_ids': [],
+                        'currency_id': employee.bamboo_currency_id.id,
                     }
                 vendor_bill = vendor_bills[employee]
                 vendor_bill['invoice_line_ids'].append((0, 0, {
@@ -186,6 +180,7 @@ class ProjectContractors(models.Model):
                     'name': line.description,
                     'quantity': line.hours_spent,
                     'price_unit': line.contract_pay_rate,
+                    'currency_id': employee.bamboo_currency_id.id,
                 }))
             vendor_bills_list = list(vendor_bills.values())
             vendor_bills_objs = self.env['account.move'].create(vendor_bills_list)
