@@ -184,17 +184,17 @@ class ProjectCapitalization(models.Model):
         action['context'] = {'group_by': ['task_product_id', 'account_asset_counterpart_id']}
         return action
 
-    # def unlink(self):
-    #     for line in self:
-    #         if line.state == 'done':
-    #             raise UserError(_('You cannot delete a locked Capitalization.'))
-    #     return super(ProjectCapitalization, self).unlink()
-    #
-    # def write(self, vals):
-    #     for line in self:
-    #         if line.state == 'done':
-    #             raise UserError(_('You cannot edit a locked Capitalization.'))
-    #     return super(ProjectCapitalization, self).write(vals)
+    def unlink(self):
+        for line in self:
+            if line.state == 'done':
+                raise UserError(_('You cannot delete a locked Capitalization.'))
+        return super(ProjectCapitalization, self).unlink()
+
+    def write(self, vals):
+        for line in self:
+            if line.state == 'done':
+                raise UserError(_('You cannot edit a locked Capitalization.'))
+        return super(ProjectCapitalization, self).write(vals)
 
 
 class Task(models.Model):
