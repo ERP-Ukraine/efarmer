@@ -48,14 +48,14 @@ class AccountAnalyticLine(models.Model):
         store=True,
     )
 
-    # def unlink(self):
-    #     for line in self:
-    #         if line.is_paid:
-    #             raise UserError(_('You cannot delete a Paid analytic line.'))
-    #     return super(AccountAnalyticLine, self).unlink()
-    #
-    # def write(self, vals):
-    #     for line in self:
-    #         if line.is_paid:
-    #             raise UserError(_('You cannot edit a Paid analytic line.'))
-    #     return super(AccountAnalyticLine, self).write(vals)
+    def unlink(self):
+        for line in self:
+            if line.is_paid:
+                raise UserError(_('You cannot delete a Paid analytic line.'))
+        return super(AccountAnalyticLine, self).unlink()
+
+    def write(self, vals):
+        for line in self:
+            if line.is_paid:
+                raise UserError(_('You cannot edit a Paid analytic line.'))
+        return super(AccountAnalyticLine, self).write(vals)
