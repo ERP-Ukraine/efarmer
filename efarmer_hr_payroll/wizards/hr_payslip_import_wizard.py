@@ -84,7 +84,7 @@ class HrPayslipImportWizard(models.TransientModel):
     def _get_existing_data(self, model, names, data_name):
         # check imported data for empty values and make sure
         # that imported data exists in the system
-        not_empty_names = [name for name in names if name != '']
+        not_empty_names = list(filter(None, names))
         if len(not_empty_names) != len(names):
             self.alert += 'File contains empty values in the {} data!\n'.format(data_name)
 
