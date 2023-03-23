@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_project_capitalization_line_form" model="ir.ui.view">
+    <field name="name">project.capitalization.line.form</field>
+    <field name="model">project.capitalization.line</field>
+    <field name="arch" type="xml">
+        <form string="Capitalization Line">
+            <group>
+                <field name="asset_id"/>
+                <field name="account_asset_counterpart_id"/>
+                <field name="hours_spent"/>
+                <field name="amount"/>
+            </group>
+        </form>
+    </field>
+</record>
+
+    <record id="view_project_capitalization_line_tree" model="ir.ui.view">
+    <field name="name">project.capitalization.line.tree</field>
+    <field name="model">project.capitalization.line</field>
+    <field name="arch" type="xml">
+        <tree string="Capitalization Lines">
+            <field name="asset_id"/>
+            <field name="account_asset_counterpart_id"/>
+            <field name="hours_spent"/>
+            <field name="amount"/>
+        </tree>
+    </field>
+</record>
+    <record id="action_view_project_capitalization_line" model="ir.actions.act_window">
+        <field name="name">Capitalization Lines</field>
+        <field name="res_model">project.capitalization.line</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to create a new capitalization line.
+            </p>
+        </field>
+    </record>
+
+</odoo>
+
