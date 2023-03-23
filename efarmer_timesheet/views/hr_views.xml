@@ -15,6 +15,7 @@
                             <field name="pay_rate" />
                             <field name="med_insurance_rate" />
                             <field name="bamboo_currency_id" />
+                            <field name="contract_pay_rate" />
                         </group>
                         <group name="salary_info_right" string="Annual Timesheet Costs">
                             <field name="ann_gross_salary" />
