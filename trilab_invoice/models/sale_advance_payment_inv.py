@@ -54,15 +54,15 @@ class SaleAdvancePaymentInv(models.TransientModel):
         pln = self.env.ref('base.PLN')
         for wizard in self:
             currency_ids = wizard.order_ids.mapped('currency_id')
-            wizard.x_is_convertible = (
+            x_is_convertible = (
                 all(currency == currency_ids[0] for currency in currency_ids)
                 and all(
                     currency_id == pln for currency_id in wizard.order_ids.mapped('invoice_ids').mapped('currency_id')
                 )
                 and currency_ids[0] != pln
             )
-
-            wizard.x_orders_currency_id = currency_ids[0] if wizard.x_is_convertible else False
+            wizard.x_orders_currency_id = currency_ids[0] if x_is_convertible else False
+            wizard.x_is_convertible = x_is_convertible
 
     @api.onchange('x_convert_to_pln')
     def _x_onchange_convert_to_pln(self):
