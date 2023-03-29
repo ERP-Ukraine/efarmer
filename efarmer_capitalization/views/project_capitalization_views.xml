@@ -18,7 +18,7 @@
                     <button name="generate_report" string="Generate Report" type="object" class="oe_highlight"
                             attrs="{'invisible': [('state', '=', 'done')]}"/>
                     <button name="capitalization" string="CAPITALIZE" type="object" class="oe_highlight"
-                            attrs="{'invisible': [('state', '=', 'done')]}"/>
+                             attrs="{'invisible':  [('state', 'in', ['new', 'done'])]}"/>
                     <field name="state" widget="statusbar" statusbar_visible="new,in_progress,done"/>
                 </header>
                 <sheet>
