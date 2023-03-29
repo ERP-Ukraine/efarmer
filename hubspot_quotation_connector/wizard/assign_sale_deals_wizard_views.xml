@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="assign_hubspot_deals_wizard_form_view" model="ir.ui.view">
+        <field name="name">assign.hubspot.deals.wizard.form</field>
+        <field name="model">assign.sale.deals.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <field name="deal_ids" invisible="1"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="hubspot_id" readonly="True" options="{'no_open': True}"/>
+                        </h1>
+                    </div>
+                    <group string="Deal" class="mt-0">
+                        <field name="assigned_deal_id"
+                               nolabel="1"
+                               domain="[('id', 'in', deal_ids)]"
+                               options="{'no_open': True, 'no_create_edit': True, 'no_create': True}"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="assign"
+                            type="object"
+                            string="Assign"
+                            class="btn btn-primary"/>
+                    <button string="Discard"
+                            class="btn btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="assign_hubspot_deals_wizard_act_window" model="ir.actions.act_window">
+        <field name="name">Deals Assign</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">assign.sale.deals.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>
