@@ -2,7 +2,7 @@
 # Part of Ventor modules. See LICENSE file for full copyright and licensing details.
 {
     'name': 'eFarmer Invoice B2B Contactors',
-    'version': '1.0',
+    'version': '1.1',
     'author': 'VentorTech',
     'website': 'https://ventor.tech/',
     'category': 'Project',
@@ -20,8 +20,6 @@
         'security/ir.model.access.csv',
         'views/project_contractors_views.xml',
         'views/project_contractors_line_views.xml',
-        'views/hr_employee_views.xml',
-        'views/account_analytic_line_views.xml',
     ],
     'installable': True,
     'application': True,
