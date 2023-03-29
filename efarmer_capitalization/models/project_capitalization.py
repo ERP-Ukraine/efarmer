@@ -1,6 +1,6 @@
 # Copyright 2023 VentorTech OU
 # Part of Ventor modules. See LICENSE file for full copyright and licensing details.
-from odoo import models, fields, _
+from odoo import api, models, fields, _
 from odoo.exceptions import UserError
 
 
@@ -11,7 +11,8 @@ class ProjectCapitalization(models.Model):
 
     name = fields.Char(
         string='Name',
-        default=lambda self: self.env['ir.sequence'].next_by_code('project.capitalization.sequence'),
+        default=lambda self: _('New'),
+        copy=False,
         readonly=True,
     )
 
@@ -195,3 +196,10 @@ class ProjectCapitalization(models.Model):
             if line.state == 'done':
                 raise UserError(_('You cannot edit a locked Capitalization.'))
         return super(ProjectCapitalization, self).write(vals)
+
+    @api.model
+    def create(self, vals):
+        if vals.get('name', _('New')) == _('New'):
+            vals['name'] = self.env['ir.sequence'].next_by_code('project.capitalization.sequence') or _('New')
+        result = super(ProjectCapitalization, self).create(vals)
+        return result
