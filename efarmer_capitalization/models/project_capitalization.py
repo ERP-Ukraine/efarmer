@@ -15,6 +15,7 @@ class ProjectCapitalization(models.Model):
         copy=False,
         readonly=True,
     )
+
     state = fields.Selection(
         [('new', 'New'),
          ('in_progress', 'In Progress'),
