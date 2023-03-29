@@ -195,12 +195,3 @@ class ProjectCapitalization(models.Model):
             if line.state == 'done':
                 raise UserError(_('You cannot edit a locked Capitalization.'))
         return super(ProjectCapitalization, self).write(vals)
-
-
-class Task(models.Model):
-    _inherit = 'project.task'
-
-    asset_id = fields.Many2one(
-        comodel_name='account.asset',
-        string='Product',
-    )
