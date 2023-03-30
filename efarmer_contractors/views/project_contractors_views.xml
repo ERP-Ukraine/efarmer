@@ -80,12 +80,12 @@
     </record>
 
     <record id="action_view_project_contractors" model="ir.actions.act_window">
-        <field name="name">Contractors</field>
+        <field name="name">B2B Invoice</field>
         <field name="res_model">project.contractors</field>
         <field name="view_mode">tree,form</field>
         <field name="help" type="html">
             <p class="oe_view_nocontent_create">
-                Click to create a new contractors
+                Click to create a new B2B Invoice
             </p>
         </field>
     </record>
