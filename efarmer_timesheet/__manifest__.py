@@ -15,6 +15,7 @@
         'project',
         'hr',
         'hr_timesheet',
+        'timesheet_grid',
         'efarmer_youtrack',
     ],
     'data': [
