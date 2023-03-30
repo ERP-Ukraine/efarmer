@@ -1,6 +1,6 @@
 # Copyright 2023 VentorTech OU
 # Part of Ventor modules. See LICENSE file for full copyright and licensing details.
-from odoo import models, fields, _
+from odoo import api, models, fields, _
 from functools import reduce
 from odoo.exceptions import UserError
 
@@ -12,7 +12,8 @@ class ProjectContractors(models.Model):
 
     name = fields.Char(
         string='Name',
-        default=lambda self: self.env['ir.sequence'].next_by_code('project.contractors.sequence'),
+        default=lambda self: _('New'),
+        copy=False,
         readonly=True,
     )
     state = fields.Selection(
@@ -219,3 +220,10 @@ class ProjectContractors(models.Model):
             if line.state == 'done':
                 raise UserError(_('You cannot edit a locked Project Invoice B2B Contactors.'))
         return super(ProjectContractors, self).write(vals)
+
+    @api.model
+    def create(self, vals):
+        if vals.get('name', _('New')) == _('New'):
+            vals['name'] = self.env['ir.sequence'].next_by_code('project.contractors.sequence') or _('New')
+        result = super(ProjectContractors, self).create(vals)
+        return result
