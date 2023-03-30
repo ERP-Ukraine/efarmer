@@ -13,6 +13,7 @@ class ProjectContractors(models.Model):
     name = fields.Char(
         string='Name',
         default=lambda self: _('New'),
+        copy=False,
         readonly=True,
     )
     state = fields.Selection(
