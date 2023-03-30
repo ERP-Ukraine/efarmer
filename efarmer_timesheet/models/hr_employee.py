@@ -101,6 +101,20 @@ class Employee(models.Model):
         currency_field='bamboo_currency_id',
         default=0.0)
 
+    account_asset_counterpart_id = fields.Many2one(
+        'account.account',
+        string='Account Asset Counterpart',
+        check_company=True,
+        help="Account used as counterpart for entries related to this asset.",
+        tracking=True,
+        store=True,
+    )
+
+    related_contact_id = fields.Many2one(
+        'res.partner',
+        string='Related Contact',
+    )
+
     def compute_timesheet_cost(self):
         """ Calculate Timesheet Cost only for employees with type
         'employee' and employees with type 'contractor'/'outstaff'

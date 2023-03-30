@@ -7,9 +7,18 @@ from odoo.exceptions import UserError
 class AccountAnalyticLine(models.Model):
     _inherit = 'account.analytic.line'
 
+    is_capitalized = fields.Boolean(
+        string="Capitalized",
+        default=False,
+    )
     task_product_id = fields.Many2one(
         string='Task asset id',
         related='task_id.asset_id',
+        store=True,
+    )
+    account_asset_counterpart_id = fields.Many2one(
+        related="employee_id.account_asset_counterpart_id",
+        string='Account Asset Counterpart',
         store=True,
     )
     is_paid = fields.Boolean(
@@ -48,14 +57,18 @@ class AccountAnalyticLine(models.Model):
         store=True,
     )
 
-    def unlink(self):
-        for line in self:
-            if line.is_paid:
-                raise UserError(_('You cannot delete a Paid analytic line.'))
-        return super(AccountAnalyticLine, self).unlink()
-
-    def write(self, vals):
-        for line in self:
-            if line.is_paid:
-                raise UserError(_('You cannot edit a Paid analytic line.'))
-        return super(AccountAnalyticLine, self).write(vals)
+    # def unlink(self):
+    #     for line in self:
+    #         if line.is_capitalized:
+    #             raise UserError(_('You cannot delete a Capitalized analytic line.'))
+    #         if line.is_paid:
+    #             raise UserError(_('You cannot delete a Paid analytic line.'))
+    #     return super(AccountAnalyticLine, self).unlink()
+    #
+    # def write(self, vals):
+    #     for line in self:
+    #         if line.is_capitalized:
+    #             raise UserError(_('You cannot edit a Capitalized analytic line.'))
+    #         if line.is_paid:
+    #             raise UserError(_('You cannot edit a Paid analytic line.'))
+    #     return super(AccountAnalyticLine, self).write(vals)
