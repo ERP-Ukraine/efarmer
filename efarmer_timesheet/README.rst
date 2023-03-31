@@ -4,6 +4,9 @@ Timesheet eFarmer module
 Change Log
 ##########
 
+* 2.1.0 (2023-03-31)
+    - Added new fields to improve Timesheet Report visualization
+
 * 1.0.1 (2023-03-15)
     - Added access group to hr.employee custom fields
     - Patched Odoo test to avoid failure if company has specified currency other than USD

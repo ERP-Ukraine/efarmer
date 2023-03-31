@@ -106,3 +106,23 @@ class TestHrTimesheet(TransactionCase):
 
         # expect to get 2 calls, when employee currency_id and bamboo_currency_id were different
         self.assertEqual(mock_currency.call_count, 2)
+
+    def test_create_timesheet(self):
+        employee = self.env['hr.employee'].create(
+            {
+                'name': 'Test Employee',
+                'company_id': self.company.id,
+                'timesheet_cost': 80,
+            }
+        )
+        project = self.env['project.project'].create({
+            'name': 'Test Project',
+            'company_id': self.company.id,
+        })
+        timesheet = self.env['account.analytic.line'].create({
+            'name': 'Test Timesheet',
+            'employee_id': employee.id,
+            'project_id': project.id,
+        })
+
+        self.assertEqual(timesheet.rate_per_hour, 80)
