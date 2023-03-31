@@ -84,7 +84,8 @@ class HrPayslipImportWizard(models.TransientModel):
     def _get_existing_data(self, model, names, data_name):
         # check imported data for empty values and make sure
         # that imported data exists in the system
-        not_empty_names = [name for name in names if name != '']
+        not_empty_names = list(filter(None, names))
+        not_empty_names = list(map(lambda name: name.strip(), not_empty_names))
         if len(not_empty_names) != len(names):
             self.alert += 'File contains empty values in the {} data!\n'.format(data_name)
 
@@ -104,7 +105,9 @@ class HrPayslipImportWizard(models.TransientModel):
 
     def validate_input_types(self, input_type_names):
         input_types = self._get_existing_data('hr.payslip.input.type', input_type_names, 'Input Type')
-        return input_types
+        # sort objects in the order in which they are written in the file
+        sorted_input_types = input_types.sorted(lambda x: input_type_names.index(x.name))
+        return sorted_input_types
 
     def get_last_contract(self, employee):
         last_contract = None
@@ -187,7 +190,7 @@ class HrPayslipImportWizard(models.TransientModel):
         for row in range(first_row_data, last_row_data):
             row_dict = {}
             row_values = sheet.row_values(row)
-            employee = employee_data.get(row_values[1])
+            employee = employee_data.get(row_values[1].strip())
             row_dict[employee] = list(zip(input_types.ids, row_values[2:]))
             payslip_vals.append(row_dict)
 
