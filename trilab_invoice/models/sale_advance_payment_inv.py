@@ -5,9 +5,13 @@ from odoo.exceptions import UserError, ValidationError
 class SaleAdvancePaymentInv(models.TransientModel):
     _inherit = 'sale.advance.payment.inv'
 
-    order_ids = fields.Many2many('sale.order', readonly=1)
-    order_line = fields.One2many('sale.order.line', compute='compute_order_line')
-    invoice_lines = fields.Many2many('sale.order.line')
+    def _x_default_invoice_lines(self):
+        orders = self.env['sale.order'].browse(self.env.context.get('active_ids', []))
+        return orders.order_line.filtered(lambda lne: lne.invoice_status == 'to invoice' or lne.display_type).ids
+
+    order_ids = fields.Many2many('sale.order', default=lambda self: self.env.context.get('active_ids'))
+    order_line = fields.One2many('sale.order.line', related='order_ids.order_line')
+    invoice_lines = fields.Many2many('sale.order.line', default=_x_default_invoice_lines)
     advance_lines = fields.One2many('sale.advance.line', 'wizard_id')
     has_advances = fields.Boolean(compute='compute_has_advances', store=False)
     advance_payment_method_2 = fields.Selection(
@@ -40,11 +44,6 @@ class SaleAdvancePaymentInv(models.TransientModel):
                 self.advance_payment_method = 'percentage'
 
     @api.depends('order_ids')
-    def compute_order_line(self):
-        for wizard in self:
-            wizard.order_line = [(6, 0, self.order_ids.mapped('order_line').ids)]
-
-    @api.depends('order_ids')
     def compute_has_advances(self):
         for wizard in self:
             wizard.has_advances = any(line.is_downpayment for line in wizard.order_line)
@@ -53,16 +52,21 @@ class SaleAdvancePaymentInv(models.TransientModel):
     def _x_compute_orders_currency_id(self):
         pln = self.env.ref('base.PLN')
         for wizard in self:
+
+            if not wizard.order_ids:
+                raise ValidationError(_('Missing sale order'))
+
             currency_ids = wizard.order_ids.mapped('currency_id')
-            x_is_convertible = (
-                all(currency == currency_ids[0] for currency in currency_ids)
+            wizard.x_is_convertible = (
+                currency_ids
+                and all(currency == currency_ids[0] for currency in currency_ids)
                 and all(
                     currency_id == pln for currency_id in wizard.order_ids.mapped('invoice_ids').mapped('currency_id')
                 )
                 and currency_ids[0] != pln
             )
-            wizard.x_orders_currency_id = currency_ids[0] if x_is_convertible else False
-            wizard.x_is_convertible = x_is_convertible
+
+            wizard.x_orders_currency_id = currency_ids[0] if wizard.x_is_convertible else False
 
     @api.onchange('x_convert_to_pln')
     def _x_onchange_convert_to_pln(self):
@@ -70,20 +74,6 @@ class SaleAdvancePaymentInv(models.TransientModel):
             self.currency_id = self.env.ref('base.PLN')
         else:
             self.x_convert_rate = False
-
-    @api.model
-    def default_get(self, fields_list):
-        output = super().default_get(fields_list)
-        if not self._x_get_is_poland():
-            return output
-
-        orders = self.env['sale.order'].browse(self.env.context['active_ids'])
-        output['order_ids'] = [(6, 0, orders.ids)]
-        output['invoice_lines'] = [
-            (6, 0, orders.order_line.filtered(lambda lne: lne.invoice_status == 'to invoice' or lne.display_type).ids)
-        ]
-        output['advance_payment_method'] = 'delivered'
-        return output
 
     @api.onchange('x_allowed_partner_bank_ids')
     def _x_onchange_set_partner_bank_account(self):

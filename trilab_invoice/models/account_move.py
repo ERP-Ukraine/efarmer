@@ -4,7 +4,7 @@ from collections import defaultdict
 
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError, AccessError
-from odoo.tools import get_lang, float_compare, format_date, formatLang, ormcache
+from odoo.tools import get_lang, float_compare, format_date, formatLang
 
 _logger = logging.getLogger(__name__)
 
@@ -69,7 +69,6 @@ class AccountMove(models.Model):
     x_show_currency_rate = fields.Boolean(compute='_x_compute_show_currency_rate')
 
     @api.model
-    @ormcache('self')
     def x_get_is_poland(self):
         """normally x_is_poland should be used, but for the record sets, this method should be used"""
         return self.env.company.country_id.id == self.env.ref('base.pl').id
