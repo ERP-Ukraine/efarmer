@@ -7,7 +7,7 @@
                 <p>
                     <span t-field="o.user_id.name"/>
                     <t t-if="o.user_id.phone">
-                    (<span t-field="o.user_id.phone"/>)
+                    <p t-field="o.user_id.phone"/>
                     </t>
                 </p>
             </xpath>
