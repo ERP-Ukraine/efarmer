@@ -124,6 +124,7 @@ class HrPayslipImportWizard(models.TransientModel):
             ),
             'date_start': self.date_from,
             'date_end': self.date_to,
+            'state': 'verify',
         })
         return batch
 
