@@ -26,9 +26,8 @@
 
             <group position="after">
                 <field name="order_line" readonly="1" invisible="1"/>
-                <label for="invoice_lines" attrs="{'invisible': ['|', ('has_advances', '=', False), ('advance_payment_method', 'in', ('fixed','percentage'))]}"/>
-                <field name="invoice_lines" options="{'no_create': 1}" domain="[('id', 'in', order_line), ('invoice_status', '=', 'to_invoice')]"
-                       attrs="{'invisible': ['|', ('has_advances', '=', False), ('advance_payment_method', 'in', ('fixed','percentage'))]}">
+                <label for="invoice_lines"/>
+                <field name="invoice_lines" options="{'no_create': 1}" domain="[('id', 'in', order_line), ('invoice_status', '=', 'to invoice')]">
                     <tree>
                         <!-- TODO: Zmodyfikowac widok szukania -->
                         <field name="product_id"/>

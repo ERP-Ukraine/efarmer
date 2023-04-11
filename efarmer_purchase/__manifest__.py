@@ -3,7 +3,7 @@
 
 {
     'name': 'eFarmer Purchase',
-    'version': '15.0.1.0.0',
+    'version': '15.0.1.1.0',
     'category': 'Other',
     'author': 'VentorTech',
     'website': 'https://ventor.tech',
@@ -16,6 +16,7 @@
         'security/security.xml',
         # Model Views
         'views/purchase_views.xml',
+        'report/purchase_report_views.xml',
     ],
     'installable': True,
     'application': True,
