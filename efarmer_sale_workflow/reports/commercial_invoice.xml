@@ -169,10 +169,22 @@
 
                 <div class="oe_structure"/>
                 <p>
-                    <strong>Weight: </strong>
+                    <strong>Net Weight: </strong>
                     <span t-esc="str(round(weight_sum, 2))"/>
                     <strong> kg.</strong>
                 </p>
+                <t t-if="doc.has_packages" name="has_packages">
+                    <t t-set="gross_sum" t-value="0"/>
+                    <t t-set="packages" t-value="doc.move_line_ids.mapped('result_package_id')"/>
+                    <t t-foreach="packages" t-as="package">
+                        <t t-set="gross_sum" t-value="gross_sum + package.shipping_weight"/>
+                    </t>
+                    <p>
+                        <strong>Gross Weight: </strong>
+                        <span t-esc="str(round(gross_sum, 2))"/>
+                        <strong> kg.</strong>
+                    </p>
+                </t>
                 <br>
                 </br>
                 <p>
