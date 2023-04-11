@@ -121,11 +121,11 @@
             <field name="act_window_id" ref="timesheet_action_timesheet_report"/>
         </record>
 
-        <menuitem id="timesheet_menu_report_timesheet_report"
-            parent="hr_timesheet.menu_timesheets_reports_timesheet"
-            action="timesheet_action_timesheet_report"
+        <menuitem id="project_menu_report_timesheet_report"
+            parent="project.menu_project_report"
+            action="efarmer_timesheet.timesheet_action_timesheet_report"
             name="Timesheet Report"
-            sequence="50"/>
+            sequence="20"/>
 
     </data>
 </odoo>
