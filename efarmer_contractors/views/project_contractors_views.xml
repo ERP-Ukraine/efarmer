@@ -15,10 +15,11 @@
         <field name="arch" type="xml">
             <form string="Project Contractors">
                 <header>
+                    <field name="is_generate" invisible="1"/>
                     <button name="generate_report" string="Generate Report" type="object" class="oe_highlight"
-                    attrs="{'invisible': [('state', 'in', ['done'])]}"/>
+                    attrs="{'invisible': [('state', 'in', ['in_progress','done'])]}"/>
                     <button name="generate_invoice" string="Generate Invoices" type="object" class="oe_highlight"
-                    attrs="{'invisible': [('state', 'in', ['done'])]}"/>
+                    attrs="{'invisible': ['|', ('state', 'in', ['in_progress','done']), ('is_generate', '=', False)]}"/>
                     <field name="state" widget="statusbar" statusbar_visible="new,in_progress,done"/>
                 </header>
                 <sheet>
@@ -52,7 +53,7 @@
                                     <field name="employee_id"/>
                                     <field name="description"/>
                                     <field name="hours_spent"/>
-                                    <field name="pay_rate"/>
+                                    <field name="contract_pay_rate"/>
                                     <field name="bamboo_currency_id"/>
                                     <field name="amount"/>
                                 </tree>
