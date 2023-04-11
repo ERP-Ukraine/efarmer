@@ -1,15 +1,21 @@
 # Copyright 2023 VentorTech OU
-# Part of Ventor modules. See LICENSE file for full copyright and licensing details.
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
+
 {
     'name': 'eFarmer Purchase',
-    'version': '1.0',
+    'version': '15.0.1.1.0',
+    'category': 'Other',
     'author': 'VentorTech',
-    'website': 'https://ventor.tech/',
-    'category': 'Project',
+    'website': 'https://ventor.tech',
+    'license': 'LGPL-3',
     'depends': [
         'purchase',
     ],
     'data': [
+        # Security
+        'security/security.xml',
+        # Model Views
+        'views/purchase_views.xml',
         'report/purchase_report_views.xml',
     ],
     'installable': True,
