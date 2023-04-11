@@ -51,11 +51,6 @@ class AccountAnalyticLine(models.Model):
         string='Employee Type',
         store=True,
     )
-    pay_rate = fields.Float(
-        string='Pay Rate',
-        related='employee_id.pay_rate',
-        store=True,
-    )
     bamboo_currency_id = fields.Many2one(
         'res.currency',
         string='Pay Rate Currency',

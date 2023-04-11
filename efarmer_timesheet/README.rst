@@ -4,7 +4,7 @@ Timesheet eFarmer module
 Change Log
 ##########
 
-* 2.1.0 (2023-03-31)
+* 2.1.0 (2023-04-11)
     - Added new fields to improve Timesheet Report visualization
 
 * 1.0.1 (2023-03-15)
