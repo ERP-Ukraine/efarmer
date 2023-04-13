@@ -58,10 +58,18 @@
                     </ul>
                     <ul class="list-unstyled">
                         <strong>Responsible: </strong>
-                        <li><t t-esc="doc.user_id.name"/></li>
-                        <li><t t-esc="doc.user_id.email"/></li>
-                        <li><t t-esc="doc.user_id.phone"/></li>
-                        <li><t t-esc="doc.user_id.mobile"/></li>
+                        <t t-if="doc.user_id">
+                            <li><t t-esc="doc.user_id.name"/></li>
+                            <li><t t-esc="doc.user_id.email"/></li>
+                            <li><t t-esc="doc.user_id.phone"/></li>
+                            <li><t t-esc="doc.user_id.mobile"/></li>
+                        </t>
+                        <t t-else="">
+                            <li><t t-esc="doc.sale_id.warehouse_id.user_id.name"/></li>
+                            <li><t t-esc="doc.sale_id.warehouse_id.user_id.email"/></li>
+                            <li><t t-esc="doc.sale_id.warehouse_id.user_id.phone"/></li>
+                            <li><t t-esc="doc.sale_id.warehouse_id.user_id.mobile"/></li>
+                        </t>
                     </ul>
                 </div>
 
