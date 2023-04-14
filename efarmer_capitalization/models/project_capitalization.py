@@ -249,7 +249,7 @@ class ProjectCapitalization(models.Model):
                 line.asset_id.message_post(body=_('Depreciation board modified') + '<br>' + self.name,
                                            tracking_value_ids=tracking_value_ids)
 
-        # self.state = 'done'
+        self.state = 'done'
 
     def line_capitalize(self):
         for capitalization in self:
