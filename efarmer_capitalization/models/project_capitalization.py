@@ -148,23 +148,107 @@ class ProjectCapitalization(models.Model):
         lines = self.capitalization_line_ids
 
         for line in lines:
+            value_residual = 0.00
             currency = line.currency_id
             original_value = currency._convert(line.amount, line.asset_id.currency_id, self.company_id, fields.Date.today())
-            asset_child = line.asset_id.env['account.asset'].create({
-                'parent_id': line.asset_id.id,
-                'state': 'open',
-                'name': f"{self.name} {fields.Date.today()}",
+            old_values = {
                 'method_number': line.asset_id.method_number,
-                'currency_id': line.asset_id.currency_id.id,
+                'method_period': line.asset_id.method_period,
+                'value_residual': line.asset_id.value_residual,
+                'salvage_value': line.asset_id.salvage_value,
+            }
+            asset_vals = {
+                'method_number': line.asset_id.method_number,
+                'method_period': line.asset_id.method_period,
+                'value_residual': value_residual,
                 'salvage_value': original_value,
-                'original_value': original_value,
-                'journal_id': line.asset_id.journal_id.id,
-                'asset_type': 'purchase',
-                'account_asset_id': line.account_asset_counterpart_id.id,
-                'account_depreciation_id': line.asset_id.account_depreciation_id.id,
-                'account_depreciation_expense_id': line.asset_id.account_depreciation_expense_id.id,
+            }
+            current_asset_book = line.asset_id.value_residual + line.asset_id.salvage_value
+            increase = original_value - current_asset_book
+            new_residual = min(current_asset_book - min(original_value, line.asset_id.salvage_value),
+                               value_residual)
+            new_salvage = min(current_asset_book - new_residual, original_value)
+            residual_increase = max(0, value_residual - new_residual)
+            salvage_increase = max(0, original_value - new_salvage)
+            if line.asset_id.currency_id.round(residual_increase + salvage_increase) > 0:
+                move = line.env['account.move'].create({
+                    'journal_id': line.asset_id.journal_id.id,
+                    'date': fields.Date.today(),
+                    'line_ids': [
+                        (0, 0, {
+                            'account_id': line.asset_id.account_asset_id.id,
+                            'debit': residual_increase + salvage_increase,
+                            'credit': 0,
+                            'name': _('Value increase for: %(asset)s', asset=line.asset_id.name),
+                        }),
+                        (0, 0, {
+                            'account_id': line.account_asset_counterpart_id.id,
+                            'debit': 0,
+                            'credit': residual_increase + salvage_increase,
+                            'name': _('Value increase for: %(asset)s', asset=line.asset_id.name),
+                        }),
+                    ],
+                })
+                move._post()
+                asset_increase = line.env['account.asset'].create({
+                    'name': f"{self.name} {fields.Date.today()}",
+                    'currency_id': line.asset_id.currency_id.id,
+                    'company_id': line.asset_id.company_id.id,
+                    'asset_type': line.asset_id.asset_type,
+                    'method': line.asset_id.method,
+                    'method_number': line.asset_id.method_number,
+                    'method_period': line.asset_id.method_period,
+                    'acquisition_date': fields.Date.today(),
+                    'value_residual': residual_increase,
+                    'salvage_value': salvage_increase,
+                    'original_value': residual_increase + salvage_increase,
+                    'account_asset_id': line.asset_id.account_asset_id.id,
+                    'account_depreciation_id': line.asset_id.account_depreciation_id.id,
+                    'account_depreciation_expense_id': line.asset_id.account_depreciation_expense_id.id,
+                    'journal_id': line.asset_id.journal_id.id,
+                    'parent_id': line.asset_id.id,
+                    'original_move_line_ids': [
+                        (6, 0, move.line_ids.filtered(lambda r: r.account_id == line.asset_id.account_asset_id).ids)],
+                })
+                asset_increase.validate()
+                subject = _(
+                    'A gross increase has been created') + ': <a href=# data-oe-model=account.asset data-oe-id=%d>%s</a>' % (
+                          asset_increase.id, asset_increase.name)
+                line.asset_id.message_post(body=subject)
+
+            if increase < 0:
+                if self.env['account.move'].search(
+                        [('asset_id', '=', line.asset_id.id), ('state', '=', 'draft'), ('date', '<=', fields.Date.today())]):
+                    raise UserError(
+                        'There are unposted depreciations prior to the selected operation date, please deal with them first.')
+                move = line.env['account.move'].create(line.env['account.move']._prepare_move_for_asset_depreciation({
+                    'amount': -increase,
+                    'asset_id': line.asset_id,
+                    'move_ref': _('Value decrease for: %(asset)s', asset=line.asset_id.name),
+                    'date': fields.Date.today(),
+                    'asset_remaining_value': 0,
+                    'asset_depreciated_value': 0,
+                    'asset_value_change': True,
+                }))._post()
+
+            asset_vals.update({
+                'value_residual': new_residual,
+                'salvage_value': new_salvage,
             })
-            asset_child.compute_depreciation_board()
+            line.asset_id.write(asset_vals)
+            line.asset_id.compute_depreciation_board()
+            line.asset_id.children_ids.write({
+                'method_number': asset_vals['method_number'],
+                'method_period': asset_vals['method_period'],
+            })
+            for child in line.asset_id.children_ids:
+                child.compute_depreciation_board()
+            tracked_fields = line.env['account.asset'].fields_get(old_values.keys())
+            changes, tracking_value_ids = line.asset_id._mail_track(tracked_fields, old_values)
+            if changes:
+                line.asset_id.message_post(body=_('Depreciation board modified') + '<br>' + self.name,
+                                           tracking_value_ids=tracking_value_ids)
+
         self.state = 'done'
 
     def line_capitalize(self):
@@ -185,17 +269,17 @@ class ProjectCapitalization(models.Model):
         action['context'] = {'group_by': ['task_product_id', 'account_asset_counterpart_id']}
         return action
 
-    def unlink(self):
-        for line in self:
-            if line.state == 'done':
-                raise UserError(_('You cannot delete a locked Capitalization.'))
-        return super(ProjectCapitalization, self).unlink()
-
-    def write(self, vals):
-        for line in self:
-            if line.state == 'done':
-                raise UserError(_('You cannot edit a locked Capitalization.'))
-        return super(ProjectCapitalization, self).write(vals)
+    # def unlink(self):
+    #     for line in self:
+    #         if line.state == 'done':
+    #             raise UserError(_('You cannot delete a locked Capitalization.'))
+    #     return super(ProjectCapitalization, self).unlink()
+    #
+    # def write(self, vals):
+    #     for line in self:
+    #         if line.state == 'done':
+    #             raise UserError(_('You cannot edit a locked Capitalization.'))
+    #     return super(ProjectCapitalization, self).write(vals)
 
     @api.model
     def create(self, vals):
