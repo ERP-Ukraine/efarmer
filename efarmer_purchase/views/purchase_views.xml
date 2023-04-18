@@ -1,0 +1,52 @@
+<odoo>
+    <data>
+
+        <record id="purchase_order_form_inherit_efarmer_purchase" model="ir.ui.view">
+            <field name="name">purchase.order.form.inherit.efarmer.purchase</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <field name="state" position="attributes">
+                    <attribute name="statusbar_visible">draft,sent,confirm_demand,fin_approve,purchase</attribute>
+                </field>
+
+                <xpath expr="//button[@name='button_confirm'][1]" position="attributes">
+                    <attribute name="groups">purchase.group_purchase_manager</attribute>
+                    <attribute name="states">sent,fin_approve</attribute>
+                </xpath>
+
+                <xpath expr="//button[@name='button_confirm'][2]" position="attributes">
+                    <attribute name="groups">purchase.group_purchase_manager</attribute>
+                </xpath>
+
+                <xpath expr="//button[@name='print_quotation'][1]" position="after">
+                    <button name="action_confirm_rfq"
+                            string="CONFIRM RFQ"
+                            class="btn-primary"
+                            states="draft,sent"
+                            type="object"
+                            groups='efarmer_purchase.efarmer_purchase_allow_confirm_rfq' />
+                    <button name="action_confirm_demand"
+                            string="CONFIRM DEMAND"
+                            class="btn-primary"
+                            states="confirm_demand"
+                            type="object"
+                            groups='efarmer_purchase.efarmer_purchase_allow_confirm_demand' />
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_purchase_order_rfq_efarmer_purchase_search" model="ir.ui.view">
+            <field name="name">purchase.order.rfq.search</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
+            <field name="arch" type="xml">
+                <filter name="draft" position="after">
+                    <filter string="Confirm Demand" name="confirm_demand" domain="[('state','=', 'confirm_demand')]"/>
+                    <filter string="Financial Approval" name="fin_approve" domain="[('state','=', 'fin_approve')]"/>
+                </filter>
+            </field>
+        </record>
+
+    </data>
+</odoo>
