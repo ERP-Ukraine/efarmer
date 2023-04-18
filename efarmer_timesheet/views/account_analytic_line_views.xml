@@ -52,12 +52,11 @@
                     <filter string="Name PL" name="groupby_name_pl" domain="[]" context="{'group_by': 'name_pl'}" />
                     <filter string="Product Version" name="groupby_product_version_id" domain="[]" context="{'group_by': 'product_version_id'}" />
                     <filter string="Issue Type" name="groupby_issue_type_id" domain="[]" context="{'group_by': 'issue_type_id'}" />
-                    <filter string="Paid" name="groupby_issue_type_id" domain="[]" context="{'group_by': 'issue_type_id'}" />
                 </xpath>
                 <xpath expr="//filter[@name='month']" position="before">
                     <filter name="paid" string="Paid" domain="[('is_paid', '=', True)]" />
-                    <filter name="capitalized" string="Capitilized" domain="[('is_capitalized', '=', True)]" />
-                    <filter name="not_paid_not_capitalized" string="Not Capitilized/Paid" domain="[('is_paid', '=', False),('is_capitalized', '=', False)]" />
+                    <filter name="capitalized" string="Capitalized" domain="[('is_capitalized', '=', True)]" />
+                    <filter name="not_paid_not_capitalized" string="Not Capitalized/Not Paid" domain="[('is_paid', '=', False),('is_capitalized', '=', False)]" />
                     <separator/>
                 </xpath>
 

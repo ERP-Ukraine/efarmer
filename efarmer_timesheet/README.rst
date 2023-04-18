@@ -4,6 +4,10 @@ Timesheet eFarmer module
 Change Log
 ##########
 
+* 2.1.1 (2023-04-18)
+    - Fixed grouping of Timesheets
+    - Added migration script to update Rate per Hour for existing Timesheets
+
 * 2.1.0 (2023-04-11)
     - Added new fields to improve Timesheet Report visualization
 
