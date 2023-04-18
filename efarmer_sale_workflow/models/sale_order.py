@@ -20,10 +20,10 @@ class SaleOrder(models.Model):
     )
 
     priority = fields.Selection([
-        ('0', 'Low priority'),
-        ('1', 'Medium priority'),
-        ('2', 'High priority'),
-        ('3', 'Urgent'),
+            ('0', 'Low priority'),
+            ('1', 'Medium priority'),
+            ('2', 'High priority'),
+            ('3', 'Urgent'),
         ],
         string='Priority',
         default='0',
