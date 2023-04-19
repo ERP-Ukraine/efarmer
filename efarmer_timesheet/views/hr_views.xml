@@ -38,5 +38,23 @@
             </field>
         </record>
 
+        <record id="efarmer_timesheet_view_employee_tree_inherit" model="ir.ui.view">
+            <field name="name">hr.employee.tree</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_tree"></field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='category_ids']" position="after">
+                    <field name="paid_per" optional="hide" />
+                    <field name="pay_rate" optional="hide" />
+                    <field name="bamboo_currency_id" optional="hide"/>
+                    <field name="ann_gross_salary" optional="hide" />
+                    <field name="ann_payroll_tax" optional="hide" />
+                    <field name="ann_med_insurance_cost" optional="hide" />
+                    <field name="ann_bonus" optional="hide" />
+                    <field name="other_allowances" optional="hide" />
+                </xpath>
+            </field>
+        </record>
+
     </data>
 </odoo>
