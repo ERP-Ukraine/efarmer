@@ -4,7 +4,7 @@
 
 {
     'name': 'Timesheet eFarmer',
-    'version': '15.0.2.1.1',
+    'version': '15.0.2.1.2',
     'category': 'Other',
     'author': 'VentorTech',
     'website': 'https://ventor.tech',
