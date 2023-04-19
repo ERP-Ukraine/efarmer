@@ -231,17 +231,18 @@ class ProjectContractors(models.Model):
         action['context'] = {'group_by': ['partner_id']}
         return action
 
-    # def unlink(self):
-    #     for line in self:
-    #         if line.state in ['in_progress', 'done']:
-    #             raise UserError(_('You cannot delete a locked Project Invoice B2B Contactors.'))
-    #     return super(ProjectContractors, self).unlink()
-    #
-    # def write(self, vals):
-    #     for line in self:
-    #         if line.state in ['in_progress', 'done']:
-    #             raise UserError(_('You cannot edit a locked Project Invoice B2B Contactors.'))
-    #     return super(ProjectContractors, self).write(vals)
+
+    def unlink(self):
+        for line in self:
+            if line.state in ['in_progress', 'done']:
+                raise UserError(_('You cannot delete a locked Project Invoice B2B Contactors.'))
+        return super(ProjectContractors, self).unlink()
+
+    def write(self, vals):
+        for line in self:
+            if line.state in ['in_progress', 'done']:
+                raise UserError(_('You cannot edit a locked Project Invoice B2B Contactors.'))
+        return super(ProjectContractors, self).write(vals)
 
     @api.model
     def create(self, vals):
