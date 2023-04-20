@@ -27,7 +27,7 @@ class SaleOrder(models.Model):
         ],
         string='Priority',
         default='0',
-        )
+    )
 
     def action_to_confirm(self):
         return self.write({'state': 'to_confirm'})
