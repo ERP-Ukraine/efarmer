@@ -4,7 +4,7 @@
 
 {
     'name': 'Timesheet eFarmer',
-    'version': '15.0.2.0.2',
+    'version': '15.0.2.1.2',
     'category': 'Other',
     'author': 'VentorTech',
     'website': 'https://ventor.tech',
@@ -15,6 +15,7 @@
         'project',
         'hr',
         'hr_timesheet',
+        'timesheet_grid',
         'efarmer_youtrack',
     ],
     'data': [
