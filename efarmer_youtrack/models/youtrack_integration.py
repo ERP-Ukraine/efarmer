@@ -194,6 +194,9 @@ class YoutrackIntegration(models.Model):
         if custom_values.get('asset_id', False):
             custom_values['asset_id'] = self._get_account_asset(custom_values['asset_id']).id
 
+        if custom_values.get('name_pl', False):
+            custom_values['name_pl'] = custom_values['name_pl']['text']
+
         return custom_values
 
     def _get_employees_data(self, ext_empls):
@@ -374,7 +377,7 @@ class YoutrackIntegration(models.Model):
 
         get_tasks_url = 'issues/{}?fields=id,idReadable,summary,project(id,shortName),'\
                         'parent(issues(id,project(id,shortName))),customFields(name,'\
-                        'value(id,name,minutes))&customFields=type&'\
+                        'value(id,text,name,minutes))&customFields=type&'\
                         'customFields=Estimation&customFields=Product version&'\
                         'customFields=Product&customFields=Name PL&$top=1'.format(task_ext_id)
         ext_task = self._send_youtrack_request(get_tasks_url) or []

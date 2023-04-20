@@ -97,7 +97,7 @@ API_TASK_RESPONSE = {
                             '$type': 'PeriodIssueCustomField'
                         },
                         {
-                            'value': 'Name in Polish',
+                            'value': None,
                             'name': 'Name PL',
                             '$type': 'TextIssueCustomField'
                         },
@@ -158,7 +158,11 @@ API_PARENT_TASK_RESPONSE = {
                             '$type': 'PeriodIssueCustomField'
                         },
                         {
-                            'value': 'Name in Polish',
+                            "value": {
+                                "id": "text",
+                                "text": "Name in Polish",
+                                "$type": "TextFieldValue"
+                            },
                             'name': 'Name PL',
                             '$type': 'TextIssueCustomField'
                         },
