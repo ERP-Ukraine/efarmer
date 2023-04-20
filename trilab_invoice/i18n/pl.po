@@ -1,0 +1,1058 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* trilab_invoice
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-12-11 15:27+0000\n"
+"PO-Revision-Date: 2022-12-11 15:27+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "&amp;bull;&amp;nbsp;BIC/SWIFT:"
+msgstr "&amp;byk;&amp;nbsp; BIC/SWIFT:"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
+msgid ""
+"<span class=\"fa fa-lg fa-building-o\" title=\"Values set here are company-"
+"specific.\" groups=\"base.group_multi_company\"/>"
+msgstr ""
+"<span class=\"fa fa-lg fa-building-o\" title=\"Wartości tutaj wyświetlone są"
+" typowe dla danej firmy.\" groups=\"base.group_multi_company\"/>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">NET Amount</span>\n"
+"                <span groups=\"account.group_show_line_subtotals_tax_included\">GROSS Amount</span>"
+msgstr ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">Kwota Netto</span>\n"
+"                <span groups=\"account.group_show_line_subtotals_tax_included\">Kwota Brutto</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">NET Amount</span>\n"
+"              <span groups=\"account.group_show_line_subtotals_tax_included\">GROSS Amount</span>"
+msgstr ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">Kwota Netto</span>\n"
+"              <span groups=\"account.group_show_line_subtotals_tax_included\">Kwota Brutto</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">NET Amount</span>\n"
+"        <span groups=\"account.group_show_line_subtotals_tax_included\">GROSS Amount</span>"
+msgstr ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">Kwota Netto</span>\n"
+"        <span groups=\"account.group_show_line_subtotals_tax_included\">Kwota Brutto</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Description</span>"
+msgstr "<span>Opis</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Disc.%</span>"
+msgstr "<span>Rabat (%)</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>GROSS Amount</span>"
+msgstr "<span>Wartość brutto</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Invoice Date</span>"
+msgstr "<span>Data Faktury</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Invoice Number</span>"
+msgstr "<span>Numer Faktury</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Items after correction:</span>"
+msgstr "<span>Pozycje po korekcie:</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Items prior to correction:</span>"
+msgstr "<span>Pozycje przed korektą:</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>NET Amount</span>"
+msgstr "<span>Wartość netto</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Quantity</span>"
+msgstr "<span>Ilość</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Taxes</span>"
+msgstr "<span>Podatki</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Unit Price NET</span>"
+msgstr "<span>Cena jedn. netto</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>VAT Amount</span>"
+msgstr "<span>Kwota VAT</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<strong class=\"mt-4\">Connected Advance Invoices:</strong>"
+msgstr "<strong class=\"mt-4\">Powiązane faktury zaliczkowe:</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<strong class=\"mt-4\">Sale Order Summary:</strong>"
+msgstr "<strong class=\"mt-4\">Podsumowanie umowy/zamówienia:</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<strong class=\"mt-4\">Total after taking into account advances:</strong>"
+msgstr "<strong class=\"mt-4\">Razem po uwzględnieniu zaliczek:</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<strong>Advance Invoice Summary / Amount To Pay:</strong>"
+msgstr "<strong>Podsumowanie faktury zaliczkowej/Do zapłaty:</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<strong>Corrected invoice:</strong>"
+msgstr "<strong>Korygowana faktura:</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<strong>Correction reason:</strong>"
+msgstr "<strong>Przyczyna korekty:</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.tax_summary
+msgid "<strong>GROSS Amount</strong>"
+msgstr "<strong>Wartość brutto</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.tax_summary
+msgid "<strong>NET Amount</strong>"
+msgstr "<strong>Wartość netto</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<strong>Original invoice date:</strong>"
+msgstr "<strong>Data oryginalnej faktury:</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<strong>Sale Date:</strong>"
+msgstr "<strong>Data sprzedaży:</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid ""
+"<strong>Settlement of received advance payment according to tax "
+"rates:</strong>"
+msgstr ""
+"<strong>Rozliczenie otrzymanej zaliczki wg stawek podatkowych</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.tax_summary
+msgid "<strong>Total</strong>"
+msgstr "<strong>Razem</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.tax_summary
+msgid "<strong>VAT Amount in PLN</strong>"
+msgstr "<strong>Kwota VAT w PLN</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.tax_summary
+msgid "<strong>VAT Amount</strong>"
+msgstr "<strong>Kwota VAT</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.tax_summary
+msgid "<strong>VAT Rate</strong>"
+msgstr "<strong>Stawka VAT</strong>"
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_account_move_reversal
+msgid "Account Move Reversal"
+msgstr "Odwrócenie zapisu"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_partner_bank_id
+msgid "Account Number"
+msgstr "Numer Konta"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Add Credit Note PL"
+msgstr "Wystaw Korektę"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Add a line"
+msgstr "Dodaj linię"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Add a note"
+msgstr "Dodaj notatkę"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Add a section"
+msgstr "Dodaj sekcję"
+
+#. module: trilab_invoice
+#: model:ir.model.fields.selection,name:trilab_invoice.selection__sale_advance_payment_inv__advance_payment_method_2__advance
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Advance Invoice"
+msgstr "Faktura zaliczkowa"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__advance_invoices_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__advance_invoices_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__advance_invoices_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_order__advance_invoices
+msgid "Advance Invoices"
+msgstr "Faktury zaliczkowe"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__advance_lines
+msgid "Advance Lines"
+msgstr "Pozycje zaliczki"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__advance_source_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__advance_source_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__advance_source_id
+msgid "Advance Source"
+msgstr "Źródło zaliczki"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
+#, python-format
+msgid "Advance line value is bigger than order value"
+msgstr ""
+"Suma wartości faktur zaliczkowych przekracza wartości w powiązanym "
+"zamówieniu sprzedaży"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
+#, python-format
+msgid "Advance line value must be positive"
+msgstr "Wartość pozycji zaliczkowej musi być dodatnia"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
+#, python-format
+msgid "Advance payment"
+msgstr "Zaliczka"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
+#, python-format
+msgid "Advance payment [%s]"
+msgstr "Zaliczka [%s]"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid ""
+"An invoice cannot be modified if it is associated with corrections.\n"
+"Delete corrections or create a new correction to an existing correction"
+msgstr ""
+"Faktura nie może być modyfikowana jeżeli wystawiona już jest do niej korekta.\n"
+"Usuń korektę lub utwórz korektę do istniejącej korekty"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Bank Account Number:"
+msgstr "Konto bankowe:"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Buyer:"
+msgstr "Nabywca:"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Cancelled Advance Invoice"
+msgstr "Anulowana faktura zaliczkowa"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Cancelled Final Invoice"
+msgstr "Anulowana faktura finalna"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Cancelled Invoice"
+msgstr "Anulowana faktura"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
+msgid ""
+"Change currency rate for invoices in foreign currencies according to sale "
+"date."
+msgstr "Zmień kurs waluty dla faktur w walutach obcych według daty sprzedaży."
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Change only those lines that should be corrected"
+msgstr "Zmień tylko te linie, które podlegają korekcie"
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_res_company
+msgid "Companies"
+msgstr "Firmy"
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_res_config_settings
+msgid "Config Settings"
+msgstr "Ustawienia konfiguracji"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_convert_rate
+msgid "Convert Rate"
+msgstr "Kurs Konwersji"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_convert_to_pln
+msgid "Convert To PLN"
+msgstr "Konwertuj Do PLN"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__corrected_invoice_line_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__corrected_invoice_line_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__corrected_invoice_line_ids
+msgid "Corrected Invoice lines"
+msgstr "Skorygowane linie faktury"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__corrected_line
+msgid "Corrected Line"
+msgstr "Skorygowana Linia"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_corrected_amount_by_group
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_corrected_amount_by_group
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_corrected_amount_by_group
+msgid "Corrected Tax amount by group"
+msgstr "Skorygowana kwota VAT zgrupowana"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_corrected_amount_summary
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_corrected_amount_summary
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_corrected_amount_summary
+msgid "Corrected Tax amount summary"
+msgstr "Skorygowana kwota VAT podsumowanie"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_account_move_reversal_pl
+msgid "Corrected invoice number"
+msgstr "Nr faktury korygowanej"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Correction Invoice"
+msgstr "Faktura korekta"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__correction_invoices_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__correction_invoices_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__correction_invoices_ids
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+#, python-format
+msgid "Correction Invoices"
+msgstr "Faktura korekta"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__correction_invoices_len
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__correction_invoices_len
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__correction_invoices_len
+msgid "Correction Invoices Len"
+msgstr "Ilość Faktur Korekt"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_order_form
+msgid "Create Invoice PL"
+msgstr "Wystaw Fakturę PL"
+
+#. module: trilab_invoice
+#: model:ir.actions.act_window,name:trilab_invoice.action_view_sale_advance_payment_inv_pl
+msgid "Create invoices PL"
+msgstr "Wystaw Fakturę PL"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__create_uid
+msgid "Created by"
+msgstr "Utworzona przez"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__create_date
+msgid "Created on"
+msgstr "Data utworzenia"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "Credit Note"
+msgstr "Korekta"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "Credit Note PL"
+msgstr "Faktura Korekta (PL)"
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_res_currency
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__currency_id
+msgid "Currency"
+msgstr "Waluta"
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_res_currency_rate
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_currency_rate
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_currency_rate
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_currency_rate
+msgid "Currency Rate"
+msgstr "Kurs waluty"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Description"
+msgstr "Opis"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Disc.%"
+msgstr "Upust%"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__display_name
+msgid "Display Name"
+msgstr "Nazwa wyświetlana"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Draft Final Invoice"
+msgstr "Szablon faktury finalnej"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Draft Invoice"
+msgstr "Szablon faktury"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_invoice_duplicate_date
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_invoice_duplicate_date
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_invoice_duplicate_date
+msgid "Duplicate Date"
+msgstr "Data duplikatu"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Duplicate on"
+msgstr "Duplikat z dnia"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_res_company__x_enable_invoice_rate_change
+#: model:ir.model.fields,field_description:trilab_invoice.field_res_config_settings__x_enable_invoice_rate_change
+msgid "Enable Invoice Rate Change"
+msgstr "Włącz możliwość zmiany kursu faktury"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__final_invoice_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__final_invoice_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__final_invoice_ids
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Final Invoice"
+msgstr "Faktura finalna"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__final_source_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__final_source_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__final_source_id
+msgid "Final Source"
+msgstr "Źródło faktury finalnej"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__has_advances
+msgid "Has Advances"
+msgstr "Ma zaliczki"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__id
+msgid "ID"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "In words:"
+msgstr "Słownie:"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
+#, python-format
+msgid "Invalid advance invoice lines"
+msgstr "Niepoprawne pozycje zaliczki"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Invoice"
+msgstr "Faktura"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__invoice_lines
+msgid "Invoice Lines"
+msgstr "Pozycje faktury"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Invoice Number"
+msgstr "Numer Faktury"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__advance_payment_method_2
+msgid "Invoice Type"
+msgstr "Typ faktury"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Invoiced Products:"
+msgstr "Fakturowane produkty:"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_is_convertible
+msgid "Is Convertible"
+msgstr "Czy Zamienny"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__is_downpayment
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__is_downpayment
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__is_downpayment
+msgid "Is Downpayment"
+msgstr "Czy zaliczka"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "It is not possible to issue two direct corrections for one correction."
+msgstr ""
+"Nie jest możliwe utworzenie dwóch bezpośrednich korekt dla jednej korekty."
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "It is not possible to issue two direct corrections for one invoice."
+msgstr ""
+"Nie jest możliwe utworzenie dwóch bezpośrednich korekt dla jednej faktury."
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_account_move
+msgid "Journal Entry"
+msgstr "Zapis dziennika"
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_account_move_line
+msgid "Journal Item"
+msgstr "Pozycja zapisu"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Journal Items"
+msgstr "Pozycje zapisu"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line____last_update
+msgid "Last Modified on"
+msgstr "Data ostatniej modyfikacji"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__write_uid
+msgid "Last Updated by"
+msgstr "Ostatnio aktualizowane przez"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__write_date
+msgid "Last Updated on"
+msgstr "Data ostatniej aktualizacji"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Lines After"
+msgstr "Linie Po"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Lines Before"
+msgstr "Linie Przed"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
+#, python-format
+msgid "No delivered lines to invoice"
+msgstr "Brak dostarczonych pozycji do zafakturowania"
+
+#. module: trilab_invoice
+#: model:ir.model.fields.selection,name:trilab_invoice.selection__sale_advance_payment_inv__advance_payment_method_2__normal
+msgid "Normal Invoice"
+msgstr "Zwykła Faktura"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Note"
+msgstr "Notatka"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__order_ids
+msgid "Order"
+msgstr "Zamówienie"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__order_line
+msgid "Order Line"
+msgstr "Pozycja zlecenia sprzedaży"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_orders_currency_id
+msgid "Orders Currency"
+msgstr "Waluta Zamówień"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__original_invoice_line_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__original_invoice_line_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__original_invoice_line_ids
+msgid "Original Invoice Lines"
+msgstr "Oryginalne Linie Faktury"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__original_subtotal
+msgid "Original Subtotal"
+msgstr "Oryginalna suma częściowa"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__original_total
+msgid "Original Total"
+msgstr "Oryginalna suma"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "Outstanding credits"
+msgstr ""
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "Outstanding debits"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document_with_payments
+msgid "Paid on"
+msgstr "Zapłacono"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
+#, python-format
+msgid "Percent Value cannot be greater than 100%"
+msgstr "Procent wartości nie może być większy niż 100%"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
+#, python-format
+msgid "Percent Value must be positive"
+msgstr "Procent wartości musi być dodatni"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Price"
+msgstr "Cena"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Pro Forma Invoice"
+msgstr "Faktura Pro Forma"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Quantity"
+msgstr "Ilość"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
+#: code:addons/trilab_invoice/models/sale_order.py:0
+#: code:addons/trilab_invoice/models/sale_order.py:0
+#, python-format
+msgid "Rate %s with effective date: %s"
+msgstr "Kurs %s z daty obowiązywania: %s"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_account_move_reversal_pl
+msgid "Reason"
+msgstr "Przyczyna"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Reference"
+msgstr "Odnośnik"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__refund_invoice_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__refund_invoice_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__refund_invoice_id
+msgid "Refund Invoice"
+msgstr "Faktura korygująca"
+
+#. module: trilab_invoice
+#: model:ir.actions.act_window,name:trilab_invoice.action_view_account_move_reversal_pl
+msgid "Reverse"
+msgstr "Korekta"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move_reversal.py:0
+#, python-format
+msgid "Reverse Moves"
+msgstr "Odwróć zapisy"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "SPLIT PAYMENT MECHANISM"
+msgstr "MECHANIZM PODZIELONEJ PŁATNOŚCI"
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_sale_advance_line
+msgid "Sale Advance Line"
+msgstr "Pozycja zaliczki"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_journal_id
+msgid "Sale Journal"
+msgstr "Dziennik sprzedaży"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Sale Order Data ("
+msgstr "Dane dotyczące umowy/zamówienia ("
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_invoice_sale_date
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_invoice_sale_date
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_invoice_sale_date
+msgid "Sale/Currency Date"
+msgstr "Data sprzedaży/kursu"
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_sale_advance_payment_inv
+msgid "Sales Advance Payment Invoice"
+msgstr "Zaliczkowa faktura sprzedaży"
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_sale_order
+msgid "Sales Order"
+msgstr "Zamówienie sprzedaży"
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Pozycja zamówienia sprzedaży"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Section"
+msgstr "Sekcja"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__selected_correction_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__selected_correction_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_reversal__selected_correction_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__selected_correction_invoice
+msgid "Selected Correction Invoice"
+msgstr "Wybrana Faktura Korekta"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move_reversal.py:0
+#, python-format
+msgid "Single invoice only"
+msgstr "Tylko pojedyńcza faktura"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Subtotal"
+msgstr "Podsuma"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__tax_id
+msgid "Tax"
+msgstr "Rodzaj podatku"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_is_poland
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_is_poland
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_reversal__x_is_poland
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_is_poland
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_order__x_is_poland
+msgid "Technical Field: Is Poland"
+msgstr "Pole Techniczne: Czy Polska"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "The Bill/Refund date is required to validate this document."
+msgstr ""
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "The entry %s (id %s) is already posted."
+msgstr ""
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid ""
+"The field 'Customer' is required, please complete it to validate the "
+"Customer Invoice."
+msgstr ""
+"Pole 'Klient' jest wymagane, uzupełnij je by móc zwalidować fakturę dla "
+"klienta."
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid ""
+"The field 'Vendor' is required, please complete it to validate the Vendor "
+"Bill."
+msgstr ""
+"Pole 'Dostawca' jest wymagane, uzupełnij je by móc zwalidować fakturę "
+"dostawcy."
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
+#, python-format
+msgid ""
+"The product used to invoice a down payment should be of type 'Service'. "
+"lease use another product or update this product."
+msgstr ""
+"Produkt przypisany do zaliczki musi być typu 'Usługa'. Proszę użyć innego "
+"produktu lub zmodyfikować obecny."
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
+#, python-format
+msgid ""
+"The product used to invoice a down payment should have an invoice policy set"
+" to \"Ordered quantities\". Please update your deposit product to be able to"
+" create a deposit invoice."
+msgstr ""
+"Produkt przypisany do zaliczki musi być typu 'Usługa'. Proszę użyć innego "
+"produktu lub zmodyfikować obecny."
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid ""
+"The recipient bank account link to this invoice is archived.\n"
+"So you cannot confirm the invoice."
+msgstr ""
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "This move is configured to be auto-posted on %s"
+msgstr "Ten zapis jest skonfigurowany aby był automatycznie zapisywany na %s"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "This move will be posted at the accounting date: %(date)s"
+msgstr "Ten zapis zostanie zaksięgowany w dniu: %(date)s"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_in_invoice_tree
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_out_invoice_tree
+msgid "To Pay in Currency"
+msgstr "Do Zapłaty w walucie"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Total"
+msgstr "Suma"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__x_move_type
+msgid "Type"
+msgstr "Typ"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "Untaxed Amount"
+msgstr "Kwota nieopodatkowana"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "UoM"
+msgstr "JM"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__percent
+msgid "Value Percent"
+msgstr "Procent wartości"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__value_total
+msgid "Value [GROSS]"
+msgstr "Kwota brutto"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__value
+msgid "Value [NET]"
+msgstr "Kwota netto"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/sale_order.py:0
+#, python-format
+msgid "Value in advance invoices is greater than order value"
+msgstr ""
+"Suma wartości faktur zaliczkowych jest większa niż wartość powiązanego "
+"zamówienia sprzedaży"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Vendor Bill"
+msgstr "Faktura sprzedawcy"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Vendor Correction Invoice"
+msgstr "Faktura Korekty Dostawcy"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "Vendor invoice number is required"
+msgstr "Numer faktury dostawcy jest wymagany"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__wizard_id
+msgid "Wizard"
+msgstr "Kreator"
+
+#. module: trilab_invoice
+#: model:ir.model.constraint,message:trilab_invoice.constraint_account_move_line_check_credit_debit
+msgid "Wrong credit or debit value in accounting entry!"
+msgstr "Błędna wartość WN lub MA we wpisie księgowym!"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_allowed_partner_bank_ids
+msgid "X Allowed Partner Bank"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_amount_residual
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_amount_residual
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_amount_residual
+msgid "X Amount Due"
+msgstr "Pozostała kwota"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_corrected_amount_total
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_corrected_amount_total
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_corrected_amount_total
+msgid "X Corrected Amount Total"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_invoice_sign
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_invoice_sign
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_invoice_sign
+msgid "X Invoice Sign"
+msgstr "Znak Faktury"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__x_price_subtotal_reverse
+msgid "X Price Subtotal Reverse"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__x_price_total_reverse
+msgid "X Price Total Reverse"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__x_quantity_reverse
+msgid "X Quantity Reverse"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_show_currency_rate
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_show_currency_rate
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_show_currency_rate
+msgid "X Show Currency Rate"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_amount_total
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_amount_total
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_amount_total
+msgid "X Total in Currency"
+msgstr "Razem w walucie"
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "You cannot post an entry in an archived journal (%(journal)s)"
+msgstr ""
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "You cannot validate an invoice with an inactive currency: %s"
+msgstr ""
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "You don't have the access rights to post an invoice."
+msgstr "Nie masz wystarczających uprawnień aby zaksięgować fakturę."
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "You need to add a line before posting."
+msgstr "Musisz dodać co najmniej jedną linię przed zatwierdzeniem."

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="module_trilab_jpk_transfer_management" model="ir.module.category">
+        <field name="name">JPK Transfer</field>
+        <field name="sequence">75</field>
+    </record>
+
+    <record id="jpk_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="category_id" ref="module_trilab_jpk_transfer_management"/>
+    </record>
+    <record id="jpk_user_see_all" model="res.groups">
+        <field name="name">User (see all transfers)</field>
+        <field name="category_id" ref="module_trilab_jpk_transfer_management"/>
+        <field name="implied_ids" eval="[(4, ref('jpk_user'))]"/>
+    </record>
+    <record id="jpk_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="category_id" ref="module_trilab_jpk_transfer_management"/>
+        <field name="implied_ids" eval="[(4, ref('jpk_user_see_all'))]"/>
+    </record>
+</odoo>

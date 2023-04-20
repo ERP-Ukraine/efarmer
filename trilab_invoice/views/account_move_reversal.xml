@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="view_account_move_reversal_pl" model="ir.ui.view">
+        <field name="name">view_account_move_reversal_inherit</field>
+        <field name="model">account.move.reversal</field>
+        <field name="inherit_id" ref="account.view_account_move_reversal"/>
+        <field name="mode">primary</field>
+        <field name="priority">1000</field>
+        <field name="arch" type="xml">
+
+            <field name="refund_method" position="attributes">
+                <attribute name="attrs">{'readonly': True}</attribute>
+            </field>
+
+            <field name="reason" position="replace">
+                <field name="reason" string="Corrected invoice number"
+                       attrs="{'required': ['|', ('move_type', '=like', '%_refund'), ('move_type', '=like', '%_invoice')],
+                       'invisible': [('move_type', 'not in', ['in_invoice', 'in_refund'])]}"/>
+                <field name="reason" string="Reason"
+                       attrs="{'required': ['|', ('move_type', '=like', '%_refund'), ('move_type', '=like', '%_invoice')],
+                       'invisible': [('move_type', 'not in', ['out_invoice', 'out_refund'])]}"/>
+            </field>
+
+            <field name="reason" position="after">
+                <field name="selected_correction_invoice"
+                       attrs="{'invisible': [('selected_correction_invoice', '=', False)], 'readonly': True}"/>
+            </field>
+
+        </field>
+    </record>
+
+</odoo>

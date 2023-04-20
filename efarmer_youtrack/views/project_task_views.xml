@@ -1,0 +1,39 @@
+<odoo>
+    <data>
+
+        <record id="view_task_form2_inherit" model="ir.ui.view">
+        <field name="name">view.task.form2.inherit</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='parent_id']" position="after">
+                <field name="product_version_id" />
+                <field name="issue_type_id" />
+                <field name="epic_id" />
+            </xpath>
+
+            <xpath expr="//field[@name='partner_id']" position="before">
+                <field name="name_pl" />
+            </xpath>
+
+            <xpath expr="//field[@name='recurring_task']" position="before">
+                <field name="asset_id" readonly="1" />
+            </xpath>
+
+            <xpath expr="//form[1]/sheet[1]/group[1]/group[1]/field[@name='project_id']" position="before">
+                <field name="task_code" />
+            </xpath>
+
+            <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='sub_tasks_page']/field[@name='child_ids']/tree[1]/field[@name='is_closed']" position="after">
+                <field name="task_code" optional="show"/>
+            </xpath>
+
+             <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='sub_tasks_page']/field[@name='child_ids']/tree[1]/field[@name='name']" position="after">
+                <field name="issue_type_id" optional="show"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    </data>
+</odoo>

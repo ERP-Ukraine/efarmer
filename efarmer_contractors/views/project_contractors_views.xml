@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="seq_project_contractors" model="ir.sequence">
+        <field name="name">Project Contractors Sequence</field>
+        <field name="code">project.contractors.sequence</field>
+        <field name="prefix">B2B</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="view_project_contractors_form" model="ir.ui.view">
+        <field name="name">project.contractors.form</field>
+        <field name="model">project.contractors</field>
+        <field name="arch" type="xml">
+            <form string="Project Contractors">
+                <header>
+                    <field name="is_generate" invisible="1"/>
+                    <button name="generate_report" string="Generate Report" type="object" class="oe_highlight"
+                    attrs="{'invisible': [('state', 'in', ['in_progress','done'])]}"/>
+                    <button name="generate_invoice" string="Generate Invoices" type="object" class="oe_highlight"
+                    attrs="{'invisible': ['|', ('state', 'in', ['in_progress','done']), ('is_generate', '=', False)]}"/>
+                    <field name="state" widget="statusbar" statusbar_visible="new,in_progress,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" name="open_analytic_lines" string="REPORT" type="object" icon="fa-bars">
+                        </button>
+                        <button class="oe_stat_button" name="open_vendor_bills" string="Vendor Bills" type="object" icon="fa-edit" attrs="{'invisible': [('state', 'in', ['new'])]}">
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                            <field name="is_paid" invisible="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <field name="company_id"/>
+                    </group>
+                    <group>
+                        <field name="start_date"/>
+                        <field name="end_date"/>
+                    </group>
+                    <group>
+                        <field name="employee_type"/>
+                        <field name="product_id"/>
+                    </group>
+                    <notebook>
+                        <page string="Invoice to">
+                            <field name="contractors_line_ids" nolabel="1">
+                                <tree editable="top">
+                                    <field name="employee_id"/>
+                                    <field name="description"/>
+                                    <field name="hours_spent"/>
+                                    <field name="contract_pay_rate"/>
+                                    <field name="bamboo_currency_id"/>
+                                    <field name="amount"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+
+            </form>
+        </field>
+    </record>
+
+    <record id="view_project_contractors_tree" model="ir.ui.view">
+        <field name="name">project.contractors.tree</field>
+        <field name="model">project.contractors</field>
+        <field name="arch" type="xml">
+            <tree string="Project Contractors">
+                <field name="name"/>
+                <field name="company_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_view_project_contractors" model="ir.actions.act_window">
+        <field name="name">B2B Invoice</field>
+        <field name="res_model">project.contractors</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to create a new B2B Invoice
+            </p>
+        </field>
+    </record>
+
+
+    <menuitem id="menu_contractors" name="B2B Invoice" parent="project.menu_main_pm" sequence="15"/>
+    <menuitem id="menu_action_project_contractors" name="B2B Invoice" parent="menu_contractors"
+              action="action_view_project_contractors" sequence="10"/>
+
+
+</odoo>
