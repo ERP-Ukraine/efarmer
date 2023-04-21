@@ -58,10 +58,18 @@
                     </ul>
                     <ul class="list-unstyled">
                         <strong>Responsible: </strong>
-                        <li><t t-esc="doc.user_id.name"/></li>
-                        <li><t t-esc="doc.user_id.email"/></li>
-                        <li><t t-esc="doc.user_id.phone"/></li>
-                        <li><t t-esc="doc.user_id.mobile"/></li>
+                        <t t-if="doc.user_id">
+                            <li><t t-esc="doc.user_id.name"/></li>
+                            <li><t t-esc="doc.user_id.email"/></li>
+                            <li><t t-esc="doc.user_id.phone"/></li>
+                            <li><t t-esc="doc.user_id.mobile"/></li>
+                        </t>
+                        <t t-else="">
+                            <li><t t-esc="doc.sale_id.warehouse_id.user_id.name"/></li>
+                            <li><t t-esc="doc.sale_id.warehouse_id.user_id.email"/></li>
+                            <li><t t-esc="doc.sale_id.warehouse_id.user_id.phone"/></li>
+                            <li><t t-esc="doc.sale_id.warehouse_id.user_id.mobile"/></li>
+                        </t>
                     </ul>
                 </div>
 
@@ -169,10 +177,22 @@
 
                 <div class="oe_structure"/>
                 <p>
-                    <strong>Weight: </strong>
+                    <strong>Net Weight: </strong>
                     <span t-esc="str(round(weight_sum, 2))"/>
                     <strong> kg.</strong>
                 </p>
+                <t t-if="doc.has_packages" name="has_packages">
+                    <t t-set="gross_sum" t-value="0"/>
+                    <t t-set="packages" t-value="doc.move_line_ids.mapped('result_package_id')"/>
+                    <t t-foreach="packages" t-as="package">
+                        <t t-set="gross_sum" t-value="gross_sum + package.shipping_weight"/>
+                    </t>
+                    <p>
+                        <strong>Gross Weight: </strong>
+                        <span t-esc="str(round(gross_sum, 2))"/>
+                        <strong> kg.</strong>
+                    </p>
+                </t>
                 <br>
                 </br>
                 <p>

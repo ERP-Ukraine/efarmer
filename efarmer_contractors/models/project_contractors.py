@@ -31,7 +31,7 @@ class ProjectContractors(models.Model):
         tracking=True,
         states={
             'new': [('readonly', False)],
-            'in_progress': [('readonly', False)],
+            'in_progress': [('readonly', True)],
             'done': [('readonly', True)]
         },
     )
@@ -41,7 +41,7 @@ class ProjectContractors(models.Model):
         tracking=True,
         states={
             'new': [('readonly', False)],
-            'in_progress': [('readonly', False)],
+            'in_progress': [('readonly', True)],
             'done': [('readonly', True)]
         },
     )
@@ -51,7 +51,7 @@ class ProjectContractors(models.Model):
         default=lambda self: self.env.company,
         states={
             'new': [('readonly', False)],
-            'in_progress': [('readonly', False)],
+            'in_progress': [('readonly', True)],
             'done': [('readonly', True)]
         },
     )
@@ -70,7 +70,7 @@ class ProjectContractors(models.Model):
         string='Contractors To',
         states={
             'new': [('readonly', False)],
-            'in_progress': [('readonly', False)],
+            'in_progress': [('readonly', True)],
             'done': [('readonly', True)]
         },
     )
@@ -87,6 +87,17 @@ class ProjectContractors(models.Model):
         string='Is Paid?',
         compute='_compute_is_paid',
     )
+    is_generate = fields.Boolean(
+        string='Is Generate',
+        compute='_compute_is_generate',
+    )
+
+    def _compute_is_generate(self):
+        for rec in self:
+            is_generate = False
+            if rec.contractors_line_ids:
+                is_generate = True
+            rec.is_generate = is_generate
 
     def _compute_is_paid(self):
         for rec in self:
@@ -152,6 +163,7 @@ class ProjectContractors(models.Model):
         self.write({
             'contractors_line_ids': contractors_lines,
             'analytic_line_ids': reduce(lambda x, y: x + y, data_dict.values()),
+            'is_generate': True,
         })
 
     def generate_invoice(self):
@@ -160,6 +172,7 @@ class ProjectContractors(models.Model):
             vendor_bills = {}
             for line in contractor.contractors_line_ids:
                 employee = line.employee_id
+                account_asset_counterpart_id = line.employee_id.account_asset_counterpart_id
                 if not employee.related_contact_id:
                     partner = self.env['res.partner'].create({
                         'name': employee.name,
@@ -176,13 +189,22 @@ class ProjectContractors(models.Model):
                         'currency_id': employee.bamboo_currency_id.id,
                     }
                 vendor_bill = vendor_bills[employee]
-                vendor_bill['invoice_line_ids'].append((0, 0, {
-                    'product_id': contractor.product_id.id,
-                    'name': line.description,
-                    'quantity': line.hours_spent,
-                    'price_unit': line.contract_pay_rate,
-                    'currency_id': employee.bamboo_currency_id.id,
-                }))
+                if contractor.product_id:
+                    vendor_bill['invoice_line_ids'].append((0, 0, {
+                        'product_id': contractor.product_id.id,
+                        'name': line.description,
+                        'quantity': line.hours_spent,
+                        'price_unit': line.contract_pay_rate,
+                        'currency_id': employee.bamboo_currency_id.id,
+                    }))
+                else:
+                    vendor_bill['invoice_line_ids'].append((0, 0, {
+                        'account_id': account_asset_counterpart_id,
+                        'name': line.description,
+                        'quantity': line.hours_spent,
+                        'price_unit': line.contract_pay_rate,
+                        'currency_id': employee.bamboo_currency_id.id,
+                    }))
             vendor_bills_list = list(vendor_bills.values())
             vendor_bills_objs = self.env['account.move'].create(vendor_bills_list)
             account_move_ids += vendor_bills_objs.ids
@@ -211,13 +233,13 @@ class ProjectContractors(models.Model):
 
     def unlink(self):
         for line in self:
-            if line.state == 'done':
+            if line.state in ['in_progress', 'done']:
                 raise UserError(_('You cannot delete a locked Project Invoice B2B Contactors.'))
         return super(ProjectContractors, self).unlink()
 
     def write(self, vals):
         for line in self:
-            if line.state == 'done':
+            if line.state in ['in_progress', 'done']:
                 raise UserError(_('You cannot edit a locked Project Invoice B2B Contactors.'))
         return super(ProjectContractors, self).write(vals)
 

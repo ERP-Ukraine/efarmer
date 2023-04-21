@@ -9,7 +9,7 @@
                     <field name="employee_id"/>
                     <field name="description"/>
                     <field name="hours_spent"/>
-                    <field name="pay_rate"/>
+                    <field name="contract_pay_rate"/>
                     <field name="bamboo_currency_id"/>
                     <field name="amount"/>
                 </group>
@@ -25,7 +25,7 @@
                 <field name="employee_id"/>
                 <field name="description"/>
                 <field name="hours_spent"/>
-                <field name="pay_rate"/>
+                <field name="contract_pay_rate"/>
                 <field name="bamboo_currency_id"/>
                 <field name="amount"/>
             </tree>

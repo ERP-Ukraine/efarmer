@@ -14,5 +14,9 @@
             <field name="name">Convert Sales to "To Confirm" Status</field>
         </record>
 
+        <record id="allow_set_sales_priority_group" model="res.groups">
+            <field name="name">Allow to Set up Sales Priority</field>
+        </record>
+
     </data>
 </odoo>
