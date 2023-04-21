@@ -3,6 +3,10 @@ Efarmer Sale Workflow
 
 Change Log
 ##########
+
+* 1.31 (2023-04-21)
+    -  Added field 'Scheduled Delivery Date' to Sale Order
+
 * 1.30 (2023-04-18)
     -  Added 'priority' field to Sale Order both form and tree view
     -  Added group in setting for allowing editing 'priority' field
