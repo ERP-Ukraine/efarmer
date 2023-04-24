@@ -29,6 +29,12 @@ class SaleOrder(models.Model):
         default='0',
     )
 
+    pick_scheduled_date = fields.Date(
+        string='Scheduled Delivery Date',
+        tracking=True,
+        help='Scheduled date of last modified stock picking',
+    )
+
     def action_to_confirm(self):
         return self.write({'state': 'to_confirm'})
 

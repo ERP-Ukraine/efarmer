@@ -8,6 +8,10 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='name']" position="before">
                     <field name="priority" widget="priority" readonly="1"/>
+                    <span style="margin-left: 10px;"/>
+                </xpath>
+                <xpath expr="//group[@name='sale_shipping']" position="inside">
+                    <field name="pick_scheduled_date" readonly="1" />
                 </xpath>
                 <xpath expr="//field[@name='order_line']//tree//field[@name='name']" position="before">
                     <button name="open_replacement_wizard"
@@ -92,6 +96,12 @@
                     <filter string="Low Priority" domain="[('priority', '=', 0)]" name="low_priority"/>
                     <separator/>
                 </xpath>
+                <xpath expr="//filter[@name='order_month']" position="after">
+                    <filter string="Scheduled Delivery Date" name="groupby_scheduled_date" domain="[]" context="{'group_by': 'pick_scheduled_date'}" />
+                </xpath>
+                <xpath expr="//filter[@name='my_sale_orders_filter']" position="after">
+                    <filter string="Scheduled Delivery Date" name="scheduled_date" date="pick_scheduled_date" />
+                </xpath>
             </field>
         </record>
 
@@ -102,6 +112,9 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='name']" position="before">
                     <field name="priority" readonly="1" optional="show" widget="priority"/>
+                </xpath>
+                <xpath expr="//field[@name='activity_ids']" position="after">
+                    <field name="pick_scheduled_date" readonly="1" optional="show" />
                 </xpath>
             </field>
         </record>
@@ -125,6 +138,9 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='name']" position="before">
                     <field name="priority" readonly="1" optional="show" widget="priority"/>
+                </xpath>
+                <xpath expr="//field[@name='activity_ids']" position="after">
+                    <field name="pick_scheduled_date" readonly="1" optional="show" />
                 </xpath>
             </field>
         </record>
