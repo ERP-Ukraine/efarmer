@@ -3,6 +3,13 @@ Efarmer Sale Workflow
 
 Change Log
 ##########
+
+* 1.32 (2023-04-26)
+    -  Improve the Delivery Slip report which is printed from Transfers
+
+* 1.31 (2023-04-25)
+    -  Restructured Sales access groups in User configuration
+
 * 1.30 (2023-04-18)
     -  Added 'priority' field to Sale Order both form and tree view
     -  Added group in setting for allowing editing 'priority' field
