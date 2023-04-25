@@ -3,12 +3,13 @@
 
 {
     'name': 'eFarmer Purchase',
-    'version': '15.0.1.1.0',
+    'version': '15.0.1.2.0',
     'category': 'Other',
     'author': 'VentorTech',
     'website': 'https://ventor.tech',
     'license': 'LGPL-3',
     'depends': [
+        'base',
         'purchase',
     ],
     'data': [
@@ -16,6 +17,7 @@
         'security/security.xml',
         # Model Views
         'views/purchase_views.xml',
+        'views/res_company_views.xml',
         'report/purchase_report_views.xml',
     ],
     'installable': True,
