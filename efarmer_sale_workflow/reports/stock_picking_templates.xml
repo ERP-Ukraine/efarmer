@@ -1,10 +1,77 @@
 <?xml version='1.0' encoding='utf-8'?>
 <odoo>
 
-<template id="report_delivery_document" inherit_id="stock.report_delivery_document">
-    <xpath expr="//div[@t-field='partner.commercial_partner_id']" position="after">
-        <div t-if="partner.sudo().email" t-field="partner.sudo().email"/>
-    </xpath>
-</template>
+    <template id="report_delivery_document" inherit_id="stock.report_delivery_document">
+        <xpath expr="//div[@name='div_incoming_address']" position="replace">
+            <div class="col-7" name="div_incoming_address">
+                <div t-if="o.picking_type_id.code=='incoming' and partner">
+                    <span><strong>Vendor Address:</strong></span>
+                </div>
+                <div t-if="o.picking_type_id.code=='internal' and partner">
+                    <span><strong>Warehouse Address:</strong></span>
+                </div>
+                <div t-if="partner and o.picking_type_id.code!='outgoing'" name="partner_header">
+                    <div t-field="partner.commercial_partner_id"
+                         t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'/>
+                    <p t-if="partner.sudo().commercial_partner_id.vat"><t
+                            t-esc="o.company_id.country_id.vat_label or 'Tax ID'"/>: <span
+                            t-field="partner.sudo().commercial_partner_id.vat"/></p>
+                </div>
+                <div t-if="o.picking_type_id.code=='outgoing' and partner">
+                    <ul class="list-unstyled">
+                        <strong>From: </strong>
+                        <li><t t-esc="o.company_id.name"/></li>
+                        <li><t t-esc="o.company_id.street"/></li>
+                        <li><t t-esc="o.company_id.city"/></li>
+                    </ul>
+                    <ul class="list-unstyled">
+                        <strong>Responsible: </strong>
+                        <t t-if="o.user_id">
+                            <li><t t-esc="o.user_id.name"/></li>
+                            <li><t t-esc="o.user_id.email"/></li>
+                            <li><t t-esc="o.user_id.phone"/></li>
+                            <li><t t-esc="o.user_id.mobile"/></li>
+                        </t>
+                        <t t-else="">
+                            <li><t t-esc="o.sale_id.warehouse_id.user_id.name"/></li>
+                            <li><t t-esc="o.sale_id.warehouse_id.user_id.email"/></li>
+                            <li><t t-esc="o.sale_id.warehouse_id.user_id.phone"/></li>
+                            <li><t t-esc="o.sale_id.warehouse_id.user_id.mobile"/></li>
+                        </t>
+                    </ul>
+                </div>
+            </div>
+        </xpath>
+
+
+        <xpath expr="//div[@t-field='partner.commercial_partner_id']" position="after">
+            <div t-if="partner.sudo().email" t-field="partner.sudo().email"/>
+        </xpath>
+        <xpath expr="//table[@name='stock_move_table']" position="after">
+            <t t-set="weight_sum" t-value="0"/>
+            <t t-foreach="lines" t-as="line">
+                <t t-set="weight_sum" t-value="weight_sum + line.product_id.weight * line.product_uom_qty"/>
+            </t>
+            <p>
+                <strong>Net Weight: </strong>
+                <span t-esc="str(round(weight_sum, 2))"/>
+                <strong> kg.</strong>
+            </p>
+            <t t-if="o.has_packages" name="has_packages">
+                <t t-set="gross_sum" t-value="0"/>
+                <t t-set="packages" t-value="o.move_line_ids.mapped('result_package_id')"/>
+                <t t-foreach="packages" t-as="package">
+                    <t t-set="gross_sum" t-value="gross_sum + package.shipping_weight"/>
+                </t>
+                <p>
+                    <strong>Gross Weight: </strong>
+                    <span t-esc="str(round(gross_sum, 2))"/>
+                    <strong> kg.</strong>
+                </p>
+            </t>
+            <br>
+            </br>
+        </xpath>
+    </template>
 
 </odoo>

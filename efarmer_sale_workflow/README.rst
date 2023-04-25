@@ -4,6 +4,8 @@ Efarmer Sale Workflow
 Change Log
 ##########
 
+* 1.33 (2023-04-26)
+    -  Improve the Delivery Slip report which is printed from Transfers
 
 * 1.32 (2023-04-25)
     -  Restructured Sales access groups in User configuration
