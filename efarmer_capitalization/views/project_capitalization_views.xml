@@ -37,6 +37,9 @@
                     <group string="Capitalization Rules">
                         <field name="work_type_ids" widget="many2many_tags"/>
                     </group>
+                    <group>
+                        <field name="capitalization_date"/>
+                    </group>
                     <notebook>
                         <page string="Capitalization Lines">
                             <field name="capitalization_line_ids" nolabel="1">

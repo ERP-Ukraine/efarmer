@@ -2,7 +2,7 @@
 # Part of Ventor modules. See LICENSE file for full copyright and licensing details.
 {
     'name': 'eFarmer Capitalization',
-    'version': '1.2',
+    'version': '1.30',
     'author': 'VentorTech',
     'website': 'https://ventor.tech/',
     'category': 'Project',
