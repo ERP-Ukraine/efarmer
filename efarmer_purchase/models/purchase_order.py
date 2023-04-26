@@ -37,7 +37,7 @@ class PurchaseOrder(models.Model):
         if not manager:
             raise UserError(_(
                 'Manager for the department "{}" is not set.\n'
-                'Please, ask your administrator to check user settings.'.format(
+                'Please, ask your administrator to set up manager for the department.'.format(
                 po_employee.department_id.name)
             ))
         return manager
