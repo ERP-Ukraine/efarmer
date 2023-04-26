@@ -94,6 +94,16 @@ class ProjectCapitalization(models.Model):
         'account.analytic.line',
         string='Analytic Line',
     )
+    capitalization_date = fields.Date(
+        string='Capitalization Date',
+        required=True,
+        tracking=True,
+        states={
+            'new': [('readonly', False)],
+            'in_progress': [('readonly', False)],
+            'done': [('readonly', True)]
+        },
+    )
 
     def generate_report(self):
         self.ensure_one()
@@ -172,8 +182,9 @@ class ProjectCapitalization(models.Model):
             salvage_increase = max(0, original_value - new_salvage)
             if line.asset_id.currency_id.round(residual_increase + salvage_increase) > 0:
                 move = line.env['account.move'].create({
+                    'ref': f"{self.name} {self.capitalization_date}",
                     'journal_id': line.asset_id.journal_id.id,
-                    'date': fields.Date.today(),
+                    'date': self.capitalization_date,
                     'line_ids': [
                         (0, 0, {
                             'account_id': line.asset_id.account_asset_id.id,
@@ -191,14 +202,14 @@ class ProjectCapitalization(models.Model):
                 })
                 move._post()
                 asset_increase = line.env['account.asset'].create({
-                    'name': f"{self.name} {fields.Date.today()}",
+                    'name': f"{self.name} {self.capitalization_date}",
                     'currency_id': line.asset_id.currency_id.id,
                     'company_id': line.asset_id.company_id.id,
                     'asset_type': line.asset_id.asset_type,
                     'method': line.asset_id.method,
                     'method_number': line.asset_id.method_number,
                     'method_period': line.asset_id.method_period,
-                    'acquisition_date': fields.Date.today(),
+                    'acquisition_date': self.capitalization_date,
                     'value_residual': residual_increase,
                     'salvage_value': salvage_increase,
                     'original_value': residual_increase + salvage_increase,
@@ -225,7 +236,7 @@ class ProjectCapitalization(models.Model):
                     'amount': -increase,
                     'asset_id': line.asset_id,
                     'move_ref': _('Value decrease for: %(asset)s', asset=line.asset_id.name),
-                    'date': fields.Date.today(),
+                    'date': self.capitalization_date,
                     'asset_remaining_value': 0,
                     'asset_depreciated_value': 0,
                     'asset_value_change': True,
