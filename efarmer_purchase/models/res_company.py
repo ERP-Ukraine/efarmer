@@ -9,6 +9,5 @@ class ResCompany(models.Model):
 
     fin_manager_id = fields.Many2one(
         comodel_name='res.users',
-        required=True,
         string='Financial Manager',
     )
