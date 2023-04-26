@@ -19,6 +19,10 @@
                     <attribute name="groups">purchase.group_purchase_manager</attribute>
                 </xpath>
 
+                <xpath expr="//button[@name='button_cancel']" position="attributes">
+                    <attribute name="states">draft,to approve,sent,confirm_demand,fin_approve,purchase</attribute>
+                </xpath>
+
                 <xpath expr="//button[@name='print_quotation'][1]" position="after">
                     <button name="action_confirm_rfq"
                             string="CONFIRM RFQ"
