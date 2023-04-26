@@ -15,5 +15,9 @@
                 }
             </field>
         </record>
+        <record id="deals_fetch_limit" model="ir.config_parameter">
+            <field name="key">hubspot_quotation_connector.deals_fetch_limit</field>
+            <field name="value">80</field>
+        </record>
     </data>
 </odoo>

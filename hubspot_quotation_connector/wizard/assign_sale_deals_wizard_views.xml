@@ -33,6 +33,22 @@
         </field>
     </record>
 
+    <record id="assign_sale_deals_line_wizard_view_tree" model="ir.ui.view">
+        <field name="name">assign_sale_deals_line_wizard_view_tree</field>
+        <field name="model">assign.sale.deals.line.wizard</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="deal_createdate"/>
+                <field name="amount"/>
+                <field name="deal_object_id"
+                       widget="integer"
+                       options="{'format': false}"
+                       optional="hide"/>
+            </tree>
+        </field>
+    </record>
+
     <record id="assign_hubspot_deals_wizard_act_window" model="ir.actions.act_window">
         <field name="name">Deals Assign</field>
         <field name="type">ir.actions.act_window</field>
