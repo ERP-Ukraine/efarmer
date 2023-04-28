@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="efarmer_sale_workflow_view_picking_form" model="ir.ui.view">
+            <field name="name">stock.picking.form</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='extra']/group/group[@name='other_infos']/field[@name='company_id']" position="after">
+                    <field name="sale_priority" widget="priority" readonly="1" />
+                </xpath>
+            </field>
+        </record>
+
+        <record id="efarmer_sale_workflow_vpicktree_view_tree" model="ir.ui.view">
+            <field name="model">stock.picking</field>
+            <field name="name">stock.picking.edi.tree</field>
+            <field name="inherit_id" ref="stock.vpicktree" />
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                    <field name="sale_priority" optional="show" widget="priority" />
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>

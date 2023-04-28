@@ -4,6 +4,9 @@ Efarmer Sale Workflow
 Change Log
 ##########
 
+* 1.32 (2023-04-28)
+    -  Added field 'Sale Priority' to Stock Picking
+
 * 1.31 (2023-04-21)
     -  Added field 'Scheduled Delivery Date' to Sale Order
 

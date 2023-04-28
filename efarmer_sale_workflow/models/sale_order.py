@@ -27,6 +27,7 @@ class SaleOrder(models.Model):
         ],
         string='Priority',
         default='0',
+        tracking=True,
     )
 
     pick_scheduled_date = fields.Date(
