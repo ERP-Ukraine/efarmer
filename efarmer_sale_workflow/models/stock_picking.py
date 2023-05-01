@@ -15,6 +15,10 @@ class StockPicking(models.Model):
         related='sale_id.opportunity_id.stage_id',
         readonly=False,
     )
+    sale_priority = fields.Selection(
+        related='sale_id.priority',
+        string='Sale Priority',
+    )
 
     @api.depends('move_lines.state', 'move_lines.date', 'move_type')
     def _compute_scheduled_date(self):
@@ -26,3 +30,14 @@ class StockPicking(models.Model):
         super()._set_scheduled_date()
         for picking in self:
             picking.sale_id.write({'pick_scheduled_date': picking.scheduled_date})
+
+    def button_validate(self):
+        res = super(StockPicking, self).button_validate()
+        if res is True:
+            for pick in self:
+                active_picks = pick.sale_id.picking_ids.filtered(
+                    lambda p: p.state not in ('done', 'cancel')
+                )
+                if not active_picks:
+                    pick.sale_id.write({'priority': '0'})
+        return res

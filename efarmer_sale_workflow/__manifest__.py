@@ -1,6 +1,6 @@
 {
     'name': 'eFarmer',
-    'version': '1.32',
+    'version': '1.34',
     'category': 'Other',
     'author': 'ERP Ukraine',
     'website': 'https://erp.co.ua',
@@ -45,6 +45,7 @@
         'views/efarmer_sale_workflow_menus.xml',
         'views/product_template_views.xml',
         'views/sale_order_views.xml',
+        'views/stock_picking_views.xml',
         'views/stock_warehouse_views.xml',
         'wizards/product_variant_replacement_wizard.xml',
     ],

@@ -4,6 +4,9 @@ Efarmer Sale Workflow
 Change Log
 ##########
 
+* 1.34 (2023-04-28)
+    -  Added field 'Sale Priority' to Stock Picking
+
 * 1.33 (2023-04-26)
     -  Improve the Delivery Slip report which is printed from Transfers
 
