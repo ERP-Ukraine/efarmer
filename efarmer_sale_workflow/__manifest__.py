@@ -21,6 +21,7 @@
         'sale',
         'stock',
         'sale_crm',
+        'sale_delivery_state',
         'sale_stock',
         'sales_team',
         'account',

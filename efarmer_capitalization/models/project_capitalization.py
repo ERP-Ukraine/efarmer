@@ -6,6 +6,7 @@ from odoo.exceptions import UserError
 
 class ProjectCapitalization(models.Model):
     _name = 'project.capitalization'
+    _inherit = ['mail.thread']
     _description = 'Project Capitalization'
     _check_company_auto = True
 
