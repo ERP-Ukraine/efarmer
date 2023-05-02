@@ -41,3 +41,14 @@ class StockPicking(models.Model):
                 if not active_picks:
                     pick.sale_id.write({'priority': '0'})
         return res
+
+    def action_cancel(self):
+        res = super(StockPicking, self).action_cancel()
+        if res is True:
+            for pick in self:
+                active_picks = pick.sale_id.picking_ids.filtered(
+                    lambda p: p.state not in ('done', 'cancel')
+                )
+                if not active_picks:
+                    pick.sale_id.write({'priority': '0'})
+        return res
