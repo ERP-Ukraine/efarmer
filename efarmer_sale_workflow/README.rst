@@ -4,6 +4,9 @@ Efarmer Sale Workflow
 Change Log
 ##########
 
+* 1.35 (2023-05-02)
+    -  Added coloring of Scheduled Delivery Date on Quotations/Sales order list views depending on conditions
+
 * 1.34 (2023-04-28)
     -  Added field 'Sale Priority' to Stock Picking
 
