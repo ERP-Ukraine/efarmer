@@ -8,6 +8,7 @@ from odoo.exceptions import ValidationError
 
 class OrderLineProductReplacementWizard(models.TransientModel):
     _name = 'order.line.product.replacement.wizard'
+    _description = 'Product Replacement Wizard'
 
     product_tmpl_id = fields.Many2one(
         comodel_name='product.template',
@@ -57,6 +58,7 @@ class OrderLineProductReplacementWizard(models.TransientModel):
 
 class ProductReplacements(models.TransientModel):
     _name = 'product.replacement.lines'
+    _description = 'Product Replacement Line'
 
     replacement_id = fields.Many2one(
         comodel_name='order.line.product.replacement.wizard',
