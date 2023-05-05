@@ -4,6 +4,9 @@ Efarmer Sale Workflow
 Change Log
 ##########
 
+* 1.32 (2023-04-26)
+    -  Improve the Delivery Slip report which is printed from Transfers
+
 * 1.31 (2023-04-21)
     -  Added field 'Scheduled Delivery Date' to Sale Order
 
