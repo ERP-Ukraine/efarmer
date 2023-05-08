@@ -20,17 +20,6 @@ class StockPicking(models.Model):
         string='Sale Priority',
     )
 
-    @api.depends('move_lines.state', 'move_lines.date', 'move_type')
-    def _compute_scheduled_date(self):
-        super()._compute_scheduled_date()
-        for picking in self:
-            picking.sale_id.write({'pick_scheduled_date': picking.scheduled_date})
-
-    def _set_scheduled_date(self):
-        super()._set_scheduled_date()
-        for picking in self:
-            picking.sale_id.write({'pick_scheduled_date': picking.scheduled_date})
-
     def button_validate(self):
         res = super(StockPicking, self).button_validate()
         if res is True:

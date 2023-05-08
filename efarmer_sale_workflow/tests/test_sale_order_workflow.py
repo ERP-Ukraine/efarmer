@@ -15,11 +15,9 @@ class TestSaleOrderWorkflow(TransactionCase):
         self.partner_id = self.env['res.partner'].create({
             'name': 'Test Partner',
         })
-
         self.so = self.env['sale.order'].create({
             'partner_id': self.partner_id.id,
         })
-
         self.product = self.env['product.product'].create({
             'name': 'Test Product',
             'type': 'product',
@@ -87,6 +85,10 @@ class TestSaleOrderWorkflow(TransactionCase):
             new_date.date(),
             'Scheduled Delivery Date must be equal to Picking Scheduled Date.'
         )
+
+        picking.move_lines.quantity_done = 1.0
+        picking.button_validate()
+        self.assertFalse(self.sale_order.pick_scheduled_date)
 
     def test_pick_priority_no_backorder(self):
         self._add_so_line(self.so, self.product, 1)
