@@ -15,14 +15,3 @@ class StockPicking(models.Model):
         related='sale_id.opportunity_id.stage_id',
         readonly=False,
     )
-
-    @api.depends('move_lines.state', 'move_lines.date', 'move_type')
-    def _compute_scheduled_date(self):
-        super()._compute_scheduled_date()
-        for picking in self:
-            picking.sale_id.write({'pick_scheduled_date': picking.scheduled_date})
-
-    def _set_scheduled_date(self):
-        super()._set_scheduled_date()
-        for picking in self:
-            picking.sale_id.write({'pick_scheduled_date': picking.scheduled_date})

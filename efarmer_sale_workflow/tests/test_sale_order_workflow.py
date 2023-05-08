@@ -11,11 +11,12 @@ class TestSaleOrderWorkflow(TransactionCase):
 
     def setUp(self):
         super().setUp()
-
-        self.sale_order = self.env['sale.order'].create({
-            'partner_id': self.env.ref('base.res_partner_1').id,
+        self.partner_id = self.env['res.partner'].create({
+            'name': 'Test Partner',
         })
-
+        self.sale_order = self.env['sale.order'].create({
+            'partner_id': self.partner_id.id,
+        })
         self.product = self.env['product.product'].create({
             'name': 'Test Product',
             'type': 'product',
@@ -82,3 +83,7 @@ class TestSaleOrderWorkflow(TransactionCase):
             new_date.date(),
             'Scheduled Delivery Date must be equal to Picking Scheduled Date.'
         )
+
+        picking.move_lines.quantity_done = 1.0
+        picking.button_validate()
+        self.assertFalse(self.sale_order.pick_scheduled_date)
