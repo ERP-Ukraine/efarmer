@@ -117,7 +117,11 @@
                     <field name="priority" readonly="1" optional="show" widget="priority"/>
                 </xpath>
                 <xpath expr="//field[@name='activity_ids']" position="after">
-                    <field name="pick_scheduled_date" readonly="1" optional="show" />
+                    <field name="pick_scheduled_date"
+                           readonly="1"
+                           optional="show"
+                           decoration-danger="state not in ('done', 'cancel') and delivery_state in ('unprocessed', 'partially') and pick_scheduled_date &lt; context_today().strftime('%Y-%m-%d')"
+                           decoration-warning="state not in ('done', 'cancel') and delivery_state in ('unprocessed', 'partially') and pick_scheduled_date &gt;= context_today().strftime('%Y-%m-%d') and pick_scheduled_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')" />
                 </xpath>
             </field>
         </record>
@@ -143,7 +147,11 @@
                     <field name="priority" readonly="1" optional="show" widget="priority"/>
                 </xpath>
                 <xpath expr="//field[@name='activity_ids']" position="after">
-                    <field name="pick_scheduled_date" readonly="1" optional="show" />
+                    <field name="pick_scheduled_date"
+                           readonly="1"
+                           optional="show"
+                           decoration-danger="state not in ('done', 'cancel') and delivery_state in ('unprocessed', 'partially') and pick_scheduled_date &lt; context_today().strftime('%Y-%m-%d')"
+                           decoration-warning="state not in ('done', 'cancel') and delivery_state in ('unprocessed', 'partially') and pick_scheduled_date &gt;= context_today().strftime('%Y-%m-%d') and pick_scheduled_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')" />
                 </xpath>
             </field>
         </record>
