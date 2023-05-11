@@ -2,6 +2,8 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
 
+from datetime import timedelta
+
 from odoo.tests.common import TransactionCase
 
 
@@ -9,9 +11,15 @@ class TestSaleOrderWorkflow(TransactionCase):
 
     def setUp(self):
         super().setUp()
-
+        self.partner_id = self.env['res.partner'].create({
+            'name': 'Test Partner',
+        })
         self.sale_order = self.env['sale.order'].create({
-            'partner_id': self.env.ref('base.res_partner_1').id,
+            'partner_id': self.partner_id.id,
+        })
+        self.product = self.env['product.product'].create({
+            'name': 'Test Product',
+            'type': 'product',
         })
 
     def test_state_transition_to_confirm(self):
@@ -50,3 +58,32 @@ class TestSaleOrderWorkflow(TransactionCase):
         })
 
         self.assertEqual(self.sale_order_line.name, 'Test Template' + '\n' + 'For Sale')
+
+    def test_order_pick_scheduled_date(self):
+        self.sale_order_line = self.env['sale.order.line'].create({
+            'order_id': self.sale_order.id,
+            'product_id': self.product.id,
+            'product_uom_qty': 1,
+        })
+
+        self.sale_order.action_confirm()
+        picking = self.sale_order.picking_ids[0]
+
+        self.assertEqual(
+            self.sale_order.pick_scheduled_date,
+            picking.scheduled_date.date(),
+            'Scheduled Delivery Date must be equal to Picking Scheduled Date.'
+        )
+
+        new_date = picking.scheduled_date + timedelta(days=1)
+        picking.scheduled_date = new_date
+
+        self.assertEqual(
+            self.sale_order.pick_scheduled_date,
+            new_date.date(),
+            'Scheduled Delivery Date must be equal to Picking Scheduled Date.'
+        )
+
+        picking.move_lines.quantity_done = 1.0
+        picking.button_validate()
+        self.assertFalse(self.sale_order.pick_scheduled_date)

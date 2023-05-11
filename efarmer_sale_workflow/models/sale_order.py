@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import fields, models, api
 
 
 class SaleOrder(models.Model):
@@ -29,8 +29,26 @@ class SaleOrder(models.Model):
         default='0',
     )
 
+    pick_scheduled_date = fields.Date(
+        string='Scheduled Delivery Date',
+        tracking=True,
+        compute='_compute_pick_scheduled_date',
+        store=True,
+        help='Scheduled date of last modified stock picking',
+    )
+
     def action_to_confirm(self):
         return self.write({'state': 'to_confirm'})
 
     def action_to_payment(self):
         return self.write({'state': 'to_payment'})
+
+    @api.depends('picking_ids', 'picking_ids.scheduled_date', 'state', 'delivery_state')
+    def _compute_pick_scheduled_date(self):
+        for order in self:
+            if order.state != 'sale' or order.delivery_state == 'done':
+                order.pick_scheduled_date = None
+            else:
+                active_picks = order.picking_ids.filtered(
+                    lambda p: p.state not in ['done', 'cancel'])
+                order.pick_scheduled_date = active_picks[0].scheduled_date if active_picks else None

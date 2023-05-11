@@ -7,6 +7,7 @@ from odoo.exceptions import UserError
 
 class ProjectContractors(models.Model):
     _name = 'project.contractors'
+    _inherit = ['mail.thread']
     _description = 'Project Invoice B2B Contactors'
     _check_company_auto = True
 

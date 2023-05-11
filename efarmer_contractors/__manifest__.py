@@ -1,10 +1,12 @@
 # Copyright 2023 VentorTech OU
-# Part of Ventor modules. See LICENSE file for full copyright and licensing details.
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
+
 {
     'name': 'eFarmer Invoice B2B Contactors',
     'version': '1.1',
     'author': 'VentorTech',
     'website': 'https://ventor.tech/',
+    'license': 'LGPL-3',
     'category': 'Project',
     'depends': [
         'project',

@@ -1,7 +1,6 @@
 {
     'name': 'eFarmer',
-
-    'version': '1.30',
+    'version': '1.33',
     'category': 'Other',
     'author': 'ERP Ukraine',
     'website': 'https://erp.co.ua',
@@ -22,6 +21,7 @@
         'sale',
         'stock',
         'sale_crm',
+        'sale_delivery_state',
         'sale_stock',
         'sales_team',
         'account',
