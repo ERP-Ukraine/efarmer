@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 # Copyright 2023 Solvve, Inc. <sales@solvve.com>
 
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Any
 from hubspot import HubSpot
 from hubspot.crm.deals.models import SimplePublicObject
 from hubspot.crm.contacts import (
@@ -17,7 +17,7 @@ from hubspot.crm.deals import (
 )
 from datetime import datetime, date
 
-from odoo import fields, models, _
+from odoo import fields, models, _, api
 from odoo.tools.cache import ormcache
 from odoo.tools.safe_eval import safe_eval
 
@@ -39,18 +39,24 @@ class HubSpotConfig(models.Model):
         self.ensure_one()
         return HubSpot(access_token=self.access_token)
 
+    @api.model
     def _sale_order_field_map(self) -> Dict[str, str]:
         get_param = self.env['ir.config_parameter'].sudo().get_param
         xmlid = 'hubspot_quotation_connector.sale_order_field_map'
         return safe_eval(get_param(xmlid, default='{}'))
 
-    def _hubspot_field_convert(self, props: Dict) -> Dict:
+    @api.model
+    def _hubspot_field_convert(self, props: Dict[str, Any]) -> Dict[str, Any]:
         field_map = self._sale_order_field_map()
         return {
             field_map[key]: value
             for key, value in props.items()
             if key in field_map
         }
+
+    @api.model
+    def remote_field(self, name: str) -> str:
+        return self._sale_order_field_map()[name]
 
     def get_deals_by_partner(
             self,
@@ -110,6 +116,12 @@ class HubSpotConfig(models.Model):
             simple_public_object_input=DealInput(
                 properties=self._hubspot_field_convert(values)
             )
+        )
+
+    def read_deal(self, deal_object_id: int, properties: List[str] = None):
+        return self._client.crm.deals.basic_api.get_by_id(
+            deal_id=deal_object_id,
+            properties=properties
         )
 
     @staticmethod
