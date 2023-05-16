@@ -28,7 +28,9 @@ class AssignSaleDealsWizard(models.TransientModel):
     assigned_deal_object_id = BigInteger(related='assigned_deal_id.deal_object_id')
     deal_ids = fields.One2many(
         comodel_name='assign.sale.deals.line.wizard',
+        inverse_name='deals_wizard_id',
         compute='_compute_deal_ids',
+        store=True,
     )
 
     def _get_fetch_limit(self, default: int = 40) -> int:
@@ -56,16 +58,26 @@ class AssignSaleDealsWizard(models.TransientModel):
                 assign_id.deal_ids = None
                 continue
             partner_id = assign_id.order_id.partner_id
-            deal_items = hubspot_id.get_deals_by_partner(partner_id, limit=fetch_limit)
+            remote_field = hubspot_id.remote_field
+            deal_items = hubspot_id.get_deals_by_partner(
+                partner_id=partner_id,
+                properties=['dealname', remote_field('order_amount')],
+                limit=fetch_limit
+            )
             if not deal_items:
                 assign_id.deal_ids = None
                 continue
             assign_id.deal_ids = create_deal_line([{
                 'name': deal.properties['dealname'],
                 'deal_object_id': int(deal.id),
-                'amount': float(deal.properties['amount'] or 0),
+                'amount': self._parse_deal_amount(deal, default=0),
                 'deal_createdate': deal.created_at.strftime(DATETIME_FORMAT),
             } for deal in deal_items])
+
+    @api.model
+    def _parse_deal_amount(self, deal, default=None) -> float:
+        remote_field = self.env['hubspot.config'].remote_field
+        return float(deal.properties[remote_field('order_amount')] or default)
 
     def assign(self):
         self.order_id.write({
@@ -86,7 +98,9 @@ class AssignSaleDealsWizard(models.TransientModel):
 class AssignSaleDealsLineWizard(models.TransientModel):
     _name = 'assign.sale.deals.line.wizard'
     _description = 'Assign Sale Deals Line Wizard'
+    _order = 'deal_createdate desc, id desc'
 
+    deals_wizard_id = fields.Many2one('assign.sale.deals.wizard', ondelete='cascade')
     name = fields.Char(required=True)
     amount = fields.Float(store=True)
     deal_object_id = BigInteger(required=True)
