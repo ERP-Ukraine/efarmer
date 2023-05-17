@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="check_bank_acc_wl_form" model="ir.ui.view">
+        <field name="name">check_wl_form</field>
+        <field name="model">trilab.check.wl</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="check_ids" nolabel="1" readonly="1" options="{'no_open': True}">
+                    <tree string="Results"
+                          create="0"
+                          edit="0"
+                          decoration-warning="is_warning"
+                          decoration-danger="is_error"
+                          decoration-success="is_success">
+                        <field name="is_error" invisible="1"/>
+                        <field name="is_warning" invisible="1"/>
+                        <field name="is_success" invisible="1"/>
+                        <field name="name" string="Invoice Number"/>
+                        <field name="invoice_partner_display_name"/>
+                        <field name="invoice_partner_bank_acc"/>
+                        <field name="error_message"/>
+                    </tree>
+                </field>
+                <footer>
+                    <button string="Close" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

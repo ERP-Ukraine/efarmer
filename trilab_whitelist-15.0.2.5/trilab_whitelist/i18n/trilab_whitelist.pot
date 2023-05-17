@@ -1,0 +1,247 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* trilab_whitelist
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-11-25 14:44+0000\n"
+"PO-Revision-Date: 2022-11-25 14:44+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: trilab_whitelist
+#: model:ir.model.fields.selection,name:trilab_whitelist.selection__trilab_check_wl_detail__error_type__api_error
+msgid "API Error"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl__check_ids
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl_detail__check_id
+msgid "Check"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model_terms:ir.ui.view,arch_db:trilab_whitelist.view_move_form_inherit
+msgid "Check Bank Account"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model_terms:ir.ui.view,arch_db:trilab_whitelist.check_bank_acc_wl_form
+msgid "Close"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl__create_uid
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl_detail__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl__create_date
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl_detail__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl__display_name
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl_detail__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields,field_description:trilab_whitelist.field_account_bank_statement_line__x_wl_error_message
+#: model:ir.model.fields,field_description:trilab_whitelist.field_account_move__x_wl_error_message
+#: model:ir.model.fields,field_description:trilab_whitelist.field_account_payment__x_wl_error_message
+msgid "Error Message"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields,field_description:trilab_whitelist.field_account_bank_statement_line__x_wl_error_type
+#: model:ir.model.fields,field_description:trilab_whitelist.field_account_move__x_wl_error_type
+#: model:ir.model.fields,field_description:trilab_whitelist.field_account_payment__x_wl_error_type
+msgid "Error Type"
+msgstr ""
+
+#. module: trilab_whitelist
+#. odoo-python
+#: code:addons/trilab_whitelist/models/account_move.py:0
+#, python-format
+msgid "Error accessing MF API: [%s] %s"
+msgstr ""
+
+#. module: trilab_whitelist
+#. odoo-python
+#: code:addons/trilab_whitelist/models/account_move.py:0
+#, python-format
+msgid "Error from MF API: %s"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl__id
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl_detail__id
+msgid "ID"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields.selection,name:trilab_whitelist.selection__trilab_check_wl_detail__error_type__invalid_bank_acc
+msgid "Invalid Bank Account"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields.selection,name:trilab_whitelist.selection__trilab_check_wl_detail__error_type__invalid_vat
+msgid "Invalid VAT"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl_detail__invoice_id
+msgid "Invoice"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl_detail__name
+#: model_terms:ir.ui.view,arch_db:trilab_whitelist.check_bank_acc_wl_form
+msgid "Invoice Number"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl_detail__is_error
+msgid "Is Error"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl_detail__is_success
+msgid "Is Success"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl_detail__is_warning
+msgid "Is Warning"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model,name:trilab_whitelist.model_account_move
+msgid "Journal Entry"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl____last_update
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl_detail____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl__write_uid
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl_detail__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl__write_date
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl_detail__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl_detail__error_message
+msgid "Message"
+msgstr ""
+
+#. module: trilab_whitelist
+#. odoo-python
+#: code:addons/trilab_whitelist/models/account_move.py:0
+#, python-format
+msgid "NEGATIVE whitelist validation status, request id: %s."
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields.selection,name:trilab_whitelist.selection__trilab_check_wl_detail__error_type__negative
+msgid "Negative Validation"
+msgstr ""
+
+#. module: trilab_whitelist
+#. odoo-python
+#: code:addons/trilab_whitelist/models/account_move.py:0
+#, python-format
+msgid "POSITIVE whitelist validation status, request id: %s."
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl_detail__invoice_partner_display_name
+msgid "Partner"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl_detail__invoice_partner_bank_acc
+msgid "Partner Bank Account"
+msgstr ""
+
+#. module: trilab_whitelist
+#. odoo-python
+#: code:addons/trilab_whitelist/models/account_move.py:0
+#, python-format
+msgid "Partner VAT number is missing or is incorrect!"
+msgstr ""
+
+#. module: trilab_whitelist
+#. odoo-python
+#: code:addons/trilab_whitelist/models/account_move.py:0
+#, python-format
+msgid "Partner account number is missing or is incorrect!"
+msgstr ""
+
+#. module: trilab_whitelist
+#. odoo-python
+#: code:addons/trilab_whitelist/models/account_move.py:0
+#, python-format
+msgid "Partner is missing VAT number!"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields.selection,name:trilab_whitelist.selection__trilab_check_wl_detail__error_type__positive
+msgid "Positive Validation"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model_terms:ir.ui.view,arch_db:trilab_whitelist.check_bank_acc_wl_form
+msgid "Results"
+msgstr ""
+
+#. module: trilab_whitelist
+#. odoo-python
+#: code:addons/trilab_whitelist/models/account_move.py:0
+#, python-format
+msgid "Select Partner first!"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model,name:trilab_whitelist.model_trilab_check_wl_detail
+msgid "Trilab Check Whitelist Detail Wizard"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model,name:trilab_whitelist.model_trilab_check_wl
+msgid "Trilab Check Whitelist Wizard"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.actions.server,name:trilab_whitelist.action_invoice_check_whitelist_bank_account
+msgid "Validate Bank Account (whitelist)"
+msgstr ""
+
+#. module: trilab_whitelist
+#: model:ir.model.fields,field_description:trilab_whitelist.field_trilab_check_wl_detail__error_type
+msgid "Validation Result"
+msgstr ""
+
+#. module: trilab_whitelist
+#. odoo-python
+#: code:addons/trilab_whitelist/models/account_move.py:0
+#, python-format
+msgid "Whitelist Check Results"
+msgstr ""
