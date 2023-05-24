@@ -30,8 +30,7 @@ class PurchaseOrder(models.Model):
 
     def _compute_purchase_analytic_tag_ids(self):
         for po in self:
-            if po.order_line:
-                po.analytic_tag_ids = po.order_line.mapped('analytic_tag_ids')
+            po.analytic_tag_ids = po.order_line.mapped('analytic_tag_ids')
 
     def _get_next_weekday(self, date):
         """
