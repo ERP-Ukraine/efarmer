@@ -13,10 +13,25 @@ class PurchaseOrder(models.Model):
     state = fields.Selection(
         selection_add=[
             ('confirm_demand', 'Confirm Demand'),
-            ('fin_approve', 'Financial Approval'),
             ('purchase',)
         ],
     )
+
+    # Override to remove default value
+    date_order = fields.Datetime(
+        default=False,
+    )
+
+    analytic_tag_ids = fields.Many2many(
+        comodel_name='account.analytic.tag',
+        string='Analytic Tags',
+        compute='_compute_purchase_analytic_tag_ids',
+    )
+
+    def _compute_purchase_analytic_tag_ids(self):
+        for po in self:
+            if po.order_line:
+                po.analytic_tag_ids = po.order_line.mapped('analytic_tag_ids')
 
     def _get_next_weekday(self, date):
         """
@@ -38,7 +53,8 @@ class PurchaseOrder(models.Model):
             raise UserError(_(
                 'Manager for the department "{}" is not set.\n'
                 'Please, ask your administrator to set up manager for the department.'.format(
-                po_employee.department_id.name)
+                    po_employee.department_id.name
+                )
             ))
         return manager
 
@@ -62,28 +78,13 @@ class PurchaseOrder(models.Model):
             user_to_notify
         )
 
-    def action_confirm_demand(self):
-        group_confirm_all = 'efarmer_purchase.efarmer_purchase_allow_confirm_demand_all'
-        if not self.env.user.has_group(group_confirm_all):
-            allow_confirm_user = self._get_department_manager().user_id
-            if self.env.user != allow_confirm_user:
-                raise UserError(_(
-                    'You are not allowed to Confirm Demand for this department.\n'
-                    'Contact the manager of department to confirm.'
-                ))
-        self.write({'state': 'fin_approve'})
-        self.create_po_activity(
-            'Approve Financial for {}'.format(self.name),
-            self.env.company.fin_manager_id
-        )
-
     def button_confirm(self):
         """
         Override standart method to have possibility to confirm PO
-        also in 'Financial Approval' state
+        also in 'Confirm Demand' state
         """
         for order in self:
-            if order.state not in ['draft', 'sent', 'fin_approve']:
+            if order.state not in ['draft', 'sent', 'confirm_demand']:
                 continue
             order._add_supplier_to_product()
             # Deal with double validation process

@@ -7,12 +7,19 @@
             <field name="inherit_id" ref="purchase.purchase_order_form"/>
             <field name="arch" type="xml">
                 <field name="state" position="attributes">
-                    <attribute name="statusbar_visible">draft,sent,confirm_demand,fin_approve,purchase</attribute>
+                    <attribute name="statusbar_visible">draft,sent,confirm_demand,purchase</attribute>
                 </field>
+                <field name="date_order" position="attributes">
+                    <attribute name="attrs">{'invisible': [('state','=','done')]}</attribute>
+                </field>
+
+                <xpath expr="//page[@name='products']//tree/field[@name='analytic_tag_ids']" position="attributes">
+                    <attribute name="attrs">{'required': [('display_type', '=', False)]}</attribute>
+                </xpath>
 
                 <xpath expr="//button[@name='button_confirm'][1]" position="attributes">
                     <attribute name="groups">purchase.group_purchase_manager</attribute>
-                    <attribute name="states">sent,fin_approve</attribute>
+                    <attribute name="states">sent,confirm_demand</attribute>
                 </xpath>
 
                 <xpath expr="//button[@name='button_confirm'][2]" position="attributes">
@@ -20,7 +27,7 @@
                 </xpath>
 
                 <xpath expr="//button[@name='button_cancel']" position="attributes">
-                    <attribute name="states">draft,to approve,sent,confirm_demand,fin_approve,purchase</attribute>
+                    <attribute name="states">draft,to approve,sent,confirm_demand,purchase</attribute>
                 </xpath>
 
                 <xpath expr="//button[@name='print_quotation'][1]" position="after">
@@ -30,12 +37,6 @@
                             states="draft,sent"
                             type="object"
                             groups='efarmer_purchase.efarmer_purchase_allow_confirm_rfq' />
-                    <button name="action_confirm_demand"
-                            string="CONFIRM DEMAND"
-                            class="btn-primary"
-                            states="confirm_demand"
-                            type="object"
-                            groups='efarmer_purchase.efarmer_purchase_allow_confirm_demand, efarmer_purchase.efarmer_purchase_allow_confirm_demand_all' />
                 </xpath>
             </field>
         </record>
@@ -47,8 +48,29 @@
             <field name="arch" type="xml">
                 <filter name="draft" position="after">
                     <filter string="Confirm Demand" name="confirm_demand" domain="[('state','=', 'confirm_demand')]"/>
-                    <filter string="Financial Approval" name="fin_approve" domain="[('state','=', 'fin_approve')]"/>
                 </filter>
+            </field>
+        </record>
+
+        <record id="efarmer_purchase_order_view_tree_inherit" model="ir.ui.view">
+            <field name="name">efarmer.purchase.order.view.tree.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_view_tree" />
+            <field name="arch" type="xml">
+                <field name="activity_ids" position="after">
+                    <field name="analytic_tag_ids" readonly="1" widget="many2many_tags" optional="show" />
+                </field>
+            </field>
+        </record>
+
+        <record id="efarmer_purchase_order_view_kpis_tree_inherit" model="ir.ui.view">
+            <field name="name">efarmer.purchase.order.view.kpis.tree.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_kpis_tree" />
+            <field name="arch" type="xml">
+                <field name="activity_ids" position="after">
+                    <field name="analytic_tag_ids" readonly="1" widget="many2many_tags" optional="show" />
+                </field>
             </field>
         </record>
 
