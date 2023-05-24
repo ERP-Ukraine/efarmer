@@ -1,7 +1,7 @@
 # Copyright 2023 VentorTech OU
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
@@ -44,6 +44,7 @@ class TestPurchaseWorkflow(TransactionCase):
         self.product = self.env['product.product'].create({'name': 'Test Product'})
         self.purchase_order = self.env['purchase.order'].with_user(self.po_user.id).create({
             'partner_id': self.partner.id,
+            'date_order': datetime.now(),
             'order_line': [
                 (0, 0, {
                     'name': self.product.name,
