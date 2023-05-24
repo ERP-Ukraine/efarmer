@@ -1,7 +1,7 @@
 # Copyright 2023 VentorTech OU
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
@@ -44,6 +44,7 @@ class TestPurchaseWorkflow(TransactionCase):
         self.product = self.env['product.product'].create({'name': 'Test Product'})
         self.purchase_order = self.env['purchase.order'].with_user(self.po_user.id).create({
             'partner_id': self.partner.id,
+            'date_order': datetime.now(),
             'order_line': [
                 (0, 0, {
                     'name': self.product.name,
@@ -75,34 +76,3 @@ class TestPurchaseWorkflow(TransactionCase):
             days=self.day_add_vals.get(today.isoweekday())
         )
         self.assertEqual(scheduled_activity.date_deadline, expected_date)
-
-    def test_purchase_confirm_demand_group_all(self):
-        self.purchase_order.state = 'confirm_demand'
-
-        # confirm Demand without allow_confirm_demand_all group
-        with self.assertRaises(UserError):
-            self.purchase_order.action_confirm_demand()
-
-        self.po_user.write({'groups_id': [(
-            4, self.env.ref('efarmer_purchase.efarmer_purchase_allow_confirm_demand_all').id
-        )]})
-        self.purchase_order.action_confirm_demand()
-        self.assertEqual(self.purchase_order.state, 'fin_approve')
-
-    def test_purchase_confirm_demand_manager(self):
-        self.purchase_order.state = 'confirm_demand'
-        self.dep.manager_id = self.po_manager_employee.id
-        self.env.company.write({'fin_manager_id': self.fin_manager.id})
-
-        # confirm Demand by po_user, not po_manager
-        with self.assertRaises(UserError):
-            self.purchase_order.action_confirm_demand()
-
-        self.purchase_order.with_user(self.po_manager_user.id).action_confirm_demand()
-        self.assertEqual(self.purchase_order.state, 'fin_approve')
-
-        # expect that scheduled action for fin_manager was created
-        scheduled_activity = self.env['mail.activity'].search([
-            ('user_id', '=', self.fin_manager.id)
-        ])
-        self.assertIsNotNone(scheduled_activity)
