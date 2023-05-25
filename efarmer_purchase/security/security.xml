@@ -12,5 +12,15 @@
             <field name="name">Allow "Confirm RFQ" for Purchases</field>
         </record>
 
+        <record id="efarmer_purchase_allow_confirm_demand" model="res.groups">
+            <field name="category_id" ref="module_category_purchase_other"/>
+            <field name="name">Allow "Confirm Demand" for Purchases</field>
+        </record>
+
+        <record id="efarmer_purchase_allow_confirm_demand_all" model="res.groups">
+            <field name="category_id" ref="module_category_purchase_other"/>
+            <field name="name">Allow “Confirm Demand“ for all departments</field>
+        </record>
+
     </data>
 </odoo>

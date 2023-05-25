@@ -1,7 +1,7 @@
 # Copyright 2023 VentorTech OU
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
-from odoo import fields, models, _
+from odoo import fields, models, _, api
 from odoo.exceptions import UserError
 
 from datetime import date, timedelta
@@ -13,13 +13,9 @@ class PurchaseOrder(models.Model):
     state = fields.Selection(
         selection_add=[
             ('confirm_demand', 'Confirm Demand'),
+            ('fin_approve', 'Financial Approval'),
             ('purchase',)
         ],
-    )
-
-    # Override to remove default value
-    date_order = fields.Datetime(
-        default=False,
     )
 
     analytic_tag_ids = fields.Many2many(
@@ -76,14 +72,29 @@ class PurchaseOrder(models.Model):
             'Confirm Demand for {}'.format(self.name),
             user_to_notify
         )
+    
+    def action_confirm_demand(self):
+        group_confirm_all = 'efarmer_purchase.efarmer_purchase_allow_confirm_demand_all'
+        if not self.env.user.has_group(group_confirm_all):
+            allow_confirm_user = self._get_department_manager().user_id
+            if self.env.user != allow_confirm_user:
+                raise UserError(_(
+                    'You are not allowed to Confirm Demand for this department.\n'
+                    'Contact the manager of department to confirm.'
+                ))
+        self.write({'state': 'fin_approve'})
+        self.create_po_activity(
+            'Approve Financial for {}'.format(self.name),
+            self.env.company.fin_manager_id
+        )
 
     def button_confirm(self):
         """
         Override standart method to have possibility to confirm PO
-        also in 'Confirm Demand' state
+        also in 'Financial Approval' state
         """
         for order in self:
-            if order.state not in ['draft', 'sent', 'confirm_demand']:
+            if order.state not in ['draft', 'sent', 'fin_approve']:
                 continue
             order._add_supplier_to_product()
             # Deal with double validation process
