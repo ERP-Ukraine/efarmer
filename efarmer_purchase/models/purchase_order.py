@@ -24,14 +24,6 @@ class PurchaseOrder(models.Model):
         compute='_compute_purchase_analytic_tag_ids',
     )
 
-    @api.onchange('partner_id')
-    def _onchange_po_partner_id(self):
-        """
-        Remove default value of date_order field
-        without overriding it
-        """
-        self.date_order = False
-
     def _compute_purchase_analytic_tag_ids(self):
         for po in self:
             po.analytic_tag_ids = po.order_line.mapped('analytic_tag_ids')
