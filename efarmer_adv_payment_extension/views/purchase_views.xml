@@ -29,6 +29,9 @@
             <field name="model">purchase.order</field>
             <field name="inherit_id" ref="efarmer_purchase.efarmer_purchase_order_view_kpis_tree_inherit" />
             <field name="arch" type="xml">
+                <field name="pay_deadline_date" position="after">
+                    <field name="amount_residual" invisible="1"/>
+                </field>
                 <field name="pay_deadline_date" position="attributes">
                     <attribute name="attrs">{'invisible': ['|', '|', ('amount_residual', '&lt;=', 0), ('state', '=', 'done'), ('state', '=', 'cancel')]}</attribute>
                 </field>
