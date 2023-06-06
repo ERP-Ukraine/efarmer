@@ -3,7 +3,7 @@
 
 {
     'name': 'HubSpot. Quotation Connector',
-    'version': '15.0.0.0.2',
+    'version': '15.0.0.1.3',
     'summary': 'Quotation Connector',
     'description': '',
     'category': '',

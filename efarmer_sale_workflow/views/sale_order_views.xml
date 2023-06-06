@@ -8,6 +8,10 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='name']" position="before">
                     <field name="priority" widget="priority" readonly="1"/>
+                    <span style="margin-left: 10px;"/>
+                </xpath>
+                <xpath expr="//group[@name='sale_shipping']" position="inside">
+                    <field name="pick_scheduled_date" readonly="1" />
                 </xpath>
                 <xpath expr="//field[@name='order_line']//tree//field[@name='name']" position="before">
                     <button name="open_replacement_wizard"
@@ -48,7 +52,10 @@
 
                 <field name="state" position="attributes">
                     <attribute name="statusbar_visible">draft,sent,to_payment,to_confirm,sale</attribute>
-                </field>  
+                </field>
+                <field name="partner_shipping_id" position="attributes">
+                    <attribute name="attrs">{'readonly': [('state', 'in', ['done','cancel'])]}</attribute>
+                </field> 
             </field>
         </record>
 
@@ -92,6 +99,12 @@
                     <filter string="Low Priority" domain="[('priority', '=', 0)]" name="low_priority"/>
                     <separator/>
                 </xpath>
+                <xpath expr="//filter[@name='order_month']" position="after">
+                    <filter string="Scheduled Delivery Date" name="groupby_scheduled_date" domain="[]" context="{'group_by': 'pick_scheduled_date'}" />
+                </xpath>
+                <xpath expr="//filter[@name='my_sale_orders_filter']" position="after">
+                    <filter string="Scheduled Delivery Date" name="scheduled_date" date="pick_scheduled_date" />
+                </xpath>
             </field>
         </record>
 
@@ -102,6 +115,13 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='name']" position="before">
                     <field name="priority" readonly="1" optional="show" widget="priority"/>
+                </xpath>
+                <xpath expr="//field[@name='activity_ids']" position="after">
+                    <field name="pick_scheduled_date"
+                           readonly="1"
+                           optional="show"
+                           decoration-danger="state not in ('done', 'cancel') and delivery_state in ('unprocessed', 'partially') and pick_scheduled_date &lt; context_today().strftime('%Y-%m-%d')"
+                           decoration-warning="state not in ('done', 'cancel') and delivery_state in ('unprocessed', 'partially') and pick_scheduled_date &gt;= context_today().strftime('%Y-%m-%d') and pick_scheduled_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')" />
                 </xpath>
             </field>
         </record>
@@ -125,6 +145,13 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='name']" position="before">
                     <field name="priority" readonly="1" optional="show" widget="priority"/>
+                </xpath>
+                <xpath expr="//field[@name='activity_ids']" position="after">
+                    <field name="pick_scheduled_date"
+                           readonly="1"
+                           optional="show"
+                           decoration-danger="state not in ('done', 'cancel') and delivery_state in ('unprocessed', 'partially') and pick_scheduled_date &lt; context_today().strftime('%Y-%m-%d')"
+                           decoration-warning="state not in ('done', 'cancel') and delivery_state in ('unprocessed', 'partially') and pick_scheduled_date &gt;= context_today().strftime('%Y-%m-%d') and pick_scheduled_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')" />
                 </xpath>
             </field>
         </record>

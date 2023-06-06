@@ -33,18 +33,27 @@ class SaleOrder(models.Model):
             return None
         if not self._active_hubspot_connector():
             return None
-        hubspot_id = self.env[self._name]._get_hubspot_id()
-        if not hubspot_id:
+        hubspot = self.env[self._name]._get_hubspot_id()
+        if not hubspot:
             return None
-        now_timestamp = hubspot_id.datetime_parse(fields.Datetime.now())
+        if self.hubspot_deal_object_id:
+            remote_field = hubspot.remote_field
+            order_date_field = remote_field('order_date')
+            deal = hubspot.read_deal(
+                deal_object_id=self.hubspot_deal_object_id,
+                properties=[order_date_field],
+            )
+            if deal.properties[order_date_field]:
+                return None
+        now_timestamp = hubspot.datetime_parse(fields.Datetime.now())
         inputs = [{
             'id': order_id.hubspot_deal_object_id,
-            'properties': hubspot_id._hubspot_field_convert({
+            'properties': hubspot._hubspot_field_convert({
                 'order_date': now_timestamp
             })
         } for order_id in self if order_id.hubspot_deal_object_id]
         if inputs:
-            hubspot_id._client.crm.deals.batch_api.update(DealsBatchInput(inputs))
+            hubspot._client.crm.deals.batch_api.update(DealsBatchInput(inputs))
 
     def _active_hubspot_connector(self) -> bool:
         get_param = self.env['ir.config_parameter'].sudo().get_param
