@@ -9,7 +9,7 @@
         the functionality of the OCA Module
         "Purchase Advance Payment"
     """,
-    'version': '15.0.1.0.0',
+    'version': '15.0.1.1.0',
     'category': 'Other',
     'author': 'VentorTech',
     'website': 'https://ventor.tech',

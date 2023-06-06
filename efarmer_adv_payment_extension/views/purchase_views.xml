@@ -12,6 +12,28 @@
                 </xpath>
             </field>
         </record>
+
+        <record id="efarmer_adv_ext_purchase_order_view_tree_inherit" model="ir.ui.view">
+            <field name="name">efarmer.purchase.order.view.tree.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="efarmer_purchase.efarmer_purchase_order_view_tree_inherit" />
+            <field name="arch" type="xml">
+                <field name="pay_deadline_date" position="attributes">
+                    <attribute name="attrs">{'invisible': ['|', '|', ('amount_residual', '&lt;=', 0), ('state', '=', 'done'), ('state', '=', 'cancel')]}</attribute>
+                </field>
+            </field>
+        </record>
+
+        <record id="efarmer_adv_ext_purchase_order_view_kpis_tree_inherit" model="ir.ui.view">
+            <field name="name">efarmer.purchase.order.view.kpis.tree.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="efarmer_purchase.efarmer_purchase_order_view_kpis_tree_inherit" />
+            <field name="arch" type="xml">
+                <field name="pay_deadline_date" position="attributes">
+                    <attribute name="attrs">{'invisible': ['|', '|', ('amount_residual', '&lt;=', 0), ('state', '=', 'done'), ('state', '=', 'cancel')]}</attribute>
+                </field>
+            </field>
+        </record>
     
     </data>
 </odoo>

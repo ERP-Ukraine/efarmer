@@ -9,8 +9,8 @@
                 <field name="state" position="attributes">
                     <attribute name="statusbar_visible">draft,sent,confirm_demand,fin_approve,purchase</attribute>
                 </field>
-                <field name="date_order" position="attributes">
-                    <attribute name="attrs">{'invisible': [('state','=','done')]}</attribute>
+                <field name="date_order" position="before">
+                    <field name="pay_deadline_date" required="1"/>
                 </field>
 
                 <xpath expr="//page[@name='products']//tree/field[@name='analytic_tag_ids']" position="attributes">
@@ -68,6 +68,13 @@
                 <field name="activity_ids" position="after">
                     <field name="analytic_tag_ids" readonly="1" widget="many2many_tags" optional="show" />
                 </field>
+                <field name="user_id" position="after">
+                    <field name="pay_deadline_date"
+                           optional="show"
+                           decoration-danger="pay_deadline_date &lt; context_today().strftime('%Y-%m-%d')"
+                           decoration-warning="pay_deadline_date &gt;= context_today().strftime('%Y-%m-%d') and pay_deadline_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')" 
+                    />
+                </field>
             </field>
         </record>
 
@@ -78,6 +85,13 @@
             <field name="arch" type="xml">
                 <field name="activity_ids" position="after">
                     <field name="analytic_tag_ids" readonly="1" widget="many2many_tags" optional="show" />
+                </field>
+                <field name="user_id" position="after">
+                    <field name="pay_deadline_date"
+                           optional="show"
+                           decoration-danger="pay_deadline_date &lt; context_today().strftime('%Y-%m-%d')"
+                           decoration-warning="pay_deadline_date &gt;= context_today().strftime('%Y-%m-%d') and pay_deadline_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')" 
+                    />
                 </field>
             </field>
         </record>
