@@ -4,6 +4,9 @@ Purchase eFarmer module
 Change Log
 ##########
 
+* 1.3.0 (2023-06-06)
+    -  Added Payment Deadline field to PO/RFQ
+
 * 1.2.0 (2023-04-25)
     -  Restructured Purhase access groups in User configuration
     -  Added new validations to Purchase Order processing
