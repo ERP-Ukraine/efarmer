@@ -24,11 +24,6 @@ class PurchaseOrder(models.Model):
         compute='_compute_purchase_analytic_tag_ids',
     )
 
-    pay_deadline_date = fields.Date(
-        string='Payment Deadline',
-        tracking=True,
-    )
-
     def _compute_purchase_analytic_tag_ids(self):
         for po in self:
             po.analytic_tag_ids = po.order_line.mapped('analytic_tag_ids')
