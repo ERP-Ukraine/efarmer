@@ -1,15 +1,10 @@
-import logging
 import json
 
-from odoo import fields
+from odoo import fields, release
 from odoo.http import Controller, route, request, Response
 from werkzeug.exceptions import NotFound
 
 from .utils import add_env, required, validate
-
-
-# TODO: Add logging?
-_logger = logging.getLogger(__name__)
 
 
 ALLOWED_FIELDS = [
@@ -17,6 +12,8 @@ ALLOWED_FIELDS = [
     fields.Integer, fields.Float,
     fields.Boolean, fields.Many2one,
     fields.Selection, fields.Datetime,
+    # Experimental
+    fields.One2many, fields.Many2many,
 ]
 FIELDS_TO_IGNORE = ['create_uid', 'write_uid']
 
@@ -33,8 +30,12 @@ class ZLDController(Controller):
         """
         Ping the server to check if it is alive and has installed the module
         """
+        module_version = request.env['ir.module.module'].search(
+            [['name', '=', 'zpl_label_designer']]).latest_version
+        odoo_version = release.major_version
+
         return request.make_response(
-            json.dumps({'data': []}),
+            json.dumps({'data': {'odoo_version': odoo_version, 'zld_version': module_version}}),
             headers=RESPONSE_HEADERS)
 
     @route('/zld/<string:db>/models', type='http', auth='none', methods=['GET'])
@@ -88,29 +89,29 @@ class ZLDController(Controller):
     @route('/zld/<string:db>/preview', type='json', auth='none', csrf=False, methods=['POST'])
     @add_env
     @validate
-    @required('zpl', 'model')
+    @required('model', 'fields')
     def get_preview(self, db, *args, **kwargs):
         """
         Returns preview with demo data.
         """
         data = request.jsonrequest
-        zpl = data['zpl']
         model = data['model']
+        fields = data['fields']
 
         try:
-            preview = request.env['zld.label'].generate_demo(zpl, model)
+            data_for_preview = request.env['zld.label'].get_preview_data(model, fields)
         except Exception as e:
             return Response(
                 json.dumps({'error': str(e)}),
                 status=400,
                 headers=RESPONSE_HEADERS)
 
-        return {'preview': preview}
+        return data_for_preview
 
     @route('/zld/<string:db>/labels', type='json', auth='none', csrf=False, methods=['POST'])
     @add_env
     @validate
-    @required('name', 'model', 'zpl', 'width', 'height', 'dpi', 'orientation', 'designer_label_id')
+    @required('name', 'model', 'qweb_xml', 'label_fields', 'width', 'height', 'dpi', 'orientation', 'designer_label_id')  # NOQA
     def create_label(self, db, *args, **kwargs):
         """
         Return preview with demo data.
@@ -130,7 +131,7 @@ class ZLDController(Controller):
     @route('/zld/<string:db>/labels/<int:label_id>', type='json', auth='none', csrf=False, methods=['PUT'])  # NOQA
     @add_env
     @validate
-    @required('name', 'zpl', 'width', 'height', 'dpi', 'orientation', 'designer_label_id')
+    @required('name', 'qweb_xml', 'label_fields', 'width', 'height', 'dpi', 'orientation', 'designer_label_id')  # NOQA
     def update_label(self, db, label_id, *args, **kwargs):
         """
         Update label and return label ID.

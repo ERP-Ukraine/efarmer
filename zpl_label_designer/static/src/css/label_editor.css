@@ -3,16 +3,6 @@
     overflow-x: scroll;
 }
 
-/* ZPL Content */
-.zld-content-container {
-    max-height: 400px;
-    border: 1px solid #ddd;
-    padding: 1rem;
-    overflow-y: scroll;
-    white-space: pre-wrap;
-    word-break: break-all;
-}
-
 .zld-preview-container img {
     border: 1px solid #ddd;
 }

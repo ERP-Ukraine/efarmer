@@ -9,6 +9,9 @@ class SaleOrder(models.Model):
     _inherit = ['sale.order', 'printnode.mixin', 'printnode.scenario.mixin']
 
     def action_confirm(self):
+        """ Overriding the default method to add custom logic with print scenarios for
+            confirm sale orders.
+        """
         res = super(SaleOrder, self).action_confirm()
 
         if res is True:
@@ -47,6 +50,8 @@ class SaleOrder(models.Model):
         return printed
 
     def open_print_order_line_reports_wizard(self):
+        """ Returns action window with 'Print Order Lines Reports Wizard'
+        """
         self.ensure_one()
 
         return {

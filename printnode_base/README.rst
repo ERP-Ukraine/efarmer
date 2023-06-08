@@ -7,6 +7,16 @@ Change Log
 
 |
 
+* 2.60 (2023-06-08)
+    - [NEW] Added new security printing mode: this mode allows to print documents without sending them to Direct Print servers
+    - [NEW] Added improved workstation features: user can create multiple workstations and assign printers to them
+    - Fixed security issues. Improved and cleaned code of the module
+    - Fixed priority of printer selection for shipping labels
+    - Fixed issue with error while cancelling tracking number for shipping label
+
+* 2.5.1 (2023-03-20)
+    - [NEW] Added new scenario "Print Operations document on Transfer (after validation)" to print reports based on stock.move model
+
 * 2.5.0 (2023-02-27)
     - [NEW] Added "Print Operation Reports" wizard to print reports based on stock.move model
     - [NEW] Added "Print Order Line Reports" wizard to print reports based on sale.order.line model

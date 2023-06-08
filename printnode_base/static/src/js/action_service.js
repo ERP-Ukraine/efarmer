@@ -1,13 +1,11 @@
 /** @odoo-module */
 
-import { registry } from '@web/core/registry';
-import { ErrorDialog } from '@web/core/errors/error_dialogs';
-import { session } from '@web/session';
 import { csrf_token } from 'web.core';
+import { registry } from '@web/core/registry';
+import { session } from '@web/session';
+import { makeErrorFromResponse } from "@web/core/network/rpc_service";
 import { _t } from '@web/core/l10n/translation';
-
-// import WORKSTATION_DEVICES from './constants';
-
+import { ErrorDialog } from '@web/core/errors/error_dialogs';
 
 // Messages that might be shown to the user dependening on the state of wkhtmltopdf
 const LINK = '<br><br><a href="http://wkhtmltopdf.org/" target="_blank">wkhtmltopdf.org</a>';
@@ -134,17 +132,24 @@ export default class PrintActionHandler {
             } catch (e) { // Arbitrary uncaught python side exception
                 const doc = new DOMParser().parseFromString(printResult, 'text/html');
                 const nodes = doc.body.children.length === 0 ? doc.body.childNodes : doc.body.children;
-                let traceback = null;
+                let error;
 
                 try { // Case of a serialized Odoo Exception: It is Json Parsable
                     const node = nodes[1] || nodes[0];
-                    const err = JSON.parse(node.textContent);
-                    traceback = err.data.debug
+                    error = JSON.parse(node.textContent);
                 } catch (e) { // Arbitrary uncaught python side exception
-                    traceback = nodes.length > 1 ? nodes[1].textContent : nodes.length > 0 ? nodes[0].textContent : '';
-                }
+                    error = {
+                        message: "Arbitrary Uncaught Python Exception",
+                        data: {
+                            debug: `${xhr.status}` + `\n` +
+                                `${nodes.length > 0 ? nodes[0].textContent : ""}
+                                ${nodes.length > 1 ? nodes[1].textContent : ""}`
+                        },
 
-                env.services.dialog.add(ErrorDialog, { traceback: traceback });
+                    };
+                }
+                error = makeErrorFromResponse(error);
+                throw error;
             }
 
             const onClose = options.onClose;

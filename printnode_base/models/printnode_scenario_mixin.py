@@ -1,7 +1,9 @@
 # Copyright 2021 VentorTech OU
 # See LICENSE file for full copyright and licensing details.
-from .constants import Constants
+
 from odoo import models
+
+from .constants import Constants
 
 
 SECURITY_GROUP = 'printnode_base.printnode_security_group_user'

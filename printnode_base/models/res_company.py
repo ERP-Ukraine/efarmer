@@ -118,3 +118,8 @@ class Company(models.Model):
         string='Allow to execute printing scenarios from crons',
         default=True,
     )
+
+    secure_printing = fields.Boolean(
+        string='Printing without sending documents to the print server',
+        default=False,
+    )

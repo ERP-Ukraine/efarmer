@@ -123,20 +123,9 @@ class ResConfigSettings(models.TransientModel):
         related='company_id.log_type_ids',
     )
 
-    # Workstation devices
-    printnode_workstation_printer_id = fields.Many2one(
-        'printnode.printer',
-        string='Default Workstation Printer',
-    )
-
-    printnode_workstation_label_printer_id = fields.Many2one(
-        'printnode.printer',
-        string='Default Workstation Shipping Label Printer',
-    )
-
-    printnode_workstation_scales_id = fields.Many2one(
-        'printnode.scales',
-        string='Default Workstation Scales',
+    secure_printing = fields.Boolean(
+        readonly=False,
+        related='company_id.secure_printing',
     )
 
     printing_scenarios_from_crons = fields.Boolean(
@@ -178,46 +167,11 @@ class ResConfigSettings(models.TransientModel):
                 }
             }
 
-    def get_values(self):
-        res = super(ResConfigSettings, self).get_values()
-
-        workstation_devices = self._get_workstation_devices()
-        res.update(**workstation_devices)
-
-        return res
-
     def set_values(self):
         if self.print_package_with_label and not self.group_stock_tracking_lot:
             self.group_stock_tracking_lot = True
 
-        self._set_workstation_devices()
-
         super(ResConfigSettings, self).set_values()
-
-    def _get_workstation_devices(self):
-        workstation = self.env['printnode.workstation']._get_or_create_workstation()
-
-        if workstation:
-            return {
-                'printnode_workstation_printer_id': workstation.printer_id.id,
-                'printnode_workstation_label_printer_id': workstation.label_printer_id.id,
-                'printnode_workstation_scales_id': workstation.scales_id.id,
-            }
-
-        return {}
-
-    def _set_workstation_devices(self):
-        workstation = self.env['printnode.workstation']._get_or_create_workstation()
-
-        if workstation:
-            # Update devices
-            workstation.update({
-                'printer_id': self.printnode_workstation_printer_id.id,
-                'label_printer_id': self.printnode_workstation_label_printer_id.id,
-                'scales_id': self.printnode_workstation_scales_id.id,
-            })
-
-        return True
 
     # Buttons
 
@@ -234,25 +188,27 @@ class ResConfigSettings(models.TransientModel):
         """
         account = self.get_main_printnode_account()
 
-        if account:
-            return account.activate_account()
-        else:
+        if not account:
             raise exceptions.UserError(_('Please, add an account before activation'))
 
+        return account.activate_account()
+
     def import_devices(self):
+        """ Import Printers & Scales button in Settings.
+        """
         account = self.get_main_printnode_account()
 
-        if account:
-            return account.import_devices()
-        else:
+        if not account:
             raise exceptions.UserError(_('Please, add an account before importing printers'))
+
+        return account.import_devices()
 
     def clear_devices_from_odoo(self):
         """ Callback for "Clear Devices from Odoo" button.
         """
         account = self.get_main_printnode_account()
 
-        if account:
-            return account.clear_devices_from_odoo()
-        else:
+        if not account:
             raise exceptions.UserError(_('Please, add an account before clearing devices'))
+
+        return account.clear_devices_from_odoo()

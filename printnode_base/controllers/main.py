@@ -1,20 +1,26 @@
 # Copyright 2021 VentorTech OU
 # See LICENSE file for full copyright and licensing details.
 
-import json
-import werkzeug
 import base64
+import hashlib
+import hmac
+import json
 import logging
+import werkzeug
 
 from copy import deepcopy
+from datetime import datetime
 
-from odoo.addons.web.controllers.main import DataSet, ReportController
-
-from odoo.http import request, serialize_exception as _serialize_exception
-from odoo.tools.translate import _
 from odoo import http, api
+from odoo.addons.web.controllers.main import DataSet, ReportController
+from odoo.http import request, db_list, serialize_exception
+from odoo.tools.translate import _
 
+from werkzeug.exceptions import BadRequest, NotFound, SecurityError
 from werkzeug.urls import url_unquote
+
+from .utils import add_env
+
 
 _logger = logging.getLogger(__name__)
 
@@ -29,6 +35,8 @@ SUPPORTED_REPORT_TYPES = [
 class DataSetProxy(DataSet):
 
     def _call_kw(self, model, method, args, kwargs):
+        """ Overriding the default method to add custom logic with action buttons, etc.
+        """
         user = request.env.user
         if not user.has_group(SECURITY_GROUP) \
                 or not request.env.company.printnode_enabled or not user.printnode_enabled:
@@ -36,8 +44,8 @@ class DataSetProxy(DataSet):
 
         # We have a list of methods which will never be handled in 'printnode.action.button'.
         # In that case just will be returned a 'super method'.
-        su = request.env['ir.config_parameter'].sudo()
-        methods_list = su.get_param('printnode_base.skip_methods', '').split(',')
+        methods_list = request.env['ir.config_parameter'].sudo() \
+            .get_param('printnode_base.skip_methods', '').split(',')
         # In addition, we need to choose only 'call_kw_multi' sub method, so
         # let's filter this like in standard Odoo function 'def call_kw()'.
         method_ = getattr(type(request.env[model]), method)
@@ -46,7 +54,9 @@ class DataSetProxy(DataSet):
             return super(DataSetProxy, self)._call_kw(model, method, args, kwargs)
 
         # Get context parameters with keys starting with 'printnode_' (workstation devices)
-        printnode_context = dict(filter(lambda i: i[0].startswith('printnode_'), kwargs.get('context', {}).items()))  # NOQA
+        printnode_context = dict(filter(
+            lambda i: i[0].startswith('printnode_'), kwargs.get('context', {}).items()
+        ))
 
         ActionButton = request.env['printnode.action.button']
         post_action_ids, pre_action_ids = \
@@ -91,6 +101,24 @@ class DataSetProxy(DataSet):
 class ReportControllerProxy(ReportController):
 
     def _check_direct_print(self, data, context):
+        """
+        This method performs multi-step data validation before sending a print job.
+
+        :param data: a list of params such as report_url, report_type, printer_id, printer_bin
+        :param context: current context
+
+        The method returns a dictionary print_data that contains information about the print job.
+        The dictionary will have the key can_print set to True if the print job can be sent to
+        the printer, and False otherwise.
+
+        The method performs the following steps:
+        - Check if direct printing is enabled for the user.
+        - Check if the requested report type is supported.
+        - Check if the current report is excluded from auto-printing.
+        - Check if a printer has been defined for the current report.
+
+        If all checks are passed, set can_print to True and return print_data.
+        """
         print_data = {'can_print': False}
         request_content = json.loads(data)
 
@@ -122,7 +150,7 @@ class ReportControllerProxy(ReportController):
         extension = report_type
         if '-' in report_type:
             extension = report_type.split('-')[1]
-        report_name = report_url.split('/report/{}/'.format(extension))[1].split('?')[0]
+        report_name = report_url.split(f'/report/{extension}/')[1].split('?')[0]
 
         if '/' in report_name:
             report_name, ids = report_name.split('/')
@@ -136,14 +164,14 @@ class ReportControllerProxy(ReportController):
 
         print_data['model'] = model
 
-        rp = request.env['printnode.report.policy'].search([
+        report_policy = request.env['printnode.report.policy'].search([
             ('report_id', '=', report.id),
         ])
-        if rp and rp.exclude_from_auto_printing:
+        if report_policy and report_policy.exclude_from_auto_printing:
             # If report is excluded from printing, than just download it
             return print_data
 
-        print_data["report_policy"] = rp
+        print_data["report_policy"] = report_policy
 
         # STEP 4. Now let's check if we can define printer for the current report.
         # If not - just reset to default
@@ -153,7 +181,7 @@ class ReportControllerProxy(ReportController):
             context = json.loads(context or '{}')
             new_context.update(context)
 
-            printer_id, printer_bin = user.with_context(new_context).get_report_printer(report.id)
+            printer_id, printer_bin = user.with_context(**new_context).get_report_printer(report.id)
 
         if not printer_id:
             return print_data
@@ -173,6 +201,33 @@ class ReportControllerProxy(ReportController):
 
     @http.route('/report/print', type='http', auth="user")
     def report_print(self, data, context=None):
+        """
+        Handles sending a report to a printer.
+
+        :param data: The data to be printed.
+        :param context optional: dict with current context.
+        :return: a JSON-encoded response with info about the success or failure of the print job.
+
+        It calls the _check_direct_print method, which performs several checks to validate whether
+        the report can be printed directly.
+        If direct printing is not allowed (according to the results of the _check_direct_print
+        method), the method returns a JSON response indicating that printing is not allowed.
+
+        If direct printing is allowed, the method proceeds to download the report using
+        the report_download method.
+
+        The downloaded report is then sent to the printer using the printnode_print_b64 method.
+        This method takes the report data in Base64-encoded format, as well as other parameters
+        like the printer ID, the report type, and the paper size.
+
+        If the report is successfully sent to the printer, the method performs some post-printing
+        actions. If an error occurs during printing, the method returns a JSON response with details
+        about the error.
+
+        Finally, the method returns a JSON response indicating whether the printing was successful,
+        along with a message to the user indicating the name of the report and the printer to which
+        it was sent.
+        """
         print_data = self._check_direct_print(data, context)
         if not print_data['can_print']:
             return json.dumps({
@@ -182,7 +237,7 @@ class ReportControllerProxy(ReportController):
                 'notify': True,
             })
 
-        rp = print_data['report_policy']
+        report_policy = print_data['report_policy']
         printer_bin = print_data['printer_bin']
         printer_id = print_data['printer_id']
 
@@ -203,39 +258,35 @@ class ReportControllerProxy(ReportController):
             params = {
                 'title': report_name,
                 'type': print_data['report_type'],
-                'size': rp and rp.report_paper_id,
+                'size': report_policy and report_policy.report_paper_id,
                 'options': {'bin': printer_bin.name} if printer_bin else {},
             }
             res = printer_id.printnode_print_b64(ascii_data, params)
 
             if res:
                 self._postprint_actions(print_data['model'], print_data.get('ids', []))
-        except Exception as e:
-            _logger.exception(e)
-            se = _serialize_exception(e)
+        except Exception as exc:
+            _logger.exception(exc)
             error = {
                 'success': False,
                 'code': 200,
                 'message': "Odoo Server Error",
-                'data': se
+                'data': serialize_exception(exc)
             }
             return json.dumps(error)
 
         title = _('Report was sent to printer')
-        message = _('Document "%s" was sent to printer %s') % (report_name, printer_id.name)
+        message = _(
+            'Document "%(report)s" was sent to printer %(printer)s',
+            report=report_name,
+            printer=printer_id.name,
+        )
         return json.dumps({
             'title': title,
             'message': message,
             'success': True,
             'notify': request.env.company.im_a_teapot
         })
-
-    @http.route('/dpc/release-model-check', type='http', auth="user")
-    def release_model_check(self, context=None):
-        model = request.env['ir.model'].sudo().search([['model', '=', 'printnode.release']])
-        if model:
-            return "true"
-        return "false"
 
     def _postprint_actions(self, model, ids):
         """
@@ -256,6 +307,14 @@ class ReportControllerProxy(ReportController):
 class DPCCallbackController(http.Controller):
     @http.route('/dpc-callback', type='http', auth='user')
     def callback(self, **kwargs):
+        """
+        Callback method to update main account with current api_key.
+
+        When the user following the link in the wizard gets to "print.ventor.tech" and registers
+        there, he gets an API key, after that he will be redirected back to Oduu to this controller.
+        This method will first update the API key for the current account, and then redirect the
+        user to the settings page.
+        """
         if 'api_key' not in kwargs:
             return _('No API Key returned. Please, copy the key and paste in the module settings')
 
@@ -263,5 +322,97 @@ class DPCCallbackController(http.Controller):
 
         settings_action_id = request.env.ref('printnode_base.printnode_config_action').id
         return werkzeug.utils.redirect(
-            '/web?view_type=form&model=res.config.settings#action={}'.format(settings_action_id)
+            f'/web?view_type=form&model=res.config.settings#action={settings_action_id}'
         )
+
+
+class DPCJobContentController(http.Controller):
+    @http.route(
+        '/dpc/<string:db>/printjob/<int:job_id>/content',
+        type='http', methods=['GET'], auth='none', csrf=False)
+    @add_env
+    def get_printjob_content(self, db=None, job_id=None, **kw):
+        """
+        Get the content of a print job by ID.
+
+        :param db: The name of the database where the print job is located.
+        :param job_id: The ID of the print job to retrieve the content of.
+        :return: The response object containing the print job content.
+        """
+        signature = request.params.get('signature')
+        expiration_timestamp = request.params.get('expires')
+
+        # Request validation
+        self._validate_request(db, job_id, signature, expiration_timestamp)
+
+        # Make response
+        content, headers = self._handle_printjob_content(job_id)
+        response = request.make_response(content, headers)
+        return response
+
+    def _validate_request(self, db=None, job_id=None, signature=None, expiration_timestamp=None):
+        """
+        Validate the parameters of the request.
+
+        :param db: The name of the database where the print job is located.
+        :param job_id: The ID of the print job to retrieve the content of.
+        :param signature: The signature of the request.
+        :param expiration_timestamp: The expiration timestamp of the request.
+        :return: True if the request is valid otherwise raise an exception.
+        """
+        if not job_id:
+            raise BadRequest("Printjob ID is required")
+
+        if not expiration_timestamp or not signature:
+            raise BadRequest("The URL has expired or is unsigned")
+
+        # Validate database
+        if not db:
+            raise BadRequest("Database name is required")
+
+        if db not in db_list():
+            raise NotFound('Database not found')
+
+        # Validate expiration
+        if datetime.utcnow() > datetime.fromtimestamp(int(expiration_timestamp)):
+            raise SecurityError('The URL has expired')
+
+        # Validate signature
+        secret_key = request.env['ir.config_parameter'].sudo().get_param('database.secret')
+
+        validated_signature = hmac.new(
+            secret_key.encode('UTF-8'),
+            f'{job_id}{expiration_timestamp}'.encode('UTF-8'),
+            hashlib.sha256
+        ).hexdigest()
+
+        if validated_signature != signature:
+            raise SecurityError('Signature is invalid')
+
+        return True
+
+    def _handle_printjob_content(self, job_id):
+        """
+        Retrieves the content of a print job given its ID and generates response headers.
+
+        :param db: The name of the database where the print job is located.
+        :param job_id: The ID of the print job to retrieve the content of.
+        :return: A tuple <content, headers>.
+        """
+        printjob_id = request.env['printnode.printjob'].sudo().search([('id', '=', int(job_id))])
+
+        if not printjob_id:
+            raise NotFound("Printjob not found")
+
+        if not printjob_id.attachment_id:
+            raise BadRequest("Printjob has no content")
+
+        content_type = printjob_id.attachment_id.mimetype
+
+        if content_type not in ('text/plain', 'application/pdf'):
+            raise BadRequest("Printjob has an invalid content type")
+
+        content = base64.b64decode(printjob_id.attachment_id.datas)
+        headers = [('Content-Type', content_type), ('Content-Length', len(content))]
+
+        return content, headers

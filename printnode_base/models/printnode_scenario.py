@@ -4,6 +4,7 @@
 from odoo import models, fields, api, _
 from odoo.osv import expression
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools.safe_eval import safe_eval
 
 from .constants import Constants
 
@@ -125,6 +126,8 @@ class PrintNodeScenario(models.Model):
             ))
 
     def edit_domain(self):
+        """ Returns action window with 'Domain Editor'
+        """
         domain_editor = self.env.ref(
             'printnode_base.printnode_scenario_domain_editor',
             raise_if_not_found=False,
@@ -248,7 +251,7 @@ class PrintNodeScenario(models.Model):
         if self.domain == '[]':
             return self.env[self.model_id.model].browse(ids_list)
         return self.env[self.model_id.model].search(
-            expression.AND([[('id', 'in', ids_list)], eval(self.domain)])
+            expression.AND([[('id', 'in', ids_list)], safe_eval(self.domain)])
         )
 
     def _get_printer(self):

@@ -53,9 +53,7 @@ class TestPrintNodeCommon(common.TransactionCase):
 
         self.company = self.env.ref('base.main_company')
 
-        self.user = self.env['res.users'].with_context({
-            'no_reset_password': True
-        }).create({
+        self.user = self.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Direct Print User',
             'company_id': self.company.id,
             'login': 'user',
@@ -239,7 +237,7 @@ class TestPrintNodeCommon(common.TransactionCase):
     def _create_patch_object(self, target, attribute):
         """
         Improved object patcher method from
-        'https://docs.python.org/3/library/unittest.mock-examples.html?highlight=object%20patcher%20method#nesting-patches'
+        'https://docs.python.org/3/library/unittest.mock-examples.html#nesting-patches'
 
         This method makes it easier to work with unittest.mock.patch()<.object()> functions.
         It avoids extra nested indentation as when using patch() with the "with" context manager.
@@ -250,14 +248,12 @@ class TestPrintNodeCommon(common.TransactionCase):
         self.addCleanup(patcher.stop)
         return thing
 
-    def _get_or_create_workstation(self):
-        """Define or create a test workstation and define devices for it
+    def _create_workstation(self):
         """
-        workstation_id = self.env['printnode.workstation'].with_context({
-            'printnode_workstation_uuid': 1
-        })._get_or_create_workstation()
-
-        workstation_id.write({
+        Define or create a test workstation and define devices for it
+        """
+        workstation_id = self.env['printnode.workstation'].create({
+            'name': 'Test Workstation',
             'printer_id': self.printer.id,
             'label_printer_id': self.label_printer.id,
             'scales_id': self.scales.id,

@@ -337,10 +337,14 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
             def side_effect_send_printnode_request(uri: str):
                 if uri == 'computers':
                     return test_computers
-                elif 'computers' in uri and 'printers' in uri:
+
+                if 'computers' in uri and 'printers' in uri:
                     return test_printers
-                elif 'computer' in uri and 'scales' in uri:
+
+                if 'computer' in uri and 'scales' in uri:
                     return test_scales
+
+                return None
 
             mock_account_send_printnode_request.return_value = None
             mock_account_send_printnode_request.side_effect = side_effect_send_printnode_request
@@ -391,8 +395,8 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
             def side_effect_send_printnode_request(uri: str):
                 if uri == 'computers':
                     return TEST_COMPUTERS_FROM_PRINTNODE
-                else:
-                    return TEST_PRINTERS_FROM_PRINTNODE
+
+                return TEST_PRINTERS_FROM_PRINTNODE
 
             mock_send_printnode_request.side_effect = side_effect_send_printnode_request
 
@@ -537,7 +541,7 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
             self.assertEqual(limits, 5)
             mock_send_dpc_request.assert_called_once_with(
                 'GET',
-                'api-keys/{}'.format(self.account.api_key))
+                f'api-keys/{self.account.api_key}')
 
         # Check _get_limits_dpc with response status_code - 404
         # Expected: printed-0, limits-0
@@ -552,7 +556,7 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
 
             mock_send_dpc_request.assert_called_once_with(
                 'GET',
-                'api-keys/{}'.format(self.account.api_key))
+                f'api-keys/{self.account.api_key}')
 
     def test_get_limits_printnode(self):
         """

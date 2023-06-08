@@ -8,8 +8,8 @@ class PrintnodeWorkstation(models.Model):
     _name = 'printnode.workstation'
     _description = 'Printnode Workstation'
 
-    uuid = fields.Char(
-        string='Workstation UUID',
+    name = fields.Char(
+        string='Workstation Name',
         required=True,
     )
 
@@ -29,7 +29,7 @@ class PrintnodeWorkstation(models.Model):
     )
 
     _sql_constraints = [
-        ('uuid', 'unique(uuid)', 'Workstation UUID must be unique'),
+        ('name', 'unique(name)', 'Workstation name must be unique'),
     ]
 
     @api.model
@@ -40,7 +40,7 @@ class PrintnodeWorkstation(models.Model):
         Return information about workstation devices in format:
         [printer, label_printer, scales]
         """
-        workstation = self._get_or_create_workstation()
+        workstation = self.get_workstation()
 
         devices = []
 
@@ -62,15 +62,13 @@ class PrintnodeWorkstation(models.Model):
         return devices
 
     @api.model
-    def _get_or_create_workstation(self):
-        uuid = self.env.context.get('printnode_workstation_uuid')
+    def get_workstation(self):
+        workstation_id = self.env.context.get('printnode_workstation_id')
 
-        if uuid:
-            workstation = self.env['printnode.workstation'].search([('uuid', '=', uuid)], limit=1)
-
-            if not workstation:
-                workstation = self.env['printnode.workstation'].create({'uuid': uuid})
-
+        if workstation_id:
+            # We have to use exists() to make sure the entry exists in the database and
+            # not just in the ORM cache.
+            workstation = self.env['printnode.workstation'].browse(workstation_id).exists()
             return workstation
 
-        return False
+        return None

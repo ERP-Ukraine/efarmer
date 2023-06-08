@@ -121,7 +121,7 @@
 
                             <div class="col-12 col-lg-6 o_setting_box">
                                 <div class="o_setting_left_pane">
-                                    <field name="auto_send_slp" />
+                                    <field name="auto_send_slp" attrs="{'readonly': [('printnode_enabled', '=', False)]}"/>
                                 </div>
                                 <div class="o_setting_right_pane">
                                     <label for="auto_send_slp" />
@@ -137,7 +137,7 @@
                                     <div class="content-group">
                                         <div class="mt16 row">
                                             <label for="company_label_printer" string="Default Shipping Label Printer" class="col-4 col-lg-4 o_light_label" />
-                                            <field name="company_label_printer" class="oe_inline" />
+                                            <field name="company_label_printer" class="oe_inline" options="{'no_open': [('printnode_enabled', '=', False)]}" attrs="{'readonly': [('printnode_enabled', '=', False)]}"/>
                                         </div>
                                     </div>
                                 </div>
@@ -148,7 +148,7 @@
                                     <label for="print_labels_format" />
                                     <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." groups="base.group_multi_company"/>
                                     <br />
-                                    <field name="print_labels_format" class="oe_inline" />
+                                    <field name="print_labels_format" class="oe_inline" options="{'no_open': [('printnode_enabled', '=', False)]}" attrs="{'readonly': [('printnode_enabled', '=', False)]}" />
                                     <div class="text-muted">
                                         This option sets the default product label format for printing
                                         product labels using print scenarios. If this field is blank,
@@ -159,7 +159,7 @@
 
                             <div class="col-12 col-lg-6 o_setting_box" attrs="{'invisible': [('print_sl_from_attachment', '=', True)]}">
                                 <div class="o_setting_left_pane">
-                                    <field name="print_package_with_label" />
+                                    <field name="print_package_with_label" attrs="{'readonly': [('printnode_enabled', '=', False)]}" />
                                 </div>
                                 <div class="o_setting_right_pane">
                                     <label for="print_package_with_label" />
@@ -186,7 +186,7 @@
 
                             <div class="col-12 col-lg-6 o_setting_box" attrs="{'invisible': [('print_package_with_label', '=', True)]}">
                                 <div class="o_setting_left_pane">
-                                    <field name="print_sl_from_attachment" />
+                                    <field name="print_sl_from_attachment" attrs="{'readonly': [('printnode_enabled', '=', False)]}" />
                                 </div>
                                 <div class="o_setting_right_pane" attrs="{'invisible': [('print_package_with_label', '=', True)]}">
                                     <label for="print_sl_from_attachment" />
@@ -240,43 +240,6 @@
                                                options="{'model': 'stock.picking'}"
                                                class="oe_inline" />
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <h2>Workstation Devices</h2>
-                        <div class="row mt16 o_settings_container">
-                            <div class="col-12">
-                                <div class="alert alert-info" role="alert">
-                                    Workstation devices allow to set default printer, shipping label printer and scales
-                                    for the current computer
-                                </div>
-                                <div class="alert alert-warning" role="alert" attrs="{'invisible': [('printnode_enabled', '=', True)]}">
-                                    To set Workstation devices, please enable Direct Printing
-                                </div>
-                            </div>
-
-                            <div class="col-12 col-lg-6 o_setting_box">
-                                <div class="o_setting_left_pane"></div>
-                                <div class="o_setting_right_pane">
-                                    <label for="printnode_workstation_printer_id" class="o_form_label d-block" />
-                                    <field name="printnode_workstation_printer_id" options="{'no_open': [('printnode_enabled', '=', False)]}" attrs="{'readonly': [('printnode_enabled', '=', False)]}"/>
-                                </div>
-                            </div>
-
-                            <div class="col-12 col-lg-6 o_setting_box">
-                                <div class="o_setting_left_pane"></div>
-                                <div class="o_setting_right_pane">
-                                    <label for="printnode_workstation_label_printer_id" class="o_form_label d-block" />
-                                    <field name="printnode_workstation_label_printer_id" options="{'no_open': [('printnode_enabled', '=', False)]}" attrs="{'readonly': [('printnode_enabled', '=', False)]}"/>
-                                </div>
-                            </div>
-
-                            <div class="col-12 col-lg-6 o_setting_box">
-                                <div class="o_setting_left_pane"></div>
-                                <div class="o_setting_right_pane">
-                                    <label for="printnode_workstation_scales_id" class="o_form_label d-block" />
-                                    <field name="printnode_workstation_scales_id" options="{'no_open': [('printnode_enabled', '=', False)]}" attrs="{'readonly': [('printnode_enabled', '=', False)]}"/>
                                 </div>
                             </div>
                         </div>
@@ -394,6 +357,22 @@
                                     <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." groups="base.group_multi_company"/>
                                     <div class="text-muted">
                                         Set this checkbox to allow to execute printing scenarios from crons.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-6 o_setting_box" groups="base.group_no_one" >
+                                <div class="o_setting_left_pane">
+                                    <field name="secure_printing" />
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <a href="#" title="ATTENTION! Make sure you know what you're doing!" class="mr-2 fa fa-warning"></a>
+                                    <label for="secure_printing" string="Enable secure printing" />
+                                    <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." groups="base.group_multi_company"/>
+                                    <div class="text-muted">
+                                        This checkbox will enable Secure Printing Mode. In this mode, instead of sending the document's content to print, the print server receives a special download link for the document. 
+                                        This link is then passed to the client application, which downloads the document and sends it to print. This means that your documents content is never sent to the Direct Print server.
+                                        <p>More details <a href="https://print.ventor.tech/faq#how-secure-printing-works" target="_blank">here</a></p>
                                     </div>
                                 </div>
                             </div>

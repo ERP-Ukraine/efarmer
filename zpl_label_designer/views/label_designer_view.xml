@@ -10,10 +10,8 @@
                 <form string="Label View" js_class="zld_label_form_view">
                     <header groups="zpl_label_designer.zld_security_group_manager">
                         <button name="open_in_designer" string="Open in Designer" type="object" attrs="{'invisible': [('designer_label_id', '=', False)]}" />
-                        <button name="publish" string="Publish" type="object" class="oe_highlight" attrs="{'invisible': [('view_id', '!=', False)]}" />
-                        <button name="update_published_label" string="Update Published Label" type="object" class="oe_highlight" attrs="{'invisible': [('view_id', '=', False)]}" />
-                        <button name="unpublish" string="Unpublish" type="object" attrs="{'invisible': [('view_id', '=', False)]}"/>
-                        <button name="update_demo" string="Update Demo" type="object" groups="base.group_no_one" />
+                        <button name="publish" string="Publish" type="object" class="oe_highlight" attrs="{'invisible': [('action_report_id', '!=', False)]}" />
+                        <button name="unpublish" string="Unpublish" type="object" attrs="{'invisible': [('action_report_id', '=', False)]}"/>
                         <button name="open_view" string="Open Label View" type="object" groups="base.group_no_one" attrs="{'invisible': [('view_id', '=', False)]}"/>
                     </header>
 
@@ -56,6 +54,7 @@
                                 <field name="orientation" />
 
                                 <field name="view_id" invisible="1" />
+                                <field name="action_report_id" invisible="1" />
                                 <field name="is_modified" invisible="1" />
                                 <field name="designer_label_id" invisible="1" />
                             </group>
@@ -71,8 +70,8 @@
                             <small>To change label or its parameters click on "Open in Designer" button</small>
                         </div>
 
-                        <group string="Label Content">
-                            <field name="zpl" nolabel="1" widget="zld_label_content" colspan="2" />
+                        <group string="Preview">
+                            <field name="preview" nolabel="1" widget="zld_label_preview" colspan="2" />
                         </group>
 
                         <div>
@@ -82,9 +81,6 @@
                             </small>
                         </div>
 
-                        <group string="Demo">
-                            <field name="preview" nolabel="1" readonly="1" widget="zld_label_preview" colspan="2" />
-                        </group>
                         <div>
                             <small>Preview provided by <a href="http://labelary.com/" target="_blank">Labelary</a></small>
                         </div>

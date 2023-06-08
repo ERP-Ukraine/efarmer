@@ -4,6 +4,7 @@
 from odoo import models, fields, api, _
 from odoo.osv import expression
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools.safe_eval import safe_eval
 
 from .constants import Constants
 
@@ -121,7 +122,13 @@ class PrintNodeActionButton(models.Model):
         if self.domain == '[]':
             return related_model.browse(ids_list)
         return related_model.search(
-            expression.AND([[('id', 'in', ids_list)], eval(self.domain)])
+            expression.AND([
+                [
+                    ('id', 'in', ids_list),
+                    # TODO: Perhaps we need to add this ('printnode_printed', '=', False),
+                ],
+                safe_eval(self.domain),
+            ])
         )
 
     def _get_action_printer(self):
@@ -141,6 +148,8 @@ class PrintNodeActionButton(models.Model):
         return printer, printer_bin
 
     def edit_domain(self):
+        """ Returns action window with 'Domain Editor'
+        """
         domain_editor = self.env.ref(
             'printnode_base.printnode_domain_editor',
             raise_if_not_found=False,
@@ -157,6 +166,8 @@ class PrintNodeActionButton(models.Model):
         return action
 
     def _get_post_pre_action_button_ids(self, model, method):
+        """ Returns action button ids (pre_ & post_)
+        """
         actions = self.env[self._name].sudo().search([
             ('model_id.model', '=', model),
             ('method_id.method', '=', method),
@@ -176,6 +187,8 @@ class PrintNodeActionButton(models.Model):
         return post_ids, pre_ids
 
     def print_reports(self, action_object_ids):
+        """ Print reports for action buttons
+        """
         for action in self:
             action.printnode_logger(Constants.ACTION_BUTTONS_LOG_TYPE, f'Action button: {action}')
             objects = action._get_model_objects(action_object_ids)

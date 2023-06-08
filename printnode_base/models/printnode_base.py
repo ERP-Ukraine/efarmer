@@ -28,6 +28,7 @@ class PrintnodeBase(models.AbstractModel):
                 ('company', self._get_company_devices(),),
             ],
             'releases': self.env['printnode.release'].get_releases(),
+            'workstations': self.env['printnode.workstation'].search_read([]),
         }
 
     def _get_workstation_devices(self):
@@ -66,12 +67,12 @@ class PrintnodeBase(models.AbstractModel):
 
     def _get_company_devices(self):
         """
-        Returns all devices for current user.
+        Returns all devices for current company.
 
         This method prepare data to the same format as workstation devices
         (get_workstation_devices method).
 
-        Return information about user devices in format:
+        Return information about company devices in format:
         [printer, label_printer, scales]
         """
         return [

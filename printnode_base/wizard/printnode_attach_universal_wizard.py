@@ -90,9 +90,11 @@ class PrintnodeAttachUniversalWizard(models.TransientModel):
 
         attachment_names = [al.attachment_id.name for al in self.attach_line_ids]
         title = _('Documents were sent to printer')
-        message = _('Documents "{}" were sent to printer {}').format(
-            ', '.join(attachment_names),
-            self.printer_id.name)
+        message = _(
+            'Documents "%(attachment)s" were sent to printer %(printer)s',
+            attachment=', '.join(attachment_names),
+            printer=self.printer_id.name,
+        )
 
         return {
             'type': 'ir.actions.client',

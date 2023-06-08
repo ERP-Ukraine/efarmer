@@ -10,11 +10,7 @@
                     <field name="report_id" required="1" options="{'no_create': True}"/>
                 </group>
 
-                <group name="quantity_to_print">
-                    <field name="quantity" />
-                </group>
-
-                <group attrs="{'invisible': [('quantity', '!=', 'single')]}">
+                <group>
                     <field name="number_copy" required="1"/>
                 </group>
 

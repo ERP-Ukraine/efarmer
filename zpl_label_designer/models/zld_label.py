@@ -1,17 +1,11 @@
-import re
+from typing import Any, Dict, List, Union
 
 from odoo import api, exceptions, fields, models, _
 from odoo.tools.safe_eval import safe_eval
 
 
-PLACEHOLDER_REGEX = r'\%\%[a-z_\d\.]+?\%\%'
-FIELD_PLACEHOLDER = '<t t-esc="doc.{}"/>'
-TEMPLATE_BASE = '<t t-foreach="docs" t-as="doc">{content}</t>'
-SPECIAL_CHARACTERS = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-}
+LABEL_VIEW_XMLID = 'zpl_label_designer.{model}_label_{label_id}'
+LABEL_ACTION_REPORT_XMLID = 'zpl_label_designer.{model}_label_action_{label_id}'
 
 
 class Label(models.Model):
@@ -115,7 +109,7 @@ class Label(models.Model):
     def _compute_print_report_name_preview(self):
         for rec in self:
             if rec.print_report_name:
-                random_record = rec._get_random_record(rec.zpl, rec.model_id.model)
+                random_record = rec.env[rec.model_id.model].search([], limit=1)
                 rec.print_report_name_preview = safe_eval(
                     rec.print_report_name,
                     {'object': random_record}
@@ -157,94 +151,53 @@ class Label(models.Model):
     #
     def publish(self):
         """
-        This method publish label to Odoo. It creates (or updates) ir.action.report and ir.ui.view.
+        Create or update report and view for label
         """
         self.ensure_one()
 
-        # Validate label before publishing
-        self._validate_placeholders(self.zpl, self.model_id.model)
+        if not self.view_id:
+            raise exceptions.UserError(_(
+                'To publish this label, please go to the Designer (using "Open in Designer" button)'
+                ' and publish it there'
+            ))
 
-        if not self.zpl.strip():  # Strip is just in case
-            raise exceptions.UserError(
-                _('Label is empty. Please add at least one element to the label'))
+        self.view_id.active = True
 
         if self.action_report_id:
-            # Label already published. Do update of label content and exit
-            self._update_label_content()
+            # Update action report
+            self.action_report_id.name = self.name
+            self.action_report_id.print_report_name = self.print_report_name or f"'{self.name}'"
+        else:
+            # Create action report
+            self.action_report_id = self._create_label_action_report()
 
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': _('Label was updated'),
-                    'message': _('Label {} was successfully updated').format(self.name),
-                    'type': 'success',
-                    'sticky': False,
-                    'next': {
-                        'type': 'ir.actions.client',
-                        'tag': 'reload',
-                    }
-                },
-            }
-
-        view_xmlid = f'zpl_label_designer.{self.model_id.model.replace(".", "_")}_label_{self.id}'
-        label_view_id = self.env['ir.ui.view'].create({
-            'type': 'qweb',
-            'arch': self._prepare_label_template(),
-            'name': view_xmlid,
-            'key': view_xmlid
-        })
-        self.env['ir.model.data'].create({
-            'module': 'zpl_label_designer',
-            'name': view_xmlid,
-            'model': 'ir.ui.view',
-            'res_id': label_view_id.id,
-            # Make it no updatable to avoid deletion on module upgrade
-            'noupdate': True,
-        })
-
-        self.view_id = label_view_id
-
-        action_xmlid = f'zpl_label_designer.{self.model_id.model.replace(".", "_")}_label_action_{self.id}'  # NOQA
-        label_action_report = self.env['ir.actions.report'].create({
-            'xml_id': action_xmlid,
-            'name': self.name,
-            'model': self.model_id.model,
-            'report_type': 'qweb-text',
-            'report_name': view_xmlid,
-            'report_file': view_xmlid,
-            'print_report_name': self.print_report_name or f"'{self.name}'",
-            'binding_model_id': self.model_id.id,
-            'binding_type': 'report',
-        })
-        self.env['ir.model.data'].create({
-            'module': 'zpl_label_designer',
-            'name': action_xmlid,
-            'model': 'ir.actions.report',
-            'res_id': label_action_report.id,
-            # Make it no updatable to avoid deletion on module upgrade
-            'noupdate': True,
-        })
-
-        self.action_report_id = label_action_report
         self.is_published = True
 
-        return True
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Label was published'),
+                'message': _('Label {} was successfully published').format(self.name),
+                'type': 'success',
+                'sticky': False,
+                'next': {  # Refresh the page after publishing
+                    'type': 'ir.actions.client',
+                    'tag': 'reload',
+                }
+            },
+        }
 
     def unpublish(self):
         self.ensure_one()
 
         if self.action_report_id:
             self.action_report_id.unlink()
-            self.view_id.unlink()
+            self.view_id.active = False
 
         self.is_published = False
 
         return True
-
-    def update_published_label(self):
-        self.publish()
-        self.is_modified = False
 
     def open_view(self):
         self.ensure_one()
@@ -272,34 +225,16 @@ class Label(models.Model):
             'target': 'blank',
         }
 
-    def update_demo(self):
-        """
-        This method update label preview with demo data.
-        """
-        self.ensure_one()
-        self.preview = self.generate_demo(self.zpl, self.model_id.model)
-
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'reload',
-        }
-
     #
     # Public methods
     #
     @api.model
     def create_label(self, attrs):
-        # Replace model with model_id. It's a bit hacky but for now it's the easiest way
-        model_name = attrs.get('model')
-        if not model_name:
-            raise exceptions.UserError(_('Model is not specified'))
+        qweb_xml, label_fields, prepared_attrs = self._prepare_data_for_label(attrs)
 
-        del attrs['model']
-
-        attrs['model_id'] = self.env['ir.model'].search([('model', '=', model_name)]).id
-        label = self.create([attrs])
-
-        label.update_demo()
+        label = self.create([prepared_attrs])
+        label._publish_label(qweb_xml)
+        label._update_preview(label_fields)
 
         return label.id
 
@@ -313,11 +248,11 @@ class Label(models.Model):
             label_id = self.create_label(attrs)
             return label_id
 
-        attrs.pop('model', None)  # Model can not be changed, used only on create
-        label.write(attrs)
+        qweb_xml, label_fields, prepared_attrs = self._prepare_data_for_label(attrs)
 
-        label.update_demo()
-        label.is_modified = True
+        label.write(prepared_attrs)
+        label.view_id.arch = qweb_xml
+        label._update_preview(label_fields)
 
         return label.id
 
@@ -333,142 +268,230 @@ class Label(models.Model):
         label.unlink()
 
     @api.model
-    def generate_demo(self, zpl, model_name):
+    def get_preview_data(self, model_name, fields):
         """
-        This method replaces placeholders with demo data.
+        Returns example of data to populate label for preview
         """
-        label_preview = zpl
-
-        # Validate label before generating preview
-        self._validate_placeholders(zpl, model_name)
-
-        random_record = self._get_random_record(zpl, model_name)
-
-        placeholders = re.findall(PLACEHOLDER_REGEX, label_preview)
-        # Replace placeholders with data
-        for placeholder in placeholders:
-            placeholder_attr = placeholder[2:-2]  # Remove %% from start and end
-
-            # Record is object from DB for current placeholder level of nesting
-            # Original level is 0 (record of current model of label)
-            record_for_current_level = random_record
-
-            while '.' in placeholder_attr:
-                field, placeholder_attr = placeholder_attr.split('.', 1)
-                record_for_current_level = getattr(record_for_current_level, field)
-
-            placeholder_value = str(getattr(record_for_current_level, placeholder_attr, ''))
-
-            label_preview = label_preview.replace(placeholder, placeholder_value)
-
-        return label_preview
-
-    #
-    # Internal methods
-    #
-    def _validate_placeholders(self, zpl, model_name):
-        """
-        This method validates placeholders in label design.
-        """
-        placeholders = re.findall(PLACEHOLDER_REGEX, zpl)
-        Model = self.env[model_name]
-
-        for placeholder in placeholders:
-            placeholder_attr = placeholder[2:-2]  # Remove %% from start and end
-
-            # Starting from level 0 (model of current label)
-            FieldModel = Model
-
-            while '.' in placeholder_attr:
-                field, placeholder_attr = placeholder_attr.split('.', 1)
-
-                # No nested field name specified
-                if not placeholder_attr:
-                    raise exceptions.ValidationError(
-                        _('Invalid placeholder: "{}"').format(placeholder))
-
-                # Field doesn't exist
-                if field not in FieldModel._fields:
-                    raise exceptions.UserError(
-                        _('Field "{}" does not exist in "{}" model').format(
-                            field, FieldModel._description)
-                    )
-
-                # Field is not Many2one
-                if FieldModel._fields[field].type != 'many2one':
-                    raise exceptions.UserError(
-                        _(
-                            'Field "{}" is not a many2one field and '
-                            'can not be used to get nested fields'
-                        ).format(field)
-                    )
-
-                FieldModel = self.env[FieldModel._fields[field].comodel_name]
-
-            # Finally, check if target field exists
-            if placeholder_attr not in FieldModel._fields:
-                raise exceptions.UserError(
-                    _('Field "{}" does not exist in "{}" model').format(
-                        placeholder_attr, FieldModel._name)
-                )
-
-        return True
-
-    def _get_random_record(self, zpl, model_name):
-        """
-        This method returns random record from model
-        (tries to find record with fields that are not empty)
-        """
-        placeholders = re.findall(PLACEHOLDER_REGEX, zpl)
+        # Validate fields
+        self._validate_label_fields(model_name, fields)
 
         # Try to find objects with not empty fields
-        not_empty_fields = [p[2:-2] for p in placeholders]
-        domain = [(f, '!=', False) for f in not_empty_fields]
+        domain = [(f, '!=', False) for f in fields.keys()]
         random_record = self.env[model_name].search(domain, limit=1)
 
         if not random_record:
             # If no object found, try to find any object
             random_record = self.env[model_name].search([], limit=1)
 
-        return random_record
+        # Example of fields: [{"order_line": ["product_id.name", "product_uom_qty"]}, "state"]
+        # We need to leave only fields that are in fields list
+        data = self._get_data_from_record(random_record, fields)
 
-    def _prepare_label_template(self):
+        return data
+
+    #
+    # Internal methods
+    #
+    def _update_preview(self, label_fields: Dict[str, Union[None, List[Any], Dict[str, Any]]]):
+        """
+        Generate label preview from Qweb template based on random record
+        """
+        random_record_id = self._get_random_record(self.model_id.model, label_fields)
+        self.preview = self._render_qweb_text([random_record_id.id]).decode("utf-8")
+
+    def _publish_label(self, qweb_xml: str):
+        """ Internal method to create report and view for label
+        """
+        label_view_id = self._create_label_view(qweb_xml)
+
+        self.view_id = label_view_id
+
+        label_action_report = self._create_label_action_report()
+
+        self.action_report_id = label_action_report
+        self.is_published = True
+
+    def _get_random_record(self, model_name: str, fields: Dict[str, Union[None, List[Any], Dict[str, Any]]]):  # NOQA
+            """
+            This method returns random record from model
+            (tries to find record with fields that are not empty)
+            """
+            domain = [(f, '!=', False) for f in fields.keys()]
+            random_record = self.env[model_name].search(domain, limit=1)
+
+            if not random_record:
+                # If no object found, try to find any object
+                random_record = self.env[model_name].search([], limit=1)
+
+            return random_record
+
+    def _create_label_view(self, view_content: str):
+        """ This method creates view for current label
+        """
         self.ensure_one()
 
-        # Replace placeholders with qweb fields
-        label_content = self.zpl
+        view_xmlid = LABEL_VIEW_XMLID.format(
+            model=self.model_id.model.replace(".", "_"), label_id=self.id)
 
-        # Replace special characters in placeholders with html entities
-        for char, replacement in SPECIAL_CHARACTERS.items():
-            label_content = label_content.replace(char, replacement)
+        label_view_id = self.env['ir.ui.view'].create({
+            'type': 'qweb',
+            'arch': view_content,
+            'name': view_xmlid,
+            'key': view_xmlid
+        })
+        self.env['ir.model.data'].create({
+            'module': 'zpl_label_designer',
+            'name': view_xmlid,
+            'model': 'ir.ui.view',
+            'res_id': label_view_id.id,
+            # Make it no updatable to avoid deletion on module upgrade
+            'noupdate': True,
+        })
 
-        placeholders = re.findall(PLACEHOLDER_REGEX, label_content)
+        return label_view_id
 
-        for placeholder in placeholders:
-            placeholder_attr = placeholder[2:-2]  # Remove %% from start and end
-            placeholder_value = FIELD_PLACEHOLDER.format(placeholder_attr)
-
-            label_content = label_content.replace(placeholder, placeholder_value)
-
-        template = TEMPLATE_BASE.format(content=label_content)
-
-        return template
-
-    def _update_label_content(self):
+    def _create_label_action_report(self):
+        """ This method creates actions report for current label
+        """
         self.ensure_one()
 
-        # Update label with new content
-        self.view_id.arch = self._prepare_label_template()
+        action_xmlid = LABEL_ACTION_REPORT_XMLID.format(
+            model=self.model_id.model.replace(".", "_"), label_id=self.id)
 
-        # Update action report
-        self.action_report_id.name = self.name
-        self.action_report_id.print_report_name = self.print_report_name or f"'{self.name}'"
+        view_xmlid = self.view_id.get_external_id()[self.view_id.id]
+
+        if not view_xmlid:
+            raise exceptions.UserError(_(
+                "View have not been created for the label - have not view - it's not possible to "
+                "create an action report for this label."
+            ))
+
+        label_action_report = self.env['ir.actions.report'].create({
+            'xml_id': action_xmlid,
+            'name': self.name,
+            'model': self.model_id.model,
+            'report_type': 'qweb-text',
+            'report_name': view_xmlid,
+            'report_file': view_xmlid,
+            'print_report_name': self.print_report_name or f"'{self.name}'",
+            'binding_model_id': self.model_id.id,
+            'binding_type': 'report',
+        })
+        self.env['ir.model.data'].create({
+            'module': 'zpl_label_designer',
+            'name': action_xmlid,
+            'model': 'ir.actions.report',
+            'res_id': label_action_report.id,
+            # Make it no updatable to avoid deletion on module upgrade
+            'noupdate': True,
+        })
+
+        return label_action_report
+
+    def _prepare_data_for_label(self, attrs):
+        """ Prepare attributes to create (update) label
+        """
+        qweb_xml = attrs.pop('qweb_xml', None)
+        if not qweb_xml:
+            raise exceptions.UserError(
+                _('Label is empty. Please add at least one element to the label'))
+
+        model_name = attrs.pop('model', None)
+        if not model_name:
+            raise exceptions.UserError(_('Model is not specified'))
+
+        # Replace model with model_id. It's a bit hacky but for now it's the easiest way
+        attrs['model_id'] = self.env['ir.model'].search([('model', '=', model_name)]).id
+
+        label_fields = attrs.pop('label_fields', None)
+
+        self._validate_label_fields(model_name, label_fields)
+
+        return qweb_xml, label_fields, attrs
+
+    def _render_qweb_text(self, docids: list):
+        """
+        Render Qweb template to text
+        """
+        self.ensure_one()
+
+        docs = self.env[self.model_id.model].browse(docids)
+        view_xmlid = self.view_id.get_external_id()[self.view_id.id]
+        data = {
+            'doc_ids': docids,
+            'doc_model': self.model_id.model,
+            'docs': docs,
+        }
+        return self.env['ir.actions.report'] \
+            .with_context(minimal_qcontext=True) \
+            ._render_template(view_xmlid, data)
+
+    @classmethod
+    def _get_data_from_record(cls, random_record, fields: Dict[str, Union[None, List[Any], Dict[str, Any]]]):  # NOQA
+        """
+        Recursive method to get fields values from record
+        """
+        data = {}
+
+        for field, subfields in fields.items():
+            if subfields is None:
+                # Simple field
+                data[field] = getattr(random_record, field)
+            elif isinstance(subfields, dict):
+                # Dict means that the field is many2one field
+                data[field] = cls._get_data_from_record(getattr(random_record, field), subfields)
+            elif isinstance(subfields, list):
+                # List means that the field is many2many or one2many field
+                data[field] = []
+
+                for record in getattr(random_record, field):
+                    data[field].append(cls._get_data_from_record(record, subfields[0]))
+            else:
+                raise ValueError('Something is wrong with used fields')
+
+        return data
+
+    @api.model
+    def _validate_label_fields(self, model_name: str, fields: Dict[str, Union[None, List[Any], Dict[str, Any]]]):  # NOQA
+        """
+        Recursive method to validate existance of specified fields
+        """
+        Model = self.env[model_name]
+        model_label = Model._description
+
+        for field, subfields in fields.items():
+            if field not in Model._fields:
+                    raise exceptions.UserError(_(
+                        f"Field '{field}' does not exist in model '{model_label}' ({model_name})"
+                    ))
+
+            if subfields is None:
+                # Simple field, checked above
+                pass
+            elif isinstance(subfields, dict):
+                # Dict means that the field is many2one field
+                if Model._fields[field].type != 'many2one':
+                    raise exceptions.UserError(_(
+                        f"Field '{field}' is not many2one field in model '{model_label}' ({model_name})"  # NOQA
+                    ))
+
+                self._validate_label_fields(Model._fields[field].comodel_name, subfields)
+            elif isinstance(subfields, list):
+                # List means that the field is many2many or one2many field
+                if Model._fields[field].type not in ('many2many', 'one2many'):
+                    raise exceptions.UserError(_(
+                        f"Field '{field}' is not many2many or one2many field in model '{model_label}' ({model_name})"  # NOQA
+                    ))
+
+                self._validate_label_fields(Model._fields[field].comodel_name, subfields[0])
+            else:
+                raise ValueError('Something is wrong with used fields')
 
     #
     # Method to call from UI
     #
     @api.model
-    def get_label_designer_url(self, label_id=None):
+    def get_label_designer_url(self, label_id: str = None):
         base_url = self.env['ir.config_parameter'].sudo() \
             .get_param('zpl_label_designer.designer_url')
 

@@ -5,6 +5,7 @@ This file includes few snippets related to storing/clearing information about wo
 printers/scales. A bit 'hacky' thing :)
 */
 
+import rpc from 'web.rpc';
 import session from 'web.session';
 import { browser } from '@web/core/browser/browser';
 import { useService } from '@web/core/utils/hooks';
@@ -24,16 +25,26 @@ class DirectPrintMainComponent extends owl.Component {
     async willStart() {
         if (session.dpc_company_enabled) {
             // Check if UUID is already set
-            let deviceUUID = browser.localStorage.getItem('printnode_base.uuid');
+            let workstationId = browser.localStorage.getItem('printnode_base.workstation_id');
 
-            if (!deviceUUID) {
-                // Create new UUID
-                deviceUUID = uuid();
-                browser.localStorage.setItem('printnode_base.uuid', deviceUUID);
+            if (workstationId) {
+                // Convert to int
+                workstationId = parseInt(workstationId);
+
+                // Check if record with workstationId is exist in db
+                await rpc.query({
+                    model: 'printnode.workstation',
+                    method: 'search_count',
+                    args: [[['id', '=', workstationId]]],
+                }).then((result) => {
+                    if (result) {
+                        // Set workstation ID to context
+                        this.user.updateContext({ 'printnode_workstation_id': workstationId });
+                    } else {
+                        console.log('Workstation with such ID was not found!');
+                    }
+                });
             }
-
-            // Set UUID to context
-            this.user.updateContext({ 'printnode_workstation_uuid': deviceUUID });
         }
     }
 
@@ -48,15 +59,3 @@ registry.category('main_components').add(
     'DirectPrintMainComponent',
     { Component: DirectPrintMainComponent, props: {} }
 );
-
-/**
- * Generate a unique identifier (64 bits) in hexadecimal.
- *
- * @returns {string}
- */
-function uuid() {
-    const array = new Uint8Array(8);
-    window.crypto.getRandomValues(array);
-    // Uint8Array to hex
-    return [...array].map((b) => b.toString(16).padStart(2, '0')).join('');
-}

@@ -69,9 +69,9 @@ class User(models.Model):
     def get_shipping_label_printer(self, carrier_id=None, raise_exc=False):
         """
         Printer search sequence:
-        1. Default Workstation Shipping Label Printer (User preferences)
-        2. Default Shipping Label Printer for current user (User Preferences)
-        3. Default Delivery Carrier Printer
+        1. Default Workstation Shipping Label Printer (Settings)
+        2. Default Delivery Carrier Printer
+        3. Default Shipping Label Printer for current user (User Preferences)
         4. Default Shipping Label Printer for current company (Settings)
         """
         company = self.env.company
@@ -79,10 +79,13 @@ class User(models.Model):
         # There can be printer for the current workstation
         workstation_label_printer_id = self._get_workstation_device('label_printer_id')
 
+        if workstation_label_printer_id:
+            return workstation_label_printer_id
+
         delivery_carrier_printer = carrier_id.printer_id if carrier_id else None
 
-        printer = workstation_label_printer_id or self.user_label_printer or \
-            delivery_carrier_printer or company.company_label_printer
+        printer = (delivery_carrier_printer or self.user_label_printer
+                   or company.company_label_printer)
 
         if not printer and raise_exc:
             raise UserError(_(
@@ -101,7 +104,7 @@ class User(models.Model):
 
         2. Printer from User Rules (if exists)
         3. Printer from Report Policy (if exists)
-        4. Default Workstation Printer (User preferences)
+        4. Default Workstation Printer (Settings)
         5. Default printer for current user (User Preferences)
         6. Default printer for current company (Settings)
         """
@@ -109,22 +112,28 @@ class User(models.Model):
 
         rule = self.printnode_rule_ids.filtered(lambda r: r.report_id.id == report_id)[:1]
 
-        report_policy = \
-            self.env['printnode.report.policy'].search([('report_id', '=', report_id)], limit=1)
+        if rule.printer_id:
+            return rule.printer_id, rule.printer_bin
 
-        # There can be printer for the current workstation
+        report_policy = self.env['printnode.report.policy'].search(
+            [('report_id', '=', report_id)], limit=1)
+
+        if report_policy.printer_id:
+            return report_policy.printer_id, report_policy.printer_bin
+
         workstation_printer_id = self._get_workstation_device('printer_id')
 
-        printer = rule.printer_id or report_policy.printer_id or workstation_printer_id or \
-            self.printnode_printer or self.env.company.printnode_printer
-        printer_bin = rule.printer_bin or report_policy.printer_bin or printer.default_printer_bin
+        printer = (workstation_printer_id or self.printnode_printer
+                   or self.env.company.printnode_printer)
+
+        printer_bin = printer.default_printer_bin
 
         return printer, printer_bin
 
     def get_scales(self):
         """
         Scales search sequence:
-        3. Default Workstation Scales (User preferences)
+        3. Default Workstation Scales (Settings)
         4. Default scales for current user (User Preferences)
         5. Default scales for current company (Settings)
         """
@@ -141,7 +150,7 @@ class User(models.Model):
         """
         Helper method to get correct device for the current workstation
         """
-        workstation = self.env['printnode.workstation']._get_or_create_workstation()
+        workstation = self.env['printnode.workstation'].get_workstation()
 
         if not workstation:
             return None

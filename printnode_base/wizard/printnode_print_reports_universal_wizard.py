@@ -108,7 +108,7 @@ class PrintnodePrintReportsUniversalWizard(models.TransientModel):
         active_model = self.env.context.get('active_model')
 
         if not (active_ids and active_model):
-            return
+            return None
 
         return self.env[active_model].browse(active_ids)
 
@@ -179,8 +179,11 @@ class PrintnodePrintReportsUniversalWizard(models.TransientModel):
         )
 
         title = _('Report was sent to printer')
-        message = _('Document "{}" was sent to printer {}').format(
-            report.name, self.printer_id.name)
+        message = _(
+            'Document "%(report)s" was sent to printer %(printer)s',
+            report=report.name,
+            printer=self.printer_id.name,
+        )
 
         return {
             'type': 'ir.actions.client',

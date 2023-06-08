@@ -4,6 +4,7 @@
 from odoo import models, api, _
 from odoo.exceptions import UserError
 from odoo.osv import expression
+from odoo.tools.safe_eval import safe_eval
 
 SECURITY_GROUP = 'printnode_base.printnode_security_group_user'
 
@@ -60,5 +61,5 @@ class ChooseDeliveryPackage(models.TransientModel):
         if domain == '[]':
             return self.env['stock.picking'].browse(picking_id)
         return self.env['stock.picking'].search(
-            expression.AND([[('id', '=', picking_id)], eval(domain)])
+            expression.AND([[('id', '=', picking_id)], safe_eval(domain)])
         )

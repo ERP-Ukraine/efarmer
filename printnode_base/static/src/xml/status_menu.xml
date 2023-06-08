@@ -19,7 +19,22 @@
 
                     <t t-if="state.loaded">
                         <!-- Workstation devices -->
+                        <t t-if="state.workstations">
+                            <div>
+                                <h5>Set Workstation</h5>
+                                <select class="custom-select" aria-label="Default select example" t-on-click="_onClickWorkstationDeviceSelect" t-on-change="_onChangeWorkstationDevice">
+                                    <option value="">Select Workstation</option>
+                                    
+                                    <t t-foreach="state.workstations" t-as="workstation" t-key="workstation.id">
+                                        <option t-att-value="workstation.id" t-att-selected="workstation.id == state.currentWorkstationId"><t t-esc="workstation.name"/></option>
+                                    </t>
+                                </select>
+                            </div>
+                            <hr />
+                        </t>
+
                         <t t-if="state.devices">
+                            <h5>Default Devices</h5>
                             <div class="o_printnode_status_menu_devices">
                                 <p>
                                     <a class="collapsed" data-toggle="collapse" href="#printnodeDefaultDevices" aria-expanded="false" aria-controls="printnodeDefaultDevices" t-on-click="_onClickDefaultDevicesCollapse">
@@ -50,6 +65,8 @@
 
                         <t t-if="state.isManager">
                             <hr />
+
+                            <h5>Accounts Information</h5>
 
                             <!-- Printing stats -->
                             <t t-if="state.isManager">

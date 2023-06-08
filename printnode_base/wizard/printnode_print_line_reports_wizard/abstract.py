@@ -18,15 +18,6 @@ class PrintnodePrintAbstractLineReportsWizard(models.AbstractModel):
         domain=lambda self: self._get_report_domain(),
     )
 
-    quantity = fields.Selection(
-        selection=[
-            ('single', 'Single report copy for each record'),
-        ],
-        string='Quantity',
-        default='single',
-        required=True,
-    )
-
     # This field should be overridden in child models
     record_line_ids = fields.One2many(
         comodel_name='printnode.abstract.print.line.reports.wizard.line',
@@ -68,7 +59,7 @@ class PrintnodePrintAbstractLineReportsWizard(models.AbstractModel):
         report_id = self.report_id
 
         if not report_id:
-            return
+            return None
 
         return self.env.user.get_report_printer(report_id.id)[0]
 
@@ -81,10 +72,6 @@ class PrintnodePrintAbstractLineReportsWizard(models.AbstractModel):
     @api.onchange('report_id')
     def _change_wizard_printer(self):
         self.printer_id = self._default_printer_id()
-
-    @api.onchange('quantity')
-    def _change_quantity(self):
-        raise NotImplementedError()
 
     def get_report(self):
         self.ensure_one()
@@ -134,12 +121,15 @@ class PrintnodePrintAbstractLineReportsWizard(models.AbstractModel):
             report,
             docids,
             options=options,
-            copies=self.number_copy if self.quantity == 'single' else 1,
+            copies=self.number_copy,
         )
 
         title = _('Report was sent to printer')
-        message = _('Document "{}" was sent to printer {}').format(
-            report.name, self.printer_id.name)
+        message = _(
+            'Document "%(report)s" was sent to printer %(printer)s',
+            report=report.name,
+            printer=self.printer_id.name,
+        )
 
         return {
             'type': 'ir.actions.client',

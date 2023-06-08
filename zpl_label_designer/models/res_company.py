@@ -3,7 +3,7 @@ from odoo import api, fields, models
 
 ALLOWED_MODELS_TO_ZLD_LABEL = [
     "product.product", "product.template",
-    "stock.lot", "stock.quant.package"
+    "stock.production.lot", "stock.quant.package"
 ]
 
 

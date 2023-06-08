@@ -39,6 +39,9 @@ class StockPicking(models.Model):
         return package
 
     def button_validate(self):
+        """ Overriding the default method to add custom logic with print scenarios
+            for picking validate.
+        """
         res = super(StockPicking, self).button_validate()
 
         if res is True:
@@ -57,6 +60,9 @@ class StockPicking(models.Model):
             # Print packages
             self.print_scenarios(action='print_packages_label_on_transfer')
 
+            # Print operations
+            self.print_scenarios(action='print_operations_document_on_transfer')
+
         return res
 
     def cancel_shipment(self):
@@ -67,10 +73,12 @@ class StockPicking(models.Model):
             shipping_label = stock_pick.shipping_label_ids.filtered(
                 lambda sl: sl.tracking_numbers == self.carrier_tracking_ref
             )
-            shipping_label.write({'label_status': 'inactive'})
+            shipping_label.sudo().write({'label_status': 'inactive'})
         return super(StockPicking, self).cancel_shipment()
 
     def print_last_shipping_label(self):
+        """ Print last shipping label if possible.
+        """
         self.ensure_one()
 
         if self.picking_type_code != 'outgoing':
@@ -407,6 +415,22 @@ class StockPicking(models.Model):
             options=print_options,
         )
 
+    def _scenario_print_operations_document_on_transfer(
+        self, report_id, printer_id, number_of_copies=1, **kwargs
+    ):
+        """
+        Print reports from the invoice document on transfer scenario.
+        """
+        wizard = self.env['printnode.print.stock.move.reports.wizard'].with_context(
+            active_id=self.id,
+            active_model='stock.picking',
+        ).create({
+            'report_id': report_id.id,
+            'printer_id': printer_id.id,
+            'number_copy': number_of_copies,
+        })
+        wizard.do_print()
+
     def _change_number_of_lot_labels_to_one(self, custom_barcodes):
         """
         This method changes barcodes quantities to 1.
@@ -530,11 +554,12 @@ class StockPicking(models.Model):
                 **kwargs,  # Allow to pass any custom fields to wizard
             })
         except ValueError:
-            raise UserError(_(
-                'One or more wrong fields for product.label.layout model passed: {}'.format(
+            raise UserError(
+                _(
+                    "One or more wrong fields for product.label.layout model passed: %s",
                     ', '.join(kwargs.keys())
                 )
-            ))
+            )
 
     def _prepare_printing_data(self, scenario, wizard, **kwargs):
         """
@@ -567,6 +592,8 @@ class StockPicking(models.Model):
         }
 
     def open_print_operation_reports_wizard(self):
+        """ Returns action window with 'Print Operation Reports Wizard'
+        """
         self.ensure_one()
 
         return {

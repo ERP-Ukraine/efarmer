@@ -6,8 +6,8 @@
             <field name="model">printnode.workstation</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <tree string="Workstations" editable="bottom" create="false" delete="true">
-                    <field name="uuid" readonly="1" />
+                <tree string="Workstations" editable="bottom">
+                    <field name="name" />
                     <field name="printer_id" options="{'no_create': True}" />
                     <field name="label_printer_id" options="{'no_create': True}" />
                     <field name="scales_id" options="{'no_create': True}" />
@@ -27,7 +27,7 @@
                   parent="menu_printnode_service"
                   sequence="38"
                   action="printnode_workstation_action"
-                  groups="base.group_no_one"
+                  groups="printnode_security_group_user"
         />
 
     </data>
