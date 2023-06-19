@@ -1,24 +1,28 @@
 # Copyright 2023 VentorTech OU
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
+
 {
-    'name': 'eFarmer Purchase',
-    'version': '15.0.1.2.0',
+    'name': 'Efarmer Advance Payment Extension',
+    'summary': """
+        Module is designed to change and improve
+        the functionality of the OCA Module
+        "Purchase Advance Payment"
+    """,
+    'version': '15.0.1.1.0',
     'category': 'Other',
     'author': 'VentorTech',
     'website': 'https://ventor.tech',
     'license': 'LGPL-3',
     'depends': [
-        'base',
-        'purchase',
+        'efarmer_purchase',
+        'purchase_advance_payment',
     ],
     'data': [
-        # Security
-        'security/security.xml',
         # Model Views
         'views/purchase_views.xml',
-        'views/res_company_views.xml',
-        'report/purchase_report_views.xml',
+        # Security
+        'security/security.xml',
     ],
     'installable': True,
     'application': True,

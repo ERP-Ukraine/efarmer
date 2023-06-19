@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+
+        <record id="efarmer_adv_payment_purchase_order_form" model="ir.ui.view">
+            <field name="name">purchase.order.form</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase_advance_payment.purchase_order_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='%(purchase_advance_payment.action_view_account_voucher_wizard)d']" position="attributes">
+                    <attribute name="groups">efarmer_adv_payment_extension.efarmer_purchase_allow_add_pay_purchase_advance</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="efarmer_adv_ext_purchase_order_form_inherit" model="ir.ui.view">
+            <field name="name">purchase.order.form.inherit.efarmer.purchase</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <field name="date_order" position="before">
+                    <field name="pay_deadline_date" required="1"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="efarmer_adv_ext_purchase_order_view_tree_inherit" model="ir.ui.view">
+            <field name="name">efarmer.purchase.order.view.tree.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_view_tree" />
+            <field name="arch" type="xml">
+                <field name="user_id" position="after">
+                    <field name="pay_deadline_date"
+                           optional="show"
+                           decoration-danger="pay_deadline_date &lt; context_today().strftime('%Y-%m-%d')"
+                           decoration-warning="pay_deadline_date &gt;= context_today().strftime('%Y-%m-%d') and pay_deadline_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')"
+                           attrs="{'invisible': ['|', '|', ('amount_residual', '&lt;=', 0), ('state', '=', 'done'), ('state', '=', 'cancel')]}"
+                    />
+                </field>
+            </field>
+        </record>
+
+        <record id="efarmer_adv_ext_purchase_order_view_kpis_tree_inherit" model="ir.ui.view">
+            <field name="name">efarmer.purchase.order.view.kpis.tree.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_kpis_tree" />
+            <field name="arch" type="xml">
+                <field name="user_id" position="after">
+                    <field name="pay_deadline_date"
+                           optional="show"
+                           decoration-danger="pay_deadline_date &lt; context_today().strftime('%Y-%m-%d')"
+                           decoration-warning="pay_deadline_date &gt;= context_today().strftime('%Y-%m-%d') and pay_deadline_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')"
+                           attrs="{'invisible': ['|', '|', ('amount_residual', '&lt;=', 0), ('state', '=', 'done'), ('state', '=', 'cancel')]}"
+                    />
+                </field>
+            </field>
+        </record>
+    
+    </data>
+</odoo>

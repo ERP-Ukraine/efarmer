@@ -4,12 +4,15 @@ Efarmer Sale Workflow
 Change Log
 ##########
 
-* 1.33 (2023-05-02)
+* 1.34 (2023-05-02)
     -  Added coloring of Scheduled Delivery Date on Quotations/Sales order list views depending on conditions
     -  Improved logic of setting up Scheduled Delivery Date on Sale Order
 
-* 1.32 (2023-04-26)
+* 1.33 (2023-04-26)
     -  Improve the Delivery Slip report which is printed from Transfers
+
+* 1.32 (2023-04-25)
+    -  Restructured Sales access groups in User configuration
 
 * 1.31 (2023-04-21)
     -  Added field 'Scheduled Delivery Date' to Sale Order
