@@ -4,3 +4,4 @@
 
 from . import stock_quantity_history
 from . import product_variant_replacement_wizard
+from . import account_payment_register

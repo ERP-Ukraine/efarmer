@@ -4,6 +4,10 @@ from odoo import fields, models, api
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
+    paid_on_date = fields.Date(
+        string='Paid on',
+    )
+
     opportunity_stage_id = fields.Many2one(
         comodel_name='crm.stage',
         string='Opportunity Stage',
