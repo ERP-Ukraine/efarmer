@@ -65,3 +65,9 @@ database_cleanup/
 environments/
 .pytest_cache
 .vscode/
+
+# Exclude folders from being tracked as submodules
+merp/custom_import_wizard
+merp/mail_reply_to_sender_global
+merp/outgoing_routing
+merp/product_multiple_barcodes
