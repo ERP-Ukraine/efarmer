@@ -1,6 +1,0 @@
-[submodule "merp"]
-	path = merp
-	url = https://github.com/ventor-tech/merp.git
-ignore = dirty
-exclude = custom_import_wizard/ mail_reply_to_sender_global/ outgoing_routing/ product_multiple_barcodes/
-	branch = 15.0
