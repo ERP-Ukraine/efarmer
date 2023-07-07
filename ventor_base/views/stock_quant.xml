@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_stock_quant_tree_inherit_inventory_editable" model="ir.ui.view">
+        <field name="name">view.stock.quant.tree.inherit.inventory.editable</field>
+        <field name="model">stock.quant</field>
+        <field name="inherit_id" ref="stock.view_stock_quant_tree_inventory_editable"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_apply_inventory']" position="attributes">
+                <attribute name="groups">ventor_base.merp_user_validate_inventory_adjustment</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

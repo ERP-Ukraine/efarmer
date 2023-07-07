@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+
+    <!-- Ventor Menu Management -->
+    <record model="ir.module.category" id="module_category_merp_menu_application">
+        <field name="name">Ventor Menu Management</field>
+        <field name="sequence">0</field>
+        <field name="visible" eval="0"/>
+    </record>
+
+    <record id="merp_menu_warehouse_operations" model="res.groups">
+        <field name="name">Warehouse Operations Menu</field>
+        <field name="category_id" ref="module_category_merp_menu_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_menu_inventory_adjustments" model="res.groups">
+        <field name="name">Inventory Adjustments Menu</field>
+        <field name="category_id" ref="module_category_merp_menu_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_menu_picking_wave" model="res.groups">
+        <field name="name">Batch Picking Menu</field>
+        <field name="category_id" ref="module_category_merp_menu_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_menu_instant_inventory" model="res.groups">
+        <field name="name">Instant Inventory Menu</field>
+        <field name="category_id" ref="module_category_merp_menu_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_menu_instant_move" model="res.groups">
+        <field name="name">Internal Transfers Menu</field>
+        <field name="category_id" ref="module_category_merp_menu_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_menu_manufacturing" model="res.groups">
+        <field name="name">MO and WO management Menu</field>
+        <field name="category_id" ref="module_category_merp_menu_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_menu_create_purchase_order" model="res.groups">
+        <field name="name">Create Purchase Order Menu</field>
+        <field name="category_id" ref="module_category_merp_menu_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_menu_create_sales_order" model="res.groups">
+        <field name="name">Create Sales Order Menu</field>
+        <field name="category_id" ref="module_category_merp_menu_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_menu_info" model="res.groups">
+        <field name="name">Quick Info Menu</field>
+        <field name="category_id" ref="module_category_merp_menu_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_package_management" model="res.groups">
+        <field name="name">Package Management Menu</field>
+        <field name="category_id" ref="module_category_merp_menu_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_external_management" model="res.groups">
+        <field name="name">External Transfers Menu</field>
+        <field name="category_id" ref="module_category_merp_menu_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_putaway" model="res.groups">
+        <field name="name">Putaway Menu</field>
+        <field name="category_id" ref="module_category_merp_menu_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_scrap_management" model="res.groups">
+        <field name="name">Scrap Management Menu</field>
+        <field name="category_id" ref="module_category_merp_menu_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_cluster_picking_menu" model="res.groups">
+        <field name="name">Cluster Picking Menu</field>
+        <field name="category_id" ref="module_category_merp_menu_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_rfid_menu" model="res.groups">
+        <field name="name">RFID Menu</field>
+        <field name="category_id" ref="module_category_merp_menu_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_order_recheck_menu" model="res.groups">
+        <field name="name">Order Recheck Menu</field>
+        <field name="category_id" ref="module_category_merp_menu_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_wave_picking_menu" model="res.groups">
+        <field name="name">Wave Picking Menu</field>
+        <field name="category_id" ref="module_category_merp_menu_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+        <field name="comment">Enables the display of the "Wave Picking Menu" in Ventor.
+                              To enable this setting, the "Use wave pickings" group must be enabled</field>
+    </record>
+
+    <!-- Ventor Access Rights -->
+    <record model="ir.module.category" id="module_category_merp_access_application">
+        <field name="name">Ventor Access Rights</field>
+        <field name="sequence">1</field>
+        <field name="visible" eval="0"/>
+    </record>
+
+    <record id="merp_menu_allow_update_product_on_hand" model="res.groups">
+        <field name="name">Quick Info: Update product on hand</field>
+        <field name="category_id" ref="module_category_merp_access_application"/>
+        <field name="implied_ids" eval="[(6, 0, [ref('merp_menu_info')])]"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_menu_allow_changing_settings" model="res.groups">
+        <field name="name">Manage Local User Device Settings</field>
+        <field name="comment">Enable to allow to define local Ventor settings
+                              from Ventor application interface.</field>
+        <field name="category_id" ref="module_category_merp_access_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_menu_use_local_user_device_settings" model="res.groups">
+        <field name="name">Use Local User Device Settings</field>
+        <field name="comment">If it's checked, the manual settings (defined on device by this user)
+                              will be used instead Global Ventor Settings in Odoo.
+                              If it's unchecked the user will not be able to modify settings on the
+                              device manually. Global Ventor Settings will be used instead.</field>
+        <field name="category_id" ref="module_category_merp_access_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_debug" model="res.groups">
+        <field name="name">Debug: Technical Features</field>
+        <field name="category_id" ref="module_category_merp_access_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_picking_wave_allow_done" model="res.groups">
+        <field name="name">Batch Picking: Close batch picking</field>
+        <field name="category_id" ref="module_category_merp_access_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_inventory_allow_ready_state" model="res.groups">
+        <field name="name">Inventory Adjustments: Waiting for Validation</field>
+        <field name="category_id" ref="module_category_merp_access_application"/>
+        <field name="implied_ids" eval="[(6, 0, [ref('merp_menu_inventory_adjustments')])]"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_allow_applying_all_qty_of_product" model="res.groups">
+        <field name="name">Warehouse Operations: Allow applying all qty of product</field>
+        <field name="category_id" ref="module_category_merp_access_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_user_validate_inventory_adjustment" model="res.groups">
+        <field name="name">Validate Inventory</field>
+        <field name="category_id" ref="module_category_merp_access_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+        <field name="comment">The group allows Inventory/User to validate inventory</field>
+    </record>
+
+    <record id="merp_manage_ventor_configuration_app" model="res.groups">
+        <field name="name">Manage Ventor Configuration app</field>
+        <field name="comment">Enable to see new root menu "Ventor Configuration"
+                              that will allow to define global Ventor settings
+                              from the Odoo interface.</field>
+        <field name="category_id" ref="module_category_merp_access_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="merp_allow_pallet_transfer" model="res.groups">
+        <field name="name">Allow Pallet Transfers</field>
+        <field name="category_id" ref="module_category_merp_access_application"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+        <field name="comment">Allow Pallet Transfer from one location to another one</field>
+    </record>
+
+    <record id="stock.group_stock_manager" model="res.groups">
+        <field name="implied_ids" eval="[
+        (4, ref('ventor_base.merp_user_validate_inventory_adjustment')),
+        (4, ref('ventor_base.merp_allow_pallet_transfer'))]"/>
+    </record>
+
+    <!-- Ventor Roles -->
+    <record model="ir.module.category" id="module_category_ventor_roles">
+        <field name="name">Ventor Roles</field>
+        <field name="sequence">1</field>
+    </record>
+
+    <data noupdate="1">
+
+        <record id="ventor_role_wh_worker" model="res.groups">
+            <field name="name">Warehouse worker</field>
+            <field name="category_id" ref="module_category_ventor_roles"/>
+            <field name="implied_ids"
+                   eval="[(4, ref('merp_menu_warehouse_operations')),
+                   (4, ref('merp_menu_picking_wave')),
+                   (4, ref('merp_cluster_picking_menu')),
+                   (4, ref('merp_rfid_menu')),
+                   (4, ref('merp_order_recheck_menu')),
+                   (4, ref('merp_wave_picking_menu'))]"/>
+        </record>
+
+        <record id="ventor_role_wh_manager" model="res.groups">
+            <field name="name">Warehouse manager</field>
+            <field name="category_id" ref="module_category_ventor_roles"/>
+            <field name="implied_ids"
+                   eval="[(4, ref('ventor_role_wh_worker')),
+                   (4, ref('merp_menu_inventory_adjustments')),
+                   (4, ref('merp_menu_info')),
+                   (4, ref('merp_menu_instant_inventory')),
+                   (4, ref('merp_menu_instant_move')),
+                   (4, ref('merp_package_management')),
+                   (4, ref('merp_external_management')),
+                   (4, ref('merp_putaway')),
+                   (4, ref('merp_menu_manufacturing')),
+                   (4, ref('merp_scrap_management')),
+                   (4, ref('merp_menu_allow_changing_settings'))]"/>
+        </record>
+
+        <record id="ventor_role_admin" model="res.groups">
+            <field name="name">Administrator</field>
+            <field name="category_id" ref="module_category_ventor_roles"/>
+            <field name="implied_ids"
+                   eval="[(4, ref('ventor_role_wh_manager')),
+                          (4, ref('merp_menu_create_sales_order')),
+                          (4, ref('merp_menu_create_purchase_order')),
+                          (4, ref('merp_menu_allow_update_product_on_hand')),
+                          (4, ref('merp_debug')),
+                          (4, ref('merp_picking_wave_allow_done')),
+                          (4, ref('merp_manage_ventor_configuration_app'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+    </data>
+
+    <!-- Multi Warehouses User Rules Section -->
+    <!-- Multi Warehouses: Location -->
+    <record id="stock_location_rule_stock_user" model="ir.rule">
+        <field name="name">See locations from allowed warehouses</field>
+        <field name="model_id" ref="stock.model_stock_location"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>
+        <field name="domain_force">['|', ('warehouse_id','=',False), ('warehouse_id','in',[wh.id for wh in user.allowed_warehouse_ids])]</field>
+    </record>
+
+    <record id="stock_location_rule_stock_manager" model="ir.rule">
+        <field name="name">See All Location</field>
+        <field name="model_id" ref="stock.model_stock_location"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+    </record>
+
+    <!-- Multi Warehouses: Picking Type -->
+    <record id="stock_picking_type_rule_stock_user" model="ir.rule">
+        <field name="name">See Operation Types from allowed warehouses</field>
+        <field name="model_id" ref="ventor_base.model_stock_picking_type"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>
+        <field name="domain_force">['|', ('warehouse_id','=',False), ('warehouse_id','in',[wh.id for wh in user.allowed_warehouse_ids])]</field>
+    </record>
+
+    <record id="stock_picking_type_rule_stock_manager" model="ir.rule">
+        <field name="name">See all Operation Types</field>
+        <field name="model_id" ref="stock.model_stock_picking_type"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+    </record>
+
+    <!-- Multi Warehouses: Scrap Orders -->
+    <record model="ir.rule" id="stock_scrap_rule_stock_user">
+        <field name="name">See Scrap Orders from allowed warehouses</field>
+        <field name="model_id" ref="stock.model_stock_scrap"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>
+        <field name="domain_force">['|', ('location_id.warehouse_id','=',False), ('location_id.warehouse_id','in',[wh.id for wh in user.allowed_warehouse_ids])]</field>
+    </record>
+
+    <record model="ir.rule" id="stock_scrap_rule_stock_manager">
+        <field name="name">See All Scrap Orders</field>
+        <field name="model_id" ref="stock.model_stock_scrap"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+    </record>
+
+    <!-- Multi Warehouses: Reordering Rules -->
+    <record model="ir.rule" id="stock_warehouse_orderpoint_rule_stock_user">
+        <field name="name">See Reordering Rules from allowed warehouses</field>
+        <field name="model_id" ref="stock.model_stock_warehouse_orderpoint"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>
+        <field name="domain_force">['|', ('location_id.warehouse_id','=',False), ('location_id.warehouse_id','in',[wh.id for wh in user.allowed_warehouse_ids])]</field>
+    </record>
+
+    <record model="ir.rule" id="stock_warehouse_orderpoint_rule_stock_manager">
+        <field name="name">See All Reordering Rules</field>
+        <field name="model_id" ref="stock.model_stock_warehouse_orderpoint"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+    </record>
+
+    <!-- Multi Warehouses: Quants -->
+    <record model="ir.rule" id="stock_quant_rule_stock_user">
+        <field name="name">See Quants from allowed warehouses</field>
+        <field name="model_id" ref="stock.model_stock_quant"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>
+        <field name="domain_force">['|', ('location_id.warehouse_id','=',False), ('location_id.warehouse_id','in',[wh.id for wh in user.allowed_warehouse_ids])]</field>
+    </record>
+
+    <record model="ir.rule" id="stock_quant_rule_stock_manager">
+        <field name="name">See all Stock Quants</field>
+        <field name="model_id" ref="stock.model_stock_quant"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+    </record>
+
+    <!-- Multi Warehouses: Warehouses -->
+    <record model="ir.rule" id="stock_warehouse_rule_stock_user">
+        <field name="name">See Warehouses from allowed warehouses</field>
+        <field name="model_id" ref="stock.model_stock_warehouse"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>
+        <field name="domain_force">['|', ('id','=',False), ('id','in',[wh.id for wh in user.allowed_warehouse_ids])]</field>
+    </record>
+
+    <record model="ir.rule" id="stock_warehouse_rule_stock_manager">
+        <field name="name">See all Warehouses</field>
+        <field name="model_id" ref="stock.model_stock_warehouse"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+    </record>
+
+    <!-- Multi Warehouses: Stock Pickings -->
+    <record model="ir.rule" id="stock_picking_rule_stock_user">
+        <field name="name">See Stock Pickings from allowed warehouses</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>
+        <field name="domain_force">[
+                    '&amp;',
+                        '|','|',
+                            ('location_id', '=', False),
+                            ('location_id.warehouse_id', '=', False),
+                            ('location_id.warehouse_id','in',[wh.id for wh in user.allowed_warehouse_ids]),
+                        '|','|',
+                            ('location_dest_id', '=', False),
+                            ('location_dest_id.warehouse_id', '=', False),
+                            ('location_dest_id.warehouse_id','in',[wh.id for wh in user.allowed_warehouse_ids]),
+            ]</field>
+    </record>
+
+    <record model="ir.rule" id="stock_picking_rule_stock_manager">
+        <field name="name">See all Stock Pickings</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+    </record>
+
+    <!-- See Picking Batches from allowed Warehouses -->
+    <record model="ir.rule" id="stock_picking_batch_rule_stock_user">
+        <field name="name">See Picking Batches from allowed warehouses</field>
+        <field name="model_id" ref="stock_picking_batch.model_stock_picking_batch"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>
+        <field name="domain_force">['|', ('picking_type_id','=',False), ('picking_type_id.warehouse_id','in',[wh.id for wh in user.allowed_warehouse_ids])]</field>
+    </record>
+
+    <record model="ir.rule" id="stock_picking_batch_rule_stock_manager">
+        <field name="name">See all Picking Batches</field>
+        <field name="model_id" ref="stock_picking_batch.model_stock_picking_batch"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+    </record>
+
+    <!-- TO FIX: In Odoo Standard for some reason there are no multi-company rules for picking batches -->
+    <record model="ir.rule" id="stock_picking_batch_rule">
+        <field name="name">stock_picking_batch multi-company</field>
+        <field name="model_id" search="[('model','=','stock.picking.batch')]" model="ir.model"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <!-- END of FIX-->
+
+    <!-- Multi Warehouses: Stock Move -->
+    <record model="ir.rule" id="stock_move_rule_stock_user">
+        <field name="name">See Stock Moves from allowed warehouses</field>
+        <field name="model_id" ref="stock.model_stock_move"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>
+        <field name="domain_force">[
+                '&amp;',
+                    '|',
+                        ('location_id.warehouse_id', '=', False),
+                        ('location_id.warehouse_id','in',[wh.id for wh in user.allowed_warehouse_ids]),
+                    '|',
+                        ('location_dest_id.warehouse_id', '=', False),
+                        ('location_dest_id.warehouse_id','in',[wh.id for wh in user.allowed_warehouse_ids]),
+            ]</field>
+    </record>
+
+    <record model="ir.rule" id="stock_move_rule_stock_manager">
+        <field name="name">See all Stock Moves</field>
+        <field name="model_id" ref="stock.model_stock_move"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+    </record>
+
+    <!-- Multi Warehouses: Stock Move Lines-->
+    <record model="ir.rule" id="stock_move_line_rule_stock_user">
+        <field name="name">See Stock Move Lines from allowed warehouses</field>
+        <field name="model_id" ref="stock.model_stock_move_line"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>
+        <field name="domain_force">[
+                '&amp;',
+                    '|',
+                        ('location_id.warehouse_id', '=', False),
+                        ('location_id.warehouse_id','in',[wh.id for wh in user.allowed_warehouse_ids]),
+                    '|',
+                        ('location_dest_id.warehouse_id', '=', False),
+                        ('location_dest_id.warehouse_id','in',[wh.id for wh in user.allowed_warehouse_ids]),
+            ]</field>
+    </record>
+
+    <record model="ir.rule" id="stock_move_line_rule_stock_manager">
+        <field name="name">See all Stock Move Lines</field>
+        <field name="model_id" ref="stock.model_stock_move_line"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+    </record>
+
+    <!-- Multi Warehouses: Packages -->
+    <record model="ir.rule" id="stock_quant_package_rule_stock_user">
+        <field name="name">See Stock Quant Package from allowed warehouses</field>
+        <field name="model_id" ref="stock.model_stock_quant_package"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>
+        <field name="domain_force">[
+                '|', '|',
+                    ('location_id', '=', False),
+                    ('location_id.warehouse_id','=',False),
+                    ('location_id.warehouse_id','in',[wh.id for wh in user.allowed_warehouse_ids])
+            ]</field>
+    </record>
+
+    <record model="ir.rule" id="stock_quant_package_rule_stock_manager">
+        <field name="name">See Stock Quant Package</field>
+        <field name="model_id" ref="stock.model_stock_quant_package"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+    </record>
+</odoo>

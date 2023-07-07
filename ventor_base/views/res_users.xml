@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+
+    <!-- Update User form -->
+    <record model="ir.ui.view" id="res_user_form">
+        <field name="name">Users Preferences</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form" />
+        <field name="arch" type="xml">
+            <data>
+                <xpath expr="//notebook/page[@name='preferences']" position="after">
+                    <page string="Ventor Preferences">
+                        <group>
+                            <field name="ventor_global_settings"
+                                   style="overflow-y: scroll; resize: none; height: 120px; width: 100%%"
+                                   groups="base.group_no_one"/>
+                            <field name="ventor_user_settings"
+                                   style="overflow-y: scroll; resize: none; height: 120px; width: 100%%"
+                                   groups="base.group_no_one"/>
+                        </group>
+                    </page>
+                </xpath>
+                <xpath expr="//page[@name='access_rights']//group" position="after">
+                    <group string="Multi Warehouses">
+                        <field name="allowed_warehouse_ids"  widget="many2many_tags" options="{'no_create': True}"/>
+                    </group>
+                    <div class="text-danger">
+                        <p>
+                            Warning! If the user is Inventory / Administrator, 
+                            the Allowed Warehouses configuration is ignored and 
+                            the user will still be able to see all warehouses
+                        </p>
+                    </div>
+                </xpath>
+            </data>
+        </field>
+    </record>
+
+</odoo>
