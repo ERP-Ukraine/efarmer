@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <record id="ventor_base_pallet_transfer_tree" model="ir.ui.view">
+        <field name="name">ventor.base.pallet.transfer.tree</field>
+        <field name="model">pallet.transfer</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="pallet_name"/>
+                <field name="source_location_id"/>
+                <field name="destination_location_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="ventor_base_pallet_transfer_form" model="ir.ui.view">
+        <field name="name">ventor.base.pallet.transfer.form</field>
+        <field name="model">pallet.transfer</field>
+        <field name="arch" type="xml">
+            <form string="Pallet Transfers" edit="false">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="pallet_id"
+                                required="1"
+                                options="{'no_create': True, 'no_open': True}"
+                                domain="[('is_pallet', '=', True)]"/>
+                        </group>
+                        <group>
+                            <field name="destination_location_id"
+                                required="1"
+                                options="{'no_create': True, 'no_open': True}"
+                                domain="[('is_pallet', '!=', True), ('usage', '=', 'internal')]"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="ventor_base_quick_pallet_transfer_form" model="ir.ui.view">
+        <field name="name">ventor.base.quick.pallet.transfer.form</field>
+        <field name="model">pallet.transfer</field>
+        <field name="arch" type="xml">
+            <form>
+                <div class="oe_title">
+                    <h1>
+                        <field name="name" readonly="1"/>
+                    </h1>
+                </div>
+                <group>
+                    <group>
+                        <field name="pallet_id"
+                            required="1"
+                            options="{'no_create': True, 'no_open': True}"
+                            domain="[('is_pallet', '=', True)]"/>
+                    </group>
+                    <group>
+                        <field name="destination_location_id"
+                            required="1"
+                            options="{'no_create': True, 'no_open': True}"
+                            domain="[('is_pallet', '!=', True), ('usage', '=', 'internal')]"/>
+                    </group>
+              </group>
+            <footer>
+                <button
+                    string="Create Transfer"
+                    special="save"
+                    class="oe_highlight"/>
+                <button
+                    string="Cancel"
+                    class="btn btn-default"
+                    special="cancel"/>
+               </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="quick_pallets_transfer_action" model="ir.actions.act_window">
+        <field name="name">Quick Pallet Transfers</field>
+        <field name="res_model">pallet.transfer</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="ventor_base.ventor_base_quick_pallet_transfer_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <record id="all_pallets_transfer_action" model="ir.actions.act_window">
+        <field name="name">All Pallet Transfers</field>
+        <field name="res_model">pallet.transfer</field>
+        <field name="usage">menu</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="ventor_base.ventor_base_pallet_transfer_tree"/>
+        <field name="target">current</field>
+    </record>
+
+    <menuitem id="menu_handling_transfer"
+        name="Pallet Transfers"
+        parent="stock.menu_stock_root"
+        sequence="99"
+        groups="ventor_base.merp_allow_pallet_transfer"/>
+
+    <record id="Quick_pallets_transfer_menu" model="ir.ui.menu">
+        <field name="name">Quick Pallet Transfers</field>
+        <field name="sequence" eval="1"/>
+        <field name="action" ref="ventor_base.quick_pallets_transfer_action"/>
+        <field name="parent_id" ref="ventor_base.menu_handling_transfer"/>
+    </record>
+
+    <record id="all_pallets_transfer_menu" model="ir.ui.menu">
+        <field name="name">All Pallet Transfers</field>
+        <field name="sequence" eval="2"/>
+        <field name="action" ref="ventor_base.all_pallets_transfer_action"/>
+        <field name="parent_id" ref="ventor_base.menu_handling_transfer"/>
+    </record>
+</odoo>

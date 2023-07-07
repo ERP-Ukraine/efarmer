@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <record id="view_location_form_inherit_additional_barcode" model="ir.ui.view">
+        <field name="name">stock.location.form.inherit.additional.barcode</field>
+        <field name="model">stock.location</field>
+        <field name="inherit_id" ref="stock.view_location_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='return_location']" position="after">
+                <field name="is_pallet" attrs="{'invisible': [('usage', '!=', 'internal')]}"/>
+                <field name="barcode"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- stock.location inherit search view -->
+    <record id="view_location_search" model="ir.ui.view">
+        <field name="name">stock.location.inherit.view.search</field>
+        <field name="model">stock.location</field>
+        <field name="inherit_id" ref="stock.view_location_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='location_id']" position="after">
+                <field name="warehouse_id" string="Warehouse"/>
+                <group  expand='0' string='Group by...'>
+                   <filter string='Warehouse' name="warehouse_id" domain="[]" context="{'group_by' : 'warehouse_id'}"/>
+               </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
