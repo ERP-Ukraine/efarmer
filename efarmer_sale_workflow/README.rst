@@ -3,6 +3,8 @@ Efarmer Sale Workflow
 
 Change Log
 ##########
+* 1.35 (2023-07-07)
+    -  Improve Hubspot Logic, add Paid on date
 
 * 1.34 (2023-05-02)
     -  Added coloring of Scheduled Delivery Date on Quotations/Sales order list views depending on conditions
