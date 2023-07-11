@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <odoo>
     <data>
-        <record id="efarmer_purchase.group_purchase_user_own_" model="res.groups">
-            <field name="name">Purchase User: Own Documents</field>
+        <record id="group_purchase_user_own_" model="res.groups">
+            <field name="name">Purchase User: Own Documents1</field>
             <field name="implied_ids" eval="[(4, ref('purchase.group_purchase_user'))]"/>
             <field name="category_id" ref="base.module_category_inventory_purchase"/>
         </record>
