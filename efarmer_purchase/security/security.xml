@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <odoo>
     <data>
-        <record id="group_purchase_user_own" model="res.groups">
+        <record id="efarmer_purchase.group_purchase_user_own_" model="res.groups">
             <field name="name">Purchase User: Own Documents</field>
             <field name="implied_ids" eval="[(4, ref('purchase.group_purchase_user'))]"/>
             <field name="category_id" ref="base.module_category_inventory_purchase"/>
@@ -11,7 +11,7 @@
             <field name="name">Purchase User: Own Documents Only</field>
             <field name="model_id" ref="purchase.model_purchase_order"/>
             <field name="domain_force">[('user_id', '=', user.id)]</field>
-            <field name="groups" eval="[(4, ref('efarmer_purchase.group_purchase_user_own'))]"/>
+            <field name="groups" eval="[(4, ref('efarmer_purchase.group_purchase_user_own_'))]"/>
         </record>
 
         <record id="module_category_purchase_other" model="ir.module.category">
