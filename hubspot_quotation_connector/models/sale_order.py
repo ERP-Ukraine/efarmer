@@ -38,7 +38,7 @@ class SaleOrder(models.Model):
             return None
         if self.hubspot_deal_object_id:
             remote_field = hubspot.remote_field
-            order_date_field = remote_field('order_date')
+            order_date_field = remote_field('paid_on_date')
             deal = hubspot.read_deal(
                 deal_object_id=self.hubspot_deal_object_id,
                 properties=[order_date_field],
@@ -49,7 +49,7 @@ class SaleOrder(models.Model):
         inputs = [{
             'id': order_id.hubspot_deal_object_id,
             'properties': hubspot._hubspot_field_convert({
-                'order_date': now_timestamp
+                'paid_on_date': self.paid_on_date or now_timestamp
             })
         } for order_id in self if order_id.hubspot_deal_object_id]
         if inputs:

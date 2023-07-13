@@ -14,6 +14,7 @@
         'base',
         'sale_management',
         'sale_margin',
+        'efarmer_sale_workflow',
     ],
     'data': [
         'security/res_groups.xml',
