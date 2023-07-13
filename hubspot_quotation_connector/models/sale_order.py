@@ -46,10 +46,12 @@ class SaleOrder(models.Model):
             if deal.properties[order_date_field]:
                 return None
         now_timestamp = hubspot.datetime_parse(fields.Datetime.now())
+        if self.paid_on_date:
+            now_timestamp = hubspot.datetime_parse(fields.Datetime.to_datetime(self.paid_on_date))
         inputs = [{
             'id': order_id.hubspot_deal_object_id,
             'properties': hubspot._hubspot_field_convert({
-                'paid_on_date': self.paid_on_date or now_timestamp
+                'paid_on_date': now_timestamp
             })
         } for order_id in self if order_id.hubspot_deal_object_id]
         if inputs:
