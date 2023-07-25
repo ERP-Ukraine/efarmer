@@ -1,5 +1,6 @@
 from . import account_invoice
 from . import account_intrastat_report
+from . import delivery_terms
 from . import efarmer_client_type
 from . import product_category
 from . import product_product

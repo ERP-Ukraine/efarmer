@@ -57,3 +57,8 @@ class SaleOrder(models.Model):
                 active_picks = order.picking_ids.filtered(
                     lambda p: p.state not in ['done', 'cancel'])
                 order.pick_scheduled_date = active_picks[0].scheduled_date if active_picks else None
+
+    def _get_default_delivery_term_id(self):
+        return self.env['delivery.terms'].search([('default_for_company', '=', True), ('company_id', '=', self.env.company.id)], limit=1)
+
+    delivery_term_id = fields.Many2one('delivery.terms', string='Delivery Terms', domain="[('company_id', '=', company_id)]", default=_get_default_delivery_term_id,)
