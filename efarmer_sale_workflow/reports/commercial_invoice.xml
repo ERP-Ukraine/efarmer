@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <odoo>
 
-<template id="report_commercial_invoice_document" inherit_id="efarmer_sale_workflow.commercial_report_saleorder_document" primary="True">
+<template id="report_commercial_invoice_document" inherit_id="sale.report_saleorder_document" primary="True">
     <!-- Set a custom header format. -->
     <xpath expr="//div[hasclass('page')]/h2" position="replace">
         <h2 class="mt16">
@@ -11,6 +11,7 @@
     </xpath>
     <!-- Hide the payment term note. -->
     <xpath expr="//span[@name='payment-term-name']/.." position="replace"/>
+    <xpath expr="//div[@name='delivery-term-div']" position="replace"/>
     <!-- Display `HS Code` and `Country of origin` into the description column. -->
     <xpath expr="//table[hasclass('o_main_table')]//td[@name='td_name']" position="inside">
         <div name="hs_code" t-if="line.product_id.intrastat_id.code">
