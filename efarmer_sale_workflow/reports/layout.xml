@@ -11,26 +11,18 @@
 <template id="address_layout" inherit_id="web.address_layout">
     <!-- Print the payment term note instead of invoice and delivery addresses. -->
     <xpath expr="//t[@t-if='information_block']" position="replace">
-        <t t-if="information_block and not (is_pro_forma or efarmer_address_placement or env.context.get('proforma'))">
-            <t t-set="colclass" t-value="'col-5 offset-1'"/>
-            <div name="information_block" class="col-6">
-                <t t-out="information_block"/>
-            </div>
-        </t>
-        <t t-elif="(is_pro_forma or efarmer_address_placement or env.context.get('proforma'))">
-            <t t-set="colclass" t-value="'col-5 offset-1'"/>
-            <div name="proforma_payment_term" class="col-6">
-                <div t-if="o._name == 'sale.order'" t-field="o.payment_term_id.note"/>
-                <div t-if="o._name == 'account.move'">
-                <!-- Head the company address with a title. The company is a "Sender" of invoices and a "Consignee" of vendor bills. -->
-                    <div class="address_title mb-2" t-if="o.invoice_payment_term_id.note">
-                        <strong t-if="o.move_type.startswith('out_')">Sender:</strong>
-                        <strong t-else="">Consignee:</strong>
-                    </div>
-                    <div t-field="o.invoice_payment_term_id.note"/>
+        <t t-set="colclass" t-value="'col-5 offset-1'"/>
+        <div name="proforma_payment_term" class="col-6">
+            <div t-if="o._name == 'sale.order'" t-field="o.payment_term_id.note"/>
+            <div t-if="o._name == 'account.move'">
+            <!-- Head the company address with a title. The company is a "Sender" of invoices and a "Consignee" of vendor bills. -->
+                <div class="address_title mb-2" t-if="o.invoice_payment_term_id.note">
+                    <strong t-if="o.move_type.startswith('out_')">Sender:</strong>
+                    <strong t-else="">Consignee:</strong>
                 </div>
+                <div t-field="o.invoice_payment_term_id.note"/>
             </div>
-        </t>
+        </div>
     </xpath>
 </template>
 
