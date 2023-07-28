@@ -20,11 +20,6 @@
             <div t-if="doc.payment_term_id" style="padding-top: 15px;">
                 <strong>Payment terms: <span t-field="doc.payment_term_id"/></strong>
             </div>
-        </div>
-    </xpath>
-
-    <xpath expr="//div[@name='proforma-payment-term']" position="after">
-        <div name="delivery-term" t-attf-class="#{'col-8' if report_type != 'html' else 'col-sm-7'}">
             <div t-if="doc.delivery_term_id" style="padding-top: 15px;">
                 <strong>Delivery terms: <span t-field="doc.delivery_term_id.name"/></strong>
                 <t t-if="doc.delivery_term_id.description">
