@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <odoo>
 
-<template id="report_commercial_invoice_document" inherit_id="sale.report_saleorder_document" primary="True">
+<template id="report_commercial_invoice_document" inherit_id="efarmer_sale_workflow.commercial_report_saleorder_document" primary="True">
     <!-- Set a custom header format. -->
     <xpath expr="//div[hasclass('page')]/h2" position="replace">
         <h2 class="mt16">
