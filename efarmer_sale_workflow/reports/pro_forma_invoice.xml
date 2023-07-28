@@ -1,33 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-<template id="proforma_report_saleorder_document" inherit_id="sale.report_saleorder_document">
+    <template id="proforma_report_saleorder_document" inherit_id="sale.report_saleorder_document">
+        <!-- Print `Payment terms: <the payment term name>` instead of the payment term note. -->
+        <xpath expr="//span[@t-field='doc.payment_term_id.note']" position="replace">
+            <span name="payment-term-name">Payment terms: <span t-field="doc.payment_term_id"/></span>
+    <!--        <div name="payment-term-note" t-field="doc.payment_term_id.note"/>-->
+        </xpath>
+        <!-- Don't print the payment term below after the total block on pro-forma docs. -->
+        <xpath expr="//p[@t-if='not is_html_empty(doc.payment_term_id.note)']" position="attributes">
+            <attribute name="t-if">not is_html_empty(doc.payment_term_id.note) and not (is_pro_forma or env.context.get('proforma'))</attribute>
+        </xpath>
+        <!-- Print the payment term before the total block on pro-forma docs. -->
+        <xpath expr="//div[@id='total']/*[1]" position="attributes">
+            <attribute name="t-attf-class">#{'col-4' if report_type != 'html' else 'col-sm-5'} #{'' if is_pro_forma or env.context.get('proforma') else 'ml-auto'}</attribute>
+        </xpath>
+        <xpath expr="//div[@id='total']/*[1]" position="before">
+            <div name="proforma-payment-term"  t-attf-class="#{'col-8' if report_type != 'html' else 'col-sm-7'}">
+                <div t-if="is_pro_forma or env.context.get('proforma') and doc.payment_term_id" style="padding-top: 15px;">
+                    <strong>Payment terms: <span t-field="doc.payment_term_id"/></strong>
+                </div>
+                <div t-if="doc.delivery_term_id" style="padding-top: 15px;">
+                    <strong>Delivery terms: <span t-field="doc.delivery_term_id.name"/></strong>
+                    <t t-if="doc.delivery_term_id.description">
+                        <p><span t-field="doc.delivery_term_id.description"/></p>
+                    </t>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="commercial_report_saleorder_document" inherit_id="sale.report_saleorder_document" primary="True">
     <!-- Print `Payment terms: <the payment term name>` instead of the payment term note. -->
-    <xpath expr="//span[@t-field='doc.payment_term_id.note']" position="replace">
-        <span name="payment-term-name">Payment terms: <span t-field="doc.payment_term_id"/></span>
-<!--        <div name="payment-term-note" t-field="doc.payment_term_id.note"/>-->
-    </xpath>
-    <!-- Don't print the payment term below after the total block on pro-forma docs. -->
-    <xpath expr="//p[@t-if='not is_html_empty(doc.payment_term_id.note)']" position="attributes">
-        <attribute name="t-if">not is_html_empty(doc.payment_term_id.note) and not (is_pro_forma or env.context.get('proforma'))</attribute>
-    </xpath>
-    <!-- Print the payment term before the total block on pro-forma docs. -->
-    <xpath expr="//div[@id='total']/*[1]" position="attributes">
-        <attribute name="t-attf-class">#{'col-4' if report_type != 'html' else 'col-sm-5'} #{'' if is_pro_forma or env.context.get('proforma') else 'ml-auto'}</attribute>
-    </xpath>
-    <xpath expr="//div[@id='total']/*[1]" position="before">
-        <div name="proforma-payment-term"  t-attf-class="#{'col-8' if report_type != 'html' else 'col-sm-7'}">
-            <div t-if="is_pro_forma or env.context.get('proforma') and doc.payment_term_id" style="padding-top: 15px;">
-                <strong>Payment terms: <span t-field="doc.payment_term_id"/></strong>
+        <xpath expr="//span[@t-field='doc.payment_term_id.note']" position="replace">
+            <span name="payment-term-name">Payment terms: <span t-field="doc.payment_term_id"/></span>
+        </xpath>
+        <!-- Don't print the payment term below after the total block on pro-forma docs. -->
+        <xpath expr="//p[@t-if='not is_html_empty(doc.payment_term_id.note)']" position="attributes">
+            <attribute name="t-if">not is_html_empty(doc.payment_term_id.note) and not (is_pro_forma or env.context.get('proforma'))</attribute>
+        </xpath>
+        <!-- Print the payment term before the total block on pro-forma docs. -->
+        <xpath expr="//div[@id='total']/*[1]" position="attributes">
+            <attribute name="t-attf-class">#{'col-4' if report_type != 'html' else 'col-sm-5'} #{'' if is_pro_forma or env.context.get('proforma') else 'ml-auto'}</attribute>
+        </xpath>
+        <xpath expr="//div[@id='total']/*[1]" position="before">
+            <div name="proforma-payment-term"  t-attf-class="#{'col-8' if report_type != 'html' else 'col-sm-7'}">
+                <div t-if="is_pro_forma or env.context.get('proforma') and doc.payment_term_id" style="padding-top: 15px;">
+                    <strong>Payment terms: <span t-field="doc.payment_term_id"/></strong>
+                </div>
             </div>
-            <div t-if="doc.delivery_term_id" style="padding-top: 15px;">
-                <strong>Delivery terms: <span t-field="doc.delivery_term_id.name"/></strong>
-                <t t-if="doc.delivery_term_id.description">
-                    <p><span t-field="doc.delivery_term_id.description"/></p>
-                </t>
-            </div>
-        </div>
-    </xpath>
-</template>
+        </xpath>
+    </template>
+
+
 
 </odoo>
