@@ -5,7 +5,7 @@
     <!-- Print `Payment terms: <the payment term name>` instead of the payment term note. -->
     <xpath expr="//span[@t-field='doc.payment_term_id.note']" position="replace">
         <span name="payment-term-name">Payment terms: <span t-field="doc.payment_term_id"/></span>
-        <div name="payment-term-note" t-field="doc.payment_term_id.note"/>
+<!--        <div name="payment-term-note" t-field="doc.payment_term_id.note"/>-->
     </xpath>
     <!-- Don't print the payment term below after the total block on pro-forma docs. -->
     <xpath expr="//p[@t-if='not is_html_empty(doc.payment_term_id.note)']" position="attributes">
@@ -20,6 +20,8 @@
             <div t-if="doc.payment_term_id" style="padding-top: 15px;">
                 <strong>Payment terms: <span t-field="doc.payment_term_id"/></strong>
             </div>
+        </div>
+        <div name="delivery-term" t-attf-class="#{'col-8' if report_type != 'html' else 'col-sm-7'}">
             <div t-if="doc.delivery_term_id" style="padding-top: 15px;">
                 <strong>Delivery terms: <span t-field="doc.delivery_term_id.name"/></strong>
                 <t t-if="doc.delivery_term_id.description">
