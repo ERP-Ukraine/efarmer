@@ -15,6 +15,10 @@ class ProductFunction(models.Model):
     complete_name = fields.Char('Complete Name', compute='_compute_complete_name', store=True)
     parent_id = fields.Many2one('product.function', 'Parent Function', index=True, ondelete='cascade')
 
+    _sql_constraints = [
+        ('unique_product_function_name', 'unique (name)', 'This Product Function name already exists')
+    ]
+
     @api.depends('name', 'parent_id.complete_name')
     def _compute_complete_name(self):
         for product_func in self:
