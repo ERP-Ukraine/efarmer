@@ -8,7 +8,6 @@ class ProductFunction(models.Model):
     _name = "product.function"
     _description = "Product Function"
     _parent_name = "parent_id"
-    _parent_store = True
     _rec_name = 'complete_name'
     _order = 'complete_name'
 
