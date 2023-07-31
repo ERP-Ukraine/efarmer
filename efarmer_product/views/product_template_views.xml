@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="template_form_efarmer_product_search_view_inherit" model="ir.ui.view">
+        <field name="name">product.template.search.efarmer.product.view.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='categ_id']" position="after">
+                <field name="product_func_id" string="Product Function" filter_domain="[('name', 'ilike', self)]"/>
+            </xpath>
+            <xpath expr="//filter[@name='categ_id']" position="after">
+                <field name="product_func_id" string="Product Function" context="{'group_by':'product_func_id'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_template_form_efarmer_product_inherit" model="ir.ui.view">
+        <field name="name">view.product.template.form.efarmer.product.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='type']" position="after">
+                <field name="product_func_id"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
