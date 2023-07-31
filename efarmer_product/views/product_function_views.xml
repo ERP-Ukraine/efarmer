@@ -37,6 +37,6 @@
               parent="stock.menu_product_in_config_stock"
               action="action_product_function_form"
               sequence="51"
-              groups="base.group_no_one"/>
+              groups="base.group_user"/>
 
 </odoo>
