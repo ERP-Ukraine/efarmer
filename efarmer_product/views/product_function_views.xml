@@ -2,17 +2,21 @@
 <odoo>
 
     <record id="view_product_function_form" model="ir.ui.view">
-        <field name="name">view.product.function.form.</field>
+        <field name="name">view.product.function.form</field>
         <field name="model">product.function</field>
         <field name="arch" type="xml">
             <form>
-                <field name="name"/>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
             </form>
         </field>
     </record>
 
     <record id="view_product_function_tree" model="ir.ui.view">
-        <field name="name">view.product.function.form.</field>
+        <field name="name">view.product.function.tree</field>
         <field name="model">product.function</field>
         <field name="arch" type="xml">
             <tree>
