@@ -19,7 +19,7 @@
         </h2>
     </xpath>
     <!-- Remove "Please use the following communication for your payment". -->
-    <xpath expr="//span[@t-field='o.payment_reference']/../.." position="replace"/>
+<!--    <xpath expr="//span[@t-field='o.payment_reference']/../.." position="replace"/>-->
     <!-- Remove "Due date". -->
     <xpath expr="//div[@name='due_date']" position="replace"/>
     <!-- Head the company address with a title. The partner is a "Consignee" of invoices and a "Sender" of vendor bills. -->
