@@ -3,6 +3,9 @@ Efarmer Sale Workflow
 
 Change Log
 ##########
+* 1.36 (2023-07-25)
+    -  Add field delivery_term_id on SO model, add model delivery.terms
+
 * 1.35 (2023-07-07)
     -  Improve Hubspot Logic, add Paid on date
 
