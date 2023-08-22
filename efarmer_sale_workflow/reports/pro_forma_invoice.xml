@@ -13,18 +13,28 @@
         <xpath expr="//div[@id='total']/*[1]" position="attributes">
             <attribute name="t-attf-class">#{'col-4' if report_type != 'html' else 'col-sm-5'} #{'' if is_pro_forma or env.context.get('proforma') else 'ml-auto'}</attribute>
         </xpath>
-        <xpath expr="//div[@id='total']/*[1]" position="before">
-            <div name="proforma-payment-term"  t-attf-class="#{'col-8' if report_type != 'html' else 'col-sm-7'}">
-                <div t-if="is_pro_forma or env.context.get('proforma') and doc.payment_term_id" style="padding-top: 15px;">
-                    <strong>Payment terms: <span t-field="doc.payment_term_id"/></strong>
-                </div>
+        <xpath expr="//div[@name='so_total_summary']" position="replace">
+          <div class="clearfix row" name="so_total_summary">
+            <div name="proforma-payment-term" t-attf-class="#{'col-6' if report_type != 'html' else 'col-sm-7'}">
                 <div name="delivery-term-div" t-if="doc.delivery_term_id" style="padding-top: 15px;">
-                    <strong>Delivery terms: <span t-field="doc.delivery_term_id.name"/></strong>
+                    <t t-if="doc.payment_term_id">
+                      <strong style="color:#b3953c">Payment terms: <span t-field="doc.payment_term_id"/></strong>
+                      <br/>
+                    </t>
+                    <strong style="color:#b3953c">Delivery terms: <span t-field="doc.delivery_term_id.name"/></strong>
                     <t t-if="doc.delivery_term_id.description">
-                        <p><span t-field="doc.delivery_term_id.description"/></p>
+                        <p style="color:#b3953c"><span t-field="doc.delivery_term_id.description"/></p>
                     </t>
                 </div>
             </div>
+            <div id="total" class="col-6" name="total">
+                    <table class="table table-sm">
+                        <!-- Tax totals -->
+                        <t t-set="tax_totals" t-value="json.loads(doc.tax_totals_json)"/>
+                        <t t-call="account.document_tax_totals"/>
+                    </table>
+              </div>
+          </div>
         </xpath>
     </template>
 
