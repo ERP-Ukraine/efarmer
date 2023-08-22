@@ -19,12 +19,12 @@ class SaleOrder(models.Model):
     @api.model_create_multi
     def create(self, vals):
         order_ids = super(SaleOrder, self).create(vals)
-        order_ids.filtered(lambda order: order.state == 'sale')._update_hubspot_field()
+        order_ids.filtered(lambda order: order.state in ['to_confirm', 'sale'])._update_hubspot_field()
         return order_ids
 
     def write(self, values):
         response = super(SaleOrder, self).write(values)
-        if values.get('state') == 'sale':
+        if values.get('state') in ['to_confirm', 'sale']:
             self._update_hubspot_field()
         return response
 
