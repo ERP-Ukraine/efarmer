@@ -1,6 +1,15 @@
 <?xml version='1.0' encoding='utf-8'?>
 <odoo>
 
+<template id="account_commercial_report_invoice_document" inherit_id="account.report_invoice_document" name="account_commercial_report_invoice_document">
+    <xpath expr="//p[@name='payment_communication']" position="replace">
+    </xpath>
+    <xpath expr="//p[@name='payment_term']" position="replace">
+    </xpath>
+    <xpath expr="//table[@name='invoice_line_table']" position="replace">
+    </xpath>
+</template>
+
 <template id="report_account_commercial_invoice_document" inherit_id="account.report_invoice_document" primary="True">
     <!-- Change the header. -->
     <xpath expr="//div[hasclass('page')]/h2" position="replace">
