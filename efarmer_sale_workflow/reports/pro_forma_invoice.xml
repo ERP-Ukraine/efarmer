@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="proforma_report_saleorder_document" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//t[@t-set='address']" position="replace">
+          <t t-set="address">
+            <div t-field="doc.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;], &quot;no_marker&quot;: True}"/>
+            <strong t-if="doc.partner_shipping_id == doc.partner_invoice_id">Invoicing and Shipping Address:</strong>
+            <strong t-if="doc.partner_shipping_id != doc.partner_invoice_id">Invoicing Address:</strong>
+            <div t-field="doc.partner_invoice_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
+            <t t-if="doc.partner_shipping_id != doc.partner_invoice_id">
+              <t>
+                  <strong>Shipping Address:</strong>
+                  <div t-field="doc.partner_shipping_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
+              </t>
+            </t>
+            <p t-if="doc.partner_id.vat"><t t-esc="doc.company_id.account_fiscal_country_id.vat_label or 'Tax ID'"/>: <span t-field="doc.partner_id.vat"/></p>
+          </t>
+        </xpath>
         <!-- Print `Payment terms: <the payment term name>` instead of the payment term note. -->
         <xpath expr="//span[@t-field='doc.payment_term_id.note']" position="replace">
-            <strong style="color:#b3953c" name="payment-term-name">Payment terms: <span t-field="doc.payment_term_id"/></strong>
         </xpath>
         <!-- Don't print the payment term below after the total block on pro-forma docs. -->
         <xpath expr="//p[@t-if='not is_html_empty(doc.payment_term_id.note)']" position="attributes">
