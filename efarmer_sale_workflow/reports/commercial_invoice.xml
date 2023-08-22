@@ -10,7 +10,6 @@
         </h2>
     </xpath>
     <!-- Hide the payment term note. -->
-    <xpath expr="//strong[@name='payment-term-name']/.." position="replace"/>
     <xpath expr="//div[@name='delivery-term-div']" position="replace"/>
     <!-- Display `HS Code` and `Country of origin` into the description column. -->
     <xpath expr="//table[hasclass('o_main_table')]//td[@name='td_name']" position="inside">
