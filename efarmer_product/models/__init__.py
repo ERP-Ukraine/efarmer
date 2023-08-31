@@ -3,3 +3,8 @@
 
 from . import product_template
 from . import product_function
+from . import product_vat
+from . import sale_order
+from . import account_fiscal_position_tax
+from . import account_fiscal_position
+from . import sale_order_line

@@ -11,6 +11,8 @@
     'website': 'https://ventor.tech',
     'license': 'LGPL-3',
     'depends': [
+        'account',
+        'sale',
         'stock',
     ],
     'description': "",
@@ -20,6 +22,9 @@
         # Model Views
         'views/product_function_views.xml',
         'views/product_template_views.xml',
+        'views/product_vat_views.xml',
+        'views/sale_order_views.xml',
+        'views/account_fiscal_position_views.xml',
     ],
 
     'auto_install': False,
