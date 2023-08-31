@@ -9,6 +9,8 @@
             <xpath expr="//field[@name='tax_src_id']" position="before">
                 <field name="product_func_id"/>
                 <field name="product_vat_id"/>
+                <field name="partner_company_type"/>
+                <field name="country_id"/>
             </xpath>
         </field>
     </record>
