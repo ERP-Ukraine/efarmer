@@ -17,7 +17,7 @@ class AccountFiscalPosition(models.Model):
                 taxes_correspondance = self.tax_ids.filtered(
                     lambda t:
                         t.tax_src_id == tax._origin and
-                        t.product_func_id == line.product_tmpl_id.product_func_id and
+                        t.product_func_id == line.product_id.product_tmpl_id.product_func_id and
                         t.country_id == line.order_id.partner_id.country_id and
                         t.partner_company_type == line.order_id.partner_id.company_type
                 )
