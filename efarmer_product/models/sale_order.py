@@ -11,3 +11,7 @@ class SaleOrder(models.Model):
         comodel_name='product.vat',
         string='Product Vat',
     )
+
+    @api.onchange('order_line')
+    def _onchange_line_tax_id(self):
+        self.order_line._compute_tax_id()
