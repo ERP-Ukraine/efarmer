@@ -20,7 +20,7 @@ class SaleOrderLine(models.Model):
             if goods_product_lines:
                 # If company_id is set, always filter taxes by the company
                 taxes = goods_product_lines[0].product_id.taxes_id.filtered(lambda t: t.company_id == line.env.company)
-                line.tax_id = fpos.map_tax(taxes, goods_product_lines)
+                line.order_id.order_line.tax_id = fpos.map_tax(taxes, goods_product_lines)
             else:
                 # If company_id is set, always filter taxes by the company
                 taxes = line.product_id.taxes_id.filtered(lambda t: t.company_id == line.env.company)
