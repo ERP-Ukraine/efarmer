@@ -18,7 +18,7 @@ class SaleOrderLine(models.Model):
                 'product_function.product_function_id'
             )
             goods_product_lines = line.order_id.order_line.filtered(
-                lambda x: x.product_id.product_func_id.id == default_product_func_id
+                lambda x: x.product_id.product_func_id.id == int(default_product_func_id)
             )
             if goods_product_lines:
                 # If company_id is set, always filter taxes by the company
