@@ -11,5 +11,5 @@ class ResConfigSettings(models.TransientModel):
         comodel_name='product.function',
         default_model='product.function',
         string='Default Product Function',
-        config_parameter='product_function.default_product_function',
+        config_parameter='product_function.product_function_id',
     )
