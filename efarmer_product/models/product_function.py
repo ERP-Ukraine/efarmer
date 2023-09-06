@@ -12,7 +12,7 @@ class ProductFunction(models.Model):
     _order = 'complete_name'
 
     name = fields.Char('Name', index=True, required=True)
-    complete_name = fields.Char('Complete Name', compute='_compute_complete_name', store=True)
+    complete_name = fields.Char('Complete Name', recursive=True, compute='_compute_complete_name', store=True)
     parent_id = fields.Many2one('product.function', 'Parent Function', index=True, ondelete='cascade')
 
     _sql_constraints = [
