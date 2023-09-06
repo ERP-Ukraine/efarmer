@@ -17,7 +17,6 @@ class SaleOrderLine(models.Model):
             default_product_func_id = self.env['ir.config_parameter'].sudo().get_param(
                 'product_function.product_function_id'
             )
-            print(default_product_func_id)
             goods_product_lines = line.order_id.order_line.filtered(
                 lambda x: x.product_id.product_func_id == default_product_func_id
             )
