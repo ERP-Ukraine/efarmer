@@ -20,6 +20,7 @@
         # Security
         'security/ir.model.access.csv',
         # Model Views
+        'views/res_config_settings.xml',
         'views/product_function_views.xml',
         'views/product_template_views.xml',
         'views/product_vat_views.xml',

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="res_config_settings_efarmer_product_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.efarmer.product.form.inherit</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='uom_settings']" position="after">
+                <div class="col-12 col-md-6 o_setting_box" id="default_product_function_settings">
+                    <div class="o_setting_right_pane">
+                        <label for="product_function_id"/>
+                        <field name="product_function_id"/>
+                        <div class="text-muted">
+                            Set Fully Invoiced for Upselling Opportunity Sales Orders
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
