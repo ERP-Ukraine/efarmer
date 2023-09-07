@@ -19,7 +19,7 @@
             <field name="inherit_id" ref="purchase.purchase_order_form"/>
             <field name="arch" type="xml">
                 <field name="date_order" position="before">
-                    <field name="pay_deadline_date" attrs="{'required': [('state', 'in', ['draft','sent'])]}"/>
+                    <field name="pay_deadline_date" attrs="{'required': [('state', 'not in', ('draft','sent'))]}"/>
                 </field>
             </field>
         </record>
