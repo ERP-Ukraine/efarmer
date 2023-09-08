@@ -18,3 +18,8 @@ class SaleOrderLine(models.Model):
         store=True,
         index=True,
     )
+    tag_ids = fields.Many2many(
+        'crm.tag',
+        related='order_id.tag_ids',
+        string='Tags'
+    )
