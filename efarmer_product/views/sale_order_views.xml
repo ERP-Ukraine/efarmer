@@ -8,6 +8,9 @@
             <xpath expr="//field[@name='date_order']" position="after">
                 <field name="product_vat_id" string="VAT ID"/>
             </xpath>
+            <xpath expr="//field[@name='fiscal_position_id']" position="after">
+                <field name="is_auto_calc_taxes"/>
+            </xpath>
         </field>
     </record>
 </odoo>
