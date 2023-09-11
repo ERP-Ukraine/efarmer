@@ -12,6 +12,11 @@ class SaleOrder(models.Model):
         string='Product Vat',
     )
 
+    is_auto_calc_taxes = fields.Boolean(
+        string='Auto-calculate taxes'
+    )
+
     @api.onchange('order_line')
     def _onchange_line_tax_id(self):
-        self.order_line._compute_tax_id()
+        if self.is_auto_calc_taxes:
+            self.order_line._compute_tax_id()
