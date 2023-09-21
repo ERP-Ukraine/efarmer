@@ -11,6 +11,8 @@ class DeliveryTerms(models.Model):
     default_for_company = fields.Boolean(string='Default for the Company')
     company_id = fields.Many2one('res.company', 'Company', required=True, default=lambda self: self.env.company)
     description = fields.Text(string='Description on the Invoice')
+    tag_ids = fields.Many2many('crm.tag', string='Tags')
+    delivery_days = fields.Integer(string='Delivery Days')
 
     _sql_constraints = [
         ('unique_name_company',
