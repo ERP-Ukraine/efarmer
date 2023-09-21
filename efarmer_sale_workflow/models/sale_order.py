@@ -1,3 +1,5 @@
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from odoo import fields, models, api
 
 
@@ -62,3 +64,15 @@ class SaleOrder(models.Model):
         return self.env['delivery.terms'].search([('default_for_company', '=', True), ('company_id', '=', self.env.company.id)], limit=1)
 
     delivery_term_id = fields.Many2one('delivery.terms', string='Delivery Terms', domain="[('company_id', '=', company_id)]", default=_get_default_delivery_term_id,)
+    commitment_date = fields.Datetime(default=lambda self: datetime.today() + relativedelta(days=self.delivery_term_id.delivery_days))
+    tag_ids = fields.Many2many(default=lambda self: self.delivery_term_id.tag_ids)
+
+    @api.onchange('delivery_term_id')
+    def _onchange_action(self):
+        for order in self:
+            if not order.commitment_date:
+                order.commitment_date = (
+                    datetime.today() + relativedelta(days=order.delivery_term_id.delivery_days)
+                )
+            if not order.tag_ids:
+                order.tag_ids = order.delivery_term_id.tag_ids
