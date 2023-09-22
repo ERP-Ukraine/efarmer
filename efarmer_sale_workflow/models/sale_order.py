@@ -67,11 +67,7 @@ class SaleOrder(models.Model):
     tag_ids = fields.Many2many(default=lambda self: self.delivery_term_id.tag_ids)
 
     @api.onchange('delivery_term_id')
-    def _onchange_action(self):
+    def _onchange_delivery_term_fields(self):
         for order in self:
-            if not order.commitment_date:
-                order.commitment_date = (
-                    datetime.today() + relativedelta(days=order.delivery_term_id.delivery_days)
-                )
-            if not order.tag_ids:
-                order.tag_ids = order.delivery_term_id.tag_ids
+            order.commitment_date = (datetime.today() + relativedelta(days=order.delivery_term_id.delivery_days))
+            order.tag_ids = order.delivery_term_id.tag_ids
