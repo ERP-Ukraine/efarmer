@@ -11,6 +11,8 @@
                             <field name="default_for_company"/>
                             <field name="company_id"/>
                             <field name="description"/>
+                            <field name="tag_ids" widget="many2many_tags"/>
+                            <field name="delivery_days"/>
                         </group>
                     </sheet>
                 </form>
