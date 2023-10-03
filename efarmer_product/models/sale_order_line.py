@@ -55,4 +55,15 @@ class SaleOrderLine(models.Model):
                             new_qty=float(values.get('product_uom_qty'))
                         ))
                     line.order_id.message_post(body=msg)
+        if 'product_id' in values:
+            for line in self:
+                if line.product_id and line.order_id.state in ['draft', 'sale']:
+                    msg = _(
+                        "The product on the line was changed from {old_product} to {new_product}".format(
+                            old_product=line.product_id.display_name,
+                            new_product=self.env['product.product'].browse((
+                                values.get('product_id')
+                            )).display_name
+                        ))
+                    line.order_id.message_post(body=msg)
         return super().write(values)
