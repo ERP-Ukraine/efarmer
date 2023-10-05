@@ -2,7 +2,7 @@
 <odoo>
     <template id="efarmer_sale_workflow_document_tax_totals_inherit" inherit_id="account.document_tax_totals">
         <xpath expr="//tr[@class='border-black o_total']" position="after">
-            <t t-if="o.currency_id.name != 'PLN' and o.partner_id.country_id.code == 'PL'">
+            <t t-if="o.currency_id.name != 'PLN' and o.partner_id.country_id.code == 'PL' and o.product_vat_id.name == 'PL'">
                 <tr class="border-black o_total">
                     <td><strong>VAT Amount in PLN</strong></td>
                     <td class="text-right">
