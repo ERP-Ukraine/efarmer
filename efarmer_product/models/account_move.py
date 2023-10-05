@@ -10,4 +10,10 @@ class AccountMove(models.Model):
     product_vat_id = fields.Many2one(
         comodel_name='product.vat',
         string='Product Vat',
+        compute='_compute_account_move_product_vat'
     )
+
+    def _compute_account_move_product_vat(self):
+        for move in self:
+            if move.invoice_line_ids and move.invoice_line_ids.sale_line_ids:
+                move.product_vat_id = move.invoice_line_ids.sale_line_ids[0].order_id.product_vat_id
