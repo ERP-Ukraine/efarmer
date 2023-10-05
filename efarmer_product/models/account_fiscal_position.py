@@ -23,6 +23,7 @@ class AccountFiscalPosition(models.Model):
                 )
                 if taxes_correspondance:
                     line.order_id.product_vat_id = taxes_correspondance.product_vat_id
+                    line.order_id.invoice_ids.product_vat_id = taxes_correspondance.product_vat_id
             else:
                 taxes_correspondance = self.tax_ids.filtered(
                     lambda t: t.tax_src_id == tax._origin
