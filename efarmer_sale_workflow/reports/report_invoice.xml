@@ -5,7 +5,7 @@
             <tr class="border-black o_total">
                 <td><strong>VAT Amount in PLN</strong></td>
                 <td class="text-right">
-                    <span t-esc="o.amount_tax * o.current_rate_pln"/> zł
+                    <span t-esc="round(o.amount_tax * o.current_rate_pln, 2)"/> zł
                 </td>
             </tr>
         </xpath>
