@@ -18,7 +18,7 @@ class AccountMove(models.Model):
 
             if move.payment_id and payment_rate:
                 move.current_currency_pln = payment_rate.company_rate
-            elif move.invoice_date:
+            elif move.invoice_date and invoice_date_rate:
                 move.current_currency_pln = invoice_date_rate.company_rate
             else:
                 move.current_currency_pln = currency_pln.rate_ids[0].company_rate
