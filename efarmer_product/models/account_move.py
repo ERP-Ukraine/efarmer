@@ -9,7 +9,7 @@ class AccountMove(models.Model):
 
     product_vat_id = fields.Many2one(
         comodel_name='product.vat',
-        string='Product Vat',
+        string='VAT ID',
         compute='_compute_account_move_product_vat'
     )
 
