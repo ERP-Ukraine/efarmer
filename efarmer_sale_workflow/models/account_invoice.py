@@ -13,20 +13,12 @@ class AccountMove(models.Model):
     def _get_current_currency_pln(self):
         currency_pln = self.env['res.currency'].search([('name', '=', 'PLN')])
         for move in self:
-            if move.line_ids:
-                account_move_line_id = move.line_ids.filtered(lambda line: line.account_internal_type in ('payable')).sorted(
-                    key=lambda r: r.date_maturity
-                )
-                if account_move_line_id:
-                    move.current_currency_pln = currency_pln.rate_ids.filtered(lambda x: x.name == account_move_line_id[0].date_maturity).company_rate
-                else:
-                    move.current_currency_pln = 0
+            if move.payment_id:
+                move.current_currency_pln = currency_pln.rate_ids.filtered(lambda x: x.name == move.payment_id.date).company_rate
             elif move.invoice_date:
-                cur_rate_invoice_date = currency_pln.rate_ids.filtered(lambda x: x.name == move.invoice_date).company_rate
-                if not cur_rate_invoice_date:
-                    move.current_currency_pln = currency_pln.rate_ids[0]
+                move.current_currency_pln = currency_pln.rate_ids.filtered(lambda x: x.name == move.invoice_date).company_rate
             else:
-                move.current_currency_pln = 0
+                move.current_currency_pln = currency_pln.rate_ids[0].company_rate
 
     def _recompute_amount(self):
         """ Before turning data into JSON we need to filter account move lines
