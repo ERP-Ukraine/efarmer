@@ -13,7 +13,7 @@ class AccountMove(models.Model):
     def _get_current_rate_pln(self):
         currency_pln = self.env['res.currency'].search([('name', '=', 'PLN')])
         for move in self:
-            account_payment_ids = self.env['account.payment'].search([('reconciled_invoice_ids', 'in', move.id)])
+            account_payment_ids = self.env['account.payment'].search([('ref', '=', move.payment_reference)])
             invoice_date_rate_id = currency_pln.rate_ids.filtered(lambda x: x.name == move.invoice_date)
             default_rate = currency_pln.rate_ids.sorted(key='name', reverse=True)[0].company_rate
             account_payment_rate = 0
