@@ -11,9 +11,8 @@ class AccountMove(models.Model):
     current_currency_pln = fields.Float(string='Current Currency PLN', compute='_get_current_currency_pln')
 
     def _get_current_currency_pln(self):
+        currency_pln = self.env['res.currency'].search([('name', '=', 'PLN')])
         for move in self:
-            currency_pln = self.env['res.currency'].search([('name', '=', 'PLN')])
-
             if move.line_ids:
                 account_move_line_id = move.line_ids.filtered(lambda line: line.account_internal_type in ('payable')).sorted(
                     key=lambda r: r.date_maturity
@@ -23,7 +22,9 @@ class AccountMove(models.Model):
                 else:
                     move.current_currency_pln = 0
             elif move.invoice_date:
-                move.current_currency_pln = currency_pln.rate_ids.filtered(lambda x: x.name == move.invoice_date).company_rate
+                cur_rate_invoice_date = currency_pln.rate_ids.filtered(lambda x: x.name == move.invoice_date).company_rate
+                if not cur_rate_invoice_date:
+                    move.current_currency_pln = currency_pln.rate_ids[0]
             else:
                 move.current_currency_pln = 0
 
