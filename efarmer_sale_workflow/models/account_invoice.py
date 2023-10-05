@@ -13,10 +13,13 @@ class AccountMove(models.Model):
     def _get_current_currency_pln(self):
         currency_pln = self.env['res.currency'].search([('name', '=', 'PLN')])
         for move in self:
-            if move.payment_id:
-                move.current_currency_pln = currency_pln.rate_ids.filtered(lambda x: x.name == move.payment_id.date).company_rate
+            payment_rate = currency_pln.rate_ids.filtered(lambda x: x.name == move.payment_id.date)
+            invoice_date_rate = currency_pln.rate_ids.filtered(lambda x: x.name == move.invoice_date)
+
+            if move.payment_id and payment_rate:
+                move.current_currency_pln = payment_rate.company_rate
             elif move.invoice_date:
-                move.current_currency_pln = currency_pln.rate_ids.filtered(lambda x: x.name == move.invoice_date).company_rate
+                move.current_currency_pln = invoice_date_rate.company_rate
             else:
                 move.current_currency_pln = currency_pln.rate_ids[0].company_rate
 
