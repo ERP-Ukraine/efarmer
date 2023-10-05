@@ -16,11 +16,13 @@ class AccountMove(models.Model):
             account_payment_ids = self.env['account.payment'].search([('reconciled_invoice_ids', 'in', move.id)])
             invoice_date_rate = currency_pln.rate_ids.filtered(lambda x: x.name == move.invoice_date)
 
+            tmp_payment_rate = 0
             if account_payment_ids:
                 payment_id = account_payment_ids.sorted(key='date', reverse=True)[0]
                 payment_rate = currency_pln.rate_ids.filtered(lambda x: x.name == payment_id.date)
+                tmp_payment_rate = payment_rate.company_rate
                 move.current_rate_pln = payment_rate.company_rate
-            elif move.invoice_date and invoice_date_rate:
+            if not tmp_payment_rate and move.invoice_date and invoice_date_rate:
                 move.current_rate_pln = invoice_date_rate.company_rate
             else:
                 move.current_rate_pln = currency_pln.rate_ids.sorted(key='name', reverse=True)[0].company_rate
