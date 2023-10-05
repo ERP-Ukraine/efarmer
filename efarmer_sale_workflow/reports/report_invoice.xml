@@ -3,9 +3,9 @@
     <template id="efarmer_sale_workflow_document_tax_totals_inherit" inherit_id="account.document_tax_totals">
         <xpath expr="//tr[@class='border-black o_total']" position="after">
             <tr class="border-black o_total">
-                <td><strong>Total tax PLN</strong></td>
+                <td><strong>VAT Amount in PLN</strong></td>
                 <td class="text-right">
-                    <span t-esc="o.amount_tax"/> zł
+                    <span t-esc="o.amount_tax * o.current_rate_pln"/> zł
                 </td>
             </tr>
         </xpath>
