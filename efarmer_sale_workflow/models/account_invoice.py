@@ -8,20 +8,20 @@ from odoo.tools import float_compare
 class AccountMove(models.Model):
     _inherit = "account.move"
 
-    current_currency_pln = fields.Float(string='Current Currency PLN', compute='_get_current_currency_pln')
+    current_rate_pln = fields.Float(string='Current Rate PLN', compute='_get_current_rate_pln', digits=(16, 4))
 
-    def _get_current_currency_pln(self):
+    def _get_current_rate_pln(self):
         currency_pln = self.env['res.currency'].search([('name', '=', 'PLN')])
         for move in self:
             payment_rate = currency_pln.rate_ids.filtered(lambda x: x.name == move.payment_id.date)
             invoice_date_rate = currency_pln.rate_ids.filtered(lambda x: x.name == move.invoice_date)
 
             if move.payment_id and payment_rate:
-                move.current_currency_pln = payment_rate.company_rate
+                move.current_rate_pln = payment_rate.company_rate
             elif move.invoice_date and invoice_date_rate:
-                move.current_currency_pln = invoice_date_rate.company_rate
+                move.current_rate_pln = invoice_date_rate.company_rate
             else:
-                move.current_currency_pln = currency_pln.rate_ids[0].company_rate
+                move.current_rate_pln = currency_pln.rate_ids[0].company_rate
 
     def _recompute_amount(self):
         """ Before turning data into JSON we need to filter account move lines
