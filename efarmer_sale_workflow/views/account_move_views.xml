@@ -6,7 +6,7 @@
             <field name="inherit_id" ref="account.view_move_form"/>
             <field name="arch" type="xml">
                 <div name="journal_div" position="after">
-                    <field name="current_currency_pln"/>
+                    <field name="current_rate_pln"/>
                 </div>
             </field>
     </record>
