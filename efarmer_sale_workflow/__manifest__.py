@@ -26,7 +26,6 @@
         'sales_team',
         'account',
         'account_intrastat',
-        'efarmer_product',
     ],
 
     'data': [
