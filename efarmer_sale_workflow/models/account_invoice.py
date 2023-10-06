@@ -8,11 +8,23 @@ from odoo.tools import float_compare
 class AccountMove(models.Model):
     _inherit = "account.move"
 
-    current_rate_pln = fields.Float(string='Current Rate PLN', compute='_get_current_rate_pln', digits=(16, 4))
+    # Technical field
+    # Task EF-252
+    _current_rate_pln = fields.Boolean(string='Current Rate PLN', compute='_get_current_rate_pln',)
+    is_manually_current_rate = fields.Boolean('Manually Current Rate')
+    current_rate_pln = fields.Float(string='Current Rate PLN', digits=(16, 4))
+    product_vat_id = fields.Many2one(
+        comodel_name='product.vat',
+        string='VAT ID',
+    )
 
     def _get_current_rate_pln(self):
         currency_pln = self.env['res.currency'].search([('name', '=', 'PLN')])
         for move in self:
+            move._current_rate_pln = True
+            if move.is_manually_current_rate:
+                return
+
             account_payment_ids = self.env['account.payment'].search([('ref', '=', move.payment_reference)])
             invoice_date_rate_id = currency_pln.rate_ids.filtered(lambda x: x.name == move.invoice_date)
             default_rate = currency_pln.rate_ids.sorted(key='name', reverse=True)[0].company_rate
@@ -27,6 +39,9 @@ class AccountMove(models.Model):
                 invoice_date_rate = invoice_date_rate_id.company_rate
 
             move.current_rate_pln = account_payment_rate or invoice_date_rate or default_rate
+            if move.invoice_line_ids and move.invoice_line_ids.sale_line_ids:
+                move.product_vat_id = move.invoice_line_ids.sale_line_ids[0].order_id.product_vat_id
+
 
     def _recompute_amount(self):
         """ Before turning data into JSON we need to filter account move lines

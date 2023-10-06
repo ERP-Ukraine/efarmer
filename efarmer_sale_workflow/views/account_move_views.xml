@@ -6,7 +6,10 @@
             <field name="inherit_id" ref="account.view_move_form"/>
             <field name="arch" type="xml">
                 <div name="journal_div" position="after">
-                    <field name="current_rate_pln"/>
+                    <field name="is_manually_current_rate"/>
+                    <field name="_current_rate_pln" invisible="True"/>
+                    <field name="product_vat_id" attrs="{'readonly': [('is_manually_current_rate', '=', False)]}"/>
+                    <field name="current_rate_pln" attrs="{'readonly': [('is_manually_current_rate', '=', False)]}"/>
                 </div>
             </field>
     </record>
