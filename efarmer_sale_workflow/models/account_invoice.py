@@ -40,7 +40,8 @@ class AccountMove(models.Model):
                 return
 
             account_payment_ids = self.env['account.payment'].search([('ref', '=', move.payment_reference)])
-            invoice_date_rate_id = currency_pln.rate_ids.filtered(lambda x: x.name == _get_currency_rate_on_yesterday(move.invoice_date))
+            if move.invoice_date:
+                invoice_date_rate_id = currency_pln.rate_ids.filtered(lambda x: x.name == _get_currency_rate_on_yesterday(move.invoice_date))
             default_rate = currency_pln.rate_ids.sorted(key='name', reverse=True)[0].company_rate
             account_payment_rate = 0
             invoice_date_rate = 0
