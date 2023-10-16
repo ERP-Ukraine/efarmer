@@ -6,6 +6,11 @@
     <xpath expr="//div[@name='company_address']" position="attributes">
         <attribute name="t-if">not (is_pro_forma or efarmer_address_placement or env.context.get('proforma'))</attribute>
     </xpath>
+    <xpath expr="//div[@name='moto']" position="after">
+        <t t-if="o and o.product_vat_id and o.product_vat_id.description_on_docs">
+            <div name="description_on_docs" t-field="o.product_vat_id.description_on_docs"/>
+        </t>
+    </xpath>
 </template>
 
 <template id="address_layout" inherit_id="web.address_layout">
