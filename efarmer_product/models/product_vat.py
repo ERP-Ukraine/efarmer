@@ -9,4 +9,4 @@ class ProductVat(models.Model):
     _description = "Product Vat"
 
     name = fields.Char('Name', required=True)
-    description_on_docs = fields.Text('Description on Documents')
+    description_on_docs = fields.Html('Description on Documents')
