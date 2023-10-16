@@ -42,6 +42,9 @@ class AccountMove(models.Model):
             account_payment_ids = self.env['account.payment'].search([('ref', '=', move.payment_reference)])
             if move.invoice_date:
                 invoice_date_rate_id = currency_pln.rate_ids.filtered(lambda x: x.name == _get_currency_rate_on_yesterday(move.invoice_date))
+                # if we have 2 rate in one day so need get first
+                if invoice_date_rate_id:
+                    invoice_date_rate_id = invoice_date_rate_id[0]
             default_rate = currency_pln.rate_ids.sorted(key='name', reverse=True)[0].company_rate
             account_payment_rate = 0
             invoice_date_rate = 0
@@ -49,7 +52,9 @@ class AccountMove(models.Model):
             if account_payment_ids:
                 payment_id = account_payment_ids.sorted(key='date', reverse=True)[0]
                 payment_rate_id = currency_pln.rate_ids.filtered(lambda x: x.name == _get_currency_rate_on_yesterday(payment_id.date))
-                account_payment_rate = payment_rate_id.company_rate
+                # if we have 2 rate in one day so need get first
+                if payment_rate_id:
+                    account_payment_rate = payment_rate_id[0].company_rate
             if not account_payment_rate and move.invoice_date and invoice_date_rate_id:
                 invoice_date_rate = invoice_date_rate_id.company_rate
 
