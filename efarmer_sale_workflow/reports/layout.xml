@@ -9,7 +9,7 @@
     <xpath expr="//div[@name='moto']" position="replace">
       <div class="col-9 text-right" style="margin-top:22px;" name="moto">
         <span t-field="company.report_header"/>
-        <t t-if="o and o.product_vat_id and o.product_vat_id.description_on_docs">
+        <t t-if="o and 'product_vat_id' in o and o.product_vat_id and o.product_vat_id.description_on_docs">
           <span t-field="o.product_vat_id.description_on_docs"/>
         </t>
       </div>
