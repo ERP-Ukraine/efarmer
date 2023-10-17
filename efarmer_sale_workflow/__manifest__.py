@@ -52,6 +52,7 @@
         'views/stock_warehouse_views.xml',
         'views/delivery_terms_views.xml',
         'views/account_move_views.xml',
+        'views/stock_picking_views.xml',
         'wizards/product_variant_replacement_wizard.xml',
     ],
 
