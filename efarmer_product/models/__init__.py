@@ -9,4 +9,3 @@ from . import sale_order
 from . import account_fiscal_position_tax
 from . import account_fiscal_position
 from . import sale_order_line
-from . import stock_picking

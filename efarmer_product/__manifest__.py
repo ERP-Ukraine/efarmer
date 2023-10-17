@@ -26,7 +26,6 @@
         'views/product_vat_views.xml',
         'views/sale_order_views.xml',
         'views/account_fiscal_position_views.xml',
-        'views/stock_picking_views.xml',
     ],
 
     'auto_install': False,
