@@ -240,6 +240,7 @@ class JpkReportV2(models.AbstractModel):
 
             _partner = line['data']['partnerid'] and self.env['res.partner'].browse(line['data']['partnerid'])
             _vat = _partner and _partner.x_get_eu_vat_country()
+            _vat_tax = line['data']['nrkontrahenta']
 
             _flags = set(line['data']['flags'].split(',')) if line['data']['flags'] else set()
             _taxes = set()
@@ -247,7 +248,7 @@ class JpkReportV2(models.AbstractModel):
             if _vat:
                 etree.SubElement(sale_row, etree.QName(tns, 'KodKrajuNadaniaTIN')).text = _vat[:2]
 
-            etree.SubElement(sale_row, etree.QName(tns, 'NrKontrahenta')).text = _vat and _vat[2:] or EMPTY
+            etree.SubElement(sale_row, etree.QName(tns, 'NrKontrahenta')).text = _vat_tax or EMPTY
 
             etree.SubElement(sale_row, etree.QName(tns, 'NazwaKontrahenta')).text = (
                 line['data']['nazwakontrahenta'] or EMPTY
@@ -311,6 +312,7 @@ class JpkReportV2(models.AbstractModel):
 
             _partner = line['data']['partnerid'] and self.env['res.partner'].browse(line['data']['partnerid'])
             _vat = _partner and _partner.x_get_eu_vat_country()
+            _vat_tax = line['data']['nrkontrahenta']
 
             _flags = set(line['data']['flags'].split(',')) if line['data']['flags'] else set()
             _taxes = set()
@@ -318,7 +320,7 @@ class JpkReportV2(models.AbstractModel):
             if _vat:
                 etree.SubElement(purchase_row, etree.QName(tns, 'KodKrajuNadaniaTIN')).text = _vat[:2]
 
-            etree.SubElement(purchase_row, etree.QName(tns, 'NrDostawcy')).text = _vat and _vat[2:] or EMPTY
+            etree.SubElement(purchase_row, etree.QName(tns, 'NrDostawcy')).text = _vat_tax or EMPTY
 
             etree.SubElement(purchase_row, etree.QName(tns, 'NazwaDostawcy')).text = (
                 line['data']['nazwakontrahenta'] or EMPTY
