@@ -8,7 +8,6 @@ class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
     product_vat_id = fields.Many2one(
-        comodel_name='product.vat',
         related='sale_id.product_vat_id',
         string='VAT ID',
     )
