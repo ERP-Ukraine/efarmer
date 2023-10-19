@@ -26,6 +26,7 @@
         'sales_team',
         'account',
         'account_intrastat',
+        'efarmer_product',
     ],
 
     'data': [
@@ -38,6 +39,7 @@
         'reports/account_invoice_wo_downpayment.xml',
         'reports/stock_picking_templates.xml',
         'reports/stock_label.xml',
+        'reports/report_invoice.xml',
         'reports/device_label_50x30.xml',
         'reports/device_label_70x35.xml',
         'views/res_partner_views.xml',
@@ -48,6 +50,8 @@
         'views/sale_order_views.xml',
         'views/stock_warehouse_views.xml',
         'views/delivery_terms_views.xml',
+        'views/account_move_views.xml',
+        'views/stock_picking_views.xml',
         'wizards/product_variant_replacement_wizard.xml',
     ],
 

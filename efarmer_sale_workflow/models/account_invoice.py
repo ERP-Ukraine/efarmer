@@ -1,12 +1,69 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 
-from odoo import api, models
+from odoo import fields, api, models
 from odoo.tools import float_compare
 
+from datetime import timedelta
 
 class AccountMove(models.Model):
     _inherit = "account.move"
+
+    # Technical field
+    # Task EF-252
+    _current_rate_pln = fields.Boolean(string='Current Rate PLN', compute='_get_current_rate_pln',)
+    is_manually_current_rate = fields.Boolean('Manually Current Rate')
+    current_rate_pln = fields.Float(string='Current Rate PLN', digits=(16, 4))
+    product_vat_id = fields.Many2one(
+        comodel_name='product.vat',
+        string='VAT ID',
+    )
+
+    def _get_current_rate_pln(self):
+        # this function is needed to take the exchange rate for the previous day
+        # If it is Monday, Saturday, Sunday then take the date as Friday
+        # If other days then take the previous date
+        def _get_currency_rate_on_yesterday(currency_date):
+            if currency_date.weekday() == 0:  # 0 - monday,
+                currency_date -= timedelta(days=3)
+            elif currency_date.weekday() == 6:  # 6 - sunday
+                currency_date -= timedelta(days=2)
+            else:  # date - 1 day
+                currency_date -= timedelta(days=1)
+
+            return currency_date
+
+        currency_pln = self.env['res.currency'].search([('name', '=', 'PLN')])
+        for move in self:
+            move._current_rate_pln = True
+            if move.is_manually_current_rate:
+                return
+
+            account_payment_ids = self.env['account.payment'].search([('ref', '=', move.payment_reference)])
+            if move.invoice_date:
+                invoice_date_rate_id = currency_pln.rate_ids.filtered(
+                    lambda x: x.name == _get_currency_rate_on_yesterday(move.invoice_date) and
+                              x.company_id == move.company_id
+                )
+            default_rate = currency_pln.rate_ids.filtered(
+                lambda x: x.company_id == move.company_id
+            ).sorted(key='name', reverse=True)[0].company_rate
+            account_payment_rate = 0
+            invoice_date_rate = 0
+
+            if account_payment_ids:
+                payment_id = account_payment_ids.sorted(key='date', reverse=True)[0]
+                payment_rate_id = currency_pln.rate_ids.filtered(
+                    lambda x: x.name == _get_currency_rate_on_yesterday(payment_id.date) and
+                              x.company_id == move.company_id
+                )
+                account_payment_rate = payment_rate_id.company_rate
+            if not account_payment_rate and move.invoice_date and invoice_date_rate_id:
+                invoice_date_rate = invoice_date_rate_id.company_rate
+
+            move.current_rate_pln = account_payment_rate or invoice_date_rate or default_rate
+            if move.invoice_line_ids and move.invoice_line_ids.sale_line_ids:
+                move.product_vat_id = move.invoice_line_ids.sale_line_ids[0].order_id.product_vat_id
 
     def _recompute_amount(self):
         """ Before turning data into JSON we need to filter account move lines
