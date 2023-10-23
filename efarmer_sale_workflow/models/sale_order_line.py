@@ -2,11 +2,15 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
 
-from odoo import models, _
+from odoo import models, fields, _
 
 
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
+
+    detailed_type = fields.Selection(
+        related='product_id.detailed_type',
+    )
 
     def open_replacement_wizard(self):
         new_wizard = self.env['order.line.product.replacement.wizard'].create(
