@@ -58,7 +58,7 @@ class PurchaseOrder(models.Model):
         for record in self:
             record.untaxed_amount_in_eur = record.amount_untaxed / record.__get_default_currency()
 
-    @api.depends('residual_amount')
+    @api.depends('amount_residual')
     def _compute_residual_amount_in_eur(self):
         for record in self:
             record.residual_amount_in_eur = record.amount_residual / record.__get_default_currency()
