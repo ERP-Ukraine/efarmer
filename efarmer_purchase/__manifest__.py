@@ -11,6 +11,7 @@
     'depends': [
         'base',
         'purchase',
+        'purchase_advance_payment',
         'mrp',
     ],
     'data': [
