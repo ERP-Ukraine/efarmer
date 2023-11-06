@@ -10,12 +10,12 @@ from datetime import date, timedelta
 class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
-    amount_total_in_eur = fields.Monetary(
+    amount_total_in_eur = fields.Float(
         string="Amount Total in EUR",
         store=True,
         compute='_compute_amount_total_in_eur',
     )
-    untaxed_amount_in_eur = fields.Monetary(
+    untaxed_amount_in_eur = fields.Float(
         string="Untaxed Amount in EUR",
         store=True,
         compute='_compute_untaxed_amount_in_eur',
