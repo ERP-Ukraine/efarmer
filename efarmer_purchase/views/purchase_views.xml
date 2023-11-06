@@ -58,7 +58,6 @@
                         name="amount_total_in_eur"
                         nolabel="1"
                         class="oe_subtotal_footer_separator"
-                        widget="monetary"
                     />
                     <div class="oe_subtotal_footer_separator oe_inline o_td_label">
                         <label for="untaxed_amount_in_eur" />
@@ -67,7 +66,6 @@
                         name="untaxed_amount_in_eur"
                         nolabel="1"
                         class="oe_subtotal_footer_separator"
-                        widget="monetary"
                     />
                     <div class="oe_subtotal_footer_separator oe_inline o_td_label">
                         <label for="residual_amount_in_eur" />
@@ -76,7 +74,6 @@
                         name="residual_amount_in_eur"
                         nolabel="1"
                         class="oe_subtotal_footer_separator"
-                        widget="monetary"
                     />
                 </field>
             </field>
@@ -115,6 +112,9 @@
             <field name="arch" type="xml">
                 <field name="activity_ids" position="after">
                     <field name="analytic_tag_ids" readonly="1" widget="many2many_tags" optional="show" />
+                    <field name="amount_total_in_eur" optional="hide" />
+                    <field name="untaxed_amount_in_eur" optional="hide" />
+                    <field name="residual_amount_in_eur" optional="hide" />
                 </field>
             </field>
         </record>
