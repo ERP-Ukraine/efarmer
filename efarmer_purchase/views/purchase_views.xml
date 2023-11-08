@@ -51,7 +51,7 @@
             <field name="inherit_id" ref="purchase_advance_payment.purchase_order_form"/>
             <field name="arch" type="xml">
                 <field name="amount_residual" position="after">
-                    <div class="oe_inline o_td_label">
+                    <div class="oe_subtotal_footer_separator oe_inline o_td_label">
                         <label for="amount_total_in_eur" />
                     </div>
                     <field
