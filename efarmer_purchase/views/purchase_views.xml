@@ -57,7 +57,6 @@
                     <field
                         name="amount_total_in_eur"
                         nolabel="1"
-                        class="oe_subtotal_footer_separator"
                     />
                     <div class="oe_subtotal_footer_separator oe_inline o_td_label">
                         <label for="untaxed_amount_in_eur" />
@@ -65,7 +64,6 @@
                     <field
                         name="untaxed_amount_in_eur"
                         nolabel="1"
-                        class="oe_subtotal_footer_separator"
                     />
                     <div class="oe_subtotal_footer_separator oe_inline o_td_label">
                         <label for="residual_amount_in_eur" />
@@ -73,7 +71,6 @@
                     <field
                         name="residual_amount_in_eur"
                         nolabel="1"
-                        class="oe_subtotal_footer_separator"
                     />
                 </field>
             </field>
