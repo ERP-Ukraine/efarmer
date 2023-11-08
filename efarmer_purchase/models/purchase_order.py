@@ -41,14 +41,9 @@ class PurchaseOrder(models.Model):
     )
 
     def __get_default_currency(self, currency_id):
-        if currency_id.name == 'EUR':
-            default_rate = currency_id.rate_ids.filtered(
-                lambda x: x.company_id == self.company_id
-            ).sorted(key='name', reverse=True)[0].inverse_company_rate
-        else:
-            default_rate = currency_id.rate_ids.filtered(
-                lambda x: x.company_id == self.company_id
-            ).sorted(key='name', reverse=True)[0].company_rate
+        default_rate = currency_id.rate_ids.filtered(
+            lambda x: x.company_id == self.env['res.company'].search([('currency_id.name', '=', 'EUR')], limit=1)
+        ).sorted(key='name', reverse=True)[0].inverse_company_rate
 
         return default_rate
 
