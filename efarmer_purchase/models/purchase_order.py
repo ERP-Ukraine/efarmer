@@ -50,17 +50,20 @@ class PurchaseOrder(models.Model):
     @api.depends('amount_total')
     def _compute_amount_total_in_eur(self):
         for record in self:
-            record.amount_total_in_eur = record.amount_total / record.__get_default_currency(record.currency_id)
+            currency_rate = 1 if record.currency_id.name == 'EUR' else record.__get_default_currency(record.currency_id)
+            record.amount_total_in_eur = record.amount_total * currency_rate
 
     @api.depends('amount_untaxed')
     def _compute_untaxed_amount_in_eur(self):
         for record in self:
-            record.untaxed_amount_in_eur = record.amount_untaxed / record.__get_default_currency(record.currency_id)
+            currency_rate = 1 if record.currency_id.name == 'EUR' else record.__get_default_currency(record.currency_id)
+            record.untaxed_amount_in_eur = record.amount_untaxed * currency_rate
 
     @api.depends('amount_residual')
     def _compute_residual_amount_in_eur(self):
         for record in self:
-            record.residual_amount_in_eur = record.amount_residual / record.__get_default_currency(record.currency_id)
+            currency_rate = 1 if record.currency_id.name == 'EUR' else record.__get_default_currency(record.currency_id)
+            record.residual_amount_in_eur = record.amount_residual * currency_rate
 
     def _compute_purchase_analytic_tag_ids(self):
         for po in self:
