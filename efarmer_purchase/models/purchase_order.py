@@ -41,9 +41,11 @@ class PurchaseOrder(models.Model):
     )
 
     def __get_default_currency(self, currency_id):
+        if
+        currency_pln = self.env['res.currency'].search([('name', '=', 'PLN')])
         default_rate = currency_id.rate_ids.filtered(
             lambda x: x.company_id == self.company_id
-        ).sorted(key='name', reverse=True)[0].company_rate
+        ).sorted(key='name', reverse=True)[0].inverse_company_rate
 
         return default_rate
 
