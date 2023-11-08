@@ -58,14 +58,14 @@
                         name="amount_total_in_eur"
                         nolabel="1"
                     />
-                    <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                    <div class="oe_inline o_td_label">
                         <label for="untaxed_amount_in_eur" />
                     </div>
                     <field
                         name="untaxed_amount_in_eur"
                         nolabel="1"
                     />
-                    <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                    <div class="oe_inline o_td_label">
                         <label for="residual_amount_in_eur" />
                     </div>
                     <field
