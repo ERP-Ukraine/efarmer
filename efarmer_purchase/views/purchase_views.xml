@@ -45,6 +45,37 @@
             </field>
         </record>
 
+        <record id="purchase_order_efarmer_purchase_form_inherit" model="ir.ui.view">
+            <field name="name">purchase.order.efarmer.purchase.form.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase_advance_payment.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <field name="amount_residual" position="after">
+                    <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                        <label for="amount_total_in_eur" />
+                    </div>
+                    <field
+                        name="amount_total_in_eur"
+                        nolabel="1"
+                    />
+                    <div class="oe_inline o_td_label">
+                        <label for="untaxed_amount_in_eur" />
+                    </div>
+                    <field
+                        name="untaxed_amount_in_eur"
+                        nolabel="1"
+                    />
+                    <div class="oe_inline o_td_label">
+                        <label for="residual_amount_in_eur" />
+                    </div>
+                    <field
+                        name="residual_amount_in_eur"
+                        nolabel="1"
+                    />
+                </field>
+            </field>
+        </record>
+
         <record id="view_purchase_order_rfq_efarmer_purchase_search" model="ir.ui.view">
             <field name="name">purchase.order.rfq.search</field>
             <field name="model">purchase.order</field>
@@ -64,6 +95,9 @@
             <field name="arch" type="xml">
                 <field name="activity_ids" position="after">
                     <field name="analytic_tag_ids" readonly="1" widget="many2many_tags" optional="show" />
+                    <field name="amount_total_in_eur" optional="hide" />
+                    <field name="untaxed_amount_in_eur" optional="hide" />
+                    <field name="residual_amount_in_eur" optional="hide" />
                 </field>
             </field>
         </record>
@@ -75,6 +109,9 @@
             <field name="arch" type="xml">
                 <field name="activity_ids" position="after">
                     <field name="analytic_tag_ids" readonly="1" widget="many2many_tags" optional="show" />
+                    <field name="amount_total_in_eur" optional="hide" />
+                    <field name="untaxed_amount_in_eur" optional="hide" />
+                    <field name="residual_amount_in_eur" optional="hide" />
                 </field>
             </field>
         </record>

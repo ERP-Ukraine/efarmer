@@ -10,6 +10,22 @@ from datetime import date, timedelta
 class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
+    amount_total_in_eur = fields.Float(
+        string="Amount Total in EUR",
+        store=True,
+        compute='_compute_amount_total_in_eur',
+    )
+    untaxed_amount_in_eur = fields.Float(
+        string="Untaxed Amount in EUR",
+        store=True,
+        compute='_compute_untaxed_amount_in_eur',
+    )
+    residual_amount_in_eur = fields.Float(
+        string="Residual Amount in EUR",
+        store=True,
+        compute='_compute_residual_amount_in_eur',
+    )
+
     state = fields.Selection(
         selection_add=[
             ('confirm_demand', 'Confirm Demand'),
@@ -23,6 +39,29 @@ class PurchaseOrder(models.Model):
         string='Analytic Tags',
         compute='_compute_purchase_analytic_tag_ids',
     )
+
+    def __get_default_currency(self, currency_id):
+        company_id = self.env['res.company'].search([('currency_id.name', '=', 'EUR')], limit=1)
+        default_rate = currency_id.rate_ids.filtered(
+            lambda x: x.company_id == company_id
+        ).sorted(key='name', reverse=True)[0].inverse_company_rate
+
+        return default_rate
+
+    @api.depends('amount_total')
+    def _compute_amount_total_in_eur(self):
+        for record in self:
+            record.amount_total_in_eur = record.amount_total * record.__get_default_currency(record.currency_id)
+
+    @api.depends('amount_untaxed')
+    def _compute_untaxed_amount_in_eur(self):
+        for record in self:
+            record.untaxed_amount_in_eur = record.amount_untaxed * record.__get_default_currency(record.currency_id)
+
+    @api.depends('amount_residual')
+    def _compute_residual_amount_in_eur(self):
+        for record in self:
+            record.residual_amount_in_eur = record.amount_residual * record.__get_default_currency(record.currency_id)
 
     def _compute_purchase_analytic_tag_ids(self):
         for po in self:
