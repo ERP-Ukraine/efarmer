@@ -37,6 +37,12 @@ class DataSetProxy(DataSet):
     def _call_kw(self, model, method, args, kwargs):
         """ Overriding the default method to add custom logic with action buttons, etc.
         """
+        # We have to skip this method due to an issue with this method
+        # (action_replenish uses filter by date and will break if transaction will be opened earlier
+        # than value in variable "now"). Check ticket VENSUP-3536 for more details
+        if method == 'action_replenish':
+            return super(DataSetProxy, self)._call_kw(model, method, args, kwargs)
+
         user = request.env.user
         if not user.has_group(SECURITY_GROUP) \
                 or not request.env.company.printnode_enabled or not user.printnode_enabled:

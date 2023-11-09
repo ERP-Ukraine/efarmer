@@ -41,7 +41,7 @@
     'installable': True,
     'application': True,
     "cloc_exclude": [
-        "static/**/*.js",
+        "**/*",
     ],
     'uninstall_hook': 'uninstall_hook',
     'post_init_hook': 'post_init_hook',

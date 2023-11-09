@@ -14,7 +14,10 @@ Change Log
 
 |
 
-* 2.60 (2023-06-08)
+* 2.6.1 (2023-09-30)
+    - Fix issue with missed notification after replenishment
+
+* 2.6.0 (2023-06-08)
     - [NEW] Added new security printing mode: this mode allows to print documents without sending them to Direct Print servers
     - [NEW] Added improved workstation features: user can create multiple workstations and assign printers to them
     - Fixed security issues. Improved and cleaned code of the module

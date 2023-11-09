@@ -24,6 +24,6 @@
     'installable': True,
     'application': False,
     "cloc_exclude": [
-        "**/*"
+        "**/*",
     ]
 }
