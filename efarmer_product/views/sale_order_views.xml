@@ -5,6 +5,14 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//button[@name='preview_sale_order']" position="before">
+                <button
+                    string="Helpdesk Tickets"
+                    class="oe_stat_button"
+                    type="object"
+                    name="action_view_helpdesk_tickets"
+                    icon="fa-life-ring"/>
+            </xpath>
             <xpath expr="//field[@name='date_order']" position="after">
                 <field name="product_vat_id" string="VAT ID"/>
             </xpath>

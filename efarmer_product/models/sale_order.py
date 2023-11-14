@@ -21,3 +21,9 @@ class SaleOrder(models.Model):
     def _onchange_line_tax_id(self):
         if self.is_auto_calc_taxes:
             self.order_line._compute_tax_id()
+
+    def action_view_helpdesk_tickets(self):
+        action = self.env['ir.actions.act_window']._for_xml_id('helpdesk.helpdesk_ticket_action_main_tree')
+        helpdesk_ticket_ids = self.env['helpdesk.ticket'].search([('sale_order_id', 'in', self.ids)])
+        action['res_ids'] = helpdesk_ticket_ids.ids
+        return action
