@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="stock_valuation_layer_efarmer_product_tree_inherit" model="ir.ui.view">
+        <field name="name">stock.valuation.layer.efarmer.product.tree.inherit</field>
+        <field name="model">stock.valuation.layer</field>
+        <field name="arch" type="xml">
+           <xpath expr="//button[@name='action_revaluation']" position="attributes">
+               <attribute name="attrs">
+                   {'invisible':[('cost_method', '=', 'standard')]}
+               </attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>
