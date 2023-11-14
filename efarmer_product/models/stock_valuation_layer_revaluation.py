@@ -13,7 +13,7 @@ class StockValuationLayerRevaluation(models.TransientModel):
     # Task EF-270
     @api.model
     def default_get(self, default_fields):
-        res = super().default_get(default_fields)
+        res = super(models.TransientModel, self).default_get(default_fields)
         if res.get('product_id'):
             product = self.env['product.product'].browse(res['product_id'])
             if product.categ_id.property_cost_method == 'standard':
