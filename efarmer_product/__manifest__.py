@@ -14,6 +14,8 @@
         'account',
         'sale',
         'stock',
+        'helpdesk',
+        'helpdesk_sale',
     ],
     'description': "",
     'data': [
