@@ -39,7 +39,7 @@ class SaleOrderLine(models.Model):
 
     def unlink(self):
         for line in self:
-            if line.product_id and line.order_id.state in ['draft', 'sale']:
+            if line.product_id and line.order_id.state in ['draft', 'sale', 'to_payment', 'to_confirm']:
                 msg = _("Removed line %s", line.product_id.display_name)
                 line.order_id.message_post(body=msg)
         return super().unlink()
@@ -47,7 +47,7 @@ class SaleOrderLine(models.Model):
     def write(self, values):
         if 'product_uom_qty' in values:
             for line in self:
-                if line.product_id and line.order_id.state in ['draft', 'sale']:
+                if line.product_id and line.order_id.state in ['draft', 'sale', 'to_payment', 'to_confirm']:
                     msg = _(
                         "Update line {name}. Changed quantity from {old_qty} to {new_qty}".format(
                             name=line.product_id.display_name,
