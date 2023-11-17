@@ -11,13 +11,15 @@
                     class="oe_stat_button"
                     type="object"
                     name="action_view_helpdesk_tickets"
-                    icon="fa-life-ring"/>
+                    icon="fa-life-ring"
+                    attrs="{'invisible': [('ticket_count', '=', 0)]}"/>
             </xpath>
             <xpath expr="//field[@name='date_order']" position="after">
                 <field name="product_vat_id" string="VAT ID"/>
             </xpath>
             <xpath expr="//field[@name='fiscal_position_id']" position="after">
                 <field name="is_auto_calc_taxes"/>
+                <field name="ticket_count" invisible="1"/>
             </xpath>
         </field>
     </record>
