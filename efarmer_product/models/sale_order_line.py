@@ -32,14 +32,14 @@ class SaleOrderLine(models.Model):
     def create(self, vals_list):
         lines = super().create(vals_list)
         for line in lines:
-            if line.product_id and line.order_id.state == 'draft':
+            if line.product_id and line.order_id.state in ['draft', 'sale', 'to_payment', 'to_confirm']:
                 msg = _("Create line %s", line.product_id.display_name)
                 line.order_id.message_post(body=msg)
         return lines
 
     def unlink(self):
         for line in self:
-            if line.product_id and line.order_id.state in ['draft', 'sale']:
+            if line.product_id and line.order_id.state in ['draft', 'sale', 'to_payment', 'to_confirm']:
                 msg = _("Removed line %s", line.product_id.display_name)
                 line.order_id.message_post(body=msg)
         return super().unlink()
@@ -47,7 +47,7 @@ class SaleOrderLine(models.Model):
     def write(self, values):
         if 'product_uom_qty' in values:
             for line in self:
-                if line.product_id and line.order_id.state in ['draft', 'sale']:
+                if line.product_id and line.order_id.state in ['draft', 'sale', 'to_payment', 'to_confirm']:
                     msg = _(
                         "Update line {name}. Changed quantity from {old_qty} to {new_qty}".format(
                             name=line.product_id.display_name,
@@ -57,7 +57,7 @@ class SaleOrderLine(models.Model):
                     line.order_id.message_post(body=msg)
         if 'product_id' in values:
             for line in self:
-                if line.product_id and line.order_id.state in ['draft', 'sale']:
+                if line.product_id and line.order_id.state in ['draft', 'sale', 'to_payment', 'to_confirm']:
                     msg = _(
                         "The product on the line was changed from {old_product} to {new_product}".format(
                             old_product=line.product_id.display_name,

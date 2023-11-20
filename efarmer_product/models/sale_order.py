@@ -14,7 +14,12 @@ class SaleOrder(models.Model):
 
     is_auto_calc_taxes = fields.Boolean(
         default=False,
-        string='Auto-calculate taxes'
+        string='Auto-calculate taxes',
+    )
+
+    helpdesk_ticket_count = fields.Integer(
+        string="Tickets",
+        compute='_compute_helpdesk_ticket_count',
     )
 
     @api.onchange('order_line')
@@ -27,3 +32,7 @@ class SaleOrder(models.Model):
         helpdesk_ticket_ids = self.env['helpdesk.ticket'].search([('sale_order_id', 'in', self.ids)])
         action['domain'] = [('id', 'in', helpdesk_ticket_ids.ids)]
         return action
+
+    def _compute_helpdesk_ticket_count(self):
+        for record in self:
+            record.helpdesk_ticket_count = self.env['helpdesk.ticket'].search_count([('sale_order_id', '=', record.id)])

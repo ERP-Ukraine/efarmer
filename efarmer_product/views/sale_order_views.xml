@@ -5,19 +5,24 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='fiscal_position_id']" position="after">
+                <field name="is_auto_calc_taxes"/>
+                <field name="helpdesk_ticket_count" invisible="1"/>
+            </xpath>
             <xpath expr="//button[@name='preview_sale_order']" position="before">
-                <button
-                    string="Helpdesk Tickets"
-                    class="oe_stat_button"
-                    type="object"
-                    name="action_view_helpdesk_tickets"
-                    icon="fa-life-ring"/>
+                <button class="oe_stat_button"
+                        type="object"
+                        name="action_view_helpdesk_tickets"
+                        icon="fa-life-ring"
+                        attrs="{'invisible': [('helpdesk_ticket_count', '=', 0)]}">
+                    <div class="o_stat_info">
+                        <field name="helpdesk_ticket_count" class="o_stat_value"/>
+                        <span class="o_stat_text"> Tickets</span>
+                    </div>
+                </button>
             </xpath>
             <xpath expr="//field[@name='date_order']" position="after">
                 <field name="product_vat_id" string="VAT ID"/>
-            </xpath>
-            <xpath expr="//field[@name='fiscal_position_id']" position="after">
-                <field name="is_auto_calc_taxes"/>
             </xpath>
         </field>
     </record>
