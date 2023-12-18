@@ -72,6 +72,7 @@ class AccountMove(models.Model):
             else:
                 errors[invoice_id.id] = {
                     'error_type': 'api_error',
+                    'request_id': response.json().get(('result', {})).get('requestId', ''),
                     'error_message': _(
                         'Error accessing MF API: [%s] %s',
                         response.status_code,
@@ -105,6 +106,15 @@ class AccountMove(models.Model):
                 }
             )
         )
+
+        for record in self:
+            self.env['whitelist.history'].create({
+                'name': '{} WhiteList History'.format(str(record.id)),
+                'token': errors.get(record.id, {}).get('request_id'),
+                'invoice_number': record.name,
+                'message': errors.get(record.id, {}).get('error_message'),
+                'account_id': record.id,
+            })
 
         return {
             'name': _('Whitelist Check Results'),
