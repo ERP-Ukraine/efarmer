@@ -12,7 +12,7 @@ class WhiteListHistory(models.Model):
     invoice_number = fields.Char(string='Invoice Number')
     account_id = fields.Many2one(comodel_name="account.move", string="Account Move ID")
     message = fields.Char(string='Message')
-    invoice_partner_bank_acc = fields.Char(
+    partner_bank_acc = fields.Char(
         related='account_id.partner_bank_id.sanitized_acc_number',
         string='Partner Bank Account'
     )
