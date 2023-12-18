@@ -3,12 +3,12 @@
     <record id="view_move_whitelist_history_form_inherit" model="ir.ui.view">
         <field name="name">account.move.whitelist.history.form.inherit</field>
         <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_move_form" />
+        <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
             <xpath expr="//page[@id='other_tab']" position="after">
                 <page id="whitelist_history" string="WhiteList History">
                     <field name="whitelist_history_ids" options="{'no_open': '1'}">
-                        <tree create="false" delete="false" edit="false" decoration-danger="error">
+                        <tree create="false" delete="false" edit="false">
                             <field name="name"/>
                             <field name="create_date"/>
                             <field name="write_uid"/>
