@@ -49,6 +49,63 @@
                     </table>
               </div>
           </div>
+          <t t-if="doc.partner_shipping_id.lang == 'de_DE'">
+              <div>
+                  <br/>
+                  <p>
+                    Mit dem Abschluss dieses Kaufs erklären Sie, dass Sie den Inhalt unserer
+                    <a class="reference external" href="https://www.fieldbee.com/de/docs/privacy-policy-de">Datenschutzrichtlinie</a>
+                    und
+                    <a class="reference external" href="https://www.fieldbee.com/de/docs/terms-of-service-de">Nutzungsbedingungen</a>,
+                    <a class="reference external" href="https://www.fieldbee.com/de/docs/shipping-policy-de">Versandrichtlinie</a>
+                    und
+                    <a class="reference external" href="https://www.fieldbee.com/de/docs/return-policy-de">Rückgaberichtlinie</a>
+                    gelesen haben und diesen zustimmen.
+                  </p>
+              </div>
+          </t>
+          <t t-elif="doc.partner_shipping_id.lang == 'pl_PL'">
+              <div>
+                  <br/>
+                  <p>
+                    Dokonując tego zakupu, oświadczasz, że przeczytałeś i akceptujesz treść naszej
+                    <a class="reference external" href="https://www.fieldbee.com/pl/docs/privacy-policy">Polityki prywatności</a>
+                    i
+                    <a class="reference external" href="https://www.fieldbee.com/pl/docs/terms-of-service-pl">Warunków świadczenia usług</a>,
+                    <a class="reference external" href="https://www.fieldbee.com/pl/docs/shipping-policy-pl">Polityki wysyłki</a>
+                    i
+                    <a class="reference external" href="https://www.fieldbee.com/pl/docs/return-policy-pl">Polityki zwrotów.</a>
+                  </p>
+              </div>
+          </t>
+          <t t-elif="doc.partner_shipping_id.lang == 'en_US'">
+              <div>
+                  <br/>
+                  <p>
+                    By completing this purchase you declare that you have read and agreed to the contents of our
+                    <a class="reference external" href="https://www.fieldbee.com/docs/privacy-policy">Privacy Policy</a>
+                    and
+                    <a class="reference external" href="https://www.fieldbee.com/docs/terms-of-service">Terms of Service</a>,
+                    <a class="reference external" href="https://www.fieldbee.com/docs/shipping-policy">Shipping policy</a>
+                    and
+                    <a class="reference external" href="https://www.fieldbee.com/docs/return-policy">Return Policy.</a>
+                  </p>
+              </div>
+          </t>
+          <t t-else="">
+              <div>
+                  <br/>
+                  <p>
+                    By completing this purchase you declare that you have read and agreed to the contents of our
+                    <a class="reference external" href="https://www.fieldbee.com/docs/privacy-policy">Privacy Policy</a>
+                    and
+                    <a class="reference external" href="https://www.fieldbee.com/docs/terms-of-service">Terms of Service</a>,
+                    <a class="reference external" href="https://www.fieldbee.com/docs/shipping-policy">Shipping policy</a>
+                    and
+                    <a class="reference external" href="https://www.fieldbee.com/docs/return-policy">Return Policy.</a>
+                  </p>
+              </div>
+          </t>
         </xpath>
     </template>
 
