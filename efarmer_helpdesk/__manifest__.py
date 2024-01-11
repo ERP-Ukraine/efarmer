@@ -23,7 +23,7 @@
     ],
 
     'data': [
-        'helpdesk_templates_views',
+        'views/helpdesk_templates_views.xml',
         'views/stock_production_lot_views.xml',
         'views/helpdesk_ticket_views.xml',
     ],
