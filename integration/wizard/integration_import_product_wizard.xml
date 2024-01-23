@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="integration_import_import_product_wizard_form" model="ir.ui.view">
+        <field name="name">Import Integration Product Form</field>
+        <field name="model">integration.import.product.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Advanced Integration Product Import">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <group>
+                    <field name="integration_id" invisible="1"/>
+                    <field name="line_ids" invisible="1"/>
+                    <field name="external_template_id" readonly="1"/>
+                </group>
+                <group string="Incoming Mappings" states="draft,checked">
+                    <div colspan="2">
+                        <field name="incoming_line_ids" nolabel="1"/>
+                    </div>
+                </group>
+                <group string="Existing Mappings">
+                    <div colspan="2">
+                        <field name="internal_line_ids" nolabel="1"/>
+                    </div>
+                </group>
+                <group>
+                    <field name="operation_mode" widget="radio" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                </group>
+                <div class="alert alert-warning" role="alert" states="checked">
+                    Pressing the "APPROVE INCOMING" button confirms that the incoming mapping records
+                    have up-to-date values and will be used in subsequent products import.
+                </div>
+                <footer>
+                    <button name="check" string="Check" type="object" class="btn-primary" states="draft" context="{'integration_catch_exception': True}"/>
+                    <button name="approve" string="Approve Incoming" type="object" class="btn-outline-danger text-uppercase" states="checked" context="{'integration_catch_exception': True}"/>
+                    <button name="perform" string="Perform" type="object" class="btn-primary" states="approved" context="{'integration_catch_exception': True}"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                    <button name="to_draft" string="To Draft" type="object" class="btn-secondary" states="checked,approved,done"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="import_product_line_view_tree" model="ir.ui.view">
+        <field name="name">import.product.line.tree</field>
+        <field name="model">import.product.line</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="wizard_id" invisible="1"/>
+                <field name="type" invisible="1"/>
+                <field name="state" invisible="1"/>
+                <button name="drop"
+                        title="Drop"
+                        icon="fa-trash"
+                        type="object"
+                        attrs="{'invisible': ['|', '|', ('model_name', '=', 'product.template'), ('type', '=', 'incoming'), ('state', 'in', ('approved', 'done'))]}"
+                />
+                <field name="code"/>
+                <field name="name" optional='hide'/>
+                <field name="reference"/>
+                <field name="barcode"/>
+                <field name="mapping_id" attrs="{'invisible': [('type', '=', 'incoming')]}"/>
+                <field name="model_name" optional='hide'/>
+                <field name="odoo_id" attrs="{'invisible': [('type', '=', 'incoming')]}"/>
+                <field name="attribute_list" optional='hide'/>
+            </tree>
+        </field>
+    </record>
+
+</odoo>
