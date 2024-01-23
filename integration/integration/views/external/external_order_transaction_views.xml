@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="external_order_transaction_view_tree" model="ir.ui.view">
+            <field name="name">external.order.transaction.tree</field>
+            <field name="model">external.order.transaction</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" create="0">
+                    <field name="id" groups="base.group_no_one"/>
+                    <field name="integration_id"/>
+                    <field name="erp_order_id"/>
+                    <field name="external_str_id" optional="hide"/>
+                    <field name="external_parent_str_id" optional="hide"/>
+                    <field name="external_order_str_id" optional="hide"/>
+                    <field name="gateway"/>
+                    <field name="amount"/>
+                    <field name="currency"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="external_order_transaction_view_search" model="ir.ui.view">
+            <field name="name">external.order.transaction.view.search</field>
+            <field name="model">external.order.transaction</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="erp_order_id"/>
+                    <field name="external_str_id"/>
+                    <field name="external_order_str_id"/>
+                    <group expand="0" string="Group By">
+                        <filter string="ERP Order" name="group_by_erp_order_id" context="{'group_by': 'erp_order_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="external_order_transaction_action" model="ir.actions.act_window">
+            <field name="name">Order Payments</field>
+            <field name="res_model">external.order.transaction</field>
+            <field name="view_mode">tree</field>
+            <field name="groups_id" eval="[(4, ref('base.group_no_one'))]"/>
+        </record>
+
+    </data>
+</odoo>

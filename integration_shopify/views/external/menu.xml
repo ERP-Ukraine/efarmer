@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <menuitem id="menu_order_risk"
+                  name="Order Risks"
+                  parent="integration.menu_external"
+                  action="external_order_risk_action"
+                  groups="base.group_no_one"/>
+
+    </data>
+</odoo>

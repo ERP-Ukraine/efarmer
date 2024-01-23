@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="view_import_stock_levels_wizard" model="ir.ui.view">
+            <field name="name">Import Stock Levels Wizard</field>
+            <field name="model">import.stock.levels.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Import Initial Stock to Odoo">
+                    <div class="alert alert-info" role="alert" >
+                        <ul>
+                            <li>
+                                <strong>Important!</strong> Be careful. Because if you specify multiple locations,
+                                then in every specified location you will as result have the same quantity of products.
+                                So do not specify multiple locations unless you understand why you need this.
+                            </li>
+                            <li>
+                                During import, the inventory adjustment will be created separately for every product
+                                that will zero out the stock level in all locations and sublocations for this product
+                                and then will add stock quantity to the specified location.
+                            </li>
+                            <li>
+                                <strong>Important!</strong> For products that are tracked by lots or serial numbers, we cannot
+                                import stock quantities automatically. Inventory adjustment for them needs to be done
+                                directly in Odoo in the menu "Inventory - Operations - Inventory Adjustment" manually.
+                            </li>
+                            <li>
+                                <strong>Note that</strong> the "Extenal Location" property is optional for import.
+                                If not set, the default external location will be used.
+                            </li>
+                        </ul>
+                    </div>
+                    <group>
+                        <field name="integration_id" invisible="1"/>
+                        <field name="company_id" invisible="1"/>
+                        <field name="allow_import" invisible="1"/>
+                        <field name="wizard_line_ids" colspan="2" nolabel="1">
+                            <tree editable="bottom">
+                                <field name="integration_id" invisible="1"/>
+                                <field name="company_id" invisible="1"/>
+                                <field name="location_id"
+                                       domain="[('usage', '=', 'internal'), ('company_id', '=', company_id)]"
+                                       options="{'no_open': True, 'no_create': True}"/>
+                                <field name="external_location_id"
+                                       options="{'no_open': True, 'no_create': True}"
+                                       domain="[('integration_id', '=', integration_id)]"/>
+                            </tree>
+                        </field>
+                    </group>
+                    <footer>
+                        <button name="run_import_stock_levels" 
+                                string="Import" type="object" class="btn-primary"
+                                attrs="{'invisible': [('allow_import', '=', False)]}"/>
+                        <button string="Close" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="import_stock_levels_wizard_action" model="ir.actions.act_window">
+            <field name="name">Import Stock Levels Wizard</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">import.stock.levels.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="groups_id" eval="[(4,ref('integration.group_integration_manager'))]"/>
+        </record>
+
+</odoo>

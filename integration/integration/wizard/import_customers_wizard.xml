@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="view_import_customers_wizard" model="ir.ui.view">
+            <field name="name">Import Customers Wizard</field>
+            <field name="model">import.customers.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Import Initial Stock to Odoo">
+                    <group colspan="4"> 
+                        <div class="alert alert-info" role="alert">
+                            <p>This wizard will:</p>
+                            <ul>
+                                <li>Create "Import Customer" job for every Customer from external system updated after the specified date.</li>
+                                <li>Attempt to auto-match Customers by name and address with existing Odoo Customers and update them.</li>
+                                <li>For Customers that we were not able to auto-match Odoo Customers will be created.</li>
+                            </ul>
+                        </div>
+                    </group>
+                    <group>
+                        <field name="date_since"/>
+                    </group>
+                    <footer>
+                        <button name="run_import" string="Import" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="import_customers_wizard_action" model="ir.actions.act_window">
+            <field name="name">Import Customers Wizard</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">import.customers.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="groups_id" eval="[(4,ref('integration.group_integration_manager'))]"/>
+        </record>
+
+</odoo>

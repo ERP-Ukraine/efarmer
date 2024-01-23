@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="integration_stock_location_external_view_tree" model="ir.ui.view">
+            <field name="name">integration.stock.location.external.view.tree</field>
+            <field name="model">integration.stock.location.external</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" create="0">
+                    <field name="integration_id"/>
+                    <field name="code"/>
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="integration_stock_location_external_view_search" model="ir.ui.view">
+            <field name="name">integration.stock.location.view.search</field>
+            <field name="model">integration.stock.location.external</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="integration_id"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Sale Integration" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="integration_stock_location_external_action" model="ir.actions.act_window">
+            <field name="name">Locations</field>
+            <field name="res_model">integration.stock.location.external</field>
+            <field name="view_mode">tree</field>
+        </record>
+
+    </data>
+</odoo>

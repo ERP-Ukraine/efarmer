@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="view_sale_integration_form" model="ir.ui.view">
+            <field name="name">sale.integration.form</field>
+            <field name="model">sale.integration</field>
+            <field name="inherit_id" ref="integration.view_sale_integration_form" />
+            <field name="arch" type="xml">
+                <group name="order_actions" position="after">
+                    <group name="other" string="Other" attrs="{'invisible': [('type_api', '!=', 'shopify')]}">
+                        <field name="use_customer_currency" attrs="{'invisible': [('type_api', '!=', 'shopify')]}" widget="boolean_toggle"/>
+                    </group>
+                </group>
+            </field>
+        </record>
+
+    </data>
+</odoo>
