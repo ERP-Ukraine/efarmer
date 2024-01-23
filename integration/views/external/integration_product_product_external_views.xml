@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="integration_product_product_external_view_tree" model="ir.ui.view">
+            <field name="name">integration.product.product.external.view.tree</field>
+            <field name="model">integration.product.product.external</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" create="0">
+                    <field name="id" groups="base.group_no_one"/>
+                    <field name="integration_id"/>
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="external_reference"/>
+                    <field name="external_barcode"/>
+                    <field name="external_product_template_id"/>
+                    <field name="external_attribute_value_ids" widget="many2many_tags" optional="1"/>
+                    <button name="action_open_mapping"
+                            title="Open Mapping"
+                            icon="fa-external-link"
+                            type="object"
+                    />
+                </tree>
+            </field>
+        </record>
+
+        <record id="integration_product_product_external_search" model="ir.ui.view">
+            <field name="model">integration.product.product.external</field>
+            <field name="name">Search Integration Variants</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="external_reference"/>
+                    <field name="external_barcode"/>
+                    <field name="integration_id"/>
+                    <field name="external_product_template_id"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Sale Integration" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="integration_product_product_external_action" model="ir.actions.act_window">
+            <field name="name">Variants</field>
+            <field name="res_model">integration.product.product.external</field>
+            <field name="view_mode">tree</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_feature_form_view" model="ir.ui.view">
+        <field name="name">product.feature.form</field>
+        <field name="model">product.feature</field>
+        <field name="arch" type="xml">
+            <form string="Product Features">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="sequence"/>
+                    </group>
+                    <notebook>
+                        <page string="Feature Values" name="feature_values">
+                            <field name="value_ids" widget="one2many" nolabel="1">
+                                <tree>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="product_feature_tree_view" model="ir.ui.view">
+        <field name="name">product.feature.tree</field>
+        <field name="model">product.feature</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="product_feature_action" model="ir.actions.act_window">
+        <field name="name">Product Features</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.feature</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" eval="False"/>
+    </record>
+
+    <menuitem id="menu_catalog_features"
+              action="product_feature_action"
+              parent="menu_sale_configuration_integration"/>
+
+</odoo>

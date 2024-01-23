@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="integration_pricelist_wizard_form_view" model="ir.ui.view">
+            <field name="name">Import Pricelists Wizard Form View</field>
+            <field name="model">integration.pricelist.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Import Special Prices to Odoo">
+                    <div>
+                        <field name="integration_id" invisible="1"/>
+                        <field name="pricelist_mapping_ids" nolabel="1"/>
+                    </div>
+                    <footer>
+                        <button name="fetch_pricelist_from_external" string="Fetch" type="object"/>
+                        <button name="run_import_special_prices" string="Synchronize All" type="object" class="btn-primary"/>
+                        <button string="Close" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="integration_pricelist_wizard_action" model="ir.actions.act_window">
+            <field name="name">Import Pricelists Wizard</field>
+            <field name="res_model">integration.pricelist.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="integration.integration_pricelist_wizard_form_view"/>
+            <field name="target">new</field>
+            <field name="groups_id" eval="[(4, ref('integration.group_integration_manager'))]"/>
+        </record>
+
+</odoo>

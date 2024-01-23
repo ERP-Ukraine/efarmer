@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="view_external_integration_tag_tree" model="ir.ui.view">
+            <field name="name">external.integration.tag.tree</field>
+            <field name="model">external.integration.tag</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" create="0">
+                    <field name="integration_id"/>
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_external_integration_tag_search" model="ir.ui.view">
+            <field name="name">external.integration.tag.view.search</field>
+            <field name="model">external.integration.tag</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Sale Integration" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_external_integration_tag" model="ir.actions.act_window">
+            <field name="name">External Integration Tags</field>
+            <field name="res_model">external.integration.tag</field>
+            <field name="view_mode">tree</field>
+            <field name="groups_id" eval="[(4, ref('base.group_no_one'))]"/>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="import_export_integration_wizard_form" model="ir.ui.view">
+        <field name="name">import.export.integration.wizard.form</field>
+        <field name="model">import.export.integration.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <field invisible="1" name="state"/>
+
+                <div states="start">
+                    <h3 class="mb-4">Import / Export Integration data</h3>
+
+                    <button name="action_import" string="Import" type="object" class="oe_highlight mr-3"/>
+                    <button name="action_export" string="Export" type="object" class="oe_highlight"/>
+                </div>
+
+                <div states="import">
+                    <h3 class="mb-4">Please insert the data you received from the other Odoo instance</h3>
+                    <field name="input" widget="text" />
+                </div>
+
+                <div states="export">
+                    <h3 class="mb-4">Please copy the following data and enter it into the other Odoo instance</h3>
+                    <field name="output" widget="CopyClipboardChar" readonly="1" />
+                </div>
+
+                <div states="finish">
+                    <h3 class="mb-4">Import finished</h3>
+                    <field name="message" readonly="1" />
+                </div>
+
+                <footer>
+                    <button name="import_data" string="Import" type="object" class="oe_highlight" states="import" />
+                    <button string="Close" class="btn btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>
