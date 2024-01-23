@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="model_product_template_action_force_export_to_external" model="ir.actions.server">
+        <field name="name">Force Export To External</field>
+        <field name="model_id" ref="product.model_product_template"/>
+        <field name="binding_model_id" ref="product.model_product_template"/>
+        <field name="binding_view_types">form,list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.with_context(manual_trigger=True).trigger_export(export_images=True)</field>
+    </record>
+
+    <record id="model_product_template_action_force_export_inventory" model="ir.actions.server">
+        <field name="name">Export Product Quantities to External</field>
+        <field name="model_id" ref="product.model_product_template"/>
+        <field name="binding_model_id" ref="product.model_product_template"/>
+        <field name="binding_view_types">form,list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.product_variant_ids.action_force_export_inventory()</field>
+    </record>
+
+    <record id="product_template_change_external_integration" model="ir.actions.server">
+        <field name="name">Change External Integration</field>
+        <field name="model_id" ref="product.model_product_template"/>
+        <field name="binding_model_id" ref="product.model_product_template"/>
+        <field name="binding_view_types">form,list</field>
+        <field name="groups_id" eval="[(6, 0, (ref('integration.group_integration_manager'),))]"/>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.change_external_integration_template()
+        </field>
+    </record>
+
+    <record id="model_product_template_action_refresh_product_info" model="ir.actions.server">
+        <field name="name">Refresh Product Info From External</field>
+        <field name="model_id" ref="product.model_product_template"/>
+        <field name="binding_model_id" ref="product.model_product_template"/>
+        <field name="binding_view_types">form,list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_run_refresh_product_info_from_external()</field>
+    </record>
+
+    <record id="product_template_action_open_job_logs" model="ir.actions.server">
+        <field name="name">Open Job Logs</field>
+        <field name="model_id" ref="product.model_product_template"/>
+        <field name="binding_model_id" ref="product.model_product_template"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="groups_id" eval="[(4, ref('integration.group_integration_manager'))]"/>
+        <field name="code">action = records.open_job_logs()</field>
+    </record>
+
+    <record model="ir.ui.view" id="product_template_search_view">
+        <field name="name">product.template</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='inactive']" position="after">
+                <separator/>
+                <filter string="Integrations set (on all variants)" name="all_integrations_set" domain="[('integration_ids', '!=', False)]"/>
+                <filter string="No integrations set (on all variants)" name="no_integrations_set" domain="[('integration_ids', '=', False)]"/>
+                <filter string="Integration set (on some variants)" name="partial_integrations_set" domain="[('integration_ids', '=', -1)]"/>
+                <separator/>
+                <filter string="Excluded from sync" name="exclude_from_synchronization" domain="[('exclude_from_synchronization', '=', True)]"/>
+                <filter string="Excluded from stock sync" name="exclude_from_synchronization_stock" domain="[('exclude_from_synchronization_stock', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="product_template_form_view">
+        <field name="name">product.template</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='sales']" position="after">
+                <page name="shop" string="eCommerce Integration" >
+                    <group name="shop_group">
+                        <group name="integrations" string="Sales Integrations">
+                            <group name="configure_message" colspan="4">
+                                <div class="alert alert-info" role="alert" 
+                                     attrs="{'invisible': ['|', '|', ('id', '=', False), ('product_variant_count', '&lt;=', 1), ('is_product_variant', '=', True)]}">
+                                    Product has several variants. You need to configure if product should be synced
+                                    to specific e-Commerce system on Product Variant level.
+                                </div>
+                            </group>
+                            <group name="integrations_field" attrs="{'invisible': [('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}">
+                                <field name="integration_ids" widget="many2many_checkboxes"/>
+                            </group>
+                            <group colspan="2" name="synchronization">
+                                <field name="exclude_from_synchronization" />
+                                <field name="exclude_from_synchronization_stock" />
+                            </group>
+                        </group>
+                        <group name="shop">
+                            <group string="Pricelists">
+                                <field name="to_force_sync_pricelist"/>
+                            </group>
+                            <group string="Shop" style="width:100%%">
+                                <field name="default_public_categ_id" domain="[('id', 'in', public_filter_categ_ids)]" options="{'no_create': True, 'no_edit': True}"/>
+                            </group>
+                            <separator/>
+                            <label for="public_categ_ids" string="Categories"/>
+                            <field name="public_categ_ids">
+                                <tree string="Public Categories" >
+                                    <field name="display_name" nolabel="1"/>
+                                </tree>
+                            </field>
+                            <field name="public_filter_categ_ids" widget="many2many_tags" invisible="1"/>
+                            <separator/>
+                            <label for="feature_line_ids"/>
+                            <field name="feature_line_ids" widget="one2many" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="feature_id"/>
+                                    <field name="feature_value_id" context="{'default_feature_id': feature_id}"/>
+                                </tree>
+                            </field>
+                        </group>
+
+                        <group string="SEO">
+                            <field name="website_seo_metatitle"/>
+                            <field name="website_seo_description"/>
+                        </group>
+                    </group>
+
+                    <group string="Product Name">
+                        <field name="website_product_name" nolabel="1"/>
+                    </group>
+
+                    <group string="Short Description">
+                        <field name="website_short_description" nolabel="1"/>
+                    </group>
+
+                    <group string="Description">
+                        <field name="website_description" nolabel="1"/>
+                    </group>
+
+                    <group name="product_template_images" string="Extra Product Media">
+                        <field name="product_template_image_ids" class="o_website_sale_image_list" context="{'default_name': name}" mode="kanban" options="{'create_text':'Add a Media'}" nolabel="1"/>
+                        <button type="object"
+                                name="export_images_to_integration"
+                                string="Export Images Only"
+                                groups="base.group_no_one"/>
+                    </group>
+                    
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_template_only_form_view_inherit" model="ir.ui.view">
+        <field name="name">product.template.product.form.inherit</field>
+        <field name="model">product.template</field>
+        <field name="priority">99</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='variants']/field[@name='attribute_line_ids']" position="before">
+                <field name="is_used_dynamic_attributes" invisible="1"/>
+                <div class="alert alert-warning" role="alert" attrs="{'invisible': [('is_used_dynamic_attributes', '=', False)]}">
+                    <p>
+                        There are "Dynamic" attributes added to table below. That mean product variants will not be generated automatically for them. Click this button to generate all missing variants
+                    </p>
+                    <hr/>
+                    <button name="generate_variants" type="object" string="Generate variants" attrs="{'invisible': [('is_used_dynamic_attributes', '=', False)]}"/>
+                </div>
+            </xpath>
+            <xpath expr="//page[@name='variants']/field/tree/field[@name='value_ids']" position="replace">
+                <field name="value_ids" style="width: 100%" widget="many2many_tags" options="{'no_create_edit': True, 'color_field': 'color'}" context="{'default_attribute_id': attribute_id, 'show_attribute': False}"/>
+                <field name="exclude_from_synchronization" />
+                <field name="is_dynamic_creation_mode" />
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="product_template_configurator_form_view">
+        <field name="name">product.template</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="active" model="sale.integration" eval="not obj().is_installed_sale_product_configurator"/>
+        <field name="arch" type="xml">
+            <group name="upsell" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </group>
+            <group name="upsell" position="inside">
+                <field name="optional_product_ids"
+                    widget="many2many_tags"
+                    options="{'color_field': 'color'}"
+                    domain="[('id', '!=', active_id), '|', ('company_id', '=', company_id), ('company_id', '=', False)]"
+                    groups="product.group_product_variant" />
+            </group>
+        </field>
+    </record>
+
+</odoo>

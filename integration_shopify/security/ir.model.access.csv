@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_external_order_risk,access_external_order_risk,model_external_order_risk,,1,1,1,1
+access_configuration_wizard_shopify,access_configuration_wizard_shopify,model_configuration_wizard_shopify,,1,1,1,1
+access_configuration_wizard_shopify_line,configuration.wizard.shopify.line,model_configuration_wizard_shopify_line,,1,1,1,1

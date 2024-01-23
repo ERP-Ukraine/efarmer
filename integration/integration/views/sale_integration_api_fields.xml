@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="view_sale_integration_api_fields_form" model="ir.ui.view">
+            <field name="name">sale.integration.api.field.form</field>
+            <field name="model">sale.integration.api.field</field>
+            <field name="arch" type="xml">
+                <form string="Sale Integration API Field">
+                    <group>
+                        <field name="name" />
+                        <field name="description" />
+                        <field name="value" attrs="{'readonly': [('is_secure', '=', True)], 'invisible': [('is_secure', '=', True)]}" />
+                        <field name="is_secure" readonly="1" />
+                        <field name="eval" />
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_sale_integration_api_fields_list" model="ir.ui.view">
+            <field name="name">sale.integration.api.field.list</field>
+            <field name="model">sale.integration.api.field</field>
+            <field name="arch" type="xml">
+                <tree string="Sale Integration API Fields" editable="bottom">
+                    <field name="is_secure" invisible="1" />
+                    <field name="name" />
+                    <field name="description" />
+                    <field name="value" attrs="{'readonly': [('is_secure', '=', True)], 'invisible': [('is_secure', '=', True)]}" />
+                    <field name="eval" />
+                </tree>
+            </field>
+        </record>
+
+    </data>
+</odoo>

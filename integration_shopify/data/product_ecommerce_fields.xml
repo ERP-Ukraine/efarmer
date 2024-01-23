@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Product Template Fields -->
+        <record id="shopify_ecommerce_field_title" model="product.ecommerce.field">
+            <field name="name">Product Title</field>
+            <field name="technical_name">title</field>
+            <field name="type_api">shopify</field>
+            <field name="value_converter">python_method</field>
+            <field name="odoo_model_id" ref="product.model_product_template"/>
+            <field name="send_method">send_integration_name</field>
+            <field name="receive_method">receive_integration_name</field>
+            <field name="default_for_update" eval="False"/>
+            <field name="default_for_import" eval="False"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_template__name'), ref('integration.field_product_template__website_product_name'),))]"/>
+        </record>
+
+        <record id="shopify_ecommerce_field_description" model="product.ecommerce.field">
+            <field name="name">Product Description</field>
+            <field name="technical_name">body_html</field>
+            <field name="type_api">shopify</field>
+            <field name="value_converter">translatable_field</field>
+            <field name="odoo_model_id" ref="product.model_product_template" />
+            <field name="odoo_field_id" ref="integration.field_product_template__website_description"/>
+            <field name="default_for_update" eval="False"/>
+            <field name="default_for_import" eval="False"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('integration.field_product_template__website_description'),))]"/>
+        </record>
+
+        <record id="shopify_ecommerce_field_status" model="product.ecommerce.field">
+            <field name="name">Product Status</field>
+            <field name="technical_name">status</field>
+            <field name="type_api">shopify</field>
+            <field name="value_converter">python_method</field>
+            <field name="odoo_model_id" ref="product.model_product_template" />
+            <field name="send_method">send_product_status_spf</field>
+            <field name="receive_method">receive_product_status_spf</field>
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_template__active'), ref('product.field_product_template__sale_ok'),))]"/>
+        </record>
+
+        <record id="shopify_ecommerce_field_collections" model="product.ecommerce.field">
+            <field name="name">Product Collections</field>
+            <field name="technical_name">collections</field>
+            <field name="type_api">shopify</field>
+            <field name="value_converter">python_method</field>
+            <field name="odoo_model_id" ref="product.model_product_template" />
+            <field name="odoo_field_id" ref="integration.field_product_template__public_categ_ids" />
+            <field name="send_method">send_categories</field>
+            <field name="receive_method">receive_categories</field>
+            <field name="default_for_update" eval="False"/>
+            <field name="default_for_import" eval="False"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('integration.field_product_template__public_categ_ids'),))]"/>
+        </record>
+
+        <record id="shopify_ecommerce_field_template_price" model="product.ecommerce.field">
+            <field name="name">Product Price</field>
+            <field name="technical_name">price</field>
+            <field name="type_api">shopify</field>
+            <field name="value_converter">python_method</field>
+            <field name="odoo_model_id" ref="product.model_product_template" />
+            <field name="odoo_field_id" ref="product.field_product_template__list_price" />
+            <field name="send_method">send_list_price</field>
+            <field name="receive_method">receive_list_price</field>
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_template__list_price'),))]"/>
+        </record>
+
+        <record id="shopify_ecommerce_field_template_default_code" model="product.ecommerce.field">
+            <field name="name">Product SKU</field>
+            <field name="technical_name">sku</field>
+            <field name="type_api">shopify</field>
+            <field name="value_converter">simple</field>
+            <field name="odoo_model_id" ref="product.model_product_template" />
+            <field name="odoo_field_id" ref="product.field_product_template__default_code" />
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_template__default_code'),))]"/>
+        </record>
+
+        <record id="shopify_ecommerce_field_template_weight" model="product.ecommerce.field">
+            <field name="name">Product Weight</field>
+            <field name="technical_name">weight</field>
+            <field name="type_api">shopify</field>
+            <field name="value_converter">simple</field>
+            <field name="odoo_model_id" ref="product.model_product_template" />
+            <field name="odoo_field_id" ref="product.field_product_template__weight" />
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_template__weight'),))]"/>
+        </record>
+
+        <record id="shopify_ecommerce_field_template_cost_price" model="product.ecommerce.field">
+            <field name="name">Product Cost Price</field>
+            <field name="technical_name">cost</field>
+            <field name="type_api">shopify</field>
+            <field name="value_converter">simple</field>
+            <field name="odoo_model_id" ref="product.model_product_template" />
+            <field name="odoo_field_id" ref="product.field_product_template__standard_price" />
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_template__standard_price'),))]"/>
+            <field name="is_default" eval="True"/>
+        </record>
+
+        <record id="shopify_ecommerce_product_tags" model="product.ecommerce.field">
+            <field name="name">Product Tags</field>
+            <field name="technical_name">tags</field>
+            <field name="type_api">shopify</field>
+            <field name="value_converter">python_method</field>
+            <field name="odoo_model_id" ref="product.model_product_template" />
+            <field name="odoo_field_id" ref="integration.field_product_template__feature_line_ids" />
+            <field name="send_method">send_product_tags</field>
+            <field name="receive_method">receive_product_tags</field>
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('integration.field_product_template__feature_line_ids'),))]"/>
+        </record>
+
+        <!-- Product Variant Fields -->
+        <record id="shopify_ecommerce_field_variant_barcode" model="product.ecommerce.field">
+            <field name="name">Product Variant Barcode</field>
+            <field name="technical_name">barcode</field>
+            <field name="type_api">shopify</field>
+            <field name="value_converter">simple</field>
+            <field name="odoo_model_id" ref="product.model_product_product" />
+            <field name="odoo_field_id" ref="product.field_product_product__barcode" />
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_product__barcode'),))]"/>
+        </record>
+
+        <record id="shopify_ecommerce_field_variant_weight" model="product.ecommerce.field">
+            <field name="name">Product Variant Weight</field>
+            <field name="technical_name">weight</field>
+            <field name="type_api">shopify</field>
+            <field name="value_converter">python_method</field>
+            <field name="odoo_model_id" ref="product.model_product_product" />
+            <field name="odoo_field_id" ref="product.field_product_product__weight" />
+            <field name="send_method">send_weight</field>
+            <field name="receive_method">receive_weight</field>
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_product__weight'),))]"/>
+        </record>
+
+        <record id="shopify_ecommerce_field_variant_default_code" model="product.ecommerce.field">
+            <field name="name">Product Variant SKU</field>
+            <field name="technical_name">sku</field>
+            <field name="type_api">shopify</field>
+            <field name="value_converter">simple</field>
+            <field name="odoo_model_id" ref="product.model_product_product" />
+            <field name="odoo_field_id" ref="product.field_product_product__default_code" />
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_product__default_code'),))]"/>
+        </record>
+
+        <record id="shopify_ecommerce_field_variant_price" model="product.ecommerce.field">
+            <field name="name">Product Variant Price</field>
+            <field name="technical_name">price</field>
+            <field name="type_api">shopify</field>
+            <field name="value_converter">python_method</field>
+            <field name="odoo_model_id" ref="product.model_product_product" />
+            <field name="odoo_field_id" ref="integration.field_product_product__variant_extra_price" />
+            <field name="send_method">send_lst_price</field>
+            <field name="receive_method">receive_lst_price</field>
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_product__lst_price'),))]"/>
+        </record>
+
+        <record id="shopify_ecommerce_field_variant_cost_price" model="product.ecommerce.field">
+            <field name="name">Product Variant Cost Price</field>
+            <field name="technical_name">cost</field>
+            <field name="type_api">shopify</field>
+            <field name="value_converter">python_method</field>
+            <field name="odoo_model_id" ref="product.model_product_product" />
+            <field name="odoo_field_id" ref="product.field_product_product__standard_price" />
+            <field name="send_method">send_integration_cost_price</field>
+            <field name="receive_method">receive_integration_cost_price</field>
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_product__standard_price'),))]"/>
+            <field name="is_default" eval="True"/>
+        </record>
+
+        <record id="shopify_ecommerce_field_variant_taxable_flag" model="product.ecommerce.field">
+            <field name="name">Product Variant Taxable Flag</field>
+            <field name="technical_name">taxable</field>
+            <field name="type_api">shopify</field>
+            <field name="value_converter">python_method</field>
+            <field name="odoo_model_id" ref="product.model_product_product" />
+            <field name="odoo_field_id" ref="account.field_product_product__taxes_id" />
+            <field name="send_method">send_taxable_flag</field>
+            <field name="receive_method">receive_taxable_flag</field>
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="is_default" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('account.field_product_product__taxes_id'),))]"/>
+        </record>
+
+    </data>
+</odoo>

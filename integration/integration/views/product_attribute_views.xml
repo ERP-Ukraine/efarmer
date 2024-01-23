@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_attribute_view_form_inherit" model="ir.ui.view">
+        <field name="name">product.attribute.form.inherit</field>
+        <field name="model">product.attribute</field>
+        <field name="inherit_id" ref="product.product_attribute_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='create_variant']" position="after">
+                <field name="exclude_from_synchronization" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_attribute_view_search" model="ir.ui.view">
+        <field name="name">product.attribute.view.search</field>
+        <field name="model">product.attribute</field>
+        <field name="type">search</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <filter string="Excluded from sync" name="exclude_from_synchronization" domain="[('exclude_from_synchronization', '=', True)]"/>
+            </search>
+        </field>
+    </record>
+
+</odoo>

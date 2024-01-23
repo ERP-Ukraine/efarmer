@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="integration_message_wizard_form" model="ir.ui.view">
+        <field name="name">integration.message.wizard.form</field>
+        <field name="model">message.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="message" readonly="True"/>
+                <footer>
+                    <button name="action_close" string="Ok" type="object" default_focus="1" class="oe_highlight"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="integration_message_wizard_html_form" model="ir.ui.view">
+        <field name="name">integration.message.wizard.html.form</field>
+        <field name="model">message.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="message" readonly="True" invisible="1"/>
+                <field name="message_html" readonly="True"/>
+                <footer>
+                    <button name="action_close" string="Ok" type="object" default_focus="1" class="oe_highlight"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="integration_message_wizard_validate_template_form" model="ir.ui.view">
+        <field name="name">integration.message.wizard.validate.template.form</field>
+        <field name="model">message.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="message" readonly="True" invisible="1"/>
+                <field name="message_html" readonly="True"/>
+                <footer>
+                    <button name="action_close" string="Ok" type="object" default_focus="1" class="oe_highlight"/>
+                    <button name="download_html" string="Download Html" type="object"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="integration_message_wizard_form_mapping_product" model="ir.ui.view">
+        <field name="name">integration.message.wizard.form.mapping.product</field>
+        <field name="model">message.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="message" invisible="1"/>
+                <field name="message_html" readonly="True"/>
+                <footer>
+                    <button name="action_close" string="Close" type="object" default_focus="0" class="oe_highlight"/>
+                    <button name="open_mapping" string="Open" type="object" default_focus="1" class="oe_highlight"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>
