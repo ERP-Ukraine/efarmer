@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="integration_res_country_mapping_view_tree" model="ir.ui.view">
+            <field name="name">integration.res.country.mapping.view.tree</field>
+            <field name="model">integration.res.country.mapping</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="id" groups="base.group_no_one"/>
+                    <field name="integration_id"/>
+                    <field name="country_id"/>
+                    <field name="external_country_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="integration_res_country_mapping_view_search" model="ir.ui.view">
+            <field name="name">integration.res.country.mapping.view.search</field>
+            <field name="model">integration.res.country.mapping</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="country_id"/>
+                    <field name="external_country_id"/>
+                    <field name="integration_id"/>
+                    <filter string="Not Mapped" name="not_mapped" domain="[('country_id', '=', False)]" />
+                    <group expand="0" string="Group By">
+                        <filter string="Sale Integration" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="integration_res_country_mapping_action" model="ir.actions.act_window">
+            <field name="name">Countries</field>
+            <field name="res_model">integration.res.country.mapping</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{'search_default_not_mapped': 1}</field>
+        </record>
+
+        <record id="integration_res_country_mapping_action_show_unmapped" model="ir.actions.server">
+            <field name="name">Show Unmapped Objects</field>
+            <field name="model_id" ref="integration.model_integration_res_country_mapping"/>
+            <field name="binding_model_id" ref="integration.model_integration_res_country_mapping"/>
+            <field name="binding_view_types">list</field>
+            <field name="groups_id" eval="[(4, ref('base.group_no_one'))]"/>
+            <field name="state">code</field>
+            <field name="code">action = records.show_unmapped_object()</field>
+        </record>
+
+    </data>
+</odoo>

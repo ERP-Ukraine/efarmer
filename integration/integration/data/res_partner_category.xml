@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data noupdate="1">
+
+        <record model="res.partner.category" id="main_integration_tag">
+            <field name="name">Integration</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <menuitem id="menu_external"
+                  name="External"
+                  parent="menu_sale_integration"
+                  sequence="3"/>
+
+        <menuitem id="menu_attributes_external"
+                  name="Attributes"
+                  parent="menu_external"
+                  action="integration_product_attribute_external_action"
+                  sequence="1"/>
+
+        <menuitem id="menu_attribute_values_external"
+                  name="Attribute Values"
+                  parent="menu_external"
+                  action="integration_product_attribute_value_external_action"
+                  sequence="2"/>
+
+        <menuitem id="menu_categories_external"
+                  name="Categories"
+                  parent="menu_external"
+                  action="integration_product_public_category_external_action"
+                  sequence="3"/>
+
+        <menuitem id="menu_contacts_external"
+                  name="Contacts"
+                  parent="menu_external"
+                  action="integration_res_partner_external_action"
+                  sequence="4"/>
+
+        <menuitem id="menu_countries_external"
+                  name="Countries"
+                  parent="menu_external"
+                  action="integration_res_country_external_action"
+                  sequence="5"/>
+
+        <menuitem id="menu_tag_external"
+                  name="External Tags"
+                  parent="integration.menu_external"
+                  action="action_external_integration_tag"
+                  groups="base.group_no_one"
+                  sequence="6"/>
+
+        <menuitem id="menu_features_external"
+                  name="Features"
+                  parent="menu_external"
+                  action="integration_product_feature_external_action"
+                  sequence="7"/>
+
+        <menuitem id="menu_feature_values_external"
+                  name="Feature Values"
+                  parent="menu_external"
+                  action="integration_product_feature_value_external_action"
+                  sequence="8"/>
+
+        <menuitem id="menu_languages_external"
+                  name="Languages"
+                  parent="menu_external"
+                  action="integration_res_lang_external_action"
+                  sequence="9"/>
+
+        <menuitem id="menu_location_external"
+                  name="Locations"
+                  parent="menu_external"
+                  action="integration_stock_location_external_action"
+                  sequence="10"/>
+
+        <menuitem id="menu_orders_external"
+                  name="Orders"
+                  parent="menu_external"
+                  action="integration_sale_order_external_action"
+                  sequence="11"/>
+
+        <menuitem id="menu_external_transactions"
+                  name="Payments"
+                  parent="menu_external"
+                  action="external_order_transaction_action"
+                  groups="base.group_no_one"
+                  sequence="12"/>
+
+        <menuitem id="menu_payment_methods_external"
+                  name="Payment Methods"
+                  parent="menu_external"
+                  action="integration_sale_order_payment_method_external_action"
+                  sequence="13"/>
+
+        <menuitem id="menu_pricelist_external"
+                  name="Pricelists"
+                  parent="menu_external"
+                  action="integration_product_pricelist_external_action"
+                  sequence="14"/>
+
+        <menuitem id="menu_pricelist_item_external"
+                  name="Pricelists Items"
+                  parent="menu_external"
+                  action="integration_product_pricelist_item_external_action"
+                  sequence="15"/>
+
+        <menuitem id="menu_products_external"
+                  name="Products"
+                  parent="menu_external"
+                  action="integration_product_template_external_action"
+                  sequence="16"/>
+
+        <menuitem id="menu_variants_external"
+                  name="Product Variants"
+                  parent="menu_external"
+                  action="integration_product_product_external_action"
+                  sequence="17"/>
+
+        <menuitem id="menu_shipping_methods_external"
+                  name="Shipping Methods"
+                  parent="menu_external"
+                  action="integration_delivery_carrier_external_action"
+                  sequence="18"/>
+
+        <menuitem id="menu_states_external"
+                  name="States"
+                  parent="menu_external"
+                  action="integration_res_country_state_external_action"
+                  sequence="19"/>
+
+        <menuitem id="menu_sub-statuses_external"
+                  name="Sub-Statuses"
+                  parent="menu_external"
+                  action="integration_sale_order_sub_status_external_action"
+                  sequence="20"/>
+
+        <menuitem id="menu_tax_groups_external"
+                  name="Tax Groups"
+                  parent="menu_external"
+                  action="integration_account_tax_group_external_action"
+                  groups="base.group_no_one"
+                  sequence="21"/>
+
+        <menuitem id="menu_taxes_external"
+                  name="Taxes"
+                  parent="menu_external"
+                  action="integration_account_tax_external_action"
+                  sequence="22"/>
+
+    </data>
+</odoo>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_configuration_wizard" model="ir.ui.view">
+            <field name="name">configuration.wizard.form</field>
+            <field name="model">configuration.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Quick Configuration">
+                    <sheet>
+                        <h3><field name="state_name"/></h3>
+                        <field name="state" invisible="1"/>
+                        <field name="integration_id" invisible="1"/>
+                        <separator/>
+                        <group name="step_languages" states="step_languages">
+                            <group>
+                                <field name="language_integration_id"/>
+                                <field name="language_default_id"/>
+                            </group>
+                            <button name="action_go_to_languages" string="Go To Languages" type="object"/>
+                            <separator/>
+                            <div colspan="2">
+                                <field name="language_mapping_ids" readonly="0">
+                                    <tree editable="bottom"
+                                          create="0"
+                                          delete="0"
+                                          no_open="1"
+                                          decoration-success="language_id != False"
+                                          decoration-danger="language_id == False">
+                                        <field name="external_language_id" readonly="1"/>
+                                        <field name="language_id"/>
+                                    </tree>
+                                </field>
+                            </div>
+                        </group>
+                        <group name="step_finish" states="step_finish">
+                            <big>
+                                We are done with setup!<br/><br/>
+                            </big>
+                            <br/>
+                            <div class="col-6 o_setting_box">
+                                <div class="o_setting_right_pane">
+                                    <field name="start_initial_import"/>
+                                    <label class="o_form_label" for="start_initial_import"/>
+                                </div>
+                            </div>
+                            <br/>   
+                            <group colspan="4"> 
+                                <div class="alert alert-info" role="alert" attrs="{'invisible': [('start_initial_import', '=', False)]}">
+                                    Clicking the Finish button will start Import Master Data and redirect you into Job Queue.<br/>
+                                    Please, monitor jobs and check if they are successfully finished.
+                                    After you see that all jobs are finished,
+                                    you can go to the "Initial Import" tab and click "Import Product"
+                                    to sync products between Odoo and your e-Commerce System.
+                                </div>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <field name="show_previous" invisible="1"/>
+                        <field name="show_next" invisible="1"/>
+                        <field name="show_finish" invisible="1"/>
+                        <button name="action_previous_step"
+                                string="Previous"
+                                type="object"
+                                attrs="{'invisible': [('show_previous', '!=', True)]}"/>
+                        <button name="action_next_step"
+                                string="Next"
+                                type="object"
+                                class="btn-primary"
+                                attrs="{'invisible': [('show_next', '!=', True)]}"/>
+                        <button name="action_finish"
+                                string="Finish"
+                                type="object"
+                                class="btn-primary"
+                                attrs="{'invisible': [('show_finish', '!=', True)]}"/>
+                        <button name="action_eraze"
+                                string="Eraze Wizard"
+                                type="object"
+                                class="btn-outline-danger float-right mr-1"
+                                groups="base.group_no_one"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="integration_product_feature_external_view_tree" model="ir.ui.view">
+            <field name="name">integration.product.feature.external.view.tree</field>
+            <field name="model">integration.product.feature.external</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" create="0">
+                    <field name="id" groups="base.group_no_one"/>
+                    <field name="integration_id"/>
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="external_feature_value_ids" widget="many2many_tags" optional="1"/>
+                    <button name="action_open_mapping"
+                            title="Open Mapping"
+                            icon="fa-external-link"
+                            type="object"
+                    />
+                </tree>
+            </field>
+        </record>
+
+        <record id="integration_product_feature_external_view_search" model="ir.ui.view">
+            <field name="name">integration.product.feature.view.search</field>
+            <field name="model">integration.product.feature.external</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="external_feature_value_ids"/>
+                    <field name="integration_id"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Sale Integration" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="integration_product_feature_external_action" model="ir.actions.act_window">
+            <field name="name">Features</field>
+            <field name="res_model">integration.product.feature.external</field>
+            <field name="view_mode">tree</field>
+        </record>
+
+        <record id="integration_product_feature_external_action_run_import_features" model="ir.actions.server">
+            <field name="name">Import Product Features</field>
+            <field name="model_id" ref="integration.model_integration_product_feature_external"/>
+            <field name="binding_model_id" ref="integration.model_integration_product_feature_external"/>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">action = records.run_import_features()</field>
+        </record>
+
+    </data>
+</odoo>
