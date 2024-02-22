@@ -107,15 +107,6 @@ class AccountMove(models.Model):
             )
         )
 
-        for inv_record in self:
-            self.env['whitelist.history'].create({
-                'name': '{} WhiteList History'.format(str(inv_record.id)),
-                'token': errors.get(inv_record.id, {}).get('request_id'),
-                'invoice_number': inv_record.name,
-                'message': errors.get(inv_record.id, {}).get('error_message'),
-                'account_id': inv_record.id,
-            })
-
         return {
             'name': _('Whitelist Check Results'),
             'type': 'ir.actions.act_window',
