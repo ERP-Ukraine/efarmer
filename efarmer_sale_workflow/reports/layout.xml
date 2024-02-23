@@ -24,10 +24,10 @@
             <div t-if="o._name == 'sale.order'" t-field="o.payment_term_id.note"/>
             <div t-if="o._name == 'account.move'">
             <!-- Head the company address with a title. The company is a "Sender" of invoices and a "Consignee" of vendor bills. -->
-                <div class="address_title mb-2" t-if="o.invoice_payment_term_id.note">
-                    <strong t-if="o.move_type.startswith('out_')">Sender:</strong>
-                    <strong t-else="">Consignee:</strong>
-                </div>
+<!--                <div class="address_title mb-2" t-if="o.invoice_payment_term_id.note">-->
+<!--                    <strong t-if="o.move_type.startswith('out_')">Sender:</strong>-->
+<!--                    <strong t-else="">Consignee:</strong>-->
+<!--                </div>-->
                 <div t-field="o.invoice_payment_term_id.note"/>
             </div>
         </div>

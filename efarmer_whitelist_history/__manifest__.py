@@ -7,7 +7,7 @@
     'author': 'VentorTech',
     'website': 'https://ventor.tech/',
     'license': 'LGPL-3',
-    'category': 'Project',
+    'category': 'Accounting',
     'depends': [
         'trilab_whitelist',
         'account',
