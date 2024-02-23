@@ -72,6 +72,7 @@ class AccountMove(models.Model):
             else:
                 errors[invoice_id.id] = {
                     'error_type': 'api_error',
+                    'request_id': response.json().get(('result', {})).get('requestId', ''),
                     'error_message': _(
                         'Error accessing MF API: [%s] %s',
                         response.status_code,

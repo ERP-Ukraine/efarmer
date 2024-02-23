@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <record id="view_partner_form_inherit" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//span[@name='address_name']" position="before">
+                <field name="external_company_name" attrs="{'invisible': [('external_company_name', 'in', [False, ''])]}"/>
+            </xpath>
+            <xpath expr="//page[@name='internal_notes']" position="after">
+                <page string="e-Commerce Integration" name="partner_integration"/>
+            </xpath>
+            <xpath expr="//page[@name='contact_addresses']/field[@name='child_ids']/form//field[@name='name']" position="after">
+                <field name="external_company_name" placeholder="External Company Name"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_tree_inherit" model="ir.ui.view">
+        <field name="name">res.partner.tree.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='display_name']" position="before">
+                <field name="id" optional="hide" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="res_partner_view_search_inherit" model="ir.ui.view">
+        <field name="name">res.partner.view.search.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="before">
+                <field name="id"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

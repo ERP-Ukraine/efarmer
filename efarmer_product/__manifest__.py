@@ -14,6 +14,7 @@
         'account',
         'sale',
         'stock',
+        'stock_account',
         'helpdesk',
         'helpdesk_sale',
     ],
@@ -28,6 +29,7 @@
         'views/product_vat_views.xml',
         'views/sale_order_views.xml',
         'views/account_fiscal_position_views.xml',
+        'views/stock_valuation_layer_views.xml',
     ],
 
     'auto_install': False,

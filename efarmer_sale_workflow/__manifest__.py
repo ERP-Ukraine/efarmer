@@ -48,6 +48,7 @@
         'views/efarmer_sale_workflow_menus.xml',
         'views/product_template_views.xml',
         'views/sale_order_views.xml',
+        'views/stock_picking_views.xml',
         'views/stock_warehouse_views.xml',
         'views/delivery_terms_views.xml',
         'views/account_move_views.xml',

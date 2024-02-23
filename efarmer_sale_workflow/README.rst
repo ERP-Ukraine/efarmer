@@ -9,9 +9,12 @@ Change Log
 * 1.35 (2023-07-07)
     -  Improve Hubspot Logic, add Paid on date
 
-* 1.34 (2023-05-02)
+* 1.35 (2023-05-02)
     -  Added coloring of Scheduled Delivery Date on Quotations/Sales order list views depending on conditions
     -  Improved logic of setting up Scheduled Delivery Date on Sale Order
+
+* 1.34 (2023-04-28)
+    -  Added field 'Sale Priority' to Stock Picking
 
 * 1.33 (2023-04-26)
     -  Improve the Delivery Slip report which is printed from Transfers

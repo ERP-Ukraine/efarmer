@@ -19,3 +19,29 @@ class StockPicking(models.Model):
         related='sale_id.opportunity_id.stage_id',
         readonly=False,
     )
+    sale_priority = fields.Selection(
+        related='sale_id.priority',
+        string='Sale Priority',
+    )
+
+    def button_validate(self):
+        res = super(StockPicking, self).button_validate()
+        if res is True:
+            for pick in self:
+                active_picks = pick.sale_id.picking_ids.filtered(
+                    lambda p: p.state not in ('done', 'cancel')
+                )
+                if not active_picks:
+                    pick.sale_id.write({'priority': '0'})
+        return res
+
+    def action_cancel(self):
+        res = super(StockPicking, self).action_cancel()
+        if res is True:
+            for pick in self:
+                active_picks = pick.sale_id.picking_ids.filtered(
+                    lambda p: p.state not in ('done', 'cancel')
+                )
+                if not active_picks:
+                    pick.sale_id.write({'priority': '0'})
+        return res

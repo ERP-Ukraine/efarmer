@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_queue_job_form" model="ir.ui.view">
+        <field name="name">queue.job.form</field>
+        <field name="model">queue.job</field>
+        <field name="priority">99</field>
+        <field name="inherit_id" ref="queue_job.view_queue_job_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='result']" position="before">
+                <group name="integration">
+                    <field name="integration_id" readonly="1"/>
+                </group>
+            </xpath>
+            <xpath expr="//group[@name='exc_info']" position="before">
+                <group
+                    name="integration_exception"
+                    string="Integration Exception"
+                    attrs="{'invisible': ['|', ('integration_model_view_name', '=', False), ('state', '!=', 'failed')]}">
+                    <group>
+                        <field name="integration_exception_name" readonly="1"/>
+                        <field name="integration_model_view_name" readonly="1"/>
+                        <field name="integration_external_id" attrs="{'invisible': [('integration_exception_name', '=', 'NotMappedToExternal')]}"/>
+                        <field name="integration_odoo_id" attrs="{'invisible': [('integration_exception_name', '!=', 'NotMappedToExternal')]}"/>
+                        <field name="integration_external_name" attrs="{'invisible': [('integration_exception_name', '=', 'NotMappedToExternal')]}"/>
+                        <field name="integration_odoo_name" attrs="{'invisible': [('integration_exception_name', '!=', 'NotMappedToExternal')]}"/>
+                    </group>
+                    <group>
+                        <button name="action_open_external_view"
+                                type="object"
+                                string="Open External"
+                                colspan="12"/>
+                        <button name="action_open_mapping_view"
+                                type="object"
+                                string="Open Mappings"
+                                colspan="12"/>
+                        <button name="action_import_from_external_system"
+                                type="object"
+                                string="Import External Records From e-Commerce System"
+                                attrs="{'invisible': [('integration_id', '=', True)]}"
+                                colspan="12"/>
+                    </group>
+                </group>
+            </xpath>
+            <xpath expr="//field[@name='exc_info']" position="replace">
+                <field name="exc_info"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_queue_job_lite_info_form" model="ir.ui.view">
+        <field name="name">queue.job.lite.info.form</field>
+        <field name="model">queue.job</field>
+        <field name="arch" type="xml">
+            <form string="Integration Workflow Pipeline Form" create="0" edit="0" delete="0">
+                <group name="job_info">
+                    <field name="integration_id" readonly="1"/>
+                    <field name="model_name"/>
+                    <field name="method_name"/>
+                    <field name="state" readonly="1"/>
+                </group>
+
+                <div class="alert alert-warning" role="alert" attrs="{'invisible': [('state', '!=', 'failed')]}">
+                    <h5 style="color: inherit">Error!</h5>
+                    <p>
+                        <field name="exc_info_lite" width="100px"/>
+                    </p>
+                </div>
+                <button name="action_toggle_exc"
+                        type="object"
+                        string="Full Traceback"
+                        colspan="12"
+                        attrs="{'invisible': [('exc_info', 'in', ('', False))]}"/>
+                <field name="toggle_exc" invisible="1"/>
+                <field name="exc_info" readonly="1" attrs="{'invisible': [('toggle_exc', '=', False)]}"/>
+                <field name="result" readonly="1"/>
+
+                <group
+                    name="integration_exception"
+                    string="Integration Exception"
+                    attrs="{'invisible': ['|', ('integration_model_view_name', '=', False), ('state', '!=', 'failed')]}">
+                    <group>
+                        <field name="integration_exception_name" readonly="1"/>
+                        <field name="integration_model_view_name" readonly="1"/>
+                        <field name="integration_external_id" attrs="{'invisible': [('integration_exception_name', '=', 'NotMappedToExternal')]}"/>
+                        <field name="integration_odoo_id" attrs="{'invisible': [('integration_exception_name', '!=', 'NotMappedToExternal')]}"/>
+                        <field name="integration_external_name" attrs="{'invisible': [('integration_exception_name', '=', 'NotMappedToExternal')]}"/>
+                        <field name="integration_odoo_name" attrs="{'invisible': [('integration_exception_name', '!=', 'NotMappedToExternal')]}"/>
+                    </group>
+                    <group>
+                        <button name="action_open_external_view"
+                                type="object"
+                                string="Open External"
+                                colspan="12"/>
+                        <button name="action_open_mapping_view"
+                                type="object"
+                                string="Open Mappings"
+                                colspan="12"/>
+                        <button name="action_import_from_external_system"
+                                type="object"
+                                string="Import External Records From e-Commerce System"
+                                attrs="{'invisible': [('integration_id', '=', True)]}"
+                                colspan="12"/>
+                    </group>
+                </group>
+
+            </form>
+        </field>
+    </record>
+
+</odoo>
