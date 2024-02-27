@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="helpdesk_ticket_view_form_inherit" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.view.form</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_ticket_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@class='oe_title']" position="after">
+                <field name="use_short_form" invisible="1"/>
+                <button name="action_short_form"
+                        string="Fill the form"
+                        type="object"
+                        class="btn btn-outline-primary text-uppercase"
+                        attrs="{'invisible': [('use_short_form', '=', False)]}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
