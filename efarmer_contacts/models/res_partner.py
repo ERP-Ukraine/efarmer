@@ -21,4 +21,3 @@ class ResPartner(models.Model):
             return True
         else:
             return super().vies_vat_check(country_code, vat_number)
-
