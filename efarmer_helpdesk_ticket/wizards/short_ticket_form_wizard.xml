@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<record id="short_ticket_wizard_view_form" model="ir.ui.view">
+    <field name="name">short.ticket.wizard.view.form</field>
+    <field name="model">short.ticket.form.wizard</field>
+    <field name="arch" type="xml">
+        <form>
+            <sheet>
+                <group name="related-fields">
+                    <group>
+                        <field name="ticket_id" invisible="1"/>
+                        <field name="allowed_ticket_type_ids" invisible="1" widget="many2many_tags"/>
+                        <field name="choose_product_by" widget="radio"/>
+                        <field name="lot_id" options="{'no_create': True}"/>
+                        <field name="product_id" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
+                        <field name="partner_id" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
+                        <field name="sale_id" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
+                        <field name="efarmer_client_type" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
+                        <field name="email" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
+                        <field name="mobile" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
+                        <field name="type_id" domain="[('id', 'in', allowed_ticket_type_ids)]" options="{'no_create': True}"/>
+                        <field name="tag_ids" widget="many2many_tags"/>
+                    </group>
+                </group>
+            </sheet>
+            <footer>
+                <button string="Complete" name="action_run" type="object" class="btn-primary"/>
+                <button string="Cancel" special="cancel" class="btn-secondary"/>
+            </footer>
+        </form>
+    </field>
+</record>
+
+<record id="short_ticket_action_view_form" model="ir.actions.act_window">
+    <field name="name">Short Ticket Form</field>
+    <field name="res_model">short.ticket.form.wizard</field>
+    <field name="view_mode">form</field>
+    <field name="view_id" ref="short_ticket_wizard_view_form"/>
+    <field name="target">new</field>
+</record>
+
+</odoo>

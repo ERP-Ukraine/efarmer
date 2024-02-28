@@ -6,17 +6,27 @@
         <field name="model">helpdesk.team</field>
         <field name="inherit_id" ref="helpdesk.helpdesk_team_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[@class='col-lg-6 o_setting_box']/div[@class='o_setting_right_pane']/label[@for='use_product_repairs']/.." position="after">
-                <div class="o_setting_left_pane" attrs="{'invisible': [('use_product_repairs', '=', False)]}">
+            <xpath expr="//div[@class='col-lg-6 o_setting_box']/div[@class='o_setting_right_pane']/label[@for='use_product_repairs']/../.." position="after">
+                <div class="col-12 col-lg-6 o_setting_box">
+                <div class="o_setting_left_pane" attrs="{'invisible': [('use_product_repairs', '=', False), ('use_product_returns', '=', False), ('use_credit_notes', '=', False)]}">
                     <field name="use_short_form"/>
                 </div>
-                <div class="o_setting_right_pane" attrs="{'invisible': [('use_product_repairs', '=', False)]}">
+                <div class="o_setting_right_pane" attrs="{'invisible': [('use_product_repairs', '=', False), ('use_product_returns', '=', False), ('use_credit_notes', '=', False)]}">
                     <label for="use_short_form"/>
                     <div class="text-muted">
                         Use a short form to fill out ticket data
                     </div>
                 </div>
+                </div>
 
+            </xpath>
+
+            <xpath expr="//div[@id='after-sales']" position="after">
+                <group>
+                    <group>
+                        <field name="allowed_ticket_type_ids" widget="many2many_tags"/>
+                    </group>
+                </group>
             </xpath>
         </field>
     </record>

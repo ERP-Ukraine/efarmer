@@ -11,9 +11,56 @@
                 <button name="action_short_form"
                         string="Fill the form"
                         type="object"
-                        class="btn btn-outline-primary text-uppercase"
+                        class="btn btn-primary text-uppercase"
                         attrs="{'invisible': [('use_short_form', '=', False)]}"/>
+            </xpath>
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="attrs">{'readonly': [('use_short_form', '=', True)]}</attribute>
+                <attribute name="force_save">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='ticket_type_id']" position="attributes">
+                <attribute name="attrs">{'readonly': [('use_short_form', '=', True)]}</attribute>
+                <attribute name="force_save">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="attrs">{'readonly': [('use_short_form', '=', True)]}</attribute>
+                <attribute name="force_save">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_name']" position="attributes">
+                <attribute name="attrs">{'readonly': [('use_short_form', '=', True)]}</attribute>
+                <attribute name="force_save">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_email']" position="attributes">
+                <attribute name="attrs">{'readonly': [('use_short_form', '=', True)]}</attribute>
+                <attribute name="force_save">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_phone']" position="attributes">
+                <attribute name="attrs">{'readonly': [('use_short_form', '=', True)]}</attribute>
+                <attribute name="force_save">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='sale_order_id']" position="attributes">
+                <attribute name="attrs">{'readonly': [('use_short_form', '=', True)]}</attribute>
+                <attribute name="force_save">1</attribute>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="helpdesk_stock_ticket_view_form_inherit" model="ir.ui.view">
+        <field name="name">helpdesk.stock.ticket.view.form</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_stock.helpdesk_ticket_view_form_inherit_helpdesk_stock"/>
+        <field name="arch" type="xml">
+                <xpath expr="//field[@name='product_id']" position="attributes">
+                <attribute name="attrs">{'invisible': [('use_credit_notes', '=', False), ('use_product_returns', '=', False), ('use_product_repairs', '=', False)], 'readonly': [('use_short_form', '=', True)]}</attribute>
+                <attribute name="force_save">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='lot_id']" position="attributes">
+                <attribute name="attrs">{'invisible': ['|', ('tracking', 'in', ['none', False]), '&amp;', '&amp;', ('use_credit_notes', '=', False), ('use_product_returns', '=', False), ('use_product_repairs', '=', False)],'readonly': [('use_short_form', '=', True)]}</attribute>
+                <attribute name="force_save">1</attribute>
             </xpath>
         </field>
     </record>
+
+
 </odoo>
