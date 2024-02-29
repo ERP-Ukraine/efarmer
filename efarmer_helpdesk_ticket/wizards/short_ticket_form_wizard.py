@@ -140,6 +140,6 @@ class ShortTicketFormWizard(models.TransientModel):
             'partner_phone': self.mobile,
             'ticket_type_id': self.type_id.id,
             'efarmer_client_type': self.efarmer_client_type.id,
-            'tag_ids': [(4,tag) for tag in self.tag_ids.ids],
+            'tag_ids': [(4, tag) for tag in self.tag_ids.ids],
             'user_id': self.env.uid,
         })
