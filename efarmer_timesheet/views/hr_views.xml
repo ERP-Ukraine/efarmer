@@ -56,5 +56,21 @@
             </field>
         </record>
 
+    <record id="efarmer_hr_employee_public_view_form" model="ir.ui.view">
+        <field name="name">efarmer.hr.employee.public.form</field>
+        <field name="model">hr.employee.public</field>
+        <field name="inherit_id" ref="hr.hr_employee_public_view_form"/>
+        <field name="arch" type="xml">
+
+            <group name="location" position="after">
+                <field name="bamboo_currency_id" invisible="1"/>
+                <field name="contract_pay_rate" invisible="1"/>
+                <field name="account_asset_counterpart_id" invisible="1"/>
+                <field name="related_contact_id" invisible="1"/>
+            </group>
+        </field>
+    </record>
+
+
     </data>
 </odoo>
