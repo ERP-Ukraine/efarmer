@@ -8,19 +8,35 @@ class ShortTicketFormWizard(models.TransientModel):
     _description = 'Short form for helpdesk ticket'
 
     ticket_id = fields.Many2one(comodel_name='helpdesk.ticket', string='Ticket')
-    choose_product_by = fields.Selection(selection=[('serial', 'Serial Number'), ('other', 'Other')], default='serial', string='Choose Product by:')
-    type_id = fields.Many2one(comodel_name='helpdesk.ticket.type', string='Type')
+    choose_product_by = fields.Selection(selection=[('serial', 'Serial Number'), ('other', 'Other')], string='Choose Product by:')
+    type_id = fields.Many2one(comodel_name='helpdesk.ticket.type', string='Type', domain=lambda self: self.get_product_domain())
     product_id = fields.Many2one(comodel_name='product.product', string='Product')
     product_tracking = fields.Selection(related='product_id.tracking', string='Product tracking')
-    lot_id = fields.Many2one(comodel_name='stock.production.lot', string='Lot/Serial')
+    lot_id = fields.Many2one(comodel_name='stock.production.lot', string='Lot/Serial', domain=lambda self: self.get_lot_domain())
     sale_id = fields.Many2one(comodel_name='sale.order', string='Sale order')
     partner_id = fields.Many2one(comodel_name='res.partner', string='Customer')
     email = fields.Char(related='partner_id.email', string='Email')
     mobile = fields.Char(related='partner_id.mobile', string='Mobile')
     efarmer_client_type = fields.Many2one(related='partner_id.efarmer_client_type', string='Client Type')
     tag_ids = fields.Many2many(comodel_name='helpdesk.tag', string='Tags')
-
     allowed_ticket_type_ids = fields.Many2many(comodel_name='helpdesk.ticket.type', string='Allowed Types')
+
+    def get_lot_domain(self):
+        if self._context.get('choose_product_by') == 'serial':
+            lot_ids = self.env['stock.production.lot'].search([]).filtered(
+                lambda l: l.product_id.tracking == 'serial')
+            return [('id', 'in', lot_ids.ids)]
+        else:
+            lot_ids = self.env['stock.production.lot'].search([]).filtered(lambda l: l.product_id.tracking == 'lot')
+            return [('id', 'in', lot_ids.ids)]
+
+    def get_product_domain(self):
+        if self._context.get('choose_product_by') == 'serial':
+            product_ids = self.env['product.product'].search([('tracking', '=', 'serial')])
+            return [('id', 'in', product_ids.ids)]
+        else:
+            product_ids = self.env['product.product'].search([('tracking', '!=', 'serial')])
+            return [('id', 'in', product_ids.ids)]
 
     @api.onchange('choose_product_by')
     def _onchange_choose_product_by(self):
@@ -72,7 +88,7 @@ class ShortTicketFormWizard(models.TransientModel):
             tag_ids = self.env['helpdesk.tag'].search([('name', 'ilike', self.type_id.name)]).filtered(
                 lambda n: len(n.name) == len(self.type_id.name))
             self.update({
-                'tag_ids': [(4,tag) for tag in tag_ids.ids]
+                'tag_ids': [(4, tag) for tag in tag_ids.ids]
             })
 
     @api.onchange('product_id', 'lot_id')
@@ -108,11 +124,11 @@ class ShortTicketFormWizard(models.TransientModel):
         name = f''
         if self.product_id.default_code:
             name += f'[{self.product_id.default_code}]'
-        name += f'{self.product_id.name}/'
+        name += f' {self.product_id.name} '
         if self.lot_id.name:
-            name += f'{self.lot_id.name}/'
+            name += f'/ {self.lot_id.name} '
         if self.partner_id:
-            name += f'{self.partner_id.name}'
+            name += f'/ {self.partner_id.name}'
         self.ticket_id.write({
             'name': name,
             'sale_order_id': self.sale_id.id,

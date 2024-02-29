@@ -14,6 +14,7 @@
         'stock',
         'helpdesk',
         'helpdesk_stock',
+        'efarmer_helpdesk',
         'efarmer_sale_workflow',
     ],
     'data': [

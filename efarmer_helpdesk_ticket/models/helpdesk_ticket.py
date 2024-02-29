@@ -16,19 +16,21 @@ class HelpdeskTicket(models.Model):
         return values
 
     def action_short_form(self):
-        wizard = self.env['short.ticket.form.wizard'].create({
+        choose_product_by = 'serial' if not self.product_id or (self.product_id and self.product_id.tracking == 'serial') else 'other'
+        wizard = self.env['short.ticket.form.wizard'].with_context(choose_product_by=choose_product_by).create({
             'ticket_id': self.id,
-            'choose_product_by': 'serial' if not self.product_id or (self.product_id and self.product_id.tracking == 'serial') else 'other',
+            'choose_product_by': choose_product_by,
             'allowed_ticket_type_ids': [(4, type) for type in self.team_id.allowed_ticket_type_ids.ids],
             'product_id': self.product_id.id,
             'lot_id': self.lot_id.id,
             'partner_id': self.partner_id.id,
             'sale_id': self.sale_order_id.id,
             'type_id': self.ticket_type_id.id,
-            'tag_ids': [(4,tag) for tag in self.tag_ids.ids],
+            'tag_ids': [(4, tag) for tag in self.tag_ids.ids],
         })
         action = self.env['ir.actions.act_window']._for_xml_id(
             'efarmer_helpdesk_ticket.short_ticket_action_view_form'
         )
         action['res_id'] = wizard.id
+        action['context'] = {'choose_product_by': choose_product_by}
         return action
