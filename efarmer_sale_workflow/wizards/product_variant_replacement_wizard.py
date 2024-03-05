@@ -44,6 +44,7 @@ class OrderLineProductReplacementWizard(models.TransientModel):
 
         if len(self.replacement_line_ids) >= 1:
             self.sale_line_id.product_id = self.replacement_line_ids[0].product_id.id
+            self.sale_line_id.name = self.replacement_line_ids[0].product_id.get_product_multiline_description_sale()
             self.sale_line_id.product_uom_qty = self.replacement_line_ids[0].product_uom_qty
 
             # enter in for loop only if replacement_line_ids > 1
@@ -51,6 +52,7 @@ class OrderLineProductReplacementWizard(models.TransientModel):
                 default = {
                     'order_id': self.sale_line_id.order_id.id,
                     'product_id': line.product_id.id,
+                    'name': line.product_id.get_product_multiline_description_sale(),
                     'product_uom_qty': line.product_uom_qty,
                 }
                 self.sale_line_id.copy(default=default)

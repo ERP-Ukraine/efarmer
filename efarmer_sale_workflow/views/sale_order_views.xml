@@ -185,5 +185,15 @@
                 </xpath>
             </field>
         </record>
+        <record id="efarmer_sale_line_menu_inherit_tree" model="ir.ui.view">
+            <field name="name">sale.order.line.menu.tree</field>
+            <field name="model">sale.order.line</field>
+            <field name="inherit_id" ref="sale_order_line_menu.sale_order_line_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='qty_delivered']" position="after">
+                    <field name="qty_to_deliver" optional="hide"/>
+                </xpath>
+            </field>
+        </record>
     </data>
 </odoo>
