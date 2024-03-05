@@ -7,6 +7,9 @@ class HelpdeskTicket(models.Model):
 
 
     use_short_form = fields.Boolean(related='team_id.use_short_form', string='Short Form', store=True)
+    note = fields.Char(string='Note')
+    delivery_transfer_id = fields.Many2one(comodel_name='stock.picking', string='Delivery Transfer')
+    delivery_move_id = fields.Many2one(comodel_name='stock.move', string='Delivery Move')
 
     @api.model
     def default_get(self, default_fields):
@@ -26,6 +29,8 @@ class HelpdeskTicket(models.Model):
             'partner_id': self.partner_id.id,
             'sale_id': self.sale_order_id.id,
             'type_id': self.ticket_type_id.id,
+            'delivery_transfer_id': self.delivery_transfer_id.id,
+            'delivery_move_id': self.delivery_move_id.id,
             'tag_ids': [(4, tag) for tag in self.tag_ids.ids],
         })
         action = self.env['ir.actions.act_window']._for_xml_id(

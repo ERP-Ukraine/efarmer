@@ -18,7 +18,6 @@
                     </div>
                 </div>
                 </div>
-
             </xpath>
 
             <xpath expr="//div[@id='after-sales']" position="after">

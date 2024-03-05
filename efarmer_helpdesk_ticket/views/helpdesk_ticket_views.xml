@@ -51,13 +51,26 @@
         <field name="model">helpdesk.ticket</field>
         <field name="inherit_id" ref="helpdesk_stock.helpdesk_ticket_view_form_inherit_helpdesk_stock"/>
         <field name="arch" type="xml">
-                <xpath expr="//field[@name='product_id']" position="attributes">
-                <attribute name="attrs">{'invisible': [('use_credit_notes', '=', False), ('use_product_returns', '=', False), ('use_product_repairs', '=', False)], 'readonly': [('use_short_form', '=', True)]}</attribute>
+            <xpath expr="//field[@name='product_id']" position="attributes">
+                <attribute name="attrs">{'invisible': [('use_credit_notes', '=', False), ('use_product_returns', '=',
+                    False), ('use_product_repairs', '=', False)], 'readonly': [('use_short_form', '=', True)]}
+                </attribute>
                 <attribute name="force_save">1</attribute>
             </xpath>
             <xpath expr="//field[@name='lot_id']" position="attributes">
-                <attribute name="attrs">{'invisible': ['|', ('tracking', 'in', ['none', False]), '&amp;', '&amp;', ('use_credit_notes', '=', False), ('use_product_returns', '=', False), ('use_product_repairs', '=', False)],'readonly': [('use_short_form', '=', True)]}</attribute>
+                <attribute name="attrs">{'invisible': ['|', ('tracking', 'in', ['none', False]), '&amp;', '&amp;',
+                    ('use_credit_notes', '=', False), ('use_product_returns', '=', False), ('use_product_repairs', '=',
+                    False)],'readonly': [('use_short_form', '=', True)]}
+                </attribute>
                 <attribute name="force_save">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='priority']" position="after">
+                <field name="delivery_transfer_id" attrs="{'readonly': [('use_short_form', '=', True)]}"/>
+                <field name="delivery_move_id" attrs="{'readonly': [('use_short_form', '=', True)]}"/>
+            </xpath>
+            <xpath expr="//field[@name='description']" position="after">
+                <label for="note"/>
+                <field name="note" widget="text"/>
             </xpath>
         </field>
     </record>

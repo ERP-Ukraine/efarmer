@@ -16,6 +16,8 @@
                         <field name="product_id" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
                         <field name="partner_id" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
                         <field name="sale_id" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
+                        <field name="delivery_transfer_id" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
+                        <field name="delivery_move_id" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
                         <field name="efarmer_client_type" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
                         <field name="email" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
                         <field name="mobile" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
@@ -23,6 +25,8 @@
                         <field name="tag_ids" widget="many2many_tags"/>
                     </group>
                 </group>
+                <label for="note"/>
+                <field name="note" widget="text"/>
             </sheet>
             <footer>
                 <button string="Complete" name="action_run" type="object" class="btn-primary"/>
