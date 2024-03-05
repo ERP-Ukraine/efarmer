@@ -192,3 +192,33 @@ class Employee(models.Model):
         if empls_to_update:
             empls_to_update.timesheet_cost = 0
             empls_to_update.contract_pay_rate = 0
+
+
+class EmployeePublic(models.Model):
+    _inherit = 'hr.employee.public'
+
+    bamboo_currency_id = fields.Many2one(
+        comodel_name='res.currency',
+        string="Currency",
+        copy=False,
+        default=lambda self: self.env.company.currency_id.id,
+        groups='hr.group_hr_user',
+    )
+
+    contract_pay_rate = fields.Monetary(
+        string='Contract Pay Rate',
+        currency_field='bamboo_currency_id',
+        default=0.0)
+
+    account_asset_counterpart_id = fields.Many2one(
+        'account.account',
+        string='Account Asset Counterpart',
+        check_company=True,
+        help="Account used as counterpart for entries related to this asset.",
+        tracking=True,
+        store=True,
+    )
+    related_contact_id = fields.Many2one(
+        'res.partner',
+        string='Related Contact',
+    )
