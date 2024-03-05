@@ -15,9 +15,9 @@
                         <field name="lot_id" options="{'no_create': True}"/>
                         <field name="product_id" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
                         <field name="partner_id" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
+                        <field name="sale_id" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
                         <field name="delivery_transfer_id" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
                         <field name="delivery_move_id" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
-                        <field name="sale_id" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
                         <field name="efarmer_client_type" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
                         <field name="email" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
                         <field name="mobile" attrs="{'readonly': [('choose_product_by', '=', 'serial')]}" force_save="1"/>
