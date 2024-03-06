@@ -28,6 +28,7 @@
         'account_intrastat',
         'efarmer_product',
         'delivery',
+        'sale_order_line_menu',
     ],
 
     'data': [
