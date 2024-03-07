@@ -20,6 +20,7 @@
         'helpdesk_stock',
         'helpdesk_sale',
         'efarmer_sale_workflow',
+        'website_helpdesk_forum',
     ],
 
     'data': [
