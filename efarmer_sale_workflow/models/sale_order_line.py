@@ -11,6 +11,7 @@ class SaleOrderLine(models.Model):
     detailed_type = fields.Selection(
         related='product_id.detailed_type',
     )
+    qty_to_deliver = fields.Float(compute='_compute_qty_to_deliver', digits='Product Unit of Measure', store=True)
 
     def open_replacement_wizard(self):
         new_wizard = self.env['order.line.product.replacement.wizard'].create(

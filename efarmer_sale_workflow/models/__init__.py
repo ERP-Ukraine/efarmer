@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from . import account_invoice
 from . import account_intrastat_report
 from . import delivery_terms
