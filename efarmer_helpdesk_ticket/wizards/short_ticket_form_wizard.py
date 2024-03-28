@@ -85,8 +85,8 @@ class ShortTicketFormWizard(models.TransientModel):
             self.delivery_transfer_id = False
         elif self.choose_product_by == 'serial':
             self.product_id = self.lot_id.product_id
-            move_line_id = self.env['stock.move.line'].search([('lot_id', '=', self.lot_id.id)]).filtered(
-                lambda ml: ml.location_dest_id.usage == 'customer')
+            move_line_id = self.env['stock.move.line'].search([('lot_id', '=', self.lot_id.id)], order='id desc').filtered(
+                lambda ml: ml.location_dest_id.usage == 'customer')[:1]
             self.delivery_move_id = move_line_id.move_id
             self.delivery_transfer_id = self.delivery_move_id.picking_id
             self.sale_id = self.delivery_transfer_id.sale_id
