@@ -42,6 +42,9 @@
                             type="object"
                             groups='efarmer_purchase.efarmer_purchase_allow_confirm_demand, efarmer_purchase.efarmer_purchase_allow_confirm_demand_all' />
                 </xpath>
+                <xpath expr="//field[@name='user_id']" position="after">
+                    <field name="department_id"/>
+                </xpath>
             </field>
         </record>
 
@@ -81,10 +84,22 @@
             <field name="model">purchase.order</field>
             <field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
             <field name="arch" type="xml">
+                 <search>
+                    <field name="department_id"/>
+                    <separator/>
+
                 <filter name="draft" position="after">
                     <filter string="Confirm Demand" name="confirm_demand" domain="[('state','=', 'confirm_demand')]"/>
                     <filter string="Financial Approval" name="fin_approve" domain="[('state','=', 'fin_approve')]"/>
                 </filter>
+                <group string="Group By" name="group_by">
+                    <filter
+                        string="Department"
+                        name="department_id_group_by"
+                        context="{'group_by':'department_id'}"
+                    />
+                </group>
+                 </search>
             </field>
         </record>
 
@@ -99,6 +114,9 @@
                     <field name="untaxed_amount_in_eur" optional="hide" />
                     <field name="residual_amount_in_eur" optional="hide" />
                 </field>
+                <field name="user_id" position="after">
+                    <field name="department_id" optional="hide" />
+                </field>
             </field>
         </record>
 
@@ -112,6 +130,9 @@
                     <field name="amount_total_in_eur" optional="hide" />
                     <field name="untaxed_amount_in_eur" optional="hide" />
                     <field name="residual_amount_in_eur" optional="hide" />
+                </field>
+                <field name="user_id" position="after">
+                    <field name="department_id" optional="hide" />
                 </field>
             </field>
         </record>

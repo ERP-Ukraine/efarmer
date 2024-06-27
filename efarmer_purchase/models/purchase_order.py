@@ -39,6 +39,7 @@ class PurchaseOrder(models.Model):
         string='Analytic Tags',
         compute='_compute_purchase_analytic_tag_ids',
     )
+    department_id = fields.Many2one(related="user_id.default_department_id", string="Department", readonly=True, store=True)
 
     def __get_default_currency(self, currency_id):
         company_id = self.env['res.company'].search([('currency_id.name', '=', 'EUR')], limit=1)

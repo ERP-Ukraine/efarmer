@@ -13,6 +13,7 @@
         'purchase',
         'purchase_advance_payment',
         'mrp',
+        'hr',
     ],
     'data': [
         # Security
@@ -21,6 +22,7 @@
         'views/purchase_views.xml',
         'views/res_company_views.xml',
         'views/mrp_production_view.xml',
+        'views/res_user_views.xml',
         'report/purchase_report_views.xml',
     ],
     'installable': True,
