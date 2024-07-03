@@ -27,5 +27,6 @@ class SaleOrder(models.Model):
             action = self.env.ref(
                 "portal.partner_wizard_action_create_and_open").with_context(active_ids=[self.partner_id.id]).run()
             user_ids = self.env['portal.wizard'].browse(action.get("res_id", None)).user_ids
+            user_ids = user_ids.filtered(lambda u: u.partner_id.id == self.partner_id.id)
             for user in user_ids:
                 user.action_grant_access()
