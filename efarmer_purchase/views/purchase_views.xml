@@ -102,6 +102,7 @@
             </field>
         </record>
 
+
         <record id="efarmer_purchase_order_view_kpis_tree_inherit" model="ir.ui.view">
             <field name="name">efarmer.purchase.order.view.kpis.tree.inherit</field>
             <field name="model">purchase.order</field>

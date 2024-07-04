@@ -144,3 +144,4 @@ class PurchaseOrder(models.Model):
             if order.partner_id not in order.message_partner_ids:
                 order.message_subscribe([order.partner_id.id])
         return True
+

@@ -26,3 +26,4 @@
     'installable': True,
     'application': True,
 }
+

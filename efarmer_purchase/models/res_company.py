@@ -11,3 +11,4 @@ class ResCompany(models.Model):
         comodel_name='res.users',
         string='Financial Manager',
     )
+
