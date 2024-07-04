@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <odoo>
-    <data>
+    <data noupdate="1">
 
         <record id="purchase.group_purchase_user" model="res.groups">
             <field name="name">User: Own documents</field>
