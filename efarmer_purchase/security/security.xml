@@ -29,7 +29,7 @@
 
         <record id="group_purchase_user_all_document" model="res.groups">
             <field name="name">User: All Documents</field>
-            <field name="implied_ids" eval="[(4, ref('efarmer_purchase.group_purchase_user_department'))]"/>
+<!--            <field name="implied_ids" eval="[(4, ref('efarmer_purchase.group_purchase_user_department'))]"/>-->
             <field name="category_id" ref="base.module_category_inventory_purchase"/>
         </record>
 
