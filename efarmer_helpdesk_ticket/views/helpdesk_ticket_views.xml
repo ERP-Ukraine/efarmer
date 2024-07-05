@@ -42,7 +42,12 @@
                 <attribute name="attrs">{'readonly': [('use_short_form', '=', True)]}</attribute>
                 <attribute name="force_save">1</attribute>
             </xpath>
-
+            <xpath expr="//field[@name='partner_id']" position="before">
+                <field name="scheduled_date" attrs="{'invisible': [('use_short_form', '=', False)]}"/>
+            </xpath>
+            <xpath expr="//field[@name='ticket_type_id']" position="before">
+                 <field name="returned_amount" attrs="{'invisible': [('use_short_form', '=', False)]}"/>
+            </xpath>
         </field>
     </record>
 
