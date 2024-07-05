@@ -80,5 +80,17 @@
         </field>
     </record>
 
+    <record id="helpdesk_tickets_view_tree_inherit" model="ir.ui.view">
+        <field name='name'>helpdesk.ticket.form.inherit</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_tickets_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='stage_id']" position="before">
+                <field name="scheduled_date" optional="hide"/>
+                <field name="returned_amount" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
 
 </odoo>
