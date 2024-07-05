@@ -10,6 +10,8 @@ class HelpdeskTicket(models.Model):
     note = fields.Char(string='Note')
     delivery_transfer_id = fields.Many2one(comodel_name='stock.picking', string='Delivery Transfer')
     delivery_move_id = fields.Many2one(comodel_name='stock.move', string='Delivery Move')
+    scheduled_date = fields.Date(string="Scheduled date")
+    returned_amount = fields.Float(string="Refund Amount (€)")
 
     @api.model
     def default_get(self, default_fields):

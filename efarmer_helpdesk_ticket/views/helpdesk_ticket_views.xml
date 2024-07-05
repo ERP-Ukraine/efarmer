@@ -42,7 +42,12 @@
                 <attribute name="attrs">{'readonly': [('use_short_form', '=', True)]}</attribute>
                 <attribute name="force_save">1</attribute>
             </xpath>
-
+            <xpath expr="//field[@name='partner_id']" position="before">
+                <field name="scheduled_date" attrs="{'invisible': [('use_short_form', '=', False)]}"/>
+            </xpath>
+            <xpath expr="//field[@name='ticket_type_id']" position="after">
+                 <field name="returned_amount" attrs="{'invisible': [('use_short_form', '=', False)]}"/>
+            </xpath>
         </field>
     </record>
 
@@ -71,6 +76,18 @@
             <xpath expr="//field[@name='description']" position="after">
                 <label for="note"/>
                 <field name="note" widget="text"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="helpdesk_tickets_view_tree_inherit" model="ir.ui.view">
+        <field name='name'>helpdesk.ticket.form.inherit</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_tickets_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='stage_id']" position="before">
+                <field name="scheduled_date" optional="hide"/>
+                <field name="returned_amount" optional="hide"/>
             </xpath>
         </field>
     </record>

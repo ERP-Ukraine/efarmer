@@ -112,17 +112,7 @@ class ShortTicketFormWizard(models.TransientModel):
                 'domain': {'product_id': product_domain},
             }
 
-    @api.onchange('type_id')
-    def _onchange_type_id(self):
-        if not self.type_id:
-            self.tag_ids = False
-        else:
-            self.tag_ids = False
-            tag_ids = self.env['helpdesk.tag'].search([('name', 'ilike', self.type_id.name)]).filtered(
-                lambda n: len(n.name) == len(self.type_id.name))
-            self.update({
-                'tag_ids': [(4, tag) for tag in tag_ids.ids]
-            })
+
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
