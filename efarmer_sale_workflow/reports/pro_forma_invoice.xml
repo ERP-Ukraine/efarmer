@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="proforma_report_saleorder_document" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//div[@class='page']" position="attributes">
+            <attribute name="style">font-family: sans-serif;</attribute>
+        </xpath>
         <xpath expr="//t[@t-set='address']" position="replace">
           <t t-set="address">
             <div t-field="doc.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;name&quot;, &quot;address&quot;,  &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
@@ -63,6 +66,27 @@
                     gelesen haben und diesen zustimmen.
                   </p>
               </div>
+              <div>
+                  <br/>
+                  <p>
+                      <strong>WICHTIG!</strong>
+                      <t t-if="any([code.startswith('KDU.0044') for code in doc.order_line.mapped('product_id').filtered(lambda p: p.default_code).mapped('default_code')])">
+                          <li>
+                              Um eine zeitnahe Bearbeitung und Auslieferung Ihrer Bestellung zu gewährleisten, geben Sie bitte das
+                              spezifische Modell Ihres Traktors und die Parameter der Lenkradwelle an (<a target="_blank"  href="https://tech.fieldbee.com/">
+                                LINK</a>).
+                              Wenn diese Informationen zum Zeitpunkt der Bestellung nicht angegeben werden, kann es zu
+                              Verzögerungen beim Versand kommen. Folglich verlängern sich die Vorlaufzeit und die
+                              Gesamtbearbeitungszeit der Bestellung.
+                          </li>
+                      </t>
+                      <li>
+                          Für Sendungen in Länder außerhalb der Europäischen Union können zusätzliche Steuern anfallen.
+Diese Steuern liegen in der Verantwortung des Kunden und die Höhe kann je nach Zielland variieren.
+                          Weitere Informationen zu den anfallenden Steuern erhalten Sie bei Ihrem örtlichen Zollamt.
+                      </li>
+                  </p>
+              </div>
           </t>
           <t t-elif="doc.partner_shipping_id.lang == 'pl_PL'">
               <div>
@@ -75,6 +99,25 @@
                     <a class="reference external" href="https://www.fieldbee.com/pl/docs/shipping-policy-pl">Polityki wysyłki</a>
                     i
                     <a class="reference external" href="https://www.fieldbee.com/pl/docs/return-policy-pl">Polityki zwrotów.</a>
+                  </p>
+              </div>
+              <div>
+                  <br/>
+                  <p>
+                      <strong>WAŻNE!</strong>
+                      <t t-if="any([code.startswith('KDU.0044') for code in doc.order_line.mapped('product_id').filtered(lambda p: p.default_code).mapped('default_code')])">
+                          <li>
+                              W celu zapewnienia terminowej realizacji i wysyłki zamówienia prosimy o podanie konkretnego modelu posiadanego ciągnika oraz parametrów wału kierownicy (<a target="_blank"  href="https://tech.fieldbee.com/">
+                                LINK</a>).
+                              Jeśli te informacje nie zostaną podane w momencie składania zamówienia, wysyłka będzie opóźniona.
+                              W związku z tym wydłuży się całkowity czas realizacji zamówienia.
+                          </li>
+                      </t>
+                      <li>
+                          W przypadku przesyłek do krajów spoza Unii Europejskiej mogą obowiązywać dodatkowe podatki.
+Podatki te leżą w gestii klienta, a ich wysokość różni się w zależności od kraju docelowego. Więcej
+                          informacji na temat obowiązujących podatków można uzyskać w lokalnym urzędzie celnym.
+                      </li>
                   </p>
               </div>
           </t>
@@ -91,6 +134,25 @@
                     <a class="reference external" href="https://www.fieldbee.com/docs/return-policy">Return Policy.</a>
                   </p>
               </div>
+              <div>
+                  <br/>
+                  <p>
+                      <strong>IMPORTANT!</strong>
+                      <t t-if="any([code.startswith('KDU.0044') for code in doc.order_line.mapped('product_id').filtered(lambda p: p.default_code).mapped('default_code')])">
+                          <li>
+                              To ensure timely processing and shipping of your order, please provide the specific model of
+                              your tractor and the parameters of the steering wheel shaft (<a target="_blank"  href="https://tech.fieldbee.com/">
+                                LINK</a>)
+                              If this information is not provided at the time of placing the order, there will be delays in shipping.
+                              Consequently, the lead time and overall order processing time will increase.
+                      </li>
+                      </t>
+                      <li>
+                          For shipments to countries outside of the European Union, additional taxes may apply.These taxes are the responsibility of the customer and the amount will vary depending on the destination country.
+                          Please check with your local customs office for more information on the applicable taxes.
+                      </li>
+                  </p>
+              </div>
           </t>
           <t t-else="">
               <div>
@@ -103,6 +165,26 @@
                     <a class="reference external" href="https://www.fieldbee.com/docs/shipping-policy">Shipping policy</a>
                     and
                     <a class="reference external" href="https://www.fieldbee.com/docs/return-policy">Return Policy.</a>
+                  </p>
+              </div>
+              <div>
+                  <br/>
+                  <p>
+                      <strong>IMPORTANT!</strong>
+                      <t t-if="any([code.startswith('KDU.0044') for code in doc.order_line.mapped('product_id').filtered(lambda p: p.default_code).mapped('default_code')])">
+                          <li>
+                              To ensure timely processing and shipping of your order, please provide the specific model of
+                              your tractor and the parameters of the steering wheel shaft (<a target="_blank"  href="https://tech.fieldbee.com/">
+                                LINK</a>)
+                              If this information is not provided at the time of placing the order, there will be delays in shipping.
+                              Consequently, the lead time and overall order processing time will increase.
+                              <i><u>(print this point if at least one product which internal reference starts from KDU.0044 internal exists on Sales Order)</u></i>
+                          </li>
+                      </t>
+                      <li>
+                          For shipments to countries outside of the European Union, additional taxes may apply.These taxes are the responsibility of the customer and the amount will vary depending on the destination country.
+                          Please check with your local customs office for more information on the applicable taxes.
+                      </li>
                   </p>
               </div>
           </t>
