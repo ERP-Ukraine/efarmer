@@ -24,18 +24,18 @@
         <field name="model">stock.move.line</field>
         <field name="arch" type="xml">
             <tree>
-                <field name="partner_id"/>
-                <field name="picking_id"/>
-                <field name="date"/>
-                <field name="reference"/>
-                <field name="product_id"/>
-                <field name="lot_id"/>
-                <field name="location_id"/>
-                <field name="location_dest_id"/>
-                <field name="qty_done"/>
-                <field name="product_uom_id"/>
-                <field name="company_id" groups="base.group_multi_company"/>
-                <field name="state"/>
+                <field name="partner_id" />
+                <field name="picking_id" optional="show"/>
+                <field name="date" optional="show"/>
+                <field name="reference" optional="hide"/>
+                <field name="product_id" optional="show"/>
+                <field name="lot_id" optional="show"/>
+                <field name="location_id" optional="show"/>
+                <field name="location_dest_id" optional="show"/>
+                <field name="qty_done" optional="show"/>
+                <field name="product_uom_id" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" optional="show"/>
+                <field name="state" optional="show"/>
             </tree>
         </field>
     </record>
@@ -46,6 +46,7 @@
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="view_stock_move_line_sold" />
         <field name="domain">['|', ('location_dest_id.usage', '=', 'customer'),('location_id.usage', '=', 'customer')]</field>
+        <field name="context">{'search_default_customer':1}</field>
         <field name="search_view_id" ref="view_sold_product_lots_filter"/>
     </record>
 
