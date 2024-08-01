@@ -107,8 +107,7 @@ Diese Steuern liegen in der Verantwortung des Kunden und die Höhe kann je nach 
                       <strong>WAŻNE!</strong>
                       <t t-if="any([code.startswith('KDU.0044') for code in doc.order_line.mapped('product_id').filtered(lambda p: p.default_code).mapped('default_code')])">
                           <li>
-                              W celu zapewnienia terminowej realizacji i wysyłki zamówienia prosimy o podanie konkretnego modelu posiadanego ciągnika oraz parametrów wału kierownicy (<a target="_blank"  href="https://tech.fieldbee.com/">
-                                LINK</a>).
+                              W celu zapewnienia terminowej realizacji i wysyłki zamówienia prosimy o podanie konkretnego modelu posiadanego ciągnika oraz parametrów wału kierownicy (<a target="_blank"  href="https://tech.fieldbee.com/">LINK</a>).
                               Jeśli te informacje nie zostaną podane w momencie składania zamówienia, wysyłka będzie opóźniona.
                               W związku z tym wydłuży się całkowity czas realizacji zamówienia.
                           </li>
@@ -141,8 +140,7 @@ Podatki te leżą w gestii klienta, a ich wysokość różni się w zależności
                       <t t-if="any([code.startswith('KDU.0044') for code in doc.order_line.mapped('product_id').filtered(lambda p: p.default_code).mapped('default_code')])">
                           <li>
                               To ensure timely processing and shipping of your order, please provide the specific model of
-                              your tractor and the parameters of the steering wheel shaft (<a target="_blank"  href="https://tech.fieldbee.com/">
-                                LINK</a>)
+                              your tractor and the parameters of the steering wheel shaft (<a target="_blank"  href="https://tech.fieldbee.com/">LINK</a>)
                               If this information is not provided at the time of placing the order, there will be delays in shipping.
                               Consequently, the lead time and overall order processing time will increase.
                       </li>
@@ -174,8 +172,7 @@ Podatki te leżą w gestii klienta, a ich wysokość różni się w zależności
                       <t t-if="any([code.startswith('KDU.0044') for code in doc.order_line.mapped('product_id').filtered(lambda p: p.default_code).mapped('default_code')])">
                           <li>
                               To ensure timely processing and shipping of your order, please provide the specific model of
-                              your tractor and the parameters of the steering wheel shaft (<a target="_blank"  href="https://tech.fieldbee.com/">
-                                LINK</a>)
+                              your tractor and the parameters of the steering wheel shaft (<a target="_blank"  href="https://tech.fieldbee.com/">LINK</a>)
                               If this information is not provided at the time of placing the order, there will be delays in shipping.
                               Consequently, the lead time and overall order processing time will increase.
                               <i><u>(print this point if at least one product which internal reference starts from KDU.0044 internal exists on Sales Order)</u></i>
