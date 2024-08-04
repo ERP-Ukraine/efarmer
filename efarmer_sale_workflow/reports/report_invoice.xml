@@ -4,11 +4,44 @@
         <xpath expr="//tr[@class='border-black o_total']" position="after">
             <t t-if="o and o.currency_id.name != 'PLN' and o.partner_id.country_id.code == 'PL' and o.product_vat_id.name == 'PL'">
                 <tr class="border-black o_total">
-                    <td><strong>VAT Amount in PLN</strong></td>
+                    <td>
+                        <strong>VAT Amount in PLN</strong>
+                    </td>
                     <td class="text-right">
-                        <span t-esc="round(o.amount_tax * o.current_rate_pln, 2)"/> zł
+                        <span t-esc="round(o.amount_tax * o.current_rate_pln, 2)"/>
+                        zł
                     </td>
                 </tr>
+            </t>
+        </xpath>
+    </template>
+
+    <template id="report_invoice_document" inherit_id="account.report_invoice_document">
+        <xpath expr="//div[hasclass('page')]" position="inside">
+            <t t-if="o.move_type == 'out_invoice'">
+                <div>
+                    <br/>
+                    <p>
+                        <strong>IMPORTANT!</strong>
+                        <t t-if="any([code.startswith('KDU.0044') for code in o.invoice_line_ids.mapped('product_id').filtered(lambda p: p.default_code).mapped('default_code')])">
+                            <li>
+                                To ensure timely processing and shipping of your order, please provide the specific
+                                model of
+                                your tractor and the parameters of the steering wheel shaft (<a target="_blank"
+                                                                                                href="https://tech.fieldbee.com/">LINK</a>)
+                                If this information is not provided at the time of placing the order, there will be
+                                delays in shipping.
+                                Consequently, the lead time and overall order processing time will increase.
+                            </li>
+                        </t>
+                        <li>
+                            For shipments to countries outside of the European Union, additional taxes may apply.These
+                            taxes are the responsibility of the customer and the amount will vary depending on the
+                            destination country.
+                            Please check with your local customs office for more information on the applicable taxes.
+                        </li>
+                    </p>
+                </div>
             </t>
         </xpath>
     </template>
