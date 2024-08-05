@@ -14,6 +14,15 @@ Change Log
 
 |
 
+* 2.6.4 (2024-07-04)
+    - [NEW] Added the ability to use Report Rules and User Rules to define the default printer for Print Labels and other printing wizards.
+
+* 2.6.3 (2024-06-04)
+    - Ignoring the printing of attachments that are not shipping labels for the SendCloud Connector
+
+* 2.6.2 (2023-11-20)
+    - Fix issue with double printing for UPS Connector
+
 * 2.6.1 (2023-09-30)
     - Fix issue with missed notification after replenishment
 

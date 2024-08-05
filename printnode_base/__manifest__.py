@@ -7,15 +7,15 @@
         Print any reports or shipping labels directly to any local,
         Wi-Fi or Bluetooth printer without downloading PDF or ZPL!
     """,
-    'version': '15.0.2.6.1',
+    'version': '15.0.2.6.4',
     'category': 'Tools',
     "images": ["static/description/images/logo.gif"],
     'author': 'VentorTech',
     'website': 'https://ventor.tech',
     'support': 'support@ventor.tech',
     'license': 'OPL-1',
-    'live_test_url': 'https://odoo15.ventor.tech/',
-    'price': 199.00,
+    'live_test_url': 'https://odoo.ventor.tech/',
+    'price': 299.00,
     'currency': 'EUR',
     'depends': [
         'web',

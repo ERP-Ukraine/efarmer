@@ -57,6 +57,9 @@ Change Log
 
 |
 
+* 1.3.1 (2024-03-20)
+    - Fixed issue with selection of custom ZPL Labels in "Print Labels" wizard on transfers
+
 * 1.3.0 (2023-04-16)
     - [NEW] Added support for many2many and one2many fields
 

@@ -129,7 +129,7 @@
                 <t t-if="!state.printnodeEnabled">
                     <div class="alert alert-danger mb-0" role="alert">
                         <h5>Direct Print module is disabled</h5>
-                        <p>Please enable it in the Direct Print / Settings page.</p>
+                        <p>Please enable it on the company level (Direct Print → Settings page) and in user settings (User → Preferences).</p>
                     </div>
                 </t>
             </div>
