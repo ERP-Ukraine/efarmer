@@ -13,4 +13,17 @@
            </div>
        </xpath>
    </template>
+    <template id="sale_order_portal_template_inherit" name="Spline adapter notification"
+              inherit_id="sale.sale_order_portal_template">
+        <xpath expr="//div[@t-if='sale_order.is_expired']" position="before">
+            <div t-if="any([name.startswith('Spline adapter') for name in sale_order.activity_ids.mapped('activity_type_id').mapped('name')])"
+                 class="alert alert-danger alert-dismissable d-print-none" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="close">×</button>
+                <strong>To ensure timely processing and shipping of your order,
+                    please provide this information by filling out the form here:
+                </strong>
+                <a target="_blank" href="https://tech.fieldbee.com">LINK</a>
+            </div>
+        </xpath>
+    </template>
 </odoo>
