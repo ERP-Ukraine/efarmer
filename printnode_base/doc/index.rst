@@ -14,6 +14,9 @@ Change Log
 
 |
 
+* 2.6.5 (2024-08-14)
+    - Fixed issue with scenario
+
 * 2.6.4 (2024-07-04)
     - [NEW] Added the ability to use Report Rules and User Rules to define the default printer for Print Labels and other printing wizards.
 

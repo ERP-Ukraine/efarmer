@@ -603,7 +603,7 @@ class StockPicking(models.Model):
         else:
             # Manually call default method for printer_id to update printer based on
             # other wizard fields values
-            printer_id, printer_bin = wizard._get_default_printer()
+            printer_id, printer_bin = wizard._get_label_printer()
             # We also should replace printer bin to the value
             if printer_bin:
                 print_options['bin'] = printer_bin.name
