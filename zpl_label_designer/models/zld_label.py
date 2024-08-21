@@ -461,9 +461,9 @@ class Label(models.Model):
 
         for field, subfields in fields.items():
             if field not in Model._fields:
-                    raise exceptions.UserError(_(
-                        f"Field '{field}' does not exist in model '{model_label}' ({model_name})"
-                    ))
+                    raise exceptions.UserError(
+                        _("Field '{}' does not exist in model '{}' ({})").format(field, model_label, model_name)  # NOQA
+                    )
 
             if subfields is None:
                 # Simple field, checked above
@@ -471,17 +471,17 @@ class Label(models.Model):
             elif isinstance(subfields, dict):
                 # Dict means that the field is many2one field
                 if Model._fields[field].type != 'many2one':
-                    raise exceptions.UserError(_(
-                        f"Field '{field}' is not many2one field in model '{model_label}' ({model_name})"  # NOQA
-                    ))
+                    raise exceptions.UserError(
+                        _("Field '{}' is not many2one field in model '{}' ({})").format(field, model_label, model_name)  # NOQA
+                    )
 
                 self._validate_label_fields(Model._fields[field].comodel_name, subfields)
             elif isinstance(subfields, list):
                 # List means that the field is many2many or one2many field
                 if Model._fields[field].type not in ('many2many', 'one2many'):
-                    raise exceptions.UserError(_(
-                        f"Field '{field}' is not many2many or one2many field in model '{model_label}' ({model_name})"  # NOQA
-                    ))
+                    raise exceptions.UserError(
+                        _("Field '{}' is not many2many or one2many field in model '{}' ({})").format(field, model_label, model_name)  # NOQA
+                    )
 
                 self._validate_label_fields(Model._fields[field].comodel_name, subfields[0])
             else:
