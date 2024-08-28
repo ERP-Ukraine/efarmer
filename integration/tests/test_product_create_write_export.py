@@ -1,9 +1,8 @@
-# Copyright 2023 VentorTech OU
-# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
+# See LICENSE file for full copyright and licensing details.
 
 from odoo.exceptions import UserError
 
-from .config.intuit_case import OdooIntegrationInit
+from .config.integration_init import OdooIntegrationInit
 
 
 class TestErrorCreate(UserError):

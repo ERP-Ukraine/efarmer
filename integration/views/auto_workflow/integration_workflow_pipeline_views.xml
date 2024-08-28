@@ -23,7 +23,7 @@
                                 decoration-muted="state=='skip'" 
                                 decoration-success="state=='done'" 
                                 decoration-danger="state=='failed'"
-                                decoration-warning="state=='todo'"
+                                decoration-warning="state=='in_process'"
                             >
                                 <field name="name"/>
                                 <field name="current_step_method" invisible="1"/>
@@ -43,7 +43,7 @@
                                 <button name="task_force_draft"
                                         string="To Draft" 
                                         type="object"
-                                        attrs="{'invisible': [('state', '=', 'skip')]}"
+                                        attrs="{'invisible': [('state', '=', 'todo')]}"
                                         groups="base.group_no_one"
                                 />
                             </tree>

@@ -4,6 +4,7 @@ import json
 import logging
 
 from psycopg2 import Error
+from werkzeug.wrappers import Response
 from werkzeug.exceptions import NotFound
 
 from odoo import api, registry, SUPERUSER_ID, _
@@ -21,6 +22,7 @@ class IntegrationWebhook:
     SHOP_NAME = ''
     TOPIC_NAME = ''
     NEW_ORDER_METHOD_NAME = ''
+    NEW_PRODUCT_METHOD_NAME = ''
 
     @property
     def integration_type(self):
@@ -144,6 +146,14 @@ class IntegrationWebhook:
         method_name_from_header = self._get_hook_name_method()
         return method_name_from_header == self.NEW_ORDER_METHOD_NAME
 
+    def _is_new_product(self):
+        """
+        Compare current event type with new product event type to check if
+        this is a new product was received
+        """
+        method_name_from_header = self._get_hook_name_method()
+        return method_name_from_header == self.NEW_PRODUCT_METHOD_NAME
+
     def _run_method_from_header(self, *args, **kw):
         name_method = self._get_hook_name_method()
         if not hasattr(self, name_method):
@@ -167,13 +177,15 @@ class IntegrationWebhook:
 
         return sub_status_id, external_sub_status
 
-    def _receive_order_generic(self, integration):
+    def receive_order_generic(self, integration):
         external_order_id = self._get_value_from_post_data('id')
+
         if self._is_new_order():
             return self._run_method_from_header(integration, external_order_id)
-        return self._receive_generic(integration, external_order_id)
 
-    def _receive_generic(self, integration, external_order_id):
+        return self._receive_order_generic(integration, external_order_id)
+
+    def _receive_order_generic(self, integration, external_order_id):
         input_file = request.env['sale.integration.input.file'].search([
             ('si_id', '=', integration.id),
             ('name', '=', str(external_order_id)),
@@ -202,6 +214,24 @@ class IntegrationWebhook:
             return NotFound(message)
 
         return self._run_method_from_header(input_file)
+
+    def receive_product_generic(self, integration, external_product_id):
+        external_template = request.env['integration.product.template.external'].search([
+            ('integration_id', '=', integration.id),
+            ('code', '=', external_product_id),
+        ], limit=1)
+
+        # a. create product
+        if self._is_new_product():
+            if external_template:
+                return Response(f'Product with id={external_product_id} already exists!')
+            return self._run_method_from_header(integration, external_product_id)
+
+        # b. update/delete product
+        if external_template:
+            return self._run_method_from_header(integration, external_template.id)
+
+        return Response('Webhook skipped!')
 
     def _get_value_from_post_data(self, key):
         post_data = self._get_post_data()

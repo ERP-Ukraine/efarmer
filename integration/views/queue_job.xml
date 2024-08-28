@@ -20,6 +20,7 @@
                     <group>
                         <field name="integration_exception_name" readonly="1"/>
                         <field name="integration_model_view_name" readonly="1"/>
+                        <field name="is_import_from_external_available" invisible="1"/>
                         <field name="integration_external_id" attrs="{'invisible': [('integration_exception_name', '=', 'NotMappedToExternal')]}"/>
                         <field name="integration_odoo_id" attrs="{'invisible': [('integration_exception_name', '!=', 'NotMappedToExternal')]}"/>
                         <field name="integration_external_name" attrs="{'invisible': [('integration_exception_name', '=', 'NotMappedToExternal')]}"/>
@@ -37,7 +38,7 @@
                         <button name="action_import_from_external_system"
                                 type="object"
                                 string="Import External Records From e-Commerce System"
-                                attrs="{'invisible': [('integration_id', '=', True)]}"
+                                attrs="{'invisible': [('is_import_from_external_available', '=', False)]}"
                                 colspan="12"/>
                     </group>
                 </group>
@@ -82,6 +83,7 @@
                     <group>
                         <field name="integration_exception_name" readonly="1"/>
                         <field name="integration_model_view_name" readonly="1"/>
+                        <field name="is_import_from_external_available" invisible="1"/>
                         <field name="integration_external_id" attrs="{'invisible': [('integration_exception_name', '=', 'NotMappedToExternal')]}"/>
                         <field name="integration_odoo_id" attrs="{'invisible': [('integration_exception_name', '!=', 'NotMappedToExternal')]}"/>
                         <field name="integration_external_name" attrs="{'invisible': [('integration_exception_name', '=', 'NotMappedToExternal')]}"/>
@@ -99,7 +101,7 @@
                         <button name="action_import_from_external_system"
                                 type="object"
                                 string="Import External Records From e-Commerce System"
-                                attrs="{'invisible': [('integration_id', '=', True)]}"
+                                attrs="{'invisible': [('is_import_from_external_available', '=', False)]}"
                                 colspan="12"/>
                     </group>
                 </group>

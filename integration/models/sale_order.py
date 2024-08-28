@@ -48,7 +48,8 @@ class SaleOrder(models.Model):
     integration_id = fields.Many2one(
         string='e-Commerce Integration',
         comodel_name='sale.integration',
-        readonly=True
+        readonly=True,
+        copy=False,
     )
 
     integration_delivery_note = fields.Text(
@@ -77,6 +78,13 @@ class SaleOrder(models.Model):
         comodel_name='external.order.transaction',
         inverse_name='erp_order_id',
         string='Payments',
+    )
+
+    external_fulfillment_ids = fields.One2many(
+        comodel_name='external.order.fulfillment',
+        inverse_name='erp_order_id',
+        string='Fulfillments',
+        copy=False,
     )
 
     related_input_files = fields.One2many(
@@ -110,18 +118,63 @@ class SaleOrder(models.Model):
 
     integration_amount_total = fields.Monetary(
         string='e-Commerce Total Amount',
+        copy=False,
     )
 
     is_total_amount_difference = fields.Boolean(
         compute='_compute_is_total_amount_difference'
     )
 
+    total_amount_difference_error_message = fields.Text(
+        string='Error Message',
+        compute='_compute_total_amount_difference_error_message',
+    )
+
+    is_multi_stock = fields.Boolean(
+        compute='_compute_is_multi_stock',
+        string='External Multistock',
+    )
+
+    @property
+    def is_confirmed(self):
+        assert len(self) <= 1
+        return self.state == 'sale'
+
+    @property
+    def is_procurement_grouped(self):
+        if not self.is_confirmed:
+            return False
+
+        external_locations = self._integration_external_locations()
+        return len(self.picking_ids.mapped('location_id.warehouse_id')) == len(external_locations)
+
+    @property
+    def is_available_multi_stock_for_so(self):
+        wh_field = self.order_line._fields['warehouse_id']
+        return wh_field.store
+
     @property
     def integration_pipeline(self):
-        pipeline = self.env['integration.workflow.pipeline'].search([
+        return self.env['integration.workflow.pipeline'].search([
             ('order_id', '=', self.id),
         ], limit=1)
-        return pipeline
+
+    @property
+    def invoice_full_paid(self):
+        return all(x.payment_state in ('paid', 'in_payment') for x in self.invoice_ids)
+
+    @api.depends('amount_total')
+    def _compute_total_amount_difference_error_message(self):
+        error_message = _(
+            'Warning!\n'
+            'Difference in total order amounts in e-Commerce System and Odoo.'
+            'Total order amount in e-Commerce System is %s. Total order amount in Odoo is %s.')
+        for order in self:
+            if order.is_total_amount_difference:
+                order.total_amount_difference_error_message = error_message % (
+                    self.integration_amount_total, self.amount_total)
+            else:
+                order.total_amount_difference_error_message = ''
 
     def _get_integration_id_for_job(self):
         return self.integration_id.id
@@ -211,7 +264,8 @@ class SaleOrder(models.Model):
                 job_kwargs = {
                     'identity_key': f'export_sale_order_status_{order.id}',
                     'description': (
-                        f'Export Sale Order [{order.id}] sub-status: {order.sub_status_id.name}'
+                        f'Export Sale Order [{order.id}][{order.name}] '
+                        f'sub-status: {order.sub_status_id.name}'
                     ),
                 }
                 job = integration.with_context(company_id=integration.company_id.id)\
@@ -219,6 +273,12 @@ class SaleOrder(models.Model):
                 order.job_log(job)
 
         return result
+
+    @api.depends('order_line.external_location_id')
+    def _compute_is_multi_stock(self):
+        for rec in self:
+            external_locations = self._integration_external_locations()
+            rec.is_multi_stock = len(external_locations) > 1
 
     @api.depends('amount_total', 'integration_amount_total')
     def _compute_is_total_amount_difference(self):
@@ -237,6 +297,9 @@ class SaleOrder(models.Model):
         for order in self:
             reference_list = order.related_input_files.mapped('order_reference')
             order.external_sales_order_ref = ', '.join(reference_list) or ''
+
+    def _integration_external_locations(self):
+        return set(filter(None, self.order_line.mapped('external_location_id')))
 
     def _integration_cancel_order_hook(self):
         self.ensure_one()
@@ -303,10 +366,7 @@ class SaleOrder(models.Model):
             return result
 
         if self.integration_id.run_action_on_so_invoice_status:
-            invoice_full_paid = all(
-                x.payment_state in ('paid', 'in_payment') for x in self.invoice_ids
-            )
-            action_after_paid = invoice_full_paid or self._context.get('force_export_paid_status')
+            action_after_paid = self.invoice_full_paid or self._context.get('force_export_paid_status')
 
             if self.invoice_status == 'invoiced' and action_after_paid:
                 result = self._perform_method_by_name(f'_{self.type_api}_paid_order')
@@ -326,7 +386,7 @@ class SaleOrder(models.Model):
         if not integration.job_enabled('export_tracking'):
             return False
 
-        pickings = self._get_pickings_to_export()
+        pickings = self.picking_ids._filter_pickings()
 
         if integration.is_carrier_tracking_required():
             pickings = pickings.filtered('carrier_tracking_ref')
@@ -337,25 +397,34 @@ class SaleOrder(models.Model):
         kwargs = {
             'identity_key': f'order_export_tracking-{self.id}-{pickings.ids}',
             'description': (
-                f'{integration.name}: Export tracking [{self.name}]. Pickings {pickings.ids}'
+                f'{integration.name}: Export tracking '
+                f'[{self.name}] ({self.id}). Pickings [{", ".join(pickings.mapped("name"))}]'
             ),
         }
-        integration = integration.with_context(company_id=integration.company_id.id)
 
-        job = integration.with_delay(**kwargs).export_tracking(pickings)
+        job = integration.with_context(company_id=integration.company_id.id)\
+            .with_delay(**kwargs).export_tracking(pickings)
+
         self.job_log(job)
 
         return job
 
-    def _get_pickings_to_export(self):
-        pickings = self.picking_ids.filtered(
-            lambda x: x.state == 'done' and not x.tracking_exported
-            and (
-                x.picking_type_id.id == x.picking_type_id.warehouse_id.out_type_id.id
-                or ('is_dropship' in x._fields and x.is_dropship)
-            )
-        )
-        return pickings
+    def action_refresh_data_from_external(self, data=None):
+        """
+        Debug action (helper) for fetching external parameters handled by the
+        `_adjust_integration_external_data` and `_apply_values_from_external` methods.
+        """
+        for rec in self:
+            external_id = rec.related_input_files[:1].name
+            if not external_id:
+                continue
+
+            vals = rec.with_context(
+                external_order_id=external_id,
+                skip_dispatch_to_external=True,
+            )._adjust_integration_external_data(data or {})
+
+            rec._apply_values_from_external(vals)
 
     def _prepare_vals_for_sale_order_status(self):
         integration = self.integration_id
@@ -376,13 +445,21 @@ class SaleOrder(models.Model):
         :param external_data: dict
 
         """
-        SoFactory = self.env['integration.sale.order.factory']
-        status_code = external_data['integration_workflow_states'][0]
-        sub_status = SoFactory._get_order_sub_status(self.integration_id, status_code)
-        vals = dict(
-            sub_status_id=sub_status.id,
-        )
-        return self.with_context(skip_dispatch_to_external=True).write(vals)
+        if not isinstance(external_data, dict):
+            return external_data
+
+        vals = dict()
+        if external_data.get('integration_workflow_states'):
+            status_code = external_data['integration_workflow_states'][0]
+
+            sub_status = self.env['integration.sale.order.factory']\
+                ._get_order_sub_status(self.integration_id, status_code)
+            vals['sub_status_id'] = sub_status.id
+
+        if vals:
+            self.with_context(skip_dispatch_to_external=True).write(vals)
+
+        return external_data
 
     def _adjust_integration_external_data(self, external_data):
         """
@@ -392,21 +469,7 @@ class SaleOrder(models.Model):
         :param external_data: dict
 
         """
-        pass
-
-    def _apply_so_status_external_data(self, external_data):
-        """
-        Hook method for redefining. Invoked after the order sub-status was exported.
-
-        :param external_data: tuple
-
-            result, dict_object = external_data
-
-            result: bool (actually, it depends on integration type)
-            dict_object: dict serialized object from External API
-
-        """
-        pass
+        return external_data
 
     def get_max_delivery_date(self):
         self.ensure_one()
@@ -422,7 +485,7 @@ class SaleOrder(models.Model):
 
     def _build_and_run_integration_workflow(self, order_data, input_file_id=False):
         self.ensure_one()
-        _logger.info('Create new (or use existing) %s pipeline', self)
+        _logger.info('Create new (or use existing) integration pipeline: %s', self)
 
         pipeline = self.integration_pipeline
 
@@ -447,31 +510,34 @@ class SaleOrder(models.Model):
                 'pipeline_task_ids': pipeline_task_ids,
             }
             pipeline = self.env['integration.workflow.pipeline'].create(pipeline_vals)
-            _logger.info('New pipeline for %s was created: %s', self, pipeline)
+            _logger.info('New integration pipeline for %s was created: %s', self, str(pipeline.loginfo))
 
         if pipeline.has_tasks_to_process:
+            _logger.info('%s: integration pipeline ready to run.', self)
+            pipeline._mark_input_to_process()
+
             job_kwargs = self._build_workflow_job_kwargs()
-            job = pipeline.with_delay(**job_kwargs).trigger_pipeline()
+            job = pipeline.with_context(company_id=self.company_id.id)\
+                .with_delay(**job_kwargs).trigger_pipeline()
+
             pipeline.job_log(job)
+        else:
+            _logger.info('%s: integration pipeline has no active tasks.', self)
+            pipeline._mark_input_as_done()
 
         return pipeline
 
     def _build_workflow_job_kwargs(self, task=None, priority=9):
-        identity_key = f'integration_workflow_pipeline-{self.integration_id.id}-{self}'
-
+        key = f'{self.integration_id.id}-{self}-{self.integration_pipeline.input_file_id.name}'
         if task:
-            identity_key += f'-{task}'
+            key = f'{task}-{key}'
 
-        job_kwargs = {
-            'channel': self.env.ref('integration.channel_sale_order').complete_name,
-            'identity_key': identity_key,
+        return {
             'priority': priority,
-            'description': (
-                f'Run Integration Workflow: [{self.integration_id.id}] {self.display_name}'
-            ),
+            'identity_key': f'integration_workflow_pipeline-{key}',
+            'channel': self.env.ref('integration.channel_sale_order').complete_name,
+            'description': f'{self.integration_id.name}: Order № "{self.display_name}" >> RUN INTEGRATION WORKFLOW',
         }
-
-        return job_kwargs
 
     def _build_task_list_and_vals(self, order_data):
         integration = self.integration_id
@@ -606,7 +672,7 @@ class SaleOrder(models.Model):
 
         result = invoices.with_company(self.company_id).action_post()
 
-        if result is False:  # I don't know why, this is the Odoo standard
+        if result in (False, None):  # I don't know why, this is the Odoo standard
             return True, _('[%s] %s validated invoices successfully.') % (self, invoices)
         return result, ''
 
@@ -677,7 +743,7 @@ class SaleOrder(models.Model):
 
         payment_dict = {
             'amount': invoice.amount_residual,
-            'partner_id': invoice.partner_id.id,
+            'partner_id': invoice.commercial_partner_id.id,
             'partner_type': partner_type,
             'payment_type': payment_type,
             'date': invoice.invoice_date,
@@ -728,14 +794,16 @@ class SaleOrder(models.Model):
                 return error_code, message, data
 
         # Try to find an invoice that is validated
-        if self.integration_id.behavior_on_non_existing_invoice == 'return_not_exist':
-            invoice = self.invoice_ids.filtered(lambda i: i.state == 'posted')
-            if not invoice:
-                message = 'No validated invoice was found for order %s' % self.display_name
-                return error_code, message, data
+        posted_invoices = self.invoice_ids.filtered(lambda i: i.state == 'posted')
+        if (
+                self.integration_id.behavior_on_non_existing_invoice == 'return_not_exist'
+                and not posted_invoices
+        ):
+            message = 'No validated invoice was found for order %s' % self.display_name
+            return error_code, message, data
 
         # Create invoice if it is not created yet
-        if self.invoice_status == 'to invoice':
+        if not posted_invoices and self.invoice_status == 'to invoice':
             try:
                 invoice_created = self._create_invoices(final=True)
                 if not invoice_created:
@@ -765,11 +833,11 @@ class SaleOrder(models.Model):
             message = e.args[0]
             return error_code, message, data
 
-        invoices = self.invoice_ids.filtered(lambda i: i.state == 'posted')
+        posted_invoices = self.invoice_ids.filtered(lambda i: i.state == 'posted')
         report_template = self.integration_id.invoice_report_id
 
         try:
-            invoice_pdf = report_template._render_qweb_pdf(invoices.ids)[0]
+            invoice_pdf = report_template._render_qweb_pdf(posted_invoices.ids)[0]
         except UserError as e:
             message = e.args[0]
             return error_code, message, data
@@ -800,6 +868,32 @@ class SaleOrder(models.Model):
         return success_code, message, data
 
     def get_integration_order_name(self, integration, order_ref):
+        if integration.use_odoo_so_numbering:
+            return None
         if integration.order_name_ref:
             return '%s%s' % (integration.order_name_ref, order_ref)
         return order_ref
+
+    def _get_pickings_to_handle(self):
+        return self.picking_ids._filter_pickings_to_handle()
+
+    def action_cancel_integration(self):
+        self.ensure_one()
+
+        result = self.action_cancel()
+
+        if isinstance(result, dict):  # ir.actions.act_window
+            return result
+
+        if self.env.context.get('disable_cancel_warning'):
+            return result
+
+        if not self.integration_id.is_active or not self.integration_id.is_integration_cancel_allowed():
+            return result
+
+        wizard = self.env['sale.order.cancel'].create({
+            'order_id': self.id,
+        })
+        wizard_ = wizard._check_integration_order_status()
+
+        return wizard_.open_integration_cancel_view()

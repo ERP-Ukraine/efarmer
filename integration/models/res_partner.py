@@ -32,6 +32,15 @@ class ResPartner(models.Model):
     external_company_name = fields.Char(
         string='External Company Name',
     )
+    external_customer_ids = fields.Many2many(
+        comodel_name='integration.res.partner.external',
+        relation='res_partner_external_rel',
+        column1='partner_id',
+        column2='external_id',
+        ondelete='cascade',
+        string='External Customer',
+        readonly=True,
+    )
 
     @api.model
     def _commercial_fields(self):
@@ -46,21 +55,47 @@ class ResPartner(models.Model):
             return f'{partner_sudo.external_company_name}, {name}'
         return super(ResPartner, self)._get_contact_name(partner, name)
 
-    def _validate_integration_vat(self, vat):
+    def _validate_integration_vat(self, vat, country_id):
         """
         :return: `is_valid`, `error_message`
         """
-        def _vat_error():
-            return _(
-                'IMPORTANT! The customer "%s" provided VAT number "%s", but it is not a valid '
-                'number. Please, make sure to contact the customer to get from him the proper VAT.'
-            ) % (self.name, vat)
+
+        def _prepare_error_message():
+            partner_label = _("partner [%s]", self.name)
+            return self._build_vat_error_message(
+                country_id and country_id.code.lower() or None, vat, partner_label,
+            )
+
+        if not vat:
+            return False, False
 
         if not self.sudo().env.ref('base.module_base_vat').state == 'installed':
             return True, False
 
-        is_valid = self._run_vies_test(vat, self.country_id)
-        return is_valid, _vat_error() if not is_valid else False
+        # Split the VAT number and check if it has a legitimate country code
+        vat_country_code, vat_number_split = self._split_vat(vat)
+        vat_has_legit_country_code = self.env['res.country'].search([
+            ('code', '=', vat_country_code.upper()),
+        ])
+
+        # Invalid country code
+        if not vat_has_legit_country_code:
+            return False, _prepare_error_message()
+
+        # Determine the VAT check function
+        eu_countries = self.env.ref('base.europe').country_ids
+        if country_id in eu_countries:
+            check_func = self.vies_vat_check
+        else:
+            check_func = self.simple_vat_check
+
+        # Validate the VAT number using the determined check function
+        is_valid = check_func(vat_country_code, vat_number_split)
+
+        if not is_valid:
+            return False, _prepare_error_message()
+
+        return True, False
 
     @api.model
     def _run_vies_test(self, vat_number, default_country):  # Copied from Odoo-16
@@ -86,3 +121,15 @@ class ResPartner(models.Model):
                 return default_country.code.lower()
 
         return check_result
+
+    def _link_external_partner(self, integration: models.Model, external_id: str) -> bool:
+        """
+        Link an external partner if it exists.
+        """
+        external_partner = self.env['integration.res.partner.external'].get_external_by_code(
+            integration, external_id, raise_error=False,
+        )
+        if external_partner and external_partner not in self.external_customer_ids:
+            self.external_customer_ids = [(4, external_partner.id)]
+
+        return True

@@ -32,6 +32,10 @@ class ExternalStockLocationLine(models.Model):
         comodel_name='integration.stock.location.external',
         string='External Location',
     )
+    warehouse_id = fields.Many2one(
+        comodel_name='stock.warehouse',
+        related='erp_location_id.warehouse_id',
+    )
 
     def _group_by_exernal_code(self):
         """

@@ -142,5 +142,11 @@
                   action="integration_account_tax_external_action"
                   sequence="22"/>
 
+        <menuitem id="menu_order_fulfillments"
+                  name="Order Fulfillments"
+                  parent="integration.menu_external"
+                  action="external_order_fulfillment_tree_action"
+                  groups="base.group_no_one"/>
+
     </data>
 </odoo>

@@ -1,12 +1,10 @@
-# Copyright 2023 VentorTech OU
-# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
+# See LICENSE file for full copyright and licensing details.
 
 from unittest.mock import patch
 
-from ..models.fields.receive_fields_product_template import \
-    ProductTemplateReceiveMixin
+from .config.integration_init import OdooIntegrationInit
 from ..models.sale_integration import SaleIntegration
-from .config.intuit_case import OdooIntegrationInit
+from ..models.fields.receive_fields_product_template import ProductTemplateReceiveMixin
 
 
 class TestProductTemplateReceive(ProductTemplateReceiveMixin):

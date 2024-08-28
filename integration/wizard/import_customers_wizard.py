@@ -31,6 +31,8 @@ class ImportCustomersWizard(models.TransientModel):
     def run_import(self):
         customers = list()
         integration = self._get_sale_integration()
+        integration = integration.with_context(company_id=integration.company_id.id)
+
         limit = integration.get_external_block_limit()
         adapter = integration._build_adapter()
         customer_ids = adapter.get_customer_ids(self.date_since)

@@ -16,7 +16,14 @@
             <field name="name">sale.order.form.view</field>
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="priority">99</field>
             <field name="arch" type="xml">
+                <xpath expr="//header/button[@name='action_cancel']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='action_cancel']/." position="after">
+                    <button name="action_cancel_integration" type="object" string="Cancel" attrs="{'invisible': ['|', ('state', 'not in', ['draft', 'sent','sale']), ('id', '=', False)]}" data-hotkey="x"/>
+                </xpath>
                 <xpath expr="//sheet/div[@name='button_box']/." position="inside">
                     <button class="oe_stat_button" type="object" name="action_integration_pipeline_form" icon="fa-star"
                             attrs="{'invisible': [('integration_id', '=', False)]}">
@@ -28,31 +35,56 @@
                 <xpath expr="//group[@name='sale_header']" position="before">
                     <field name="is_total_amount_difference" invisible="1"/>
                     <div class="alert alert-warning" role="alert" style="margin-bottom:0px;"
-                         attrs="{'invisible': [('is_total_amount_difference', '!=', True)]}"
-                    >
-                        <b>Warning!</b>
-                        <br/>
-                        Difference in total order amounts in e-Commerce System and Odoo.
-                        Total order amount in e-Commerce System is
-                        <b><field name="integration_amount_total" readonly="True"/></b>.
-                        Total order amount in Odoo is
-                        <b><field name="amount_total" readonly="True"/></b>.
+                         attrs="{'invisible': ['|',('integration_id', '=', False),('is_total_amount_difference', '=', False)]}">
+                        <field name="total_amount_difference_error_message"/>
                     </div>
+                    <br/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree/." position="inside">
+                    <field name="integration_external_id" optional="hide"/>
+                    <field name="external_location_id" optional="hide"/>
                 </xpath>
                 <field name="payment_term_id" position="after">
                     <field name="type_api" invisible="1" />
-                    <field name="sub_status_id" 
+                    <field name="sub_status_id"
                            attrs="{'invisible': [('integration_id', '=', False)], 'readonly': [('type_api', '!=', 'prestashop')]}" />
                 </field>
                 <notebook position="inside">
                     <page string="e-Commerce Integration" name="sales_integration" attrs="{'invisible': [('integration_id', '=', False)]}">
                         <group>
                             <field name="integration_id"/>
+                            <field name="is_multi_stock"/>
                             <field name="payment_method_id" attrs="{'invisible': [('integration_id', '=', False)]}"/>
                             <field name="integration_delivery_note"/>
                             <field name="external_sales_order_ref"/>
-                            <field name="external_tag_ids"
-                                   readonly="1" widget="many2many_tags" attrs="{'invisible': [('type_api', '!=', 'shopify')]}"/>
+                            <field name="external_tag_ids" readonly="1" widget="many2many_tags" attrs="{'invisible': [('type_api', '!=', 'shopify')]}"/>
+                        </group>
+                        <group name="external_fulfillment_info">
+                            <label for="external_fulfillment_ids"/>
+                            <div colspan="2">
+                                <field name="external_fulfillment_ids">
+                                    <tree create="0" edit="0" delete="0"
+                                          decoration-muted="internal_status=='done'"
+                                          decoration-warning="internal_status=='skipped'"
+                                          decoration-danger="internal_status=='failed'">
+                                        <field name="name"/>
+                                        <field name="external_str_id" optional="hide"/>
+                                        <field name="external_location_id" optional="hide"/>
+                                        <field name="internal_status" invisible="1"/>
+                                        <field name="external_status"/>
+                                        <field name="internal_status"/>
+                                        <field name="tracking_company"/>
+                                        <field name="tracking_number"/>
+                                        <field name="line_ids" optional="hide" widget="many2many_tags"/>
+                                        <button name="validate" type="object" string="Apply"
+                                                attrs="{'invisible': ['|', ('internal_status', '=', 'done'), ('external_status', '=', 'cancelled')]}"
+                                                groups="base.group_no_one"/>
+                                        <button name="cancel_in_ecommerce_system" type="object" string="Cancel External"
+                                                attrs="{'invisible': [('external_status', '=', 'cancelled')]}"
+                                                groups="base.group_no_one"/>
+                                    </tree>
+                                </field>
+                            </div>
                         </group>
                         <group name="external_transactions">
                             <label for="external_payment_ids"/>
@@ -68,6 +100,12 @@
                                 </tree>
                             </field>
                         </group>
+                        <button type="object"
+                                name="action_refresh_data_from_external"
+                                string="Actualize External Properties"
+                                context="{'skip_integration_order_post_action': True}"
+                                groups="base.group_no_one"
+                        />
                     </page>
                 </notebook>
             </field>

@@ -1,13 +1,19 @@
-# Copyright 2021 VentorTech OU
-# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
+# See LICENSE file for full copyright and licensing details.
 
-
-# Odoo:
-from odoo import models
+from odoo import models, fields
+from odoo.tools import float_compare
 
 
 class StockMove(models.Model):
-    _inherit = "stock.move"
+    _inherit = 'stock.move'
+
+    integration_external_id = fields.Char(
+        related='sale_line_id.integration_external_id',
+    )
+
+    @property
+    def has_kits(self):
+        return any(getattr(x, 'bom_line_id', False) for x in self)
 
     def _get_new_picking_values(self):
         vals = super()._get_new_picking_values()
@@ -21,3 +27,17 @@ class StockMove(models.Model):
             if src_value:
                 vals[tgt_field_name] = src_value
         return vals
+
+    def _move_qty_lack(self):
+        return self.compare_qty_to_realqty == -1
+
+    def _has_enough_qty(self):
+        return self.compare_qty_to_realqty <= 0
+
+    @property
+    def compare_qty_to_realqty(self):
+        return float_compare(
+            self.quantity_done,
+            self.product_qty,
+            precision_rounding=self.product_id.uom_id.rounding,
+        )

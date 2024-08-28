@@ -1,14 +1,19 @@
 # See LICENSE file for full copyright and licensing details.
 
+import logging
+
 from odoo import models
 from odoo.addons.queue_job.job import Job
 from odoo.tools.misc import clean_context
 
 
+_logger = logging.getLogger(__name__)
+
+
 class Base(models.AbstractModel):
     _inherit = 'base'
 
-    def job_log(self, job, delay=False):
+    def job_log(self, job):
         if not isinstance(job, Job):
             return self.env['job.log']
 
@@ -16,22 +21,17 @@ class Base(models.AbstractModel):
         if not record:
             return False
 
-        ctx = self.env.context
-        int_ctx_id = ctx.get('default_integration_id', False)
-
         integration = record.integration_id
+        int_ctx_id = self.env.context.get('default_integration_id', False)
         integration = integration or integration.browse(int_ctx_id)
+
         if not integration and integration._name == self._name:
             integration = integration.browse(self.ids)
+
         integration.exists().ensure_one()
 
-        if delay:
-            job_kwargs = {
-                'priority': 25,
-                'description': f'{integration.name}: Create Job Logs with delay ({self._name})',
-            }
-            job = self.with_delay(**job_kwargs)._job_log(record, integration.id)
-            return job
+        if not record.integration_id:
+            record.integration_id = integration.id
 
         return self._job_log(record, integration.id)
 
@@ -41,15 +41,20 @@ class Base(models.AbstractModel):
             res_model=self._name,
             integration_id=integration_id,
         )
-        ctx = clean_context(self.env.context)
 
-        def prepare_vals(rec):
-            return {'res_id': rec.id, **vals}
+        job_log = self.env['job.log'].sudo()\
+            .with_context(clean_context(self.env.context))\
+            .create([{'res_id': x.id, **vals} for x in self])
 
-        return self.env['job.log'].sudo().with_context(ctx).create([prepare_vals(x) for x in self])
+        _logger.info('JobLog was created: %s', str(job_log.loginfo))
+        return job_log
 
     def get_formview_action_log(self):
         return self.get_formview_action()
+
+    def is_module_installed(self, name):
+        module = self.sudo().env.ref(f'base.module_{name}', raise_if_not_found=False)
+        return (module.state == 'installed') if module else False
 
     def _get_field_string(self, name):
         if name in self._fields:

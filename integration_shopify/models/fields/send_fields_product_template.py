@@ -10,11 +10,6 @@ class SendFieldsProductTemplateShopify(SendFieldsShopify, ProductTemplateSendMix
     def convert_pricelists(self, *args, **kw):
         raise NotImplementedError
 
-    def send_integration_name(self, field_name):
-        return {
-            field_name: self.odoo_obj.get_integration_name(self.integration),
-        }
-
     def send_product_status_spf(self, field_name):
         if not self.odoo_obj.active:
             return {field_name: 'archived'}

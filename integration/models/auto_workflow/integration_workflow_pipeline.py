@@ -4,10 +4,12 @@ import logging
 
 from odoo import models, fields, _
 from odoo.exceptions import UserError, ValidationError
+
 from ...tools import raise_requeue_job_on_concurrent_update
 
 
 _logger = logging.getLogger(__name__)
+
 
 SKIP = 'skip'
 TO_DO = 'todo'
@@ -48,9 +50,13 @@ class IntegrationWorkflowPipelineLine(models.Model):
         comodel_name='sale.order',
         related='pipeline_id.order_id',
     )
+    company_id = fields.Many2one(
+        comodel_name='res.company',
+        related='order_id.company_id',
+    )
     integration_id = fields.Many2one(
         comodel_name='sale.integration',
-        related='pipeline_id.order_id.integration_id',
+        related='order_id.integration_id',
     )
     pipeline_id = fields.Many2one(
         comodel_name='integration.workflow.pipeline',
@@ -86,14 +92,18 @@ class IntegrationWorkflowPipelineLine(models.Model):
 
     def task_force_done(self):
         self.ensure_one()
+
         self._validate_previous()
         self.set_task_to_done(update_logs=True)
+
         if not self.get_next_task():
             self.mark_input_as_done()
+
         return self.open_form()
 
     def task_force_draft(self):
         self.ensure_one()
+
         self.mark_todo()
         return self.open_form()
 
@@ -115,14 +125,19 @@ class IntegrationWorkflowPipelineLine(models.Model):
         return self.pipeline_id._mark_input_as_done()
 
     def set_task_to_done(self, update_logs=False):
+        self.ensure_one()
+
         self.mark_done()
         self.update_info()
+
         if update_logs:
             self.mark_jobs_as_done()
+
         return True
 
     def run(self):
         """Manual running by button"""
+        self.ensure_one()
         if self.state in (SKIP, DONE):
             raise UserError(_('Inactive task for the current workflow!'))
 
@@ -134,16 +149,23 @@ class IntegrationWorkflowPipelineLine(models.Model):
             self.set_task_to_done()
             if not self.get_next_task():
                 self.mark_input_as_done()
-        else:
+        elif result is None:
             self.mark_process()
+            self.update_info(message)
+        else:
+            self.mark_failed()
             self.update_info(message)
 
         return self.open_form()
 
     def run_with_delay(self):
         """Automatic running by triggered `pipeline_id`"""
+        self.ensure_one()
+
         job_kwargs = self._build_task_job_kwargs()
-        job = self.with_delay(**job_kwargs)._run_and_call_next()
+        job = self.with_context(company_id=self.company_id.id)\
+            .with_delay(**job_kwargs)._run_and_call_next()
+
         self.order_id.job_log(job)
         return job
 
@@ -161,7 +183,11 @@ class IntegrationWorkflowPipelineLine(models.Model):
 
     def _fail_job_manually(self, message):
         job_kwargs = self._build_task_job_kwargs()
-        job = self.with_delay(**job_kwargs)._raise_message(message)
+        job_kwargs['description'] = job_kwargs['description'] + ' [TRACEBACK INFO] (mark me as done)'
+
+        job = self.with_context(company_id=self.company_id.id)\
+            .with_delay(**job_kwargs)._raise_message(message)
+
         self.order_id.job_log(job)
         return job
 
@@ -169,8 +195,7 @@ class IntegrationWorkflowPipelineLine(models.Model):
         return {
             'channel': self.env.ref('integration.channel_sale_order').complete_name,
             'identity_key': f'integartion_pipeline_task-{self.integration_id.id}-{self}',
-            'description': 'Workflow Line: '
-            + f'{self.name} [{self.order_id.display_name}] ({self.integration_id.id})',
+            'description': f'{self.integration_id.name}: Order № "{self.order_id.display_name}" >> {self.name}',
         }
 
     def _raise_message(self, message):
@@ -199,6 +224,9 @@ class IntegrationWorkflowPipelineLine(models.Model):
 
         if result:
             self.set_task_to_done()
+            self.call_next_step_job()
+        elif result is None:
+            self.mark_process()
             self.call_next_step_job()
         else:
             self.mark_failed()
@@ -297,6 +325,15 @@ class IntegrationWorkflowPipeline(models.Model):
         tasks = self.pipeline_task_ids.filtered(lambda x: x.state not in (SKIP, DONE))
         return bool(tasks)
 
+    @property
+    def loginfo(self):
+        return dict(
+            self=str(self),
+            order_id=self.order_id.id,
+            integration_id=self.input_file_id.si_id.id,
+            tasks=self._tasks_info(),
+        )
+
     def _compute_invoice_journal(self):
         for rec in self:
             invoice_journals = rec.sub_state_external_ids\
@@ -311,8 +348,11 @@ class IntegrationWorkflowPipeline(models.Model):
 
     def manual_run(self):
         self.ensure_one()
+
         job_kwargs = self.order_id._build_workflow_job_kwargs()
-        job = self.with_delay(**job_kwargs).trigger_pipeline()
+        job = self.with_context(company_id=self.order_id.company_id.id)\
+            .with_delay(**job_kwargs).trigger_pipeline()
+
         self.order_id.job_log(job)
         return self.open_form()
 
@@ -330,36 +370,43 @@ class IntegrationWorkflowPipeline(models.Model):
     def _mark_input_as_done(self):
         self.input_file_id.action_done()
 
-    def trigger_pipeline(self):
+    def _mark_input_to_process(self):
         self.input_file_id.action_process()
-        task_to_run = self.pipeline_task_ids.filtered(lambda x: x.is_not_done)[:1]
 
-        if not task_to_run:
+    def trigger_pipeline(self):
+        _logger.info('Running integration pipeline --> %s', str(self.loginfo))
+        if not self.has_tasks_to_process:
+            _logger.info('Skipping integration pipeline --> %s', str(self.loginfo))
             self._mark_input_as_done()
-            return _(
-                'There are no active tasks for the current pipeline: %s' % self._tasks_info()
-            )
+            return _('Workflow Ended: %s') % self._tasks_info()
+
+        task_to_run = self.pipeline_task_ids.filtered(lambda x: x.is_not_done)[:1]
         task_to_run.run_with_delay()
+
+        self._mark_input_to_process()
         return self._tasks_info()
 
     def _call_pipeline_step(self, step_name):
+        if not self.has_tasks_to_process:
+            self._mark_input_as_done()
+            return _('Workflow Ended: %s') % self._tasks_info()
+
         task_to_run = self._find_task(step_name)
+
         if not task_to_run:
             self._mark_input_as_done()
-            return _('Workflow Done!')
+            return _('Workflow Done: %s') % self._tasks_info()
 
         return task_to_run.run_with_delay()
 
     def _find_task(self, step_name):
-        task_to_run = self.pipeline_task_ids\
-            .filtered(lambda x: x.current_step_method == step_name)
-        return task_to_run
+        return self.pipeline_task_ids.filtered(lambda x: x.current_step_method == step_name)
 
     def _tasks_info(self):
-        return [(x.name, x.state) for x in self.pipeline_task_ids]
+        return [(x.id, x.name, x.state) for x in self.pipeline_task_ids]
 
     def _update_pipeline(self, order_data):
-        _logger.info('Update existing order pipeline %s', self)
+        _logger.info('Updating integration pipeline: %s -->', self.loginfo)
 
         task_list, pipeline_vals = self.order_id._build_task_list_and_vals(order_data)
         sub_state_ids = pipeline_vals['sub_state_external_ids'][0][-1]
@@ -380,9 +427,9 @@ class IntegrationWorkflowPipeline(models.Model):
             )
             if task and task.is_not_done and task_enable:
                 task.mark_todo()
-                _logger.info('Pipeline task "%s" was marked as "TODO".', task_name)
+                _logger.info('%s: integration pipeline task "%s" was marked as "TODO".', self, task_name)
 
-        return vals
+        return order_data, vals
 
     def get_formview_action_log(self):
         return self.order_id.get_formview_action()

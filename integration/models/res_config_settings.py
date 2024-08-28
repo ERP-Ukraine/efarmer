@@ -83,3 +83,8 @@ class ResConfigSettings(models.TransientModel):
                 previous_group_ecosystem_subscription_key != self.ecosystem_subscription_key:
             self.sudo().update_ecosystem_subscription_info()
         return res
+
+    def validate_configuration(self):
+        wizard = self.env['integration.installation.wizard'].create({})
+
+        return wizard.check_odoo_setup_for_integration()

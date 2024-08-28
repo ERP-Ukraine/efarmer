@@ -53,6 +53,8 @@ class IntegrationExternalMixin(models.AbstractModel):
             'unique(integration_id, code)',
             'Code should be unique',
         ),
+        # PostgreSQL treats NULLs as distinct values, therefore, this constraint won't work with
+        # NULL values in a column with a UNIQUE index.
         (
             'uniq_reference',
             'unique(integration_id, external_reference)',
@@ -178,6 +180,7 @@ class IntegrationExternalMixin(models.AbstractModel):
 
     def try_map_by_external_reference(self, odoo_search_domain=False):
         self.ensure_one()
+
         # If we found existing mapping, we do not need to do anything
         odoo_record = self.odoo_record
         if odoo_record:

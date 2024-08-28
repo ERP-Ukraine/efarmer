@@ -31,7 +31,7 @@
         </record>
 
         <record id="integration_sale_order_mapping_action" model="ir.actions.act_window">
-            <field name="name">Orders</field>
+            <field name="name">Orders Mappings</field>
             <field name="res_model">integration.sale.order.mapping</field>
             <field name="view_mode">tree</field>
         </record>

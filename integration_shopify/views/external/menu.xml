@@ -8,5 +8,11 @@
                   action="external_order_risk_action"
                   groups="base.group_no_one"/>
 
+        <menuitem id="menu_sale_channel"
+                  name="Sales Channels"
+                  parent="integration.menu_external"
+                  action="external_sale_channel_action"
+                  groups="base.group_no_one"/>
+
     </data>
 </odoo>

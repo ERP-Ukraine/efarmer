@@ -5,6 +5,8 @@ import base64
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
+from ...tools import _verify_image_data
+
 
 class IntegrationProductProductExternal(models.Model):
     _name = 'integration.product.product.external'
@@ -119,11 +121,16 @@ class IntegrationProductProductExternal(models.Model):
         return super().create_or_update(vals)
 
     def format_recordset(self):
-        return str(
-            self.mapped(
-                lambda x: (f'<id={x.id}>', x.code, x.external_reference, x.external_barcode)
-            )
+        values = self.mapped(
+            lambda x: ', '.join([
+                f'id={x.id}',
+                f'code={x.code}',
+                f'reference={x.external_reference}',
+                f'barcode={x.external_barcode}',
+                f'attribute_values={x.external_attribute_value_ids.mapped("code")}',
+            ])
         )
+        return '[%s]' % '; '.join(f'({x})' for x in values)
 
     def _search_suitable_variant(self):
         self.ensure_one()
@@ -131,15 +138,15 @@ class IntegrationProductProductExternal(models.Model):
         # Search by the reference
         product = self.external_product_template_id._find_product_by_field(
             self._odoo_model,
-            self.integration_id._get_product_reference_name(),
+            self.integration_id.product_reference_name,
             self.external_reference,
         )
 
         # Search by the barcode
-        if not product and self.external_barcode and self.integration_id._need_for_barcode():
+        if not product and self.external_barcode and self.integration_id.is_barcode_validation_required():
             product = self.external_product_template_id._find_product_by_field(
                 self._odoo_model,
-                self.integration_id._get_product_barcode_name(),
+                self.integration_id.product_barcode_name,
                 self.external_barcode,
             )
 
@@ -160,12 +167,12 @@ class IntegrationProductProductExternal(models.Model):
         return variant or self.env[self._odoo_model]
 
     def _filter_variants_by_reference(self, odoo_records):
-        reference_field = self.integration_id._get_product_reference_name()
+        reference_field = self.integration_id.product_reference_name
         router = {getattr(x, reference_field): x for x in odoo_records}
         return router.get(self.external_reference)
 
     def _filter_variants_by_barcode(self, odoo_records):
-        barcode_field = self.integration_id._get_product_barcode_name()
+        barcode_field = self.integration_id.product_barcode_name
         router = {getattr(x, barcode_field): x for x in odoo_records}
         return router.get(self.external_reference)
 
@@ -197,29 +204,38 @@ class IntegrationProductProductExternal(models.Model):
 
         return res
 
-    def _update_variant_media(self, product, image_data):
-        if not image_data['images']:
-            return
+    def _update_variant_media(self, image_data: dict):
+        product = self.odoo_record
+        update_mapping_and_exit = False
 
-        image_list = image_data['variants'].get(self.code, [])
-        if not image_list:
-            return
-
-        # Update variant images only if variants more than 1
         if len(product.product_tmpl_id.product_variant_ids) < 2:
-            return
+            update_mapping_and_exit = True
 
-        ext_img_id = image_list[0]
-        img_data = image_data['images'].get(ext_img_id)
+        elif not image_data['images']:
+            update_mapping_and_exit = True
+            product.image_1920 = False
 
-        if img_data and not self.verify_image_data(product, img_data):
+        elif not image_data['variants'].get(self.code):
+            update_mapping_and_exit = True
+            product.image_1920 = False
+
+        if update_mapping_and_exit:
+            product.update_mapping_any(self.integration_id, 'image_variant_1920', 'image', False)
+            return product.image_1920
+
+        ext_img_id = image_data['variants'][self.code][0]
+        image_data = image_data['images'].get(ext_img_id)
+
+        if image_data:
+            if _verify_image_data(image_data, product.display_name):
+                product.image_1920 = base64.b64encode(image_data)
+            else:
+                ext_img_id = False
+        else:
             ext_img_id = False
-            img_data = False
-
-        if img_data:
-            product.image_1920 = base64.b64encode(img_data)
 
         product.update_mapping_any(self.integration_id, 'image_variant_1920', 'image', ext_img_id)
+        return product.image_1920
 
     def create_or_update_mapping(self, odoo_id=None):
         mapping = super().create_or_update_mapping(odoo_id=odoo_id)

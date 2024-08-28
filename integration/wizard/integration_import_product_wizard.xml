@@ -25,18 +25,35 @@
                     </div>
                 </group>
                 <group>
-                    <field name="operation_mode" widget="radio" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                    <group>
+                        <field name="operation_mode" widget="radio" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                    </group>
+                    <group>
+                        <field name="import_images" widget="boolean_toggle" attrs="{'readonly': [('state', '!=', 'draft')], 'invisible': [('operation_mode', '!=', 'import')]}"/>
+                    </group>
                 </group>
                 <div class="alert alert-warning" role="alert" states="checked">
                     Pressing the "APPROVE INCOMING" button confirms that the incoming mapping records
                     have up-to-date values and will be used in subsequent products import.
+                </div>
+                <div class="debug-info mt-4" attrs="{'invisible': [('state', '=', 'draft')]}">
+                    <a href="#" onclick="var el = document.getElementById('raw-data-id'); el.classList.toggle('d-none'); el.classList.toggle('d-block');">
+                        Toggle Debug Info
+                    </a>
+                    <div id="raw-data-id" class="alert alert-info d-none" role="alert">
+                        <div name="raw-data-block" class="o_field_widget o_readonly_modifier o_field_text">
+                            <span>
+                                <field name="raw_data" readonly="1"/>
+                            </span>
+                        </div>
+                    </div>
                 </div>
                 <footer>
                     <button name="check" string="Check" type="object" class="btn-primary" states="draft" context="{'integration_catch_exception': True}"/>
                     <button name="approve" string="Approve Incoming" type="object" class="btn-outline-danger text-uppercase" states="checked" context="{'integration_catch_exception': True}"/>
                     <button name="perform" string="Perform" type="object" class="btn-primary" states="approved" context="{'integration_catch_exception': True}"/>
                     <button string="Close" class="btn-secondary" special="cancel"/>
-                    <button name="to_draft" string="To Draft" type="object" class="btn-secondary" states="checked,approved,done"/>
+                    <button name="to_draft" string="To Draft" type="object" class="btn-secondary" attrs="{'invisible': [('state', '=', 'draft')]}"/>
                 </footer>
             </form>
         </field>
@@ -69,3 +86,4 @@
     </record>
 
 </odoo>
+

@@ -29,7 +29,9 @@ class ProductPricelist(models.Model):
             pricelist_ids = map_ids.mapped('pricelist_id')
 
             job_kwargs = integration._job_kwargs_prepare_specific_prices(pricelist_ids)
-            _integration = integration.with_delay(**job_kwargs)
+            _integration = integration.with_context(company_id=integration.company_id.id)\
+                .with_delay(**job_kwargs)
+
             job = _integration.export_pricelists_multi(pricelist_ids=pricelist_ids.ids)
             integration.job_log(job)
 
@@ -107,10 +109,10 @@ class ProductPricelist(models.Model):
             # Create jobs
             pricelist_ids = item_ids.mapped('pricelist_id')
             job_kwargs = integration._job_kwargs_prepare_specific_prices(pricelist_ids)
-            job = integration.with_delay(**job_kwargs).export_pricelists_multi(
-                item_ids=item_ids.ids,
-                updating=True,
-            )
+
+            job = integration.with_context(company_id=integration.company_id.id)\
+                .with_delay(**job_kwargs).export_pricelists_multi(item_ids=item_ids.ids, updating=True)
+
             integration.job_log(job)
             message_list.append(
                 _('%s: Find Products for Specific Prices job created: %s') % (integration.name, job)

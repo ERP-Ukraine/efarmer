@@ -25,8 +25,11 @@ class IntegrationProductPricelistMapping(models.Model):
         self.ensure_one()
         external = self.external_pricelist_id
         job_kwargs = external._job_kwargs_import_special_prices(self.pricelist_id)
-        job = external.with_delay(**job_kwargs).import_special_prices_external()
+
+        job = external.with_context(company_id=self.integration_id.company_id.id)\
+            .with_delay(**job_kwargs).import_special_prices_external()
         external.job_log(job)
+
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',

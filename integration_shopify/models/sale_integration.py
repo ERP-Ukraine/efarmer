@@ -1,8 +1,10 @@
 #  See LICENSE file for full copyright and licensing details.
 
 import re
+import logging
+from typing import List
 
-from odoo import models, fields, _
+from odoo import api, models, fields, _
 
 from .fields.send_fields import SendFieldsShopify
 from .fields.send_fields_product_product import SendFieldsProductProductShopify
@@ -10,8 +12,12 @@ from .fields.send_fields_product_template import SendFieldsProductTemplateShopif
 from .fields.receive_fields import ReceiveFieldsShopify
 from .fields.receive_fields_product_product import ReceiveFieldsProductProductShopify
 from .fields.receive_fields_product_template import ReceiveFieldsProductTemplateShopify
+from ..shopify.tools import parse_graphql_id
+from .external.external_sale_channel import NO_CHANNEL_EXTERNAL_ID
 
 from ..shopify_api import ShopifyAPIClient, SHOPIFY
+
+_logger = logging.getLogger(__name__)
 
 
 class SaleIntegration(models.Model):
@@ -33,9 +39,97 @@ class SaleIntegration(models.Model):
         ),
     )
 
+    order_metafield_mapping_ids = fields.One2many(
+        comodel_name='integration.metafield.mapping',
+        inverse_name='integration_id',
+        string='Order Metafield Mappings',
+        domain=[('type', '=', 'order')],
+        help=(
+            'Defines the mappings between the order metafields in the external system and the '
+            'fields in Odoo.'
+        ),
+    )
+
+    customer_metafield_mapping_ids = fields.One2many(
+        comodel_name='integration.metafield.mapping',
+        inverse_name='integration_id',
+        string='Customer Metafield Mappings',
+        domain=[('type', '=', 'customer')],
+        help=(
+            ' Defines the mappings between the customer metafields in the external system and the '
+            'fields in Odoo.'
+        ),
+    )
+
+    invalid_location_mapping = fields.Boolean(
+        string='Invalid Location Mapping',
+        compute='_compute_invalid_location_mapping',
+    )
+
+    integration_channel_ids = fields.Many2many(
+        comodel_name='external.sale.channel',
+        string='Sale Channels',
+        domain='[("integration_id", "=", id)]',
+        help=(
+            'Select the sales channels you want to import orders from in this e-commerce store. '
+            'Leave this field empty if you want to import orders from all sales channels. '
+            'A special "No Channel" option is available to include orders that are not associated '
+            'with any specific sales channel. This can be useful for capturing orders that may have '
+            'been created outside of the normal channel structure.'
+        ),
+    )
+
     def is_shopify(self):
         self.ensure_one()
         return self.type_api == SHOPIFY
+
+    @api.depends('location_line_ids')
+    def _compute_invalid_location_mapping(self):
+        for rec in self:
+            if rec.is_shopify():
+                value = len(rec.location_line_ids.mapped('warehouse_id')) < len(rec.location_line_ids)
+            else:
+                value = False
+
+            rec.invalid_location_mapping = value
+
+    def is_integration_cancel_allowed(self):
+        if len(self) == 1 and self.is_shopify():
+            return True
+        return super().is_integration_cancel_allowed()
+
+    def _get_cancel_order_view_id(self):
+        if self.is_shopify():
+            return self.env.ref('integration_shopify.sale_order_cancel_integration_shopify_view_form').id
+        return super()._get_cancel_order_view_id()
+
+    def _set_default_template_reference_id(self):
+        if self.is_shopify():
+            self.template_reference_id = self.env.ref(
+                'integration_shopify.shopify_template_reference_private').id
+            return bool(self.template_reference_id)
+        return super()._set_default_template_reference_id()
+
+    def _set_default_product_reference_id(self):
+        if self.is_shopify():
+            self.product_reference_id = self.env.ref(
+                'integration_shopify.shopify_ecommerce_field_variant_default_code').id
+            return bool(self.product_reference_id)
+        return super()._set_default_product_reference_id()
+
+    def _set_default_template_barcode_id(self):
+        if self.is_shopify():
+            self.template_barcode_id = self.env.ref(
+                'integration_shopify.shopify_template_barcode_private').id
+            return bool(self.template_barcode_id)
+        return super()._set_default_template_barcode_id()
+
+    def _set_default_product_barcode_id(self):
+        if self.is_shopify():
+            self.product_barcode_id = self.env.ref(
+                'integration_shopify.shopify_ecommerce_field_variant_barcode').id
+            return bool(self.product_barcode_id)
+        return super()._set_default_product_barcode_id()
 
     def get_class(self):
         self.ensure_one()
@@ -52,6 +146,37 @@ class SaleIntegration(models.Model):
             self.set_settings_value('weight_uom', weight_uom)
 
         return result
+
+    def export_sale_order_status(self, order):
+        res = super(SaleIntegration, self).export_sale_order_status(order)
+        if not self.is_shopify():
+            return res
+
+        if res:
+            vals = order._prepare_vals_for_sale_order_status()
+            if vals['status'] == 'paid':
+                order._apply_values_from_external({'order_transactions': [res]})
+
+        return res
+
+    def export_tracking(self, pickings):
+        """Redefined method in order to apply external fulfillments"""
+        res = super(SaleIntegration, self).export_tracking(pickings)
+        if not self.is_shopify():
+            return res
+
+        if res:
+            order = pickings.mapped('sale_id')
+            order._apply_values_from_external({'order_fulfillments': res})
+            order.external_fulfillment_ids.mark_done()
+
+        return res
+
+    def _ensure_settings(self):
+        if self.is_shopify():
+            self._ensure_not_null_setting(['url', 'version', 'key'])
+
+        return super()._ensure_settings()
 
     def advanced_inventory(self):
         if self.is_shopify():
@@ -112,7 +237,7 @@ class SaleIntegration(models.Model):
 
     def _retrieve_webhook_routes(self):
         if self.is_shopify():
-            routes = {
+            return {
                 'orders': [
                     ('Order Create', 'orders/create'),
                     ('Order Paid', 'orders/paid'),
@@ -120,8 +245,13 @@ class SaleIntegration(models.Model):
                     ('Order Fullfill', 'orders/fulfilled'),
                     ('Order Partially Fullfill', 'orders/partially_fulfilled'),
                 ],
+                'products': [
+                    ('Product Create', 'products/create'),
+                    ('Products Update', 'products/update'),
+                    ('Products Delete', 'products/delete'),
+                ],
             }
-            return routes
+
         return super(SaleIntegration, self)._retrieve_webhook_routes()
 
     def force_set_inactive(self):
@@ -160,6 +290,144 @@ class SaleIntegration(models.Model):
             return super(SaleIntegration, self)._get_weight_integration_fields()
 
         return [
-            'integration_shopify.shopify_ecommerce_field_template_weight',
             'integration_shopify.shopify_ecommerce_field_variant_weight',
         ]
+
+    def update_metafields(self):
+        """
+        Update metafields associated with customers from the external system (e.g., Shopify).
+        """
+        if not self.is_shopify():
+            return False
+
+        external_entity = self.env.context.get('external_entity')
+        assert external_entity, _('Missed context variable "external_entity"')
+
+        store_metafields = self.adapter.get_metafields(external_entity)
+
+        if not store_metafields:
+            return self._raise_notification(
+                'warning',
+                f'There are no {external_entity.title()} metafields in your Shopify store',
+            )
+
+        Metafield = self.env['external.metafield']
+        actual_metafields = self.env['external.metafield'].browse()
+
+        for metafield in store_metafields:
+            # Search for an existing metafield with the same name and key
+            record = Metafield.search([
+                ('integration_id', '=', self.id),
+                ('type', '=', external_entity),
+                ('metafield_name', '=', metafield['name']),
+                ('metafield_key', '=', metafield['key']),
+            ])
+
+            if not record:
+                record = Metafield.create({
+                    'integration_id': self.id,
+                    'type': external_entity,
+                    'metafield_name': metafield['name'],
+                    'metafield_key': metafield['key'],
+                    'metafield_type': metafield.get('type', {}).get('name', ''),
+                })
+
+            actual_metafields |= record
+
+        # Delete meta fields that don't exist in Shopify
+        metafields = Metafield.search([
+            ('integration_id', '=', self.id),
+            ('type', '=', external_entity),
+        ])
+        (metafields - actual_metafields).unlink()
+
+        return self._raise_notification(
+            'success',
+            f'{external_entity.title()}s metafields were successfully updated',
+        )
+
+    def get_object_metafields(self, entity_name: str, entity_id: str) -> List:
+        """
+        Get metafields associated with a specific entity.
+        :parameters:
+            - entity_name: customer / order
+        """
+        if self.is_shopify():
+            return getattr(self.adapter, f'get_{entity_name}_metafields_by_id')(entity_id)
+        return list()
+
+    def integrationApiImportSaleChannels(self):
+        """
+        Import sales channels from Shopify.
+        """
+        if not self.is_shopify():
+            return False
+
+        sale_channels = self.adapter.get_sale_channels()
+
+        ctx = dict(default_integration_id=self.id)
+        SaleChannel = self.env['external.sale.channel'].with_context(**ctx)
+        new_sale_channels = SaleChannel
+
+        # Ensure 'No Channel' exists
+        no_channel = SaleChannel._ensure_no_channel_exists(self.id)
+        new_sale_channels |= no_channel
+
+        for sale_channel in sale_channels:
+            external_id = parse_graphql_id(sale_channel['id'])
+            name = sale_channel['name']
+            record = SaleChannel.create_or_update(external_id, name)
+
+            new_sale_channels |= record
+
+        # Delete sale channels that don't exist in Shopify
+        external_sale_channels = SaleChannel.search([
+            ('integration_id', '=', self.id),
+        ])
+        (external_sale_channels - new_sale_channels).unlink()
+
+        return new_sale_channels
+
+    def _filter_orders_shopify(self, orders_data: list):
+        """
+        General method to filter Shopify orders.
+        This method will find and apply specific Shopify filtering methods.
+        """
+        initial_count = len(orders_data)
+
+        filtered_orders = self._filter_orders_by_channels(orders_data)
+
+        final_count = len(filtered_orders)
+        filtered_out = initial_count - final_count
+
+        _logger.info(
+            f'Orders filtered: '
+            f'{initial_count} total, {filtered_out} filtered out, {final_count} remaining.'
+        )
+
+        return filtered_orders
+
+    def _filter_orders_by_channels(self, orders_data: list):
+        """
+        Filter orders by channel ID (publication ID).
+
+        This method filters orders based on the integration channels configured.
+        It handles the 'No Channel' case for orders without a specific channel.
+        """
+        external_channel_ids = self.integration_channel_ids.mapped('external_id')
+
+        # Include orders without a channel if 'No Channel' is selected
+        include_no_channel = NO_CHANNEL_EXTERNAL_ID in external_channel_ids
+
+        if not external_channel_ids:
+            return orders_data
+
+        filtered_orders_data = []
+        for order_data in orders_data:
+            order = order_data.get('data', {})
+            channel_id = parse_graphql_id(order.get('channel_id', ''))
+
+            if channel_id in external_channel_ids or (include_no_channel and not channel_id):
+                filtered_orders_data.append(order_data)
+
+        return filtered_orders_data

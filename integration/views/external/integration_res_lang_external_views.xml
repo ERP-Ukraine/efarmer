@@ -38,7 +38,7 @@
         </record>
 
         <record id="integration_res_lang_external_action" model="ir.actions.act_window">
-            <field name="name">Languages</field>
+            <field name="name">External Languages</field>
             <field name="res_model">integration.res.lang.external</field>
             <field name="view_mode">tree</field>
         </record>

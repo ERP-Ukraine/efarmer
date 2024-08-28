@@ -1,5 +1,7 @@
 # See LICENSE file for full copyright and licensing details.
 
+from typing import List, Dict
+
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 from odoo.tools.sql import escape_psql
@@ -52,95 +54,60 @@ class IntegrationProductPublicCategoryExternal(models.Model):
                 external_parent_record = self_router.get(parent_id, False)
                 rec.parent_id = external_parent_record
 
-    def _fix_unmapped(self, adapter_external_data):
-        ProductPublicCategory = self.odoo_model
+    def try_map_by_external_reference(self, odoo_search_domain=False):
+        self.ensure_one()
 
-        if ProductPublicCategory.search([]):
-            return
+        # If we found existing mapping, we do not need to do anything
+        odoo_record = self.odoo_record
+        if odoo_record:
+            return odoo_record
 
-        category_mappings = []
-        integration = self.integration_id
-        external_values = integration._build_adapter().get_categories()
+        self.create_or_update_mapping()
 
-        # Create categories
-        for external_value in external_values:
-            external_product_category = self.get_external_by_code(
-                integration,
-                external_value['id'],
-                raise_error=False,
-            )
+        # Find similar Odoo category by name
+        odoo_record = self._find_similar_odoo_category()
 
-            name = integration.convert_translated_field_to_odoo_format(external_value['name'])
+        if odoo_record:
+            self.create_or_update_mapping(odoo_id=odoo_record.id)
 
-            category = self.create_or_update_with_translation(
-                integration=integration,
-                odoo_object=ProductPublicCategory,
-                vals={'name': name},
-            )
-
-            category_mappings.append(
-                external_product_category.create_or_update_mapping(odoo_id=category.id)
-            )
-        # Create tree
-        category_by_code = {}
-
-        category_by_code.update({
-            x.external_public_category_id.code: x.public_category_id
-            for x in category_mappings
-        })
-
-        # in case we only receive 1 record its not added to list as others
-        if not isinstance(external_values, list):
-            external_values = [external_values]
-
-        for ext_category in external_values:
-            parent_id = ext_category.get('id_parent', None)
-            category = category_by_code.get(ext_category['id'], None)
-            if category and parent_id:
-                if not category.parent_id:
-                    category.parent_id = category_by_code.get(parent_id, None)
+        return self.odoo_record
 
     def import_categories(self):
         integrations = self.mapped('integration_id')
 
         for integration in integrations:
             # Import categories from e-Commerce System
-            external_values = integration._build_adapter().get_categories()
+            external_categories_data = integration._build_adapter().get_categories()
 
             for category in self.filtered(lambda x: x.integration_id == integration):
-                category.import_category(external_values)
+                category.import_category(external_categories_data)
 
-    def import_category(self, external_values):
+    def import_category(self, external_categories_data: List[Dict]):
         self.ensure_one()
 
-        ProductCategory = self.odoo_model
-        MappingCategory = self.mapping_model
-
-        # Try to find existing and mapped category
-        mapping = MappingCategory.search([
-            ('external_public_category_id', '=', self.id),
-        ])
+        if self.mapping_record and self.mapping_record.public_category_id:
+            # If mapping exists, we do not need to do anything
+            # This means that the category was already imported or manually mapped
+            # It is too risky to update the category name because mapping could be created manually
+            return
 
         # If mapping doesn`t exists try to find category by the name
-        if not mapping or not mapping.public_category_id:
-            self._check_similar_in_odoo()
-            odoo_category = ProductCategory.browse()
-        else:
-            assert len(mapping) == 1, _('Expected one mapping to one external record.')
-            odoo_category = mapping.public_category_id
+        odoo_category = self._find_similar_odoo_category()
 
-        # in case we only receive 1 record its not added to list as others
-        if not isinstance(external_values, list):
-            external_values = [external_values]
+        if odoo_category:
+            self.create_or_update_mapping(odoo_id=odoo_category.id)
 
-        # Find category in external and children of our category
-        external_value = [x for x in external_values if x['id'] == self.code]
-        external_children = [x for x in external_values if x.get('id_parent') == self.code]
+            # Update category name including translations
+            external_category_data = [c for c in external_categories_data if c['id'] == self.code]  # NOQA
+            if not external_category_data:
+                raise UserError(
+                    _('Category with code %s (%s) not found in the external system') %
+                    (self.code, self.name)
+                )
 
-        if external_value:
-            external_value = external_value[0]
+            external_category_data = external_category_data[0]
             name = self.integration_id.convert_translated_field_to_odoo_format(
-                external_value['name'])
+                external_category_data['name'])
 
             odoo_category = self.create_or_update_with_translation(
                 integration=self.integration_id,
@@ -148,52 +115,94 @@ class IntegrationProductPublicCategoryExternal(models.Model):
                 vals={'name': name},
             )
 
-            self.create_or_update_mapping(odoo_id=odoo_category.id)
+            # There is nothing else to do
+            return
 
-            # Set parent of our category
-            if external_value.get('id_parent'):
-                parent_mapping = MappingCategory.get_mapping(
-                    self.integration_id,
-                    external_value['id_parent']
+        # If we didn't find category by name, we need to create it
+        # This includes creating parent categories, excluding categories that already exist
+        # So, we need to prepare the list of categories to create, starting from the root
+        category_path = [self]
+        current_category = self
+        while current_category.parent_id:
+            category_path.insert(0, current_category.parent_id)
+            current_category = current_category.parent_id
+
+        # Create categories
+        parent = None
+        for category in category_path:
+            odoo_category = category._find_similar_odoo_category()
+
+            if odoo_category:
+                # If we found the category in the path, we do not need to update it because
+                # most likely it was updated during the its import or should be update by separate
+                # import process
+                # Why? To avoid redundant database updates during import because it parent category
+                # has 10 children, we will update the category 10 times!
+
+                parent = odoo_category
+
+                continue
+
+            external_category_data = [c for c in external_categories_data if c['id'] == category.code]  # NOQA
+
+            if not external_category_data:
+                raise UserError(
+                    _('Category with code %s (%s) not found in the external system') %
+                    (category.code, category.name)
                 )
 
-                if parent_mapping and parent_mapping.public_category_id:
-                    odoo_category.parent_id = parent_mapping.public_category_id
+            external_category_data = external_category_data[0]
+            name = self.integration_id.convert_translated_field_to_odoo_format(
+                external_category_data['name'])
 
-            # Find children and set parent to them
-            for external_child in external_children:
-                child_mapping = MappingCategory.get_mapping(
-                    self.integration_id,
-                    external_child['id']
-                )
+            odoo_category = self.create_or_update_with_translation(
+                integration=self.integration_id,
+                odoo_object=odoo_category,
+                vals={'name': name},
+            )
 
-                if child_mapping and child_mapping.public_category_id:
-                    child_mapping.public_category_id.parent_id = odoo_category
+            category.create_or_update_mapping(odoo_id=odoo_category.id)
 
-    def _check_similar_in_odoo(self):
-        odoo_category = self.odoo_model.search([
+            if odoo_category.parent_id:
+                if odoo_category.parent_id == parent:
+                    # This is case when category already existed and was found by name
+                    pass
+                else:
+                    # This case should never happen, but it is better to check
+                    raise UserError(
+                        _('The category with name "%s" already exists and has a different parent') %  # NOQA
+                        category.name
+                    )
+            else:
+                # This is case when category was created and we need to set its parent
+                odoo_category.parent_id = parent
+
+            # We have to explicitly call the method to update the parents_and_self field
+            # Otherwise, we won't be able to get correct categories path in the next iteration
+            # and will get duplicated categories
+            odoo_category._compute_parents_and_self()
+
+            parent = odoo_category
+
+    def _find_similar_odoo_category(self):
+        odoo_categories = self.odoo_model.search([
             ('name', '=ilike', escape_psql(self.name)),
         ])
 
-        if odoo_category:
-            external_complete_name = self.complete_name
-            odoo_category_records = odoo_category.browse()
+        def calculate_complete_name(category):
+            return ' / '.join(category.parents_and_self.mapped('name'))
 
-            for category in odoo_category:
-                odoo_parent_path = '/ '.join(category.parents_and_self.mapped('name'))
+        # If found by name, check if it is a child of the parent category
+        odoo_category = odoo_categories.filtered(
+            lambda c: calculate_complete_name(c) == self.complete_name
+        )
 
-                if odoo_parent_path == external_complete_name:
-                    odoo_category_records |= category
+        if len(odoo_category) > 1:
+            raise UserError(
+                _('There are several public categories with name "%s"') % self.name
+            )
 
-            if len(odoo_category_records) == 1:
-                message = _('Public category with name "%s" already exists') % self.name
-            elif len(odoo_category_records) > 1:
-                message = _('There are several public categories with name "%s"') % self.name
-            else:
-                message = False
-
-            if message:
-                raise UserError(message)
+        return odoo_category
 
     def _map_external(self, adapter_external_data):
         cycle_category_id = self.find_loop_category(adapter_external_data)

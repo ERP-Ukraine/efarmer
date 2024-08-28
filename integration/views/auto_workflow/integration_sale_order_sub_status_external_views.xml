@@ -8,7 +8,7 @@
             <field name="arch" type="xml">
                 <tree editable="bottom" create="0">
                     <field name="integration_id" readonly="1"/>
-                    <field name="code" readonly="1"/>
+                    <field name="code" readonly="1" optional="hide"/>
                     <field name="name" readonly="1"/>
                     <field name="validate_order" widget="boolean_toggle"/>
                     <field name="validate_picking" attrs="{'readonly': [('validate_order', '=', False)]}" force_save="1" widget="boolean_toggle"/>

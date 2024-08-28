@@ -1,13 +1,12 @@
-# Copyright 2023 VentorTech OU
-# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
+# See LICENSE file for full copyright and licensing details.
 
 from unittest.mock import patch
 
 from odoo.exceptions import UserError
 
+from .config.integration_init import OdooIntegrationInit
 from ...integration.exceptions import NotMappedToExternal
 from ...integration.models.fields import SendFields
-from .config.intuit_case import OdooIntegrationInit
 
 
 class TestSendFields(OdooIntegrationInit):

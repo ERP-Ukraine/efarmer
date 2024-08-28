@@ -1,10 +1,27 @@
-#  Copyright 2020 VentorTech OU
-#  License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
+# See LICENSE file for full copyright and licensing details.
 
 import re
 from odoo import models, fields, api, _
 from odoo.addons.queue_job.job import FAILED
 from odoo.exceptions import UserError
+
+
+MODELS_WITH_IMPORT_AVAILABLE = [
+    'product.attribute.value',
+    'res.country',
+    'account.tax',
+    'res.lang',
+    'sale.order.payment.method',
+    'product.product',
+    'product.public.category',
+    'product.template',
+    'delivery.carrier',
+    'res.country.state',
+    'account.tax.group',
+    'sale.order.sub.status',
+    'product.attribute',
+    'product.feature',
+]
 
 
 class QueueJob(models.Model):
@@ -68,6 +85,21 @@ class QueueJob(models.Model):
     toggle_exc = fields.Boolean(
         string='Full Traceback',
     )
+    is_import_from_external_available = fields.Boolean(
+        string='Import from External Available',
+        compute='_compute_is_import_from_external_available',
+        help=(
+            'Indicates whether the "Import External Records From e-Commerce System" button '
+            'should be visible.'
+        ),
+    )
+
+    @api.depends('integration_id', 'integration_model_name')
+    def _compute_is_import_from_external_available(self):
+        for record in self:
+            model = record.get_model_from_integration_model_name()
+            record.is_import_from_external_available = self.integration_id \
+                and model in MODELS_WITH_IMPORT_AVAILABLE
 
     def _compute_exc_info_lite(self):
         for rec in self:

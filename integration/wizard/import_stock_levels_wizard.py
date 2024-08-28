@@ -67,6 +67,7 @@ class ImportStockLevelsWizard(models.TransientModel):
     def run_import_stock_levels(self):
         integration = self.integration_id
         location_lines = self.get_location_lines(integration)
+        integration = integration.with_context(company_id=integration.company_id.id)
 
         for idx, line in enumerate(location_lines, start=1):
             job_kwargs = integration._job_kwargs_import_stock_from_location(line, block=idx)

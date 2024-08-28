@@ -1,8 +1,9 @@
 # See LICENSE file for full copyright and licensing details.
 
+from odoo.addons.integration.models.fields import ProductProductSendMixin
+
 from .send_fields import SendFieldsShopify
 from ...shopify_api import VARIANT
-from odoo.addons.integration.models.fields import ProductProductSendMixin
 
 
 class SendFieldsProductProductShopify(SendFieldsShopify, ProductProductSendMixin):
@@ -28,6 +29,7 @@ class SendFieldsProductProductShopify(SendFieldsShopify, ProductProductSendMixin
 
         if self.external_id:
             shopify_variant_id = self.adapter._parse_variant_id(self.external_id)
+            # TODO: get rid of that request in converter
             variant = self.adapter.fetch_one(VARIANT, shopify_variant_id, fields=['weight_unit'])
             if not variant.is_new():
                 shopify_uom = variant.weight_unit

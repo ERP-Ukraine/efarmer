@@ -1,10 +1,9 @@
-# Copyright 2023 VentorTech OU
-# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
+# See LICENSE file for full copyright and licensing details.
 
 from odoo.tests import TransactionCase
 
+from .config.integration_init import OdooIntegrationInit
 from ...integration import tools
-from .config.intuit_case import OdooIntegrationInit
 
 
 class TestTools(OdooIntegrationInit, TransactionCase):

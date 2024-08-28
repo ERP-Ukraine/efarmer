@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="integration_template_reference_no_api_private" model="product.ecommerce.field">
+            <field name="name">DEFAULT SKU (no_api)</field>
+            <field name="technical_name">sku</field>
+            <field name="type_api">no_api</field>
+            <field name="value_converter">simple</field>
+            <field name="odoo_model_id" ref="product.model_product_template"/>
+            <field name="odoo_field_id" ref="product.field_product_template__default_code"/>
+            <field name="is_private">True</field>
+        </record>
+
+        <record id="integration_product_reference_no_api_private" model="product.ecommerce.field">
+            <field name="name">DEFAULT SKU (no_api)</field>
+            <field name="technical_name">sku</field>
+            <field name="type_api">no_api</field>
+            <field name="value_converter">simple</field>
+            <field name="odoo_model_id" ref="product.model_product_product"/>
+            <field name="odoo_field_id" ref="product.field_product_product__default_code"/>
+            <field name="is_private">True</field>
+        </record>
+
+        <record id="integration_template_barcode_no_api_private" model="product.ecommerce.field">
+            <field name="name">DEFAULT BARCODE (no_api)</field>
+            <field name="technical_name">barcode</field>
+            <field name="type_api">no_api</field>
+            <field name="value_converter">simple</field>
+            <field name="odoo_model_id" ref="product.model_product_template"/>
+            <field name="odoo_field_id" ref="product.field_product_template__barcode" />
+            <field name="is_private">True</field>
+        </record>
+
+        <record id="integration_product_barcode_no_api_private" model="product.ecommerce.field">
+            <field name="name">DEFAULT BARCODE (no_api)</field>
+            <field name="technical_name">barcode</field>
+            <field name="type_api">no_api</field>
+            <field name="value_converter">simple</field>
+            <field name="odoo_model_id" ref="product.model_product_product"/>
+            <field name="odoo_field_id" ref="product.field_product_product__barcode"/>
+            <field name="is_private">True</field>
+        </record>
+
+    </data>
+</odoo>

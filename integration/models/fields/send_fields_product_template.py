@@ -36,7 +36,7 @@ class ProductTemplateSendMixin(ProductAbstractSend):
             'kits': self._get_kits(),
             'products': [converter(x).convert_to_external() for x in variant_ids],
             'variant_count': len(variant_ids),
-            'fields': self.calculate_send_fields(self.external_id)
+            'fields': self.calculate_send_fields(self.external_id),
         }
 
         result_upd = self.odoo_obj._template_converter_update(
@@ -112,16 +112,13 @@ class ProductTemplateSendMixin(ProductAbstractSend):
         return variants
 
     def _get_kits(self):
-        kits_data = []
-        if not self.integration.is_installed_mrp:
-            return kits_data
-
         kits = self.env['mrp.bom'].search([
             ('product_tmpl_id', '=', self.odoo_obj.id),
             ('type', '=', 'phantom'),
             ('company_id', 'in', (self.integration.company_id.id, False)),
         ])
 
+        kits_data = []
         for kit in kits:
             component_list = []
 
@@ -154,4 +151,9 @@ class ProductTemplateSendMixin(ProductAbstractSend):
             price = self.odoo_obj.list_price
         return {
             field_name: str(self.get_price_by_send_tax_incl(price)),
+        }
+
+    def send_integration_name(self, field_name):
+        return {
+            field_name: self.odoo_obj.get_integration_name(self.integration),
         }
