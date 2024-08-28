@@ -68,43 +68,6 @@
             <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_template__list_price'),))]"/>
         </record>
 
-        <record id="shopify_ecommerce_field_template_default_code" model="product.ecommerce.field">
-            <field name="name">Product SKU</field>
-            <field name="technical_name">sku</field>
-            <field name="type_api">shopify</field>
-            <field name="value_converter">simple</field>
-            <field name="odoo_model_id" ref="product.model_product_template" />
-            <field name="odoo_field_id" ref="product.field_product_template__default_code" />
-            <field name="default_for_update" eval="True"/>
-            <field name="default_for_import" eval="True"/>
-            <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_template__default_code'),))]"/>
-        </record>
-
-        <record id="shopify_ecommerce_field_template_weight" model="product.ecommerce.field">
-            <field name="name">Product Weight</field>
-            <field name="technical_name">weight</field>
-            <field name="type_api">shopify</field>
-            <field name="value_converter">simple</field>
-            <field name="odoo_model_id" ref="product.model_product_template" />
-            <field name="odoo_field_id" ref="product.field_product_template__weight" />
-            <field name="default_for_update" eval="True"/>
-            <field name="default_for_import" eval="True"/>
-            <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_template__weight'),))]"/>
-        </record>
-
-        <record id="shopify_ecommerce_field_template_cost_price" model="product.ecommerce.field">
-            <field name="name">Product Cost Price</field>
-            <field name="technical_name">cost</field>
-            <field name="type_api">shopify</field>
-            <field name="value_converter">simple</field>
-            <field name="odoo_model_id" ref="product.model_product_template" />
-            <field name="odoo_field_id" ref="product.field_product_template__standard_price" />
-            <field name="default_for_update" eval="True"/>
-            <field name="default_for_import" eval="True"/>
-            <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_template__standard_price'),))]"/>
-            <field name="is_default" eval="True"/>
-        </record>
-
         <record id="shopify_ecommerce_product_tags" model="product.ecommerce.field">
             <field name="name">Product Tags</field>
             <field name="technical_name">tags</field>
@@ -200,6 +163,27 @@
             <field name="default_for_import" eval="True"/>
             <field name="is_default" eval="True"/>
             <field name="trackable_fields_ids" eval="[(6, 0, (ref('account.field_product_product__taxes_id'),))]"/>
+        </record>
+
+        <!-- Private Fields -->
+        <record id="shopify_template_reference_private" model="product.ecommerce.field">
+            <field name="name">DEFAULT SKU</field>
+            <field name="technical_name">sku</field>
+            <field name="type_api">shopify</field>
+            <field name="value_converter">simple</field>
+            <field name="odoo_model_id" ref="product.model_product_template"/>
+            <field name="odoo_field_id" ref="product.field_product_template__default_code"/>
+            <field name="is_private">True</field>
+        </record>
+
+        <record id="shopify_template_barcode_private" model="product.ecommerce.field">
+            <field name="name">DEFAULT BARCODE</field>
+            <field name="technical_name">barcode</field>
+            <field name="type_api">shopify</field>
+            <field name="value_converter">simple</field>
+            <field name="odoo_model_id" ref="product.model_product_template"/>
+            <field name="odoo_field_id" ref="product.field_product_template__barcode" />
+            <field name="is_private">True</field>
         </record>
 
     </data>

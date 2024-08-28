@@ -38,6 +38,22 @@ class ProductProduct(models.Model):
              'By default it syncs to all.',
     )
 
+    mapping_count = fields.Integer(
+        string='Mapping Count',
+        compute='_compute_mapping_count',
+        help=(
+            'The number of mappings associated with this variant.'
+        ),
+    )
+
+    def _compute_mapping_count(self):
+        ProductMapping = self.env['integration.product.product.mapping']
+
+        for variant in self:
+            variant.mapping_count = ProductMapping.search_count([
+                ('product_id', '=', variant.id),
+            ])
+
     def _get_tmpl_id_for_log(self):
         return self.product_tmpl_id.id
 
@@ -171,16 +187,6 @@ class ProductProduct(models.Model):
         for product in self:
             product.price_extra += product.variant_extra_price
 
-    def _variant_ecommerce_field_domain(self, integration, external_code):
-        search_domain = [
-            ('integration_id', '=', integration.id),
-            ('odoo_model_id', '=', self.env.ref('product.model_product_product').id),
-        ]
-        if external_code:
-            search_domain.append(('send_on_update', '=', True))
-
-        return search_domain
-
     def _update_variant_form_architecture(self, form_data):
         return self.product_tmpl_id._update_template_form_architecture(form_data)
 
@@ -280,3 +286,24 @@ class ProductProduct(models.Model):
             domain + add_domain,
         )
         return variant_item_ids
+
+    def show_variant_mappings(self):
+        """
+            Open a list view with mappings for the current variant.
+        """
+        self.ensure_one()
+
+        view_id = self.env.ref('integration.integration_product_product_mapping_view_tree')
+        ProductMapping = self.env['integration.product.product.mapping']
+        mapping_ids = ProductMapping.search([('product_id', '=', self.id)])
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Variants Mappings',
+            'res_model': 'integration.product.product.mapping',
+            'context': {'product_product_mapping': 1},
+            'view_mode': 'tree',
+            'view_id': view_id.id,
+            'domain': [('id', 'in', mapping_ids.ids)],
+            'target': 'current',
+        }

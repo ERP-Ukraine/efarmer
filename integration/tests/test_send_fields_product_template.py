@@ -1,15 +1,12 @@
-# Copyright 2023 VentorTech OU
-# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
+# See LICENSE file for full copyright and licensing details.
 
 from unittest.mock import MagicMock, patch
 
+from .config.integration_init import OdooIntegrationInit
 from ...integration.models.fields import SendFields
-from ...integration.models.fields.send_fields_product_product import \
-    ProductProductSendMixin
-from ...integration.models.fields.send_fields_product_template import \
-    ProductTemplateSendMixin
+from ...integration.models.fields.send_fields_product_product import ProductProductSendMixin
+from ...integration.models.fields.send_fields_product_template import ProductTemplateSendMixin
 from ...integration.models.product_product import ProductProduct
-from .config.intuit_case import OdooIntegrationInit
 
 
 class SendFieldsProductTemplateTest(SendFields, ProductTemplateSendMixin):
@@ -398,16 +395,6 @@ class TestSendFieldsProductTemplate(OdooIntegrationInit):
         it should return a list with component data and 'product_id' set to False.
         6. When the 'mrp' module is not installed, it should return an empty list.
         """
-        # Checking if the mrp module is not installed
-        self.integration_no_api_1.write({'is_installed_mrp': False})
-        self.assertFalse(self.instance_pt_2._get_kits())
-
-        # Update the is_installed_mrp field
-        self.integration_no_api_1._compute_is_installed_mrp()
-
-        # Exit if the mrp module is not installed
-        if not self.integration_no_api_1.is_installed_mrp:
-            return
 
         # Checking product without kit
         self.assertFalse(self.instance_pt_2._get_kits())

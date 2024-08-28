@@ -1,11 +1,9 @@
-# Copyright 2023 VentorTech OU
-# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
+# See LICENSE file for full copyright and licensing details.
 
 from unittest.mock import patch
 
-from ..models.fields.product_ecommerce_field_mapping import \
-    ProductEcommerceFieldMapping
-from .config.intuit_case import OdooIntegrationInit
+from .config.integration_init import OdooIntegrationInit
+from ..models.fields.product_ecommerce_field_mapping import ProductEcommerceFieldMapping
 
 
 class TestProductEcommerceFieldMapping(OdooIntegrationInit):
@@ -85,7 +83,7 @@ class TestProductEcommerceFieldMapping(OdooIntegrationInit):
         and 'receive_on_import' fields based on the 'default_for_update' and 'default_for_import'
         attributes of the associated field.
         """
-        # creating item for product.ecommerce.field
+        # Creating item for product.ecommerce.field
         ecommerce_field = self.env['product.ecommerce.field'].create({
             'name': 'Test',
             'technical_name': 'code',
@@ -97,25 +95,17 @@ class TestProductEcommerceFieldMapping(OdooIntegrationInit):
             'default_for_import': True,
         })
 
-        # creating item for product.ecommerce.field.mapping
-        mapping_1 = self.env['product.ecommerce.field.mapping'].create({
-            'name': 'Test Mapping',
-            'ecommerce_field_id': ecommerce_field.id,
-            'integration_id': self.integration_no_api_1.id,
-        })
+        # 1. Creating item for product.ecommerce.field.mapping
+        mapping_1 = ecommerce_field._create_mapping(self.integration_no_api_1.id)
 
         self.assertTrue(mapping_1.send_on_update)
         self.assertTrue(mapping_1.receive_on_import)
 
-        # changing default_for_update for ecommerce_field
+        # 2. Changing default_for_update for ecommerce_field
         ecommerce_field.write({'default_for_update': False})
 
-        # creating item for product.ecommerce.field.mapping with default_for_update = False
-        new_mapping = self.env['product.ecommerce.field.mapping'].create({
-            'name': 'New Test Mapping',
-            'ecommerce_field_id': ecommerce_field.id,
-            'integration_id': self.integration_no_api_1.id,
-        })
+        # Creating item for product.ecommerce.field.mapping with default_for_update = False
+        new_mapping = ecommerce_field._create_mapping(self.integration_no_api_1.id)
 
         self.assertFalse(new_mapping.send_on_update)
         self.assertTrue(new_mapping.receive_on_import)

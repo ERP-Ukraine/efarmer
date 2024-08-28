@@ -9,7 +9,7 @@
 
         <record model="ir.config_parameter" id="export_inventory_block_size">
             <field name="key">integration.export_inventory_block_size</field>
-            <field name="value">1000</field>
+            <field name="value">250</field>
         </record>
 
         <record model="ir.config_parameter" id="integration_api_key">

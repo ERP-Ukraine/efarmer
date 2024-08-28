@@ -18,9 +18,8 @@ from odoo.tools import config, ormcache
 from odoo.tools.safe_eval import safe_eval
 from odoo.exceptions import UserError, ValidationError
 
-from .integration_sale_order_factory import OTHER
 from ..api.no_api import NoAPIClient
-from ..tools import raise_requeue_job_on_concurrent_update, normalize_uom_name
+from ..tools import raise_requeue_job_on_concurrent_update, normalize_uom_name, _is_valid_email
 from ..tools import HtmlWrapper, Adapter, AdapterHub, PriceList, TemplateHub
 from ..exceptions import (
     ApiImportError,
@@ -32,10 +31,9 @@ from ..exceptions import (
 
 
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
-
-
 MAPPING_EXCEPT_LIST = [
     'integration.account.tax.group.mapping',
+    'integration.metafield.mapping',
 ]
 LOG_SEPARATOR = '================================'
 IMPORT_EXTERNAL_BLOCK = 150  # Don't make more, because of 414 Request-URI Too Large error
@@ -44,6 +42,7 @@ EXPORT_EXTERNAL_BLOCK = 500
 IMAGE_FIELDS = ['image_1920', 'product_template_image_ids', 'product_variant_image_ids']
 PRODUCT_QTY_FIELDS = ['free_qty', 'qty_available', 'virtual_available']
 TRACKED_FIELDS_INITIAL_PRODUCT_EXPORT = ['integration_ids']
+SEARCH_CUSTOMER_FIELDS = ['email', 'name', 'mobile', 'phone']
 
 _logger = logging.getLogger(__name__)
 
@@ -256,11 +255,6 @@ class SaleIntegration(models.Model):
         ),
     )
 
-    is_installed_mrp = fields.Boolean(
-        compute='_compute_is_installed_mrp',
-        string='Is MRP Installed',
-    )
-
     run_action_on_cancel_so = fields.Boolean(
         string='Sync Cancelled SO Status',
         copy=False,
@@ -327,7 +321,7 @@ class SaleIntegration(models.Model):
 
     apply_to_products = fields.Boolean(
         string='Auto-Export New Products',
-        default=True,
+        default=False,
         help=(
             'Enable automatic export of newly created Odoo products to the e-Commerce system, '
             'ensuring all new inventory items are synchronized.'
@@ -364,6 +358,24 @@ class SaleIntegration(models.Model):
             'specified in an imported sales order does not exist. If this option is not enabled, '
             'the absence of a delivery carrier will cause the sales order import to fail, '
             'and manual delivery carrier mapping will be required by an administrator.'
+        ),
+    )
+
+    apply_external_fulfillments = fields.Boolean(
+        string='Apply External Fulfillments',
+        default=True,
+        help=(
+            '[IMPORT flow] Apply external fulfillments right after '
+            'the sales order will be confirmed by integration workflow'
+        ),
+    )
+
+    force_full_fulfillment = fields.Boolean(
+        string='Force Full Fulfillment in Shopify',
+        default=False,
+        help=(
+            '[EXPORT flow] Always fulfill Shopify orders completely, '
+            'even if the picked quantity is less than the ordered quantity.'
         ),
     )
 
@@ -562,7 +574,6 @@ class SaleIntegration(models.Model):
 
     validate_barcode = fields.Boolean(
         string='Variant Barcode Validation',
-        default=True,
         help=(
             'Enable this option to check for missing barcodes for product variants. '
             'This setting only works when the "Receive field on import" option '
@@ -629,14 +640,270 @@ class SaleIntegration(models.Model):
         ),
     )
 
+    separate_discount_line = fields.Boolean(
+        string='Add Discounts as a Separate Order Lines',
+        default=True,
+        help=(
+            'This setting controls how discounts are applied to orders. When enabled, each '
+            'discount is added as a separate line item for every product that requires a discount. '
+            'If disabled, the connector calculates the discount percentage and applies it directly '
+            'to the corresponding product\'s order line by utilizing the Discount field.'
+        ),
+    )
+
+    change_advanced_fields = fields.Boolean(
+        string='Change Advanced Product Fields',
+    )
+
+    template_reference_id = fields.Many2one(
+        comodel_name='product.ecommerce.field',
+        string='Template Reference',
+        ondelete='restrict',
+    )
+
+    product_reference_id = fields.Many2one(
+        comodel_name='product.ecommerce.field',
+        string='Variant Reference',
+        ondelete='restrict',
+    )
+
+    template_barcode_id = fields.Many2one(
+        comodel_name='product.ecommerce.field',
+        string='Template Barcode',
+        ondelete='restrict',
+    )
+
+    product_barcode_id = fields.Many2one(
+        comodel_name='product.ecommerce.field',
+        string='Variant Barcode',
+        ondelete='restrict',
+    )
+
+    fallback_product_id = fields.Many2one(
+        comodel_name='product.product',
+        string='Fallback Product',
+        domain="[('type', '=', 'service')]",
+        help=(
+            'Use this field to select a default product for order lines with missing '
+            'SKU and ID details. It\'s applicable when products are removed or '
+            'orders contain custom items, ensuring uninterrupted order processing.'
+        ),
+    )
+
+    use_manual_customer_mapping = fields.Boolean(
+        string='Enable Manual Customer Mapping',
+        help=(
+            'Enable this option to switch to manual mapping of customers in the '
+            'Mappings → Contacts section. This setting is suitable for B2B with a small '
+            'customer base, where each customer\'s details require verification before being '
+            'added to Odoo.'
+        ),
+    )
+
+    emails_for_failed_mapping_notifications = fields.Char(
+        string='Emails to Notify about Failed Customer Mapping',
+        help=(
+            'Enter a list of email addresses (separated by commas) to receive notifications in '
+            'case of unsuccessful customer mapping. This feature will work only when manual '
+            'customer mapping is enabled.'
+        ),
+    )
+
+    use_vat_only_company_search = fields.Boolean(
+        string='Search Companies by VAT Number Only',
+        help=(
+            'Enable to search companies by VAT number only. Ensure the "VAT / Reg. Number" field '
+            'is filled for use.'
+        ),
+    )
+
+    use_order_total_difference_correction = fields.Boolean(
+        string='Order Total Difference Correction',
+        default=True,
+        help=(
+            'Enable this option to automatically correct the difference in total order amount '
+            'when importing orders from E-commerce systems.'
+        ),
+    )
+
+    search_customer_fields_ids = fields.Many2many(
+        string='Search Customer Fields',
+        comodel_name='ir.model.fields',
+        relation='integration_search_customer_fields_rel',
+        column1='integration_id',
+        column2='field_id',
+        domain=lambda self: [
+            ('model_id', '=', 'res.partner'), ('name', 'in', SEARCH_CUSTOMER_FIELDS),
+        ],
+        default=lambda self: self._default_search_customer_fields_ids(),
+        help=(
+            'Select fields to search when looking for customers '
+            '(e.g. name, email, phone, mobile). '
+            'These fields will be used in addition to the required fields: name, parent_id, '
+            'and is_company.'
+            '\n\n'
+            'Users can customize the search by selecting or deselecting specific fields from the '
+            'list of available options.'
+            '\n\n'
+            'Important note: customer fields not specified in this field (i.e. name, email, etc.) '
+            'will be updated with the latest data from the e-commerce system.'
+        ),
+    )
+
+    use_search_customer_fields_ids = fields.Boolean(
+        string='Use Selected Customer Fields for Search',
+        help=(
+            'Indicates that a specific set of partner search fields is used. Technical field.'
+        ),
+    )
+
+    ignore_vat_validation = fields.Boolean(
+        string='Ignore VAT validation',
+        help=(
+            'If that is checked, connector will skip checking company tax identification number '
+            'for validity and will insert it as is on the partner.'
+        ),
+    )
+
+    import_order_enabled = fields.Boolean(
+        string='Enable Order Import',
+        related='receive_orders_cron_id.active',
+        readonly=False,
+        help=(
+            'Enable this option to import orders from the connected E-commerce system. '
+            'This option will be automatically disabled when the integration is deactivated.'
+        ),
+    )
+
+    use_odoo_so_numbering = fields.Boolean(
+        string='Use Odoo SO numbering',
+        help='Enable this option to use Odoo sales order numbering instead of the e-commerce system\'s numbering.',
+    )
+
+    def is_no_api(self):
+        self.ensure_one()
+        return self.type_api == 'no_api'
+
+    def _default_search_customer_fields_ids(self):
+        return self.env['ir.model.fields'].sudo().search([
+            ('model_id.model', '=', 'res.partner'),
+            ('name', 'in', SEARCH_CUSTOMER_FIELDS),
+        ])
+
+    def _set_default_template_reference_id(self):
+        """Redefine it"""
+        if not self.is_no_api():
+            return False
+
+        self.template_reference_id = self.env.ref(
+            'integration.integration_template_reference_no_api_private').id
+        return bool(self.template_reference_id)
+
+    def _set_default_product_reference_id(self):
+        """Redefine it"""
+        if not self.is_no_api():
+            return False
+
+        self.product_reference_id = self.env.ref(
+            'integration.integration_product_reference_no_api_private').id
+        return bool(self.product_reference_id)
+
+    def _set_default_template_barcode_id(self):
+        """Redefine it"""
+        if not self.is_no_api():
+            return False
+
+        self.template_barcode_id = self.env.ref(
+            'integration.integration_template_barcode_no_api_private').id
+        return bool(self.template_barcode_id)
+
+    def _set_default_product_barcode_id(self):
+        """Redefine it"""
+        if not self.is_no_api():
+            return False
+
+        self.product_barcode_id = self.env.ref(
+            'integration.integration_product_barcode_no_api_private').id
+        return bool(self.product_barcode_id)
+
+    @api.onchange('search_customer_fields_ids')
+    def _onchange_search_customer_fields_ids(self):
+        self.use_search_customer_fields_ids \
+            = len(self.search_customer_fields_ids) < len(SEARCH_CUSTOMER_FIELDS)
+
+    @api.constrains('search_customer_fields_ids')
+    def _check_search_customer_fields_ids(self):
+        if not self.search_customer_fields_ids:
+            raise ValidationError(_(
+                'You cannot remove all search customer fields. At least one field must remain.'
+            ))
+
+    @api.onchange('import_order_enabled')
+    def _onchange_import_order_enabled(self):
+        """
+        Check if the receive orders cron is available.
+        """
+        if self.type_api and not self.receive_orders_cron_id:
+            return {
+                'warning': {
+                    'title': _('Warning'),
+                    'message': _(
+                        'The receive orders cron has been removed. \nPlease deactivate and '
+                        'reactivate the integration to create a new cron automatically.'
+                    ),
+                }
+            }
+
+    @api.onchange('customer_company_vat_field')
+    def _onchange_customer_company_vat_field(self):
+        """
+        Update the 'use_search_company_by_vat' field based on the 'customer_company_vat_field'.
+
+        If the VAT field is not specified, automatically disable the option to search for
+        companies by VAT.
+        """
+        if not self.customer_company_vat_field:
+            self.use_vat_only_company_search = False
+
+    @api.onchange('emails_for_failed_mapping_notifications')
+    def _onchange_emails_for_failed_mapping_notifications(self):
+        """
+        Onchange method triggered when notify_on_failed_mapping field changes.
+        It validates the email addresses and displays a warning for invalid ones.
+        """
+        if self.emails_for_failed_mapping_notifications:
+            email_addresses = [
+                email.strip() for email in self.emails_for_failed_mapping_notifications.split(',')
+            ]
+
+            invalid_emails = [
+                email for email in email_addresses if email and not _is_valid_email(email)
+            ]
+
+            if invalid_emails:
+                return {
+                    'warning': {
+                        'title': 'Invalid Email Addresses',
+                        'message': f"Invalid email addresses: {', '.join(invalid_emails)}"
+                    }
+                }
+
     @api.onchange('type_api')
     def _onchange_type_api(self):
-        if not self.type_api or self.type_api == 'no_api':
+        if not self.type_api:
             return
 
-        for integration in self:
-            decimal_precision = integration.company_id.currency_id.decimal_places or '2'
-            integration.set_settings_value('decimal_precision', decimal_precision)
+        # A.
+        self._set_default_advanced_fields()
+
+        # B.
+        self.set_settings_value(
+            'decimal_precision',
+            self.company_id.currency_id.decimal_places or '2',
+        )
+
+        # C.
+        self.validate_barcode = self.type_api in ('prestashop', 'shopify')
 
     def _get_default_global_tracked_fields(self):
         return self.env['ir.model.fields'].sudo().search([
@@ -652,7 +919,7 @@ class SaleIntegration(models.Model):
     def _get_default_mandatory_fields(self):
         return self.env['ir.model.fields'].sudo().search([
             ('model', '=', 'product.product'),
-            ('name', '=', self._get_product_reference_name()),
+            ('name', '=', 'default_code'),
         ])
 
     def _compute_lang_ids(self):
@@ -795,18 +1062,6 @@ class SaleIntegration(models.Model):
         """
         return False
 
-    def open_mrp_module(self):
-        """Open the standard form-view of the `Manufacturing` module."""
-        return {
-            'type': 'ir.actions.act_window',
-            'res_model': 'ir.module.module',
-            'name': 'Manufacturing',
-            'view_mode': 'form',
-            'view_id': self.env.ref('base.module_form').id,
-            'res_id': self.env.ref('base.module_mrp').id,
-            'target': 'current',
-        }
-
     def open_webhooks_logs(self):
         tree = self.env.ref('base.ir_logging_tree_view')
         form = self.env.ref('base.ir_logging_form_view')
@@ -854,8 +1109,7 @@ class SaleIntegration(models.Model):
             })
             return message_wizard.run_wizard('integration_message_wizard_html_form')
 
-        lines = self.create_integration_webhook_lines(data_dict)
-        return lines
+        return self.create_integration_webhook_lines(data_dict)
 
     def drop_webhooks(self):
         result = False
@@ -938,6 +1192,7 @@ class SaleIntegration(models.Model):
     def action_draft(self):
         self.ensure_one()
         self.state = 'draft'
+        self.import_order_enabled = False
 
     def action_open_shop(self):
         return {
@@ -948,6 +1203,7 @@ class SaleIntegration(models.Model):
 
     def action_check_connection(self, raise_success=True):
         self.ensure_one()
+        self._ensure_settings()
 
         try:
             adapter = self._build_adapter()
@@ -969,6 +1225,18 @@ class SaleIntegration(models.Model):
                 }
         else:
             raise UserError(_('Connection failed'))
+
+    def is_integration_cancel_allowed(self):
+        """Currently it's a Shopify only feature"""
+        return False
+
+    def _get_cancel_order_view_id(self):
+        """Specific for every integration"""
+        return False
+
+    def _ensure_settings(self):
+        """Hook method for redefining"""
+        pass
 
     def action_view_all_external_orders_data(self):
         """
@@ -1001,23 +1269,17 @@ class SaleIntegration(models.Model):
             },
         }
 
-    @api.depends('state')
-    def _compute_is_installed_mrp(self):
-        installed = self.sudo().env.ref('base.module_mrp').state == 'installed'
-        for rec in self:
-            rec.is_installed_mrp = installed
-
     @property
     def is_active(self):
         return self.state == 'active'
 
     @property
     def is_installed_website_sale(self):
-        return self.sudo().env.ref('base.module_website_sale').state == 'installed'
+        return self.is_module_installed('website_sale')
 
     @property
     def is_installed_sale_product_configurator(self):
-        return self.sudo().env.ref('base.module_sale_product_configurator').state == 'installed'
+        return self.is_module_installed('sale_product_configurator')
 
     @property
     def allow_bundle_creation(self):
@@ -1042,7 +1304,12 @@ class SaleIntegration(models.Model):
                 cron = integration._create_inventory_cron()
                 integration.inventory_synchronization_cron_id = cron
 
-            integration.receive_orders_cron_id.active = integration.state == 'active'
+            # Set the activity of receive orders cron
+            integration.receive_orders_cron_id.active = (
+                integration.state == 'active' and integration.import_order_enabled
+            )
+
+            # Set the activity of inventory synchronization
             integration.inventory_synchronization_cron_id.active = (
                 integration.state == 'active'
                 and integration.synchronize_all_inventory_periodically
@@ -1058,8 +1325,7 @@ class SaleIntegration(models.Model):
             'interval_number': 5,
             'code': f'model.browse({self.id}).integration_receive_orders_cron()',
         }
-        cron = self.env['ir.cron'].create(vals)
-        return cron
+        return self.env['ir.cron'].create(vals)
 
     def _create_inventory_cron(self):
         self.ensure_one()
@@ -1080,8 +1346,7 @@ class SaleIntegration(models.Model):
             'code': f'model.browse({self.id}).integrationApiExportInventory()',
             'nextcall': nextcall.strftime('%Y-%m-%d %H:%M:%S'),
         }
-        cron = self.env['ir.cron'].create(vals)
-        return cron
+        return self.env['ir.cron'].create(vals)
 
     def unlink(self):
         self.receive_orders_cron_id.unlink()
@@ -1113,40 +1378,57 @@ class SaleIntegration(models.Model):
         return self[f'{name}_job_enabled']
 
     @api.model_create_multi
-    def create(self, vals):
-        res = super().create(vals)
+    def create(self, vals_list):
+        res = super().create(vals_list)
 
-        for integration, val in zip(res, vals):
-            integration.write_settings_fields(val)
+        for integration, vals in zip(res, vals_list):
+            integration.write_settings_fields(vals)
             integration.create_fields_mapping_for_integration()
+            integration._set_default_advanced_fields()
             integration.update_crons_activity()
 
         return res
 
     def write(self, vals):
         self.ensure_one()
+
         res = super().write(vals)
+
+        # 1. Write settings fields
         ctx = self.env.context.copy()
-        if not ctx.get('write_settings_fields'):
+        if not ctx.get('skip_write_settings_fields'):
             res = self.write_settings_fields(vals)
 
+        # 2. Update advanced fields
+        if 'change_advanced_fields' in vals:
+            if self.change_advanced_fields:
+                self._fill_default_advanced_fields()
+            else:
+                self._set_default_advanced_fields()
+
+        # 3. Update crons
         if 'synchronize_all_inventory_periodically' in vals or 'state' in vals:
             self.update_crons_activity()
+
+        # 4. Invalidate Cache
+        if 'use_async' in vals:
+            self.invalidate_integration_cache()
 
         return res
 
     def create_fields_mapping_for_integration(self):
-        ecommerce_fields = self.env['product.ecommerce.field']\
-            .search([('type_api', '=', self.type_api), ('is_default', '=', True)])
+        self.ensure_one()
 
-        for field in ecommerce_fields:
-            create_vals = {
-                'ecommerce_field_id': field.id,
-                'integration_id': self.id,
-                'send_on_update': field.default_for_update,
-                'receive_on_import': field.default_for_import,
-            }
-            self.env['product.ecommerce.field.mapping'].create(create_vals)
+        field_ids = self.env['product.ecommerce.field'].search([
+            ('type_api', '=', self.type_api),
+            ('is_default', '=', True),
+            ('is_private', '=', False),
+        ])
+
+        for field in field_ids:
+            field._create_mapping(self.id)
+
+        return True
 
     def write_settings_fields(self, vals):
         self.ensure_one()
@@ -1176,7 +1458,7 @@ class SaleIntegration(models.Model):
                     'field_ids': fields_list_to_add
                 }
                 ctx = self.env.context.copy()
-                ctx.update({'write_settings_fields': True})
+                ctx['skip_write_settings_fields'] = True
                 res = self.with_context(ctx).write(new_fields)
 
         return res
@@ -1217,6 +1499,22 @@ class SaleIntegration(models.Model):
             raise ValueError(f'Settings field with key = {key} is not found!')
 
         return field
+
+    def _ensure_not_null_setting(self, key_list: list):
+        result = list()
+
+        for key in key_list:
+            field = self.get_settings_field(key, raise_exception=False)
+
+            if not field.value:
+                raise UserError(_(
+                    '%s: the "%s" settings field is required. Please go to the Quick Configuration '
+                    'wizard to finish connection configuration' % (self.name, key)
+                ))
+
+            result.append(field.value)
+
+        return result
 
     def get_hash(self):
         values = self.field_ids.mapped('value')
@@ -1646,8 +1944,8 @@ class SaleIntegration(models.Model):
         block = 1
         limit = self.get_external_block_limit()
         template_ids = external_ids or self.adapter.get_product_template_ids()
-
         self = self.with_context(company_id=self.company_id.id)
+
         description = (
             f'{self.name}: Initial Products Import: Import Products Batch '
             '(create external records + auto-matching) [block %s]'
@@ -1687,8 +1985,9 @@ class SaleIntegration(models.Model):
     def integrationApiReceiveOrder(self):
         if not self.temp_external_id:
             return False
-        input_file = self.integration_api_receive_order(self.temp_external_id)
-        return input_file
+
+        return self.with_context(skip_create_order_from_input=True)\
+            .integration_api_receive_order(self.temp_external_id)
 
     def integrationApiReceiveExternalProduct(self):
         if not self.temp_external_id:
@@ -1738,22 +2037,32 @@ class SaleIntegration(models.Model):
         return customers
 
     def import_single_customer(self, external_customer_id):
+        """
+        Import a single customer along with their addresses.
+        Args:
+            external_customer_id (str): External ID of the customer.
+        Returns:
+            List: Imported partners (customer and their addresses).
+        """
+        # Build the adapter for retrieving external data
         adapter = self._build_adapter()
-        factory = self.env['integration.sale.order.factory']
 
+        # Retrieve customer data and associated addresses from the adapter
         customer, addresses = adapter.get_customer_and_addresses(external_customer_id)
-        odoo_customer = factory._fetch_odoo_partner(self, customer)
 
-        partners = [odoo_customer]
-        for address in addresses:
-            partner = factory._fetch_odoo_partner(
-                integration=self,
-                partner_data=address,
-                address_type=address.get('address_type', OTHER),
-                parent=odoo_customer,
-            )
-            partners.append(partner)
-        return partners
+        # Create a partner factory for managing partner creation
+        PartnerFactory = self.env['integration.res.partner.factory'].create_factory(
+            self.id,
+            customer_data=customer,
+            addresses_data=addresses,
+            is_initial_import=True,
+        )
+
+        # Get partner and addresses from the partner factory
+        partner, addresses = PartnerFactory.get_partner_and_addresses()
+
+        # Return the list of imported partners
+        return [partner] + addresses.get('other', {})
 
     def _fetch_external_tax(self, tax_id):
         adapter = self._build_adapter()
@@ -1794,12 +2103,24 @@ class SaleIntegration(models.Model):
         (2) create or update externals/mappings
         (3) try to map external records (integration.product.template.mapping)
         """
+
+        external_templates, external_variants, error_list = self._import_external_product(template_ids)
+
+        message = ''
+
+        if external_templates or external_variants:
+            message += _('======SUCCESS======\n%s, %s\n\n') % (external_templates, external_variants)
+
+        if error_list:
+            message += _('======FAIL======\n%s') % '\n\n'.join(error_list)
+
+        return message
+
+    def _import_external_product(self, template_ids):
         if not isinstance(template_ids, list):
             template_ids = [template_ids]
 
         template_ids = [str(x) for x in template_ids]
-
-        ext_templates_data = self.adapter.get_product_templates(template_ids)
 
         ExternalTemplate = self.env['integration.product.template.external']
         ExternalVariant = self.env['integration.product.product.external']
@@ -1807,6 +2128,10 @@ class SaleIntegration(models.Model):
         external_templates = ExternalTemplate.browse()
         external_variants = ExternalVariant.browse()
         errors = []
+
+        ext_templates_data = self.adapter.get_product_templates(template_ids)
+        if not ext_templates_data:
+            return external_templates, external_variants, errors
 
         for template_data in ext_templates_data.values():
             external_template = self._import_external_record(ExternalTemplate, template_data)
@@ -1822,15 +2147,15 @@ class SaleIntegration(models.Model):
                 # Create default external variant with "complex-zero" code like `100-0`
                 default_external_variant = external_template._create_default_external_variant()
                 default_external_variant.create_or_update_mapping()
+                external_variants |= default_external_variant
 
             try:
                 external_template.try_map_template_and_variants(template_data)
-            except (ApiImportError, NotMappedToExternal, NotMappedFromExternal) as e:
+            except (ApiImportError, NotMappedToExternal, NotMappedFromExternal, AssertionError) as e:
                 errors = errors or [_('Errors when trying to auto-match products:')]
                 errors.append(str(e))
 
-        error_message = errors and '\n\n'.join(errors)
-        return error_message or _('SUCCESS: %s, %s') % (external_templates, external_variants)
+        return external_templates, external_variants, errors
 
     def _import_external_record(self, external_model, external_data):
         name = external_data.get('name')
@@ -1890,6 +2215,8 @@ class SaleIntegration(models.Model):
             f'force={force}',
         )
 
+        self = self.with_context(company_id=self.company_id.id)
+
         template = template.with_context(
             lang=self.get_integration_lang_code(),
             default_integration_id=self.id,
@@ -1919,7 +2246,6 @@ class SaleIntegration(models.Model):
 
             # Trigger export again and finish current task
             job_kwargs = self._job_kwargs_export_template(template, export_images, force=force)
-            self = self.with_context(company_id=self.company_id.id)
 
             job = self.with_delay(**job_kwargs).export_template(
                 template,
@@ -1941,7 +2267,7 @@ class SaleIntegration(models.Model):
                 'integration_id': self.id,
                 'code': existing_external_product_id,
             })
-            job_kwargs = self._job_kwargs_import_product(external_record)
+            job_kwargs = self._job_kwargs_import_product(external_record.code, external_record.name)
             job = self.with_delay(**job_kwargs)\
                 .import_product(external_record.id, import_images=False)
 
@@ -2010,7 +2336,7 @@ class SaleIntegration(models.Model):
         is_only_template = (
             len(v_mapping_list) == 1 and v_mapping_list[0]['external_id'].endswith('-0')
         )
-        ref_field = self._get_product_reference_name()
+        ref_field = self.product_reference_name
         ext_reference = t_mapping.get('external_reference')
         if not ext_reference and is_only_template:
             ext_reference = getattr(template, ref_field)
@@ -2068,18 +2394,23 @@ class SaleIntegration(models.Model):
 
     def export_pricelist_items_to_external_cron(self):
         _logger.info('Call Integration cron: Send Pricelist Items')
-        result = list()
+
         integration_ids = self.search([
             ('state', '=', 'active'),
             ('pricelist_integration', '=', True),
         ])
+
+        result = list()
         for integration in integration_ids:
             job_kwargs = {
                 'description' : f'{integration.name}: Export Pricelist Items Cron',
             }
-            job = integration.with_delay(**job_kwargs).export_pricelist_items_to_external()
+            job = integration.with_context(company_id=self.company_id.id)\
+                .with_delay(**job_kwargs).export_pricelist_items_to_external()
+
             integration.job_log(job)
             result.append(job)
+
         return result
 
     def export_pricelist_items_to_external(self):
@@ -2106,6 +2437,8 @@ class SaleIntegration(models.Model):
         block_number = 1
         block_list = list()
         message_list = list()
+
+        self = self.with_context(company_id=self.company_id.id)
 
         template_ids = self.search_templates_for_specific_prices(
             pricelist_ids=pricelist_ids,
@@ -2283,12 +2616,32 @@ class SaleIntegration(models.Model):
         tracking_data = pickings.to_export_format_multi(self)
 
         adapter = self._build_adapter()
-        result = adapter.export_tracking(sale_order_id, tracking_data)
-        # After successful tracking export, add corresponding flag to the picking
+        result = adapter.export_tracking(sale_order_id, tracking_data, force_done=self.force_full_fulfillment)
+
         if result:
-            pickings.write({
-                'tracking_exported': True,
-            })
+            pickings.mark_integration_sent()
+
+        return result
+
+    def send_picking(self, picking):
+        self.ensure_one()
+
+        order = picking.sale_id
+        sale_order_id = order.to_external(self)
+        picking_data = picking.to_export_format(self)
+
+        if not picking_data:
+            raise ValidationError(
+                _('Sending was skipped. Awaiting other transfers validations.')
+            )
+
+        result = self.adapter.send_picking(sale_order_id, picking_data)
+
+        if result:
+            result['internal_status'] = 'done'
+            order._apply_values_from_external({'order_fulfillments': [result]})
+            picking.mark_integration_sent()
+
         return result
 
     def export_sale_order_status(self, order):
@@ -2296,9 +2649,7 @@ class SaleIntegration(models.Model):
 
         adapter = self._build_adapter()
         vals = order._prepare_vals_for_sale_order_status()
-        res = adapter.export_sale_order_status(vals)
-        order._apply_so_status_external_data(res)
-        return f'{res}\n\nExported Data:\n\n{json.dumps(vals, indent=4)}'
+        return adapter.export_sale_order_status(vals)
 
     def export_attribute(self, attribute):
         self.ensure_one()
@@ -2537,6 +2888,7 @@ class SaleIntegration(models.Model):
         # Create separate export jobs (isolated transactions) which will be highly likely
         # failed in order to notify user for existing troubles
         job_list = list()
+        self = self.with_context(company_id=self.company_id.id)
         variant_ids = variant_ids.with_context(default_integration_id=self.id)
 
         for variant in variant_ids:
@@ -2553,6 +2905,12 @@ class SaleIntegration(models.Model):
         ])
         return pricelist_map_ids.mapped('pricelist_id').ids
 
+    def _get_wh_from_external_location(self, external_location_code: str):
+        record = self.location_line_ids.filtered(  # TODO: what if there will be a recordset
+            lambda x: x.external_location_id.code == external_location_code,
+        )
+        return record[:1].warehouse_id
+
     def _build_adapter_core(self):
         settings = self.to_dictionary()
         adapter_core = settings['class'](settings)
@@ -2565,20 +2923,36 @@ class SaleIntegration(models.Model):
         self.ensure_one()
         self.write_settings_fields({})
         adapter_core = self._adapter_hub_.get_core(self)
-        adapter = Adapter(adapter_core, self)
-        return adapter
+        return Adapter(adapter_core, self)
 
     def to_dictionary(self):
         self.ensure_one()
         return {
             'name': self.name,
             'type_api': self.type_api,
-            'use_async': self.use_async,  # TODO: Invalidate adaper cache after changing this value
+            'use_async': self.use_async,
             'class': self.get_class(),
             'fields': self.field_ids.to_dictionary(),
             'data_block_size': int(self.env['ir.config_parameter'].sudo().get_param(  # *
                 'integration.import_data_block_size'))
         }
+
+    def filter_received_orders(self, orders_data_list):
+        """
+        Global method to filter received orders.
+        This method will call specific filtering methods based on the integration type.
+        """
+        self.ensure_one()
+        integration_type = self.type_api
+
+        filter_method_name = f'_filter_orders_{integration_type}'
+
+        if hasattr(self, filter_method_name):
+            filter_method = getattr(self, filter_method_name)
+            return filter_method(orders_data_list)
+        else:
+            _logger.info(f'No filtering method found for integration type: {integration_type}')
+            return orders_data_list
 
     def integrationApiReceiveOrders(self, update_dt=True):
         """
@@ -2604,16 +2978,18 @@ class SaleIntegration(models.Model):
         # 1. receive orders
         orders_data_list = adapter.receive_orders()
 
-        # 2. create input files
+        # 2. filter orders
+        filtered_orders_data_list = self.filter_received_orders(orders_data_list)
+
+        # 3. create input files
         updated_at_list = list()
         created_input_files = self.env['sale.integration.input.file']
-        for order_data in orders_data_list:
+        for order_data in filtered_orders_data_list:
             input_file = self._create_input_file_from_received_data(order_data)
             created_input_files |= input_file
 
-            updated_at_list.append(order_data['updated_at'])
-
-        # 3. update receive parameters
+        # 4. update receive parameters
+        updated_at_list = [order_data['updated_at'] for order_data in orders_data_list]
         if updated_at_list:
             last_receive_dt = self._find_max_datetime(updated_at_list)
         else:
@@ -2628,7 +3004,7 @@ class SaleIntegration(models.Model):
         _logger.info(
             '%s receive orders: {count: %s, updated_at: %s, input_files: %s}',
             self.name,
-            len(orders_data_list),
+            len(filtered_orders_data_list),
             last_receive_dt,
             created_input_files.ids,
         )
@@ -2666,15 +3042,23 @@ class SaleIntegration(models.Model):
             'description': f'{self.name}: Receive Orders (cron=True)',
             'identity_key': f'receive_orders_cron-{self.type_api}_{self.id}',
         }
-        job = self.with_delay(**job_kwargs).integrationApiReceiveOrders(update_dt=cron_operation)
+        job = self.with_context(company_id=self.company_id.id)\
+            .with_delay(**job_kwargs)\
+            .integrationApiReceiveOrders(update_dt=cron_operation)
+
         self.job_log(job)
+
         return job
 
     def integration_receive_order_by_job(self, external_order_id):
         job_kwargs = self._job_kwargs_receive_order(external_order_id)
-        job = self.with_delay(**job_kwargs)\
+
+        job = self.with_context(company_id=self.company_id.id)\
+            .with_delay(**job_kwargs)\
             .integration_api_receive_order(external_order_id, raise_error=True)
+
         self.job_log(job)
+
         return job
 
     def integration_api_receive_order(self, external_order_id, raise_error=False):
@@ -2742,10 +3126,14 @@ class SaleIntegration(models.Model):
 
     def trigger_create_order(self, input_file):  # Deprecated!
         self.ensure_one()
-        self = self.with_context(company_id=self.company_id.id)
         job_kwargs = self._job_kwargs_create_order_from_input(input_file)
-        job = self.with_delay(**job_kwargs).create_order_from_input(input_file)
+
+        job = self.with_context(company_id=self.company_id.id)\
+            .with_delay(**job_kwargs)\
+            .create_order_from_input(input_file)
+
         input_file.job_log(job)
+
         return job
 
     def trigger_link_all(self):
@@ -2783,26 +3171,10 @@ class SaleIntegration(models.Model):
         """Hook method for redefining"""
         return order_data
 
-    def parse_order(self, input_file):
-        self.ensure_one()
-
-        adapter = self._build_adapter()
-
-        input_file_data = input_file.to_dict()
-        order_data = adapter.parse_order(
-            input_file_data,
-        )
-        return order_data
-
     def create_order_from_input(self, input_file):
         self.ensure_one()
 
-        if input_file.update_required:
-            is_updated = input_file._update_from_external()
-            if not is_updated:
-                raise ValidationError(_('Sale integration input file update error.'))
-
-        order_data = self.parse_order(input_file)
+        order_data = input_file.parse()
 
         # Check if the order has been canceled
         is_order_cancelled = order_data.pop('is_cancelled', False)
@@ -2826,12 +3198,14 @@ class SaleIntegration(models.Model):
         input_file.action_process()
 
         job_kwargs = order._build_workflow_job_kwargs()
-        job_kwargs['description'] = (
-            f'{self.name}: Create Integration Workflow [{order.display_name}]'
-        )
-        job = order.with_delay(**job_kwargs)\
+        job_kwargs['description'] = f'{self.name}: Order № "{order.display_name}" >> Create Integration Workflow'
+
+        job = order.with_context(company_id=self.company_id.id)\
+            .with_delay(**job_kwargs)\
             ._build_and_run_integration_workflow(order_data_upd, input_file.id)
+
         input_file.job_log(job)
+
         return order
 
     def integrationApiCreateOrders(self):  # Seems this one not used currently
@@ -2925,53 +3299,93 @@ class SaleIntegration(models.Model):
             return test_method()
         return True
 
-    def _get_product_reference_name(self):
+    def _ensure_ecommerce_field(self, name):
         """
-        Method for redefining in extension modules.
-        :return: `technical name`
+        :name:
+            - Name of the m2o field pointed to the Ecommerce Field --> product.ecommerce.field
         """
-        return 'default_code'
+        field_id = getattr(self, name, False)
 
-    def _get_product_barcode_name(self):
-        """
-        Method for redefining in extension modules.
-        :return: `technical name`
-        """
-        return 'barcode'
+        if not field_id:
+            set_value = getattr(self, f'_set_default_{name}', lambda: False)()
 
-    def _template_field_name_to_ecommerce_name(self, odoo_field_name):
-        return self._odoo_name_to_ecommerce_name('product.template', odoo_field_name)
+            if not set_value:
+                raise UserError(
+                    _('%s: Essential field the "%s" may not be defined.') % (self.name, name)
+                )
 
-    def _variant_field_name_to_ecommerce_name(self, odoo_field_name):
-        return self._odoo_name_to_ecommerce_name('product.product', odoo_field_name)
+            field_id = getattr(self, name)
 
-    def _odoo_name_to_ecommerce_name(self, model_name, odoo_field_name):
-        """
-        :model_name: `product.template` or 'product.product'
-        """
-        xml_id = 'product.model_%s' % '_'.join(model_name.split('.'))
+        field_id._ensure_mapping(self.id)
 
-        mapping_field_id = self.env['product.ecommerce.field.mapping'].sudo().search([
-            ('odoo_field_id.name', '=', odoo_field_name),
-            ('odoo_model_id', '=', self.env.ref(xml_id).id),
-            ('integration_id', '=', self.id),
-        ])
+        return field_id
 
-        assert len(mapping_field_id) <= 1, (
-            f'Multiple mapping found: {odoo_field_name} ({model_name})'
-        )
-        field_id = mapping_field_id.ecommerce_field_id
+    def _set_default_advanced_fields(self):
+        for rec in self:
+            # Set references
+            rec.template_reference_id.mark_mapping_inactive(rec.id)
+            rec._set_default_template_reference_id()
+            rec.product_reference_id.mark_mapping_inactive(rec.id)
+            rec._set_default_product_reference_id()
 
-        return field_id.technical_name if field_id else odoo_field_name
+            # Set barcodes
+            rec.template_barcode_id.mark_mapping_inactive(rec.id)
+            rec._set_default_template_barcode_id()
+            rec.product_barcode_id.mark_mapping_inactive(rec.id)
+            rec._set_default_product_barcode_id()
 
-    def _get_reference_field_name(self, erp_model):
-        if erp_model._name in ('product.template', 'product.product'):
-            return self._get_product_reference_name()
+    def _fill_default_advanced_fields(self):
+        for rec in self:
+            # Fill references
+            if not rec.template_reference_id:
+                rec._set_default_template_reference_id()
+            if not rec.product_reference_id:
+                rec._set_default_product_reference_id()
 
-        reference_field = getattr(erp_model, '_internal_reference_field', None)
+            # Fill barcodes
+            if not rec.template_barcode_id:
+                rec._set_default_template_barcode_id()
+            if not rec.product_barcode_id:
+                rec._set_default_product_barcode_id()
+
+    @property
+    def product_reference_name(self):
+        ecommerce_id = self._ensure_ecommerce_field('product_reference_id')
+        return ecommerce_id.odoo_field_name
+
+    @property
+    def product_barcode_name(self):
+        ecommerce_id = self._ensure_ecommerce_field('product_barcode_id')
+        return ecommerce_id.odoo_field_name
+
+    @property
+    def template_reference_api_name(self):
+        ecommerce_id = self._ensure_ecommerce_field('template_reference_id')
+        return ecommerce_id.technical_name
+
+    @property
+    def variant_reference_api_name(self):
+        ecommerce_id = self._ensure_ecommerce_field('product_reference_id')
+        return ecommerce_id.technical_name
+
+    @property
+    def template_barcode_api_name(self):
+        ecommerce_id = self._ensure_ecommerce_field('template_barcode_id')
+        return ecommerce_id.technical_name
+
+    @property
+    def variant_barcode_api_name(self):
+        ecommerce_id = self._ensure_ecommerce_field('product_barcode_id')
+        return ecommerce_id.technical_name
+
+    def _get_reference_field_name(self, odoo_model):
+        if odoo_model._name in ('product.template', 'product.product'):
+            return self.product_reference_name
+
+        reference_field = getattr(odoo_model, '_internal_reference_field', None)
         if not reference_field:
             raise NoReferenceFieldDefined(
-                _('No _internal_reference_field field defined for model %s') % erp_model._name
+                _('No _internal_reference_field field defined for model %s') % odoo_model._name
             )
         return reference_field
 
@@ -2983,22 +3397,32 @@ class SaleIntegration(models.Model):
             ('product_tmpl_id.exclude_from_synchronization', '=', False),
         ]
 
-    def _need_for_barcode(self):
+    def is_barcode_validation_required(self):
         if not self.validate_barcode:
             return False
 
-        barcode_field = self.env.ref('product.field_product_product__barcode')
-        map_barcode_field = self.env['product.ecommerce.field.mapping'].search([
-            ('integration_id', '=', self.id),
-            ('odoo_field_id', '=', barcode_field.id),
-        ], limit=1)
-        return map_barcode_field.receive_on_import
+        self._ensure_ecommerce_field('template_barcode_id')
+        self._ensure_ecommerce_field('product_barcode_id')
+
+        mapping_ids = (
+            self.template_barcode_id.get_mapping_for_integration(self.id)
+            + self.product_barcode_id.get_mapping_for_integration(self.id)
+        )
+
+        if not mapping_ids:
+            raise UserError(_(
+                'You have enabled barcode validation checkbox but there are no active mappings '
+                'for barcode fields between Odoo and e-Commerce system. Please add the mappings '
+                'and try again or unmark the "Variant Barcode Validation" property.'
+            ))
+
+        return True
 
     def _validate_product_templates(self, show_message=False):
         tmpl_hub = self.adapter.get_templates_and_products_for_validation_test()
 
-        ref_field = self._get_product_reference_name()
-        barcode_field = self._get_product_barcode_name()
+        ref_field = self.product_reference_name
+        barcode_field = self.product_barcode_name
         ref_field_name = self.env['product.template']._get_field_string(ref_field)
 
         template_ids, variant_ids = tmpl_hub.get_empty_ref_ids()
@@ -3006,7 +3430,7 @@ class SaleIntegration(models.Model):
         nested_configurations = tmpl_hub.get_nested_configurations()
         duplicated_ref = tmpl_hub.get_dupl_refs()
 
-        check_barcodes = self._need_for_barcode()
+        check_barcodes = self.is_barcode_validation_required()
 
         if check_barcodes:
             part_fill_bar = tmpl_hub.get_part_fill_barcodes()
@@ -3134,7 +3558,7 @@ class SaleIntegration(models.Model):
 
         try:
             template = external_template.with_context(integration_import_images=import_images)\
-                .import_one_product(template_data, variants_data, bom_data, image_data)
+                ._import_one_product(template_data, variants_data, bom_data, image_data)
         except OperationalError:
             raise
         except Exception as ex:
@@ -3150,6 +3574,37 @@ class SaleIntegration(models.Model):
                 template.trigger_export(export_images=import_images, force_integrations=integration)
 
         return template
+
+    def create_external_template_by_id(self, external_template_id: str, create_new_product: bool = False):
+        """
+        Full import for the new product (not existing in DB):
+            a) create an external-record
+            b) run full import for the external-record
+        """
+        self.ensure_one()
+        # a.
+        external_template, *__ = self._import_external_product(external_template_id)
+
+        if external_template.odoo_record:
+            return external_template
+
+        # b.
+        if external_template and create_new_product:
+            job_kwargs = self._job_kwargs_import_product(external_template.code, external_template.name)
+
+            job = self.with_context(company_id=self.company_id.id)\
+                .with_delay(**job_kwargs)\
+                .import_product(external_template.id, import_images=True)
+
+            external_template.job_log(job)
+            return external_template
+
+        return external_template
+
+    def drop_external_record(self, odoo_external_product_id):
+        record = self.env['integration.product.template.external'].browse(odoo_external_product_id)
+        record_format = record.format_recordset()
+        return record_format, record.unlink()
 
     def action_run_configuration_wizard(self):
         configuration_wizard = self._build_configuration_wizard()
@@ -3210,10 +3665,10 @@ class SaleIntegration(models.Model):
             'description': f'{self.name}: Export Single Template "{template.display_name}"',
         }
 
-    def _job_kwargs_import_product(self, ext_product):
+    def _job_kwargs_import_product(self, external_id, name):
         return {
-            'identity_key': f'import_external_product-{self.id}_{ext_product}',
-            'description': f'{self.name}: Import External Product "{ext_product.name}"',
+            'identity_key': f'import_external_product-{self.id}-{external_id}',
+            'description': f'{self.name}: Import External Product "{name}" [{external_id}]',
         }
 
     def _job_kwargs_export_images(self, template):
@@ -3362,6 +3817,7 @@ class SaleIntegration(models.Model):
 
         stock_levels_data = adapter.get_stock_levels(external_location_code)
         stock_levels = [(key, value) for key, value in stock_levels_data.items()]
+        self = self.with_context(company_id=self.company_id.id)
 
         while stock_levels:
             idx += 1
@@ -3415,11 +3871,12 @@ class SaleIntegration(models.Model):
 
     def _get_trackable_fields(self):
         """Get fields that can be updated on external system"""
-        ecommerce_fields = self.env['product.ecommerce.field.mapping'].search([
-            ('integration_id', '=', self.id),
+        field_ids = self.env['product.ecommerce.field.mapping'].search([
+            ('active', '=', True),
             ('send_on_update', '=', True),
+            ('integration_id', '=', self.id),
         ])
-        return ecommerce_fields.sudo().trackable_fields_rel
+        return field_ids.sudo().trackable_fields_rel
 
     def _is_need_export_product(self, field_vals):
         """
@@ -3489,4 +3946,21 @@ class SaleIntegration(models.Model):
             'target': 'new',
             'context': self.env.context,
 
+        }
+
+    @staticmethod
+    def _raise_notification(ttype: str, message: str):
+        """
+        :ttype:
+            - success
+            - warning
+        """
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'message': message,
+                'type': ttype,
+                'sticky': False,
+            }
         }

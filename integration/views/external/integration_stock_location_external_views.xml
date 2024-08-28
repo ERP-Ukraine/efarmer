@@ -8,6 +8,7 @@
             <field name="arch" type="xml">
                 <tree editable="bottom" create="0">
                     <field name="integration_id"/>
+                    <field name="company_id" invisible="1"/>
                     <field name="code"/>
                     <field name="name"/>
                 </tree>
@@ -30,7 +31,7 @@
         </record>
 
         <record id="integration_stock_location_external_action" model="ir.actions.act_window">
-            <field name="name">Locations</field>
+            <field name="name">External Locations</field>
             <field name="res_model">integration.stock.location.external</field>
             <field name="view_mode">tree</field>
         </record>

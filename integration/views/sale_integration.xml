@@ -89,21 +89,7 @@
                                 Note that you have active webhooks defined for the current integration. But integration is inactive.
                                 So do not forget to delete webhooks by going to “Webhooks“ tab and clicking the “Drop Webhooks“ button.
                             </div>
-                            
-                            <div colspan="2" attrs="{'invisible': ['|', ('type_api', '!=', 'prestashop'), ('is_installed_mrp', '=', True)]}" class="alert alert-warning" role="alert">
-                                <p>
-                                    On Odoo side to enable support for Bundles/Packs you need to have Manufacturing module installed.
-                                    Then you will be able to create BoMs of type KiT. By clicking this button, you will install
-                                    “Manufacturing“ module on your database. Note that for Odoo Enterprise subscription it will mean
-                                    that your yearly cost of Odoo Enterprise subscription will increase
-                                    (depends on your region but approximately for 300 EUR per year).
-                                </p>
-                                <button name="open_mrp_module"
-                                        type="object"
-                                        string="Enable Product Bundles/Product Packs Support"
-                                        class="btn btn-warning text-uppercase"
-                                />
-                            </div>
+
                             <div name='weight_alert' colspan="2" attrs="{'invisible': ['|', ('check_weight_uoms', '=', True), ('state', '=', 'draft')]}" class="alert alert-warning" role="alert">
                                 <p>
                                     The default unit of measure for weights in Odoo (configured in "General Settings - Units of Measure")
@@ -137,7 +123,6 @@
                                         <field name="lang_ids" invisible="1"/>
                                         <field name="integration_lang_id" domain="[('id', 'in', lang_ids)]"/>
                                         <field name="price_including_taxes" widget="boolean_toggle"/>
-                                        <field name="is_installed_mrp" invisible="1"/>
                                         <field name="check_weight_uoms" invisible="1"/>
                                     </group>
                                     <group name="import_settings" string="Import Settings">
@@ -159,13 +144,16 @@
                                 </group>
                             </page>
 
-                            <page string="Sales Orders">
+                            <page string="Sales Orders" name="sale_order_page">
                                 <group>
                                     <group name="price_calculation" string="Order Extras Management">
+                                        <field name="use_order_total_difference_correction" widget="boolean_toggle"/>
                                         <field name="discount_product_id" context="{'default_detailed_type': 'service', 'default_exclude_from_synchronization': True, 'default_integration_ids': {}, }" />
+                                        <field name="separate_discount_line" widget="boolean_toggle" attrs="{'invisible': [('type_api', '=', 'prestashop')]}"/>
                                         <field name="positive_price_difference_product_id" context="{'default_detailed_type': 'service', 'default_exclude_from_synchronization': True, 'default_integration_ids': {}, }" />
                                         <field name="negative_price_difference_product_id" context="{'default_detailed_type': 'service', 'default_exclude_from_synchronization': True, 'default_integration_ids': {}, }" />
                                         <field name="gift_wrapping_product_id" attrs="{'invisible': [('type_api', '!=', 'prestashop')]}" context="{'default_detailed_type': 'service', 'default_exclude_from_synchronization': True, 'default_integration_ids': {}, }" />
+                                        <field name="fallback_product_id" context="{'default_detailed_type': 'service', 'default_exclude_from_synchronization': True, 'default_integration_ids': {}, }" />
                                     </group>
                                     <group name="field_mappings" string="E-Commerce Fields Mappings">
                                         <field name="so_delivery_note_field" />
@@ -173,7 +161,8 @@
                                         <field name="so_external_reference_field" />
                                     </group>
                                     <group name="order_defaults" string="Default Values">
-                                        <field name="order_name_ref" />
+                                        <field name="use_odoo_so_numbering" />
+                                        <field name="order_name_ref" attrs="{'invisible': [('use_odoo_so_numbering', '=', True)]}"/>
                                         <field name="company_id" invisible="1" />
                                         <field name="default_sales_team_id" />
                                         <field name="default_sales_person_id" />
@@ -184,6 +173,9 @@
                                                domain="[('integration_id', 'in', [id, False]), ('amount', '=', 0)]"
                                                attrs="{'invisible': [('behavior_on_empty_tax', '=', 'leave_empty')], 'required': [('behavior_on_empty_tax', '=', 'set_special_tax')]}"
                                         />
+                                    </group>
+                                    <group name="workflow_properties" string="Workflow">
+                                        <field name="apply_external_fulfillments" widget="boolean_toggle" attrs="{'invisible': [('type_api', '!=', 'shopify')]}"/>
                                     </group>
                                     <group name="order_actions" string="Sales Order Sync Settings">
                                         <field name="run_action_on_cancel_so" attrs="{'invisible': ['|', ('id', '=', False), ('type_api', 'not in', ['prestashop', 'woocommerce'])]}" widget="boolean_toggle"/>
@@ -203,23 +195,36 @@
                                         <field name="run_action_on_so_invoice_status" widget="boolean_toggle"/>
                                         <field name="sub_status_paid_id"
                                                attrs="{'required' : [('type_api', '=', 'prestashop'), ('run_action_on_so_invoice_status', '=', True)], 'invisible': [('type_api', '!=', 'prestashop')]}"/>
+                                        <field name="force_full_fulfillment" attrs="{'invisible': [('type_api', '!=', 'shopify')]}" widget="boolean_toggle"/>
                                     </group>
                                 </group>
                             </page>
 
                             <page string="Customers" name="customer_default_page">
-                                <group string="E-Commerce Fields Mappings" name="ecommerce_fields_mappings">
-                                    <field name="customer_personal_id_field" />
-                                    <field name="customer_company_vat_field" />
-                                    <field name="customer_company_vat_field_name" invisible="1" />
+                                <group>
+                                    <group string="Customer Sync Settings" name="customer_sync_settings">
+                                        <field name="use_manual_customer_mapping" widget="boolean_toggle" />
+                                        <field name="emails_for_failed_mapping_notifications"
+                                               attrs="{'required' : [('use_manual_customer_mapping', '==', True)], 'invisible': [('use_manual_customer_mapping', '==', False)]}"/>
+                                        <field name="use_vat_only_company_search"
+                                               attrs="{'invisible' : [('customer_company_vat_field', '==', False)]}"
+                                               widget="boolean_toggle"
+                                               groups="base.group_no_one"/>
+                                    </group>
+                                    <group string="E-Commerce Fields Mappings" name="ecommerce_fields_mappings">
+                                        <field name="customer_personal_id_field" options="{'no_create': True, 'no_edit': True}" attrs="{'invisible': [('type_api', 'not in', ('prestashop',))]}"/>
+                                        <field name="customer_company_vat_field" options="{'no_create': True, 'no_edit': True}"/>
+                                        <field name="ignore_vat_validation"/>
+                                        <field name="customer_company_vat_field_name" invisible="1" />
 
-                                    <div class="alert alert-warning" role="alert" colspan="2" attrs="{'invisible': [('customer_company_vat_field_name', '!=', 'vat')]}">
-                                        You have selected the VAT field for Company Registration Number synchronization.
-                                        If you have the module "VAT Number Validation" installed, then Odoo will accept
-                                        ONLY valid EU VAT numbers. If they are not valid - we will create Sales Order,
-                                        but we will NOT add VAT to the Customer. Instead, we will add a warning to the
-                                        sales order message thread informing about the wrong VAT number.
-                                    </div>
+                                        <div class="alert alert-warning" role="alert" colspan="2" attrs="{'invisible': ['|', ('ignore_vat_validation', '==', True), ('customer_company_vat_field_name', '!=', 'vat')]}">
+                                            You have selected the VAT field for Company Registration Number synchronization.
+                                            If you have the module "VAT Number Validation" installed, then Odoo will accept
+                                            ONLY valid EU VAT numbers. If they are not valid - we will create Sales Order,
+                                            but we will NOT add VAT to the Customer. Instead, we will add a warning to the
+                                            sales order message thread informing about the wrong VAT number.
+                                        </div>
+                                    </group>
                                 </group>
                             </page>
 
@@ -263,6 +268,7 @@
                                                    domain="[('usage', '=', 'internal'), ('company_id', '=', company_id)]"
                                                    options="{'no_open': True, 'no_create': True}"
                                             />
+                                            <field name="warehouse_id"/>
                                             <field name="external_location_id"
                                                    domain="[('integration_id', '=', integration_id)]"
                                                    options="{'no_open': True, 'no_create': True}"
@@ -360,6 +366,7 @@
                                         <field name="export_template_job_enabled" widget="boolean_toggle"/>
                                     </group>
                                     <group string="Order Processing Jobs" name="order_processing_jobs">
+                                        <field name="import_order_enabled" widget="boolean_toggle"/>
                                         <field name="export_tracking_job_enabled" widget="boolean_toggle"/>
                                         <field name="export_sale_order_status_job_enabled" widget="boolean_toggle"/>
                                     </group>
@@ -501,6 +508,12 @@
                                                     If there are customers in your external system that cannot be matched to existing records in Odoo,
                                                     new customer entries will be created within your Odoo database.
                                                 </li>
+                                                <li>
+                                                    If the "Enable Manual Customer Mapping" setting is enabled on the integration,
+                                                    the system will not attempt to auto-match customers based on name and address. Instead, a new open
+                                                    mapping will be created for each customer, allowing you to manually map them to existing Odoo
+                                                    customers or create new ones as needed.
+                                                </li>
                                             </ul>
                                         </div>
                                         <div class="col-md-2">
@@ -583,6 +596,33 @@
                                         />
                                     </div>
                                 </group>
+                                <group string="Advanced Product Settings" name="advanced_product_settings">
+                                    <field name="change_advanced_fields" widget="boolean_toggle"/>
+                                    <div colspan="2">
+                                        <div class="alert alert-warning mb-1" role="alert" attrs="{'invisible': [('change_advanced_fields', '=', False)]}">
+                                            <h4 style="color: inherit"><i class="fa fa-warning"/> Attention</h4>
+                                            By checking this checkbox you agree that you understand the risks and take
+                                            responsibility for further using this property during product synchronization in the eCommerce system.
+                                        </div>
+                                    </div>
+                                    <group string="Reference E-Fields" name="reference_ecomm_fields">
+                                        <field name="template_reference_id" attrs="{'readonly': [('change_advanced_fields', '=', False)]}" options="{'no_create': True, 'no_open': True}" domain="[('odoo_model_name', '=', 'product.template'), ('type_api', '=', type_api)]" force_save="1"/>
+                                        <field name="product_reference_id" attrs="{'readonly': [('change_advanced_fields', '=', False)]}" options="{'no_create': True, 'no_open': True}" domain="[('odoo_model_name', '=', 'product.product'), ('type_api', '=', type_api)]" force_save="1"/>
+                                    </group>
+                                    <group string="Barcode E-Fields" name="barcode_ecomm_fields">
+                                        <field name="template_barcode_id" attrs="{'readonly': [('change_advanced_fields', '=', False)]}" options="{'no_create': True, 'no_open': True}" domain="[('odoo_model_name', '=', 'product.template'), ('type_api', '=', type_api)]" force_save="1"/>
+                                        <field name="product_barcode_id" attrs="{'readonly': [('change_advanced_fields', '=', False)]}" options="{'no_create': True, 'no_open': True}" domain="[('odoo_model_name', '=', 'product.product'), ('type_api', '=', type_api)]" force_save="1"/>
+                                    </group>
+                                </group>
+                                <group string="Advanced Partner Settings" name="advanced_partner_settings" groups="base.group_no_one">
+                                    <field name="use_search_customer_fields_ids" invisible="1"/>
+                                    <field name="search_customer_fields_ids" options="{'no_create': True, 'no_edit': True}" widget="many2many_tags"/>
+                                    <div class="alert alert-warning mb-1" role="alert" colspan="2" attrs="{'invisible': [('use_search_customer_fields_ids', '=', False)]}">
+                                        If no values are provided for the selected partner search fields in the external system's data,
+                                        the search will default to using all available fields (name, email, phone, mobile).
+                                    </div>
+                                </group>
+                                <br/>
                                 <group>
                                     <group name="main_testing_fields" string="Test Methods">
                                         <field name="test_method" />
@@ -611,7 +651,7 @@
             <field name="name">sale.integration.list</field>
             <field name="model">sale.integration</field>
             <field name="arch" type="xml">
-                <tree string="Sale Integrations" decoration-muted="state=='draft'" js_class="sale_integration_list_view">
+                <tree string="Sale Integrations" decoration-muted="state=='draft'" js_class="sale_integration_list_view" default_order="state,name">
                     <field name="name"/>
                     <field name="type_api"/>
                     <field name="state"/>
@@ -631,7 +671,7 @@
             <field name="name">sale.integration.kanban</field>
             <field name="model">sale.integration</field>
             <field name="arch" type="xml">
-                <kanban class="o_integration_kanban" js_class="sale_integration_kanban_view">
+                <kanban class="o_integration_kanban" js_class="sale_integration_kanban_view" default_order="state,name">
                     <field name="display_name"/>
                     <field name="type_api"/>
                     <field name="state"/>

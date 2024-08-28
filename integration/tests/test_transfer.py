@@ -1,5 +1,4 @@
-# Copyright 2023 VentorTech OU
-# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
+# See LICENSE file for full copyright and licensing details.
 
 from odoo.tests import TransactionCase
 
@@ -41,96 +40,101 @@ picking_lines5 = [
 ]
 
 data_list1 = [
-    {
-        'name': 'Picking1-standard',
-        'carrier': 'Carrier',
-        'tracking': 'tracking_ref1',
-        'id': 104,
-        'backorder': False,
-        'dropship': False,
-        'lines': picking_lines1,
-    },
-    {
-        'name': 'Picking2-backorder',
-        'carrier': 'Carrier',
-        'tracking': 'tracking_ref2',
-        'id': 105,
-        'backorder': True,
-        'dropship': False,
-        'lines': picking_lines2,
-    },
-    {
-        'name': 'Picking3-dropship',
-        'carrier': 'Carrier',
-        'tracking': 'tracking_ref3',
-        'id': 103,
-        'backorder': False,
-        'dropship': True,
-        'lines': picking_lines3,
-    },
+    (
+        {
+            'erp_id': 104,
+            'name': 'Picking1-standard',
+            'carrier': 'Carrier',
+            'tracking': 'tracking_ref1',
+            'is_backorder': False,
+            'is_dropship': False,
+        },
+        picking_lines1,
+    ),
+    (
+        {
+            'erp_id': 105,
+            'name': 'Picking2-backorder',
+            'carrier': 'Carrier',
+            'tracking': 'tracking_ref2',
+            'is_backorder': True,
+            'is_dropship': False,
+        },
+        picking_lines2,
+    ),
+    (
+        {
+            'erp_id': 103,
+            'name': 'Picking3-dropship',
+            'carrier': 'Carrier',
+            'tracking': 'tracking_ref3',
+            'is_backorder': False,
+            'is_dropship': True,
+        },
+        picking_lines3,
+    ),
 ]
 
 data_list2 = [
-    {
-        'name': 'Picking1-standard',
-        'carrier': 'Carrier',
-        'tracking': 'tracking_ref1',
-        'id': 104,
-        'backorder': False,
-        'dropship': False,
-        'lines': picking_lines1,
-    },
-    {
-        'name': 'Picking2-backorder',
-        'carrier': 'Carrier',
-        'tracking': 'tracking_ref2',
-        'id': 105,
-        'backorder': True,
-        'dropship': False,
-        'lines': picking_lines4,
-    },
+    (
+        {
+            'erp_id': 104,
+            'name': 'Picking1-standard',
+            'carrier': 'Carrier',
+            'tracking': 'tracking_ref1',
+            'is_backorder': False,
+            'is_dropship': False,
+        },
+        picking_lines1,
+    ),
+    (
+        {
+            'erp_id': 105,
+            'name': 'Picking2-backorder',
+            'carrier': 'Carrier',
+            'tracking': 'tracking_ref2',
+            'is_backorder': True,
+            'is_dropship': False,
+        },
+        picking_lines4,
+    ),
 ]
 
 data_list3 = [
-    {
-        'name': 'Picking1-standard',
-        'carrier': 'Carrier',
-        'tracking': 'tracking_ref1',
-        'id': 106,
-        'backorder': False,
-        'dropship': False,
-        'lines': picking_lines4,
-    },
-    {
-        'name': 'Picking3-dropship',
-        'carrier': 'Carrier',
-        'tracking': 'tracking_ref3',
-        'id': 107,
-        'backorder': False,
-        'dropship': True,
-        'lines': picking_lines5,
-    },
+    (
+        {
+            'erp_id': 106,
+            'name': 'Picking1-standard',
+            'carrier': 'Carrier',
+            'tracking': 'tracking_ref1',
+            'is_backorder': False,
+            'is_dropship': False,
+        },
+        picking_lines4,
+    ),
+    (
+        {
+            'erp_id': 107,
+            'name': 'Picking3-dropship',
+            'carrier': 'Carrier',
+            'tracking': 'tracking_ref3',
+            'is_backorder': False,
+            'is_dropship': True,
+        },
+        picking_lines5,
+    ),
 ]
 
 
-def to_export_format(data):
-    _args = (
-        data['name'],
-        data['carrier'],
-        data['tracking'],
-        [PickingLine(*x) for x in data['lines']],
-        data['id'],
-        data['backorder'],
-        data['dropship'],
-    )
-    return PickingSerializer(*_args)
+def to_export_format(data, lines):
+    return PickingSerializer(data, [PickingLine(*x) for x in lines])
 
 
 def to_export_format_multi(data_list):
     tracking_data_list = list()
 
-    for data in data_list:
-        pdata = to_export_format(data)
+    for (data, lines) in data_list:
+        pdata = to_export_format(data, lines)
         tracking_data_list.append(pdata)
 
     return SaleTransferSerializer(tracking_data_list)

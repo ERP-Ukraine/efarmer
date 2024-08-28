@@ -38,7 +38,7 @@
         </record>
 
         <record id="integration_product_feature_external_action" model="ir.actions.act_window">
-            <field name="name">Features</field>
+            <field name="name">External Features</field>
             <field name="res_model">integration.product.feature.external</field>
             <field name="view_mode">tree</field>
         </record>

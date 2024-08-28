@@ -43,7 +43,7 @@
         </record>
 
         <record id="integration_product_product_external_action" model="ir.actions.act_window">
-            <field name="name">Variants</field>
+            <field name="name">External Variants</field>
             <field name="res_model">integration.product.product.external</field>
             <field name="view_mode">tree</field>
         </record>

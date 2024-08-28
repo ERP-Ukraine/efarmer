@@ -2,7 +2,8 @@
 
 import base64
 import logging
-from itertools import chain
+from operator import itemgetter
+from itertools import chain, groupby
 from collections import defaultdict
 
 import requests
@@ -13,8 +14,9 @@ from odoo.addons.integration.api.abstract_apiclient import AbsApiClient
 from odoo.addons.integration.models.fields.common_fields import GENERAL_GROUP
 from odoo.addons.integration.tools import not_implemented, TemplateHub, add_dynamic_kwargs
 from odoo.exceptions import UserError, ValidationError
+from .shopify.tools import merge_orders_data, parse_graphql_id, ExtractNode
 
-from .shopify import Client, check_scope
+from .shopify import Client, ShopifyGraphQL, check_scope
 from .shopify.exceptions import ShopifyApiException
 from .shopify.shopify_client import (
     ORDER,
@@ -30,27 +32,22 @@ from .shopify.shopify_client import (
     WEBHOOK,
     CUSTOMER,
     TRANSACTION,
-    ORDER_RISK,
+    SHOPIFY_FETCH_LIMIT,
 )
-from .shopify.shopify_client import METAFIELD, LOCATION  # noqa
-from .wizard.configuration_wizard_shopify import ShopifyOrderStatus
+from .shopify.shopify_helpers import ShopifyOrderStatus, ShopifyTxnStatus as Txn
+from .shopify.shopify_client import METAFIELD, LOCATION
+from .shopify.shopify_order import (
+    ShopifyOrder,
+    format_delivery_code,
+    format_attr_code,
+    format_attr_value_code,
+    format_payment_code,
+)
 
 
 SHOPIFY = 'shopify'
-PAYMENT_NOT_DEFINED = 'Not_Defined'
-
-TXN_SALE = 'sale'
-TXN_VOID = 'void'
-TXN_AUTH = 'authorization'
-TXN_CAPTURE = 'capture'
-TXN_STATUS_SUCCESS = 'success'
-TXN_STATUS_PENDING = 'pending'
-TXN_SOURCE_EXTERNAL = 'external'
-
-SHOPIFY_ATTRIBUTE_PREF = 'shopify-attribute-'
-SHOPIFY_ATTRIBUTE_VALUE_PREF = 'shopify-attribute-value-'
-SHOPIFY_SHIPPING_PREF = 'shopify-shipping-'
-SHOPIFY_PAYMENT_PREF = 'shopify-payment-'
+ATTR_DEFAULT_TITLE = 'Title'  # Default product attribute name according to the Shopify API
+ATTR_DEFAULT_VALUE = 'Default Title'  # Default product attribute value according to the Shopify API
 METAFIELDS_NAME = 'metafields'
 
 _logger = logging.getLogger(__name__)
@@ -63,6 +60,7 @@ class ShopifyAPIClient(AbsApiClient):
         ('version', 'API Version', ''),
         ('key', 'Admin API access token', ''),
         ('secret_key', 'API Secret Key', '', False, True),
+        ('graphql_version', 'GraphQl Version', '2024-04'),
         ('import_products_filter', 'Import Products Filter', '{"status": "active"}', True),
         (
             'receive_order_statuses',
@@ -83,13 +81,18 @@ class ShopifyAPIClient(AbsApiClient):
                        'Will be automatically populated when integration is active', '',),
         ('adapter_version', 'Version number of the api client', '0'),
         ('decimal_precision', 'Number of decimal places in the price of the exported product', '2'),
+        ('batch_size', 'Number of orders processed in one batch', '1000'),
     )
 
     def __init__(self, settings):
         super().__init__(settings)
 
         self._client = Client(settings)
-
+        self._graphql = ShopifyGraphQL(
+            site=self._client._session.site.rsplit('/', maxsplit=1)[0] + '/'
+            + settings['fields']['graphql_version']['value'],
+            token=self._client._session.token,
+        )
         self.country = self._client.shop.country
         self.lang = self._client.shop.primary_locale
         self.location_id = self._client._get_location_id()
@@ -142,8 +145,8 @@ class ShopifyAPIClient(AbsApiClient):
     def fetch_multi(self, name, params=None, fields=None, quantity=None):
         return self._client._fetch_multi(name, params, fields, quantity)
 
-    def execute_graphql(self, query):
-        return self._client._execute_graphql(query)
+    def count(self, name):
+        return self._client._model(name).count()
 
     def validate_template(self, template):
         _logger.info('Shopify: validate_template()')
@@ -165,15 +168,14 @@ class ShopifyAPIClient(AbsApiClient):
 
         # (3) if variant with such external id exists?
         for variant in template['products']:
-            variant_external_id = variant['external_id']
-            shopify_variant_id = self._parse_variant_id(variant_external_id)
+            shopify_variant_id = self._parse_variant_id(variant['external_id'])
             if shopify_variant_id:
                 shopify_variant = self.fetch_one(VARIANT, shopify_variant_id)
 
                 if shopify_variant.is_new():
                     mappings_to_delete.append({
                         'model': 'product.product',
-                        'external_id': variant_external_id,
+                        'external_id': variant['external_id'],
                     })
 
         return mappings_to_delete, mappings_to_update
@@ -189,11 +191,9 @@ class ShopifyAPIClient(AbsApiClient):
         # Now let's validate if there are no duplicated references in Shopify
         variants = template['products']
         integration = self._get_integration(kw)
+        variant_reference = integration.variant_reference_api_name
 
-        ref_field = integration._get_product_reference_name()
-        ecommerce_ref_variant = integration._variant_field_name_to_ecommerce_name(ref_field)
-
-        product_refs = [x['fields'].get(ecommerce_ref_variant) for x in variants]
+        product_refs = [x['fields'].get(variant_reference) for x in variants]
 
         # Let's validate if all found products belong to the same product template
         ids_set = self._find_product_by_references(product_refs)(**kw)
@@ -243,7 +243,7 @@ class ShopifyAPIClient(AbsApiClient):
 
         for combination in product_combination_ids:
             # Make sure that reference is set on the combination
-            reference = getattr(combination, ecommerce_ref_variant)
+            reference = getattr(combination, variant_reference)
 
             if not reference:
                 error_message = _('Product with id "%s" do not have references on '
@@ -257,7 +257,7 @@ class ShopifyAPIClient(AbsApiClient):
             )
 
             current_odoo_variant = list(
-                filter(lambda x: x['fields'].get(ecommerce_ref_variant) == reference, variants)
+                filter(lambda x: x['fields'].get(variant_reference) == reference, variants)
             )
             if len(current_odoo_variant) == 0:
                 error_message = _(
@@ -273,7 +273,7 @@ class ShopifyAPIClient(AbsApiClient):
                 key = values['key']
                 value = values['value']
 
-                attribute_value_id = self._format_attr_value_code(key, value)
+                attribute_value_id = format_attr_value_code(key, value)
                 attribute_values_from_odoo.append(attribute_value_id)
 
             if not (set(attribute_values_from_odoo) == set(attribute_values_from_shopify)):
@@ -305,9 +305,15 @@ class ShopifyAPIClient(AbsApiClient):
         return result
 
     def unlink_existing_webhooks(self, external_ids=None):
+        if not external_ids:
+            return False
+
         existing_webhooks = self.fetch_multi(WEBHOOK)
+
         for record in existing_webhooks:
-            self.destroy(record)
+            if str(record.id) in external_ids:
+                self.destroy(record)
+
         return True
 
     @check_scope('write_products')
@@ -414,51 +420,48 @@ class ShopifyAPIClient(AbsApiClient):
     @check_scope('write_products')
     def export_images(self, img_data):
         _logger.info('Shopify: export_images()')
+        template_id = img_data['template']['id']
 
-        product = self.fetch_one(TEMPLATE, img_data['template']['id'])
+        # 1. Drop all existing images
+        res = self._graphql.drop_product_images(template_id)
 
-        if product.is_new():
-            return None
+        if res.get('mediaUserErrors'):
+            raise UserError(str(res['mediaUserErrors']))
 
-        for image in product.images:
-            self.destroy(image)
+        image_list = []
 
-        image_list = list()
-
-        # Create product image
+        # 2. Init template images
         if img_data['template']['default']:
-            variant_ids = [
-                self._parse_variant_id(var['id']) for var in img_data['products'] if var['id']
-            ]
-            img = self._create_image(img_data['template']['default']['data'], variant_ids)
+            variant_ids = [self._parse_variant_id(x['id']) for x in img_data['products']]
+            img = self._init_image(img_data['template']['default']['data'], template_id, variant_ids=variant_ids)
             image_list.append(img)
 
-        for extra_image in img_data['template']['extra']:
-            img = self._create_image(extra_image['data'], [])
+        for data in img_data['template']['extra']:
+            img = self._init_image(data['data'], template_id, variant_ids=[])
             image_list.append(img)
 
-        # Create variant images
-        for variant in img_data['products']:
-            variant_id = self._parse_variant_id(variant['id'])
-            shopify_variant = self.fetch_one(VARIANT, variant_id)
+        # 3. Init variants images
+        for data in img_data['products']:
+            variant_id = self._parse_variant_id(data['id'])
 
-            if shopify_variant.is_new():
-                continue
-
-            if variant['default']:
-                img = self._create_image(variant['default']['data'], [shopify_variant.id])
+            if data['default']:
+                img = self._init_image(data['default']['data'], template_id, variant_ids=[variant_id])
                 image_list.append(img)
 
-            for extra_image in variant['extra']:
-                img = self._create_image(extra_image['data'], [shopify_variant.id])
+            for extra_image in data['extra']:
+                img = self._init_image(extra_image['data'], template_id, variant_ids=[variant_id])
                 image_list.append(img)
 
-        # Attach images to product
-        self.refresh(product)
-        product.images = image_list
-        result = self.save(product)
+        # 4. Save images
+        template = self.fetch_one(TEMPLATE, template_id)
 
-        return result
+        while image_list:  # Sending images by batches
+            template.images.extend(image_list[:15])
+            self.save(template)
+
+            image_list = image_list[15:]
+
+        return True
 
     @not_implemented
     def export_attribute(self, attribute):
@@ -559,104 +562,152 @@ class ShopifyAPIClient(AbsApiClient):
         return results
 
     @check_scope(
-        'write_orders',
         'write_fulfillments',
         'write_merchant_managed_fulfillment_orders',
     )
-    def export_tracking(self, sale_order_id, tracking_data_list):
-        _logger.info('Shopify: export_tracking()')
+    def export_tracking(self, sale_order_id, tracking_data_list, force_done=False):
+        if not all(x.get('external_location_id') for x in tracking_data_list):
+            return self._export_tracking(sale_order_id, tracking_data_list)
 
-        result_list = []
-        order = self.fetch_one(ORDER, sale_order_id)
-        if order.is_new():
-            raise UserError(
-                _('Order with id "%s" does not exist in Shopify') % sale_order_id
-            )
+        # Group tracking data by external location
+        grouped_data = defaultdict(list)
+        for key, grouper in groupby(tracking_data_list, key=itemgetter('external_location_id')):
+            for value in grouper:
+                grouped_data[key].append(value)
 
-        def order_fulfilled(order):
-            return order.fulfillment_status == 'fulfilled'
+        # Fulfill order step by step with the `force done` flag on the last iteration
+        result_list = list()
+        for __, data_list in grouped_data.items():
+            for idx, data in enumerate(data_list, start=1):
+                result = self.send_picking(sale_order_id, data, force_done=(force_done and idx == len(data_list)))
+                result_list.append(result)
 
-        if order_fulfilled(order):
-            raise UserError(_('Order %s already fulfilled.', sale_order_id))
+        return list(filter(None, result_list))
 
-        fulfilled_order_list = self.fetch_multi(
-            FULFILLMENT_ORDER,
-            params={
-                'order_id': sale_order_id,
-            },
-        )
-        fulfilled_order_list = [x for x in fulfilled_order_list if x.status != 'closed']
+    def _export_tracking(self, sale_order_id, tracking_data_list):
+        """
+        Force done the all `opened` fulfillment orders sorted by the max pending quantity.
+        This method is suitable for the cases when an `external_location_id`
+        not specified in the tracking_data_list.
+        """
+        fulfill_orders = self.fetch_fulfillment_orders(sale_order_id)
 
-        if len(fulfilled_order_list) > 1:
-            raise ShopifyApiException(_(
-                'Multiple Fulfilment Orders found for Shopify Order with ID %s. '
-                'Please, contact us at support@ventor.tech to discuss your case, '
-                'so we can fix that issue. In your email, please, share with us (1) URL to your '
-                'Shopify Instance in format xxx.myshopify.com (2) "Admin API access token", '
-                'and (3) Shopify Order ID above. For sharing this secret information, please, '
-                'use https://share.ventor.tech/ so your information is not shared via email.'
-            ) % sale_order_id)
+        fulfill_orders = sorted([
+            x for x in fulfill_orders if x.status in ('open', 'in_progress')
+            and x.line_items
+        ], key=lambda x: len(x._get_pending_line_ids()))
 
-        fulfilled_order = fulfilled_order_list and fulfilled_order_list[0]
-        if not fulfilled_order:
-            raise ShopifyApiException(_(
-                'Shopify Fulfilled order not found for Shopify Order with ID %s. '
-                'Please, contact us at support@ventor.tech to discuss your case, so we can fix '
-                'that issue. In your email, please, share with us (1) URL to your Shopify Instance '
-                'in format xxx.myshopify.com (2) "Admin API access token", and (3) '
-                'Shopify Order ID above. For sharing this secret information, please, '
-                'use https://share.ventor.tech/ so your information is not shared via email.'
-            ) % sale_order_id)
+        result_list = list()
 
-        fulfilled_line_items_dict = {
-            str(x.line_item_id): x for x in fulfilled_order.line_items
-        }
+        if not fulfill_orders:
+            return result_list
 
-        for tracking_data in tracking_data_list:
+        refs = [x['tracking'] for x in tracking_data_list if x['tracking']]
+
+        for order_index, order in enumerate(fulfill_orders, start=1):
             fulfillment = self.model_init(FULFILLMENT)
-
-            fulfillment_order_line_items = list()
-
-            for line in tracking_data['lines']:
-                fulfilled_line = fulfilled_line_items_dict.get(line['id'])
-                if not fulfilled_line:
-                    continue
-
-                required_qty = fulfilled_line.fulfillable_quantity
-                if not required_qty:
-                    continue
-
-                odoo_qty = int(line['qty'])
-                export_qty = odoo_qty if (odoo_qty <= required_qty) else required_qty
-
-                fulfillment_order_line_items.append({
-                    'id': fulfilled_line.id,
-                    'quantity': export_qty,
-                })
-
-            line_items_by_fulfillment_order = [{
-                'fulfillment_order_id': fulfilled_order.id,
-                'fulfillment_order_line_items': fulfillment_order_line_items,
+            # 1. Fulfill all pending lines
+            line_items = order._prepare_pending_lines()
+            fulfillment.line_items_by_fulfillment_order = [{
+                'fulfillment_order_id': order.id,
+                'fulfillment_order_line_items': line_items,
             }]
-            tracking_info = {
-                'number': tracking_data['tracking'] or '',
-                'company': tracking_data['carrier'] if 'carrier' in tracking_data else '',
-            }
 
-            fulfillment.notify_customer = True
-            fulfillment.tracking_info = tracking_info
-            fulfillment.line_items_by_fulfillment_order = line_items_by_fulfillment_order
+            # 2. Assign suitable tracking-data: here may be many cases but to backorders etc.
+            pending_ids = order._get_pending_line_ids()
+
+            tracking_data = None
+            for data in sorted(tracking_data_list, key=lambda x: len(x['lines'])):
+                tracking = data['tracking']
+                line_ids = [int(x['id']) for x in data['lines'] if tracking]
+
+                if set(pending_ids).intersection(set(line_ids)) and (tracking in refs):
+                    tracking_data = data
+                    break
+
+            if tracking_data:
+                tracking = tracking_data['tracking']
+                refs.remove(tracking)
+
+                # Due to the number of the serialized pickings may be greater than quantity
+                # of the fulfillment orders. We need to send the rest of the possible
+                # tracking numbers on the last iteration
+                if order_index == len(fulfill_orders) and refs:
+                    refs.insert(0, tracking)
+                    tracking = ','.join(refs)
+
+                fulfillment.tracking_info = {
+                    'number': tracking,
+                    'company': tracking_data['carrier'] or '',
+                }
+                fulfillment.notify_customer = True
 
             result = self.save(fulfillment)
-            result_list.append(result)
+            result_list.append(
+                self._serialize_fulfillment(fulfillment.to_dict()) if result else False
+            )
 
-            self.refresh(order)
-            if order_fulfilled(order):
-                # TODO: We have tracking data from `tracking_data_list`
-                # However the order was `partially fulfilled` and we need to skip next iteration
-                break
+        return list(filter(None, result_list))
 
-        return result_list
+    @check_scope(
+        'write_fulfillments',
+        'write_merchant_managed_fulfillment_orders',
+    )
+    def send_picking(self, sale_order_id, tracking_data, force_done=False):
+        fulfill_orders = self.fetch_fulfillment_orders(sale_order_id)
+        fulfill_orders = [
+            x for x in fulfill_orders if x.status in ('open', 'in_progress') and x.line_items
+        ]
+
+        location_id = tracking_data.get('external_location_id')
+        if location_id:
+            fulfill_orders = [
+                x for x in fulfill_orders if x.assigned_location_id == int(location_id)
+            ]
+
+        if not fulfill_orders:
+            return False
+
+        order = fulfill_orders.pop(0)
+        new_fulfillment = self.model_init('fulfillment')
+
+        if force_done:
+            # Preparing all the pending lines
+            line_items = order._prepare_pending_lines()
+        else:
+            # Preparing line by ID for the requested quantity (if available)
+            line_items = [
+                order._prepare_pending_line(int(x['id']), int(x['qty']))
+                for x in tracking_data['lines']
+            ]
+
+        line_items = list(filter(None, line_items))
+
+        if line_items:
+            new_fulfillment.tracking_info = {
+                'number': tracking_data.get('tracking') or '',
+                'company': tracking_data.get('carrier') or '',
+            }
+            new_fulfillment.line_items_by_fulfillment_order = [{
+                'fulfillment_order_id': order.id,
+                'fulfillment_order_line_items': line_items,
+            }]
+            new_fulfillment.notify_customer = True
+
+        if not new_fulfillment.attributes:
+            return False
+
+        result = self.save(new_fulfillment)
+
+        if not result:
+            return False
+
+        if force_done:
+            # Force done the rest of the fulfillment orders
+            for order in fulfill_orders:
+                self.send_picking(sale_order_id, {}, force_done=True)
+
+        return self._serialize_fulfillment(new_fulfillment.to_dict())
 
     @check_scope('write_orders')
     def export_sale_order_status(self, vals):
@@ -673,22 +724,27 @@ class ShopifyAPIClient(AbsApiClient):
         order_id = vals['order_id']
 
         order = self.fetch_one(ORDER, order_id)
-        if not order.id or order.financial_status == 'paid':
-            return True, dict()
+        if not order.id or order.financial_status == ShopifyOrderStatus.STATUS_PAID:
+            return dict()
 
-        if order.financial_status == 'partially_paid':  # TODO
+        if order.financial_status == ShopifyOrderStatus.STATUS_PARTIALLY_PAID:  # TODO
             raise ValidationError(
-                _('We do not support yet marking as paid for "Partial Paid" orders')
+                _('We do not support yet marking as paid for "Partially Paid" orders')
+            )
+
+        if order.financial_status == ShopifyOrderStatus.STATUS_PARTIALLY_REFUNDED:  # TODO
+            raise ValidationError(
+                _('We do not support yet marking as paid for "Partially Refunded" orders')
             )
 
         params = dict(order_id=order_id)
         txn_list = self.fetch_multi(TRANSACTION, params=params)
         except_ids = [
-            x.parent_id for x in txn_list if x.kind == TXN_VOID and x.status == TXN_STATUS_SUCCESS
+            x.parent_id for x in txn_list if x.kind == Txn.VOID and x.status == Txn.STATUS_SUCCESS
         ]
         txn_list = [
-            x for x in txn_list if x.kind in (TXN_AUTH, TXN_SALE)
-            and x.status in (TXN_STATUS_PENDING, TXN_STATUS_SUCCESS)
+            x for x in txn_list if x.kind in (Txn.AUTH, Txn.SALE)
+            and x.status in (Txn.STATUS_PENDING, Txn.STATUS_SUCCESS)
             and x.id not in except_ids
         ]
 
@@ -696,34 +752,37 @@ class ShopifyAPIClient(AbsApiClient):
         txn = self.model_init(TRANSACTION, prefix_options=params)
 
         if not parent:
-            txn.kind = TXN_SALE
-            txn.source = TXN_SOURCE_EXTERNAL
+            txn.kind = Txn.SALE
+            txn.source = Txn.SOURCE_EXTERNAL
             txn.amount = amount
             txn.currency = currency
 
-        elif parent.kind == TXN_SALE:
-            if parent.status == TXN_STATUS_PENDING:
-                txn.kind = TXN_CAPTURE  # TODO: make sure that `parent.amount == amount`
+        elif parent.kind == Txn.SALE:
+            if parent.status == Txn.STATUS_PENDING:
+                txn.kind = Txn.CAPTURE  # TODO: make sure that `parent.amount == amount`
                 txn.parent_id = parent.id
             else:
-                txn.kind = TXN_SALE
-                txn.source = TXN_SOURCE_EXTERNAL
+                txn.kind = Txn.SALE
+                txn.source = Txn.SOURCE_EXTERNAL
                 txn.amount = amount
                 txn.currency = currency
 
         else:
-            if parent.status == TXN_STATUS_PENDING:  # TODO: do the math how to perform
+            if parent.status == Txn.STATUS_PENDING:  # TODO: do the math how to perform
                 raise ValidationError(               # pending parent transaction without raising
                     _('Awaiting for the transaction: %s') % parent.to_dict()
                 )
 
-            txn.kind = TXN_CAPTURE
+            txn.kind = Txn.CAPTURE
             txn.parent_id = parent.id
             txn.amount = amount
             txn.currency = currency
 
         result = self.save(txn)
-        return result, txn.to_dict()
+
+        if not result:
+            return dict()
+        return txn.to_dict()
 
     @add_dynamic_kwargs
     def order_fetch_kwargs(self, **kw):
@@ -743,184 +802,231 @@ class ShopifyAPIClient(AbsApiClient):
             'quantity': self.order_limit_value(),
         }
 
+    def receive_orders_using_graphql(self, order_ids):
+        """
+        Fetch orders using GraphQL API.
+        """
+        order_graphql_ids = self._graphql.get_orders_ids_query(order_ids)
+
+        # Process GraphQL data
+        graphql_orders = []
+        for order in order_graphql_ids:
+            order_id = ExtractNode.extract_raw(order, 'node.id', str)
+            channel_id = ExtractNode.extract_raw(order, 'node.publication.id', str)
+
+            if order_id:
+                graphql_orders.append({
+                    "id": parse_graphql_id(order_id),
+                    "channel_id": parse_graphql_id(channel_id) if channel_id else None,
+                })
+
+        return graphql_orders
+
     @add_dynamic_kwargs
     @check_scope('read_orders')
     def receive_orders(self, **kw):
         _logger.info('Shopify: receive_orders()')
 
+        # Fetch orders using REST API
         kwargs = self.order_fetch_kwargs()(**kw)
         orders = self.fetch_multi(ORDER, **kwargs)
 
-        result = list()
-        for order in orders:
-            vals = dict(
-                id=str(order.id),
-                data=order.to_dict(),
-                updated_at=order.updated_at,
-                created_at=order.created_at,
-            )
-            result.append(vals)
+        # Extract order IDs
+        new_order_ids = [str(order.id) for order in orders]
+
+        # If no orders found, return empty list
+        if not new_order_ids:
+            return []
+
+        # Fetch additional order information using GraphQL API
+        graphql_orders_data = self.receive_orders_using_graphql(new_order_ids)
+
+        # Merge GraphQL data into orders.
+        merge_orders_data(orders, graphql_orders_data, ['channel_id'])
+
+        result = [
+            {
+                'id': str(order.id),
+                'data': order.to_dict(),
+                'updated_at': order.updated_at,
+                'created_at': order.created_at,
+            }
+            for order in orders
+        ]
 
         return result
 
     @check_scope('read_orders')
     def receive_order(self, order_id):
-        input_file = dict()
+        """
+        Receive and process a single order from Shopify.
+        """
+        # Fetch order from REST API
         order = self.fetch_one(ORDER, order_id)
         if order.is_new():
-            return input_file
+            return {}
 
-        input_file['id'] = order_id
-        input_file['data'] = order.to_dict()
-        return input_file
+        # Fetch order data from GraphQL API
+        graphql_order_data = self._graphql.get_orders_ids_query(order_id)
+        graphql_order = next(
+            ExtractNode.extract_raw(order, 'node', str) or {}
+            for order in graphql_order_data
+        )
 
-    @add_dynamic_kwargs
-    def parse_order(self, input_file, **kw):
-        _logger.info('Shopify: parse_order() from input file.')
-        integration = self._get_integration(kw)
-        use_customer_currency = integration.use_customer_currency
+        # Update the order with the processed data
+        publication = graphql_order.get('publication') or {}
+        channel_id = parse_graphql_id(publication.get('id', ''))
+        order.channel_id = channel_id
 
-        external_order_id = str(input_file['id'])
-
-        order_lines = input_file['line_items']
-        tax_is_included = input_file['taxes_included']
-        presentment_currency = input_file['presentment_currency']
-
-        parsed_lines = [
-            self._parse_order_line(x, tax_is_included, presentment_currency, use_customer_currency)
-            for x in order_lines
-        ]
-
-        delivery_data = self._parse_delivery_data(
-            input_file, tax_is_included, presentment_currency, use_customer_currency)
-
-        payment_method = self._parse_payment_code(input_file)
-
-        order_risks = self.fetch_order_risks(external_order_id)
-        order_txns = self.fetch_order_payments(external_order_id)
-
-        total_price = float(input_file['total_price'])
-        if use_customer_currency:
-            total_price = self._get_price_in_customer_currency(
-                total_price, input_file['total_price_set'], presentment_currency)
-
-        order_vals = {
-            'id': external_order_id,
-            'ref': input_file['name'],
-            'date_order': input_file['created_at'],
-            'lines': parsed_lines,
-            'currency': presentment_currency if use_customer_currency else input_file['currency'],
-            'payment_method': payment_method,
-            'amount_total': total_price,
-            'delivery_data': delivery_data,
-            'discount_data': dict(),
-            'gift_data': dict(),
-            'current_order_state': '',
-            'integration_workflow_states': self._parse_workflow_states(input_file),
-            'order_risks': order_risks,
-            'order_transactions': order_txns,
-            'external_tags': self._parse_tags(input_file),
-            'is_cancelled': True if input_file.get('cancel_reason', False) else False,
+        # Prepare the final output
+        return {
+            'id': order.id,
+            'data': order.to_dict()
         }
 
-        customer = input_file.get('customer')
+    def get_order_class_parser(self):
+        """Hook for external module extensions"""
+        return ShopifyOrder
 
-        if customer:
-            order_vals['customer'] = self._parse_customer(
-                customer,
-            )
-            order_vals['shipping'] = self._parse_address(
-                customer,
-                input_file.get('shipping_address', {}) or {},
-            )
-            order_vals['billing'] = self._parse_address(
-                customer,
-                input_file.get('billing_address', {}) or {},
-            )
+    @add_dynamic_kwargs
+    def parse_order(self, input_file: dict, **kw) -> dict:
+        _logger.info('Shopify: parse_order() from input file.')
 
-        return order_vals
+        fulfillment_orders = self.fetch_fulfillment_orders(input_file['id'])
+        order_risks = self.fetch_order_risks(input_file['id'])
+        order_transactions = self.fetch_order_payments(input_file['id'])
 
-    def fetch_order_risks(self, external_order_id):
-        records = self.fetch_multi(ORDER_RISK, params={'order_id': external_order_id})
-        if not records:
+        ClassParser = self.get_order_class_parser()
+
+        shopify_order = ClassParser(
+            self._get_integration(kw),
+            input_file,
+            [x.to_dict() for x in fulfillment_orders],
+            order_risks=order_risks,
+            order_transactions=order_transactions,
+        )
+
+        return shopify_order.parse()
+
+    @check_scope('read_orders')
+    def fetch_order_risks(self, external_order_id: str, risklevel : str = 'HIGH'):
+        """
+        Fetch order risks from Shopify for a specific order.
+        """
+        risk_data = self._graphql.get_order_risks_from_order_query(external_order_id)
+        if not risk_data:
             return list()
-        return [x.to_dict() for x in records]
 
+        risks = list()
+        assessments = risk_data.get('assessments') or list()
+        recommendation = risk_data.get('recommendation') or ''
+
+        for record in assessments:
+            if record.get('riskLevel') == risklevel:
+
+                for fact in record.get('facts', []):
+                    risks.append({
+                        **fact,
+                        'order_id': external_order_id,
+                        'recommendation': recommendation.lower(),
+                    })
+
+        return risks
+
+    @check_scope('read_orders')
     def fetch_order_payments(self, external_order_id):
         records = self.fetch_multi(TRANSACTION, params={'order_id': external_order_id})
         if not records:
             return list()
 
-        f_records = filter(
+        records = filter(
             lambda x: x.status == 'success' and x.kind in ('capture', 'sale'), records
         )
-        return [x.to_dict() for x in f_records]
+        return [x.to_dict() for x in records]
+
+    def fetch_fulfillments(self, external_order_id):
+        order_data = self.receive_order(external_order_id)
+        if not order_data:
+            return list()
+
+        fulfillments = order_data['data'].get('fulfillments') or list()
+        return [self._serialize_fulfillment(x) for x in fulfillments]
 
     @add_dynamic_kwargs
-    @check_scope('read_orders')
     def get_delivery_methods(self, **kw):
         _logger.info('Shopify: get_delivery_methods()')
 
         integration = self._get_integration(kw)
-        integration.integrationApiReceiveOrders()
-        env = self._get_env(kw)
-        input_files = env['sale.integration.input.file'].search([
-            ('si_id', '=', self._integration_id),
-        ])
+        batch_size = int(integration.get_settings_value('batch_size'))
 
-        # Parse taxes derectly from input-files
-        shipping_methods = set()
-        for input_file in input_files:
-            order = input_file.to_dict()
+        order_edges = self._graphql.get_delivery_methods_from_orders_query(batch_size)
 
-            for line in order.get('shipping_lines', []):
-                title = line.get('title')
-                code = line.get('code')
-                ext_code = self._format_delivery_code(title, code)
-                if not ext_code:
-                    continue
-                shipping_methods.add(
-                    (('id', ext_code), ('name', (title or code)))
-                )
+        delivery_set = set()
+        for data in order_edges:
+            delivery_set |= self._parse_delivery_methods(data.get('node'))
 
-        return [dict(x) for x in shipping_methods]
+        return [dict(x) for x in delivery_set]
+
+    def _parse_delivery_methods(self, order):
+        shipping_methods = []
+        for line in order.get('shippingLines', {}).get('nodes', []):
+            title = line.get('title')
+            code = line.get('code')
+            ext_code = format_delivery_code(title, code)
+
+            shipping_methods.append(
+                (('id', ext_code), ('name', (title or code)))
+            )
+
+        return set(shipping_methods)
 
     def get_single_tax(self, tax_id):
         _logger.info('Shopify: get_single_tax(). No implemented')
         return dict()
 
     @add_dynamic_kwargs
+    @check_scope('read_orders')
     def get_taxes(self, **kw):
         _logger.info('Shopify: get_taxes()')
 
         integration = self._get_integration(kw)
-        integration.integrationApiReceiveOrders()
-        env = self._get_env(kw)
-        input_files = env['sale.integration.input.file'].search([
-            ('si_id', '=', self._integration_id),
-        ])
+        batch_size = int(integration.get_settings_value('batch_size'))
 
-        # Parse taxes derectly from input-files
+        order_edges = self._graphql.get_taxes_from_orders_query(batch_size)
+
         tax_set = set()
-        to_external_tax = integration._fetch_external_tax
+        for data in order_edges:
+            tax_set |= self._parse_taxes(data.get('node'))
 
-        for input_file in input_files:
-            order = input_file.to_dict()
-            tax_included = order.get('taxes_included')
+        format_to_external = integration._fetch_external_tax
+        return [format_to_external(x) for x in tax_set]
 
-            line_tax_list = [
-                self._format_tax(tax, tax_included)
-                for line in order['line_items'] for tax in line['tax_lines']
-            ]
-            carrier = order['shipping_lines'] and order['shipping_lines'][0] or dict()
-            carrier_tax_lines = carrier and carrier['tax_lines'] or list()
+    def _parse_taxes(self, order):
+        tax_included = order.get('taxesIncluded')
 
-            carrier_tax_list = [
-                self._format_tax(tax, tax_included) for tax in carrier_tax_lines
-            ]
-            tax_set.update(set(line_tax_list + carrier_tax_list))
+        # Extract taxes from order tax lines
+        order_tax_list = [
+            self._format_tax(tax, tax_included)
+            for tax in order.get('taxLines', [])
+            if tax
+        ]
 
-        return [to_external_tax(x) for x in tax_set]
+        # Extract taxes from line item tax lines
+        line_tax_list = [
+            self._format_tax(tax, tax_included)
+            for line in order.get('lineItems', {}).get('edges', [])
+            for tax in line.get('node', {}).get('taxLines', [])
+            if tax
+        ]
+
+        # Extract taxes from shipping line tax lines
+        shipping_tax_list = [
+            self._format_tax(tax, tax_included)
+            for line in order.get('shippingLines', {}).get('edges', [])
+            for tax in line.get('node', {}).get('taxLines', [])
+            if tax
+        ]
+        return set(order_tax_list + line_tax_list + shipping_tax_list)
 
     @add_dynamic_kwargs
     @check_scope('read_orders')
@@ -928,28 +1034,30 @@ class ShopifyAPIClient(AbsApiClient):
         _logger.info('Shopify: get_payment_methods()')
 
         integration = self._get_integration(kw)
-        integration.integrationApiReceiveOrders()
-        env = self._get_env(kw)
-        input_files = env['sale.integration.input.file'].search([
-            ('si_id', '=', self._integration_id),
-        ])
+        batch_size = int(integration.get_settings_value('batch_size'))
 
-        empty_code = self._format_payment_code(None)
-        payment_methods = {(('id', empty_code), ('name', empty_code))}
+        order_edges = self._graphql.get_payment_methods_from_orders_query(batch_size)
 
-        for input_file in input_files:
-            order = input_file.to_dict()
+        empty_code = format_payment_code(None)
+        payment_set = {(('id', empty_code), ('name', empty_code))}
 
-            for name in order.get('payment_gateway_names', []):
-                if not name:
-                    continue
+        for data in order_edges:
+            payment_set |= self._parse_payment_methods(data.get('node'))
 
-                ext_code = self._format_payment_code(name)
-                payment_methods.add(
-                    (('id', ext_code), ('name', name))
-                )
+        return [dict(x) for x in payment_set]
 
-        return [dict(x) for x in payment_methods]
+    def _parse_payment_methods(self, order):
+        payment_methods = []
+        for name in order.get('paymentGatewayNames', []):
+            if not name:
+                continue
+
+            ext_code = format_payment_code(name)
+            payment_methods.append(
+                (('id', ext_code), ('name', name))
+            )
+
+        return set(payment_methods)
 
     def get_languages(self):
         _logger.info('Shopify: get_languages()')
@@ -985,46 +1093,8 @@ class ShopifyAPIClient(AbsApiClient):
         }]
 
     def get_feature_values(self):
-        """
-            {
-                "data": {
-                    "shop":{
-                        "productTags": {
-                            "edges": [
-                                {
-                                    "node": "tag_name"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "extensions": {
-                    "cost": {
-                        "requestedQueryCost": 22,
-                        "actualQueryCost": 4,
-                        "throttleStatus": {
-                            "maximumAvailable": 1000.0,
-                            "currentlyAvailable": 996,
-                            "restoreRate": 50.0
-                        }
-                    }
-                }
-            }
-        """
         _logger.info('Shopify: get_feature_values()')
-        query = """
-            {
-                shop {
-                    productTags(first: 250) {
-                        edges {
-                            node
-                        }
-                    }
-                }
-            }
-        """
-        response = self.execute_graphql(query)
-        tags = response.get('data', {}).get('shop', {}).get('productTags', {}).get('edges', [])
+        tags = self._graphql.get_feature_values()
 
         return [
             {
@@ -1137,11 +1207,8 @@ class ShopifyAPIClient(AbsApiClient):
             return dict()
 
         integration = self._get_integration(kw)
-        ref_field = integration._get_product_reference_name()
-        barcode_field = integration._get_product_barcode_name()
-
-        ecommerce_ref_variant = integration._variant_field_name_to_ecommerce_name(ref_field)
-        ecommerce_barcode_variant = integration._variant_field_name_to_ecommerce_name(barcode_field)
+        variant_reference = integration.variant_reference_api_name
+        variant_barcode = integration.variant_barcode_api_name
 
         def parse_variant(template, variant):
             attribute_value_tmpl_ids = self._attribute_value_from_template(template)
@@ -1153,8 +1220,8 @@ class ShopifyAPIClient(AbsApiClient):
             return {
                 'id': self._build_product_external_code(template.id, variant.id),
                 'name': template.title,
-                'external_reference': getattr(variant, ecommerce_ref_variant) or None,
-                'barcode': getattr(variant, ecommerce_barcode_variant) or None,
+                'external_reference': getattr(variant, variant_reference) or None,
+                'barcode': getattr(variant, variant_barcode) or None,
                 'ext_product_template_id': str(template.id),
                 'attribute_value_ids': attribute_var_ids,
             }
@@ -1173,8 +1240,8 @@ class ShopifyAPIClient(AbsApiClient):
             variants = template.variants
 
             if len(variants) == 1:
-                barcode = getattr(variants[0], ecommerce_barcode_variant) or None
-                external_ref = getattr(variants[0], ecommerce_ref_variant) or None
+                barcode = getattr(variants[0], variant_barcode) or None
+                external_ref = getattr(variants[0], variant_reference) or None
 
             result_list.append({
                 'id': str(template.id),
@@ -1240,31 +1307,38 @@ class ShopifyAPIClient(AbsApiClient):
             variant_id = self._build_product_external_code(product.id, variant.id)
             variants.append((product, variant))
 
-            if variant.image_id:
+            if import_images and variant.image_id:
                 images_hub['variants'][variant_id] = [str(variant.image_id)]
 
         return product, variants, list(), images_hub  # TODO: convert `product` to dict
 
-    def _attribute_value_from_template(self, product):
+    def _attribute_value_from_template(self, template):
         attribute_value_tmpl_ids = list()
-        for opt in product.options:
-            for value in opt.values:
-                attribute_value_tmpl_ids.append(
-                    self._format_attr_value_code(opt.name, value)
-                )
+
+        for option in template.options:
+            # If the attribute name is default and there is only one default value - skip it
+            if (
+                option.name == ATTR_DEFAULT_TITLE
+                and len(option.values) == 1
+                and option.values[0] == ATTR_DEFAULT_VALUE
+            ):
+                continue
+
+            for value in option.values:
+                attribute_value_tmpl_ids.append((option.name, value))
+
         return attribute_value_tmpl_ids
 
     def _attribute_value_from_variant(self, variant, attribute_value_tmpl_ids):
-        keys = self._get_option_keys()
-        options = [
-            getattr(variant, key) for key in keys if getattr(variant, key)
-        ]
         attribute_var_ids = list()
-        for option in options:
-            for attr in attribute_value_tmpl_ids:
-                __, option_value = self._parse_attr_value_code(attr)
-                if option == option_value:
-                    attribute_var_ids.append(attr)
+        keys = self._get_option_keys()
+
+        for variant_value in filter(None, [getattr(variant, key) for key in keys]):
+            for (option_name, option_value) in attribute_value_tmpl_ids:
+                if variant_value == option_value:
+                    attribute_var_ids.append(
+                        format_attr_value_code(option_name, option_value)
+                    )
 
         return attribute_var_ids
 
@@ -1272,6 +1346,7 @@ class ShopifyAPIClient(AbsApiClient):
     def get_products_for_accessories(self):
         pass
 
+    @check_scope('read_products', 'read_inventory')
     def get_stock_levels(self, external_location_id):
         _logger.info('Shopify: get_stock_levels(%s)', external_location_id)
 
@@ -1303,10 +1378,8 @@ class ShopifyAPIClient(AbsApiClient):
         _logger.info('Shopify: get_templates_and_products_for_validation_test()')
 
         integration = self._get_integration(kw)
-        ref_field = integration._get_product_reference_name()
-        barcode_field = integration._get_product_barcode_name()
-        ecommerce_ref_variant = integration._variant_field_name_to_ecommerce_name(ref_field)
-        ecommerce_barcode_variant = integration._variant_field_name_to_ecommerce_name(barcode_field)
+        variant_reference = integration.variant_reference_api_name
+        variant_barcode = integration.variant_barcode_api_name
 
         def serialize_template(t):
 
@@ -1314,8 +1387,8 @@ class ShopifyAPIClient(AbsApiClient):
                 return {
                     'id': str(v['id']),
                     'name': v['title'],
-                    'barcode': v.get(ecommerce_barcode_variant) or '',
-                    'ref': v.get(ecommerce_ref_variant) or '',
+                    'barcode': v.get(variant_barcode) or '',
+                    'ref': v.get(variant_reference) or '',
                     'parent_id': str(t['id']),
                     'skip_ref': False,
                     'joint_namespace': False,
@@ -1346,62 +1419,81 @@ class ShopifyAPIClient(AbsApiClient):
 
         return TemplateHub(list(chain.from_iterable(products_data.values())))
 
-    def _set_base_values(self, spf_lib_model, data):
-        for field, value in data.items():
-            setattr(spf_lib_model, field, value)
+    @check_scope(
+        'read_merchant_managed_fulfillment_orders',
+        # 'read_assigned_fulfillment_orders',  # TODO
+        # 'read_third_party_fulfillment_orders',  # TODO
+    )
+    def fetch_fulfillment_orders(self, external_order_id):
+        return self.fetch_multi(
+            FULFILLMENT_ORDER,
+            params={
+                'order_id': external_order_id,
+            },
+        )
 
-    def _create_image(self, data, variant_ids=False):
-        image = self.model_init(IMAGE)
+    @check_scope('write_orders')
+    def cancel_order(self, external_id: str, params: dict):
+        return self._graphql.cancel_order(external_id, params)
+
+    @check_scope('write_merchant_managed_fulfillment_orders')
+    def cancel_fulfillment(self, external_id: str):
+        return self._graphql.cancel_fulfillment(external_id)
+
+    def _set_base_values(self, instance, data):
+        for field, value in data.items():
+            setattr(instance, field, value)
+
+    def _init_image(self, data, product_id: str, variant_ids=False):
+        image = self.model_init(IMAGE, prefix_options={'product_id': product_id})
         image.variant_ids = variant_ids or []
         image.attach_image(base64.b64decode(data))
         return image
 
     def _update_variants(self, product, variant_list):
         # Drop variants if necessary
-        odoo_external_ids = [
-            self._parse_variant_id(var['external_id']) for var in variant_list if var['external_id']
+        external_ids = [
+            self._parse_variant_id(x['external_id']) for x in variant_list
         ]
         for variant in product.variants:
-            if variant.id not in odoo_external_ids:
+            if variant.id not in external_ids:
                 self.destroy(variant)
 
         # Update variants
         self.refresh(product)
         self._attach_variants(product, variant_list)
 
-    def _build_variant(self, data):
-        variant_id = data['external_id'] and self._parse_variant_id(data['external_id'])
-        variant = self.fetch_one(VARIANT, variant_id)
-
-        self._set_base_values(variant, data['fields'])
-        variant.inventory_management = SHOPIFY  # TODO: need to think
+    def _set_values(self, instance, data):
+        self._set_base_values(instance, data['fields'])
+        instance.inventory_management = SHOPIFY  # TODO: need to think
 
         keys = self._get_option_keys()
         values = [attr['value'] for attr in data['attribute_values']]
 
         for key, value in zip(keys, values):
-            setattr(variant, key, value)
+            setattr(instance, key, value)
 
-        return variant
+        return instance
 
     def _attach_variants(self, product, variant_list):
-        options_dict = defaultdict(list)
+        product_options = defaultdict(list)
+        existing_variants = getattr(product, 'variants', list())
         product.variants = list()
 
-        for variant in variant_list:
-            variant['_options'] = set()
-            product.variants.append(
-                self._build_variant(variant)
-            )
-            for attr in variant['attribute_values']:
-                option = attr['value']
+        for data in variant_list:
+            variant_id = self._parse_variant_id(data['external_id'])
+            variants = list(filter(lambda x: x.id == variant_id, existing_variants))
+            variant = variants[0] if variants else self.fetch_one(VARIANT, variant_id)
 
-                variant['_options'].add(option)
-                options_dict[attr['key']].append(option)
+            self._set_values(variant, data)
+            product.variants.append(variant)
 
-        if options_dict:  # avoid 'could not update options to []' shopify api error
+            for attr in data['attribute_values']:
+                product_options[attr['key']].append(attr['value'])
+
+        if product_options:  # avoid 'could not update options to []' shopify api error
             product.options = [
-                {'name': k, 'values': list(v)} for k, v in options_dict.items()
+                {'name': k, 'values': v} for k, v in product_options.items()
             ]
 
     def _serialize_mappings(self, product, tmpl_data):
@@ -1417,100 +1509,41 @@ class ShopifyAPIClient(AbsApiClient):
             },
         }]
 
-        keys = self._get_option_keys()
-        for shopify_variant in product.variants:
-            variant = None
-            options = {
-                getattr(shopify_variant, key) for key in keys if getattr(shopify_variant, key)
-            }
-            for item in tmpl_data['products']:
-                if item.get('_options', set()) == options:
-                    variant = item
-                    break
+        for variant in product.variants:
+            for data in tmpl_data['products']:
+                if getattr(variant, data['reference_api_field']) == data['reference']:
 
-            if variant:
-                external_id = self._build_product_external_code(product.id, shopify_variant.id)
-                mappings.append({
-                    'model': 'product.product',
-                    'id': variant['id'],
-                    'external_id': external_id,
-                })
+                    mappings.append({
+                        'model': 'product.product',
+                        'id': data['id'],
+                        'external_id': self._build_product_external_code(
+                            product.id,
+                            variant.id,
+                        ),
+                    })
 
         return mappings
 
     @add_dynamic_kwargs
     def _find_product_by_references(self, product_refs, **kw):
-        integration = self._get_integration(kw)
-        ref_field = integration._get_product_reference_name()
-        ecommerce_ref_variant = integration._variant_field_name_to_ecommerce_name(ref_field)
-
         products = list()
+        integration = self._get_integration(kw)
+        variant_reference = integration.variant_reference_api_name
+
         for ref in product_refs:
-            result = self._fetch_product_by_ref(ecommerce_ref_variant, ref)
+            result = self._fetch_product_by_ref(variant_reference, ref)
             products.append(result)
+
         return products
 
-    @staticmethod
-    def _product_variant_graph(field_name, field_value):
-        return """
-            {
-                productVariants(first: 1, query: "%s:%s") {
-                    edges
-                    {
-                        node {
-                            id
-                            %s
-                            product {
-                                id
-                            }
-                        }
-                    }
-                }
-            }
-        """ % (field_name, field_value, field_name)
-
     def _fetch_product_by_ref(self, ecommerce_ref, ref):
-        """
-            {
-                "data": {
-                    "productVariants": {
-                        "edges": [
-                            {
-                                "node": {
-                                    "id": "gid://shopify/ProductVariant/43274068099312",
-                                    "sku": "cp-1",
-                                    "product": {
-                                        "id": "gid://shopify/Product/8058970145008"
-                                    }
-                                }
-                            }
-                        ]
-                    }
-                },
-                "extensions": {
-                    "cost": {
-                        "requestedQueryCost": 22,
-                        "actualQueryCost": 4,
-                        "throttleStatus": {
-                            "maximumAvailable": 1000.0,
-                            "currentlyAvailable": 996,
-                            "restoreRate": 50.0
-                        }
-                    }
-                }
-            }
-        """
 
         def truncate(item):
             if not item or not isinstance(item, str):
                 return False
             return item.rsplit('/', maxsplit=1)[-1]
 
-        query = self._product_variant_graph(ecommerce_ref, ref)
-        result = self.execute_graphql(query)
-
-        edges = result['data']['productVariants']['edges']
-        node = edges and edges[0]['node'] or dict()
+        node = self._graphql.get_product_id_by_reference(ecommerce_ref, ref)
 
         variant_id = node.get('id')
         product_id = node.get('product', {}).get('id')
@@ -1528,46 +1561,15 @@ class ShopifyAPIClient(AbsApiClient):
             for k, vals in container.items():
                 for val in vals:
                     attribute_data = (
-                        ('id', self._format_attr_value_code(k, val)),
-                        ('id_group', self._format_attr_code(k)),
+                        ('id', format_attr_value_code(k, val)),
+                        ('id_group', format_attr_code(k)),
                         ('id_group_name', k),
                         ('name', val),
                     )
                     value_set.add(attribute_data)
             return value_set
 
-        return set([(('id', self._format_attr_code(x)), ('name', x)) for x in container.keys()])
-
-    @staticmethod
-    def _parse_workflow_states(data):
-        """
-        Order of the `financial_status` (1)
-        and 'fulfillment_status' (2) matters
-        """
-
-        fulfillment_status = data['fulfillment_status']
-        if not fulfillment_status:
-            # TODO: seems here we need to add also the status `unshipped`
-            # due to the `null` value relates to `unshipped` status as well
-            fulfillment_status = ShopifyOrderStatus.STATUS_UNFULFILLED
-
-        return [
-            data['financial_status'],
-            fulfillment_status,
-        ]
-
-    @staticmethod
-    def _parse_payment_code(data):
-        pay_code_list = data.get('payment_gateway_names', [])
-        name = pay_code_list and pay_code_list[0] or None
-        return ShopifyAPIClient._format_payment_code(name)
-
-    @staticmethod
-    def _parse_tags(data):
-        tag_string = data.get('tags', '')
-        if not tag_string:
-            return list()
-        return list(set(x.strip() for x in tag_string.split(',')))
+        return set([(('id', format_attr_code(x)), ('name', x)) for x in container.keys()])
 
     def _get_url_pattern(self, wrap_li=True):
         pattern = f'<a href="{self.admin_url}/products/%s/variants/%s" target="_blank">%s</a>'
@@ -1590,38 +1592,6 @@ class ShopifyAPIClient(AbsApiClient):
         if not external_id or not isinstance(external_id, str):
             return False
         return int(external_id.split('-')[-1])
-
-    @staticmethod
-    def _parse_attr_code(name):
-        return name.replace(SHOPIFY_ATTRIBUTE_PREF, '')
-
-    @staticmethod
-    def _parse_attr_value_code(complex_name):
-        pure_name = complex_name.replace(SHOPIFY_ATTRIBUTE_VALUE_PREF, '')
-        option_name, option_value = pure_name.split('-', maxsplit=1)
-        return option_name, option_value
-
-    @staticmethod
-    def _format_delivery_code(*args):
-        if not any(args):
-            return str()
-        splitted_args = sum(map(lambda x: x.split(), args), [])
-        name = ''.join([arg.title() for arg in splitted_args])
-        return f'{SHOPIFY_SHIPPING_PREF}{name}'
-
-    @staticmethod
-    def _format_attr_code(name):
-        return f'{SHOPIFY_ATTRIBUTE_PREF}{name}'
-
-    @staticmethod
-    def _format_attr_value_code(option_name, option_value):
-        return f'{SHOPIFY_ATTRIBUTE_VALUE_PREF}{option_name}-{option_value}'
-
-    @staticmethod
-    def _format_payment_code(name):
-        if name:
-            return f'{SHOPIFY_PAYMENT_PREF}{name}'
-        return f'{SHOPIFY_PAYMENT_PREF}{PAYMENT_NOT_DEFINED}'
 
     @staticmethod
     def _get_option_keys():
@@ -1681,101 +1651,11 @@ class ShopifyAPIClient(AbsApiClient):
         return files_sorted[-1:]
 
     @staticmethod
-    def _format_tax(tax, tax_is_included):
+    def _format_tax(tax, is_tax_included):
         """Related to _get_or_create_spf_tax() method on 'account.tax'."""
         rate = str(round(tax['rate'] * 100, 2))
-        tax_option = ('excluded', 'included')[tax_is_included]
-        _tax_format = f'{tax["title"]} {rate}% [{tax_option}]'
-        return _tax_format
-
-    def _parse_order_line(
-            self, line, tax_is_included, presentment_currency, use_customer_currency):
-        price = float(line['price'])
-        if use_customer_currency:
-            price = self._get_price_in_customer_currency(
-                price, line['price_set'], presentment_currency)
-
-        quantity = line['quantity']
-
-        external_id = self._build_product_external_code(
-            line['product_id'],
-            line['variant_id'],
-        )
-
-        tax_list = list()
-        if line['taxable']:
-            tax_list = [
-                self._format_tax(tax, tax_is_included) for tax in line['tax_lines']
-            ]
-
-        line_vals = {
-            'id': str(line['id']),
-            'product_id': external_id,
-            'price_unit': price,
-            'product_uom_qty': quantity,
-            'price_unit_tax_incl': tax_is_included and price or float(),
-            'taxes': tax_list,
-        }
-
-        # Calculate total discount if any
-        if line.get('discount_allocations'):
-            line_vals['discount'] = self._calculate_discount(
-                line.get('discount_allocations'), presentment_currency, use_customer_currency)
-
-        return line_vals
-
-    def _parse_delivery_data(self, input_file, tax_is_included, presentment_currency, use_customer_currency):  # NOQA
-        """
-        Parse original input file to get required delivery data
-        """
-        carrier = input_file['shipping_lines'] and input_file['shipping_lines'][0] or dict()
-        carrier_title = carrier.get('title', '')
-        carrier_code = carrier.get('code', '')
-
-        carrier_data = dict()
-        if carrier_title and carrier_code:
-            carrier_data['name'] = carrier_title
-            carrier_data['id'] = self._format_delivery_code(carrier_title, carrier_code)
-
-        tax_list = [
-            self._format_tax(tax, tax_is_included) for tax in carrier.get('tax_lines', {})
-        ]
-
-        shipping_cost = carrier and float(carrier['price']) or float()
-        if use_customer_currency and carrier:
-            shipping_cost = self._get_price_in_customer_currency(
-                shipping_cost, carrier['price_set'], presentment_currency)
-
-        delivery_notes = input_file.get('note') or ''
-
-        # Calculate total discount if any
-        discount = None
-        if carrier.get('discount_allocations'):
-            discount = self._calculate_discount(
-                carrier.get('discount_allocations'), presentment_currency, use_customer_currency)
-
-        return {
-            'carrier': carrier_data,
-            'shipping_cost': shipping_cost,
-            'taxes': tax_list,
-            'delivery_notes': delivery_notes,
-            'discount': discount,
-        }
-
-    def _calculate_discount(self, discount_allocations_data, presentment_currency, use_customer_currency):  # NOQA
-        total_discount = 0.0
-
-        for discount_allocation in discount_allocations_data:
-            discount_amount = float(discount_allocation.get('amount'))
-            if use_customer_currency:
-                discount_amount = self._get_price_in_customer_currency(
-                    discount_amount,
-                    discount_allocation.get('amount_set'),
-                    presentment_currency,
-                )
-            total_discount += discount_amount
-
-        return total_discount
+        tax_option = ('excluded', 'included')[is_tax_included]
+        return f'{tax["title"]} {rate}% [{tax_option}]'
 
     def get_weight_uom_for_converter(self):
         if not self._weight_uom:
@@ -1820,20 +1700,44 @@ class ShopifyAPIClient(AbsApiClient):
     def _get_shopify_statuses(self):
         return ShopifyOrderStatus.all_statuses()
 
-    def _get_price_in_customer_currency(self, price, price_set, presentment_currency):
-        """
-        Return price based on the customer's currency.
-        """
-        shop_money = price_set.get('shop_money', {})
-        presentment_money = price_set.get('presentment_money', {})
-
-        if float(shop_money['amount']) > 0.0 and \
-                shop_money['currency_code'] == presentment_currency:
-            price = shop_money['amount']
-        elif float(presentment_money['amount']) > 0.0 and \
-                presentment_money['currency_code'] == presentment_currency:
-            price = presentment_money['amount']
-        return float(price)
-
     def order_limit_value(self):
-        return 250
+        return SHOPIFY_FETCH_LIMIT
+
+    def get_customer_metafields_by_id(self, customer_id):
+        metafield_data = self._graphql.get_customer_metafields_by_id(customer_id)
+        return [x['node'] for x in metafield_data]
+
+    def get_order_metafields_by_id(self, order_id):
+        metafield_data = self._graphql.get_order_metafields_by_id(order_id)
+        return [x['node'] for x in metafield_data]
+
+    def get_metafields(self, entity_name):
+        metafields = self._graphql.get_metafields(entity_name)
+        return [x['node'] for x in metafields]
+
+    def _serialize_fulfillment(self, data):
+        return dict(
+            name=data['name'],
+            external_status=data['status'],
+            external_str_id=str(data['id']),
+            tracking_number=', '.join(data['tracking_numbers'] or []),
+            tracking_company=str(data['tracking_company'] or ''),
+            external_location_id=str(data.get('location_id') or ''),
+            lines=[self._serialize_fulfillment_line(x) for x in data['line_items']],
+        )
+
+    def _serialize_fulfillment_line(self, data):
+        return dict(
+            external_str_id=str(data['id']),
+            quantity=int(data['quantity'] or 0),
+            external_reference=str(data['sku'] or ''),
+            fulfillable_quantity=int(data['fulfillable_quantity'] or 0),
+            code=self._build_product_external_code(data['product_id'], data['variant_id']),
+        )
+
+    @check_scope('read_publications')
+    def get_sale_channels(self):
+        _logger.info('Shopify: get_sale_channels()')
+
+        sale_channels = self._graphql.get_sale_channels()
+        return [x['node'] for x in sale_channels]

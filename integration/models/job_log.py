@@ -62,6 +62,15 @@ class JobLog(models.Model):
         rec = self.env[self.res_model].browse(self.res_id)
         return rec.exists()
 
+    @property
+    def loginfo(self):
+        return dict(
+            self=str(self),
+            integration_id=self.integration_id.id,
+            job_uuid=self.job_id.uuid,
+            binding_odoo_record=f'{self.res_model}({self.res_id},)',
+        )
+
     def _compute_name(self):
         for rec in self:
             odoo_id = rec.odoo_id

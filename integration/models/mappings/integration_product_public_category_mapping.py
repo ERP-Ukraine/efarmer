@@ -20,7 +20,7 @@ class IntegrationProductPublicCategoryMapping(models.Model):
         ondelete='cascade',
     )
 
-    # TODO: add constain
+    # TODO: Add constraint
 
     def import_categories(self):
         category_external = self.mapped(

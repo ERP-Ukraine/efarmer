@@ -19,17 +19,6 @@ class ReceiveFields(CommonFields):
         self.odoo_obj = odoo_obj.sudo() if isinstance(odoo_obj, BaseModel) else odoo_obj
         return self
 
-    def get_field_value(self, field_name):
-        if not self.external_obj:
-            return
-
-        field = self._get_ecommerce_field(field_name)
-
-        if field:
-            return self.calculate_field_value(field).popitem()[1]
-
-        return self._get_value(field_name)
-
     def get_ext_attr(self, ext_attr_name):
         return self._get_value(ext_attr_name)
 
@@ -60,10 +49,12 @@ class ReceiveFields(CommonFields):
         return {'language': result}
 
     def _get_simple_value(self, ecommerce_field):
-        field_name = ecommerce_field.odoo_field_id.name
-        ext_value = self._get_value(ecommerce_field.technical_name)
+        odoo_name = ecommerce_field.odoo_field_name
+        api_value = self._get_value(ecommerce_field.technical_name)
 
-        return {field_name: self._prepare_simple_value(ecommerce_field, ext_value)}
+        return {
+            odoo_name: self._prepare_simple_value(ecommerce_field, api_value),
+        }
 
     def _prepare_simple_value(self, ecommerce_field, ext_value):
         field_type = ecommerce_field.odoo_field_id.ttype
@@ -89,19 +80,13 @@ class ReceiveFields(CommonFields):
         return ext_value
 
     def _get_translatable_field_value(self, ecommerce_field):
-        api_name = ecommerce_field.technical_name
-        erp_name = ecommerce_field.odoo_field_id.name
-
-        api_value = self._get_value(api_name)
-        erp_value = self.convert_translated_field_to_odoo_format(api_value)
-
-        return {
-            erp_name: erp_value,
-        }
+        api_value = self._get_value(ecommerce_field.technical_name)
+        odoo_value = self.convert_translated_field_to_odoo_format(api_value)
+        return {ecommerce_field.odoo_field_name: odoo_value}
 
     def _get_python_method_value(self, ecommerce_field):
         result = self._compute_field_value_using_python_method(
-            ecommerce_field.receive_method, ecommerce_field.odoo_field_id.name)
+            ecommerce_field.receive_method, ecommerce_field.odoo_field_name)
         return result
 
     def calculate_receive_fields(self):
@@ -155,21 +140,29 @@ class ReceiveFields(CommonFields):
         return erp_tax
 
     def _create_product_incoming_line(self):
-        ref_field = self.integration._get_product_reference_name()
-        barcode_field = self.integration._get_product_barcode_name()
-
         vals = {
             'code': self._get_value('id'),
-            'reference': self.get_field_value(ref_field),
-            'barcode': self.get_field_value(barcode_field),
             'model_name': self.odoo_obj._name,
             'type': 'incoming',
         }
 
-        if self.is_variant:
+        if self.is_template:
+            reference_dict = self.calculate_field_value(self.integration.template_reference_id)
+            barcode_dict = self.calculate_field_value(self.integration.template_barcode_id)
+
+            vals.update(
+                reference=reference_dict.popitem()[1],
+                barcode=barcode_dict.popitem()[1],
+            )
+        elif self.is_variant:
+            reference_dict = self.calculate_field_value(self.integration.product_reference_id)
+            barcode_dict = self.calculate_field_value(self.integration.product_barcode_id)
+
             vals.update(
                 code=self.get_ext_attr('variant_id'),
                 attribute_list=str(self.get_ext_attr('attribute_value_ids')),
+                reference=reference_dict.popitem()[1],
+                barcode=barcode_dict.popitem()[1],
             )
 
         return self.env['import.product.line'].create(vals)

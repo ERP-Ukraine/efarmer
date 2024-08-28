@@ -106,4 +106,50 @@ if records:
         </field>
     </record>
 
+    <record id="product_form_view_mapping_button" model="ir.ui.view">
+        <field name="name">product.product.mapping</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button class="oe_stat_button"
+                    name="show_variant_mappings"
+                    type="object"
+                    icon="fa-list-ul"
+                    help="Number of mappings"
+                    groups="base.group_no_one">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="mapping_count" widget="statinfo" nolabel="1" class="mr4"/>
+                        </span>
+                        <span class="o_stat_text">Mappings</span>
+                    </div>
+                </button>
+            </div>
+        </field>
+    </record>
+
+    <record id="product_easy_form_view_mapping_button" model="ir.ui.view">
+        <field name="name">product.product.mapping</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_variant_easy_edit_view"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button class="oe_stat_button"
+                    name="show_variant_mappings"
+                    type="object"
+                    icon="fa-list-ul"
+                    help="Number of mappings"
+                    groups="base.group_no_one">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="mapping_count" widget="statinfo" nolabel="1" class="mr4"/>
+                        </span>
+                        <span class="o_stat_text">Mappings</span>
+                    </div>
+                </button>
+            </div>
+        </field>
+    </record>
+
 </odoo>

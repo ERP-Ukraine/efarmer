@@ -11,7 +11,7 @@ class IntegrationSaleSubStatusExternal(models.Model):
     _odoo_model = 'sale.order.sub.status'
 
     validate_order = fields.Boolean(
-        string='Validate Order',
+        string='Confirm Order',
     )
     validate_picking = fields.Boolean(
         string='Validate Delivery',

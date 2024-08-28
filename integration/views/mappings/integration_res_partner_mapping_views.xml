@@ -31,7 +31,7 @@
         </record>
 
         <record id="integration_res_partner_mapping_action" model="ir.actions.act_window">
-            <field name="name">Contacts</field>
+            <field name="name">Contacts Mappings</field>
             <field name="res_model">integration.res.partner.mapping</field>
             <field name="view_mode">tree</field>
         </record>

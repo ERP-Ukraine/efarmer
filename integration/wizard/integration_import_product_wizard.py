@@ -1,5 +1,5 @@
 # See LICENSE file for full copyright and licensing details.
-
+import json
 import traceback
 from io import StringIO
 
@@ -53,6 +53,11 @@ class IntegrationImportProductWizard(models.TransientModel):
         default='try_map',
     )
 
+    import_images = fields.Boolean(
+        string='Import Images',
+        default=True,
+    )
+
     external_template_id = fields.Many2one(
         comodel_name='integration.product.template.external',
         string='External Template',
@@ -80,6 +85,10 @@ class IntegrationImportProductWizard(models.TransientModel):
         comodel_name='import.product.line',
         compute='_compute_lines',
         string='Incoming Mappings',
+    )
+
+    raw_data = fields.Text(
+        string='Raw Data',
     )
 
     @api.depends('line_ids')
@@ -116,15 +125,45 @@ class IntegrationImportProductWizard(models.TransientModel):
         if self.operation_try_map:
             if not external_data:
                 data = self.adapter.get_product_templates([code])
+
+                if not data:
+                    raise ApiImportError(_('Product (code=%s) not found!') % code)
+
                 external_data = data.get(code, {})
+
             self._create_incoming_lines(external_data)
+            raw_data = external_data
+
         else:
             if not external_data:
-                external_data = self.adapter.get_product_for_import(code)
-            self._create_incoming_lines_raw(external_data[0], external_data[1])
+                external_data = self.adapter.get_product_for_import(code, import_images=self.import_images)
+
+            template_data, variants_data, bom_data, image_data = external_data
+
+            self._create_incoming_lines_raw(template_data, variants_data)
+
+            def _convert_to_dict(value):
+                if hasattr(value, 'to_dict'):
+                    # For Shopify because of we are getting the classes of PythonShopify library
+                    return value.to_dict()
+                if not isinstance(value, dict):
+                    return dict()
+                return value
+
+            raw_data = dict(
+                TEMPLATE=_convert_to_dict(template_data),
+                VARIANTS=[_convert_to_dict(x) for x in variants_data],
+                KITS=_convert_to_dict(bom_data),
+                IMAGES={
+                    'image_ids': list(image_data.get('images', {}).keys()),
+                    'variants': image_data.get('variants', {}),
+                },
+            )
 
         if not self.incoming_line_ids:
             raise ApiImportError(_('External data import error!'))
+
+        self.raw_data = json.dumps(raw_data, indent=4)
 
         self.set_state(CHECKED_STATE)
 
@@ -192,11 +231,15 @@ class IntegrationImportProductWizard(models.TransientModel):
 
         else:
             self.integration_id.with_context(skip_mapping_validation=True)\
-                .import_product(self.external_template_id.id, import_images=True)
+                .import_product(self.external_template_id.id, import_images=self.import_images)
 
         self._create_internal_lines()
 
         self.set_state(DONE_STATE)
+        return self.open_form()
+
+    def action_open_raw_data(self):
+        self.ensure_one()
         return self.open_form()
 
     def _create_internal_lines(self):
@@ -213,6 +256,8 @@ class IntegrationImportProductWizard(models.TransientModel):
         self.incoming_line_ids.unlink()
         self._create_internal_lines()
         self.set_state(DRAFT_STATE)
+
+        self.raw_data = False
         return self.open_form()
 
     def _create_incoming_lines_raw(self, template, variants_data):

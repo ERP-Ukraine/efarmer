@@ -22,6 +22,8 @@ class ProductProductSendMixin(ProductAbstractSend):
             'id': self.odoo_obj.id,
             'external_id': self.external_id,
             'attribute_values': attribute_values,
-            'fields': self.calculate_send_fields(self.external_id)
+            'fields': self.calculate_send_fields(self.external_id),
+            'reference': getattr(self.odoo_obj, self.integration.product_reference_name),
+            'reference_api_field': self.integration.variant_reference_api_name,
         }
         return result

@@ -1,6 +1,6 @@
 # See LICENSE file for full copyright and licensing details.
 
-from odoo import fields, models
+from odoo import api, fields, models, _
 
 
 class ProductPublicCategoryMixin(models.AbstractModel):
@@ -54,6 +54,7 @@ class ProductPublicCategory(models.Model):
         comodel_name='product.public.category',
         string='Parent Category',
         index=True,
+        ondelete='cascade',
     )
 
     parent_path = fields.Char(
@@ -69,11 +70,12 @@ class ProductPublicCategory(models.Model):
         compute='_compute_parents_and_self'
     )
 
-    def name_get(self):
-        res = []
+    @api.depends('parents_and_self')
+    def _compute_display_name(self):
         for category in self:
-            res.append((category.id, ' / '.join(category.parents_and_self.mapped('name'))))
-        return res
+            category.display_name = " / ".join(category.parents_and_self.mapped(
+                lambda cat: cat.name or _("New")
+            ))
 
     def _compute_parents_and_self(self):
         for category in self:

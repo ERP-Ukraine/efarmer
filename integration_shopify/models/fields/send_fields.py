@@ -1,9 +1,11 @@
 # See LICENSE file for full copyright and licensing details.
 
-from ...shopify_api import METAFIELDS_NAME
+from odoo import _
+
 from odoo.addons.integration.exceptions import ApiExportError
 from odoo.addons.integration.models.fields import SendFields
-from odoo import _
+
+from ...shopify_api import METAFIELDS_NAME
 
 
 class SendFieldsShopify(SendFields):

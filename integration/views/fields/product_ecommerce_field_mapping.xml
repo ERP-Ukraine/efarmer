@@ -6,17 +6,26 @@
             <field name="name">product.ecommerce.field.mapping.view.tree</field>
             <field name="model">product.ecommerce.field.mapping</field>
             <field name="arch" type="xml">
-                <tree editable="bottom">
+                <tree editable="bottom"
+                      decoration-success="is_reference"
+                      decoration-info="is_barcode"
+                      decoration-muted="not active"
+                      decoration-danger="not active and (is_reference or is_barcode)"
+                >
                     <field name="id" groups="base.group_no_one"/>
+                    <field name="active" widget="boolean_toggle"/>
                     <field name="integration_id"/>
                     <field name="ecommerce_field_id"/>
                     <field name="odoo_model_id"/>
-                    <field name="odoo_field_id"/>
+                    <field name="odoo_field_id" optional="hide"/>
+                    <field name="odoo_field_name"/>
                     <field name="integration_api_type" invisible="1"/>
                     <field name="technical_name"/>
-                    <field name="trackable_fields_rel" widget="many2many_tags"/>
-                    <field name="send_on_update"/>
-                    <field name="receive_on_import"/>
+                    <field name="trackable_fields_rel" widget="many2many_tags" optional="hide"/>
+                    <field name="send_on_update" widget="boolean_toggle"/>
+                    <field name="receive_on_import" widget="boolean_toggle"/>
+                    <field name="is_reference" invisible="1"/>
+                    <field name="is_barcode" invisible="1"/>
                 </tree>
             </field>
         </record>
@@ -28,14 +37,14 @@
                 <search>
                     <field name="id" groups="base.group_no_one"/>
                     <field name="integration_id"/>
-                    <field name="ecommerce_field_id"/>
+                    <field name="ecommerce_field_id" domain="[('is_private', '=', False)]"/>
                     <field name="odoo_field_id"/>
                     <field name="technical_name"/>
                     <field name="trackable_fields_rel"/>
                     <filter string="Not Update" name="send_on_update" domain="[('send_on_update', '=', False)]"/>
                     <filter string="Not Import" name="receive_on_import" domain="[('receive_on_import', '=', False)]"/>
                     <group expand="0" string="Group By">
-                        <filter string="Sale Integration" name="integration_id" context="{'group_by':'integration_id'}"/>
+                        <filter string="Sale Integration" name="group_integration_id" context="{'group_by':'integration_id'}"/>
                     </group>
                 </search>
             </field>
@@ -45,6 +54,12 @@
             <field name="name">Product Fields Mapping</field>
             <field name="res_model">product.ecommerce.field.mapping</field>
             <field name="view_mode">tree</field>
+            <field name="context">
+                {
+                    'active_test': False,
+                    'search_default_group_integration_id': 1,
+                }
+            </field>
         </record>
 
     </data>

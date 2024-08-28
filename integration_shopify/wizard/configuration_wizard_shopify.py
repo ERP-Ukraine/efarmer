@@ -5,173 +5,7 @@ from shopify import ApiVersion
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 
-
-MIN_API_VERSION = 202204
-
-REQUIRED_SCOPES = (
-    'read_locations',
-    'read_customers',
-    'read_products',
-    'write_products',
-    'read_orders',
-    'write_orders',
-    'read_inventory',
-    'write_inventory',
-    'write_fulfillments',
-    'read_fulfillments',
-    'read_merchant_managed_fulfillment_orders',
-    'write_merchant_managed_fulfillment_orders',
-)
-
-
-class ShopifyOrderStatus:
-    """
-    The class contains order statuses that can be used both for querying the store's API
-    and for using them during order parsing. It's worth noting that they often have
-    different names but mean the same thing. For example, the "shipped" status in a request
-    will correspond to the "fulfilled" status in the response. Similarly, the "unshipped"
-    or "unfulfilled" status in a request will correspond to "null" or "null + partial" statuses
-    in the response.
-    """
-
-    STATUS_AUTHORIZED = 'authorized'
-    STATUS_PENDING = 'pending'
-    STATUS_PAID = 'paid'
-    STATUS_PARTIALLY_PAID = 'partially_paid'
-    STATUS_REFUNDED = 'refunded'
-    STATUS_VOIDED = 'voided'
-    STATUS_PARTIALLY_REFUNDED = 'partially_refunded'
-    STATUS_UNPAID = 'unpaid'
-
-    STATUS_PARTIAL = 'partial'
-    STATUS_FULFILLED = 'fulfilled'
-    STATUS_RESTOCKED = 'restocked'
-    STATUS_UNSHIPPED = 'unshipped'
-    STATUS_UNFULFILLED = 'unfulfilled'
-
-    STATUS_OPEN = 'open'
-    STATUS_CLOSED = 'closed'
-    STATUS_CANCELLED = 'cancelled'
-
-    SPECIAL_STATUS_ANY = 'any'
-    SPECIAL_STATUS_SHIPPED = 'shipped'
-
-    _financial_status_data = {
-        STATUS_AUTHORIZED: (
-            'Authorized',
-            'The payments have been authorized.',
-        ),
-        STATUS_PENDING: (
-            'Pending',
-            'The payments are pending. Payment might fail in this state. '
-            'Check again to confirm whether the payments have been paid successfully.',
-        ),
-        STATUS_PAID: (
-            'Paid',
-            'The payments have been paid.',
-        ),
-        STATUS_PARTIALLY_PAID: (
-            'Partially Paid',
-            'The order has been partially paid.',
-        ),
-        STATUS_REFUNDED: (
-            'Refunded',
-            'The payments have been refunded.',
-        ),
-        STATUS_VOIDED: (
-            'Voided',
-            'The payments have been voided.',
-        ),
-        STATUS_PARTIALLY_REFUNDED: (
-            'Partially Refunded',
-            'The payments have been partially refunded.',
-        ),
-        STATUS_UNPAID: (
-            'Unpaid',
-            'Receive authorized and partially paid orders.',
-        ),
-    }
-
-    _fulfillment_status_data = {
-        STATUS_FULFILLED: (  # !!! In Shopify API this parameter named as `shipped`
-            'Shipped',  # howewer in received order it named `fulfilled` and we need to have the
-            'Receive orders that have been shipped. '  # mapping object exactly as `fulfilled`
-            'Returns orders with fulfillment_status of fulfilled.',
-        ),
-        STATUS_PARTIAL: (
-            'Partial',
-            'Receive partially shipped orders.'
-        ),
-        STATUS_UNSHIPPED: (
-            'Unshipped',
-            'Receive orders that have not yet been shipped. '
-            'Returns orders with fulfillment_status of null.',
-        ),
-        STATUS_UNFULFILLED: (
-            'Unfulfilled',
-            'Receive orders with fulfillment_status of null or partial.',
-        ),
-    }
-
-    _fulfillment_status_restocked_data = {
-        STATUS_RESTOCKED: (
-            'Restocked',
-            'Every line item in the order has been restocked and the order canceled.',
-        ),
-    }
-
-    _any_status_data = {
-        SPECIAL_STATUS_ANY: (
-            'Any',
-            'Receive orders of any status.',
-        ),
-    }
-
-    _order_status_data = {
-        STATUS_OPEN: (
-            'Open',
-            'Receive only open orders.'
-        ),
-        STATUS_CLOSED: (
-            'Closed',
-            'Receive only closed orders.',
-        ),
-        STATUS_CANCELLED: (
-            'Cancelled',
-            'Receive only cancelled orders.',
-        ),
-    }
-
-    @classmethod
-    def order_statuses(cls):
-        return {
-            **cls._any_status_data,
-            **cls._order_status_data,
-        }
-
-    @classmethod
-    def financial_statuses(cls):
-        return {
-            **cls._any_status_data,
-            **cls._financial_status_data,
-        }
-
-    @classmethod
-    def fulfillment_statuses(cls):
-        return {
-            **cls._any_status_data,
-            **cls._fulfillment_status_data,
-        }
-
-    @classmethod
-    def all_statuses(cls):
-        return {
-            **cls._any_status_data,
-            **cls._order_status_data,
-            **cls._financial_status_data,
-            **cls._fulfillment_status_data,
-            **cls._fulfillment_status_restocked_data,
-        }
+from ..shopify.shopify_helpers import ShopifyOrderStatus, MIN_API_VERSION, REQUIRED_SCOPES
 
 
 class QuickConfigurationShopify(models.TransientModel):
@@ -182,14 +16,15 @@ class QuickConfigurationShopify(models.TransientModel):
         ('step_url', 'Step 1. Enter Store Url, API version and Access Token'),
         ('step_access_scopes', 'Step 2. Admin API access scopes'),
         ('step_languages', 'Step 3. Languages Mapping'),
-        ('step_order_status', 'Step 4. Select order statuses for the receive filter'),
+        ('step_sale_channels', 'Step 4. Select Sale Channels for the receive filter'),
+        ('step_order_status', 'Step 5. Select order statuses for the receive filter'),
         (
             'step_order_financial_status',
-            'Step 5. Select order financial statuses for the receive filter',
+            'Step 6. Select order financial statuses for the receive filter',
         ),
         (
             'step_order_fulfillment_status',
-            'Step 6. Select order fulfillment statuses for the receive filter',
+            'Step 7. Select order fulfillment statuses for the receive filter',
         ),
         ('step_finish', 'Finish'),
     ]
@@ -266,6 +101,20 @@ class QuickConfigurationShopify(models.TransientModel):
         ],
     )
 
+    configuration_integration_channel_ids = fields.Many2many(
+        related='integration_id.integration_channel_ids',
+        readonly=False,
+        string='Sale Channels',
+        domain="[('integration_id', '=', integration_id)]",
+        help=(
+            'Select the sales channels you want to import orders from in this e-commerce store. '
+            'Leave this field empty if you want to import orders from all sales channels. '
+            'A special "No Channel" option is available to include orders that are not associated '
+            'with any specific sales channel. This can be useful for capturing orders that may have '
+            'been created outside of the normal channel structure.'
+        ),
+    )
+
     @api.depends('configuration_scope_ids')
     def _compute_is_valid_access_scopes(self):
         for rec in self:
@@ -302,7 +151,7 @@ class QuickConfigurationShopify(models.TransientModel):
         try:
             self.integration_id.action_active()
         except Exception as ex:
-            raise ValidationError(ex.name)
+            raise ValidationError(ex.args[0])
 
         return True
 
@@ -335,6 +184,14 @@ class QuickConfigurationShopify(models.TransientModel):
         self.env['configuration.wizard.shopify.line'].create(vals_list)
 
     def run_after_step_access_scopes(self):
+        return True
+
+    # Step Sale Channel
+    def run_before_step_sale_channels(self):
+        self.integration_id.integrationApiImportSaleChannels()
+        self.configuration_integration_channel_ids = self.integration_id.integration_channel_ids
+
+    def run_after_step_sale_channels(self):
         return True
 
     # Step Order Status

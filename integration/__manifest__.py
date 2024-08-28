@@ -2,7 +2,7 @@
 
 {
     'name': 'Integration',
-    'version': '15.0.1.15.3',
+    'version': '15.0.1.17.0',
     'category': 'Hidden',
     'author': 'VentorTech',
     'website': 'https://ventor.tech',
@@ -14,10 +14,16 @@
     'summary': 'Sale Integration with External Services',
     'depends': [
         'web',
+        'mrp',
         'sale',
         'delivery',
         'queue_job',
     ],
+    'external_dependencies': {
+        'python': [
+            'python-stdnum',
+        ],
+    },
     'data': [
         # Security
         'security/integration_security.xml',
@@ -30,6 +36,9 @@
         'data/ir_cron_data.xml',
         'data/res_partner_category.xml',
         'data/ir_actions_server_data.xml',
+        'data/product_ecommerce_fields.xml',
+        'data/mail_template_data.xml',
+        'data/res_config_data.xml',
 
         # Wizard
         'wizard/import_customers_wizard.xml',
@@ -41,6 +50,7 @@
         'wizard/external_integration_wizard.xml',
         'wizard/import_export_integration_wizard.xml',
         'wizard/integration_import_product_wizard.xml',
+        'wizard/integration_installation_wizard.xml',
 
         # Views
         'views/sale_integration.xml',
@@ -87,6 +97,7 @@
         'views/external/integration_stock_location_external_views.xml',
         'views/external/external_integration_tag_views.xml',
         'views/external/external_order_transaction_views.xml',
+        'views/external/external_order_fulfillment_views.xml',
 
         # Mappings
         'views/mappings/integration_account_tax_mapping_views.xml',

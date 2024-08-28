@@ -24,7 +24,10 @@ class IntegrationProductPricelistExternal(models.Model):
             return _('Special prices for External Group "%s" not found.') % self.name
 
         pricelist = self.mapping_model.to_odoo(integration, self.code)
-        pricelist = pricelist.with_context(default_integration_id=integration.id)
+        pricelist = pricelist.with_context(
+            company_id=integration.company_id.id,
+            default_integration_id=integration.id,
+        )
 
         result = list()
         for (template_id, variant_id), item_list in external_data.items():

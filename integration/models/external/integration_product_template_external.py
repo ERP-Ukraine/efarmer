@@ -1,17 +1,12 @@
 # See LICENSE file for full copyright and licensing details.
 
 import base64
-import logging
 
 from odoo import models, fields, _
-from odoo.exceptions import ValidationError
 from odoo.tools.sql import escape_psql
 
-from ...tools import IS_FALSE
+from ...tools import IS_FALSE, _verify_image_data
 from ...exceptions import ApiImportError
-
-
-_logger = logging.getLogger(__name__)
 
 
 class IntegrationProductTemplateExternal(models.Model):
@@ -58,12 +53,24 @@ class IntegrationProductTemplateExternal(models.Model):
 
         return wizard
 
+    def format_recordset(self):
+        values = self.mapped(
+            lambda x: ', '.join([
+                f'id={x.id}',
+                f'code={x.code}',
+                f'reference={x.external_reference}',
+                f'barcode={x.external_barcode}',
+                f'variants={x.external_product_variant_ids.format_recordset()}',
+            ])
+        )
+        return '[%s]' % '; '.join(f'({x})' for x in values)
+
     def run_import_products(self, import_images=False, trigger_export_other=False):
         for external_template in self:
             integration = external_template.integration_id
             integration = integration.with_context(company_id=integration.company_id.id)
 
-            job_kwargs = integration._job_kwargs_import_product(external_template)
+            job_kwargs = integration._job_kwargs_import_product(external_template.code, external_template.name)
             job = integration.with_delay(**job_kwargs).import_product(
                 external_template.id,
                 import_images=import_images,
@@ -84,22 +91,24 @@ class IntegrationProductTemplateExternal(models.Model):
             }
         }
 
-    def import_one_product(self, template_data, variants_data, bom_data, image_data):
-        if bom_data and not self.integration_id.is_installed_mrp:
-            raise ValidationError(_(
-                'The product contains bom-components,'
-                'however the Manufacturing module is not installed.'
-            ))
+    def import_one_product(self, import_images=True):
+        self.ensure_one()
 
+        template_data, variants_data, bom_data, image_data = self.integration_id.adapter\
+            .get_product_for_import(self.code, import_images=import_images)
+
+        return self.with_context(integration_import_images=import_images)\
+            ._import_one_product(template_data, variants_data, bom_data, image_data)
+
+    def _import_one_product(self, template_data, variants_data, bom_data, image_data):
         self = self.with_context(skip_product_export=True)
-
         import_images = self._context.get('integration_import_images')
 
         # 1. Try map template and variants
         template = self.with_context(
             skip_mapping_update=True,
             default_operation_mode='import',
-        ).try_map_template_and_variants((template_data, variants_data))
+        ).try_map_template_and_variants((template_data, variants_data, bom_data, image_data))
 
         # 2. Update or create template with received data
         if template:
@@ -108,13 +117,20 @@ class IntegrationProductTemplateExternal(models.Model):
             template = self.with_context(integration_product_creating=True)\
                 ._create_template(template_data)
 
+        # If template is not active, then we have to update it with the context `active_test=False`
+        # because variants will be archived (this is default behavior of Odoo)
+        if not template.active:
+            template = template.with_context(active_test=False)
+
         # 2.1 Update template images
         if import_images:
-            self._update_template_media(template, image_data)
+            self._update_template_media(image_data)
 
         # 2.2 If no variants-data --> update mapping for the default Odoo variant
         if not variants_data:
             self._try_to_update_mappings(template)
+
+        external_variants = self.env['integration.product.product.external']
 
         # 3. Find and update all the variants with received data
         for variant_data in variants_data:
@@ -130,14 +146,18 @@ class IntegrationProductTemplateExternal(models.Model):
                 .filtered(lambda x: x.code == code)
 
             assert external_variant, _('External variant %s not found') % code
-            vals = converter.convert_from_external()
 
             # 3.3 Find suitable variant among template childs.
             variant = external_variant._find_suitable_variant(template.product_variant_ids)
 
-            if not variant:
+            if variant:
+                # Update the `odoo_obj` parameter for existing converter
+                converter = converter(variant)
+                vals = converter.convert_from_external()
+            else:
                 # 3.3.1 Create the new variant if Odoo didn't creat it automatically because of
                 # the dynamic-attributes and the `integration_product_creating` context variable
+                vals = converter.convert_from_external()
                 attribute_values = converter._get_template_attribute_values(template.id)
 
                 vals.update(
@@ -151,36 +171,39 @@ class IntegrationProductTemplateExternal(models.Model):
 
             # 3.5 Link external record to odoo record (make mapping)
             external_variant.create_or_update_mapping(odoo_id=variant.id)
+            external_variants |= external_variant
 
-            # 3.6 Update variant images
-            if import_images:
-                external_variant._update_variant_media(variant, image_data)
+        # 4. Update variants images. !IMPORTANT: do it after the ster 4 is completed
+        if import_images:
+            for external_variant in external_variants:
+                external_variant._update_variant_media(image_data)
 
-        # 4. Handle kit components
+        # 5. Handle kit components
         if bom_data:
             self._create_boms(template, bom_data)
 
         return template
 
-    def _update_template_media(self, template, image_data):
+    def _update_template_media(self, image_data: dict):
+        template = self.odoo_record
         template.product_template_image_ids.unlink()
         template.image_1920 = False
 
         if not image_data['images']:
-            return
+            template.update_mapping_any(self.integration_id, 'image_1920', 'image', False)
+            return template.product_template_image_ids
 
         is_template_image = True
         for ext_img_id, bin_data in image_data['images'].items():
-            if not self.verify_image_data(template, bin_data):
-                is_template_image = False
+            if not _verify_image_data(bin_data, template.display_name):
                 continue
 
             b64_image = base64.b64encode(bin_data)
 
             if is_template_image:
+                is_template_image = False
                 template.image_1920 = b64_image
                 template.update_mapping_any(self.integration_id, 'image_1920', 'image', ext_img_id)
-                is_template_image = False
             else:
                 product_image = self.env['product.image'].create({
                     'name': template.name,
@@ -188,7 +211,9 @@ class IntegrationProductTemplateExternal(models.Model):
                     'product_tmpl_id': template.id,
                 })
 
-                template.product_template_image_ids += product_image
+                template.product_template_image_ids = [(4, 0, product_image.id)]
+
+        return template.product_template_image_ids
 
     def _update_template_from_external(self, template, ext_data):
         converter = self.integration_id.init_receive_field_converter(template, ext_data)
@@ -313,7 +338,7 @@ class IntegrationProductTemplateExternal(models.Model):
                     )
                 )
 
-            if self.integration_id._need_for_barcode():
+            if self.integration_id.is_barcode_validation_required():
                 variant_barcodes = [x.external_barcode for x in external_variants]
 
                 if any(variant_barcodes) and not all(variant_barcodes):
@@ -339,7 +364,7 @@ class IntegrationProductTemplateExternal(models.Model):
         if self.external_reference:
             template = self._find_product_by_field(
                 self._odoo_model,
-                self.integration_id._get_product_reference_name(),
+                self.integration_id.product_reference_name,
                 self.external_reference,
             )
 
@@ -347,10 +372,10 @@ class IntegrationProductTemplateExternal(models.Model):
                 return template
 
         # Search by the barcode
-        if self.external_barcode and self.integration_id._need_for_barcode():
+        if self.external_barcode and self.integration_id.is_barcode_validation_required():
             template = self._find_product_by_field(
                 self._odoo_model,
-                self.integration_id._get_product_barcode_name(),
+                self.integration_id.product_barcode_name,
                 self.external_barcode,
             )
 

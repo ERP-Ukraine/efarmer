@@ -33,7 +33,7 @@
         </record>
 
         <record id="integration_product_feature_value_mapping_action" model="ir.actions.act_window">
-            <field name="name">Feature Values</field>
+            <field name="name">Feature Values Mappings</field>
             <field name="res_model">integration.product.feature.value.mapping</field>
             <field name="view_mode">tree</field>
             <field name="context">{'search_default_not_mapped': 1}</field>

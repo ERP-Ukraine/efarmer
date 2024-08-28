@@ -46,7 +46,7 @@ class IntegrationDeliveryCarrierMapping(models.Model):
         if not self.integration_id.auto_create_delivery_carrier_on_so:
             return False
 
-        ref_field = self.integration_id._get_product_reference_name()
+        ref_field = self.integration_id.product_reference_name
 
         product_vals = {
             'type': 'service',
@@ -80,7 +80,7 @@ class IntegrationDeliveryCarrierMapping(models.Model):
         if carrier_id or not self.external_carrier_id:
             return carrier_id
 
-        ref_field = self.integration_id._get_product_reference_name()
+        ref_field = self.integration_id.product_reference_name
         product_template = self.env['product.template'].search([
             ('name', '=', self.external_carrier_id.name),
             (ref_field, '=', self.external_carrier_id.code),

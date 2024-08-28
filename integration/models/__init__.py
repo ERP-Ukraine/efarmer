@@ -32,6 +32,7 @@ from . import sale_order_sub_status
 from . import sale_order_fields
 from . import default_sale_order_fields
 from . import delivery_carrier
+from . import stock_warehouse
 from . import stock_picking
 from . import stock_move
 from . import stock_quant
@@ -52,3 +53,5 @@ from . import publisher_warranty_contract
 from . import res_currency
 
 from . import integration_sale_order_factory
+from . import integration_res_partner_factory
+from . import integration_res_partner_proxy
