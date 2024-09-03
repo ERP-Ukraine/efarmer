@@ -26,4 +26,10 @@
             </div>
         </xpath>
     </template>
+
+    <template id="portal_my_home_menu_sale_tmpl_inherit" inherit_id="portal.portal_breadcrumbs">
+        <xpath expr="//ol[contains(@class, 'o_portal_submenu')]/li[1]" position="attributes">
+            <attribute name="t-if">page_name == 'quote' or sale_order and sale_order.state in ('sent', 'cancel', 'to_payment', 'to_confirm')</attribute>
+        </xpath>
+    </template>
 </odoo>
