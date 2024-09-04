@@ -1155,9 +1155,7 @@
     <field name="code">trilab_VAT7__19_40_41_b</field>
     <field name="sequence" eval="0"/>
     <field name="level" eval="3"/>
-    <field name="formulas">
-      balance=trilab_VAT7_19_10_b.balance+trilab_VAT7_19_11_b.balance+trilab_VAT7_19_13_b.balance+trilab_VAT7_19_15_b.balance+trilab_VAT7_19_17_b.balance+trilab_VAT7_19_19_b.balance+trilab_VAT7_19_21_b.balance+trilab_VAT7_19_22_b.balance+trilab_VAT7_19_23_b.balance+trilab_VAT7_19_25_b.balance+trilab_VAT7_19_27_b.balance+trilab_VAT7_19_29_b.balance+trilab_VAT7_19_31_b.balance+trilab_VAT7_19_32_b.balance+trilab_VAT7_19_34_b.balance
-    </field>
+    <field name="formulas">balance=trilab_VAT7_19_10_b.balance+trilab_VAT7_19_11_b.balance+trilab_VAT7_19_13_b.balance+trilab_VAT7_19_15_b.balance+trilab_VAT7_19_17_b.balance+trilab_VAT7_19_19_b.balance+trilab_VAT7_19_21_b.balance+trilab_VAT7_19_22_b.balance+trilab_VAT7_19_23_b.balance+trilab_VAT7_19_25_b.balance+trilab_VAT7_19_27_b.balance+trilab_VAT7_19_29_b.balance+trilab_VAT7_19_31_b.balance+trilab_VAT7_19_32_b.balance+trilab_VAT7_19_34_b.balance</field>
     <field name="special_date_changer">strict_range</field>
     <field name="parent_id" ref="trilab_VAT7_19_40_41"/>
   </record>
