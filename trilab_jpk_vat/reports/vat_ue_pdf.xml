@@ -1,120 +1,115 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <template id="report_vat_ue">
-        <t t-call="web.html_container">
-            <t t-foreach="docs" t-as="doc">
-                <t t-call="web.external_layout">
-                    <div class="page">
-                        <center>
-                            <h2>VAT UE</h2>
-                        </center>
-                        <table width="100%">
-                            <tr>
-                                <td width="20%">
-                                    <b>Version:</b>
-                                </td>
-                                <td width="80%">
-                                    <span t-field="doc.version"/>
-                                </td>
-                                <td/>
-                                <td/>
-                            </tr>
-                            <tr>
-                                <td width="20%">
-                                    <b>Month:</b>
-                                </td>
-                                <td width="80%">
-                                    <span t-field="doc.month"/>
-                                </td>
-                                <td/>
-                                <td/>
-                            </tr>
-                            <tr>
-                                <td width="20%">
-                                    <b>Year:</b>
-                                </td>
-                                <td width="80%">
-                                    <span t-out="doc.year"/>
-                                </td>
-                            </tr>
-                            <hr/>
-                            <div t-if="cel_zlozenia == 1">
-                                <tr>
-                                    <td width="40%">
-                                        <p style="margin:0;">
-                                            <b>Cel Złożenia:</b>
-                                        </p>
-                                    </td>
-                                </tr>
-                            </div>
-                        </table>
-                        <div style="padding-top:20px;"/>
-                        <center width="100%">
-                            <h3>C. Informacja o Wewnątrzwspólnotowych Dostawach Towarów</h3>
-                        </center>
-                        <table width="100%">
-                            <t t-foreach="doc.group_1_line_ids" t-as="group_line">
-                                <tr>
-                                    <td>
-                                        <span class="pl-4">
-                                            <span t-field="group_line.country_code"/>
-                                            <span t-field="group_line.nip"/>
-                                            <span t-field="group_line.amount"/>
-                                            <span t-field="group_line.tt"/>
-                                        </span>
-                                    </td>
-                                </tr>
-                            </t>
-                        </table>
-                        <center width="100%">
-                            <h3>D. Informacja o Wewnątrzwspólnotowych Nabyciach Towarów</h3>
-                        </center>
-                        <table width="100%">
-                            <t t-foreach="doc.group_2_line_ids" t-as="group_line">
-                                <tr>
-                                    <td>
-                                        <span class="pl-4">
-                                            <span t-field="group_line.country_code"/>
-                                            <span t-field="group_line.nip"/>
-                                            <span t-field="group_line.amount"/>
-                                            <span t-field="group_line.tt"/>
-                                        </span>
-                                    </td>
-                                </tr>
-                            </t>
-                        </table>
-                        <center width="100%">
-                            <h3>E. Informacja o Wewnątrzwspólnotowym Świadczeniu Usług</h3>
-                        </center>
-                        <table width="100%">
-                            <t t-foreach="doc.group_3_line_ids" t-as="group_line">
-                                <tr>
-                                    <td>
-                                        <span class="pl-4">
-                                            <span t-field="group_line.country_code"/>
-                                            <span t-field="group_line.nip"/>
-                                            <span t-field="group_line.amount"/>
-                                        </span>
-                                    </td>
-                                </tr>
-                            </t>
-                        </table>
-                        <br/>
-                        <br/>
-                    </div>
-                </t>
-            </t>
-        </t>
-    </template>
+  <template id="report_vat_ue">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.external_layout">
+          <div class="page">
+            <h2>JPK VAT UE</h2>
+            <table class="table table-sm">
+              <tbody>
+                <tr>
+                  <th>
+                    <b>Version:</b> <t t-out="doc.version"/>
+                  </th>
+                  <th>
+                    <b>Month:</b> <t t-out="doc.month"/>
+                  </th>
+                  <th>
+                    <b>Year:</b> <t t-out="doc.year"/>
+                  </th>
+                </tr>
+                <tr>
+                  <th colspan="3">
+                    <b>Cel Złożenia:</b>
+                    <t t-if="doc.cel_zlozenia == 1">Nowa Deklaracja</t>
+                    <t t-else="">Korekta Deklaracji</t>
+                  </th>
+                </tr>
+              </tbody>
+            </table>
 
-    <record id="report_vat_ue_pdf" model="ir.actions.report">
-        <field name="name">VAT UE</field>
-        <field name="model">jpk.vat.ue</field>
-        <field name="report_type">qweb-pdf</field>
-        <field name="report_name">trilab_jpk_vat.report_vat_ue</field>
-        <field name="report_file">trilab_jpk_vat.report_vat_ue</field>
-        <field name="binding_model_id" ref="trilab_jpk_vat.model_jpk_vat_ue"/>
-        <field name="binding_type">report</field>
-    </record>
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th colspan="4"><h3>C. Informacja o Wewnątrzwspólnotowych Dostawach Towarów</h3></th>
+                </tr>
+                <tr>
+                  <th>Kod kraju</th>
+                  <th>Numer identyfikacyjny VAT kontrahenta</th>
+                  <th>Kwota transakcji w zł</th>
+                  <th>Transakcje trójstronne</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr t-foreach="doc.group1_line_ids" t-as="group_line">
+                  <td t-out="group_line.country_code"/>
+                  <td t-out="group_line.nip"/>
+                  <td class="text-right" t-out="group_line.amount"
+                      t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                  <td t-out="group_line.tt"/>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th colspan="4"><h3>D. Informacja o Wewnątrzwspólnotowych Nabyciach Towarów</h3></th>
+                </tr>
+                <tr>
+                  <th>Kod kraju</th>
+                  <th>Numer identyfikacyjny VAT kontrahenta</th>
+                  <th>Kwota transakcji w zł</th>
+                  <th>Transakcje trójstronne</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr t-foreach="doc.group2_line_ids" t-as="group_line">
+                  <td t-out="group_line.country_code"/>
+                  <td t-out="group_line.nip"/>
+                  <td t-out="group_line.amount"
+                      t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                  <td t-out="group_line.tt"/>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <td colspan="3"><h3>E. Informacja o Wewnątrzwspólnotowym Świadczeniu Usług</h3></td>
+                </tr>
+                <tr>
+                  <th>Kod kraju</th>
+                  <th>Numer identyfikacyjny VAT kontrahenta</th>
+                  <th>Kwota transakcji w zł</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr t-foreach="doc.group3_line_ids" t-as="group_line">
+                  <td t-out="group_line.country_code"/>
+                  <td t-out="group_line.nip"/>
+                  <td t-out="group_line.amount"
+                      t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+
+  <record id="report_vat_ue_pdf" model="ir.actions.report">
+    <field name="name">VAT UE</field>
+    <field name="model">jpk.vat.ue</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">trilab_jpk_vat.report_vat_ue</field>
+    <field name="report_file">trilab_jpk_vat.report_vat_ue</field>
+    <field name="binding_model_id" ref="trilab_jpk_vat.model_jpk_vat_ue"/>
+    <field name="binding_type">report</field>
+  </record>
 
 </odoo>

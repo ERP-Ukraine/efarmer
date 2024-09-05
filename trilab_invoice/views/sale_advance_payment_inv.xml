@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
 
     <record id="view_sale_advance_payment_inv_inherit" model="ir.ui.view">
@@ -32,7 +32,7 @@
                         <!-- TODO: Zmodyfikowac widok szukania -->
                         <field name="product_id"/>
                         <field name="name"/>
-                        <field name="product_uom_qty"/>
+                        <field name="product_uom_qty" readonly="1"/>
                         <field name="qty_delivered"/>
                         <field name="qty_invoiced"/>
                         <field name="price_unit"/>

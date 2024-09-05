@@ -1,4 +1,4 @@
-from odoo import models, api
+from odoo import api, models
 
 
 class SaleOrderLine(models.Model):
@@ -13,9 +13,7 @@ class SaleOrderLine(models.Model):
             so_lines = self.order_id.order_line.filtered(
                 lambda line: not line.is_downpayment and line.tax_id.ids == self.tax_id.ids
             )
-            invoice_value = sum(
-                lne.qty_to_invoice * (lne[sum_field] / lne.product_uom_qty) for lne in invoice_lines
-            )
+            invoice_value = sum(lne.qty_to_invoice * (lne[sum_field] / lne.product_uom_qty) for lne in invoice_lines)
             so_value = sum(line[sum_field] for line in so_lines)
             quantity = -1 * (invoice_value / so_value)
         res = self._prepare_invoice_line(sequence=optional_values['sequence'])
@@ -31,24 +29,6 @@ class SaleOrderLine(models.Model):
                 inv_line['price_unit'] *= currency_rate.inverse_company_rate
 
         return inv_line
-
-    @api.depends('invoice_lines.move_id.state', 'invoice_lines.quantity')
-    def _compute_qty_invoiced(self):
-        super()._compute_qty_invoiced()
-        for line in self.filtered(lambda x: x.is_downpayment and x.order_id.x_is_poland):
-            # For down payment sale.order.line count only qty_invoiced from down payment invoices
-            qty_invoiced = 0.0
-            for invoice_line in line.invoice_lines.filtered(lambda x: x.move_id.is_downpayment):
-                if invoice_line.move_id.state != 'cancel':
-                    if invoice_line.move_id.move_type == 'out_invoice':
-                        qty_invoiced += invoice_line.product_uom_id._compute_quantity(
-                            invoice_line.quantity, line.product_uom
-                        )
-                    elif invoice_line.move_id.move_type == 'out_refund':
-                        qty_invoiced -= invoice_line.product_uom_id._compute_quantity(
-                            invoice_line.quantity, line.product_uom
-                        )
-            line.qty_invoiced = qty_invoiced
 
     def _compute_untaxed_amount_to_invoice(self):
         super()._compute_untaxed_amount_to_invoice()

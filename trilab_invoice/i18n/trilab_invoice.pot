@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-11 15:27+0000\n"
-"PO-Revision-Date: 2022-12-11 15:27+0000\n"
+"POT-Creation-Date: 2024-07-11 18:12+0000\n"
+"PO-Revision-Date: 2024-07-11 18:12+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -165,6 +165,11 @@ msgstr ""
 msgid ""
 "<strong>Settlement of received advance payment according to tax "
 "rates:</strong>"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<strong>Shipping Address:</strong>"
 msgstr ""
 
 #. module: trilab_invoice
@@ -337,6 +342,11 @@ msgid "Convert To PLN"
 msgstr ""
 
 #. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Corrected Invoice"
+msgstr ""
+
+#. module: trilab_invoice
 #: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__corrected_invoice_line_ids
 #: model:ir.model.fields,field_description:trilab_invoice.field_account_move__corrected_invoice_line_ids
 #: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__corrected_invoice_line_ids
@@ -349,16 +359,9 @@ msgid "Corrected Line"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_corrected_amount_by_group
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_corrected_amount_by_group
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_corrected_amount_by_group
-msgid "Corrected Tax amount by group"
-msgstr ""
-
-#. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_corrected_amount_summary
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_corrected_amount_summary
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_corrected_amount_summary
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_corrected_tax_totals_json
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_corrected_tax_totals_json
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_corrected_tax_totals_json
 msgid "Corrected Tax amount summary"
 msgstr ""
 
@@ -494,8 +497,24 @@ msgid "Final Source"
 msgstr ""
 
 #. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__x_force_print
+msgid "Force Print"
+msgstr ""
+
+#. module: trilab_invoice
 #: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__has_advances
 msgid "Has Advances"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
+msgid "Hide Invoice lines on the report with zero price."
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_res_company__x_hide_zero_price_aml
+#: model:ir.model.fields,field_description:trilab_invoice.field_res_config_settings__x_hide_zero_price_aml
+msgid "Hide Zero Price AML on Invoices"
 msgstr ""
 
 #. module: trilab_invoice
@@ -606,6 +625,12 @@ msgstr ""
 #. module: trilab_invoice
 #: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
 #, python-format
+msgid "Missing sale order"
+msgstr ""
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
+#, python-format
 msgid "No delivered lines to invoice"
 msgstr ""
 
@@ -626,7 +651,7 @@ msgstr ""
 
 #. module: trilab_invoice
 #: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__order_line
-msgid "Order Line"
+msgid "Order Lines"
 msgstr ""
 
 #. module: trilab_invoice
@@ -666,7 +691,7 @@ msgid "Outstanding debits"
 msgstr ""
 
 #. module: trilab_invoice
-#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document_with_payments
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
 msgid "Paid on"
 msgstr ""
 
@@ -891,6 +916,13 @@ msgid "Total"
 msgstr ""
 
 #. module: trilab_invoice
+#: code:addons/trilab_invoice/models/sale_order.py:0
+#, python-format
+msgid ""
+"Total value of advance invoices (%02f) is greater than order value (%02f)"
+msgstr ""
+
+#. module: trilab_invoice
 #: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__x_move_type
 msgid "Type"
 msgstr ""
@@ -919,12 +951,6 @@ msgstr ""
 #. module: trilab_invoice
 #: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__value
 msgid "Value [NET]"
-msgstr ""
-
-#. module: trilab_invoice
-#: code:addons/trilab_invoice/models/sale_order.py:0
-#, python-format
-msgid "Value in advance invoices is greater than order value"
 msgstr ""
 
 #. module: trilab_invoice
@@ -1030,4 +1056,10 @@ msgstr ""
 #: code:addons/trilab_invoice/models/account_move.py:0
 #, python-format
 msgid "You need to add a line before posting."
+msgstr ""
+
+#. module: trilab_invoice
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "unsupported object %s"
 msgstr ""

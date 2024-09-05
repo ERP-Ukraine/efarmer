@@ -186,6 +186,7 @@ WHERE am.state IN %(allowed_states)s
          AND am.pl_vat_date >= %(date_from)s
          AND am.pl_vat_date <= %(date_to)s
          AND am.company_id = %(company)s
+         AND aml.display_type IS NULL
 GROUP BY am.id, JPKSection, NrKontrahenta, NazwaKontrahenta, PartnerId, DowodSprzedazyZakupu, DataWystawienia,
          DataSprzedazy, DataZakupu, DataWplywu, isTax, TypDokumentu, Flags, JPKMarkup, JPKGroup, TerminPlatnosci
 ORDER BY JPKsection, DataWystawienia, am.id, DowodSprzedazyZakupu, JPKMarkup, JPKGroup"""
@@ -358,7 +359,7 @@ ORDER BY JPKsection, DataWystawienia, am.id, DowodSprzedazyZakupu, JPKMarkup, JP
             {'name': _('Export XLSX - Report'), 'sequence': 1, 'action': 'print_xlsx'},
             {'name': _('Export XLSX - Extract'), 'sequence': 2, 'action': 'print_xlsx_flat'},
             {'name': _('Export XML'), 'sequence': 3, 'action': 'export_xml'},
-            {'name': _('Export XML (VAT UE)'), 'sequence': 4, 'action': 'export_xml_vat_ue'},
+            {'name': _('Export VAT UE'), 'sequence': 4, 'action': 'export_xml_vat_ue'},
         ]
 
         return buttons
@@ -420,7 +421,7 @@ ORDER BY JPKsection, DataWystawienia, am.id, DowodSprzedazyZakupu, JPKMarkup, JP
             etree.SubElement(podmiot_sub, etree.QName(tns, 'PelnaNazwa')).text = company.name
 
         # common
-        etree.SubElement(podmiot_sub, etree.QName(tns, 'Email')).text = company.email or ''
+        etree.SubElement(podmiot_sub, etree.QName(tns, 'Email')).text = company.x_get_jpk_email()
 
         if company.phone:
             etree.SubElement(podmiot_sub, etree.QName(tns, 'Telefon')).text = company.phone
@@ -508,7 +509,8 @@ ORDER BY JPKsection, DataWystawienia, am.id, DowodSprzedazyZakupu, JPKMarkup, JP
                     declaration_groups.setdefault(child['jpkgroup'], 0.0)
                     declaration_groups[child['jpkgroup']] += child['kwota']
 
-                _taxes.add((child['jpkmarkup'], child['kwota']))
+                if child['jpkmarkup']:
+                    _taxes.add((child['jpkmarkup'], child['kwota']))
 
             for flag in filter(lambda f: f in _flags, FLAGS):
                 etree.SubElement(sale_row, etree.QName(tns, flag)).text = '1'
@@ -574,7 +576,8 @@ ORDER BY JPKsection, DataWystawienia, am.id, DowodSprzedazyZakupu, JPKMarkup, JP
                     declaration_groups.setdefault(child['jpkgroup'], 0.0)
                     declaration_groups[child['jpkgroup']] += child['kwota']
 
-                _taxes.add((child['jpkmarkup'], child['kwota']))
+                if child['jpkmarkup']:
+                    _taxes.add((child['jpkmarkup'], child['kwota']))
 
             for flag in filter(lambda f: f in _flags, FLAGS):
                 etree.SubElement(purchase_row, etree.QName(tns, flag)).text = '1'
@@ -606,7 +609,7 @@ ORDER BY JPKsection, DataWystawienia, am.id, DowodSprzedazyZakupu, JPKMarkup, JP
                 'version': '2-0E',
                 'year': report_date.year,
                 'month': report_date.month,
-                'cel_zlozenia': options.get('cel_zlozenia', 1),
+                'cel_zlozenia': 1,
                 'source_xml': base64.b64encode(xml),
                 'group_line_ids': [
                     fields.Command.create(
