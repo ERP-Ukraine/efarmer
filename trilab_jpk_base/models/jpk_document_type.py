@@ -3,7 +3,6 @@ from odoo.exceptions import ValidationError
 
 
 class JPKTDocumentType(models.Model):
-
     _name = 'jpk.document.type'
     _description = 'JPK Document Type'
 
@@ -20,6 +19,13 @@ class JPKTDocumentType(models.Model):
     system_code = fields.Char(required=1, size=100)
     schema_version = fields.Char(required=1, size=100)
     description = fields.Text()
+
+    gate_type = fields.Selection(
+        selection=[('eDocuments', 'e-Documents'), ('eDeclarations', 'e-Declarations')],
+        default='eDocuments',
+        string='API Gate Type',
+        required=True,
+    )
 
     # xsd do sprawdzania poprawnosci zalaczonego pliku
     xsd_id = fields.Many2one('ir.attachment')

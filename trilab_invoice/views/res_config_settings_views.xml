@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
     <record id="res_config_settings_view_form" model="ir.ui.view">
         <field name="name">res.config.settings.view.form.inherit</field>
@@ -16,6 +16,21 @@
                               groups="base.group_multi_company"/>
                         <div class="text-muted">
                             Change currency rate for invoices in foreign currencies according to sale date.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6 o_setting_box"
+                     groups="account.group_account_manager">
+                    <div class="o_setting_left_pane">
+                        <field name="x_hide_zero_price_aml"/>
+                    </div>
+                    <div class="o_setting_right_pane">
+                        <label for="x_hide_zero_price_aml"/>
+                        <span class="fa fa-lg fa-building-o" title="Values set here are company-specific."
+                              groups="base.group_multi_company"/>
+                        <div class="text-muted">
+                            Hide Invoice lines on the report with zero price.
                         </div>
                     </div>
                 </div>

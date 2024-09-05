@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_account_change_lock_date_jpk" model="ir.ui.view">
+        <field name="name">account.change.lock.date.jpk.form</field>
+        <field name="model">account.change.lock.date</field>
+        <field name="inherit_id" ref="account_accountant.view_account_change_lock_date"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet[1]/group[1]" position="inside">
+                <field name="x_jpk_lock_date"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="vat_ue_correction_form_wizard" model="ir.ui.view">
+        <field name="name">jpk.vat.vat_ue_correction_form_wizard</field>
+        <field name="model">jpk.vat.vat.ue.correction</field>
+        <field name="arch" type="xml">
+            <form string="Wizard">
+                <sheet col="1">
+                    <group colspan="12">
+                        <field name="reference_transfer" widget="reference" options="{'no_create_edit': True, 'no_create': True}"/>
+                    </group>
+
+                    <group col="12" attrs="{'invisible': [('original_vat_ue_id', '=', False)]}">
+                        <group colspan="4">
+                            <field name="original_vat_ue_id"/>
+                            <field name="correction_vat_ue_id" force_save="1"/>
+                        </group>
+                        <group colspan="4">
+                            <field name="version"/>
+                        </group>
+                        <group colspan="4">
+                            <field name="month"/>
+                            <field name="year"/>
+                        </group>
+                    </group>
+
+                    <group col="12" attrs="{'invisible': [('original_vat_ue_id', '=', False)]}">
+                        <separator string="C. Informacja o Wewnątrzwspólnotowych Dostawach Towarów" colspan="12"/>
+
+                        <group colspan="12" string="Before">
+                            <field name="original_group1_line_ids" nolabel="1" class="text-center" readonly="1">
+                                <tree create="0" edit="0">
+                                    <field name="country_code" width="10%"/>
+                                    <field name="nip" width="30%"/>
+                                    <field name="amount" width="40%"/>
+                                    <field name="tt" width="20%"/>
+                                </tree>
+                            </field>
+                        </group>
+
+                        <group colspan="12" string="After">
+                            <field name="correction_group1_line_ids" nolabel="1" class="text-center" readonly="1">
+                                <tree create="0" edit="0">
+                                    <field name="country_code" width="10%"/>
+                                    <field name="nip" width="30%"/>
+                                    <field name="amount" width="40%"/>
+                                    <field name="tt" width="20%"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </group>
+
+                    <group col="12" attrs="{'invisible': [('original_vat_ue_id', '=', False)]}">
+                        <separator string="D. Informacja o Wewnątrzwspólnotowych Nabyciach Towarów" colspan="12"/>
+
+                        <group colspan="12" string="Before">
+                            <field name="original_group2_line_ids" nolabel="1" class="text-center" readonly="1">
+                                <tree create="0" edit="0">
+                                    <field name="country_code" width="10%"/>
+                                    <field name="nip" width="30%"/>
+                                    <field name="amount" width="40%"/>
+                                    <field name="tt" width="20%"/>
+                                </tree>
+                            </field>
+                        </group>
+
+                        <group colspan="12" string="After">
+                            <field name="correction_group2_line_ids" nolabel="1" class="text-center" readonly="1">
+                                <tree create="0" edit="0">
+                                    <field name="country_code" width="10%"/>
+                                    <field name="nip" width="30%"/>
+                                    <field name="amount" width="40%"/>
+                                    <field name="tt" width="20%"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </group>
+
+                    <group col="12" attrs="{'invisible': [('original_vat_ue_id', '=', False)]}">
+                        <separator string="E. Informacja o Wewnątrzwspólnotowym Świadczeniu Usług" colspan="12"/>
+
+                        <group colspan="12" string="Before">
+                            <field name="original_group3_line_ids" nolabel="1" class="text-center" readonly="1">
+                                <tree create="0" edit="0">
+                                    <field name="country_code" width="10%"/>
+                                    <field name="nip" width="30%"/>
+                                    <field name="amount" width="40%"/>
+                                </tree>
+                            </field>
+                        </group>
+
+                        <group colspan="12" string="After">
+                            <field name="correction_group3_line_ids" nolabel="1" class="text-center" readonly="1">
+                                <tree create="0" edit="0">
+                                    <field name="country_code" width="10%"/>
+                                    <field name="nip" width="30%"/>
+                                    <field name="amount" width="40%"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </group>
+
+                </sheet>
+                <footer>
+                    <button name="action_generate_xml" string="Export XML" class="oe_highlight" type="object"/>
+                    <button name="action_transfer_xml" string="Export XML and send" class="oe_highlight" type="object"
+                            context="{'vat_ue': True}"/>
+                    <button name="action_generate_pdf" string="Export PDF" class="oe_highlight" type="object"/>
+                    <button special="cancel" string="Cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="vat_ue_correction_action" model="ir.actions.act_window">
+        <field name="name">VAT UE Correction</field>
+        <field name="res_model">jpk.vat.vat.ue.correction</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="vat_ue_correction_form_wizard"/>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_vat_ue_correction_action"
+              name="VAT UE Correction"
+              parent="trilab_jpk_base.menu_report_jpk"
+              groups="trilab_jpk_base.jpk_user"
+              action="vat_ue_correction_action"
+    />
+    <menuitem id="menu_vat_ue_correction_action_t"
+              name="VAT UE Correction"
+              parent="trilab_jpk_base.jpk_report_menu"
+              groups="trilab_jpk_base.jpk_user"
+              action="vat_ue_correction_action"
+    />
+</odoo>

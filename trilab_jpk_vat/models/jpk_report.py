@@ -120,7 +120,6 @@ ORDER BY JPKsection, DataWystawienia, DowodSprzedazyZakupu, JPKMarkup"""
             counter = 1
 
             for sk, sub_group in groupby(group, lambda x: [x[k] for k in self.grouping_columns]):
-
                 if context.get('print_mode', False):
                     # e.g. excel output
                     for counter, row in enumerate(sub_group):
@@ -252,7 +251,7 @@ ORDER BY JPKsection, DataWystawienia, DowodSprzedazyZakupu, JPKMarkup"""
             raise UserError(_("Make sure that Company's VAT number is correct"))
 
         etree.SubElement(podmiot, etree.QName(tns, 'PelnaNazwa')).text = company.name
-        etree.SubElement(podmiot, etree.QName(tns, 'Email')).text = self.env.user.email
+        etree.SubElement(podmiot, etree.QName(tns, 'Email')).text = company.x_get_jpk_email()
 
         ctx = self._set_context(options)
 

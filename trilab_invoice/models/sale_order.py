@@ -1,6 +1,5 @@
-from odoo import fields, models, api, _
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError
-
 
 DOWN_PAYMENT_SECTION_NAME = '*down-payment-section*'
 
@@ -61,14 +60,42 @@ class SaleOrder(models.Model):
         taxes = self.order_line.mapped('tax_id')
         for tax in taxes:
             lines = self.order_line.filtered(lambda line: line.tax_id.id == tax.id)
-            order_value = sum(line.price_total for line in lines.filtered(lambda _l: not _l.is_downpayment))
-            invoice_lines = (
-                lines.filtered(lambda _l: _l.is_downpayment).mapped('invoice_lines').filtered(lambda _l: _l.credit > 0)
-            )
-            advance_value = sum(line.price_total for line in invoice_lines)
+            order_value = sum(lines.filtered(lambda _l: not _l.is_downpayment).mapped('price_total'))
 
-            if advance_value - order_value > 0.05:
-                raise UserError(_('Value in advance invoices is greater than order value'))
+            invoice_lines = (
+                lines.filtered(lambda _l: _l.is_downpayment)
+                .mapped('invoice_lines')
+                .filtered(lambda _l: _l.currency_id.compare_amounts(_l.credit, 0.0) == 1)
+            )
+
+            advance_value = sum(invoice_lines.mapped('price_total'))
+
+            move_id = invoice_lines.mapped('move_id')[0]
+
+            if move_id.currency_id != self.currency_id:
+                exchange_rate = None
+
+                if 'x_trilab_force_currency_rate' in self._context:
+                    exchange_rate = 1 / self._context.get('x_trilab_force_currency_rate')
+
+                if not exchange_rate:
+                    if 'x_convert_rate' in self._context:
+                        exchange_rate = (
+                            self.env['res.currency.rate'].browse(self.env.context.get('x_convert_rate', 0)).rate
+                        )
+                    else:
+                        exchange_rate = move_id.x_currency_rate
+
+                advance_value = move_id.currency_id.round(advance_value * exchange_rate)
+
+            if self.currency_id.compare_amounts(advance_value - order_value, 0.05) == 1:
+                raise UserError(
+                    _(
+                        'Total value of advance invoices (%02f) is greater than order value (%02f)',
+                        advance_value,
+                        order_value,
+                    )
+                )
 
     def _get_invoiceable_lines(self, final=False):
         if any(self.mapped('x_is_poland')) and 'selected_invoice_lines' in self.env.context:
@@ -77,7 +104,9 @@ class SaleOrder(models.Model):
         return super()._get_invoiceable_lines(final)
 
     def _create_invoices(self, grouped=False, final=False, date=None):
-        invoice_ids = super()._create_invoices(grouped, final, date)
+        invoice_ids = super(
+            SaleOrder, self.with_context(x_disable_refund_switch=any(self.mapped('x_is_poland')))
+        )._create_invoices(grouped, final, date)
 
         if self.env.company.country_id.id == self.env.ref('base.pl').id:
             # remove downpayment section name
@@ -89,7 +118,9 @@ class SaleOrder(models.Model):
                 invoice_ids.write(
                     {
                         'narration': _(
-                            'Rate %s with effective date: %s', currency_rate.inverse_company_rate, currency_rate.name
+                            'Rate %s with effective date: %s',
+                            f'{currency_rate.inverse_company_rate:.4f}',
+                            currency_rate.name,
                         )
                     }
                 )
@@ -110,7 +141,7 @@ class SaleOrder(models.Model):
                 invoice_vals['currency_id'] = self.env.ref('base.PLN').id
                 invoice_vals['x_currency_rate'] = currency_rate.inverse_company_rate
                 invoice_vals['narration'] = _(
-                    'Rate %s with effective date: %s', currency_rate.inverse_company_rate, currency_rate.name
+                    'Rate %s with effective date: %s', f'{currency_rate.inverse_company_rate:.4f}', currency_rate.name
                 )
 
         elif invoice_vals.get('currency_id') != self.company_id.currency_id.id:

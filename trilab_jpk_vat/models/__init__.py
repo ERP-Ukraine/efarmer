@@ -1,8 +1,12 @@
-from . import account
-from . import account_move
-from . import vat_ue
-from . import vat_ue_report
-from . import jpk_report
-from . import jpk_vat7m
-from . import jpk_vat7m_report
-from . import jpk_vat7m_v2_report
+from . import res_company  # isort: skip
+from . import (
+    account,
+    account_change_lock_date,
+    account_move,
+    jpk_report,
+    jpk_vat7m,
+    jpk_vat7m_report,
+    jpk_vat7m_v2_report,
+    vat_ue,
+    vat_ue_report,
+)

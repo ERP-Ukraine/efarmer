@@ -3,7 +3,7 @@ import re
 from lxml import etree
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_round
 
 
@@ -53,29 +53,26 @@ class VatUeReport(models.AbstractModel):
 
         return lines
 
-    def get_xml_extended_vat_ue(self, options):
+    def _prepare_common_xml_fields(self, tns, tns_etd, options):
         company = self.env.company
         if not (company.pl_tax_office_id and company.pl_tax_office_id.code):
             raise UserError(_('PL Tax Office is not set for company %s', company.name))
-
-        # noinspection HttpUrlsUsage
-        tns = 'http://crd.gov.pl/wzor/2021/01/12/10293/'
-        # noinspection HttpUrlsUsage
-        tns_etd = 'http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2020/03/11/eD/DefinicjeTypy/'
 
         deklaracja = etree.Element(etree.QName('Deklaracja'), nsmap={None: tns, 'etd': tns_etd})
         header = etree.SubElement(deklaracja, etree.QName('Naglowek'))
 
         etree.SubElement(
-            header, etree.QName('KodFormularza'), attrib={'kodSystemowy': 'VAT-UE (5)', 'wersjaSchemy': '2-0E'}
-        ).text = 'VAT-UE'
-        etree.SubElement(header, etree.QName('WariantFormularza')).text = '5'
+            header,
+            etree.QName('KodFormularza'),
+            attrib={'kodSystemowy': options['systemCode'], 'wersjaSchemy': options['schemaVersion']},
+        ).text = options['formCode']
+        etree.SubElement(header, etree.QName('WariantFormularza')).text = options['formVariant']
 
         report_date = fields.Date.to_date(options['date']['date_from'])
         etree.SubElement(header, etree.QName('Rok')).text = str(report_date.year)
         etree.SubElement(header, etree.QName('Miesiac')).text = str(report_date.month)
 
-        etree.SubElement(header, etree.QName('CelZlozenia')).text = f'{options.get("cel_zlozenia", 1)}'
+        etree.SubElement(header, etree.QName('CelZlozenia')).text = '1'
         etree.SubElement(header, etree.QName('KodUrzedu')).text = company.pl_tax_office_id.code
 
         podmiot = etree.SubElement(deklaracja, etree.QName('Podmiot1'), attrib={'rola': 'Podatnik'})
@@ -94,6 +91,26 @@ class VatUeReport(models.AbstractModel):
         pozycje_szczegolowe = etree.SubElement(deklaracja, etree.QName('PozycjeSzczegolowe'))
         etree.SubElement(deklaracja, etree.QName('Pouczenie')).text = '1'
 
+        return deklaracja, pozycje_szczegolowe
+
+    def get_xml_extended_vat_ue(self, options):
+        # noinspection HttpUrlsUsage
+        tns = 'http://crd.gov.pl/wzor/2021/01/12/10293/'
+        # noinspection HttpUrlsUsage
+        tns_etd = 'http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2020/03/11/eD/DefinicjeTypy/'
+
+        deklaracja, pozycje_szczegolowe = self._prepare_common_xml_fields(
+            tns,
+            tns_etd,
+            options={
+                'date': options['date'],
+                'formCode': 'VAT-UE',
+                'formVariant': '5',
+                'systemCode': 'VAT-UE (5)',
+                'schemaVersion': '2-0E',
+            },
+        )
+
         group_vals_list = {'group1': [], 'group2': [], 'group3': [], 'group4': []}
 
         ctx = self._set_context(options)
@@ -106,9 +123,7 @@ class VatUeReport(models.AbstractModel):
         if groups:
             for group in ['group1', 'group2', 'group3', 'group4']:
                 for line in groups.get(group, []):
-                    sale_row = etree.SubElement(
-                        pozycje_szczegolowe, etree.QName(self.GROUP_MAPPING[group]['name'])
-                    )
+                    sale_row = etree.SubElement(pozycje_szczegolowe, etree.QName(self.GROUP_MAPPING[group]['name']))
 
                     group_vals = {}
                     _partner = self.env['res.partner'].browse(line['partnerid'])
@@ -133,7 +148,10 @@ class VatUeReport(models.AbstractModel):
                     group_vals['amount'] = _amount
 
                     if group != 'group3':
-                        _tt = '1' if any(flag in ['TT_WNT', 'TT_D'] for flag in _flags) else '2'
+                        # check whether the item is related to triangular transactions:
+                        # 1 - item DOES NOT apply to trilateral transactions
+                        # 2 - item applies to trilateral transactions
+                        _tt = '2' if any(flag in ('TT_WNT', 'TT_D') for flag in _flags) else '1'
                         etree.SubElement(sale_row, etree.QName(f'P_{prefix}d')).text = _tt
 
                         # Set tt to 'X' or '-' to show in view/report
@@ -143,13 +161,123 @@ class VatUeReport(models.AbstractModel):
 
         return etree.tostring(deklaracja, encoding='UTF-8', xml_declaration=True, pretty_print=True), group_vals_list
 
+    def get_xml_extended_vat_uek(self, options):
+        # noinspection HttpUrlsUsage
+        tns = 'http://crd.gov.pl/wzor/2021/01/26/10316/'
+        # noinspection HttpUrlsUsage
+        tns_etd = 'http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2020/03/11/eD/DefinicjeTypy/'
+
+        deklaracja, pozycje_szczegolowe = self._prepare_common_xml_fields(
+            tns,
+            tns_etd,
+            options={
+                'date': options['date'],
+                'formCode': 'VAT-UEK',
+                'formVariant': '5',
+                'systemCode': 'VATUEK (5)',
+                'schemaVersion': '2-1E',
+            },
+        )
+
+        group_vals_list = {'group1': [], 'group2': [], 'group3': [], 'group4': []}
+
+        ctx = self._set_context(options)
+
+        # deactivating the prefetching saves ~35% on get_lines running time
+        ctx.update({'no_format': True, 'print_mode': False, 'prefetch_fields': False, 'dict_output': True})
+        # noinspection PyProtectedMember
+        groups = self.with_context(ctx)._get_lines_vat_ue(options)
+
+        original_vat_ue_id = self.env['jpk.vat.ue'].browse(options.get('original_vat_ue_id')).exists()
+
+        if not original_vat_ue_id:
+            raise ValidationError(_('Original VAT UE report not found!'))
+
+        if not groups:
+            return (
+                etree.tostring(deklaracja, encoding='UTF-8', xml_declaration=True, pretty_print=True),
+                group_vals_list,
+            )
+
+        for group in ['group1', 'group2', 'group3', 'group4']:
+            group_lines = {}
+
+            corr_lines = {
+                self.env['res.partner'].browse(_l['partnerid']).x_get_eu_vat(): _l for _l in groups.get(group, [])
+            }
+            orig_lines = {f'{_l.country_code}{_l.nip}': _l for _l in getattr(original_vat_ue_id, f'{group}_line_ids')}
+
+            for partner_id in corr_lines.keys():
+                group_lines[partner_id] = (corr_lines[partner_id], orig_lines.get(partner_id))
+
+            for partner_id in orig_lines.keys():
+                if partner_id not in group_lines:
+                    group_lines[partner_id] = (None, orig_lines[partner_id])
+
+            for vat, (corr_line, orig_line) in group_lines.items():
+                group_vals = {}
+
+                if corr_line:  # prepare values for new UE group lines
+                    _flags = set(corr_line['flags'].split(',')) if corr_line['flags'] else set()
+                    _taxes = set()
+
+                    group_vals['vat'] = vat and vat[2:]
+                    group_vals['country_code'] = vat and vat[:2]
+                    _amount = int(float_round(corr_line['kwota'], precision_digits=0))  # rounded to integer
+                    group_vals['amount'] = _amount
+
+                    if group != 'group3':
+                        # check whether the item is related to triangular transactions:
+                        # 1 - item DOES NOT apply to trilateral transactions
+                        # 2 - item applies to trilateral transactions
+                        _tt = '2' if any(flag in ('TT_WNT', 'TT_D') for flag in _flags) else '1'
+                        # Set tt to 'X' or '-' to show in view/report
+                        group_vals['tt'] = 'X' if _tt == '2' else '-'
+
+                    group_vals_list[group].append(group_vals)
+
+                sale_row = etree.SubElement(pozycje_szczegolowe, etree.QName(self.GROUP_MAPPING[group]['name']))
+                prefix = self.GROUP_MAPPING[group]['prefix']
+
+                if orig_line is None:
+                    orig_line = self.env['jpk.vat.ue.group']
+
+                xml_values = {}
+
+                if orig_line:
+                    xml_values.update(
+                        {
+                            f'P_{prefix}Ba': orig_line.country_code,
+                            f'P_{prefix}Bb': orig_line.nip,
+                            f'P_{prefix}Bc': str(int(orig_line.amount)),
+                            f'P_{prefix}Bd': ('2' if orig_line.tt == 'X' else '1') if group != 'group3' else None,
+                        }
+                    )
+                if corr_line:
+                    xml_values.update(
+                        {
+                            f'P_{prefix}Ja': group_vals.get('country_code', 'BRAK'),
+                            f'P_{prefix}Jb': group_vals.get('vat', 'BRAK'),
+                            f'P_{prefix}Jc': str(group_vals.get('amount', 0)),
+                            f'P_{prefix}Jd': ('2' if group_vals.get('tt') == 'X' else '1')
+                            if group != 'group3'
+                            else None,
+                        }
+                    )
+
+                for tag_name, tag_value in xml_values.items():
+                    if tag_value is not None:
+                        etree.SubElement(sale_row, etree.QName(tag_name)).text = tag_value
+
+        return etree.tostring(deklaracja, encoding='UTF-8', xml_declaration=True, pretty_print=True), group_vals_list
+
     @staticmethod
     def _get_query_vat_ue():
         # noinspection SqlResolve
         return """SELECT
               p.vat                                    AS NrKontrahenta,
-              p.name                                   AS NazwaKontrahenta,
-              p.id                                     AS PartnerId,
+              (array_agg(distinct coalesce(p.name, p.display_name)))[1] AS NazwaKontrahenta,
+              (array_agg(p.id))[1]                                      AS PartnerId,
               jat.jpk_markup                           AS JPKMarkup,
               jat.jpk_v7_group as v7group,
               CASE
@@ -187,5 +315,6 @@ class VatUeReport(models.AbstractModel):
                 AND am.company_id = %(company)s
                 AND aat.id in %(account_tags)s
                 AND p.vat NOT LIKE 'PL%%'
-       GROUP BY NrKontrahenta, NazwaKontrahenta, PartnerId, Flags, JPKMarkup, v7group, JPKGroup
+                AND aml.display_type IS NULL
+       GROUP BY NrKontrahenta, Flags, JPKMarkup, v7group, JPKGroup
        ORDER BY JPKMarkup, JPKGroup"""
