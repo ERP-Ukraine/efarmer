@@ -18,8 +18,11 @@ class SaleOrder(models.Model):
                     if any([code.startswith("KDU.0044") for code in product_codes]):
                         template_id = order.env.ref("efarmer_sale_customer_mail.mail_template_sale_payment_confirmation")
                         if template_id:
-                            template_id.with_context(dbname=self._cr.dbname).send_mail(
-                                order.id, force_send=True)
+                            order.message_post_with_template(
+                                template_id.id,
+                                composition_mode="comment",
+                                email_layout_xmlid="mail.mail_notification_light",
+                            )
         return res
 
     def check_customer_portal_access(self):
@@ -49,8 +52,11 @@ class SaleOrder(models.Model):
             raise UserError(_('The template "Portal User Reminder" not found for sending email to the portal user.'))
         lang = user_id.sudo().lang
         partner = user_id.sudo().partner_id
-        portal_url = partner.with_context(signup_force_type_in_url='', lang=lang)._get_signup_url_for_action()[partner.id]
         partner.signup_prepare()
-        template.with_context(dbname=self._cr.dbname, portal_url=portal_url, lang=lang).send_mail(self.id, force_send=True)
+        self.with_context(signup_force_type_in_url='', lang=lang).message_post_with_template(
+            template.id,
+            composition_mode="comment",
+            email_layout_xmlid="mail.mail_notification_light",
+        )
         return True
 
