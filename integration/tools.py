@@ -6,6 +6,8 @@ import os
 import io
 import time
 import re
+import inspect
+from typing import List
 
 from PIL import Image, UnidentifiedImageError
 
@@ -16,10 +18,13 @@ from operator import attrgetter
 from pprint import pprint
 from psycopg2 import OperationalError
 from decimal import Decimal, ROUND_HALF_UP
+from copy import deepcopy
+from typing import Callable
 
 from odoo import _
 from odoo.exceptions import ValidationError
 from odoo.service.model import PG_CONCURRENCY_ERRORS_TO_RETRY
+from odoo.tools.image import IMAGE_MAX_RESOLUTION
 from odoo.tools.mimetypes import guess_mimetype
 from odoo.tools.misc import groupby as odoo_groupby
 
@@ -31,6 +36,10 @@ _logger = logging.getLogger(__name__)
 
 IS_TRUE = '1'
 IS_FALSE = '0'
+
+# PIL: add possibility to load all available file format drivers
+Image._initialized = 1
+Image.preinit()
 
 
 def _guess_mimetype(data):
@@ -51,6 +60,23 @@ def _guess_mimetype(data):
         return mimetype
 
     return Image.MIME[extension]
+
+
+def _verify_image_data(data: bytes, logger_name: str):
+    try:
+        img = Image.open(io.BytesIO(data))
+    except UnidentifiedImageError as e:
+        _logger.error(f'{logger_name} image error: ' + str(e))
+        return False
+
+    w, h = img.size
+    resolution_ok = w * h <= IMAGE_MAX_RESOLUTION
+
+    if not resolution_ok:
+        _logger.error(f'{logger_name} image error: Image resolution is higher than Odoo allows')
+        return False
+
+    return resolution_ok
 
 
 def not_implemented(method):
@@ -108,7 +134,7 @@ def xml_to_dict_recursive(root):
     return {root.tag: list(map(xml_to_dict_recursive, list(root)))}
 
 
-def escape_trash(value, allowed_chars=None, max_length=None):
+def escape_trash(value, allowed_chars=None, max_length=None, lowercase=False):
     """
     Escape special characters in a string.
 
@@ -131,6 +157,9 @@ def escape_trash(value, allowed_chars=None, max_length=None):
     # Limit the length of the result
     if max_length:
         value = value[:max_length]
+
+    if lowercase:
+        value = value.lower()
 
     return value
 
@@ -161,6 +190,44 @@ def flatten_recursive(lst):
                 yield item
 
     return list(_flatten_recursive(lst))
+
+
+def _is_valid_email(email):
+    """
+    Validate the given email address.
+    """
+    email_regex = re.compile(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
+    return bool(re.match(email_regex, email))
+
+
+def freeze_arguments(*args_to_copy: str) -> Callable:
+    """
+    Decorator to protect specified arguments passed to a method from being modified.
+    Args:
+        *args_to_copy: The names of the arguments to copy.
+    Returns:
+        A decorator function.
+    """
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            sig = inspect.signature(func)
+            bound_args = sig.bind(*args, **kwargs)
+            bound_args.apply_defaults()
+
+            # Deepcopy specified arguments
+            for arg_name in args_to_copy:
+                if arg_name in bound_args.arguments:
+                    try:
+                        bound_args.arguments[arg_name] = deepcopy(bound_args.arguments[arg_name])
+                    except Exception as e:
+                        raise TypeError(f'Failed to deepcopy argument "{arg_name}": str({e})')
+
+            return func(*bound_args.args, **bound_args.kwargs)
+
+        return wrapper
+
+    return decorator
 
 
 class Adapter:
@@ -371,7 +438,15 @@ class ProductTuple(PTuple):
 
     @property
     def format_name(self):
-        return f'{self.name or False}  [Code: {self.format_id}, Sku: {self.ref or False}]'
+        name = self.name or False
+
+        if isinstance(self.name, dict) and 'language' in self.name:
+            # There are multiple languages, we take the first one
+            # It's not the best solution, but it's the simplest
+            # FIXME: Choose language set on sale.integration model!
+            name = self.name['language'][0]['value']
+
+        return f'{name}  [Code: {self.format_id}, Sku: {self.ref or False}]'
 
     @property
     def format_sipmle_name(self):
@@ -580,52 +655,26 @@ class PickingSerializer:
     during export to an e-commerce API system.
     """
 
-    def __init__(self, name, carrier, tracking, lines, erp_id, is_backorder, is_dropship):
-        self.name = name
-        self.carrier = carrier
-        self.tracking = tracking
-        self.approved_lines = list()
-
+    def __init__(self, data: dict, lines: List[PickingLine]):
+        self._data = data
         self._lines = lines
-
-        self._erp_id = erp_id
-        self._is_backorder = is_backorder
-        self._is_dropship = is_dropship
         self._sequence = None
 
+        self.approved_lines = list()
         self._approve_lines()
 
+    def __getattr__(self, name):
+        if name in self._data:
+            return self._data[name]
+        raise AttributeError(name)
+
     def __repr__(self):
-        args = (self.erp_id, self.sequence, self.is_backorder, self.is_dropship)
+        args = (self.erp_id, self._sequence, self.is_backorder, self.is_dropship)
         return '<PickingSerializer: id=%s, sequence=%s, backorder=%s, dropship=%s>' % args
 
     @property
     def approved(self):
         return bool(self.approved_lines)
-
-    @property
-    def is_empty(self):
-        return not self.approved
-
-    @property
-    def erp_id(self):
-        return self._erp_id
-
-    @property
-    def is_backorder(self):
-        return self._is_backorder
-
-    @property
-    def is_dropship(self):
-        return self._is_dropship
-
-    @property
-    def sequence(self):
-        return self._sequence
-
-    @sequence.setter
-    def sequence(self, value):
-        self._sequence = value
 
     @property
     def kit_ids(self):
@@ -644,9 +693,13 @@ class PickingSerializer:
             name=self.name,
             carrier=self.carrier,
             tracking=self.tracking,
+            picking_id=self.erp_id,
             lines=[x.serialize() for x in self.approved_lines],
         )
         return data
+
+    def has_components(self):
+        return bool(self.kit_ids)
 
     def pprint(self):
         pprint(self)
@@ -678,7 +731,7 @@ class SaleTransferSerializer:
     during export to an e-commerce API system.
     """
 
-    def __init__(self, picking_list):
+    def __init__(self, picking_list: List[PickingSerializer]):
         self._pickings = picking_list
         self._initial_setup()
 
@@ -722,8 +775,10 @@ class SaleTransferSerializer:
             self._drop_duplicated_kit_lines(picking)
             self._drop_duplicated_done_lines(picking)
 
-            if picking.is_empty:
+            if not picking.approved:
                 self._reassign_tracking(picking.tracking)
+
+        return self
 
     def dump(self):
         result = list()
@@ -744,26 +799,26 @@ class SaleTransferSerializer:
         picking_list = self.transfers + self.backorders + self.dropships + self.mixed
 
         for index, picking in enumerate(picking_list, start=1):
-            picking.sequence = index
+            picking._sequence = index
 
         self._pickings = picking_list
 
     def _get_rest(self, sequence):
         return sorted(
-            filter(lambda x: x.sequence != sequence, self),
-            key=lambda x: x.sequence,
+            filter(lambda x: x._sequence != sequence, self),
+            key=lambda x: x._sequence,
         )
 
     def _drop_duplicated_kit_lines(self, picking):
         kit_ids = picking.kit_ids
-        rest_list = self._get_rest(picking.sequence)
+        rest_list = self._get_rest(picking._sequence)
 
         drop_ids = kit_ids.intersection(set().union(*[x.kit_ids for x in rest_list]))
         picking._drop_lines(drop_ids)
 
     def _drop_duplicated_done_lines(self, picking):
         pending_ids = picking.pending_ids
-        rest_list = self._get_rest(picking.sequence)
+        rest_list = self._get_rest(picking._sequence)
 
         drop_ids = pending_ids.intersection(set().union(*[x.done_ids for x in rest_list]))
         picking._drop_lines(drop_ids)
@@ -919,7 +974,17 @@ class HtmlWrapper:
 
     @staticmethod
     def _cut_duplicates(dct):
-        return {k: list(set(v)) for k, v in dct.items()}
+        def are_product_tuples_equal(pt1, pt2):
+            return all(getattr(pt1, field) == getattr(pt2, field) for field in pt1._fields)
+
+        result = dict()
+        for key, value in dct.items():
+            result[key] = list()
+            for record in value:
+                if not any(are_product_tuples_equal(record, x) for x in result[key]):
+                    result[key].append(record)
+
+        return result
 
     @staticmethod
     def _internal_pattern():

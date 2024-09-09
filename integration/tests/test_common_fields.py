@@ -1,12 +1,11 @@
-# Copyright 2023 VentorTech OU
-# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
+# See LICENSE file for full copyright and licensing details.
 
 from unittest.mock import MagicMock
 
 from odoo.exceptions import UserError
 
+from .config.integration_init import OdooIntegrationInit
 from ...integration.models.fields import CommonFields
-from .config.intuit_case import OdooIntegrationInit
 
 
 class TestCommonFields(OdooIntegrationInit):
@@ -60,7 +59,7 @@ class TestCommonFields(OdooIntegrationInit):
         """
         # Mock value_converter
         self.product_ecommerce_field_1 = MagicMock()
-        self.product_ecommerce_field_1.value_converter = "simple"
+        self.product_ecommerce_field_1.converter_action_name = "_get_simple_value"
 
         # Mock _get_ecommerce_field in SendFields class
         self.instanse_pt_1._get_simple_value = MagicMock(return_value=True)
@@ -71,44 +70,9 @@ class TestCommonFields(OdooIntegrationInit):
         )
 
         # Check when converter is not exist
-        self.product_ecommerce_field_1.value_converter = "non_existent_converter"
+        self.product_ecommerce_field_1.converter_action_name = "_get_non_existent_value"
         with self.assertRaises(AttributeError):
             self.instanse_pt_1.calculate_field_value(self.product_ecommerce_field_1)
-
-    # integration/integration/models/fields/common_fields.py
-    def test_get_ecommerce_field(self):
-        """
-        Test the '_get_ecommerce_field' method.
-
-        This test case checks if the '_get_ecommerce_field' method correctly retrieves
-        the eCommerce field associated with the given 'field_name' for both product templates
-        and product variants.
-
-        The test covers the following scenarios:
-
-        1. Checking for an existing field ('default_code') for a product template.
-           Expects the correct eCommerce field.
-        2. Checking for an existing field ('default_code') for a product variant.
-           Expects the correct eCommerce field.
-        3. Checking for a non-existent field ('wrong') for a product template. Expects 'False'.
-        4. Checking for a non-existent field ('wrong') for a product variant. Expects 'False'.
-        """
-        # Checking existing field for product template
-        self.assertEqual(
-            self.instanse_pt_1._get_ecommerce_field("default_code"), self.product_ecommerce_field_2
-        )
-
-        # Checking existing field for product variant
-        self.assertEqual(
-            self.instanse_pt_pp_1._get_ecommerce_field("default_code"),
-            self.product_variant_ecommerce_field_1,
-        )
-
-        # Checking wrong field for product template
-        self.assertFalse(self.instanse_pt_1._get_ecommerce_field("wrong"))
-
-        # Checking wrong field for product variant
-        self.assertFalse(self.instanse_pt_pp_1._get_ecommerce_field("wrong"))
 
     # integration/integration/models/fields/common_fields.py
     def test_convert_weight_uom(self):

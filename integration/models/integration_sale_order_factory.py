@@ -1,14 +1,14 @@
 # See LICENSE file for full copyright and licensing details.
 
 import logging
+import warnings
+from typing import Dict
 
 from odoo import models, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tools.float_utils import float_is_zero, float_round
 
 from ..exceptions import ApiImportError, NotMappedFromExternal
-
-OTHER = 'other'
 
 
 _logger = logging.getLogger(__name__)
@@ -17,14 +17,6 @@ _logger = logging.getLogger(__name__)
 class IntegrationSaleOrderFactory(models.AbstractModel):
     _name = 'integration.sale.order.factory'
     _description = 'Integration Sale Order Factory'
-
-    _storage = dict()
-
-    def _set_message(self, integration, message):
-        self._storage[id(integration)] = message
-
-    def _get_message(self, integration):
-        return self._storage.pop(id(integration), False)
 
     @api.model
     def create_order(self, integration, order_data):
@@ -35,7 +27,7 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
         if not order:
             order = self._create_order(integration, order_data)
             order.create_mapping(integration, order_data['id'], extra_vals={'name': order.name})
-            self._post_create(integration, order)
+            self._post_create_order(integration, order, order_data)
         return order
 
     @api.model
@@ -44,6 +36,7 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
 
         order_name = self.env['sale.order']\
             .get_integration_order_name(integration, order_data['ref'])
+
         if order_name:
             order_vals['name'] = order_name
 
@@ -88,6 +81,10 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
 
         self._create_order_additional_lines(order, order_data)
 
+        # Recompute taxes based on the fiscal position
+        # if order.fiscal_position_id:
+        #     order._compute_tax_id()
+
         return order
 
     def _create_order_additional_lines(self, order, order_data):
@@ -96,15 +93,16 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
 
         # 2. Creating Discount Line.
         # !!! It should be after Creating Delivery Line
-        self._create_discount_line(order, order_data['discount_data'])
+        self._create_discount_line(order, order_data['discount_data'])  # Prestashop only
 
         # 3. Creating Gift Wrapping Line
         self._create_gift_line(order, order_data['gift_data'])
 
         # 4. Check difference of total order amount and correct it
         #    !!! This block must be the last !!!
-        if order_data.get('amount_total', False):
-            self._create_line_with_price_difference_product(order, order_data['amount_total'])
+        if order.integration_id.use_order_total_difference_correction:
+            if order_data.get('amount_total', False):
+                self._create_line_with_price_difference_product(order, order_data['amount_total'])
 
         self._add_payment_transactions(
             order,
@@ -119,15 +117,37 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
 
     @api.model
     def _prepare_order_vals(self, integration, order_data):
-        partner, shipping, billing = self._create_customer(integration, order_data)
+        """
+        Prepare order values for creating a sale order.
+        Args:
+            integration: Sale integration record.
+            order_data: Dictionary containing order data.
+        Returns:
+            dict: Prepared order values.
+        """
+        PartnerFactory = self.env['integration.res.partner.factory'].create_factory(
+            integration.id,
+            customer_data=order_data.get('customer', {}),
+            billing_data=order_data.get('billing', {}),
+            shipping_data=order_data.get('shipping', {}),
+        )
 
-        order_line = []
+        # Get partner and addresses from the partner factory
+        partner, addresses = PartnerFactory.get_partner_and_addresses()
+
+        shipping = addresses['shipping']
+        billing = addresses['billing']
+
+        lines_to_create = []
         for line in order_data['lines']:
             line_vals = self._prepare_order_line_vals(integration, line)
-            order_line.append((0, 0, line_vals))
-            if line.get('discount'):
+            lines_to_create.append((0, 0, line_vals))
+
+            # Create separate discount line
+            if integration.separate_discount_line:
                 discount_line_vals = self._prepare_order_discount_line_vals(integration, line)
-                order_line.append((0, 0, discount_line_vals))
+                if discount_line_vals:
+                    lines_to_create.append((0, 0, discount_line_vals))
 
         order_vals = {
             'integration_id': integration.id,
@@ -135,7 +155,7 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
             'partner_id': partner.id if partner else False,
             'partner_shipping_id': shipping.id if shipping else False,
             'partner_invoice_id': billing.id if billing else False,
-            'order_line': order_line,
+            'order_line': lines_to_create,
         }
 
         if integration.so_external_reference_field:
@@ -162,38 +182,40 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
         return order_vals
 
     @api.model
-    def _prepare_order_discount_line_vals(self, integration, line, odoo_product=None):
-        if not integration.discount_product_id:
-            raise ApiImportError(_('Discount Product is empty. Please, feel it in '
-                                   'Sale Integration on the tab "Sale Order Defaults"'))
+    def _prepare_order_discount_line_vals(self, integration, line_data, odoo_product=None):
+        discount = line_data['discount']
+        assert isinstance(discount, dict), _('Expected the dict object')
+
+        if not discount or not discount.get('discount_amount'):
+            return dict()
 
         discount_product = integration.discount_product_id
+        if not discount_product:
+            raise ApiImportError(_('Discount Product is empty. Please, fill it in '
+                                   'Sale Integration on the tab "Sale Order Defaults"'))
 
         if not odoo_product:
-            odoo_product = self._try_get_odoo_product(integration, line)
+            odoo_product = self._try_get_odoo_product(integration, line_data)
 
-        taxes = self.get_taxes_from_external_list(odoo_product, integration, line['taxes'])
+        discount_price = discount['discount_amount']
+        taxes = self.get_taxes_from_external_list(odoo_product, integration, line_data['taxes'])
 
-        discount_price = line['discount']
-
-        if line.get('discount_tax_incl'):
+        if discount.get('discount_amount_tax_incl'):
             if taxes and self._get_tax_price_included(taxes):
-                discount_price = line['discount_tax_incl']
+                discount_price = discount['discount_amount_tax_incl']
 
         # Negate the discount price to ensure it's represented as a negative value.
         # This is necessary because discounts are typically negative values in accounting.
         discount_price = discount_price * -1
 
         # create discount line values dictionary
-        vals = {
+        return {
             'product_id': discount_product.id,
             'name': 'Discount for ' + odoo_product.display_name,
             'price_unit': discount_price,
             'product_uom_qty': 1,
             'tax_id': [(6, 0, taxes.ids)],
         }
-
-        return vals
 
     @api.model
     def _get_order_sub_status(self, integration, ext_current_state):
@@ -246,328 +268,6 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
         return pricelist
 
     @api.model
-    def _create_customer(self, integration, order_data):
-        customer = shipping = billing = False
-
-        if order_data.get('customer'):
-            customer = self._fetch_odoo_partner(
-                integration,
-                order_data['customer'],
-            )
-
-        if order_data.get('shipping'):
-            shipping = self._fetch_odoo_partner(
-                integration,
-                order_data['shipping'],
-                OTHER,
-                customer,
-            )
-
-        if order_data.get('billing'):
-            billing = self._fetch_odoo_partner(
-                integration,
-                order_data['billing'],
-                OTHER,
-                customer,
-            )
-
-        return self._prepare_so_contacts(integration, customer, shipping, billing)
-
-    @api.model
-    def _prepare_so_contacts(self, integration, customer, shipping, billing):
-        if not customer or not shipping or not billing:
-            if not integration.default_customer:
-                raise ApiImportError(_('\n\n' 'Order we are trying to import into Odoo do not have '
-                                       'Customer, Invoice Address or/and Delivery Address defined. '
-                                       'But in Odoo it is not possible to create Sales Order '
-                                       'without this information. Please, go to menu "e-Commerce '
-                                       'Integration → select your sales integration" and on "Sales '
-                                       'Order Defaults" tab select setting "Default Customer". '
-                                       'And requeue job. Selected partner will be used instead of '
-                                       'missing information, so sales order will not be blocked '
-                                       'from creation'))
-        if not customer:
-            customer = integration.default_customer
-
-        if not shipping:
-            shipping = integration.default_customer
-
-        if not billing:
-            billing = integration.default_customer
-
-        return customer, shipping, billing
-
-    @api.model
-    def _find_odoo_country(self, integration, partner_data):
-        country = self.env['res.country']
-        if partner_data.get('country'):
-            country = self.env['res.country'].from_external(
-                integration,
-                partner_data.get('country'),
-            )
-        elif partner_data.get('country_code'):
-            country = self.env['res.country'].search([
-                ('code', '=ilike', partner_data.get('country_code')),
-            ], limit=1)
-        return country
-
-    @api.model
-    def _find_odoo_state(self, integration, odoo_country, partner_data):
-        state = self.env['res.country.state']
-        if not state.search([('country_id', '=', odoo_country.id)]):
-            # If it is a Country without known states in Odoo let's skip this `finding`
-            return state
-
-        if partner_data.get('state'):
-            state = state.from_external(
-                integration,
-                partner_data.get('state'),
-            )
-        elif partner_data.get('state_code') and odoo_country:
-            state = state.search([
-                ('country_id', '=', odoo_country.id),
-                ('code', '=ilike', partner_data.get('state_code')),
-            ], limit=1)
-
-        return state
-
-    @api.model
-    def _create_or_update_odoo_partner(self, integration, external_id, partner_vals, parent=False):
-        partner = None
-        ResPartner = self.env['res.partner']
-        is_address_partner = 'type' in partner_vals
-        # If there is external code specified for Partner, then we first try to search
-        # by external code
-        if external_id:
-            partner = ResPartner.from_external(integration, external_id, raise_error=False)
-
-            if partner:
-                partner_vals.pop('type', False)
-                partner.write(partner_vals)
-                return partner
-
-        domain = self._collect_partner_search_domain(integration, partner_vals)
-        partner = ResPartner.search(domain)
-
-        if partner:
-            if parent:
-                filter_partner = partner.filtered(lambda x: x.parent_id.id == parent.id)
-                partner = filter_partner or partner
-
-            if 'type' in partner_vals:
-                filter_partner = partner.filtered(lambda x: x.type == partner_vals['type'])
-                partner = filter_partner or partner
-
-            partner = partner[:1]
-
-        # We need this because in OCA module partner_firstname removes 'name' from vals
-        partner_name = partner_vals['name']
-
-        if partner:
-            # After search if found, update with new values,
-            # But we need to update ONLY if this partner has external code
-            # If not, it doesn't make sense to update it because it is some existing partner
-            if external_id:
-                partner.write(partner_vals)
-        else:
-            # We should set parent company ONLY for partners that are newly created partners
-            # To avoid breaking existing partners who maybe already linked to some another
-            # parent partner. Also, we allow to switch on and off linking of parent based
-            # on the integration
-            if parent and integration._should_link_parent_contact():
-                partner_vals['parent_id'] = parent.id
-
-            # This context is needed so partner will be created as customer
-            # So if we haven't defined exact type - this is the parent customer
-            # And it should be marked as customer (visible in Customer menu)
-            ctx = dict()
-            if not is_address_partner:
-                ctx['res_partner_search_mode'] = 'customer'
-
-            # Add tag with integration Name for new partner
-            tag = self._get_integration_tag(integration.name)
-            partner_vals['category_id'] = [(6, 0, tag.ids)]
-
-            partner = ResPartner.with_context(**ctx).create(partner_vals)
-
-        # And finally create mapping in case of existing external code
-        # Because if we are here, previously we were not able to find partner
-        # by its mapping in external tables, so need to create one
-        if external_id:
-            partner.create_mapping(
-                integration,
-                external_id,
-                extra_vals={'name': partner_name},
-            )
-
-        return partner
-
-    def _collect_partner_search_domain(self, integration, partner_vals):
-        is_address_partner = 'type' in partner_vals
-        # If no partner found, try to search by more complex criteria
-        # So if we found exact match then we want to associate this partner
-        # with external partner
-        search_criteria = [('name', '=ilike')]
-
-        if partner_vals.get('email'):
-            search_criteria.append(('email', '='))
-        elif partner_vals.get('phone'):
-            search_criteria.append(('phone', '='))
-
-        company_vat_field = integration.customer_company_vat_field
-        if company_vat_field and partner_vals.get(company_vat_field.name):
-            search_criteria.append((company_vat_field.name, '='))
-
-        # If this is not customer (parent contact, also search by exact address)
-        # This is to make sure that delivery/ billing will be to proper address
-        if is_address_partner:
-            search_criteria.extend([
-                ('street', '=ilike'),
-                ('street2', '=ilike'),
-                ('city', '=ilike'),
-                ('zip', '=ilike'),
-                ('state_id', '='),
-                ('country_id', '='),
-                ('external_company_name', '='),
-            ])
-
-        domain = [
-            (key, op if partner_vals.get(key, False) else 'in',
-                partner_vals.get(key, ['', False])) for key, op in search_criteria
-        ]
-
-        if is_address_partner:
-            domain.append(
-                ('type', 'in', ['other', 'invoice', 'delivery']),
-            )
-        else:
-            domain.extend([
-                ('type', '=', 'contact'),
-                ('parent_id', '=', False),
-            ])
-
-        return domain
-
-    def _get_integration_tag(self, integration_name):
-        ResPartnerTag = self.env['res.partner.category']
-        main_tag = self.env.ref('integration.main_integration_tag', False) or ResPartnerTag
-
-        tag = ResPartnerTag.search([
-            ('name', '=', integration_name),
-            ('parent_id', '=', main_tag.id),
-        ])
-
-        if not tag:
-            tag = ResPartnerTag.create({
-                'name': integration_name,
-                'parent_id': main_tag.id,
-            })
-
-        return tag
-
-    @staticmethod
-    def check_commercial_fields_and_reset_parent(parent, partner_vals, commercial_field):
-        # Check _commercial_fields on parent res.partner and
-        # - fill it if parent field is empty
-        # - create without parent_id if fields are difference
-        parent_value = parent and getattr(parent, commercial_field.name)
-        child_value = partner_vals.get(commercial_field.name)
-        is_commercial_field = parent and commercial_field.name in parent._commercial_fields()
-
-        if parent and is_commercial_field and child_value:
-            if parent_value and parent_value != child_value:
-                return False
-
-            if not parent_value:
-                setattr(parent, commercial_field.name, child_value)
-
-        return parent
-
-    @api.model
-    def _fetch_odoo_partner(self, integration, partner_data, address_type=None, parent=False):
-        partner_vals, parent_updated = self._prepare_partner_vals_and_parent(
-            integration, partner_data, address_type, parent,
-        )
-
-        # Create or update partner
-        partner = self._create_or_update_odoo_partner(
-            integration,
-            external_id=partner_data.get('id'),
-            partner_vals=partner_vals,
-            parent=parent_updated,
-        )
-
-        # Let's receive customer's pricelist from external system if the `pricelist_integration`
-        # property is enabled on the `integration` and it is exactly the customer
-        # (not the `shipping` or `billing` address --> parent=False).
-        if integration.pricelist_integration and partner_data.get('pricelist_id') and not parent:
-            pricelist = self.env['product.pricelist'].from_external(
-                integration,
-                partner_data['pricelist_id'],
-                raise_error=False,
-            )
-            if pricelist:
-                partner = partner.with_company(integration.company_id)
-                partner.property_product_pricelist = pricelist.id
-
-        return partner
-
-    def _prepare_partner_vals_and_parent(self, integration, partner_data, address_type, parent):
-        partner_vals = {
-            'name': ' '.join(partner_data['person_name'].strip().split()),
-            'integration_id': integration.id,
-        }
-        if address_type:
-            partner_vals['type'] = address_type
-
-        country = self._find_odoo_country(integration, partner_data)
-        if country:
-            partner_vals['country_id'] = country.id
-
-        state = self._find_odoo_state(integration, country, partner_data)
-        if state:
-            partner_vals['state_id'] = state.id
-
-        for key in ['street', 'street2', 'city', 'zip', 'email', 'phone', 'mobile']:
-            if partner_data.get(key):
-                partner_vals[key] = partner_data.get(key).strip()
-
-        if partner_data.get('language'):
-            language = self.env['res.lang'].from_external(
-                integration, partner_data.get('language')
-            )
-            if language:
-                partner_vals['lang'] = language.code
-
-        # Adding Company Specific fields
-        if partner_data.get('company_name'):
-            partner_vals['external_company_name'] = partner_data['company_name']
-
-        # Handle `VAT`
-        company_reg_number = partner_data.get('company_reg_number')
-        company_vat_field = integration.customer_company_vat_field
-        if company_vat_field and company_reg_number:
-            res_partner = parent or self.env['res.partner']
-            is_valid_vat, error_msg = res_partner._validate_integration_vat(company_reg_number)
-
-            if is_valid_vat:
-                partner_vals[company_vat_field.name] = partner_data.get('company_reg_number')
-                parent = self.check_commercial_fields_and_reset_parent(
-                    parent, partner_vals, company_vat_field)
-
-            if not is_valid_vat and error_msg:
-                self._set_message(integration, error_msg)
-
-        # Handle `Person ID`
-        person_id_field = integration.customer_personal_id_field
-        if person_id_field:
-            partner_vals[person_id_field.name] = partner_data.get('person_id_number')
-            parent = self.check_commercial_fields_and_reset_parent(
-                parent, partner_vals, person_id_field)
-
-        return partner_vals, parent
-
-    @api.model
     def _get_odoo_product(self, integration, variant_code, raise_error=False):
         product = self.env['product.product'].from_external(
             integration,
@@ -590,16 +290,27 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
     @api.model
     def _try_get_odoo_product(self, integration, line, force_create=False):
         complex_variant_code = line['product_id']
+
         product = self._get_odoo_product(integration, complex_variant_code)
         if product:
             return product
 
-        # Looks like this is new product in e-Commerce system
-        # Or it is not fully mapped. In any case let's try to repeat mapping
-        # for only this product and then try to find it again
-        # If not found in this case, raise error
-        template_code, __ = complex_variant_code.split('-')
-        integration.import_external_product(template_code)
+        # If the product is not found, attempt to re-import it from the external system
+        template_code, __ = integration.adapter._parse_product_external_code(complex_variant_code)
+        external_template, external_variants, errors = integration._import_external_product(template_code)
+
+        # Use fallback product if no external templates found or variant code doesn't match.
+        if not external_template or complex_variant_code not in external_variants.mapped('code'):
+            if integration.fallback_product_id:
+                return integration.fallback_product_id
+
+            raise ValidationError(_(
+                'Order contains a line item missing product details (empty product ID or SKU), '
+                'often resulting from removed products or custom items added via order editing. '
+                'Product information is essential for order import. Resolve this by configuring '
+                'the Fallback Product in the integration settings (Sales Orders tab), '
+                'or alternatively, adjust the order manually to correct the issue.'
+            ))
 
         auto_create_product = force_create or integration.auto_create_products_on_so
         product = self._get_odoo_product(
@@ -630,6 +341,7 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
             'discount': 0,
             'product_id': product.id,
             'integration_external_id': line['id'],
+            'external_location_id': line.get('external_location_id', False),
         }
 
         if 'product_uom_qty' in line:
@@ -646,6 +358,10 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
         if line.get('add_description_list'):
             data_list = line['add_description_list']
             vals['name'] = self._update_order_description(product, data_list)
+
+        # Create discount included in the line
+        if not integration.separate_discount_line and line.get('discount'):
+            vals['discount'] = line['discount']['discount_percent']
 
         return vals
 
@@ -710,12 +426,6 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
         return tax
 
     @api.model
-    def _post_create(self, integration, order):
-        message = self._get_message(integration)
-        if message:
-            order.message_post(body=message, message_type='comment', subtype_xmlid='mail.mt_note')
-
-    @api.model
     def _get_tax_price_included(self, taxes):
         price_include = all(tax.price_include for tax in taxes)
 
@@ -751,38 +461,50 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
     def _create_delivery_line(self, order, delivery_data):
         carrier = delivery_data['carrier'] or dict()
         if not carrier.get('id'):
-            return
+            return self.env['sale.order.line']
 
+        # 1. Set delivery line
         integration = order.integration_id
         carrier = self.try_get_odoo_delivery_carrier(integration, carrier)
         order.set_delivery_line(carrier, delivery_data['shipping_cost'])
 
         delivery_line = order.order_line.filtered(lambda line: line.is_delivery)
         if not delivery_line:
-            return
+            return delivery_line
 
+        # 2. Apply taxes
         taxes = self.get_taxes_from_external_list(
             delivery_line.product_id,
             integration,
             delivery_data.get('taxes', []),
         )
-        tax_id = [(6, 0, taxes.ids)]
 
-        if delivery_data.get('carrier_tax_rate') == 0:
+        tax_ids = taxes.ids
+        if taxes and delivery_data.get('carrier_tax_rate') == 0:
             if not all(x.amount == 0 for x in taxes):
-                tax_id = False
+                tax_ids = list()
 
-        delivery_line.tax_id = tax_id
+        delivery_line.tax_id = [(6, 0, tax_ids)]
 
+        # 3. Handle `tax-exclude` property
         if 'shipping_cost_tax_excl' in delivery_data:
             if not self._get_tax_price_included(delivery_line.tax_id):
                 delivery_line.price_unit = delivery_data['shipping_cost_tax_excl']
 
+        # 4. Apply discount
         if delivery_data.get('discount'):
-            discount_line_vals = self._prepare_order_discount_line_vals(
-                integration, delivery_data, odoo_product=delivery_line.product_id)
-            order.order_line = [(0, 0, discount_line_vals)]
+            if integration.separate_discount_line:
+                discount_line_vals = self._prepare_order_discount_line_vals(
+                    integration,
+                    delivery_data,
+                    odoo_product=delivery_line.product_id,
+                )
+                if discount_line_vals:
+                    order.order_line = [(0, 0, discount_line_vals)]
+            else:
+                delivery_line.discount = delivery_data['discount']['discount_percent']
 
+        # 5. Update notes
         if integration.so_delivery_note_field and delivery_data.get('delivery_notes'):
             setattr(
                 order,
@@ -790,15 +512,17 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
                 delivery_data['delivery_notes'],
             )
 
+        return delivery_line
+
     def _create_gift_line(self, order, gift_data):
         if not gift_data.get('do_gift_wrapping'):
-            return
+            return self.env['sale.order.line']
 
         integration = order.integration_id
         product = integration.gift_wrapping_product_id
         if not product:
             raise ApiImportError(_(
-                'Gift Wrapping Product is empty. Please, feel it in '
+                'Gift Wrapping Product is empty. Please, fill it in '
                 'Sale Integration on the tab "Sale Order Defaults".'
             ))
 
@@ -813,7 +537,7 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
         else:
             gift_price = gift_data.get('total_wrapping_tax_excl', 0)
 
-        gift_line = self.env['sale.order.line'].create({
+        line = self.env['sale.order.line'].create({
             'product_id': product.id,
             'order_id': order.id,
             'tax_id': taxes.ids,
@@ -821,18 +545,10 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
         })
 
         message = gift_data.get('gift_message')
-        if not message:
-            return
+        if message:
+            line._process_gift_message(message)
 
-        message_to_write = _('\nMessage to write: %s') % message
-        gift_line.name += message_to_write
-
-        note_field = integration.so_delivery_note_field
-        if note_field and note_field.name:
-            order_notes = getattr(order, note_field.name) or ''
-            delivery_notes = order_notes + message_to_write
-
-            setattr(order, note_field.name, delivery_notes)
+        return line
 
     def _create_line_with_price_difference_product(self, order, amount_total):
         integration = order.integration_id
@@ -853,7 +569,7 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
                     _('Total amount in sales order from {type_api} is not the same as calculated '
                       'amount in Odoo. That usually happens because of rounding issues. Odoo '
                       'and {type_api} calculate taxes differently. To import an order you need '
-                      'to go to the menu “e-Commerce Integrations →Integration → select your '
+                      'to go to the menu “e-Commerce Integrations → Integration → select your '
                       'Integration“. Go to the tab “Sales Order Defaults“ and in the “Pricing '
                       'Calculation“ section select products that will be used for order lines '
                       'that will be automatically added to sales orders in Odoo to compensate '
@@ -895,14 +611,14 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
         discount_tax_incl = discount_data.get('total_discounts_tax_incl')
         discount_tax_excl = discount_data.get('total_discounts_tax_excl')
         if not discount_tax_incl or not discount_tax_excl:
-            return
+            return self.env['sale.order.line']
 
         discount_tax_incl = abs(discount_tax_incl)
         discount_tax_excl = abs(discount_tax_excl)
 
         integration = order.integration_id
         if not integration.discount_product_id:
-            raise ApiImportError(_('Discount Product is empty. Please, feel it in '
+            raise ApiImportError(_('Discount Product is empty. Please, fill it in '
                                    'Sale Integration on the tab "Sale Order Defaults"'))
 
         precision = self.env['decimal.precision'].precision_get('Product Price')
@@ -921,7 +637,7 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
 
         # 1. Discount without taxes
         if float_is_zero(discount_taxes, precision_digits=precision):
-            return
+            return discount_line
 
         # 2. Try to find the most suitable tax.
         #  Basically it's made for PrestaShop because it gives only discount with/without taxes
@@ -1018,6 +734,8 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
                 tax_value['discount'],
                 tax_value['tax_id']
             )
+
+        return discount_lines
 
     def _add_payment_transactions(self, order, payment_transactions):
         if not payment_transactions:
@@ -1121,3 +839,9 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
             )
 
         return payment_method
+
+    def _post_create_order(self, integration: models.Model, order: models.Model, order_data: Dict):
+        if hasattr(self, '_post_create'):
+            warnings.warn('Deprecated method used: _post_create', DeprecationWarning, stacklevel=2)
+            self._post_create(integration, order)
+        return order

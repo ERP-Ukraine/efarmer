@@ -48,6 +48,8 @@ class SaleOrder(models.Model):
         return self.write({'state': 'to_confirm'})
 
     def action_to_payment(self):
+        if self.partner_id not in self.message_partner_ids:
+            self.message_subscribe([self.partner_id.id])
         return self.write({'state': 'to_payment'})
 
     @api.depends('picking_ids', 'picking_ids.scheduled_date', 'state', 'delivery_state')

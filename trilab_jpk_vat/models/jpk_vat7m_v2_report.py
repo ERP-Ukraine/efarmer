@@ -86,7 +86,7 @@ class JpkReportV2(models.AbstractModel):
                 ELSE aml.ref
                END)                                    AS DowodSprzedazyZakupu,
            coalesce (am.invoice_date, am.date)         AS DataWystawienia,
-           am.pl_vat_date                              AS DataSprzedazy,
+           am.x_invoice_sale_date                      AS DataSprzedazy,
            am.invoice_date                             AS DataZakupu,
            am.pl_vat_date                              AS DataWplywu,
            (CASE
@@ -143,6 +143,7 @@ class JpkReportV2(models.AbstractModel):
      AND am.pl_vat_date >= %(date_from)s
      AND am.pl_vat_date <= %(date_to)s
      AND am.company_id = %(company)s
+     AND aml.display_type IS NULL
     GROUP BY am.id, JPKSection, NrKontrahenta, NazwaKontrahenta, PartnerId, DowodSprzedazyZakupu, DataWystawienia,
              DataSprzedazy, DataZakupu, DataWplywu, isTax, TypDokumentu, Flags, JPKMarkup, JPKGroup, TerminPlatnosci
     ORDER BY JPKsection, DataWystawienia, am.id, DowodSprzedazyZakupu, JPKMarkup, JPKGroup"""
@@ -193,9 +194,7 @@ class JpkReportV2(models.AbstractModel):
         etree.SubElement(podmiot_sub, etree.QName(tns, 'PelnaNazwa')).text = company.name
 
         # common
-        if not company.email:
-            raise UserError(_("Please set company email"))
-        etree.SubElement(podmiot_sub, etree.QName(tns, 'Email')).text = company.email
+        etree.SubElement(podmiot_sub, etree.QName(tns, 'Email')).text = company.x_get_jpk_email()
 
         if company.phone:
             etree.SubElement(podmiot_sub, etree.QName(tns, 'Telefon')).text = company.phone
@@ -239,8 +238,7 @@ class JpkReportV2(models.AbstractModel):
             etree.SubElement(sale_row, etree.QName(tns, 'LpSprzedazy')).text = str(line['counter'])
 
             _partner = line['data']['partnerid'] and self.env['res.partner'].browse(line['data']['partnerid'])
-            _vat = _partner and _partner.x_get_eu_vat_country()
-            _vat_tax = line['data']['nrkontrahenta']
+            _vat = _partner and _partner.x_get_eu_vat()
 
             _flags = set(line['data']['flags'].split(',')) if line['data']['flags'] else set()
             _taxes = set()
@@ -248,7 +246,7 @@ class JpkReportV2(models.AbstractModel):
             if _vat:
                 etree.SubElement(sale_row, etree.QName(tns, 'KodKrajuNadaniaTIN')).text = _vat[:2]
 
-            etree.SubElement(sale_row, etree.QName(tns, 'NrKontrahenta')).text = _vat_tax or EMPTY
+            etree.SubElement(sale_row, etree.QName(tns, 'NrKontrahenta')).text = _vat and _vat[2:] or EMPTY
 
             etree.SubElement(sale_row, etree.QName(tns, 'NazwaKontrahenta')).text = (
                 line['data']['nazwakontrahenta'] or EMPTY
@@ -275,17 +273,19 @@ class JpkReportV2(models.AbstractModel):
                 etree.SubElement(sale_row, etree.QName(tns, 'TypDokumentu')).text = line['data']['typdokumentu']
 
             for child in line['children']:
-                if child['istax']:
-                    section_sum += child['kwota']
 
                 if child['gtu']:
                     _flags.add(child['gtu'])
 
                 if child['jpkgroup']:
+                    if child['istax']:
+                        section_sum += child['kwota']
+
                     declaration_groups.setdefault(child['jpkgroup'], 0.0)
                     declaration_groups[child['jpkgroup']] += child['kwota']
 
-                _taxes.add((child['jpkmarkup'], child['kwota']))
+                if child['jpkmarkup']:
+                    _taxes.add((child['jpkmarkup'], child['kwota']))
 
             for flag in filter(lambda f: f in _flags, FLAGS):
                 etree.SubElement(sale_row, etree.QName(tns, flag)).text = '1'
@@ -311,8 +311,7 @@ class JpkReportV2(models.AbstractModel):
             etree.SubElement(purchase_row, etree.QName(tns, 'LpZakupu')).text = str(line['counter'])
 
             _partner = line['data']['partnerid'] and self.env['res.partner'].browse(line['data']['partnerid'])
-            _vat = _partner and _partner.x_get_eu_vat_country()
-            _vat_tax = line['data']['nrkontrahenta']
+            _vat = _partner and _partner.x_get_eu_vat()
 
             _flags = set(line['data']['flags'].split(',')) if line['data']['flags'] else set()
             _taxes = set()
@@ -320,7 +319,7 @@ class JpkReportV2(models.AbstractModel):
             if _vat:
                 etree.SubElement(purchase_row, etree.QName(tns, 'KodKrajuNadaniaTIN')).text = _vat[:2]
 
-            etree.SubElement(purchase_row, etree.QName(tns, 'NrDostawcy')).text = _vat_tax or EMPTY
+            etree.SubElement(purchase_row, etree.QName(tns, 'NrDostawcy')).text = _vat and _vat[2:] or EMPTY
 
             etree.SubElement(purchase_row, etree.QName(tns, 'NazwaDostawcy')).text = (
                 line['data']['nazwakontrahenta'] or EMPTY
@@ -343,16 +342,19 @@ class JpkReportV2(models.AbstractModel):
                 etree.SubElement(purchase_row, etree.QName(tns, 'DokumentZakupu')).text = line['data']['typdokumentu']
 
             for child in line['children']:
-                if child['istax']:
-                    section_sum += child['kwota']
+
                 if child['gtu']:
                     _flags.add(child['gtu'])
 
                 if child['jpkgroup']:
+                    if child['istax']:
+                        section_sum += child['kwota']
+
                     declaration_groups.setdefault(child['jpkgroup'], 0.0)
                     declaration_groups[child['jpkgroup']] += child['kwota']
 
-                _taxes.add((child['jpkmarkup'], child['kwota']))
+                if child['jpkmarkup']:
+                    _taxes.add((child['jpkmarkup'], child['kwota']))
 
             for flag in filter(lambda f: f in _flags, FLAGS):
                 etree.SubElement(purchase_row, etree.QName(tns, flag)).text = '1'

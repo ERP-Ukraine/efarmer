@@ -18,7 +18,7 @@
 
                     <p>We aim to ship your order as soon as possible. If you have ordered a PowerSteer system, please
                         complete the necessary form available at this <a target="_blank"  href="https://tech.fieldbee.com">
-                            LINK</a>.
+                            LINK</a>. Please use your SO# to enter the form.
                         This form collects essential information about your tractor, and we cannot proceed with shipping
                         without it.
                     </p>
@@ -36,7 +36,7 @@
             <field name="name">Portal User Reminder</field>
             <field name="model_id" ref="sale.model_sale_order"/>
             <field name="subject">Your account at {{ object.user_id.company_id.name }}</field>
-            <field name="email_to">{{ object.partner_id.id }}</field>
+            <field name="partner_to">{{object.partner_id.id}}</field>
             <field name="body_html" type="html">
                 <div style="margin: 0px; padding: 0px; font-size: 13px;">
                     <p>

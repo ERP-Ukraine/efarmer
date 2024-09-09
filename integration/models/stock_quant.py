@@ -24,12 +24,24 @@ class StockQuant(models.Model):
         records = super(StockQuant, self_).create(vals_list)
 
         records_ = records.with_context(skip_inventory_export=False)
-        records_.trigger_export()
+
+        # In Odoo, when updating the quantity, the onchange method is triggered and the quantity
+        # is updated via the write method. When updating the quantity from Ventor, it is impossible
+        # to trigger the onchange method, so a new quant is created and Odoo further combines the
+        # same quants into one. Using the "from_ventor" check, we exclude double sending of the
+        # stock to the e-commerce system. In future, stock will be sent to their write() method.
+        if not records_.env.context.get('from_ventor'):
+            records_.trigger_export()
 
         return records
 
     def write(self, vals):
         result = super(StockQuant, self).write(vals)
+
+        # Correction of sending incorrect stock when using the Internal Transfer menu in Ventor
+        context = self.env.context
+        if context.get('from_ventor') and not context.get('button_validate_picking_ids'):
+            return result
 
         if TRACKABLE_FIELDS.intersection(set(vals.keys())):
             self.trigger_export()

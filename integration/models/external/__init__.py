@@ -26,3 +26,5 @@ from . import integration_product_pricelist_item_external
 from . import external_stock_location_line
 from . import external_integration_tag
 from . import external_order_transaction
+from . import external_order_fulfillment_line
+from . import external_order_fulfillment

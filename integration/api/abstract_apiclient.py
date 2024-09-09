@@ -53,34 +53,49 @@ class AbsApiClient(with_metaclass(ABCMeta)):
         return 100
 
     def export_pricelists(self, data):
-        raise NotImplementedError
+        raise NotImplementedError('Adapter: export_pricelists')
+
+    def cancel_order(self, *args, **kwargs):
+        raise NotImplementedError('Adapter: cancel_order')
 
     @staticmethod
     def _build_product_external_code(template_id, variant_id=False):
+        if template_id is None:
+            # Sometimes external stores can return None as product ID. For example:
+            # - when product already deleted from the store but was used in the order
+            # - when order line is related to specific feature (e.g. Store Credit)
+            # Some connectors can handle such cases (Store Credit products), for example, Shopify.
+            return None
+
         if not variant_id:
             return f'{template_id}-{IS_FALSE}'
+
         return f'{template_id}-{variant_id}'
 
     @staticmethod
     def _parse_product_external_code(code):
         """
         The external code may be formatted as:
-            - (1) "100" (just template)
-            - (2) "100-0" (template with the single variant)
-            - (3) "100-99" (template with the one of its variants)
+            - (1) False, None, ''
+            - (2) "100" (just template)
+            - (3) "100-0" (template with the single variant)
+            - (4) "100-99" (template with the one of its variants)
         """
+        # case (1)
+        if not code:
+            return code, code
 
-        # A: handle the (1) case
+        # case (2)
         if '-' not in code:
             return code, code
 
         template_id, variant_id = code.rsplit('-', maxsplit=1)
 
-        # B: handle the (2) case
+        # case (3)
         if variant_id == IS_FALSE:
             return template_id, template_id
 
-        # C: handle the (3) case
+        # case (4)
         return template_id, variant_id
 
     @abstractmethod
@@ -339,7 +354,11 @@ class AbsApiClient(with_metaclass(ABCMeta)):
         return
 
     @abstractmethod
-    def export_tracking(self, sale_order_id, tracking_data_list):
+    def export_tracking(self, sale_order_id, tracking_data_list, **kw):
+        return
+
+    @abstractmethod
+    def send_picking(self, sale_order_id, tracking_data, *args, **kw):
         return
 
     @abstractmethod

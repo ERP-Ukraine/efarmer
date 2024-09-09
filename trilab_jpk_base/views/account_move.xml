@@ -16,7 +16,7 @@
             </xpath>
 
             <notebook position="inside">
-                <page id="pl_extra" string="PL Extra" attrs="{'invisible': [('move_type', '=', 'entry')]}">
+                <page id="pl_extra" string="PL Extra" attrs="{'invisible': ['|', ('move_type', '=', 'entry'), ('country_code', '!=', 'PL')]}">
                     <group attrs="{'invisible': [('move_type', 'not in', ['out_invoice', 'out_refund'])]}">
                         <group>
                             <field name="pl_vat_date"/>
@@ -28,7 +28,6 @@
                         </group>
                         <group>
                             <field name="x_pl_vat_tp"/>
-                            <field name="x_pl_vat_tt_wnt"/>
                             <field name="x_pl_vat_tt_d"/>
                             <field name="x_pl_vat_mr_t"/>
                         </group>
@@ -46,6 +45,13 @@
                         <group>
                             <field name="x_pl_vat_wsto_ee"/>
                             <field name="x_pl_vat_ied"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group>
+                            <!-- x_pl_change_jpk_proof field must be in a separate group to make sure it is visible
+                            for both 'in' and 'out' invoices -->
                             <field name="x_pl_change_jpk_proof"/>
                         </group>
                     </group>
@@ -60,6 +66,7 @@
                         </group>
                         <group>
                             <field name="x_pl_vat_tp"/>
+                            <field name="x_pl_vat_tt_wnt"/>
                         </group>
                     </group>
 

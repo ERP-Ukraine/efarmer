@@ -11,7 +11,7 @@ from odoo.addons.integration.controllers.integration_webhook import IntegrationW
 from odoo.addons.integration.controllers.utils import build_environment, validate_integration
 
 from ..shopify_api import SHOPIFY
-from ..shopify_api import ShopifyAPIClient as adapter_cls
+from ..shopify.shopify_order import ShopifyOrder
 
 
 _logger = logging.getLogger(__name__)
@@ -50,6 +50,7 @@ class ShopifyWebhook(Controller, IntegrationWebhook):
     SHOP_NAME = 'X-Shopify-Shop-Domain'
     TOPIC_NAME = 'X-Shopify-Topic'
     NEW_ORDER_METHOD_NAME = 'orders_create'
+    NEW_PRODUCT_METHOD_NAME = 'products_create'
 
     @property
     def integration_type(self):
@@ -69,7 +70,22 @@ class ShopifyWebhook(Controller, IntegrationWebhook):
         """
         _logger.info('Call shopify webhook controller method: shopify_receive_orders()')
         integration = request.env['sale.integration'].browse(kw['integration_id'])
-        return self._receive_order_generic(integration)
+        return self.receive_order_generic(integration)
+
+    @route(f'/<string:dbname>/integration/{SHOPIFY}/<int:integration_id>/products', **_kwargs)
+    @build_environment
+    @validate_integration
+    def shopify_receive_products(self, *args, **kw):
+        """
+        Expected methods:
+            products/create
+            products/update
+            products/delete
+        """
+        _logger.info('Call shopify webhook controller method: shopify_receive_products()')
+        integration = request.env['sale.integration'].browse(kw['integration_id'])
+        external_product_id = str(self._get_value_from_post_data('id'))
+        return self.receive_product_generic(integration, external_product_id)
 
     def orders_paid(self, input_file, *args, **kw):
         _logger.info('Call shopify webhook controller method: orders_paid()')
@@ -92,6 +108,60 @@ class ShopifyWebhook(Controller, IntegrationWebhook):
         _logger.info('Call shopify webhook controller: orders_create()')
         return integration.integration_receive_orders_cron(cron_operation=False)  # TODO: by ID
 
+    def products_create(self, integration, external_product_id):
+        _logger.info('Call shopify webhook controller: products_create()')
+
+        name = self._get_value_from_post_data('title')
+
+        job_kwargs = integration._job_kwargs_import_product(external_product_id, name)
+        job_kwargs['description'] = (
+            f'{integration.name}: Create External Product By ID "{name}" [{external_product_id}]'
+            ' + auto-matching [webhook action]'
+        )
+        job = integration.with_context(company_id=integration.company_id.id)\
+            .with_delay(**job_kwargs)\
+            .create_external_template_by_id(
+                external_product_id,
+                create_new_product=integration.auto_create_products_on_so,
+            )
+
+        integration.job_log(job)
+
+        return job
+
+    def products_update(self, integration, odoo_external_product_id):
+        _logger.info('Call shopify webhook controller: products_update()')
+
+        record = request.env['integration.product.template.external'].browse(odoo_external_product_id)
+
+        job_kwargs = integration._job_kwargs_import_product(record.code, record.name)
+        job_kwargs['description'] = (
+            f'{integration.name}: Refresh External Product "{record.name}" [{record.code}] [webhook action]'
+        )
+        job = integration.with_context(company_id=integration.company_id.id)\
+            .with_delay(**job_kwargs)\
+            .import_product(record.id, import_images=True)
+
+        integration.job_log(job)
+
+        return job
+
+    def products_delete(self, integration, odoo_external_product_id):
+        _logger.info('Call shopify webhook controller: products_delete()')
+
+        record = request.env['integration.product.template.external'].browse(odoo_external_product_id)
+
+        job = integration.with_context(company_id=integration.company_id.id)\
+            .with_delay(
+                description=(
+                    f'{integration.name}: Unlink External Odoo Record "{record.name}" [{record.code}] [webhook action]'
+                ),
+            ).drop_external_record(odoo_external_product_id)
+
+        integration.job_log(job)
+
+        return job
+
     def _receive_order(self, input_file):
         data = self._prepare_pipeline_data()
         return input_file._build_and_run_order_pipeline(data)
@@ -99,9 +169,9 @@ class ShopifyWebhook(Controller, IntegrationWebhook):
     def _prepare_pipeline_data(self):
         post_data = self._get_post_data()
         vals = {
-            'external_tags': adapter_cls._parse_tags(post_data),
-            'payment_method': adapter_cls._parse_payment_code(post_data),
-            'integration_workflow_states': adapter_cls._parse_workflow_states(post_data),
+            'external_tags': ShopifyOrder._parse_tags(post_data),
+            'payment_method': ShopifyOrder._parse_payment_code(post_data),
+            'integration_workflow_states': ShopifyOrder._parse_workflow_states(post_data),
         }
         return vals
 

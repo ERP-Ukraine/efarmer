@@ -136,7 +136,7 @@ class NoAPIClient(AbsApiClient):
     def export_inventory(self, inventory):
         return
 
-    def export_tracking(self, sale_order_id, tracking_data_list):
+    def export_tracking(self, sale_order_id, tracking_data_list, **kw):
         return
 
     def export_sale_order_status(self, order_id, status):

@@ -1,15 +1,14 @@
-# Copyright 2023 VentorTech OU
-# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
+# See LICENSE file for full copyright and licensing details.
 
 import json
 from unittest.mock import MagicMock, patch
 
+from .json_data import pt_pp_1
+from .config.integration_init import OdooIntegrationInit
 from ...integration.exceptions import ApiImportError
 from ...integration.models.fields.receive_fields import ReceiveFields
 from ...integration.models.integration_model_mixin import IntegrationModelMixin
 from ...integration.models.sale_integration import SaleIntegration
-from .config.intuit_case import OdooIntegrationInit
-from .json_data import pt_pp_1
 
 
 class TestReceiveFields(OdooIntegrationInit):
@@ -26,43 +25,6 @@ class TestReceiveFields(OdooIntegrationInit):
             product_model,
             external_obj,
         )
-
-    # integration/models/fields/receive_fields.py
-    def test_get_field_value(self):
-        """
-        testing method: get_field_value
-
-        This test case covers the 'get_field_value' method under various scenarios:
-        - Creating an instance and mocking relevant methods.
-        - Testing if the 'get_field_value' method correctly retrieves field values.
-        - Testing when the requested ecommerce field is not found.
-        - Testing when the 'external_obj' is not available.
-
-        It checks whether the 'get_field_value' method returns the expected field value
-        based on the provided 'field_name' and the existence of the 'external_obj'
-        and ecommerce field.
-        """
-        # create instance
-        instance = self.create_instance(self.ProductProduct, json.loads(pt_pp_1))
-
-        # mock methods
-        instance._get_ecommerce_field = MagicMock(return_value=self.product_ecommerce_field_2)
-        instance.calculate_field_value = MagicMock(return_value={'default_code': 'default_code_1'})
-        instance._get_value = MagicMock(return_value=None)
-
-        # test if external_obj and ecommerce field are exist
-        result = instance.get_field_value('default_code')
-        self.assertEqual(result, 'default_code_1')
-
-        # test if ecommerce field is not exist
-        instance._get_ecommerce_field = MagicMock(return_value=False)
-        result = instance.get_field_value('default_code_1')
-        self.assertIsNone(result)
-
-        # test if external_obj is not exist
-        instance.external_obj = False
-        result = instance.get_field_value('default_code')
-        self.assertIsNone(result)
 
     # integration/models/fields/receive_fields.py
     def test_convert_translated_field_to_odoo_format(self):

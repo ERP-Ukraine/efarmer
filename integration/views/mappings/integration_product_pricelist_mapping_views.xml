@@ -50,7 +50,7 @@
         </record>
 
         <record id="integration_product_pricelist_mapping_action" model="ir.actions.act_window">
-            <field name="name">Pricelists</field>
+            <field name="name">Pricelists Mappings</field>
             <field name="res_model">integration.product.pricelist.mapping</field>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="integration_product_pricelist_mapping_view_tree"/>

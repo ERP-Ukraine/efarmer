@@ -1,6 +1,7 @@
 # See LICENSE file for full copyright and licensing details.
 
-from odoo import models, fields
+from odoo import models, fields, _
+from odoo.exceptions import UserError
 
 
 PRODUCT_BUSINESS_MODELS = [
@@ -14,7 +15,7 @@ class ProductEcommerceField(models.Model):
     _description = 'Ecommerce field depending on integration type'
 
     name = fields.Char(
-        string='Field Name',
+        string='Description',
         required=True,
         help='Here we have Field name like it is displayed on user interface'
     )
@@ -26,7 +27,9 @@ class ProductEcommerceField(models.Model):
     )
 
     type_api = fields.Selection(
-        [('no_api', 'Not Use API')],
+        selection=[
+            ('no_api', 'Not Use API'),
+        ],
         string='Api service',
         required=True,
         ondelete={
@@ -96,6 +99,11 @@ class ProductEcommerceField(models.Model):
         help='Here we select model which will be used to retrieve data from'
     )
 
+    odoo_model_name = fields.Char(
+        related='odoo_model_id.model',
+        store=True,
+    )
+
     odoo_field_id = fields.Many2one(
         string='Odoo Field',
         comodel_name='ir.model.fields',
@@ -103,6 +111,12 @@ class ProductEcommerceField(models.Model):
         domain='[("model_id", "=", odoo_model_id)]',
         help='For simple fields you can select here field name from defined '
              'model to retrieve information from',
+    )
+
+    odoo_field_name = fields.Char(
+        string='Odoo Field Name',
+        related='odoo_field_id.name',
+        store=True,
     )
 
     receive_method = fields.Char(
@@ -120,3 +134,85 @@ class ProductEcommerceField(models.Model):
         domain='[("model_id", "=", odoo_model_id)]',
         help='Here we can select fields that will run export process when they are updated.',
     )
+
+    is_private = fields.Boolean(
+        string='Private',
+        help='Technical property for developers needs',
+    )
+
+    mapping_ids = fields.One2many(
+        comodel_name='product.ecommerce.field.mapping',
+        inverse_name='ecommerce_field_id',
+        string='Mappings',
+    )
+
+    @property
+    def on_template(self):
+        self.ensure_one()
+        return self.odoo_model_name == 'product.template'
+
+    @property
+    def on_variant(self):
+        self.ensure_one()
+        return self.odoo_model_name == 'product.product'
+
+    @property
+    def converter_action_name(self):
+        return f'_get_{self.value_converter}_value'
+
+    @property
+    def is_translatable(self):
+        return self.value_converter == 'translatable_field'
+
+    @property
+    def is_simple(self):
+        return self.value_converter == 'simple'
+
+    @property
+    def is_converted(self):
+        return self.value_converter == 'python_method'
+
+    def get_mapping_for_integration(self, integration_id):
+        assert len(self) <= 1, _('Recordsets not allowed')
+
+        mapping = self.mapping_ids.filtered(lambda x: x.integration_id.id == integration_id)
+
+        if len(mapping) > 1:
+            raise UserError(
+                _('%s: Multiple mappings found for the ecommerce field %s --> %s')
+                % (self.env['sale.integration'].browse(integration_id).name, self.name, mapping)
+            )
+
+        if not mapping:
+            mapping = self.with_context(active_test=False).mapping_ids\
+                .filtered(lambda x: x.integration_id.id == integration_id)[:1]
+            mapping.mark_active()
+
+        return mapping
+
+    def mark_mapping_inactive(self, integration_id):
+        assert len(self) <= 1, _('Recordsets not allowed')
+        mapping = self.mapping_ids.filtered(lambda x: x.integration_id.id == integration_id)
+
+        return mapping.mark_inactive()
+
+    def _ensure_mapping(self, integration_id):
+        self.ensure_one()
+
+        if self.is_private:
+            return True
+
+        mapping = self.get_mapping_for_integration(integration_id)
+
+        if not mapping:
+            self._create_mapping(integration_id)
+
+        return True
+
+    def _create_mapping(self, integration_id):
+        return self.env['product.ecommerce.field.mapping'].create({
+            'ecommerce_field_id': self.id,
+            'integration_id': integration_id,
+            'send_on_update': self.default_for_update,
+            'receive_on_import': self.default_for_import,
+        })

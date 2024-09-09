@@ -16,6 +16,48 @@ Change Log
 
 |
 
+* 1.11.0 (2024-08-02)
+    - NEW! Added the ability to process orders from guests who haven't created an account on e-commerce store.
+    - NEW! Added support for partial fulfillments for Shopify orders. Connector now can apply already fulfilled items during order import from Shopify to Odoo, as well as update Shopify order based on transfers statuses in Odoo.
+    - NEW! Added the possibility to cancel Shopify orders directly from Odoo. A special wizard will guide through Shopify's cancellation options, including refunds and reasons.
+    - NEW! Added the option to filter orders to import based on sales channels in Shopify.
+    - Updated ShopifyAPI package to the latest version (12.6.0).
+    - Fixed issues with orders containing fallback or removed products.
+    - Resolved deprecation warnings that occurred during tests on Odoo.sh.
+    - Corrected incorrect stock quantity updates when using the Internal Transfer feature in Ventor.
+    - Made several small improvements to enhance overall performance and stability.
+
+* 1.10.1 (2024-05-18)
+    - NEW! Added the option to ignore VAT validation when saving customer information to Odoo (Customers → Ignore VAT validation).
+    - NEW! Added the option to disable order total difference correction during order import. This prevents the addition of price difference lines when the order total doesn't match between your e-commerce store and Odoo (Sales Order → Order Total Difference Correction).
+    - NEW! Added the option to disable order imports entirely from your e-commerce system to Odoo (Automation Jobs → Enable Order Import).
+    - NEW! Introduced the ability to customize customer search during import. The "Search Customer Fields" setting (Testing tab) allows you to specify which fields are used to match customers. (Caution: Incorrect settings could lead to duplicate customers or mismatched orders.)
+    - Fixed GraphQL requests for multiple Shopify stores: Resolved an issue where the connector could send requests to the incorrect Shopify store when managing multiple connections.
+    - Fixed an issue with applying fiscal positions to imported orders.
+    - Resolved a VAT validation problem for non-EU countries.
+    - Corrected an error ("You cannot create recursive Partner hierarchies") that occurred in certain scenarios.
+    - Improved compatibility with Odoo.sh builds by resolving warnings.
+    - Other small improvements and fixes.
+
+* 1.10.0 (2024-04-05)
+    - NEW! We've improved how our connector manages customer information coming from your e-commerce system. This includes more flexible contact creation, better address handling, and various optimizations. For more details and examples, including benefits for B2B, see our FAQ.
+    - NEW! For B2B customers with a manageable number of clients, we've added the ability to manually map customers between your e-commerce system and Odoo. This provides you with additional control.
+    - NEW! You now have the option to designate a specific product as a placeholder for order lines with removed products or custom items, ensuring smoother order processing.
+    - NEW! You now have the option to switch between different discount application methods. Choose to add discounts as separate order lines (default), or apply them directly to product lines using the 'Discount' field. This can be set from the 'Add discounts as a separate order line' setting on your integration settings.
+    - NEW! Our Shopify connector now supports importing order and customer metafields into Odoo with the ability to choose where to save the values.
+    - NEW! We've added support for Shopify product webhooks (create/update/delete), keeping your Odoo product data synchronized with your store.
+    - NEW! We've introduced a new post-installation wizard that automatically guides you through the steps needed to ensure your Odoo setup is optimized for our connector. This will help you get up and running quickly and smoothly.
+    - We've added a new feature for developers to customize how products are linked between your e-commerce system and Odoo. This allows you to use specific fields other than the default SKU or Barcode for product synchronization. Important Note: This feature is intended for developers with a technical understanding of Odoo and your e-commerce platform.
+    - We've fixed an issue that was preventing product quantities from updating correctly on your e-commerce store when changes were made in the Ventor application.
+    - We've resolved an issue where product internal references in Odoo were still being updated after disabling import in the mapping table.
+    - We've enhanced how our connector imports categories from your e-commerce store, especially when multiple categories share the same name. This resolves previous errors and ensures more accurate category matching in Odoo.
+    - We've resolved a dependency issue in Odoo 17.0 that caused a “TypeError: Model 'product.image' does not exist in registry.” error. Our connector is now fully compatible with the latest Odoo version.
+    - We've resolved an issue that prevented updating already mapped products with archived or draft variants. Your product data will now synchronize smoothly from your e-commerce system.
+    - We've also made several additional fixes and enhancements for a better overall experience.
+
+* 1.9.3 (2024-02-01)
+    - Added compatibility with 2024-01 Shopify API version `(more information). <https://ventortech.atlassian.net/servicedesk/customer/portal/1/article/568688668>`__
+
 * 1.9.2 (2024-01-05)
     - Refactored logic of mapping products.
     - Improved orders processing: imported orders data will be marked as "require update" to make sure that the latest updates will be downloaded during Sales Order creation in Odoo.
@@ -187,7 +229,7 @@ Change Log
 
 * 1.1.1 (2022-09-09)
     - When exporting product from Odoo to Shopify use "Product Name" from "e-Commerce Integration" tab if defined, else use regular product name.
-    - Added compatability with 2022-07 Shopify API version (requesting additional access rights 'write_merchant_managed_fulfillment_orders' and 'write_orders').
+    - Added compatibility with 2022-07 Shopify API version (requesting additional access rights 'write_merchant_managed_fulfillment_orders' and 'write_orders').
     - Usability improvements in auto-workflow configuration.
     - Improved validation procedure of the webhook from Shopify to ensure it will pass validation.
     - Sales Order date is now set equal to Order creation date from the Shopify.

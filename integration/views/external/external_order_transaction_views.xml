@@ -35,7 +35,7 @@
         </record>
 
         <record id="external_order_transaction_action" model="ir.actions.act_window">
-            <field name="name">Order Payments</field>
+            <field name="name">External Order Payments</field>
             <field name="res_model">external.order.transaction</field>
             <field name="view_mode">tree</field>
             <field name="groups_id" eval="[(4, ref('base.group_no_one'))]"/>

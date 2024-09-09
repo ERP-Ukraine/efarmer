@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
 
     <record id="action_view_account_move_reversal_pl" model="ir.actions.act_window">
@@ -31,14 +31,15 @@
 
             <field name="invoice_date" position="after">
                 <field name="x_invoice_sale_date" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                <field name="x_invoice_duplicate_date" attrs="{'invisible': [('move_type', 'not in', ('out_invoice', 'out_refund', 'out_receipt', 'in_invoice', 'in_refund', 'in_receipt'))]}"/>
+                <field name="x_invoice_duplicate_date"
+                       attrs="{'invisible': [('move_type', 'not in', ('out_invoice', 'out_refund', 'out_receipt', 'in_invoice', 'in_refund', 'in_receipt'))]}"/>
                 <field name="x_show_currency_rate" invisible="1"/>
                 <field name="x_currency_rate"
                        attrs="{'invisible': [('x_show_currency_rate', '=', False)], 'readonly': [('state', '!=', 'draft')]}"/>
             </field>
 
             <field name="ref" position="after">
-                <field name="refund_invoice_id" readonly="1"
+                <field name="refund_invoice_id" string="Corrected Invoice" readonly="1"
                        attrs="{'invisible': [('refund_invoice_id', '=', False)]}"/>
                 <field name="selected_correction_invoice" readonly="1"
                        attrs="{'invisible': [('selected_correction_invoice', '=', False)]}"/>
@@ -109,6 +110,7 @@
                                    groups="account.group_show_line_subtotals_tax_included"/>
 
                             <!-- Other fields -->
+                            <field name="x_force_print" optional="hide"/>
                             <field name="payment_id" invisible="1"/>
                             <field name="partner_id" invisible="1"/>
                             <field name="amount_currency" invisible="1"/>
@@ -285,11 +287,20 @@
             </page>
 
             <field name="invoice_line_ids" position="attributes">
-                <attribute name="attrs">{'readonly': ['|', ('state', '!=', 'draft'), ('refund_invoice_id', '!=', False)]}</attribute>
+                <attribute name="attrs">{
+                    'readonly': ['|', ('state', '!=', 'draft'), ('refund_invoice_id', '!=', False)]}</attribute>
             </field>
 
+            <xpath expr="//field[@name='invoice_line_ids']/tree" position="inside">
+                <field name="x_force_print" optional="hide"/>
+            </xpath>
+
+            <xpath expr="//field[@name='line_ids']/tree" position="inside">
+                <field name="x_force_print" invisible="1"/>
+            </xpath>
+
             <xpath expr="//field[@name='ref']" position="attributes">
-                <attribute name="nolabel">1</attribute>
+                <attribute name="attrs">{'invisible': [('move_type', '=', 'entry')]}</attribute>
             </xpath>
 
             <xpath expr="//label[@for='ref']" position="replace">

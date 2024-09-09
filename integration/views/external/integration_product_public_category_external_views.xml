@@ -38,7 +38,7 @@
         </record>
 
         <record id="integration_product_public_category_external_action" model="ir.actions.act_window">
-            <field name="name">Categories</field>
+            <field name="name">External Categories</field>
             <field name="res_model">integration.product.public.category.external</field>
             <field name="view_mode">tree</field>
         </record>

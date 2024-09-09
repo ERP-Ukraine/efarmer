@@ -54,10 +54,26 @@ class ExternalOrderRisk(models.Model):
         ]
 
     def _create_or_update_risk_from_external(self, data):
-        record = self.search([
-            ('external_str_id', '=', str(data['id'])),
-            ('external_order_str_id', '=', str(data['order_id'])),
-        ], limit=1)
+        """
+        Create or update a risk record based on external data.
+
+        If the 'id' field is present in the data, search for existing records based on the old API
+        format, otherwise, search for existing records based on the new API format.
+        """
+        if data.get('id'):
+            # TODO: this API format is deprecated and will be removed in a future release.
+            # Search for existing records based on old API format
+            record = self.search([
+                ('external_str_id', '=', str(data['id'])),
+                ('external_order_str_id', '=', str(data['order_id'])),
+            ], limit=1)
+        else:
+            # Search for existing records based on new API format
+            record = self.search([
+                ('external_order_str_id', '=', str(data['order_id'])),
+                ('score', '=', data['sentiment']),
+                ('recommendation', '=', data['recommendation']),
+            ], limit=1)
 
         vals = self._prepare_vals_from_external(data)
 
@@ -70,10 +86,10 @@ class ExternalOrderRisk(models.Model):
 
     def _prepare_vals_from_external(self, data):
         vals = dict(
-            score=data['score'],
-            source=data['source'],
-            message=data['message'],
-            external_str_id=str(data['id']),
+            score=data.get('score') or data.get('sentiment'),
+            source=data.get('source') or '',
+            message=data.get('message') or data.get('description'),
+            external_str_id=str(data.get('id')) or '',
             recommendation=data['recommendation'],
             external_order_str_id=str(data['order_id']),
         )

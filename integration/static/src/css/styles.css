@@ -27,3 +27,12 @@
 .o_integration_kanban .hoverable-card:hover {
     border: 1px solid #C9CCD2;
 }
+
+.multiline {
+    white-space: pre-line;
+    font-family: monospace;
+    padding: 8px;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    overflow: auto;
+}

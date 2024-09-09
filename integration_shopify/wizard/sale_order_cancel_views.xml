@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sale_order_cancel_integration_shopify_view_form" model="ir.ui.view">
+        <field name="name">sale.order.cancel.form.integration.shopify</field>
+        <field name="model">sale.order.cancel</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <form>
+                <group colspan="2">
+                    <field name="order_id" invisible="1"/>
+                    <field name="integration_id" readonly="1"/>
+                    <field name="sub_state_external_ids" widget="many2many_tags" readonly="1"/>
+                </group>
+                <group string="Cancel e-Commerce Fulfillments" invisible="context.get('cancel_integration_fulfillment_done')">
+                    <div colspan="2">
+                        <div class="alert alert-info" role="alert">
+                            <i class="fa fa-check"/> Since the e-Commerce order contains fulfilled products, in some cases, fulfillment cancellations may be required.
+                        </div>
+                    </div>
+                    <field name="do_cancel_order_fulfillments" widget="boolean_toggle"/>
+                </group>
+                <group string="Cancel e-Commerce Order: options">
+                    <div colspan="2">
+                        <div class="alert alert-warning" role="alert" invisible="context.get('cancel_integration_order_done')">
+                            Changes in this section affect the Shopify order only. If you refund an order here ("Refund" checkbox),
+                            it'll only be refunded within Shopify. You'll still have to handle the refund separately in Odoo.<br/>
+                            Why? Odoo offers lots of different ways to manage refunds, so connector let you choose what works best for your business
+                        </div>
+                        <div class="alert alert-info" role="alert" invisible="not context.get('cancel_integration_order_done')">
+                            <i class="fa fa-star"/> e-Commerce order already cancelled!
+                        </div>
+                    </div>
+                    <group invisible="context.get('cancel_integration_order_done')">
+                        <field name="reason_type" required="1"/>
+                        <field name="staff_note"/>
+                    </group>
+                    <group invisible="context.get('cancel_integration_order_done')">
+                        <field name="do_restock" widget="boolean_toggle"/>
+                        <field name="do_refund" widget="boolean_toggle"/>
+                        <field name="do_notify_customer" widget="boolean_toggle"/>
+                    </group>
+                </group>
+                <footer>
+                    <div class="d-flex justify-content-between w-100">
+                        <div class="d-flex align-items-center align-content-around flex-wrap gap-1">
+                            <button string="Cancel e-Commerce Order" name="action_cancel_integration" invisible="context.get('cancel_integration_order_done')" type="object" class="btn-primary"/>
+                            <button string="Skip" class="btn-secondary" special="cancel"/>
+                        </div>
+                        <div>
+                            <button string="Open in e-Commerce" name="open_integration_order" type="object" class="btn-secondary"/>
+                        </div>
+                    </div>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

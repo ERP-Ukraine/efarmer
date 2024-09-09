@@ -1,10 +1,12 @@
 # See LICENSE file for full copyright and licensing details.
 
-from .receive_fields import ReceiveFieldsShopify
-from ...shopify.shopify_client import COLLECT
 from odoo import _
 from odoo.exceptions import UserError
 from odoo.addons.integration.models.fields.common_fields import GENERAL_GROUP
+
+from .receive_fields import ReceiveFieldsShopify
+from ...shopify.shopify_client import COLLECT
+from ...shopify.shopify_order import format_attr_value_code
 
 
 class ReceiveFieldsProductTemplateShopify(ReceiveFieldsShopify):
@@ -17,8 +19,11 @@ class ReceiveFieldsProductTemplateShopify(ReceiveFieldsShopify):
 
     def get_ext_attr(self, ext_attr_name):
         if ext_attr_name == 'attr_values_ids_by_attr_id':
+            attributes = self.adapter._attribute_value_from_template(self.external_obj)
+
             return self.find_attributes_in_odoo(
-                self.adapter._attribute_value_from_template(self.external_obj))
+                format_attr_value_code(name, value) for (name, value) in attributes
+            )
 
         raise UserError(_('Import attribute "%s" do not exist') % ext_attr_name)
 

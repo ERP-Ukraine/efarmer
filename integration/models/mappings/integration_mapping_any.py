@@ -52,8 +52,8 @@ class IntegrationMappingAny(models.Model):
 
         return any_mapping.unlink()
 
-    def update_mapping_any(self, integration, odoo_obj_name, odoo_obj_id, odoo_obj_field_name,
-                           external_obj_name, external_obj_id):
+    def update_mapping_any(
+            self, integration, odoo_obj_name, odoo_obj_id, odoo_obj_field_name, external_obj_name, external_obj_id):
         any_mapping = self.find_mapping_any(
             integration, odoo_obj_name, odoo_obj_id, external_obj_name)
 
@@ -119,17 +119,15 @@ class MappingAnyMixin(models.AbstractModel):
 
         return any_mapping
 
-    def update_mapping_any(
-            self, integration, odoo_obj_field_name, external_obj_name, external_obj_id):
+    def update_mapping_any(self, integration, odoo_obj_field_name, external_obj_name, external_obj_id):
         self.ensure_one()
-
         MappingAny = self.env['integration.mapping.any']
 
         if not external_obj_id:
             return MappingAny.unlink_any_mapping(self._name, self.ids)
 
-        return MappingAny.update_mapping_any(integration, self._name, self.id, odoo_obj_field_name,
-                                             external_obj_name, external_obj_id)
+        return MappingAny.update_mapping_any(
+            integration, self._name, self.id, odoo_obj_field_name, external_obj_name, external_obj_id)
 
     def get_mapping_any_external_id(self, integration, external_obj_name):
         self.ensure_one()

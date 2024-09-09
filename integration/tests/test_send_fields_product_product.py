@@ -1,13 +1,11 @@
-# Copyright 2023 VentorTech OU
-# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
+# See LICENSE file for full copyright and licensing details.
 
 from unittest.mock import MagicMock, patch
 
-from ...integration.models.fields import SendFields
-from ...integration.models.fields.send_fields_product_product import \
-    ProductProductSendMixin
+from .config.integration_init import OdooIntegrationInit
 from ..models.integration_model_mixin import IntegrationModelMixin
-from .config.intuit_case import OdooIntegrationInit
+from ...integration.models.fields import SendFields
+from ...integration.models.fields.send_fields_product_product import ProductProductSendMixin
 
 
 class SendFieldsProductProductTest(SendFields, ProductProductSendMixin):
@@ -79,7 +77,9 @@ class TestSendFieldsProductProduct(OdooIntegrationInit):
             'id': self.product_pt_1.product_variant_id.id,
             'external_id': self.instance_pt_pp_1.external_id,
             'attribute_values': [{'color': 'white'}],
-            'fields': 'expected_fields'
+            'fields': 'expected_fields',
+            'reference': False,
+            'reference_api_field': 'sku',
         }
         self.assertEqual(result, expected_result)
 
@@ -90,6 +90,8 @@ class TestSendFieldsProductProduct(OdooIntegrationInit):
             'id': self.product_pt_1.product_variant_id.id,
             'external_id': self.instance_pt_pp_1.external_id,
             'attribute_values': [],
-            'fields': 'expected_fields'
+            'fields': 'expected_fields',
+            'reference': False,
+            'reference_api_field': 'sku',
         }
         self.assertEqual(result, expected_result)

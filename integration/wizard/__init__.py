@@ -9,3 +9,5 @@ from . import configuration_wizard
 from . import external_integration_wizard
 from . import import_export_integration_wizard
 from . import integration_import_product_wizard
+from . import integration_installation_wizard
+from  . import sale_order_cancel

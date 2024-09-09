@@ -14,15 +14,15 @@
                         <div class="row mt16 o_settings_container" name="integration_settings_container">
                             <div class="col-12 col-lg-6 o_setting_box" id="api_key_setting">
                                 <div class="o_setting_right_pane">
-                                    <label for="integration_api_key"/>
+                                    <label for="integration_api_key" class="mb-3" />
                                     <field name="integration_api_key" widget="CopyClipboardChar" readonly="1" style="width:100%"/>
-                                    <button name="generate_integration_api_key" string="Regenerate API Key" type="object"/>
+                                    <button name="generate_integration_api_key" string="Regenerate API Key" type="object" class="btn btn-outline-primary text-uppercase"/>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div id="ecosystem_subscription">
-                        <h2>Ecosystem subscription</h2>
+                        <h2>Ecosystem Subscription</h2>
                         <div class="row mt16 o_settings_container" name="ecosystem_subscription_container">
                             <div class="col-12 col-lg-8 o_setting_box" id="ecosystem_subscription_setting_key">
                                 <div class="o_setting_right_pane">
@@ -49,6 +49,19 @@
                                             <field name="ecosystem_subscription_expiration_date" class="oe_inline" readonly="1"/>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="system_configuration">
+                        <h2>System Configuration</h2>
+                        <div class="row mt16 o_settings_container" name="system_configuration_container">
+                            <div class="col-12 col-lg-6 o_setting_box" id="system_configuration_setting">
+                                <div class="o_setting_right_pane">
+                                    <div class="text-muted mb-3">
+                                        Click this button to check the system configuration and ensure that all necessary settings are properly installed and configured
+                                    </div>
+                                    <button name="validate_configuration" string="Validate Configuration" type="object" class="btn btn-outline-primary text-uppercase"/>
                                 </div>
                             </div>
                         </div>

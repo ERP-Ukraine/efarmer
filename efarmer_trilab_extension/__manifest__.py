@@ -16,6 +16,7 @@
     'depends': [
         'efarmer_sale_workflow',
         'trilab_invoice',
+        'mrp',
     ],
     'data': [
         # Model Views

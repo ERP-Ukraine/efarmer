@@ -38,7 +38,17 @@
                                 </td>
                             </tr>
                             <hr/>
-                            <div t-if="cel_zlozenia == 1">
+                            <div t-if="doc.cel_zlozenia == 1">
+                                <tr>
+                                    <td width="40%">
+                                        <b>Cel Złożenia:</b>
+                                    </td>
+                                    <td width="60%">
+                                        <p style="margin:0;">Nowa Deklaracja</p>
+                                    </td>
+                                </tr>
+                            </div>
+                            <div t-elif="doc.cel_zlozenia == 2">
                                 <tr>
                                     <td width="40%">
                                         <p style="margin:0;">

@@ -1,8 +1,8 @@
-# Copyright 2023 VentorTech OU
-# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
+# See LICENSE file for full copyright and licensing details.
 
 from . import config
 from . import json_data
+
 from . import test_common_fields
 from . import test_integration
 from . import test_product_ecommerce_field_mapping
@@ -15,3 +15,4 @@ from . import test_send_fields_product_template
 from . import test_send_fields
 from . import test_tools
 from . import test_upply_translation
+# from . import test_apply_external_fulfillment

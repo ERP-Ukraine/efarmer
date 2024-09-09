@@ -12,6 +12,7 @@
                                 <li>Create "Import Customer" job for every Customer from external system updated after the specified date.</li>
                                 <li>Attempt to auto-match Customers by name and address with existing Odoo Customers and update them.</li>
                                 <li>For Customers that we were not able to auto-match Odoo Customers will be created.</li>
+                                <li>If "Enable Manual Customer Mapping" is enabled, the system will create a new open mapping for each Customer without attempting auto-matching, allowing you to manually map them to existing Odoo Customers or create new ones.</li>
                             </ul>
                         </div>
                     </group>

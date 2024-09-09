@@ -2,9 +2,9 @@ import json
 import logging
 from collections import defaultdict
 
-from odoo import api, fields, models, _
-from odoo.exceptions import UserError, ValidationError, AccessError
-from odoo.tools import get_lang, float_compare, format_date, formatLang
+from odoo import _, api, fields, models
+from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.tools import float_compare, format_date, formatLang, get_lang
 
 _logger = logging.getLogger(__name__)
 
@@ -36,11 +36,8 @@ class AccountMove(models.Model):
         states={'draft': [('readonly', False)]},
     )
 
-    x_corrected_amount_by_group = fields.Binary(
-        string='Corrected Tax amount by group', readonly=True, compute='_x_compute_invoice_taxes_by_group'
-    )
-    x_corrected_amount_summary = fields.Binary(
-        string='Corrected Tax amount summary', readonly=True, compute='_x_compute_invoice_taxes_by_group'
+    x_corrected_tax_totals_json = fields.Binary(
+        string='Corrected Tax amount summary', readonly=True, compute='_x_compute_corrected_tax_totals_json'
     )
 
     selected_correction_invoice = fields.Many2one('account.move')
@@ -60,7 +57,7 @@ class AccountMove(models.Model):
 
     is_downpayment = fields.Boolean()
     x_is_poland = fields.Boolean(compute='_x_compute_is_poland', string='Technical Field: Is Poland')
-    x_invoice_sign = fields.Integer(compute='x_compute_invoice_sign')
+    x_invoice_sign = fields.Integer(compute='_x_compute_invoice_sign')
     x_corrected_amount_total = fields.Float(compute='_x_compute_corrected_amount_total')
 
     x_amount_total = fields.Monetary(string='X Total in Currency', compute='_x_compute_amount')
@@ -151,7 +148,7 @@ class AccountMove(models.Model):
                     # no match found, append group from advance invoice
                     tax_totals['group_by_subtotal'][a_group_name] = a_group
 
-            # mege structure of subtotals
+            # merge structure of subtotals
             for a_group in advance_tax_totals['subtotals']:
                 for group in tax_totals['subtotals']:
                     if a_group['name'] == group['name']:
@@ -181,8 +178,23 @@ class AccountMove(models.Model):
                 self.env, tax_totals['x_tax_amount_in_pln'], currency_obj=self.env.company.currency_id
             )
 
-        # return json.dumps(tax_totals)
         return tax_totals
+
+    @api.depends(
+        'line_ids.amount_currency',
+        'line_ids.tax_base_amount',
+        'line_ids.tax_line_id',
+        'partner_id',
+        'currency_id',
+        'amount_total',
+        'amount_untaxed',
+    )
+    def _compute_tax_totals_json(self):
+        if not self.x_get_is_poland():
+            super()._compute_tax_totals_json()
+
+        for move in self:
+            super(AccountMove, move.with_context(x_invoice_sign=move.x_get_invoice_sign()))._compute_tax_totals_json()
 
     def _prepare_tax_lines_data_for_totals_from_invoice(self, tax_line_id_filter=None, tax_ids_filter=None):
         # self.ensure_one() not needed - tested in super()
@@ -191,39 +203,50 @@ class AccountMove(models.Model):
         if not self.x_get_is_poland():
             return result
 
-        tax_line_id_filter = tax_line_id_filter or (lambda aml, tax: True)
-        tax_ids_filter = tax_ids_filter or (lambda aml, tax: True)
-
-        balance_multiplier = -1 if self.is_inbound() else 1
-        tax_lines_data = []
+        sign = self.x_get_invoice_sign()
+        balance_multiplicator = -1 if self.is_inbound() else 1
 
         for line in self.line_ids:
-            if line.tax_line_id and tax_line_id_filter(line, line.tax_line_id):
-                tax_lines_data.append(
-                    {
-                        'line_key': 'tax_line_%s' % line.id,
-                        'tax_amount': line.amount_currency * balance_multiplier,
-                        'tax': line.tax_line_id,
-                        'x_balance': line.balance * balance_multiplier,
-                        'x_invoice_sign': line.move_id.x_get_invoice_sign(),
-                    }
-                )
+            for res_line in result:
+                if res_line['line_key'].endswith(f'_line_{line.id}'):
+                    res_line.setdefault('x_balance', 0.0)
+                    res_line['x_balance'] += line.balance * balance_multiplicator
 
-            if line.tax_ids:
-                for base_tax in line.tax_ids.flatten_taxes_hierarchy():
-                    if tax_ids_filter(line, base_tax):
-                        tax_lines_data.append(
-                            {
-                                'line_key': 'base_line_%s' % line.id,
-                                'base_amount': line.amount_currency * balance_multiplier,
-                                'tax': base_tax,
-                                'tax_affecting_base': line.tax_line_id,
-                                'x_balance': line.balance * balance_multiplier,
-                                'x_invoice_sign': line.move_id.x_get_invoice_sign(),
-                            }
-                        )
+        if sign < 0:
+            for line in result:
+                for key in ('base_amount', 'tax_amount', 'x_balance'):
+                    if key in line:
+                        line[key] *= sign
 
-        return tax_lines_data
+        return result
+
+    @api.model
+    def _prepare_tax_lines_data_for_totals_from_object(self, object_lines, tax_results_function):
+        result = super()._prepare_tax_lines_data_for_totals_from_object(object_lines, tax_results_function)
+
+        if not self.x_get_is_poland():
+            return result
+
+        def _get_balance(obj):
+            if obj._name == 'account.move.line':
+                return obj.balance
+
+            elif obj._name == 'sale.order.line':
+                return obj.price_total
+
+            elif obj._name == 'purchase.order.line':
+                return obj.price_total
+
+            else:
+                raise UserError(_('unsupported object %s', obj._name))
+
+        for line in object_lines:
+            for res_line in result:
+                if res_line['line_key'].endswith(f'_line_{line.id}'):
+                    res_line.setdefault('x_balance', 0.0)
+                    res_line['x_balance'] += _get_balance(line)
+
+        return result
 
     @api.model
     def _get_tax_totals(self, partner, tax_lines_data, amount_total, amount_untaxed, currency):
@@ -236,16 +259,26 @@ class AccountMove(models.Model):
         pln = self.env.company.currency_id
         grouped_taxes = defaultdict(
             lambda: defaultdict(
-                lambda: {'base_amount': 0.0, 'tax_amount': 0.0, 'x_balance_amount': 0.0, 'base_line_keys': set()}
+                lambda: {
+                    'base_amount': 0.0,
+                    'tax_amount': 0.0,
+                    'x_base_amount_in_pln': 0.0,
+                    'x_tax_amount_in_pln': 0.0,
+                    'base_line_keys': set(),
+                }
             )
         )
         tax_amount_in_pln = 0
+        base_amount_in_pln = 0
         subtotal_priorities = {}
-        x_invoice_sign = 1
+
+        x_invoice_sign = self._context.get('x_invoice_sign', 1)
+
+        amount_total *= x_invoice_sign
+        amount_untaxed *= x_invoice_sign
 
         for line_data in tax_lines_data:
             tax_group = line_data['tax'].tax_group_id
-            x_invoice_sign = line_data.get('x_invoice_sign', 1)
 
             # Update subtotals priorities
             if tax_group.preceding_subtotal:
@@ -254,7 +287,7 @@ class AccountMove(models.Model):
 
             else:
                 # When needed, the default subtotal is always the highest priority
-                subtotal_title = _("Untaxed Amount")
+                subtotal_title = _('Untaxed Amount')
                 new_priority = 0
 
             if subtotal_title not in subtotal_priorities or new_priority < subtotal_priorities[subtotal_title]:
@@ -275,36 +308,37 @@ class AccountMove(models.Model):
                     # If the baseline hasn't been taken into account yet, at its amount to the base total.
                     tax_group_vals['base_line_keys'].add(line_data['line_key'])
                     tax_group_vals['base_amount'] += line_data['base_amount']
+                    tax_group_vals['x_base_amount_in_pln'] += line_data['x_balance']
+                    base_amount_in_pln += line_data['x_balance']
 
             else:
                 # tax line
                 balance = line_data.get('x_balance', 0.0)
                 tax_group_vals['tax_amount'] += line_data['tax_amount']
-                tax_group_vals['x_balance_amount'] += balance
+                tax_group_vals['x_tax_amount_in_pln'] += balance
                 tax_amount_in_pln += balance
-
-        for groups in grouped_taxes.values():
-            for amounts in groups.values():
-                for key in ('base_amount', 'tax_amount', 'x_balance_amount'):
-                    amounts[key] = x_invoice_sign * abs(amounts.get(key, 0))
 
         # Compute groups_by_subtotal
         groups_by_subtotal = {}
         for subtotal_title, groups in grouped_taxes.items():
-            # noinspection PyTypeChecker
+            # noinspection PyTypeChecker,PyUnresolvedReferences
             groups_vals = [
                 {
                     'tax_group_name': group.name,
                     'tax_group_amount': amounts['tax_amount'],
                     'tax_group_base_amount': amounts['base_amount'],
                     'x_tax_group_total_amount': amounts['tax_amount'] + amounts['base_amount'],
-                    'x_tax_group_amount_in_pln': amounts['x_balance_amount'],
+                    'x_tax_group_base_amount_in_pln': amounts['x_base_amount_in_pln'],
+                    'x_tax_group_amount_in_pln': amounts['x_tax_amount_in_pln'],
                     'formatted_tax_group_amount': formatLang(lang_env, amounts['tax_amount'], currency_obj=currency),
                     'formatted_tax_group_base_amount': formatLang(
                         lang_env, amounts['base_amount'], currency_obj=currency
                     ),
+                    'x_formatted_tax_group_base_amount_in_pln': formatLang(
+                        lang_env, amounts['x_base_amount_in_pln'], currency_obj=pln
+                    ),
                     'x_formatted_tax_group_amount_in_pln': formatLang(
-                        lang_env, amounts['x_balance_amount'], currency_obj=pln
+                        lang_env, amounts['x_tax_amount_in_pln'], currency_obj=pln
                     ),
                     'x_formatted_tax_group_total_amount': formatLang(
                         lang_env, amounts['tax_amount'] + amounts['base_amount'], currency_obj=currency
@@ -333,8 +367,6 @@ class AccountMove(models.Model):
             subtotal_tax_amount = sum(group_val['tax_group_amount'] for group_val in groups_by_subtotal[subtotal_title])
             previous_subtotals_tax_amount += subtotal_tax_amount
 
-        amount_total = x_invoice_sign * abs(amount_total)
-        amount_untaxed = x_invoice_sign * abs(amount_untaxed)
         tax_amount = amount_total - amount_untaxed
 
         # Assign json-formatted result to the field
@@ -349,6 +381,7 @@ class AccountMove(models.Model):
             'allow_tax_edition': False,
             'x_tax_amount': tax_amount,
             'x_formatted_tax_amount': formatLang(lang_env, tax_amount, currency_obj=currency),
+            'x_tax_base_amount_in_pln': base_amount_in_pln,
             'x_tax_amount_in_pln': tax_amount_in_pln,
             'x_formatted_tax_amount_in_pln': formatLang(lang_env, tax_amount_in_pln, currency_obj=pln),
         }
@@ -364,7 +397,7 @@ class AccountMove(models.Model):
                     ('invoice_lines', 'in', invoice.invoice_line_ids.filtered(lambda line: line.credit > 0).ids),
                 ]
             )
-            invoice.advance_source_id = advance_lines.order_id
+            invoice.advance_source_id = fields.first(advance_lines.order_id)
             invoice.final_invoice_ids = advance_lines.invoice_lines.filtered(lambda line: line.debit > 0).move_id
 
     def compute_advance_invoices_ids(self):
@@ -379,7 +412,7 @@ class AccountMove(models.Model):
                 ]
             )
             invoice.advance_invoices_ids = final_lines.invoice_lines.filtered(lambda line: line.credit > 0).move_id
-            invoice.final_source_id = False if invoice.refund_invoice_id else final_lines.order_id
+            invoice.final_source_id = False if invoice.refund_invoice_id else fields.first(final_lines.order_id)
 
     @api.constrains('refund_invoice_id', 'selected_correction_invoice')
     def _x_check_correction_invoice(self):
@@ -445,25 +478,35 @@ class AccountMove(models.Model):
 
     @api.depends('refund_invoice_id')
     def _x_compute_original_invoice_line_ids(self):
-        for invoice in self:
+        for invoice in self.with_context(x_show_as_before=True):
             if (
                 not invoice.x_get_is_poland()
                 or invoice.move_type not in ('in_refund', 'out_refund')
                 or not invoice.refund_invoice_id
             ):
-                invoice.original_invoice_line_ids = False
+                invoice.original_invoice_line_ids = [fields.Command.clear()]
                 continue
 
-            invoice.original_invoice_line_ids = invoice.invoice_line_ids.filtered(
-                lambda line: not line.exclude_from_invoice_tab and not line.corrected_line
-            ).ids
+            invoice.original_invoice_line_ids = [
+                fields.Command.set(
+                    invoice.invoice_line_ids.filtered(
+                        lambda line: not line.exclude_from_invoice_tab and not line.corrected_line
+                    ).ids
+                )
+            ]
 
     @api.depends('invoice_line_ids', 'invoice_line_ids.corrected_line')
     def _x_compute_corrected_invoice_line_ids(self):
-        for invoice in self:
-            invoice.corrected_invoice_line_ids = invoice.invoice_line_ids.filtered_domain(
-                [('exclude_from_invoice_tab', '=', False), ('corrected_line', '=', True)]
-            )
+        self.corrected_invoice_line_ids = [fields.Command.clear()]
+
+        for invoice in self.filtered(lambda rec: rec.move_type in ('in_refund', 'out_refund')):
+            invoice.corrected_invoice_line_ids = [
+                fields.Command.set(
+                    invoice.invoice_line_ids.filtered_domain(
+                        [('exclude_from_invoice_tab', '=', False), ('corrected_line', '=', True)]
+                    ).ids
+                )
+            ]
 
     def _x_inverse_corrected_invoice_line_ids(self):
         for invoice in self:
@@ -511,26 +554,17 @@ class AccountMove(models.Model):
                     for line in invoice.selected_correction_invoice.corrected_invoice_line_ids:
                         copied_vals = line.with_context(
                             include_business_fields=True, check_move_validity=False
-                        ).copy_data(
-                            default={'move_id': invoice.id, 'price_unit': -line.price_unit, 'corrected_line': False}
-                        )[
-                            0
-                        ]
+                        ).copy_data(default={'move_id': invoice.id, 'corrected_line': False})[0]
                         copied = self.env['account.move.line'].create(copied_vals)
-                        # copied.price_unit = -line.price_unit
                         copied.quantity = -line.quantity
                         copied.run_onchanges()
 
                     for line in invoice.selected_correction_invoice.corrected_invoice_line_ids:
                         copied_vals = line.with_context(
                             include_business_fields=True, check_move_validity=False
-                        ).copy_data(
-                            default={'move_id': invoice.id, 'price_unit': line.price_unit, 'corrected_line': True}
-                        )[
-                            0
-                        ]
+                        ).copy_data(default={'move_id': invoice.id, 'corrected_line': True})[0]
                         copied = self.env['account.move.line'].create(copied_vals)
-                        copied.quantity = -abs(line.quantity)
+                        copied.quantity = abs(line.quantity) if line._get_downpayment_lines() else -abs(line.quantity)
                         copied.run_onchanges()
 
                 else:
@@ -554,7 +588,6 @@ class AccountMove(models.Model):
 
         for invoice in self:
             if invoice.move_type in ('in_refund', 'out_refund') and invoice.corrected_invoice_line_ids:
-
                 for line in invoice.invoice_line_ids:
                     line.run_onchanges()
 
@@ -610,7 +643,7 @@ class AccountMove(models.Model):
 
     def _post(self, soft=True):
         if not self.x_get_is_poland():
-            return super()._post()
+            return super()._post(soft)
 
         invoice_ids = self.browse()
         correction_ids = self.browse()
@@ -666,8 +699,8 @@ class AccountMove(models.Model):
             if move.partner_bank_id and not move.partner_bank_id.active:
                 raise UserError(
                     _(
-                        "The recipient bank account link to this invoice is archived.\n"
-                        "So you cannot confirm the invoice."
+                        'The recipient bank account link to this invoice is archived.\n'
+                        'So you cannot confirm the invoice.'
                     )
                 )
             if move.state == 'posted':
@@ -676,10 +709,10 @@ class AccountMove(models.Model):
                 raise UserError(_('You need to add a line before posting.'))
             if move.auto_post and move.date > fields.Date.context_today(self):
                 date_msg = move.date.strftime(get_lang(self.env).date_format)
-                raise UserError(_("This move is configured to be auto-posted on %s", date_msg))
+                raise UserError(_('This move is configured to be auto-posted on %s', date_msg))
             if not move.journal_id.active:
                 raise UserError(
-                    _("You cannot post an entry in an archived journal (%(journal)s)", journal=move.journal_id.name)
+                    _('You cannot post an entry in an archived journal (%(journal)s)', journal=move.journal_id.name)
                 )
 
             if not move.partner_id:
@@ -707,7 +740,7 @@ class AccountMove(models.Model):
 
             if move.display_inactive_currency_warning:
                 raise UserError(
-                    _("You cannot validate an invoice with an inactive currency: %s", move.currency_id.name)
+                    _('You cannot validate an invoice with an inactive currency: %s', move.currency_id.name)
                 )
 
             # Handle case when the invoice_date is not set. In that case, the invoice_date is set at today and then,
@@ -719,7 +752,7 @@ class AccountMove(models.Model):
                     move.invoice_date = fields.Date.context_today(self)
                     move.with_context(check_move_validity=False)._onchange_invoice_date()
                 elif move.is_purchase_document(include_receipts=True):
-                    raise UserError(_("The Bill/Refund date is required to validate this document."))
+                    raise UserError(_('The Bill/Refund date is required to validate this document.'))
 
             # When the accounting date is prior to a lock date, change it automatically upon posting.
             # /!\ 'check_move_validity' must be there since the dynamic lines will be recomputed outside the 'onchange'
@@ -852,15 +885,12 @@ class AccountMove(models.Model):
                 for line in lines:
                     # get the outstanding residual value in invoice currency
                     if line.currency_id and line.currency_id == move.currency_id:
-                        amount_to_show = abs(line.amount_residual_currency)
+                        amount_to_show = line.amount_residual_currency
 
                     else:
                         currency = line.company_id.currency_id
                         amount_to_show = currency._convert(
-                            abs(line.amount_residual),
-                            move.currency_id,
-                            move.company_id,
-                            line.date or fields.Date.today(),
+                            line.amount_residual, move.currency_id, move.company_id, line.date or fields.Date.today()
                         )
 
                     if move.currency_id.is_zero(amount_to_show):
@@ -888,52 +918,95 @@ class AccountMove(models.Model):
         return formatLang(env, 0.0 if currency.is_zero(number) else number, currency_obj=currency)
 
     # noinspection PyUnresolvedReferences,PyTypeChecker
-    @api.depends(
-        'line_ids.price_subtotal',
-        'line_ids.tax_base_amount',
-        'line_ids.tax_line_id',
-        'partner_id',
-        'currency_id',
-        'refund_invoice_id',
-    )
-    def _x_compute_invoice_taxes_by_group(self):
+    @api.depends('refund_invoice_id.tax_totals_json', 'tax_totals_json')
+    def _x_compute_corrected_tax_totals_json(self):
         pln = self.env.ref('base.PLN')
 
         for move in self:
-            move.x_corrected_amount_by_group = []
-            move.x_corrected_amount_summary = []
+            move.x_corrected_tax_totals_json = b'{}'
 
             if not move.is_invoice(include_receipts=True) or not move.refund_invoice_id:
                 continue
 
             lang_env = move.with_context(lang=move.partner_id.lang).env
-            balance_multiplicator = -1 if move.move_type.endswith('_refund') else 1
 
-            for corr in move.amount_by_group:
-                move.x_corrected_amount_by_group.append(
-                    (
-                        corr[0],
-                        -corr[1],
-                        -corr[2],
-                        self._format_float(-corr[1], move.currency_id, lang_env),
-                        self._format_float(-corr[2], move.currency_id, lang_env),
-                        corr[5],
-                        corr[6],
-                        self._format_float(-corr[8], pln, lang_env),
-                        -corr[8],
-                    )
+            final_data = {'subtotals': [], 'groups_by_subtotal': {}}
+            original_data = json.loads(move.refund_invoice_id.tax_totals_json)
+            move_data = json.loads(move.tax_totals_json)
+
+            for key, value in original_data.items():
+                if key in ('amount_total', 'amount_untaxed', 'x_tax_amount', 'x_tax_amount_in_pln'):
+                    final_data[key] = original_data.get(key, 0.0) + move_data.get(key, 0.0)
+
+            for group_original, group_this in zip(original_data.get('subtotals', []), move_data.get('subtotals')):
+                amount = group_original['amount'] + group_this['amount']
+                final_data['subtotals'].append(
+                    {
+                        'name': group_original['name'],
+                        'amount': amount,
+                        'formatted_amount': formatLang(lang_env, amount, currency_obj=move.currency_id),
+                    }
                 )
 
-            amount_summary = move.refund_invoice_id.x_invoice_amount_summary.copy()
+            # assumption: section keys and number equals between invoices
+            for section, section_original in original_data['groups_by_subtotal'].items():
+                final_data['groups_by_subtotal'][section] = []
+                section_this = move_data['groups_by_subtotal'].get(section, {})
+                seen = []
+                to_process = []
 
-            for key in ('base', 'amount', 'in_pln', 'total'):
-                f_key = f'{key}_float'
-                amount_summary[f_key] += balance_multiplicator * move.x_invoice_amount_summary[f_key]
-                amount_summary[key] = formatLang(lang_env, amount_summary[f_key], currency_obj=move.currency_id)
+                for group_original in section_original:
+                    for group_this in section_this:
+                        if group_original['tax_group_id'] == group_this['tax_group_id']:
+                            to_process.append((group_original, group_this))
+                            seen.append(group_original['tax_group_id'])
+                            break
+                    else:
+                        # no matching group in second section
+                        to_process.append((group_original, {}))
 
-            amount_summary['in_pln'] = formatLang(lang_env, amount_summary['in_pln_float'], currency_obj=pln)
+                # check for unmatched sections
+                for group_this in section_this:
+                    if group_this['tax_group_id'] not in seen:
+                        to_process.append(({}, group_this))
 
-            move.x_corrected_amount_summary = amount_summary
+                for group_original, group_this in to_process:
+                    final_group = {
+                        'tax_group_name': group_original['tax_group_name'],
+                        'group_key': group_original['group_key'],
+                        'tax_group_id': group_original['tax_group_id'],
+                    }
+
+                    for key, f_key, currency_id in (
+                        ('tax_group_base_amount', 'formatted_tax_group_base_amount', move.currency_id),
+                        ('tax_group_amount', 'formatted_tax_group_amount', move.currency_id),
+                        ('x_tax_group_total_amount', 'x_formatted_tax_group_total_amount', move.currency_id),
+                        ('x_tax_group_amount_in_pln', 'x_formatted_tax_group_amount_in_pln', pln),
+                    ):
+                        final_group[key] = group_original[key] + group_this[key]
+                        final_group[f_key] = formatLang(lang_env, final_group[key], currency_obj=currency_id)
+
+                    final_data['groups_by_subtotal'][section].append(final_group)
+
+            final_data.update(
+                {
+                    'formatted_amount_total': formatLang(
+                        lang_env, final_data['amount_total'], currency_obj=move.currency_id
+                    ),
+                    'formatted_amount_untaxed': formatLang(
+                        lang_env, final_data['amount_untaxed'], currency_obj=move.currency_id
+                    ),
+                    'allow_tax_edition': False,
+                    'x_formatted_tax_amount': formatLang(
+                        lang_env, final_data['x_tax_amount'], currency_obj=move.currency_id
+                    ),
+                    'x_formatted_tax_amount_in_pln': formatLang(
+                        lang_env, final_data['x_tax_amount_in_pln'], currency_obj=pln
+                    ),
+                }
+            )
+
+            move.x_corrected_tax_totals_json = json.dumps(final_data)
 
     @api.depends(
         'line_ids.price_subtotal', 'line_ids.tax_base_amount', 'line_ids.tax_line_id', 'partner_id', 'currency_id'
@@ -965,7 +1038,6 @@ class AccountMove(models.Model):
             )
 
             for tax in base_line.tax_ids.flatten_taxes_hierarchy():
-
                 if base_line.tax_line_id.tax_group_id == tax.tax_group_id:
                     continue
 
@@ -974,7 +1046,9 @@ class AccountMove(models.Model):
                     tax_group_vals['base_amount'] += base_amount
                     tax_group_vals['base_lines'].add(base_line)
 
+            # noinspection PyTypeChecker
             if not base_line.tax_ids and base_line not in tax_group_mapping[EmptyTaxGroup]['base_lines']:
+                # noinspection PyTypeChecker
                 tax_group_vals = tax_group_mapping[EmptyTaxGroup]
                 tax_group_vals['base_amount'] += base_amount
                 tax_group_vals['base_lines'].add(base_line)
@@ -984,6 +1058,7 @@ class AccountMove(models.Model):
             tax_amount = balance_multiplicator * (
                 tax_line.amount_currency if tax_line.currency_id else tax_line.balance
             )
+            # noinspection PyTypeChecker
             tax_group_vals = tax_group_mapping[tax_line.tax_line_id.tax_group_id]
             tax_group_vals['tax_amount'] += tax_amount
             tax_group_vals['in_pln'] += balance_multiplicator * tax_line.balance
@@ -992,7 +1067,7 @@ class AccountMove(models.Model):
         amount_by_group = []
         for tax_group in tax_groups:
             tax_group_vals = tax_group_mapping[tax_group]
-            # noinspection PyTypeChecker
+            # noinspection PyTypeChecker,PyUnresolvedReferences
             amount_by_group.append(
                 (
                     tax_group.name,
@@ -1016,9 +1091,9 @@ class AccountMove(models.Model):
 
         summary.update(
             {
-                'base_amount': abs(summary['base_amount']) * self.x_invoice_sign,
-                'tax_amount': abs(summary['tax_amount']) * self.x_invoice_sign,
-                'in_pln': abs(summary['in_pln']) * self.x_invoice_sign,
+                'base_amount': summary['base_amount'] * self.x_invoice_sign,
+                'tax_amount': summary['tax_amount'] * self.x_invoice_sign,
+                'in_pln': summary['in_pln'] * self.x_invoice_sign,
             }
         )
 
@@ -1120,17 +1195,17 @@ class AccountMove(models.Model):
         self.ensure_one()
         if (
             self.move_type in ('out_refund', 'in_refund')
-            and not self.currency_id.compare_amounts(
-                self.x_corrected_amount_total, self.refund_invoice_id.x_corrected_amount_total
-            )
-            >= 0
+            # and not self.currency_id.compare_amounts(
+            #     self.x_corrected_amount_total, self.refund_invoice_id.x_corrected_amount_total
+            # )
+            # >= 0
         ):
             return -1
 
         return 1
 
     @api.depends('move_type', 'refund_invoice_id.amount_total', 'amount_total', 'x_corrected_amount_total')
-    def x_compute_invoice_sign(self):
+    def _x_compute_invoice_sign(self):
         for move in self:
             move.x_invoice_sign = move.x_get_invoice_sign()
 
@@ -1153,7 +1228,6 @@ class AccountMove(models.Model):
                         total += line.balance
                         total_currency += line.amount_currency
                     elif line.account_id.user_type_id.type in ('receivable', 'payable'):
-
                         total_residual += line.amount_residual
                         total_residual_currency += line.amount_residual_currency
                 else:
@@ -1166,7 +1240,7 @@ class AccountMove(models.Model):
             else:
                 sign = 1
 
-            move.x_amount_total = sign * abs(total_currency if len(currencies) == 1 else total)
+            move.x_amount_total = sign * (total_currency if len(currencies) == 1 else total)
             move.x_amount_residual = total_residual_currency if len(currencies) == 1 else total_residual
 
     def _move_autocomplete_invoice_lines_write(self, vals):
@@ -1195,7 +1269,6 @@ class AccountMove(models.Model):
         return True
 
     def _x_update_context_with_currency_rate(self, obj=None, currency_rate=None, force=False):
-
         if obj is None:
             obj = self
 
@@ -1300,3 +1373,23 @@ class AccountMove(models.Model):
             taxes_map[tax]['amount'] = self.currency_id.round(taxes_map[tax]['amount'])
 
         return taxes_map
+
+    def x_show_vat_in_pln(self, total_vat_in_pln=None):
+        self.ensure_one()
+
+        if total_vat_in_pln is None:
+            return self.currency_id.name != 'PLN' and self.company_id.currency_id.name == 'PLN'
+
+        return (self.currency_id.name != 'PLN' and self.company_id.currency_id.name == 'PLN') and (
+            not self.company_currency_id.is_zero(total_vat_in_pln)
+        )
+
+    def action_switch_invoice_into_refund_credit_note(self):
+        if not self._context.get('x_disable_refund_switch'):
+            return super().action_switch_invoice_into_refund_credit_note()
+
+    def _stock_account_prepare_anglo_saxon_out_lines_vals(self):
+        # noinspection PyUnusedLocal
+        self = self.with_context(x_ti_additional_checks_eligible_for_cogs=True)
+        # noinspection PyUnresolvedReferences
+        return super()._stock_account_prepare_anglo_saxon_out_lines_vals()

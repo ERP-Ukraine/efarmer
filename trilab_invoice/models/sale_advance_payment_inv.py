@@ -1,4 +1,4 @@
-from odoo import api, fields, models, _
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
 
@@ -46,27 +46,25 @@ class SaleAdvancePaymentInv(models.TransientModel):
     @api.depends('order_ids')
     def compute_has_advances(self):
         for wizard in self:
-            wizard.has_advances = any(line.is_downpayment for line in wizard.order_line)
+            wizard.has_advances = any(wizard.order_line.mapped('is_downpayment'))
 
     @api.depends('order_ids.currency_id')
     def _x_compute_orders_currency_id(self):
         pln = self.env.ref('base.PLN')
-        for wizard in self:
 
+        for wizard in self:
             if not wizard.order_ids:
                 raise ValidationError(_('Missing sale order'))
 
-            currency_ids = wizard.order_ids.mapped('currency_id')
+            currency_ids = wizard.order_ids.currency_id
+
             wizard.x_is_convertible = (
-                currency_ids
-                and all(currency == currency_ids[0] for currency in currency_ids)
-                and all(
-                    currency_id == pln for currency_id in wizard.order_ids.mapped('invoice_ids').mapped('currency_id')
-                )
-                and currency_ids[0] != pln
+                len(currency_ids) == 1
+                and currency_ids != pln
+                and all(currency_id == pln for currency_id in wizard.order_ids.invoice_ids.currency_id)
             )
 
-            wizard.x_orders_currency_id = currency_ids[0] if wizard.x_is_convertible else False
+            wizard.x_orders_currency_id = currency_ids if wizard.x_is_convertible else False
 
     @api.onchange('x_convert_to_pln')
     def _x_onchange_convert_to_pln(self):
@@ -78,17 +76,17 @@ class SaleAdvancePaymentInv(models.TransientModel):
     @api.onchange('x_allowed_partner_bank_ids')
     def _x_onchange_set_partner_bank_account(self):
         self.ensure_one()
-        self.x_partner_bank_id = self.x_allowed_partner_bank_ids._origin[:1]
+        self.x_partner_bank_id = fields.first(self.x_allowed_partner_bank_ids._origin)
 
     @api.depends('order_ids.currency_id', 'order_ids.company_id', 'x_convert_to_pln')
     def _x_compute_allowed_partner_bank_accounts(self):
         pln = self.env.ref('base.PLN')
         for wizard in self:
-            currency_id = pln if wizard.x_convert_to_pln else wizard.order_ids[:1].currency_id
+            currency_id = pln if wizard.x_convert_to_pln else fields.first(wizard.order_ids).currency_id
 
             wizard.x_allowed_partner_bank_ids = self.env['res.partner.bank'].search(
                 [
-                    ('partner_id', '=', wizard.order_ids[:1].company_id.partner_id.id),
+                    ('partner_id', '=', fields.first(wizard.order_ids).company_id.partner_id.id),
                     ('currency_id', '=', currency_id.id),
                 ]
             )
@@ -99,23 +97,21 @@ class SaleAdvancePaymentInv(models.TransientModel):
             return super().onchange_advance_payment_method()
 
         if len(self._context.get('active_ids', [])) == 1:
-            advance_lines = [(6, 0, [])]
+            advance_lines = [fields.Command.clear()]
             inv_lines = self.env['sale.order.line'].browse(self.order_line.ids)
             taxes = inv_lines.mapped('tax_id')
             for tax in taxes:
                 lines = inv_lines.filtered(lambda lne: lne.tax_id.ids == [tax.id])
                 currency_id = self.currency_id or self.env.company.currency_id
-                subtotal = currency_id.round(sum(line.price_subtotal for line in lines))
+                subtotal = currency_id.round(sum(lines.mapped('price_subtotal')))
                 advance_lines.append(
-                    (
-                        0,
-                        0,
+                    fields.Command.create(
                         {
                             'tax_id': tax.id,
                             'original_subtotal': subtotal,
                             'original_total': currency_id.round(subtotal * (1.0 + (tax.amount / 100.0))),
                             'currency_id': currency_id.id,
-                        },
+                        }
                     )
                 )
             self.advance_lines = advance_lines
@@ -123,6 +119,7 @@ class SaleAdvancePaymentInv(models.TransientModel):
     def _prepare_invoice_values(self, order, name, amount, so_line):
         # noinspection PyProtectedMember
         invoice_vals = super()._prepare_invoice_values(order, name, amount, so_line)
+
         if not self._x_get_is_poland():
             return invoice_vals
 
@@ -132,7 +129,7 @@ class SaleAdvancePaymentInv(models.TransientModel):
         invoice_vals.update(
             {
                 # 'fiscal_position_id': order.fiscal_position_id.id or order.partner_id.property_account_position_id.id,
-                'is_downpayment': True if (self.env.context['invoice_type'] == 'percentage') else False,
+                'is_downpayment': self.env.context['invoice_type'] == 'percentage',
                 'partner_bank_id': self.x_partner_bank_id.id,
             }
         )
@@ -144,9 +141,7 @@ class SaleAdvancePaymentInv(models.TransientModel):
 
         if so_lines:
             invoice_vals['invoice_line_ids'] = [
-                (
-                    0,
-                    0,
+                fields.Command.create(
                     {
                         'name': self.product_id.name,
                         'price_unit': _line.price_unit
@@ -155,11 +150,11 @@ class SaleAdvancePaymentInv(models.TransientModel):
                         'quantity': 1.0,
                         'product_id': self.product_id.id,
                         'product_uom_id': _line.product_uom.id,
-                        'tax_ids': [(6, 0, _line.tax_id.ids)],
-                        'sale_line_ids': [(6, 0, [_line.id])],
-                        'analytic_tag_ids': [(6, 0, _line.analytic_tag_ids.ids)],
+                        'tax_ids': [fields.Command.set(_line.tax_id.ids)],
+                        'sale_line_ids': [fields.Command.set([_line.id])],
+                        'analytic_tag_ids': [fields.Command.set(_line.analytic_tag_ids.ids)],
                         'analytic_account_id': order.analytic_account_id.id or False,
-                    },
+                    }
                 )
                 for _line in so_lines
             ]
@@ -183,7 +178,8 @@ class SaleAdvancePaymentInv(models.TransientModel):
         # check if we should update currency rate
         ctx = {}
         if (
-            order.company_id.x_enable_invoice_rate_change
+            not self.x_convert_to_pln
+            and order.company_id.x_enable_invoice_rate_change
             and order.pricelist_id.currency_id != order.company_id.currency_id
         ):
             rate = self.env['res.currency']._get_conversion_rate(
@@ -200,7 +196,8 @@ class SaleAdvancePaymentInv(models.TransientModel):
 
         invoice = self.env['account.move'].sudo().with_context(**ctx).create(invoice_vals).with_user(self.env.uid)
 
-        order.check_advance_invoice_values()
+        order.with_context(**ctx).check_advance_invoice_values()
+
         invoice.message_post_with_view(
             'mail.message_origin_link',
             values={'self': invoice, 'origin': order},
@@ -228,18 +225,15 @@ class SaleAdvancePaymentInv(models.TransientModel):
         if not self._x_get_is_poland():
             return super().create_invoices()
 
-        ctx = dict(self.env.context)
-        ctx.update(
-            {
-                'selected_invoice_lines': self.invoice_lines.ids,
-                'invoice_type': self.advance_payment_method,
-                'x_journal_id': self.x_journal_id.id,
-                'x_convert_rate': self.x_convert_rate.id,
-                'x_partner_bank_id': self.x_partner_bank_id.id,
-            }
-        )
+        ctx = {
+            'selected_invoice_lines': self.invoice_lines.ids,
+            'invoice_type': self.advance_payment_method,
+            'x_journal_id': self.x_journal_id.id,
+            'x_convert_rate': self.x_convert_rate.id,
+            'x_partner_bank_id': self.x_partner_bank_id.id,
+        }
 
-        self = self.with_context(ctx)
+        self = self.with_context(**ctx)
         sale_orders = self.env['sale.order'].browse(self._context.get('active_ids', []))
 
         if self.advance_payment_method_2 == 'normal':
@@ -278,7 +272,7 @@ class SaleAdvancePaymentInv(models.TransientModel):
                     raise UserError(
                         _(
                             "The product used to invoice a down payment should be of type 'Service'. "
-                            "lease use another product or update this product."
+                            'lease use another product or update this product.'
                         )
                     )
 
@@ -293,14 +287,16 @@ class SaleAdvancePaymentInv(models.TransientModel):
                     amount = adv_line.value
                     analytic_tag_ids = []
                     for line in order.order_line:
-                        analytic_tag_ids = [(4, analytic_tag.id, None) for analytic_tag in line.analytic_tag_ids]
+                        analytic_tag_ids = [
+                            fields.Command.link(analytic_tag.id) for analytic_tag in line.analytic_tag_ids
+                        ]
                     so_line_values = self._prepare_so_line(order, analytic_tag_ids, adv_line.tax_id.ids, amount)
                     so_lines_values.append(so_line_values)
                     so_lines += sale_line_obj.create(so_line_values)
 
                 # noinspection PyProtectedMember
                 self.with_context(so_advance_lines=so_lines)._create_invoice(
-                    order, so_lines[:1], sum(so_lines.mapped('price_unit'))
+                    order, fields.first(so_lines), sum(so_lines.mapped('price_unit'))
                 )
 
         if self._context.get('open_invoices', False):
@@ -362,8 +358,8 @@ class SaleAdvanceLine(models.TransientModel):
         value_total = self.currency_id.round(value * (1.0 + (self.tax_id.amount / 100.0)))
         self.write(dict(value=value, value_total=value_total))
 
-    wizard_id = fields.Many2one('sale.advance.payment.inv', required=1)
-    tax_id = fields.Many2one('account.tax', required=1)
+    wizard_id = fields.Many2one('sale.advance.payment.inv', required=True)
+    tax_id = fields.Many2one('account.tax', required=True)
     original_subtotal = fields.Monetary()
     original_total = fields.Monetary()
     value = fields.Monetary(required=0, string='Value [NET]')

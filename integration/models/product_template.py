@@ -109,6 +109,22 @@ class ProductTemplate(models.Model):
         help='Indicates whether the product has any dynamic attributes.',
     )
 
+    mapping_count = fields.Integer(
+        string='Mapping Count',
+        compute='_compute_mapping_count',
+        help=(
+            'The number of mappings associated with this product.'
+        ),
+    )
+
+    def _compute_mapping_count(self):
+        TemplateMapping = self.env['integration.product.template.mapping']
+
+        for template in self:
+            template.mapping_count = TemplateMapping.search_count([
+                ('template_id', '=', template.id),
+            ])
+
     @api.depends('attribute_line_ids')
     def _compute_used_dynamic_attributes(self):
         for template in self:
@@ -428,8 +444,13 @@ class ProductTemplate(models.Model):
         )
         for integration in integrations:
             kw = integration._job_kwargs_export_images(self)
-            job = integration.with_delay(**kw).export_images_job(self)
+
+            job = integration.with_context(company_id=integration.company_id.id)\
+                .with_delay(**kw).export_images_job(self)
+
             self.with_context(default_integration_id=integration.id).job_log(job)
+
+        return True
 
     def trigger_export(self, export_images=False, force_integrations=None):
         if self.env.context.get('skip_product_export'):
@@ -468,7 +489,7 @@ class ProductTemplate(models.Model):
             templates_block = templates[:EXPORT_EXTERNAL_BLOCK]
 
             if use_jobs_for_blocks:
-                templates_block = templates_block.with_delay(
+                templates_block = templates_block.with_delay(  # TODO: undefined company_id in context
                     description=f'Export Templates. Prepare Templates ({block})',
                     priority=20,
                 )
@@ -520,8 +541,9 @@ class ProductTemplate(models.Model):
                 job_kwargs = integration._job_kwargs_export_template(
                     template, export_images, force=force_trigger,
                 )
-                integration = integration.with_context(company_id=integration.company_id.id)
-                job = integration.with_delay(**job_kwargs).export_template(template, **kwargs)
+                job = integration.with_context(company_id=integration.company_id.id)\
+                    .with_delay(**job_kwargs).export_template(template, **kwargs)
+
                 template.with_context(default_integration_id=integration.id).job_log(job)
 
     def _check_filling_mandatory_fields(self, integration):
@@ -551,7 +573,7 @@ class ProductTemplate(models.Model):
                 return not_valid(message)
 
         # 2. Check Internal-references
-        ref_field = integration._get_product_reference_name()
+        ref_field = integration.product_reference_name
         ref_field_count = f'{ref_field}_count'
         internal_references = self.product_variant_ids.filtered(
             lambda x: integration.id in x.integration_ids.ids
@@ -626,6 +648,8 @@ class ProductTemplate(models.Model):
 
     @api.model
     def _template_or_variant_to_images_export_format(self, record, integration):
+        external_record = record.to_external_record(integration)
+
         if record._name == 'product.template':
             extra_images = record.product_template_image_ids
             default_image_field = 'image_1920'
@@ -648,38 +672,24 @@ class ProductTemplate(models.Model):
             default_image = None
 
         extra_images_data = []
-        for extra_image in extra_images:
-            extra_image_data = {
-                'data': extra_image.image_1920,
-                'mimetype': _guess_mimetype(extra_image.image_1920),
-                'external_image_id': extra_image.get_mapping_any_external_id(integration, 'image'),
-                'odoo_obj_name': extra_image._name,
-                'odoo_obj_id': extra_image.id,
+        for image in extra_images:
+            data = {
+                'data': image.image_1920,
+                'mimetype': _guess_mimetype(image.image_1920),
+                'external_image_id': image.get_mapping_any_external_id(integration, 'image'),
+                'odoo_obj_name': image._name,
+                'odoo_obj_id': image.id,
                 'odoo_obj_field_name': 'image_1920',
-                'product_name': escape_trash(record.name, max_length=100),
+                'product_name': escape_trash(image.name, max_length=100),
             }
-            extra_images_data.append(extra_image_data)
+            extra_images_data.append(data)
 
-        external_record = record.to_external_record(integration)
-
-        images_data = {
+        return {
             'id': external_record.code,
             'default': default_image,
             'extra': extra_images_data,
             'default_code': external_record.external_reference,
         }
-
-        return images_data
-
-    def _template_ecommerce_field_domain(self, integration, external_code):
-        search_domain = [
-            ('integration_id', '=', integration.id),
-            ('odoo_model_id', '=', self.env.ref('product.model_product_template').id),
-        ]
-        if external_code:
-            search_domain.append(('send_on_update', '=', True))
-
-        return search_domain
 
     def _template_converter_update(self, template_data, integration, external_record):
         """Hook method for redefining."""
@@ -935,3 +945,24 @@ class ProductTemplate(models.Model):
         if len(self.product_variant_ids) > 1:
             return self._prepare_default_integration_ids()
         return [(6, 0, self.integration_ids.ids)]
+
+    def show_product_mappings(self):
+        """
+            Open a list view with mappings for the current product.
+        """
+        self.ensure_one()
+
+        view_id = self.env.ref('integration.integration_product_template_mapping_view_tree')
+        TemplateMapping = self.env['integration.product.template.mapping']
+        mapping_ids = TemplateMapping.search([('template_id', '=', self.id)])
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Products Mappings',
+            'res_model': 'integration.product.template.mapping',
+            'context': {'product_template_mapping': 1},
+            'view_mode': 'tree',
+            'view_id': view_id.id,
+            'domain': [('id', 'in', mapping_ids.ids)],
+            'target': 'current',
+        }

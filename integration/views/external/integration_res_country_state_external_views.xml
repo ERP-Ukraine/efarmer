@@ -38,7 +38,7 @@
         </record>
 
         <record id="integration_res_country_state_external_action" model="ir.actions.act_window">
-            <field name="name">States</field>
+            <field name="name">External States</field>
             <field name="res_model">integration.res.country.state.external</field>
             <field name="view_mode">tree</field>
         </record>

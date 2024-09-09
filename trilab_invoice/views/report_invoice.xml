@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
   <template id="tax_summary">
     <table class="table table-sm table-condensed x-tax-summary" style="page-break-inside: avoid;" name="x_tax_summary">
+      <t t-set="vat_to_pln" t-value="o.x_show_vat_in_pln(tax_totals['x_tax_amount_in_pln'])"/>
       <tr class="border-black bg-200 x-tax-summary-header">
         <td class="text-left" t-if="not x_hide_first_header">
           <strong>VAT Rate</strong>
@@ -49,7 +50,7 @@
             <span t-out="tax_totals['amount_untaxed']"
                   t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
           </strong>
-        </td>'
+        </td>
         <td class="text-right" style="white-space: nowrap;">
           <strong>
             <span t-out="tax_totals['x_tax_amount']"
@@ -59,7 +60,7 @@
         <td class="text-right" style="white-space: nowrap;" t-if="vat_to_pln">
           <strong>
             <span t-out="tax_totals['x_tax_amount_in_pln']"
-                  t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                  t-options="{'widget': 'monetary', 'display_currency': o.company_currency_id}"/>
           </strong>
         </td>
 
@@ -141,6 +142,11 @@
       </h2>
     </h2>
 
+    <!-- update label - for translation only -->
+    <xpath expr="//div[@name='shipping_address_block']/strong" position="replace">
+      <strong>Shipping Address:</strong>
+    </xpath>
+
     <div name="reference" position="attributes">
       <attribute name="t-if">not o.move_type.endswith('_refund') and o.ref</attribute>"
     </div>
@@ -163,7 +169,7 @@
     <!-- Final invoice hide downpayment lines -->
     <t t-set="lines" position="replace">
       <t t-set="lines"
-         t-value="o.invoice_line_ids.sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)"/>
+         t-value="o.invoice_line_ids.filtered(lambda l: l.x_can_print()).sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)"/>
       <t t-if="o.final_source_id">
         <t t-set="lines" t-value="lines.filtered(lambda l: l.quantity >= 0)"/>
       </t>
@@ -379,7 +385,6 @@
       </t>
 
       <t t-if="o.final_source_id and not o.refund_invoice_id">
-        <t t-set="vat_to_pln" t-value="o.currency_id.name != 'PLN' and o.company_id.currency_id.name == 'PLN'"/>
         <div class="row" name="final_table_total_with_advances">
           <div class="col-4"/>
           <div class="col-8">
@@ -444,7 +449,7 @@
                 <td class="text-right" style="white-space: nowrap;" t-if="vat_to_pln">
                   <strong>
                     <span t-out="x_invoice_amount_summary['in_pln_float']"
-                          t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                          t-options="{'widget': 'monetary', 'display_currency': o.company_currency_id}"/>
                   </strong>
                 </td>
 
@@ -466,7 +471,6 @@
     <!-- Final invoice lines without downpayments or Correction invoice with advance_source_id then, show downpayments -->
     <table name="invoice_line_table" position="after">
       <t t-if="o.final_source_id or (o.refund_invoice_id and o.advance_source_id)">
-        <t t-set="vat_to_pln" t-value="o.currency_id.name != 'PLN' and o.company_id.currency_id.name == 'PLN'"/>
         <div class="row">
           <div class="col-4"/>
           <div class="col-8">
@@ -512,7 +516,7 @@
         </thead>
         <tbody class="invoice_tbody">
           <t t-set="current_subtotal" t-value="0"/>
-          <t t-foreach="o.original_invoice_line_ids.sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)"
+          <t t-foreach="o.original_invoice_line_ids.filtered(lambda l: l.x_can_print()).sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)"
              t-as="line">
             <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"
                groups="account.group_show_line_subtotals_tax_excluded"/>
@@ -591,7 +595,7 @@
           </tr>
         </thead>
         <tbody class="invoice_tbody">
-          <t t-foreach="o.corrected_invoice_line_ids.sorted(key=lambda l: (-l.sequence, -l.id), reverse=True)"
+          <t t-foreach="o.corrected_invoice_line_ids.filtered(lambda l: l.x_can_print()).sorted(key=lambda l: (-l.sequence, -l.id), reverse=True)"
              t-as="line">
             <tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''">
               <t t-if="not line.display_type" name="account_invoice_line_accountable">
@@ -640,49 +644,16 @@
 
     <!-- tax summary table -->
     <xpath expr="//div[@id='total']" position="replace">
-      <t t-set="vat_to_pln" t-value="o.currency_id.name != 'PLN' and o.company_id.currency_id.name == 'PLN'"/>
       <div id="total" class="row" t-if="not o.advance_source_id and not o.final_source_id">
         <div class="col-4"/>
         <div class="col-8">
           <t t-set="tax_totals" t-value="json.loads(o.tax_totals_json)"/>
-          <t t-call="trilab_invoice.tax_summary">
-            <t t-set="x_hide_summary" t-value="True"/> <!-- validate if setting this to False  will not be enough -->
-            <tr class="border-black o_total" style="border-bottom: 1px solid #000000;">
-              <td>
-                <strong>Total</strong>
-              </td>
-              <td class="text-right" style="white-space: nowrap;">
-                <strong>
-                  <span t-out="o.x_invoice_sign * abs(tax_totals['amount_untaxed'])"
-                        t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
-                </strong>
-              </td>
-              <td class="text-right" style="white-space: nowrap;">
-                <strong>
-                  <span t-out="o.x_invoice_sign * abs(tax_totals['x_tax_amount'])"
-                        t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
-                </strong>
-              </td>
-              <td class="text-right" style="white-space: nowrap;" t-if="vat_to_pln">
-                <strong>
-                  <span t-out="o.x_invoice_sign * abs(tax_totals['x_tax_amount_in_pln'])"
-                        t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
-                </strong>
-              </td>
-
-              <td class="text-right" style="white-space: nowrap;">
-                <strong>
-                  <span t-out="o.x_invoice_sign * abs(tax_totals['amount_total'])"
-                        t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
-                </strong>
-              </td>
-            </tr>
-          </t>
+          <t t-call="trilab_invoice.tax_summary"/>
 
           <t t-if="print_with_payments" t-foreach="o._get_reconciled_info_JSON_values()" t-as="payment_vals">
             <div style="text-align: right;">
-              <span t-esc="payment_vals['amount']" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
-                Paid on <t t-esc="payment_vals['date']" t-options="{'widget': 'date'}"/>
+              <span t-out="payment_vals['amount']" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                Paid on <t t-out="payment_vals['date']" t-options="{'widget': 'date'}"/>
             </div>
           </t>
 
@@ -702,13 +673,13 @@
     </p>
 
     <!-- słownie -->
-<!--    <xpath expr="//*[@name='payment_term']" position="before">-->
-<!--      <t t-set="amount_total_in_words" t-value="o.x_num2words(abs(o.amount_total), o.currency_id.name)"/>-->
+    <xpath expr="//*[@name='payment_term']" position="before">
+      <t t-set="amount_total_in_words" t-value="o.x_num2words(abs(o.amount_total), o.currency_id.name)"/>
 
-<!--      <p id="total-in-words" t-if="amount_total_in_words">-->
-<!--        In words: <span t-out="amount_total_in_words"/>-->
-<!--      </p>-->
-<!--    </xpath>-->
+      <p id="total-in-words" t-if="amount_total_in_words">
+        In words: <span t-out="amount_total_in_words"/>
+      </p>
+    </xpath>
 
     <!-- payment communication -->
     <xpath expr="//p[@name='payment_communication']" position="attributes">

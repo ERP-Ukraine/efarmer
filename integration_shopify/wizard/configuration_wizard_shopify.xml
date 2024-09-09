@@ -36,6 +36,11 @@
                             </tree>
                         </field>
                     </group>
+                    <div name="step_sale_channels" states="step_sale_channels">
+                        <group>
+                            <field name="configuration_integration_channel_ids" widget="many2many_tags" options="{'no_create': True, 'no_edit': True}"/>
+                        </group>
+                    </div>
                     <group name="step_order_status" states="step_order_status">
                         <field name="configuration_order_status_ids" nolabel="1">
                             <tree create="0" edit="0" delete="0" editable="bottom">

@@ -50,42 +50,37 @@ class CommonFields:
         return self.odoo_obj._name == 'product.product'
 
     def calculate_field_value(self, ecommerce_field):
-        converter_method = getattr(self, '_get_{}_value'.format(ecommerce_field.value_converter))
+        """
+        :converter_method:
+            - _get_simple_value
+            - _get_python_method_value
+            - _get_translatable_field_value
+        """
+        converter_method = getattr(self, ecommerce_field.converter_action_name)
+
         if not converter_method:
             raise UserError(
-                _(
-                    'There is no method defined for converter %s'
-                ) % ecommerce_field.value_converter
+                _('Converted method for "%s" not found: %s()')
+                % (self.odoo_obj._name, ecommerce_field.converter_action_name)
             )
+
         return converter_method(ecommerce_field)
 
-    def _get_ecommerce_fields_mapping(self, domain_ext):
-        xml_id = 'product.model_%s' % '_'.join(self.odoo_obj._name.split('.'))
-
+    def _get_ecommerce_fields_from_active_mappings(self, domain_ext: list):
         search_domain = [
+            ('active', '=', True),
             ('integration_id', '=', self.integration.id),
-            ('odoo_model_id', '=', self.env.ref(xml_id).id),
+            ('odoo_model_name', '=', self.odoo_obj._name),
+            *domain_ext,
         ]
-        if domain_ext:
-            search_domain += domain_ext
-
-        return self.env['product.ecommerce.field.mapping'].search(search_domain)\
+        return self.env['product.ecommerce.field.mapping']\
+            .search(search_domain)\
             .mapped('ecommerce_field_id')
 
-    def _get_ecommerce_field(self, field_name):
-        xml_id = 'product.model_%s' % '_'.join(self.odoo_obj._name.split('.'))
-
-        search_domain = [
-            ('odoo_field_id.name', '=', field_name),
-            ('odoo_model_id', '=', self.env.ref(xml_id).id),
-            ('type_api', '=', self.integration.type_api),
-        ]
-        return self.env['product.ecommerce.field'].sudo().search(search_domain)
-
-    def calculate_fields(self, domain_ext):
+    def calculate_fields(self, domain_ext: list):
         vals = {}
 
-        for field in self._get_ecommerce_fields_mapping(domain_ext):
+        for field in self._get_ecommerce_fields_from_active_mappings(domain_ext):
             field_values = self.calculate_field_value(field)
             vals = self._update_calculated_fields(vals, field_values)
 
@@ -147,7 +142,7 @@ class CommonFields:
                 'Please, go to "Sales->Settings->Units of Measure Categories->Weight" '
                 'and create it.') % uom_name)
 
-        odoo_weight_uom = self.env["product.template"]._get_weight_uom_id_from_ir_config_parameter()
+        odoo_weight_uom = self.env['product.template']._get_weight_uom_id_from_ir_config_parameter()
 
         if external_weight_uom != odoo_weight_uom:
             if is_import:

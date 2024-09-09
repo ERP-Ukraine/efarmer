@@ -15,13 +15,6 @@ STATE_LIST = (
 )
 
 SKIP_CLS = {
-    'mrp': {
-        'False': [
-            'odoo.addons.integration.models.mrp_bom.MrpBom',
-            'odoo.addons.integration.models.mrp_bom_line.MrpBomLine',
-        ],
-        'True': [],
-    },
     'website_sale': {
         'False': [
             'odoo.addons.integration.models.product_image.ProductImageInherit',

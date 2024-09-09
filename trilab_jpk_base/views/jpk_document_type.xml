@@ -13,6 +13,7 @@
                 <field name="xsd_id" invisible="1"/>
                 <field name="xsd_id_datas" widget="binary" filename="xsd_id_name"/>
                 <field name="xsd_id_name" invisible="1"/>
+                <field name="gate_type"/>
             </tree>
         </field>
     </record>
@@ -32,6 +33,7 @@
                             <field name="xsd_id" invisible="1"/>
                             <field name="xsd_id_datas" widget="binary" filename="xsd_id_name" readonly="0"/>
                             <field name="xsd_id_name" readonly="0" invisible="1"/>
+                             <field name="gate_type" widget="radio"/>
                         </group>
                         <group/>
                     </group>

@@ -3,6 +3,7 @@
 from odoo import _
 from odoo.models import BaseModel
 from odoo.exceptions import UserError
+
 from .common_fields import CommonFields
 from ...exceptions import NotMappedToExternal
 from ...models.fields.common_fields import TEXT_FIELDS, MANY2ONE_FIELDS
@@ -51,14 +52,16 @@ class SendFields(CommonFields):
         return external_record and external_record.code
 
     def _get_simple_value(self, ecommerce_field):
-        field_name = ecommerce_field.odoo_field_id.name
-        field_type = self.odoo_obj._fields[field_name].type
+        field_name = ecommerce_field.odoo_field_name
         odoo_value = getattr(self.odoo_obj, field_name)
 
-        return {
-            ecommerce_field.technical_name:
-                self._prepare_simple_value(field_name, field_type, odoo_value)
-        }
+        api_value = self._prepare_simple_value(
+            field_name,
+            self.odoo_obj._fields[field_name].type,
+            odoo_value,
+        )
+
+        return {ecommerce_field.technical_name: api_value}
 
     def _prepare_simple_value(self, field_name, field_type, odoo_value):
         if not odoo_value and field_type in TEXT_FIELDS:
@@ -73,13 +76,9 @@ class SendFields(CommonFields):
         return odoo_value
 
     def _get_translatable_field_value(self, ecommerce_field):
-        api_name = ecommerce_field.technical_name
-        erp_name = ecommerce_field.odoo_field_id.name
-
-        api_value = self.convert_translated_field_to_integration_format(erp_name)
-        return {
-            api_name: api_value or '',
-        }
+        odoo_name = ecommerce_field.odoo_field_name
+        api_value = self.convert_translated_field_to_integration_format(odoo_name)
+        return {ecommerce_field.technical_name: api_value or ''}
 
     def _get_python_method_value(self, ecommerce_field):
         result = self._compute_field_value_using_python_method(
@@ -88,7 +87,6 @@ class SendFields(CommonFields):
 
     def calculate_send_fields(self, external_code):
         domain_ext = external_code and [('send_on_update', '=', True)] or []
-
         return self.calculate_fields(domain_ext)
 
     def get_price_by_send_tax_incl(self, price):
@@ -97,7 +95,7 @@ class SendFields(CommonFields):
         try:
             decimal_precision = int(decimal_precision)
         except ValueError:
-            raise UserError('The decimal precision value is not a valid integer.')
+            raise UserError(_('The decimal precision value is not a valid integer.'))
 
         if self.integration.select_send_sale_price == 'no_changes':
             return round_float(price, decimal_precision)

@@ -1,17 +1,14 @@
 #  See LICENSE file for full copyright and licensing details.
 
-from urllib.error import HTTPError
+import logging
 
-from .exceptions import ShopifyApiException
-from .tools import ClientError, ResourceNotFound
-from .tools import catch_exception, TOO_MANY_REQUESTS, RESOURCE_NOT_FOUND
+import requests
 
 from odoo import _
 from odoo.exceptions import UserError, ValidationError
 
-import json
-import logging
-import requests
+from .tools import catch_exception
+from .exceptions import ShopifyApiException
 
 _logger = logging.getLogger(__name__)
 
@@ -33,7 +30,6 @@ try:
         InventoryLevel,
         Webhook,
         Customer,
-        GraphQL,
         Transaction,
         Metafield,
         Location,
@@ -142,6 +138,48 @@ class CustomCollectionPatch(CustomCollection):
         return super(CustomCollectionPatch, self).remove_product(product)
 
 
+class FulfillmentOrdersPatch(FulfillmentOrders):
+
+    _singular = 'fulfillment_order'
+    _plural = 'fulfillment_orders'
+
+    def _prepare_pending_lines(self):
+        lines = filter(lambda x: x.quantity and x.fulfillable_quantity, self.line_items)
+        return [dict(id=x.id, quantity=x.fulfillable_quantity) for x in lines]
+
+    def _prepare_pending_line(self, line_item_id: int, qty: int):
+        pending_qty = self._get_pending_qty(line_item_id)
+
+        if not pending_qty:
+            return dict()
+
+        if qty > pending_qty:
+            qty = pending_qty
+
+        return {
+            'quantity': qty,
+            'id': self._get_id_by_order_line(line_item_id),
+        }
+
+    def _get_pending_line_ids(self):
+        lines = filter(lambda x: x.quantity and x.fulfillable_quantity, self.line_items)
+        return [x.line_item_id for x in lines]
+
+    def _get_pending_qty(self, line_item_id: int):
+        line = self._get_line(line_item_id)
+        return line.fulfillable_quantity if line else int()
+
+    def _get_id_by_order_line(self, line_item_id: int):
+        line = self._get_line(line_item_id)
+        return line.id if line else line
+
+    def _get_line(self, line_item_id: int):
+        lines = list(
+            filter(lambda x: x.quantity and x.line_item_id == line_item_id, self.line_items)
+        )
+        return lines[0] if lines else False
+
+
 class Client:
 
     classes = {
@@ -152,7 +190,7 @@ class Client:
         IMAGE: Image,
         COUNTRY: Country,
         FULFILLMENT: FulfillmentV2,
-        FULFILLMENT_ORDER: FulfillmentOrders,
+        FULFILLMENT_ORDER: FulfillmentOrdersPatch,
         COLLECT: Collect,
         CATEGORY: CustomCollectionPatch,
         INVENT_ITEM: InventoryItem,
@@ -293,16 +331,3 @@ class Client:
                 break
 
         return result[:quantity]
-
-    @catch_exception
-    def _execute_graphql(self, query):
-        try:
-            result = GraphQL().execute(query)
-        except HTTPError as ex:
-            if ex.code == RESOURCE_NOT_FOUND:
-                raise ResourceNotFound(ex)
-            elif ex.code == TOO_MANY_REQUESTS:
-                raise ClientError(ex)
-            raise ex
-
-        return json.loads(result)
