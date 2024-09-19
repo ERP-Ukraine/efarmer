@@ -48,6 +48,12 @@
             <xpath expr="//field[@name='ticket_type_id']" position="after">
                  <field name="returned_amount" attrs="{'invisible': [('use_short_form', '=', False)]}"/>
             </xpath>
+            <xpath expr="//field[@name='tag_ids']" position="before">
+                <field name="allowed_tag_ids" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='tag_ids']" position="attributes">
+                <attribute name="domain">[('id', 'in', allowed_tag_ids)]</attribute>
+            </xpath>
         </field>
     </record>
 
