@@ -5,8 +5,9 @@ from odoo import api, fields, models
 class HelpdeskTicket(models.Model):
     _inherit = 'helpdesk.ticket'
 
-
     use_short_form = fields.Boolean(related='team_id.use_short_form', string='Short Form', store=True)
+    allowed_tag_ids = fields.Many2many(comodel_name='helpdesk.tag', related='team_id.allowed_tag_ids',
+                                       string='Allowed Tags')
     note = fields.Char(string='Note')
     delivery_transfer_id = fields.Many2one(comodel_name='stock.picking', string='Delivery Transfer')
     delivery_move_id = fields.Many2one(comodel_name='stock.move', string='Delivery Move')
@@ -26,6 +27,7 @@ class HelpdeskTicket(models.Model):
             'ticket_id': self.id,
             'choose_product_by': choose_product_by,
             'allowed_ticket_type_ids': [(4, type) for type in self.team_id.allowed_ticket_type_ids.ids],
+            'allowed_tag_ids': [(4, type) for type in self.team_id.allowed_tag_ids.ids],
             'product_id': self.product_id.id,
             'lot_id': self.lot_id.id,
             'partner_id': self.partner_id.id,
