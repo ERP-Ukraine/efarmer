@@ -18,7 +18,9 @@ class ShortTicketFormWizard(models.TransientModel):
     email = fields.Char(related='partner_id.email', string='Email')
     mobile = fields.Char(related='partner_id.mobile', string='Mobile')
     efarmer_client_type = fields.Many2one(related='partner_id.efarmer_client_type', string='Client Type')
-    tag_ids = fields.Many2many(comodel_name='helpdesk.tag', string='Tags')
+    allowed_tag_ids = fields.Many2many(comodel_name='helpdesk.tag', relation='short_ticket_form_wizard_allowed_tag_rel',
+                                       string='Allowed Tags')
+    tag_ids = fields.Many2many(comodel_name='helpdesk.tag', relation='short_ticket_form_wizard_tag_rel', string='Tags')
     allowed_ticket_type_ids = fields.Many2many(comodel_name='helpdesk.ticket.type', string='Allowed Types')
     note = fields.Char(string='Note')
     delivery_transfer_id = fields.Many2one(comodel_name='stock.picking', string='Delivery Transfer')
