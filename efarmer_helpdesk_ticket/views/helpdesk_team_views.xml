@@ -24,6 +24,7 @@
                 <group>
                     <group>
                         <field name="allowed_ticket_type_ids" widget="many2many_tags"/>
+                        <field name="allowed_tag_ids" widget="many2many_tags"/>
                     </group>
                 </group>
             </xpath>

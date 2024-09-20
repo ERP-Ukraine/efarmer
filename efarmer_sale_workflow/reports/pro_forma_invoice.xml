@@ -152,6 +152,38 @@ Podatki te leżą w gestii klienta, a ich wysokość różni się w zależności
                   </p>
               </div>
           </t>
+            <t t-elif="doc.partner_shipping_id.lang == 'it_IT'">
+              <div>
+                  <br/>
+                  <p>
+                    Completando questo acquisto dichiari di aver letto e accettato il contenuto della nostra
+                    <a class="reference external" href="https://www.fieldbee.com/docs/privacy-policy-it">Informativa sulla privacy</a>
+                    e i nostri
+                    <a class="reference external" href="https://www.fieldbee.com/docs/terms-of-service-it">Termini di servizio</a>,
+                    <a class="reference external" href="https://www.fieldbee.com/docs/shipping-policy-it">Politica di spedizione</a>
+                    e
+                    <a class="reference external" href="https://www.fieldbee.com/docs/return-policy-it">Politica di reso.</a>
+                  </p>
+              </div>
+              <div>
+                  <br/>
+                  <p>
+                      <strong>IMPORTANTE!</strong>
+                      <t t-if="any([code.startswith('KDU.0044') for code in doc.order_line.mapped('product_id').filtered(lambda p: p.default_code).mapped('default_code')])">
+                          <li>
+                              Per garantire una tempestiva elaborazione e una spedizione dell'ordine, ti preghiamo di fornire il modello
+                              specifico del tuo trattore e i parametri asse del volante (<a target="_blank"  href="https://tech.fieldbee.com/">LINK</a>). In caso di mancata ricezione di queste
+                              informazioni, potrebbero esserci ritardi nella spedizione. Di conseguenza, i tempi di consegna e il tempo
+                              complessivo di elaborazione dell'ordine potrebbero aumentare rispetto a quelli indicati.
+                      </li>
+                      </t>
+                      <li>
+                          Per le spedizioni a paesi al di fuori dell'Unione Europea, potrebbero essere applicate tasse aggiuntive. Queste tasse sono a carico del cliente
+                          e l'importo varierà a seconda del paese di destinazione. Si prega di verificare con l'ufficio doganale locale per maggiori informazioni sulle tasse applicabili.
+                      </li>
+                  </p>
+              </div>
+          </t>
           <t t-else="">
               <div>
                   <br/>
