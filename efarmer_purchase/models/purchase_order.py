@@ -125,7 +125,7 @@ class PurchaseOrder(models.Model):
         self.write({'state': 'fin_approve'})
         self.create_po_activity(
             'Approve Financial for {}'.format(self.name),
-            self.env.company.fin_manager_id
+            self.company_id.fin_manager_id
         )
 
     def button_confirm(self):
