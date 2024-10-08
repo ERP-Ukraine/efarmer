@@ -184,7 +184,7 @@
             <t t-call="efarmer_sale_workflow.device_label_70x35_US"/>
         </template>
 
-        <record id="action_device_label_mrp_production" model="ir.actions.report">
+        <record id="action_device_label_mrp_production_US" model="ir.actions.report">
             <field name="name">Product Device Label (70x35) US</field>
             <field name="model">mrp.production</field>
             <field name="report_type">qweb-text</field>
@@ -195,7 +195,7 @@
             <field name="binding_type">report</field>
         </record>
 
-        <record id="action_stock_device_label_quant" model="ir.actions.report">
+        <record id="action_stock_device_label_quant_US" model="ir.actions.report">
             <field name="name">Product Device Label (70x35) US</field>
             <field name="model">stock.quant</field>
             <field name="report_type">qweb-text</field>
