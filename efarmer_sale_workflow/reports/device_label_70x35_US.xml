@@ -106,11 +106,11 @@
 
                 ^XA
                 ^FO25,167
-                ^FB540,4,7,L,0
-                ^A0N,29
+                ^FB540,6,7,L,0
+                ^A0N,25
                 ^FH`
                 ^FD<t
-                    t-esc="cutter((doc.product_id.description_label if doc.product_id.description_label else ''), 130, True)"/>
+                    t-esc="cutter((doc.product_id.description_label if doc.product_id.description_label else ''), 210, True)"/>
                 ^FS
 
                 <t t-if="lot">
