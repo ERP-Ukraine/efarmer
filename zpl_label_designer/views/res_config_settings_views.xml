@@ -19,6 +19,26 @@
 
                                     <div class="content-group">
                                         <div class="mt16">
+                                            <label for="zld_api_key" string="API key for the integration with ZPL Label Designer" />
+                                            <br />
+                                            <field name="zld_api_key" widget="CopyClipboardChar" style="width:100%" readonly="1" />
+                                        </div>
+                                    </div>
+                                    <div class="text-muted">
+                                        This API Key will be used to get access from ZPL Label Designer to the Odoo
+                                        (for example, to get the list of available models or fields). It will not be
+                                        used to get any sensitive data.
+                                    </div>
+                                    <button name="generate_zld_api_key" string="Update API Key" type="object" class="oe_highlight mt-3" />
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"></div>
+                                <div class="o_setting_right_pane">
+
+                                    <div class="content-group">
+                                        <div class="mt16">
                                             <label for="zld_allowed_models" string="Allowed models to use in labels" />
                                             <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." groups="base.group_multi_company"/>
                                             <br />

@@ -7,10 +7,47 @@ Change Log
 
 |
 
+* 2.6.5 (2024-08-14)
+    - Fixed issue with scenario
+
+* 2.6.4 (2024-07-04)
+    - [NEW] Added the ability to use Report Rules and User Rules to define the default printer for Print Labels and other printing wizards.
+
+* 2.6.3 (2024-06-04)
+    - Ignoring the printing of attachments that are not shipping labels for the SendCloud Connector
+
+* 2.6.2 (2023-11-20)
+    - Fix issue with double printing for UPS Connector
+
+* 2.6.1 (2023-09-30)
+    - Fix issue with missed notification after replenishment
+
+* 2.6.0 (2023-06-08)
+    - [NEW] Added new security printing mode: this mode allows to print documents without sending them to Direct Print servers
+    - [NEW] Added improved workstation features: user can create multiple workstations and assign printers to them
+    - Fixed security issues. Improved and cleaned code of the module
+    - Fixed priority of printer selection for shipping labels
+    - Fixed issue with error while cancelling tracking number for shipping label
+
+* 2.5.1 (2023-03-20)
+    - [NEW] Added new scenario "Print Operations document on Transfer (after validation)" to print reports based on stock.move model
+
+* 2.5.0 (2023-02-27)
+    - [NEW] Added "Print Operation Reports" wizard to print reports based on stock.move model
+    - [NEW] Added "Print Order Line Reports" wizard to print reports based on sale.order.line model
+    - [NEW] Added possibility to set printer for report (through Report Settings)
+    - [NEW] Added button to remove old devices (computers / scales / printers)
+    - [NEW] Added a new checkbox "Allow to execute printing scenarios from crons" to control scenarios execution from crons
+    - Updated workstation feature to store default device in DB to provide reliable performance
+    - Improved performance while printing shipping labels
+    - Updated status menu to show all levels of default devices (workstation, user and company levels)
+    - Fixed issue with shipping label printer selection in multi-company mode
+    - Fixed some small issues that were affecting the user experience
+
 * 2.4.0 (2022-11-10)
-    - Added advanced logging feature
-    - Improved logic of workstation devices feature: devices won't be cleaned on user change
-    - Improved logic of computer/printer status updates in Odoo
+    - Added an advanced logging feature
+    - Improved the logic of the workstation devices feature: devices won't be cleaned on user change
+    - Improved the logic of computer/printer status updates in Odoo
     - Fixed issue with broken Print Reports wizard when trying to print reports with quantity > 1
     - Cleaned module code
 

@@ -92,11 +92,11 @@ class ResConfigSettings(models.TransientModel):
 
     printnode_account_id = fields.Many2one(
         comodel_name='printnode.account',
-        default=lambda self: self.get_printnode_account()
+        default=lambda self: self.get_main_printnode_account()
     )
 
     dpc_api_key = fields.Char(
-        string='API Key',
+        string='DPC API Key',
         related='printnode_account_id.api_key',
         readonly=False,
     )
@@ -121,6 +121,16 @@ class ResConfigSettings(models.TransientModel):
         comodel_name='printnode.log.type',
         readonly=False,
         related='company_id.log_type_ids',
+    )
+
+    secure_printing = fields.Boolean(
+        readonly=False,
+        related='company_id.secure_printing',
+    )
+
+    printing_scenarios_from_crons = fields.Boolean(
+        readonly=False,
+        related='company_id.printing_scenarios_from_crons',
     )
 
     @api.onchange('debug_logging', 'log_type_ids')
@@ -163,24 +173,42 @@ class ResConfigSettings(models.TransientModel):
 
         super(ResConfigSettings, self).set_values()
 
+    # Buttons
+
+    # TODO: Perhaps this concept should be reconsidered, because there can be two or more
+    #  accounts. In this case, actions like ('activate_account', 'import_devices',
+    #  'clear_devices_from_odoo', ...) must be performed not for the main account with
+    #  index [0], but for the account that is selected in the "dpc_api_key" field!
+    def get_main_printnode_account(self):
+        return self.env['printnode.account'].get_main_printnode_account()
+
     def activate_account(self):
         """
         Callback for activate button. Finds and activates the main account
         """
-        accounts = self.env['printnode.account'].search([]).sorted(key=lambda r: r.id)
+        account = self.get_main_printnode_account()
 
-        if accounts:
-            return accounts[0].activate_account()
-        else:
+        if not account:
             raise exceptions.UserError(_('Please, add an account before activation'))
 
-    def import_devices(self):
-        accounts = self.env['printnode.account'].search([]).sorted(key=lambda r: r.id)
+        return account.activate_account()
 
-        if accounts:
-            return accounts[0].import_devices()
-        else:
+    def import_devices(self):
+        """ Import Printers & Scales button in Settings.
+        """
+        account = self.get_main_printnode_account()
+
+        if not account:
             raise exceptions.UserError(_('Please, add an account before importing printers'))
 
-    def get_printnode_account(self):
-        return self.env['printnode.account'].get_main_printnode_account()
+        return account.import_devices()
+
+    def clear_devices_from_odoo(self):
+        """ Callback for "Clear Devices from Odoo" button.
+        """
+        account = self.get_main_printnode_account()
+
+        if not account:
+            raise exceptions.UserError(_('Please, add an account before clearing devices'))
+
+        return account.clear_devices_from_odoo()
