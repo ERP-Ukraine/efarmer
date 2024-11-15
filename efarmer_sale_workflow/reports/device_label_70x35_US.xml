@@ -105,12 +105,12 @@
                 0000000FFFFFFFFFFFC0000000
 
                 ^XA
-                ^FO25,167
-                ^FB540,6,7,L,0
-                ^A0N,25
+                ^FO25,177
+                ^FB545,6,7,L,0
+                ^A0N,23
                 ^FH`
                 ^FD<t
-                    t-esc="cutter((doc.product_id.description_label if doc.product_id.description_label else ''), 210, True)"/>
+                    t-esc="cutter((doc.product_id.description_label if doc.product_id.description_label else ''), 380, True)"/>
                 ^FS
 
                 <t t-if="lot">
@@ -162,9 +162,9 @@
                 ^FB78,2,10,L,0
                 ^A0N,34
 
-                ^FO25,350
+                ^FO25,355
                 ^FB350,2,10,L,0
-                ^A0N,25
+                ^A0N,20
                 ^FH`
                 ^FDDESIGNED IN UKRAINE \&amp;MANUFACTURED IN POLAND^FS
 
