@@ -1,6 +1,8 @@
 # Copyright 2023 VentorTech OU
 # Part of Ventor modules. See LICENSE file for full copyright and licensing details.
-from odoo import models, fields
+from odoo import models, fields, api
+from odoo.exceptions import ValidationError
+
 
 class DeliveryTerms(models.Model):
     _name = 'delivery.terms'
@@ -18,7 +20,18 @@ class DeliveryTerms(models.Model):
         ('unique_name_company',
          'UNIQUE(name, company_id)',
          'A delivery term with the same name for the same company already exists.'),
-        ('unique_default_for_company',
-         'UNIQUE(company_id, default_for_company)',
-         'You can select only one default value for the company.'),
     ]
+
+    @api.constrains('default_for_company', 'company_id')
+    def _check_default_for_company(self):
+        for record in self:
+            if record.default_for_company:
+                other_defaults = self.search([
+                    ('id', '!=', record.id),
+                    ('default_for_company', '=', True),
+                    ('company_id', '=', record.company_id.id)
+                ])
+                if other_defaults:
+                    raise ValidationError(
+                        'You can only have one delivery term set as default for the same company.'
+                    )
