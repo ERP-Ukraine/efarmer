@@ -3,6 +3,5 @@
     <data noupdate="1">
         <!-- Set default models for zld labels -->
         <function model="res.company" name="_set_default_zld_allowed_models" />
-
     </data>
 </odoo>

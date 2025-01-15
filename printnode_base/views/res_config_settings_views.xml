@@ -34,10 +34,17 @@
                                     <br />
 
                                     <div class="mt-4 mb-4" groups="base.group_no_one">
-                                        <button name="activate_account" string="Activate" type="object" class="oe_highlight" />
+                                        <button name="activate_account" string=" ACTIVATE" type="object" class="btn btn-outline-primary" icon="fa-warning" />
                                         <br />
                                         <small>
-                                            <strong>NOTE:</strong> Click on this button will clear all printers and devices loaded in Odoo
+                                            <strong>NOTE:</strong> Re-activate the account with a complete removal of all devices from Odoo and import them again
+                                        </small>
+                                    </div>
+                                    <div class="mt-4 mb-4" groups="base.group_no_one">
+                                        <button name="clear_devices_from_odoo" string=" CLEAR DEVICES FROM ODOO" type="object" class="btn btn-outline-danger" icon="fa-trash" />
+                                        <br />
+                                        <small>
+                                            <strong>NOTE:</strong> Click on this button will remove all devices from Odoo that are not connected to the Printnode account
                                         </small>
                                     </div>
 
@@ -83,7 +90,7 @@
                                     <div class="content-group">
                                         <div class="mt16 row">
                                             <label for="printnode_printer" string="Default Printer" class="col-4 col-lg-4 o_light_label" />
-                                            <field name="printnode_printer" class="oe_inline" />
+                                            <field name="printnode_printer" class="oe_inline" options="{'no_open': [('printnode_enabled', '=', False)]}" attrs="{'readonly': [('printnode_enabled', '=', False)]}" />
                                         </div>
                                     </div>
                                 </div>
@@ -114,7 +121,7 @@
 
                             <div class="col-12 col-lg-6 o_setting_box">
                                 <div class="o_setting_left_pane">
-                                    <field name="auto_send_slp" />
+                                    <field name="auto_send_slp" attrs="{'readonly': [('printnode_enabled', '=', False)]}"/>
                                 </div>
                                 <div class="o_setting_right_pane">
                                     <label for="auto_send_slp" />
@@ -130,7 +137,7 @@
                                     <div class="content-group">
                                         <div class="mt16 row">
                                             <label for="company_label_printer" string="Default Shipping Label Printer" class="col-4 col-lg-4 o_light_label" />
-                                            <field name="company_label_printer" class="oe_inline" />
+                                            <field name="company_label_printer" class="oe_inline" options="{'no_open': [('printnode_enabled', '=', False)]}" attrs="{'readonly': [('printnode_enabled', '=', False)]}"/>
                                         </div>
                                     </div>
                                 </div>
@@ -141,7 +148,7 @@
                                     <label for="print_labels_format" />
                                     <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." groups="base.group_multi_company"/>
                                     <br />
-                                    <field name="print_labels_format" class="oe_inline" />
+                                    <field name="print_labels_format" class="oe_inline" options="{'no_open': [('printnode_enabled', '=', False)]}" attrs="{'readonly': [('printnode_enabled', '=', False)]}" />
                                     <div class="text-muted">
                                         This option sets the default product label format for printing
                                         product labels using print scenarios. If this field is blank,
@@ -152,7 +159,7 @@
 
                             <div class="col-12 col-lg-6 o_setting_box" attrs="{'invisible': [('print_sl_from_attachment', '=', True)]}">
                                 <div class="o_setting_left_pane">
-                                    <field name="print_package_with_label" />
+                                    <field name="print_package_with_label" attrs="{'readonly': [('printnode_enabled', '=', False)]}" />
                                 </div>
                                 <div class="o_setting_right_pane">
                                     <label for="print_package_with_label" />
@@ -179,7 +186,7 @@
 
                             <div class="col-12 col-lg-6 o_setting_box" attrs="{'invisible': [('print_package_with_label', '=', True)]}">
                                 <div class="o_setting_left_pane">
-                                    <field name="print_sl_from_attachment" />
+                                    <field name="print_sl_from_attachment" attrs="{'readonly': [('printnode_enabled', '=', False)]}" />
                                 </div>
                                 <div class="o_setting_right_pane" attrs="{'invisible': [('print_package_with_label', '=', True)]}">
                                     <label for="print_sl_from_attachment" />
@@ -327,16 +334,45 @@
                                         Switch on/off logging
                                     </div>
 
-                                    <div class="content-group">
+                                    <div class="content-group" attrs="{'invisible': [('debug_logging', '=', False)]}">
                                         <div class="mt16">
                                             <label for="log_type_ids" string="Types of Logs" />
                                             <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." groups="base.group_multi_company"/>
                                             <br />
                                             <field name="log_type_ids" widget="many2many_tags" options="{'no_create': True, 'no_open': True}" attrs="{'readonly': [('debug_logging', '=', False)]}" />
                                         </div>
+                                        <div class="text-muted">
+                                            Types of logs to collect
+                                        </div>
                                     </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                    <field name="printing_scenarios_from_crons" />
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="printing_scenarios_from_crons" />
+                                    <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." groups="base.group_multi_company"/>
                                     <div class="text-muted">
-                                        Types of logs to collect
+                                        Set this checkbox to allow to execute printing scenarios from crons.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-6 o_setting_box" groups="base.group_no_one" >
+                                <div class="o_setting_left_pane">
+                                    <field name="secure_printing" />
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <a href="#" title="ATTENTION! Make sure you know what you're doing!" class="mr-2 fa fa-warning"></a>
+                                    <label for="secure_printing" string="Enable secure printing" />
+                                    <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." groups="base.group_multi_company"/>
+                                    <div class="text-muted">
+                                        This checkbox will enable Secure Printing Mode. In this mode, instead of sending the document's content to print, the print server receives a special download link for the document. 
+                                        This link is then passed to the client application, which downloads the document and sends it to print. This means that your documents content is never sent to the Direct Print server.
+                                        <p>More details <a href="https://print.ventor.tech/faq#how-secure-printing-works" target="_blank">here</a></p>
                                     </div>
                                 </div>
                             </div>

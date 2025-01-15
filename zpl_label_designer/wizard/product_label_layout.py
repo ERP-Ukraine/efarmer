@@ -5,6 +5,7 @@ PRODUCT_LABEL_MODELS_MAPPING = {
     'product.template': 'product.template',
     'product.product': 'product.product',
     'stock.picking': 'product.product',
+    'picking.label.type': 'product.product',
 }
 
 
@@ -32,15 +33,22 @@ class ProductLabelLayout(models.TransientModel):
         xml_id, data = super()._prepare_report_data()
 
         if self.print_format == 'zld_label':
-            if not self.zld_label_id:
-                raise exceptions.UserError(_('Please select a ZPL Designer label'))
+            if self.zld_label_id:
+                xml_id = self.zld_label_id.action_report_id.xml_id
 
-            xml_id = self.zld_label_id.action_report_id.xml_id
+                # Mark the label as Product Label, so we will manually add docids later (check
+                # 'ir.actions.report' model for details)
+                data['is_zld_product_label'] = True
 
-            # Mark the label as Product Label, so we will manually add docids later (check
-            # 'ir.actions.report' model for details)
-            data['is_zld_product_label'] = True
-
-            return xml_id, data
+            else:
+                xml_id = ''
 
         return xml_id, data
+
+    def process(self):
+        self.ensure_one()
+
+        if self.print_format == 'zld_label' and not self.zld_label_id:
+            raise exceptions.UserError(_('Please select a ZPL Designer label'))
+
+        return super().process()

@@ -1,114 +1,126 @@
 /** @odoo-module **/
 
-import ajax from 'web.ajax';
 import rpc from 'web.rpc';
 import session from 'web.session';
 
+import { browser } from '@web/core/browser/browser';
 import { registry } from '@web/core/registry';
-
-import WORKSTATION_DEVICES from './constants';
+import { useService } from '@web/core/utils/hooks';
 
 const systrayRegistry = registry.category('systray');
 const MANAGER_GROUP = 'printnode_base.printnode_security_group_manager';
 
 export class PrintnodeStatusMenu extends owl.Component {
     setup() {
+        this.user = useService('user');
         this.state = owl.useState({
             limits: [],
             devices: [],
             releases: [],
-            newRelease: false,
+            workstations: [],
+            rateUsURL: null,
             isManager: false,
+            loaded: false,
+            printnodeEnabled: session.dpc_user_enabled,
         });
+    }
 
+    async willStart() {
+        return this._fetchData(true);
+    }
+
+    async _fetchData(onlyReleases = false) {
+        this.state.loaded = false;
+
+        if (this.state.printnodeEnabled) {
+            // We check if current user has Manager group to make some elements of status menu
+            // visible only for managers
+            this.state.isManager = await session.user_has_group(MANAGER_GROUP);
+
+            const data = await rpc.query({
+                model: 'printnode.base',
+                method: 'get_status',
+                kwargs: { 'only_releases': onlyReleases },
+                context: this.user.context,
+            });
+
+            this.state.limits = data.limits;
+            this.state.releases = data.releases;
+            this.state.devices = data.devices;
+            this.state.workstations = data.workstations;
+            this.state.currentWorkstationId = this._getCurrentWorkstationId();
+            this.state.rateUsURL = this._prepareRateUsURL();
+        }
+        this.state.loaded = true;
+    }
+
+    _prepareRateUsURL() {
         // Rate Us URL
         let odooVersion = odoo.info.server_version;
         // This attribute can include some additional symbols we do not need here (like 12.0e+)
         odooVersion = odooVersion.substring(0, 4);
-        this.rateUsURL = `https://apps.odoo.com/apps/modules/${odooVersion}/printnode_base/#ratings`;
+
+        return `https://apps.odoo.com/apps/modules/${odooVersion}/printnode_base/#ratings`;
     }
 
-    async willStart() {
-        // We check if current user has Manager group to make some elements of status menu
-        // visible only for managers
-        const groupCheckPromise = session.user_has_group(MANAGER_GROUP).then(
-            this._loadContent.bind(this));
-
-        return groupCheckPromise;
+    _getCurrentWorkstationId() {
+        let workstationId = browser.localStorage.getItem('printnode_base.workstation_id');
+        return workstationId;
     }
 
-    async _loadContent(isManager) {
-        this.state.isManager = isManager;
+    _onClickDropdownToggle(ev) {
+        ev.preventDefault();
 
-        if (isManager) {
-            const limitsPromise = rpc.query({ model: 'printnode.account', method: 'get_limits' });
-
-            // Check if model with releases already exists 
-            const releasesPromise = ajax.post("/dpc/release-model-check").then((data) => {
-                const status = JSON.parse(data);
-
-                // If model exists load releases
-                if (status) {
-                    return rpc.query({ model: 'printnode.release', method: 'search_read' });
-                }
-                // If not exist return empty array
-                return [];
-            });
-
-            return Promise.all(
-                [limitsPromise, releasesPromise]
-            ).then(this._loadedCallback.bind(this));
+        if (this.state.isOpen) {
+            this.state.isOpen = false;
+        } else {
+            this.state.isOpen = true;
+            this._fetchData();
         }
     }
 
-    _loadedCallback([limits, releases]) {
-        // Process limits
-        this.state.limits = limits;
-
-        // Process accounts
-        this.state.releases = releases;
-        this.state.newRelease = releases.length > 0;
-    }
-
-    _capitalizeWords(str) {
-        const words = str.split(" ");
-        let capitalizedWords = words.map(w => w[0].toUpperCase() + w.substr(1));
-        return capitalizedWords.join(' ');
-    }
-
-    _onStatusMenuShow() {
+    _onClickDefaultDevicesCollapse(ev) {
         /*
-        Update workstation devices each time user clicks on the status menu
+        This is adapted logic from bootstrap collapse. We need to duplicate it because click will
+        be captured by this component and not by bootstrap collapse
         */
-        // Clean old information about workstation devices
-        this.state.devices = [];
+        ev.preventDefault();
+        ev.stopPropagation();
 
-        const devicesInfo = Object.fromEntries(
-            WORKSTATION_DEVICES
-                .map(n => [n, localStorage.getItem('printnode_base.' + n)])  // Two elements array
-                .filter(i => i[1]) // Skip empty values
-        );
+        const control = ev.target.attributes['aria-controls'].value;
+        const collapse = document.getElementById(control);
 
-        const devicesPromise = rpc.query({
-            model: 'res.users',
-            method: 'validate_device_id',
-            kwargs: { devices: devicesInfo }
-        });
+        if (collapse.classList.contains('show')) {
+            collapse.classList.remove('show');
+        } else {
+            collapse.classList.add('show');
+        }
+    }
 
-        devicesPromise.then((data) => {
-            // Process workstation devices
-            const devices = WORKSTATION_DEVICES.map(
-                device => {
-                    // Remove printnode_ and _id from the of string
-                    let deviceName = device.substring(10, device.length - 3).replace(/_/g, ' ');
+    _onClickWorkstationDeviceSelect(ev) {
+        /*
+        We override click event to avoid closing dropdown menu
+        */
+        ev.preventDefault();
+        ev.stopPropagation();
+    }
 
-                    // Return pairs (type, name)
-                    return [this._capitalizeWords(deviceName), data[device]];
-                }
-            );
+    _onChangeWorkstationDevice(ev) {
+        const workstationId = ev.target.value;
 
-            this.state.devices = devices;
-        });
+        if (workstationId) {
+            browser.localStorage.setItem('printnode_base.workstation_id', workstationId);
+            this.user.updateContext({ 'printnode_workstation_id': parseInt(workstationId) });
+        } else {
+            browser.localStorage.removeItem('printnode_base.workstation_id');
+
+            if ('printnode_workstation_id' in this.user.context) {
+                this.user.removeFromContext('printnode_workstation_id');
+            }
+        }
+
+        // Reload data with new workstation
+        this._fetchData();
     }
 }
 
