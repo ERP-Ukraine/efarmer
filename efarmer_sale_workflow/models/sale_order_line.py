@@ -12,6 +12,15 @@ class SaleOrderLine(models.Model):
         related='product_id.detailed_type',
     )
     qty_to_deliver = fields.Float(compute='_compute_qty_to_deliver', digits='Product Unit of Measure', store=True)
+    planned_shipping_date = fields.Date(
+        string='Planned Shipping Date',
+        related="order_id.planned_shipping_date",
+    )
+    efarmer_client_type = fields.Many2one(
+        string='Client Type',
+        related='order_partner_id.efarmer_client_type',
+        store=True,
+    )
 
     def open_replacement_wizard(self):
         new_wizard = self.env['order.line.product.replacement.wizard'].create(

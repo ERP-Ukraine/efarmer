@@ -26,5 +26,10 @@
             <field name="name">Allow to Set up Sales Priority</field>
         </record>
 
+        <record id="allow_enter_planned_shipping_date" model="res.groups">
+            <field name="category_id" ref="module_category_sales_other"/>
+            <field name="name">Allow to enter "Planned Shipping Date"</field>
+        </record>
+
     </data>
 </odoo>
