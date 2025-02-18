@@ -37,11 +37,15 @@ class SaleOrder(models.Model):
     )
 
     pick_scheduled_date = fields.Date(
-        string='Scheduled Delivery Date',
+        string='Schedule Shipping Date',
         tracking=True,
         compute='_compute_pick_scheduled_date',
         store=True,
         help='Scheduled date of last modified stock picking',
+    )
+
+    planned_shipping_date = fields.Date(
+        string='Planned Shipping Date',
     )
 
     def action_to_confirm(self):
