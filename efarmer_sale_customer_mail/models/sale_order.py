@@ -14,15 +14,15 @@ class SaleOrder(models.Model):
             for order in self:
                 if any(product.detailed_type in ['consu', 'product'] for product in order.order_line.mapped("product_id")):
                     order.check_customer_portal_access()
-                    product_codes = order.order_line.mapped("product_id").filtered(lambda p: p.default_code).mapped("default_code")
-                    if any([code.startswith("KDU.0044") for code in product_codes]):
-                        template_id = order.env.ref("efarmer_sale_customer_mail.mail_template_sale_payment_confirmation")
-                        if template_id:
-                            order.message_post_with_template(
-                                template_id.id,
-                                composition_mode="comment",
-                                email_layout_xmlid="mail.mail_notification_light",
-                            )
+                    # product_codes = order.order_line.mapped("product_id").filtered(lambda p: p.default_code).mapped("default_code")
+                    # if any([code.startswith("KDU.0044") for code in product_codes]):
+                    #     template_id = order.env.ref("efarmer_sale_customer_mail.mail_template_sale_payment_confirmation")
+                    #     if template_id:
+                    #         order.message_post_with_template(
+                    #             template_id.id,
+                    #             composition_mode="comment",
+                    #             email_layout_xmlid="mail.mail_notification_light",
+                    #         )
         return res
 
     def check_customer_portal_access(self):
