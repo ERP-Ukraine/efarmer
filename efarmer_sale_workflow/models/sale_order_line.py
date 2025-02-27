@@ -22,6 +22,11 @@ class SaleOrderLine(models.Model):
         related='order_partner_id.efarmer_client_type',
         store=True,
     )
+    paid_on_date = fields.Date(
+        string='Paid on',
+        related="order_id.paid_on_date",
+        store=True,
+    )
 
     def open_replacement_wizard(self):
         new_wizard = self.env['order.line.product.replacement.wizard'].create(
