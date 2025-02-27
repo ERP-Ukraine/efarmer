@@ -219,6 +219,7 @@
                 </xpath>
                 <xpath expr="//field[@name='invoice_lines']" position="after">
                     <field name="planned_shipping_date" optional="hide"/>
+                    <field name="paid_on_date" optional="hide"/>
                 </xpath>
             </field>
         </record>
@@ -230,10 +231,13 @@
             <field name="arch" type="xml">
                 <xpath expr="//filter[@name='groupby_date_order']" position="after">
                     <filter string="Planned Shipping Date" name="groupby_planned_shipping_date" domain="[]" context="{'group_by': 'planned_shipping_date'}" />
+                    <filter string="Paid on" name="groupby_paid_on_date" domain="[]" context="{'group_by': 'paid_on_date'}" />
                 </xpath>
                 <xpath expr="//filter[@name='flt_state_cancel']" position="after">
                     <separator/>
                     <filter string="Planned Shipping Date" name="planned_shipping_date" date="planned_shipping_date" />
+                    <separator/>
+                    <filter string="Paid on" name="paid_on_date" date="paid_on_date" />
                 </xpath>
             </field>
         </record>
