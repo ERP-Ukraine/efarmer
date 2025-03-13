@@ -1,6 +1,6 @@
 {
     'name': 'eFarmer',
-    'version': '1.36',
+    'version': '1.37',
     'category': 'Other',
     'author': 'ERP Ukraine',
     'website': 'https://erp.co.ua',
