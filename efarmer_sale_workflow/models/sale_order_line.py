@@ -17,6 +17,11 @@ class SaleOrderLine(models.Model):
         related="order_id.planned_shipping_date",
         store=True,
     )
+    efarmer_confirm_date = fields.Date(
+        string='Confirm Date',
+        related="order_id.efarmer_confirm_date",
+        store=True,
+    )
     efarmer_client_type = fields.Many2one(
         string='Client Type',
         related='order_partner_id.efarmer_client_type',
