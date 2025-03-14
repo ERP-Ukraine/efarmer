@@ -48,6 +48,14 @@ class SaleOrder(models.Model):
         string='Planned Shipping Date',
     )
 
+    efarmer_confirm_date = fields.Date(
+        string='Confirm Date',
+        compute='_compute_efarmer_confirm_date',
+        inverse='_inverse_efarmer_confirm_date',
+        store=True,
+        readonly=True,
+    )
+
     def action_to_confirm(self):
         return self.write({'state': 'to_confirm'})
 
@@ -65,6 +73,19 @@ class SaleOrder(models.Model):
                 active_picks = order.picking_ids.filtered(
                     lambda p: p.state not in ['done', 'cancel'])
                 order.pick_scheduled_date = active_picks[0].scheduled_date if active_picks else None
+
+    @api.depends('state')
+    def _compute_efarmer_confirm_date(self):
+        for order in self:
+            if order.state in ('to_confirm', 'sale', 'done'):
+                order.efarmer_confirm_date = fields.Date().today()
+            elif order.state == 'cancel':
+                order.efarmer_confirm_date = False
+
+    def _inverse_efarmer_confirm_date(self):
+        for order in self:
+            if order.efarmer_confirm_date and order.state not in ('to_confirm', 'sale', 'done'):
+                order.efarmer_confirm_date = False
 
     def _get_default_delivery_term_id(self):
         return self.env['delivery.terms'].search([('default_for_company', '=', True), ('company_id', '=', self.env.company.id)], limit=1)

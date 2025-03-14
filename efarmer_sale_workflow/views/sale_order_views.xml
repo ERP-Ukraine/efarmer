@@ -19,6 +19,7 @@
                 <xpath expr="//group[@name='sale_shipping']" position="inside">
                     <field name="pick_scheduled_date" readonly="1" />
                     <field name="planned_shipping_date" readonly="1" />
+                    <field name="efarmer_confirm_date" readonly="1" />
                 </xpath>
                 <xpath expr="//field[@name='order_line']//tree//field[@name='name']" position="before">
                     <button name="open_replacement_wizard"
@@ -127,10 +128,12 @@
                 <xpath expr="//filter[@name='order_month']" position="after">
                     <filter string="Schedule Shipping Date" name="groupby_scheduled_date" domain="[]" context="{'group_by': 'pick_scheduled_date'}" />
                     <filter string="Planned Shipping Date" name="groupby_planned_shipping_date" domain="[]" context="{'group_by': 'planned_shipping_date'}" />
+                    <filter string="Confirm Date" name="groupby_efarmer_confirm_date" domain="[]" context="{'group_by': 'efarmer_confirm_date'}" />
                 </xpath>
                 <xpath expr="//filter[@name='my_sale_orders_filter']" position="after">
                     <filter string="Schedule Shipping Date" name="scheduled_date" date="pick_scheduled_date" />
                     <filter string="Planned Shipping Date" name="planned_shipping_date" date="planned_shipping_date" />
+                    <filter string="Confirm Date" name="efarmer_confirm_date" date="efarmer_confirm_date" />
                 </xpath>
             </field>
         </record>
@@ -155,6 +158,7 @@
                 </xpath>
                 <xpath expr="//field[@name='tag_ids']" position="after">
                     <field name="planned_shipping_date" readonly="1" optional="hide"/>
+                    <field name="efarmer_confirm_date" readonly="1" optional="hide"/>
                 </xpath>
             </field>
         </record>
@@ -191,6 +195,7 @@
                 </xpath>
                 <xpath expr="//field[@name='delivery_state']" position="after">
                     <field name="planned_shipping_date" readonly="1" optional="hide"/>
+                    <field name="efarmer_confirm_date" readonly="1" optional="hide"/>
                 </xpath>
             </field>
         </record>
@@ -220,6 +225,7 @@
                 <xpath expr="//field[@name='invoice_lines']" position="after">
                     <field name="planned_shipping_date" optional="hide"/>
                     <field name="paid_on_date" optional="hide"/>
+                    <field name="efarmer_confirm_date" optional="hide"/>
                 </xpath>
             </field>
         </record>
@@ -232,12 +238,15 @@
                 <xpath expr="//filter[@name='groupby_date_order']" position="after">
                     <filter string="Planned Shipping Date" name="groupby_planned_shipping_date" domain="[]" context="{'group_by': 'planned_shipping_date'}" />
                     <filter string="Paid on" name="groupby_paid_on_date" domain="[]" context="{'group_by': 'paid_on_date'}" />
+                    <filter string="Confirm Date" name="groupby_efarmer_confirm_date" domain="[]" context="{'group_by': 'efarmer_confirm_date'}" />
                 </xpath>
                 <xpath expr="//filter[@name='flt_state_cancel']" position="after">
                     <separator/>
                     <filter string="Planned Shipping Date" name="planned_shipping_date" date="planned_shipping_date" />
                     <separator/>
                     <filter string="Paid on" name="paid_on_date" date="paid_on_date" />
+                    <separator/>
+                    <filter string="Confirm Date" name="efarmer_confirm_date" date="efarmer_confirm_date" />
                 </xpath>
             </field>
         </record>
