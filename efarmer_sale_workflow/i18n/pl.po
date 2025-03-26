@@ -1726,3 +1726,12 @@ msgstr ""
 #: model:ir.actions.report,name:efarmer_sale_workflow.action_report_account_commercial_invoice
 msgid "Сommercial Invoice"
 msgstr ""
+
+#. module: account
+#: model_terms:ir.ui.view,arch_db:account.report_invoice_document
+msgid ""
+"<br/>\n"
+"                            on this account:"
+msgstr ""
+"<br/>\n"
+"                            na to konto:"
