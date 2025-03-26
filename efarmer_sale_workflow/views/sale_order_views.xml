@@ -45,14 +45,14 @@
                 </xpath>
 
                 <xpath expr="//button[@name='action_confirm'][2]" position="attributes">
-                    <attribute name="groups">sales_team.group_sale_manager</attribute>
+                    <attribute name="groups">efarmer_sale_workflow.allow_sale_order_confirmation</attribute>
                     <attribute name="attrs">
                         {'invisible': [('state', 'not in', ['draft','sent'])]}
                     </attribute>
                 </xpath>
 
                 <xpath expr="//button[@name='action_confirm'][1]" position="attributes">
-                    <attribute name="groups">sales_team.group_sale_manager</attribute>
+                    <attribute name="groups">efarmer_sale_workflow.allow_sale_order_confirmation</attribute>
                     <attribute name="attrs">
                         {'invisible': [('state', 'not in', ['to_confirm'])]}
                     </attribute>
