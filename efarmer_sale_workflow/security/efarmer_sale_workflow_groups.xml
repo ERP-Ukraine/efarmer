@@ -31,5 +31,10 @@
             <field name="name">Allow to enter "Planned Shipping Date"</field>
         </record>
 
+        <record id="allow_sale_order_confirmation" model="res.groups">
+            <field name="category_id" ref="module_category_sales_other"/>
+            <field name="name">Allow SO Confirmation</field>
+        </record>
+
     </data>
 </odoo>
