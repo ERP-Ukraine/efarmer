@@ -13,7 +13,7 @@ class SaleOrder(models.Model):
     )
 
     is_auto_calc_taxes = fields.Boolean(
-        default=False,
+        default=True,
         string='Auto-calculate taxes',
     )
 
