@@ -3,13 +3,23 @@
 
 {
     'name': 'Odoo Direct Print PRO',
-    'summary': """
-        Print any reports or shipping labels directly to any local,
-        Wi-Fi or Bluetooth printer without downloading PDF or ZPL!
-    """,
+    'summary': '''
+Print any reports or shipping labels directly to any local,
+Wi-Fi or Bluetooth printer without downloading PDF or ZPL!
+
+Keywords: Odoo Print, Odoo Printing Solution, Print Directly from Odoo, Odoo Direct Print,
+Cloud Printing for Odoo, Local Printer Integration, Print Labels from Odoo, Print Reports from Odoo,
+Wi-Fi Printer for Odoo, Bluetooth Printer for Odoo, Direct Print Cloud Service,
+Print Using Cloud Service, PrintNode Alternative, PrintNode for Odoo, Odoo to Cloud Printer,
+Cloud Printing Automation, Print Shipping Labels in Odoo, Shipping Label Printing from Odoo,
+Print ZPL from Odoo, Odoo Label Printing, Barcode Printing for Odoo, Print Custom Labels,
+Print Directly without Downloading, Print Without Downloading PDF,
+Wi-Fi and Bluetooth Printer Support, Automatic Printing in Odoo, Print Automation for Odoo,
+ZPL Printer Support for Odoo, Seamless Printing Integration, Automated Print Workflow,
+ERP Printing Solution, Odoo Print Module, Direct Print Integration, Fast Printing from Odoo''',
     'version': '15.0.2.6.5',
     'category': 'Tools',
-    "images": ["static/description/images/logo.gif"],
+    "images": ["static/description/images/banner.gif"],
     'author': 'VentorTech',
     'website': 'https://ventor.tech',
     'support': 'support@ventor.tech',

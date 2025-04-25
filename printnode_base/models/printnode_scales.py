@@ -88,7 +88,7 @@ class PrintNodePrinter(models.Model):
         """
         scales_results = '/computer/{}/scale/{}/{}'.format(
             self.computer_id.printnode_id,
-            self.name,
+            self.name.replace(' ', '%20').replace('/', '%2F'),
             self.device_num,
         )
         result = self.account_id._send_printnode_request(scales_results)
