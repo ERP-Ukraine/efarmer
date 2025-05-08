@@ -114,7 +114,8 @@
                         <t t-set="current_subtotal" t-value="0"/>
                         <t t-set="tax_totals" t-value="0"/>
                         <t t-set="weight_sum" t-value="0"/>
-                        <t t-set="lines" t-value="list(set(doc.move_lines.sale_line_id))"/>
+                        <t t-set="service_lines" t-value="doc.move_lines.sale_line_id.order_id.order_line.filtered(lambda r: not r.display_type and r.product_id.type == 'service' and ('shipping' in r.with_context(lang='en_US').product_id.name.lower() or 'insurance' in r.with_context(lang='en_US').product_id.name.lower()))"/>
+                        <t t-set="lines" t-value="doc.env['sale.order.line'].browse(set(doc.move_lines.sale_line_id.ids)) + doc.env['sale.order.line'].browse(set(service_lines.ids))"/>
                         <t t-foreach="lines" t-as="line">
 
                             <t t-set="weight_sum" t-value="weight_sum + line.product_id.weight * line.product_uom_qty"/>
@@ -180,6 +181,10 @@
                     <strong>Net Weight: </strong>
                     <span t-esc="str(round(weight_sum, 2))"/>
                     <strong> kg.</strong>
+                </p>
+                <p>
+                    <strong>Incoterm: </strong>
+                    <span t-esc="doc.move_lines.sale_line_id.order_id[:1].incoterm.name"/>
                 </p>
                 <t t-if="doc.has_packages" name="has_packages">
                     <t t-set="gross_sum" t-value="0"/>
