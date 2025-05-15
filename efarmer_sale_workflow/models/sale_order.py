@@ -51,7 +51,6 @@ class SaleOrder(models.Model):
     efarmer_confirm_date = fields.Date(
         string='Confirm Date',
         compute='_compute_efarmer_confirm_date',
-        inverse='_inverse_efarmer_confirm_date',
         store=True,
         readonly=True,
     )
@@ -77,15 +76,8 @@ class SaleOrder(models.Model):
     @api.depends('state')
     def _compute_efarmer_confirm_date(self):
         for order in self:
-            if order.state in ('to_confirm', 'sale', 'done'):
+            if order.state in ('to_confirm', 'sale', 'done') and not order.efarmer_confirm_date:
                 order.efarmer_confirm_date = fields.Date().today()
-            elif order.state == 'cancel':
-                order.efarmer_confirm_date = False
-
-    def _inverse_efarmer_confirm_date(self):
-        for order in self:
-            if order.efarmer_confirm_date and order.state not in ('to_confirm', 'sale', 'done'):
-                order.efarmer_confirm_date = False
 
     def _get_default_delivery_term_id(self):
         return self.env['delivery.terms'].search([('default_for_company', '=', True), ('company_id', '=', self.env.company.id)], limit=1)
