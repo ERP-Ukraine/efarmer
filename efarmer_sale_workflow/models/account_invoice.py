@@ -58,9 +58,6 @@ class AccountMove(models.Model):
         pl_country_id = self.env.ref("base.pl")
         product_types = set(self.invoice_line_ids.mapped('product_id.type'))
         product_types.discard('consu')
-        vat_text = _("VAT exempt according to art.138 VAT Directive 2006/112/EC")
-
-        print(product_types, self.commercial_partner_id.company_type, self.commercial_partner_id.country_id.name)
 
         if (
             {'service'} == product_types
@@ -75,7 +72,7 @@ class AccountMove(models.Model):
             and self.commercial_partner_id.country_id != pl_country_id
             and self.commercial_partner_id.country_id in eu_country_ids
         ):
-            return vat_text
+            return _("VAT exempt according to art.138 VAT Directive 2006/112/EC")
 
         return ""
 
