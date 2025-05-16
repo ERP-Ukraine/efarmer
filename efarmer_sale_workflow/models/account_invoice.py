@@ -1,10 +1,42 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 
-from odoo import fields, api, models
+from odoo import fields, api, models, _
 from odoo.tools import float_compare
 
 from datetime import timedelta
+
+
+EU_COUNTRIES = [
+    'base.at',
+    'base.be',
+    'base.bg',
+    'base.hr',
+    'base.cy',
+    'base.cz',
+    'base.dk',
+    'base.ee',
+    'base.fi',
+    'base.fr',
+    'base.de',
+    'base.gr',
+    'base.hu',
+    'base.ie',
+    'base.it',
+    'base.lv',
+    'base.lt',
+    'base.lu',
+    'base.mt',
+    'base.nl',
+    'base.pl',
+    'base.pt',
+    'base.ro',
+    'base.sk',
+    'base.si',
+    'base.es',
+    'base.se',
+]
+
 
 class AccountMove(models.Model):
     _inherit = "account.move"
@@ -18,6 +50,34 @@ class AccountMove(models.Model):
         comodel_name='product.vat',
         string='VAT ID',
     )
+
+    def get_report_vat_text_line(self):
+        self.ensure_one()
+        eu_country_ids = sum([self.env.ref(c) for c in EU_COUNTRIES], self.env['res.country'])
+        nl_country_id = self.env.ref("base.nl")
+        pl_country_id = self.env.ref("base.pl")
+        product_types = set(self.invoice_line_ids.mapped('product_id.type'))
+        product_types.discard('consu')
+        vat_text = _("VAT exempt according to art.138 VAT Directive 2006/112/EC")
+
+        print(product_types, self.commercial_partner_id.company_type, self.commercial_partner_id.country_id.name)
+
+        if (
+            {'service'} == product_types
+            and self.commercial_partner_id.company_type == 'company'
+            and self.commercial_partner_id.country_id != nl_country_id
+            and self.commercial_partner_id.country_id in eu_country_ids
+        ):
+            return _("Reverse charge applies (Art. 196 VAT Directive 2006/112/EC).")
+        elif (
+            ({'product'} == product_types or {'service', 'product'} == product_types)
+            and self.commercial_partner_id.company_type == 'company'
+            and self.commercial_partner_id.country_id != pl_country_id
+            and self.commercial_partner_id.country_id in eu_country_ids
+        ):
+            return vat_text
+
+        return ""
 
     def _get_current_rate_pln(self):
         # this function is needed to take the exchange rate for the previous day
