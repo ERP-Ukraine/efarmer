@@ -50,5 +50,8 @@
                 <span t-esc="additional_vat_note"/>
             </p>
         </xpath>
+        <xpath expr="//span[@t-field='o.partner_bank_id']" position="replace">
+            <span t-out="(o.company_id.partner_id.bank_ids.sorted(key='sequence').filtered(lambda r: r.currency_id == o.currency_id)[:1] or o.partner_bank_id).acc_number" class="font-weight-bold"/>
+        </xpath>
     </template>
 </odoo>
