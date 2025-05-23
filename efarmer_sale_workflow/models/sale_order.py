@@ -1,6 +1,7 @@
 from datetime import datetime
+from markupsafe import Markup
 from dateutil.relativedelta import relativedelta
-from odoo import fields, models, api
+from odoo import fields, models, api, _
 
 
 class SaleOrder(models.Model):
@@ -55,6 +56,13 @@ class SaleOrder(models.Model):
         readonly=True,
     )
 
+    missed_partner_data_banner = fields.Text(
+        compute="_compute_form_partner_banner"
+    )
+    missed_fiscal_position_banner = fields.Text(
+        compute="_compute_form_partner_banner"
+    )
+
     def action_to_confirm(self):
         return self.write({'state': 'to_confirm'})
 
@@ -91,3 +99,37 @@ class SaleOrder(models.Model):
         for order in self:
             order.commitment_date = (datetime.today() + relativedelta(days=order.delivery_term_id.delivery_days))
             order.tag_ids = order.delivery_term_id.tag_ids
+
+    @api.depends(
+        "partner_id",
+        "partner_id.country_id",
+        "partner_id.phone",
+        "partner_id.email",
+        "partner_id.property_account_position_id",
+        "fiscal_position_id",
+    )
+    def _compute_form_partner_banner(self):
+        ref = "<a href='#' data-oe-model='%s' data-oe-id='%d'>%s</a>"
+        data = [(_("Country"), "country_id"), (_("Email"), "email"), (_("Phone"), "phone")]
+        for rec in self:
+            rec.missed_fiscal_position_banner = (
+                _("Please update the Fiscal Position on the Sales Order to match the one on the Contact.")
+                if rec.fiscal_position_id != rec.partner_id.property_account_position_id
+                else ""
+            )
+
+            if not rec.partner_id:
+                rec.missed_partner_data_banner = ""
+                continue
+            missed = [d[0] for d in data if not getattr(rec.partner_id, d[1], False)]
+            if not missed:
+                rec.missed_partner_data_banner = ""
+                continue
+
+            rec.missed_partner_data_banner = _(
+                "%s %s is empty for partner %s. PLEASE UPDATE THE CUSTOMER'S CARD."
+            ) % (
+                ", ".join(missed),
+                _("fields") if len(missed) > 1 else _("field"),
+                Markup(ref) % ('res.partner', rec.partner_id.id, rec.partner_id.display_name),
+            )

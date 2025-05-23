@@ -12,6 +12,7 @@
     'license': 'LGPL-3',
     'depends': [
         'account',
+        'account_consolidation',
         'sale',
         'stock',
         'stock_account',

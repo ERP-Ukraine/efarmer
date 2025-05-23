@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@data-key='account']//div[@id='tax_fiscal_country_234']" position="after">
+                <div class="col-12 col-lg-6 o_setting_box"
+                    id="enable_fisc_pos_auto_calc"
+                    groups="account_consolidation.group_consolidation_user"
+                >
+                    <div class="o_setting_left_pane">
+                        <field name="enable_fisc_pos_auto_calc"/>
+                    </div>
+                    <div class="o_setting_right_pane">
+                        <label for="enable_fisc_pos_auto_calc"/>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
