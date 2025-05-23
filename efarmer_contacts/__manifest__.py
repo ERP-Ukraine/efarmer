@@ -9,9 +9,13 @@
     'license': 'LGPL-3',
     'category': 'Accounting',
     'depends': [
-        'base', 'account', 'base_vat',
+        'base',
+        'account',
+        'base_vat',
+        'account_consolidation',
     ],
     'data': [
+        'views/res_config_settings_views.xml',
     ],
     'installable': True,
     'application': True,

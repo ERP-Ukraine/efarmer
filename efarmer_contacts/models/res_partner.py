@@ -49,6 +49,38 @@ GROUP BY afpt2.country_code;
 
         return {r[0]: list(zip(r[1], r[2])) for r in self.env.cr.fetchall()}
 
+    def _update_fiscal_positions(self):
+        company_ids = self.env['res.company'].sudo().search([])
+        fiscal_positions = {}
+        for (company_id, country_id), partner_ids in groupby(
+            self,
+            key=lambda r: (r.company_id, r.country_id),
+        ):
+            for company in (company_id if company_id else company_ids):
+                if not company.enable_fisc_pos_auto_calc:
+                    continue
+
+                if company.id not in fiscal_positions:
+                    fiscal_positions[company.id] = self.sudo().with_company(company)._get_fiscal_positions()
+
+                position = fiscal_positions[company.id]
+
+                if country_id and country_id.id in position:
+                    position_id = position[country_id.id][0][0]
+                elif country_id and country_id.id not in position and 0 in position:
+                    position_id = position[0][0][0]
+                elif not country_id and 0 in position:
+                    position_id = position[0][0][0]
+                else:
+                    continue
+
+                self.env['ir.property'].sudo().with_company(company)._set_multi(
+                    "property_account_position_id",
+                    self._name,
+                    {r.id: position_id for r in partner_ids},
+                )
+                sum(partner_ids, self.env['res.partner']).sudo().with_company(company)._commercial_sync_to_children()
+
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
@@ -63,32 +95,14 @@ GROUP BY afpt2.country_code;
                     base_contacts += record
 
         if base_contacts:
-            company_ids = self.env['res.company'].sudo().search([])
-            fiscal_positions = {}
-            for (company_id, country_id), partner_ids in groupby(
-                base_contacts,
-                key=lambda r: (r.company_id, r.country_id),
-            ):
-                for company in (company_id if company_id else company_ids):
-                    if company.id not in fiscal_positions:
-                        fiscal_positions[company.id] = self.sudo().with_company(company)._get_fiscal_positions()
-
-                    position = fiscal_positions[company.id]
-
-                    if country_id and country_id.id in position:
-                        position_id = position[country_id.id][0][0]
-                    elif country_id and country_id.id not in position and 0 in position:
-                        position_id = position[0][0][0]
-                    elif not country_id and 0 in position:
-                        position_id = position[0][0][0]
-                    else:
-                        continue
-
-                    self.env['ir.property'].sudo().with_company(company)._set_multi(
-                        "property_account_position_id",
-                        self._name,
-                        {r.id: position_id for r in partner_ids},
-                    )
-                    sum(partner_ids, self.env['res.partner']).sudo().with_company(company)._commercial_sync_to_children()
+            base_contacts._update_fiscal_positions()
 
         return records
+
+    def write(self, vals):
+        res = super().create(vals)
+
+        if 'country_id' in vals and not vals.get('property_account_position_id', False):
+            self.filtered(lambda r: r.commercial_partner_id)._update_fiscal_positions()
+
+        return res
