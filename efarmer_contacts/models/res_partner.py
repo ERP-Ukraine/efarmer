@@ -100,7 +100,7 @@ GROUP BY afpt2.country_code;
         return records
 
     def write(self, vals):
-        res = super().create(vals)
+        res = super().write(vals)
 
         if 'country_id' in vals and not vals.get('property_account_position_id', False):
             self.filtered(lambda r: r.commercial_partner_id)._update_fiscal_positions()
