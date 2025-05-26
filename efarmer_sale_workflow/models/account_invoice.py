@@ -42,6 +42,12 @@ class AccountMove(models.Model):
             and self.commercial_partner_id.country_id in eu_country_ids
         ):
             return _("VAT exempt according to art.138 VAT Directive 2006/112/EC")
+        elif (
+            ({'product'} == product_types or {'service', 'product'} == product_types)
+            and self.commercial_partner_id.company_type in ('company', 'person')
+            and self.commercial_partner_id.country_id not in eu_country_ids
+        ):
+            return _("VAT exempt according to art.146 VAT Directive 2006/112/EC")
 
         return ""
 
