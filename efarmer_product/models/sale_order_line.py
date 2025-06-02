@@ -7,6 +7,14 @@ from odoo import fields, models, api, _
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
+    @api.model
+    def _create(self, data_list):
+        for data in data_list:
+            if data.get('stored') and data['stored'].get('display_type', False) and data['stored'].get('tax_id', False):
+                data['stored']['tax_id'] = []
+
+        return super()._create(data_list)
+
     # OVERRIDE METHOD
     def _compute_tax_id(self):
         for line in self:
@@ -45,6 +53,13 @@ class SaleOrderLine(models.Model):
         return super().unlink()
 
     def write(self, values):
+        specific_lines = self.env['sale.order.line']
+        if values.get('tax_id', []):
+            if 'display_type' in values and values['display_type']:
+                values['tax_id'] = [fields.Command.clear()]
+            else:
+                specific_lines = self.filtered(lambda r: r.display_type)
+
         if 'product_uom_qty' in values:
             for line in self:
                 if line.product_id and line.order_id.state in ['draft', 'sale', 'to_payment', 'to_confirm']:
@@ -66,4 +81,11 @@ class SaleOrderLine(models.Model):
                             )).display_name
                         ))
                     line.order_id.message_post(body=msg)
-        return super().write(values)
+
+        if specific_lines:
+            return all([
+                super(SaleOrderLine, specific_lines).write({**values, 'tax_id': [fields.Command.clear()]}),
+                super(SaleOrderLine, self - specific_lines).write(values),
+            ])
+        else:
+            return super(SaleOrderLine, self).write(values)
