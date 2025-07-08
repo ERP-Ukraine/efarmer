@@ -122,7 +122,7 @@ class SaleOrder(models.Model):
             if not rec.partner_id:
                 rec.missed_partner_data_banner = ""
                 continue
-            missed = [d[0] for d in data if not getattr(rec.partner_id, d[1], getattr(rec.partner_id, d[2], False) if len(d) > 2 else False)]
+            missed = [d[0] for d in data if not any(bool(getattr(rec.partner_id, r, False)) for r in d[1:])]
             if not missed:
                 rec.missed_partner_data_banner = ""
                 continue
