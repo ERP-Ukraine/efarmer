@@ -2,7 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import logging
-from odoo import api, models
+from odoo import api, models, fields
 from odoo.tools.misc import groupby
 
 
@@ -11,6 +11,20 @@ _logger = logging.getLogger(__name__)
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
+
+    vat = fields.Char(
+        compute='_compute_vat_efarmer',
+        inverse='_inverse_vat_efarmer',
+        store=True,
+    )
+
+    def _compute_vat_efarmer(self):
+        pass
+
+    def _inverse_vat_efarmer(self):
+        for partner in self:
+            if partner.vat and not partner.is_company and not partner.parent_id:
+                partner.is_company = True
 
     @api.model
     def vies_vat_check(self, country_code, vat_number):
