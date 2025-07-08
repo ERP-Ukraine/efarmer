@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 
-from odoo import fields, api, models
+from odoo import fields, api, models, _
 from odoo.tools import float_compare
 
 from datetime import timedelta
+
 
 class AccountMove(models.Model):
     _inherit = "account.move"
@@ -18,6 +19,37 @@ class AccountMove(models.Model):
         comodel_name='product.vat',
         string='VAT ID',
     )
+
+    def get_report_vat_text_line(self):
+        self.ensure_one()
+        eu_country_ids = self.env.ref('base.europe').country_ids
+        nl_country_id = self.env.ref("base.nl")
+        pl_country_id = self.env.ref("base.pl")
+        product_types = set(self.invoice_line_ids.mapped('product_id.type'))
+        product_types.discard('consu')
+
+        if (
+            {'service'} == product_types
+            and self.commercial_partner_id.company_type == 'company'
+            and self.commercial_partner_id.country_id != nl_country_id
+            and self.commercial_partner_id.country_id in eu_country_ids
+        ):
+            return _("Reverse charge applies (Art. 196 VAT Directive 2006/112/EC).")
+        elif (
+            ({'product'} == product_types or {'service', 'product'} == product_types)
+            and self.commercial_partner_id.company_type == 'company'
+            and self.commercial_partner_id.country_id != pl_country_id
+            and self.commercial_partner_id.country_id in eu_country_ids
+        ):
+            return _("VAT exempt according to art.138 VAT Directive 2006/112/EC")
+        elif (
+            ({'product'} == product_types or {'service', 'product'} == product_types)
+            and self.commercial_partner_id.company_type in ('company', 'person')
+            and self.commercial_partner_id.country_id not in eu_country_ids
+        ):
+            return _("VAT exempt according to art.146 VAT Directive 2006/112/EC")
+
+        return ""
 
     def _get_current_rate_pln(self):
         # this function is needed to take the exchange rate for the previous day

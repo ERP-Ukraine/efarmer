@@ -33,16 +33,28 @@ class SaleOrder(models.Model):
             user_ids = self.env['portal.wizard'].browse(action.get("res_id", None)).user_ids
             user_ids = user_ids.filtered(lambda u: u.partner_id.id == self.partner_id.id)
             for user in user_ids:
-                if user.is_portal:
+                if user.is_internal:
+                    continue
+                elif user.is_portal:
                     self._send_email_portal_reminder(user)
                 else:
                     user.action_grant_access()
         else:
             for user in related_user_id:
-                if user.has_group('base.group_portal'):
+                if user.has_group('base.group_user'):
+                    continue
+                elif user.has_group('base.group_portal'):
                     self._send_email_portal_reminder(user)
                 else:
-                    related_user_id.action_grant_access()
+                    portal_wizard = self.env['portal.wizard'].with_context(active_ids=[self.partner_id.id]).create({})
+                    user_ids = portal_wizard.user_ids.filtered(lambda u: u.partner_id.id == self.partner_id.id)
+                    for user in user_ids:
+                        if user.is_internal:
+                            continue
+                        elif user.is_portal:
+                            self._send_email_portal_reminder(user)
+                        else:
+                            user.action_grant_access()
 
     def _send_email_portal_reminder(self, user_id):
         """ send notification email to a portal user """

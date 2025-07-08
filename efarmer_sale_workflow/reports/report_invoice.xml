@@ -44,5 +44,14 @@
                 </div>
             </t>
         </xpath>
+        <xpath expr="//p[@name='incoterm']" position="after">
+            <t t-set="additional_vat_note" t-value="o.get_report_vat_text_line()"/>
+            <p t-if="additional_vat_note" name="additional_vat_note">
+                <span t-esc="additional_vat_note"/>
+            </p>
+        </xpath>
+        <xpath expr="//span[@t-field='o.partner_bank_id']" position="replace">
+            <span t-out="(o.company_id.partner_id.bank_ids.sorted(key='sequence').filtered(lambda r: r.currency_id == o.currency_id)[:1] or o.partner_bank_id).acc_number" class="font-weight-bold"/>
+        </xpath>
     </template>
 </odoo>
