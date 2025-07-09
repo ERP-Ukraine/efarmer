@@ -13,7 +13,7 @@ class SaleOrder(models.Model):
     )
 
     is_auto_calc_taxes = fields.Boolean(
-        default=True,
+        default=lambda self: self.env.company.enable_so_tax_auto_calc,
         string='Auto-calculate taxes',
     )
 
