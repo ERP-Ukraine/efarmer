@@ -12,3 +12,4 @@ from . import stock_picking
 from . import ir_actions_report
 from . import stock_warehouse
 from . import product_product
+from . import stock_production_lot

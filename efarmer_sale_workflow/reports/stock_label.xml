@@ -5,7 +5,7 @@
             <t t-foreach="docs" t-as="doc">
             <t t-foreach="doc.move_line_ids_without_package if doc._name == 'stock.picking' else doc" t-as="line">
                 <t t-set="product" t-value="line.product_id if line._name != 'product.template' and line._name != 'product.product' else line"/>
-                <t t-if="line._name != 'product.template' and line._name != 'product.product'">
+                <t t-if="line._name != 'product.template' and line._name != 'product.product' and line._name != 'stock.production.lot'">
                     <t t-set="lot_id" t-value="line.lot_id if line._name != 'mrp.production' else line.lot_producing_id"/>
                     <t t-set="lot_name" t-value="lot_id.name if product.tracking != 'none' else ''"/>
         
@@ -21,6 +21,9 @@
 
                     <t t-set="qty" t-value="pre_qty if product.tracking != 'serial' else 'S/N'"/>
                     <t t-set="valid_qty" t-value="qty if isinstance(qty,str) or not qty.is_integer() else str(qty).split('.')[0]"/>
+                </t>
+                <t t-if="line._name == 'stock.production.lot'">
+                    <t t-set="lot_name" t-value="line.name if product.tracking != 'none' else ''"/>
                 </t>
 
                 <t t-set="upper_amendment" t-value="lambda s,n,t: int(t and sum(1 for c in s[:n] if c.isupper() or c == '-')//5 + bool(sum(1 for c in s[:n] if c.isupper())%5)*1)"/>
@@ -153,6 +156,11 @@
             <t t-call="efarmer_sale_workflow.stock_label"/>
         </template>
 
+        <template id="stock_production_lot_without_qty">
+            <t t-set="is_without_qty" t-value="True"/>
+            <t t-call="efarmer_sale_workflow.stock_label"/>
+        </template>
+
         <record id="action_stock_label_quant_without_qty" model="ir.actions.report">
             <field name="name">Stock Label (without qty)</field>
             <field name="model">stock.quant</field>
@@ -172,6 +180,17 @@
             <field name="report_file">efarmer_sale_workflow.stock_picking_without_qty</field>
             <field name="print_report_name">'Stock Label (without qty) - %s' % (object.product_id.default_code)</field>
             <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <record id="action_stock_label_production_lot_without_qty" model="ir.actions.report">
+            <field name="name">Stock Label (without qty)</field>
+            <field name="model">stock.production.lot</field>
+            <field name="report_type">qweb-text</field>
+            <field name="report_name">efarmer_sale_workflow.stock_production_lot_without_qty</field>
+            <field name="report_file">efarmer_sale_workflow.stock_production_lot_without_qty</field>
+            <field name="print_report_name">'Stock Label (without qty) - %s' % (object.product_id.default_code)</field>
+            <field name="binding_model_id" ref="stock.model_stock_production_lot"/>
             <field name="binding_type">report</field>
         </record>
 
