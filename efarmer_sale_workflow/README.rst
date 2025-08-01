@@ -3,6 +3,14 @@ Efarmer Sale Workflow
 
 Change Log
 ##########
+* 1.39 (2025-07-29)
+    -  Add Stock Label (without qty) print to 'stock.production.lot'
+    -  Add Unused filter in 'stock.production.lot' 
+
+* 1.38 (2025-07-29)
+
+* 1.37 (2025-07-29)
+
 * 1.36 (2023-07-25)
     -  Add field delivery_term_id on SO model, add model delivery.terms
 
