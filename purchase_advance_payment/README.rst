@@ -86,3 +86,9 @@ promote its widespread use.
 This module is part of the `OCA/purchase-workflow <https://github.com/OCA/purchase-workflow/tree/15.0/purchase_advance_payment>`_ project on GitHub.
 
 You are welcome to contribute. To learn how please visit https://odoo-community.org/page/Contribute.
+
+Change Log
+##########
+
+* 15.0.1.0.0 (2025-09-04)
+    - Added 'allow_payable_transfer' filter for correct showing Residual Amount.
