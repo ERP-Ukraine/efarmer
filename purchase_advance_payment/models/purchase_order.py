@@ -56,6 +56,8 @@ class PurchaseOrder(models.Model):
     )
     def _compute_purchase_advance_payment(self):
         for order in self:
+            # Extend filter: include accounts with "Allow Transfer from Payable"
+            # This ensures Residual Amount also considers reclassified advances
             mls = order.account_payment_ids.mapped("move_id.line_ids").filtered(
                 lambda x: (x.account_id.internal_type == "payable" and x.parent_state == "posted")
                 or (x.account_id.allow_payable_transfer and x.parent_state == "posted")
