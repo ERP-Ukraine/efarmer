@@ -5,7 +5,7 @@
 
 {
     'name': 'eFarmer Product',
-    'version': '1.0',
+    'version': '15.0.1.0.1',
     'category': 'Others',
     'author': 'VentorTech',
     'website': 'https://ventor.tech',
@@ -31,6 +31,7 @@
         'views/sale_order_views.xml',
         'views/account_fiscal_position_views.xml',
         'views/stock_valuation_layer_views.xml',
+        'views/res_users_views.xml',
     ],
 
     'auto_install': False,
