@@ -68,11 +68,16 @@ class PurchaseOrder(models.Model):
                 # Exclude reconciled pre-payments amount because once reconciled
                 # the pre-payment will reduce bill residual amount like any
                 # other payment.
-                line_amount = (
-                    line.amount_residual_currency
-                    if line.currency_id
-                    else line.amount_residual
-                )
+                if line.account_id.internal_type == "payable":
+                    # use residuals for payable accounts
+                    line_amount = (
+                        line.amount_residual_currency
+                        if line.currency_id else line.amount_residual
+                    )
+                elif line.account_id.allow_payable_transfer:
+                    # use full balance for advances (since residual is always 0)
+                    line_amount = line.balance if line.currency_id else line.amount_currency or line.debit - line.credit
+
                 if line_currency != order.currency_id:
                     advance_amount += line.currency_id._convert(
                         line_amount,
