@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="view_users_form_inherit_auto_taxes" model="ir.ui.view">
+            <field name="name">res.users.form.inherit.auto.taxes</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form" />
+            <field name="arch" type="xml">  
+                <xpath expr="//page[@name='access_rights']" position="inside">
+                    <group string="Custom Sales Settings">
+                        <field name="disable_so_tax_auto_calc" />
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+</odoo>
