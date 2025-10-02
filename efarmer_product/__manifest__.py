@@ -5,7 +5,7 @@
 
 {
     'name': 'eFarmer Product',
-    'version': '15.0.1.0.1',
+    'version': '15.0.1.0.2',
     'category': 'Others',
     'author': 'VentorTech',
     'website': 'https://ventor.tech',
@@ -18,6 +18,7 @@
         'stock_account',
         'helpdesk',
         'helpdesk_sale',
+        'mrp',
     ],
     'description': "",
     'data': [
