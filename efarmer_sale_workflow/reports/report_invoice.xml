@@ -16,6 +16,12 @@
         </xpath>
     </template>
 
+    <template id="efarmer_sale_workflow_tax_groups_totals_inherit" inherit_id="account.tax_groups_totals">
+        <xpath expr="//t[contains(@t-if, 'len(tax_totals[')]" position="attributes">
+            <attribute name="t-if">len(tax_totals['groups_by_subtotal'][subtotal_to_show]) &gt; 1 or o.currency_id.compare_amounts(tax_totals['amount_untaxed'],amount_by_group['tax_group_base_amount']) != 0</attribute>
+        </xpath>
+    </template>
+
     <template id="report_invoice_document" inherit_id="account.report_invoice_document">
         <xpath expr="//div[hasclass('page')]" position="inside">
             <t t-if="o.move_type == 'out_invoice'">
