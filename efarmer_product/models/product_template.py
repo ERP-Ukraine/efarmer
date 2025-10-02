@@ -11,3 +11,8 @@ class ProductTemplate(models.Model):
         comodel_name='product.function',
         string='Product Function',
     )
+    bom_type = fields.Selection(
+        related="bom_ids.type",
+        string="BoM Type",
+        store=True,
+    )
