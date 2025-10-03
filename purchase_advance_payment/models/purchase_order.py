@@ -56,9 +56,11 @@ class PurchaseOrder(models.Model):
     )
     def _compute_purchase_advance_payment(self):
         for order in self:
+            # Extend filter: include accounts with "Allow Transfer from Payable"
+            # This ensures Residual Amount also considers reclassified advances
             mls = order.account_payment_ids.mapped("move_id.line_ids").filtered(
-                lambda x: x.account_id.internal_type == "payable"
-                and x.parent_state == "posted"
+                lambda x: (x.account_id.internal_type == "payable" and x.parent_state == "posted")
+                or (x.account_id.allow_payable_transfer and x.parent_state == "posted")
             )
             advance_amount = 0.0
             for line in mls:
@@ -66,11 +68,16 @@ class PurchaseOrder(models.Model):
                 # Exclude reconciled pre-payments amount because once reconciled
                 # the pre-payment will reduce bill residual amount like any
                 # other payment.
-                line_amount = (
-                    line.amount_residual_currency
-                    if line.currency_id
-                    else line.amount_residual
-                )
+                if line.account_id.internal_type == "payable":
+                    # use residuals for payable accounts
+                    line_amount = (
+                        line.amount_residual_currency
+                        if line.currency_id else line.amount_residual
+                    )
+                elif line.account_id.allow_payable_transfer:
+                    # use full balance for advances (since residual is always 0)
+                    line_amount = line.balance if line.currency_id else line.amount_currency or line.debit - line.credit
+
                 if line_currency != order.currency_id:
                     advance_amount += line.currency_id._convert(
                         line_amount,
