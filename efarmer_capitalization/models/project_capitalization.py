@@ -186,6 +186,7 @@ class ProjectCapitalization(models.Model):
                     'ref': f"{self.name} {self.capitalization_date}",
                     'journal_id': line.asset_id.journal_id.id,
                     'date': self.capitalization_date,
+                    'currency_id': line.asset_id.currency_id.id,
                     'line_ids': [
                         (0, 0, {
                             'account_id': line.asset_id.account_asset_id.id,
