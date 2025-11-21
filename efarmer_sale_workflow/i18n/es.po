@@ -1,7 +1,12 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
+# 	* sale
+# 	* account_intrastat
 # 	* purchase_order_line_sequence
+# 	* sale_stock
 # 	* efarmer_sale_workflow
+# 	* stock_account
+# 	* account
 #
 msgid ""
 msgstr ""
@@ -54,11 +59,6 @@ msgstr ""
 "Para garantizar el procesamiento y envío oportuno de su pedido, proporcione el\n"
 "                                modelo específico de\n"
 "                                su tractor y los parámetros del eje de la dirección ("
-
-#. module: efarmer_sale_workflow
-#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.efarmer_sale_workflow_document_tax_totals_inherit
-msgid "zł"
-msgstr "€"
 
 #. module: efarmer_sale_workflow
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
@@ -188,11 +188,6 @@ msgstr "<strong>¡IMPORTANTE!</strong>"
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
 msgid "<strong>IMPORTANTE!</strong>"
 msgstr "<strong>¡IMPORTANTE!</strong>"
-
-#. module: efarmer_sale_workflow
-#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.efarmer_sale_workflow_document_tax_totals_inherit
-msgid "<strong>VAT Amount in PLN</strong>"
-msgstr "<strong>Importe del IVA en ESP</strong>"
 
 #. module: efarmer_sale_workflow
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
