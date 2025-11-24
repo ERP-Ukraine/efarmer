@@ -412,3 +412,36 @@ msgstr "y"
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.efarmer_sale_workflow_document_tax_totals_inherit
 msgid "zł"
 msgstr "€"
+
+#. modules: efarmer_sale_workflow, sale
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+#: model_terms:ir.ui.view,arch_db:sale.report_saleorder_document
+msgid "<strong>Shipping Address:</strong>"
+msgstr "<strong>Dirección de Entrega:</strong>"
+
+#. modules: efarmer_sale_workflow, sale
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+#: model_terms:ir.ui.view,arch_db:sale.report_saleorder_document
+msgid "Invoicing Address:"
+msgstr "Dirección de facturación:"
+
+#. modules: efarmer_sale_workflow, sale
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+#: model_terms:ir.ui.view,arch_db:sale.report_saleorder_document
+msgid "Invoicing and Shipping Address:"
+msgstr "Dirección de facturación y envío:"
+
+#. module: efarmer_sale_workflow
+#: python:account.move,get_report_vat_text_line
+msgid "Reverse charge applies (Art. 196 VAT Directive 2006/112/EC)."
+msgstr "Se aplica la inversión del sujeto pasivo (Art. 196 Directiva IVA 2006/112/CE)."
+
+#. module: efarmer_sale_workflow
+#: python:account.move,get_report_vat_text_line
+msgid "VAT exempt according to art.138 VAT Directive 2006/112/EC"
+msgstr "Exento de IVA según el art.138 Directiva IVA 2006/112/CE"
+
+#. module: efarmer_sale_workflow
+#: python:account.move,get_report_vat_text_line
+msgid "VAT exempt according to art.146 VAT Directive 2006/112/EC"
+msgstr "Exento de IVA según el art.146 Directiva IVA 2006/112/CE"
