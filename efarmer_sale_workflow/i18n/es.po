@@ -432,16 +432,19 @@ msgid "Invoicing and Shipping Address:"
 msgstr "Dirección de facturación y envío:"
 
 #. module: efarmer_sale_workflow
-#: python:account.move,get_report_vat_text_line
+#: code:addons/efarmer_sale_workflow/models/account_invoice.py:37
+#, python-format
 msgid "Reverse charge applies (Art. 196 VAT Directive 2006/112/EC)."
 msgstr "Se aplica la inversión del sujeto pasivo (Art. 196 Directiva IVA 2006/112/CE)."
 
 #. module: efarmer_sale_workflow
-#: python:account.move,get_report_vat_text_line
+#: code:addons/efarmer_sale_workflow/models/account_invoice.py:44
+#, python-format
 msgid "VAT exempt according to art.138 VAT Directive 2006/112/EC"
 msgstr "Exento de IVA según el art.138 Directiva IVA 2006/112/CE"
 
 #. module: efarmer_sale_workflow
-#: python:account.move,get_report_vat_text_line
+#: code:addons/efarmer_sale_workflow/models/account_invoice.py:50
+#, python-format
 msgid "VAT exempt according to art.146 VAT Directive 2006/112/EC"
 msgstr "Exento de IVA según el art.146 Directiva IVA 2006/112/CE"
