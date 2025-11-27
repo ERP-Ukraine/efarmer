@@ -1,7 +1,7 @@
 # Copyright 2023 VentorTech OU
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
-from odoo import fields, models, api
+from odoo import fields, models
 
 
 class ResConfigSettings(models.TransientModel):
@@ -12,4 +12,9 @@ class ResConfigSettings(models.TransientModel):
         default_model='product.function',
         string='Default Product Function',
         config_parameter='product_function.product_function_id',
+    )
+
+    enable_so_tax_auto_calc = fields.Boolean(
+        related='company_id.enable_so_tax_auto_calc',
+        readonly=False,
     )

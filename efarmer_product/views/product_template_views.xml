@@ -11,6 +11,11 @@
             </xpath>
             <xpath expr="//filter[@name='categ_id']" position="after">
                 <field name="product_func_id" string="Product Function" context="{'group_by':'product_func_id'}"/>
+                <field name="bom_type" string="BoM Type" context="{'group_by':'bom_type'}"/>
+            </xpath>
+            <!-- Make BoM Type available in Add Custom Filter -->
+            <xpath expr="//search" position="inside">
+                <field name="bom_type"/>
             </xpath>
         </field>
     </record>

@@ -13,7 +13,7 @@ class SaleOrder(models.Model):
     )
 
     is_auto_calc_taxes = fields.Boolean(
-        default=True,
+        default=lambda self: self._default_is_auto_calc_taxes(),
         string='Auto-calculate taxes',
     )
 
@@ -36,3 +36,11 @@ class SaleOrder(models.Model):
     def _compute_helpdesk_ticket_count(self):
         for record in self:
             record.helpdesk_ticket_count = self.env['helpdesk.ticket'].search_count([('sale_order_id', '=', record.id)])
+
+    @api.model
+    def _default_is_auto_calc_taxes(self):
+        """Return False if user has enabled the option, else company default"""
+        user = self.env.user
+        if getattr(user, 'disable_so_tax_auto_calc', False):
+            return False
+        return getattr(self.env.company, 'enable_so_tax_auto_calc', False)

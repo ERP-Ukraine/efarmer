@@ -5,18 +5,20 @@
 
 {
     'name': 'eFarmer Product',
-    'version': '1.0',
+    'version': '15.0.1.0.2',
     'category': 'Others',
     'author': 'VentorTech',
     'website': 'https://ventor.tech',
     'license': 'LGPL-3',
     'depends': [
         'account',
+        'account_consolidation',
         'sale',
         'stock',
         'stock_account',
         'helpdesk',
         'helpdesk_sale',
+        'mrp',
     ],
     'description': "",
     'data': [
@@ -30,6 +32,7 @@
         'views/sale_order_views.xml',
         'views/account_fiscal_position_views.xml',
         'views/stock_valuation_layer_views.xml',
+        'views/res_users_views.xml',
     ],
 
     'auto_install': False,
