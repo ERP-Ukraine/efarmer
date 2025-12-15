@@ -14,3 +14,9 @@ class AccountMove(models.Model):
         store=True,
         readonly=True,
     )
+    posted_uid = fields.Many2one(
+        related='move_id.posted_uid',
+        string='Posted by',
+        store=True,
+        readonly=True
+    )

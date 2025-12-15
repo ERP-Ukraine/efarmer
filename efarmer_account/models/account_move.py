@@ -13,3 +13,19 @@ class AccountMove(models.Model):
         check_company=True,
         copy=False,
     )
+    posted_uid = fields.Many2one(
+        'res.users',
+        string='Posted by',
+        readonly=True,
+        copy=False
+    )
+
+    def action_post(self):
+        res = super().action_post()
+
+        for move in self:
+            # Capture posting user
+            if move.state == 'posted':
+                move.posted_uid = self.env.user.id
+
+        return res
