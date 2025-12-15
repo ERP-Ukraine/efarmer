@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="trilab_analytic_tag_NKUP" model="account.analytic.tag">
+        <field name="name">NKUP</field>
+    </record>
+
+    <record id="trilab_analytic_tag_KUP" model="account.analytic.tag">
+        <field name="name">KUP</field>
+    </record>
+</odoo>
