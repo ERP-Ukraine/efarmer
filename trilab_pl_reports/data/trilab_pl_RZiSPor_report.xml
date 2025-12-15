@@ -1,0 +1,584 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="trilab_pl_RZiSPor" model="account.financial.html.report">
+        <field name="name">PL Profil and Loss (comparative variant)</field>
+        <field name='parent_id' ref='trilab_pl_reports.menu_report_polish_accounting'/>
+        <field name="date_range" eval="True"/>
+        <field name="analytic" eval="True"/>
+        <field name="unfold_all_filter" eval="True"/>
+    </record>
+    <record id="trilab_pl_RZiSPor_A" model="account.financial.html.report.line">
+        <field name="name">Przychody netto ze sprzedaży i zrównane z nimi, w tym:</field>
+        <field name="code">RZiSPor_A</field>
+        <field name="sequence" eval="0"/>
+        <field name="level" eval="1"/>
+        <field name="formulas">RZiSPor_A_I + RZiSPor_A_II + RZiSPor_A_III + RZiSPor_A_IV</field>
+        <field name="financial_report_id" ref="trilab_pl_RZiSPor"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_A_J" model="account.financial.html.report.line">
+        <field name="name">– od jednostek powiązanych</field>
+        <field name="code">RZiSPor_A_J</field>
+        <field name="sequence" eval="0"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_A_J'))]"/>
+        <field name="formulas">-sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_A"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_A_I" model="account.financial.html.report.line">
+        <field name="name">Przychody netto ze sprzedaży produktów</field>
+        <field name="code">RZiSPor_A_I</field>
+        <field name="sequence" eval="1"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids', '=', ref('trilab_pl_reports.RZiSPor_A_I'))]"/>
+        <field name="formulas">-sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_A"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_A_II" model="account.financial.html.report.line">
+        <field name="name">Zmiana stanu produktów (zwiększenie – wartość dodatnia, zmniejszenie – wartość ujemna)</field>
+        <field name="code">RZiSPor_A_II</field>
+        <field name="sequence" eval="2"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_A_II'))]"/>
+        <field name="formulas">-sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_A"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_A_III" model="account.financial.html.report.line">
+        <field name="name">Koszt wytworzenia produktów na własne potrzeby jednostki</field>
+        <field name="code">RZiSPor_A_III</field>
+        <field name="sequence" eval="2"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_A_III'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_A"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_A_IV" model="account.financial.html.report.line">
+        <field name="name">Przychody netto ze sprzedaży towarów</field>
+        <field name="code">RZiSPor_A_IV</field>
+        <field name="sequence" eval="3"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_A_IV'))]"/>
+        <field name="formulas">-sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_A"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_B" model="account.financial.html.report.line">
+        <field name="name">Koszty działalności operacyjnej</field>
+        <field name="code">RZiSPor_B</field>
+        <field name="sequence" eval="1"/>
+        <field name="level" eval="1"/>
+        <field name="formulas">RZiSPor_B_I + RZiSPor_B_II + RZiSPor_B_III + RZiSPor_B_IV + RZiSPor_B_V + RZiSPor_B_VI + RZiSPor_B_VII + RZiSPor_B_VIII</field>
+        <field name="financial_report_id" ref="trilab_pl_RZiSPor"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_B_I" model="account.financial.html.report.line">
+        <field name="name">Amortyzacja</field>
+        <field name="code">RZiSPor_B_I</field>
+        <field name="sequence" eval="0"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_B_I'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_B"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_B_II" model="account.financial.html.report.line">
+        <field name="name">Zużycie materiałów i energii</field>
+        <field name="code">RZiSPor_B_II</field>
+        <field name="sequence" eval="1"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_B_II'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_B"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_B_III" model="account.financial.html.report.line">
+        <field name="name">Usługi obce</field>
+        <field name="code">RZiSPor_B_III</field>
+        <field name="sequence" eval="2"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_B_III'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_B"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_B_IV" model="account.financial.html.report.line">
+        <field name="name">Podatki i opłaty, w tym:</field>
+        <field name="code">RZiSPor_B_IV</field>
+        <field name="sequence" eval="3"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_B_IV'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_B"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_B_IV_1" model="account.financial.html.report.line">
+        <field name="name">– podatek akcyzowy</field>
+        <field name="code">RZiSPor_B_IV_1</field>
+        <field name="sequence" eval="0"/>
+        <field name="level" eval="3"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_B_IV_1'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_B_IV"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_B_V" model="account.financial.html.report.line">
+        <field name="name">Wynagrodzenia</field>
+        <field name="code">RZiSPor_B_V</field>
+        <field name="sequence" eval="4"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_B_V'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_B"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_B_VI" model="account.financial.html.report.line">
+        <field name="name">Ubezpieczenia społeczne i inne świadczenia, w tym:</field>
+        <field name="code">RZiSPor_B_VI</field>
+        <field name="sequence" eval="5"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_B_VI'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_B"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_B_VI_1" model="account.financial.html.report.line">
+        <field name="name">– emerytalne</field>
+        <field name="code">RZiSPor_B_VI_1</field>
+        <field name="sequence" eval="0"/>
+        <field name="level" eval="3"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_B_VI_1'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_B_VI"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_B_VII" model="account.financial.html.report.line">
+        <field name="name">Pozostałe koszty rodzajowe</field>
+        <field name="code">RZiSPor_B_VII</field>
+        <field name="sequence" eval="6"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_B_VII'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_B"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_B_VIII" model="account.financial.html.report.line">
+        <field name="name">Wartość sprzedanych towarów</field>
+        <field name="code">RZiSPor_B_VIII</field>
+        <field name="sequence" eval="7"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_B_VIII'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_B"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_C" model="account.financial.html.report.line">
+        <field name="name">Zysk (strata) ze sprzedaży (A–B)</field>
+        <field name="code">RZiSPor_C</field>
+        <field name="sequence" eval="2"/>
+        <field name="level" eval="1"/>
+        <field name="formulas">RZiSPor_A - RZiSPor_B</field>
+        <field name="financial_report_id" ref="trilab_pl_RZiSPor"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_D" model="account.financial.html.report.line">
+        <field name="name">Pozostałe przychody operacyjne</field>
+        <field name="code">RZiSPor_D</field>
+        <field name="sequence" eval="3"/>
+        <field name="level" eval="1"/>
+        <field name="formulas">RZiSPor_D_I+RZiSPor_D_II+RZiSPor_D_III+RZiSPor_D_IV</field>
+        <field name="financial_report_id" ref="trilab_pl_RZiSPor"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_D_I" model="account.financial.html.report.line">
+        <field name="name">Zysk z tytułu rozchodu niefinansowych aktywów trwałych</field>
+        <field name="code">RZiSPor_D_I</field>
+        <field name="sequence" eval="0"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_D_I'))]"/>
+        <field name="formulas">-sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_D"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_D_II" model="account.financial.html.report.line">
+        <field name="name">Dotacje</field>
+        <field name="code">RZiSPor_D_II</field>
+        <field name="sequence" eval="1"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_D_II'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_D"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_D_III" model="account.financial.html.report.line">
+        <field name="name">Aktualizacja wartości aktywów niefinansowych</field>
+        <field name="code">RZiSPor_D_III</field>
+        <field name="sequence" eval="2"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_D_III'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_D"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_D_IV" model="account.financial.html.report.line">
+        <field name="name">Inne przychody operacyjne</field>
+        <field name="code">RZiSPor_D_IV</field>
+        <field name="sequence" eval="3"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_D_IV'))]"/>
+        <field name="formulas">-sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_D"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_E" model="account.financial.html.report.line">
+        <field name="name">Pozostałe koszty operacyjne</field>
+        <field name="code">RZiSPor_E</field>
+        <field name="sequence" eval="4"/>
+        <field name="level" eval="1"/>
+        <field name="formulas">RZiSPor_E_I + RZiSPor_E_II + RZiSPor_E_III</field>
+        <field name="financial_report_id" ref="trilab_pl_RZiSPor"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_E_I" model="account.financial.html.report.line">
+        <field name="name">Strata z tytułu rozchodu niefinansowych aktywów trwałych</field>
+        <field name="code">RZiSPor_E_I</field>
+        <field name="sequence" eval="0"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_E_I'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_E"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_E_II" model="account.financial.html.report.line">
+        <field name="name">Aktualizacja wartości aktywów niefinansowych</field>
+        <field name="code">RZiSPor_E_II</field>
+        <field name="sequence" eval="1"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_E_II'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_E"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_E_III" model="account.financial.html.report.line">
+        <field name="name">Inne koszty operacyjne</field>
+        <field name="code">RZiSPor_E_III</field>
+        <field name="sequence" eval="2"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_E_III'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_E"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_F" model="account.financial.html.report.line">
+        <field name="name">Zysk (strata) z działalności operacyjnej (C+D–E)</field>
+        <field name="code">RZiSPor_F</field>
+        <field name="sequence" eval="5"/>
+        <field name="level" eval="1"/>
+        <field name="formulas">RZiSPor_C + RZiSPor_D - RZiSPor_E</field>
+        <field name="financial_report_id" ref="trilab_pl_RZiSPor"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_G" model="account.financial.html.report.line">
+        <field name="name">Przychody finansowe</field>
+        <field name="code">RZiSPor_G</field>
+        <field name="sequence" eval="6"/>
+        <field name="level" eval="1"/>
+        <field name="formulas">RZiSPor_G_I + RZiSPor_G_II + RZiSPor_G_III + RZiSPor_G_IV + RZiSPor_G_V</field>
+        <field name="financial_report_id" ref="trilab_pl_RZiSPor"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_G_I" model="account.financial.html.report.line">
+        <field name="name">Dywidendy i udziały w zyskach, w tym:</field>
+        <field name="code">RZiSPor_G_I</field>
+        <field name="sequence" eval="0"/>
+        <field name="level" eval="2"/>
+        <field name="formulas">RZiSPor_G_I_A + RZiSPor_G_I_B</field>
+        <field name="show_domain">never</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_G"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_G_I_A" model="account.financial.html.report.line">
+        <field name="name">Od jednostek powiązanych, w tym:</field>
+        <field name="code">RZiSPor_G_I_A</field>
+        <field name="sequence" eval="0"/>
+        <field name="level" eval="3"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_I_A'))]"/>
+        <field name="formulas">-sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_G_I"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_G_I_A_1" model="account.financial.html.report.line">
+        <field name="name">– w których jednostka posiada zaangażowanie w kapitale</field>
+        <field name="code">RZiSPor_G_I_A_1</field>
+        <field name="sequence" eval="0"/>
+        <field name="level" eval="4"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_I_A_1'))]"/>
+        <field name="formulas">-sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_G_I_A"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_G_I_B" model="account.financial.html.report.line">
+        <field name="name">Od jednostek pozostałych, w tym:</field>
+        <field name="code">RZiSPor_G_I_B</field>
+        <field name="sequence" eval="1"/>
+        <field name="level" eval="3"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_I_B'))]"/>
+        <field name="formulas">-sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_G_I"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_G_I_B_1" model="account.financial.html.report.line">
+        <field name="name">– w których jednostka posiada zaangażowanie w kapitale</field>
+        <field name="code">RZiSPor_G_I_B_1</field>
+        <field name="sequence" eval="0"/>
+        <field name="level" eval="4"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_I_B_1'))]"/>
+        <field name="formulas">-sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_G_I_B"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_G_II" model="account.financial.html.report.line">
+        <field name="name">Odsetki, w tym:</field>
+        <field name="code">RZiSPor_G_II</field>
+        <field name="sequence" eval="1"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_II'))]"/>
+        <field name="formulas">-sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_G"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_G_II_J" model="account.financial.html.report.line">
+        <field name="name">– od jednostek powiązanych</field>
+        <field name="code">RZiSPor_G_II_J</field>
+        <field name="sequence" eval="0"/>
+        <field name="level" eval="3"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_II_J'))]"/>
+        <field name="formulas">-sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_G_II"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_G_III" model="account.financial.html.report.line">
+        <field name="name">Zysk z tytułu rozchodu aktywów finansowych, w tym:</field>
+        <field name="code">RZiSPor_G_III</field>
+        <field name="sequence" eval="2"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_III'))]"/>
+        <field name="formulas">-sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_G"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_G_III_J" model="account.financial.html.report.line">
+        <field name="name">– od jednostek powiązanych</field>
+        <field name="code">RZiSPor_G_III_J</field>
+        <field name="sequence" eval="0"/>
+        <field name="level" eval="3"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_III_J'))]"/>
+        <field name="formulas">-sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_G_III"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_G_IV" model="account.financial.html.report.line">
+        <field name="name">Aktualizacja wartości aktywów finansowych</field>
+        <field name="code">RZiSPor_G_IV</field>
+        <field name="sequence" eval="3"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_IV'))]"/>
+        <field name="formulas">-sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_G"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_G_V" model="account.financial.html.report.line">
+        <field name="name">Inne</field>
+        <field name="code">RZiSPor_G_V</field>
+        <field name="sequence" eval="4"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_V'))]"/>
+        <field name="formulas">(abs(sum)-(sum))/2</field>
+        <field name="show_domain">foldable</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_G"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_H" model="account.financial.html.report.line">
+        <field name="name">Koszty finansowe</field>
+        <field name="code">RZiSPor_H</field>
+        <field name="sequence" eval="7"/>
+        <field name="level" eval="1"/>
+        <field name="formulas">RZiSPor_H_I + RZiSPor_H_II + RZiSPor_H_III + RZiSPor_H_IV</field>
+        <field name="financial_report_id" ref="trilab_pl_RZiSPor"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_H_I" model="account.financial.html.report.line">
+        <field name="name">Odsetki, w tym:</field>
+        <field name="code">RZiSPor_H_I</field>
+        <field name="sequence" eval="0"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_H_I'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_H"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_H_I_J" model="account.financial.html.report.line">
+        <field name="name">– dla jednostek powiązanych</field>
+        <field name="code">RZiSPor_H_I_J</field>
+        <field name="sequence" eval="0"/>
+        <field name="level" eval="3"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_H_I_J'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_H_I"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_H_II" model="account.financial.html.report.line">
+        <field name="name">Strata z tytułu rozchodu aktywów finansowych, w tym:</field>
+        <field name="code">RZiSPor_H_II</field>
+        <field name="sequence" eval="1"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_H_II'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_H"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_H_II_J" model="account.financial.html.report.line">
+        <field name="name">– dla jednostek powiązanych</field>
+        <field name="code">RZiSPor_H_II_J</field>
+        <field name="sequence" eval="3"/>
+        <field name="level" eval="3"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_H_II_J'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_H_II"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_H_III" model="account.financial.html.report.line">
+        <field name="name">Aktualizacja wartości aktywów finansowych</field>
+        <field name="code">RZiSPor_H_III</field>
+        <field name="sequence" eval="2"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_H_III'))]"/>
+        <field name="formulas">sum</field>
+        <field name="show_domain">foldable</field>
+        <field name="groupby">account_id</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_H"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_H_IV" model="account.financial.html.report.line">
+        <field name="name">Inne</field>
+        <field name="code">RZiSPor_H_IV</field>
+        <field name="sequence" eval="3"/>
+        <field name="level" eval="2"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_H_IV'))]"/>
+        <field name="formulas">(abs(sum)+(sum))/2</field>
+        <field name="show_domain">foldable</field>
+        <field name="parent_id" ref="trilab_pl_RZiSPor_H"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_I" model="account.financial.html.report.line">
+        <field name="name">Zysk (strata) brutto (F+G–H)</field>
+        <field name="code">RZiSPor_I</field>
+        <field name="sequence" eval="8"/>
+        <field name="level" eval="1"/>
+        <field name="formulas">RZiSPor_F + RZiSPor_G - RZiSPor_H</field>
+        <field name="financial_report_id" ref="trilab_pl_RZiSPor"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_J" model="account.financial.html.report.line">
+        <field name="name">Podatek dochodowy</field>
+        <field name="code">RZiSPor_J</field>
+        <field name="sequence" eval="9"/>
+        <field name="level" eval="1"/>
+        <field name="domain" eval="[('account_id.tag_ids','=',ref('trilab_pl_reports.RZiSPor_J'))]"/>
+        <field name="formulas">sum</field>
+        <field name="financial_report_id" ref="trilab_pl_RZiSPor"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_K" model="account.financial.html.report.line">
+        <field name="name">Pozostałe obowiązkowe zmniejszenia zysku (zwiększenia straty)</field>
+        <field name="code">RZiSPor_K</field>
+        <field name="sequence" eval="10"/>
+        <field name="level" eval="1"/>
+        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_K'))]"/>
+        <field name="formulas">sum</field>
+        <field name="financial_report_id" ref="trilab_pl_RZiSPor"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+    <record id="trilab_pl_RZiSPor_L" model="account.financial.html.report.line">
+        <field name="name">Zysk (strata) netto (I–J–K)</field>
+        <field name="code">RZiSPor_L</field>
+        <field name="sequence" eval="11"/>
+        <field name="level" eval="1"/>
+        <field name="formulas">RZiSPor_I - RZiSPor_J - RZiSPor_K</field>
+        <field name="financial_report_id" ref="trilab_pl_RZiSPor"/>
+        <field name="special_date_changer">strict_range</field>
+    </record>
+</odoo>

@@ -1,0 +1,898 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="0">
+    <!-- Bilans -->
+
+    <record id="Aktywa_A_I_1" model="account.account.tag">
+        <field name="name">Aktywa_A_I_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_I_2" model="account.account.tag">
+        <field name="name">Aktywa_A_I_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_I_3" model="account.account.tag">
+        <field name="name">Aktywa_A_I_3</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_I_4" model="account.account.tag">
+        <field name="name">Aktywa_A_I_4</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_II_1_A" model="account.account.tag">
+        <field name="name">Aktywa_A_II_1_A</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_II_1_B" model="account.account.tag">
+        <field name="name">Aktywa_A_II_1_B</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_II_1_C" model="account.account.tag">
+        <field name="name">Aktywa_A_II_1_C</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_II_1_D" model="account.account.tag">
+        <field name="name">Aktywa_A_II_1_D</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_II_1_E" model="account.account.tag">
+        <field name="name">Aktywa_A_II_1_E</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_II_2" model="account.account.tag">
+        <field name="name">Aktywa_A_II_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_II_3" model="account.account.tag">
+        <field name="name">Aktywa_A_II_3</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_III_1" model="account.account.tag">
+        <field name="name">Aktywa_A_III_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_III_2" model="account.account.tag">
+        <field name="name">Aktywa_A_III_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_III_3" model="account.account.tag">
+        <field name="name">Aktywa_A_III_3</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_IV_1" model="account.account.tag">
+        <field name="name">Aktywa_A_IV_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_IV_2" model="account.account.tag">
+        <field name="name">Aktywa_A_IV_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_IV_3_A_1" model="account.account.tag">
+        <field name="name">Aktywa_A_IV_3_A_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_IV_3_A_2" model="account.account.tag">
+        <field name="name">Aktywa_A_IV_3_A_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_IV_3_A_3" model="account.account.tag">
+        <field name="name">Aktywa_A_IV_3_A_3</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_IV_3_A_4" model="account.account.tag">
+        <field name="name">Aktywa_A_IV_3_A_4</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_IV_3_B_1" model="account.account.tag">
+        <field name="name">Aktywa_A_IV_3_B_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_IV_3_B_2" model="account.account.tag">
+        <field name="name">Aktywa_A_IV_3_B_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_IV_3_B_3" model="account.account.tag">
+        <field name="name">Aktywa_A_IV_3_B_3</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_IV_3_B_4" model="account.account.tag">
+        <field name="name">Aktywa_A_IV_3_B_4</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_IV_3_C_1" model="account.account.tag">
+        <field name="name">Aktywa_A_IV_3_C_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_IV_3_C_2" model="account.account.tag">
+        <field name="name">Aktywa_A_IV_3_C_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_IV_3_C_3" model="account.account.tag">
+        <field name="name">Aktywa_A_IV_3_C_3</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_IV_3_C_4" model="account.account.tag">
+        <field name="name">Aktywa_A_IV_3_C_4</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_IV_4" model="account.account.tag">
+        <field name="name">Aktywa_A_IV_4</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_V_1" model="account.account.tag">
+        <field name="name">Aktywa_A_V_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_A_V_2" model="account.account.tag">
+        <field name="name">Aktywa_A_V_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_I_1" model="account.account.tag">
+        <field name="name">Aktywa_B_I_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_I_2" model="account.account.tag">
+        <field name="name">Aktywa_B_I_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_I_3" model="account.account.tag">
+        <field name="name">Aktywa_B_I_3</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_I_4" model="account.account.tag">
+        <field name="name">Aktywa_B_I_4</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_I_5" model="account.account.tag">
+        <field name="name">Aktywa_B_I_5</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_II_1_A_1" model="account.account.tag">
+        <field name="name">Aktywa_B_II_1_A_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_II_1_A_2" model="account.account.tag">
+        <field name="name">Aktywa_B_II_1_A_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_II_1_B" model="account.account.tag">
+        <field name="name">Aktywa_B_II_1_B</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_II_2_A_1" model="account.account.tag">
+        <field name="name">Aktywa_B_II_2_A_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_II_2_A_2" model="account.account.tag">
+        <field name="name">Aktywa_B_II_2_A_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_II_2_B" model="account.account.tag">
+        <field name="name">Aktywa_B_II_2_B</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_II_3_A_1" model="account.account.tag">
+        <field name="name">Aktywa_B_II_3_A_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_II_3_A_2" model="account.account.tag">
+        <field name="name">Aktywa_B_II_3_A_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_II_3_B" model="account.account.tag">
+        <field name="name">Aktywa_B_II_3_B</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_II_3_C" model="account.account.tag">
+        <field name="name">Aktywa_B_II_3_C</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_II_3_D" model="account.account.tag">
+        <field name="name">Aktywa_B_II_3_D</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_III_1_A_1" model="account.account.tag">
+        <field name="name">Aktywa_B_III_1_A_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_III_1_A_2" model="account.account.tag">
+        <field name="name">Aktywa_B_III_1_A_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_III_1_A_3" model="account.account.tag">
+        <field name="name">Aktywa_B_III_1_A_3</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_III_1_A_4" model="account.account.tag">
+        <field name="name">Aktywa_B_III_1_A_4</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_III_1_B_1" model="account.account.tag">
+        <field name="name">Aktywa_B_III_1_B_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_III_1_B_2" model="account.account.tag">
+        <field name="name">Aktywa_B_III_1_B_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_III_1_B_3" model="account.account.tag">
+        <field name="name">Aktywa_B_III_1_B_3</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_III_1_B_4" model="account.account.tag">
+        <field name="name">Aktywa_B_III_1_B_4</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_III_1_C_1" model="account.account.tag">
+        <field name="name">Aktywa_B_III_1_C_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_III_1_C_2" model="account.account.tag">
+        <field name="name">Aktywa_B_III_1_C_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_III_1_C_3" model="account.account.tag">
+        <field name="name">Aktywa_B_III_1_C_3</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="Aktywa_B_III_2" model="account.account.tag">
+        <field name="name">Aktywa_B_III_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_B_IV" model="account.account.tag">
+        <field name="name">Aktywa_B_IV</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_C" model="account.account.tag">
+        <field name="name">Aktywa_C</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Aktywa_D" model="account.account.tag">
+        <field name="name">Aktywa_D</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_A_I" model="account.account.tag">
+        <field name="name">Pasywa_A_I</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_A_II" model="account.account.tag">
+        <field name="name">Pasywa_A_II</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_A_II_1" model="account.account.tag">
+        <field name="name">Pasywa_A_II_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_A_III" model="account.account.tag">
+        <field name="name">Pasywa_A_III</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_A_III_1" model="account.account.tag">
+        <field name="name">Pasywa_A_III_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_A_IV" model="account.account.tag">
+        <field name="name">Pasywa_A_IV</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_A_IV_1" model="account.account.tag">
+        <field name="name">Pasywa_A_IV_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_A_IV_2" model="account.account.tag">
+        <field name="name">Pasywa_A_IV_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_A_V" model="account.account.tag">
+        <field name="name">Pasywa_A_V</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_A_VI" model="account.account.tag">
+        <field name="name">Pasywa_A_VI</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_A_VII" model="account.account.tag">
+        <field name="name">Pasywa_A_VII</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_I_1" model="account.account.tag">
+        <field name="name">Pasywa_B_I_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_I_2_1" model="account.account.tag">
+        <field name="name">Pasywa_B_I_2_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_I_2_2" model="account.account.tag">
+        <field name="name">Pasywa_B_I_2_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_I_3_1" model="account.account.tag">
+        <field name="name">Pasywa_B_I_3_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_I_3_2" model="account.account.tag">
+        <field name="name">Pasywa_B_I_3_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_II_1" model="account.account.tag">
+        <field name="name">Pasywa_B_II_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_II_2" model="account.account.tag">
+        <field name="name">Pasywa_B_II_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_II_3_A" model="account.account.tag">
+        <field name="name">Pasywa_B_II_3_A</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_II_3_B" model="account.account.tag">
+        <field name="name">Pasywa_B_II_3_B</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_II_3_C" model="account.account.tag">
+        <field name="name">Pasywa_B_II_3_C</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_II_3_D" model="account.account.tag">
+        <field name="name">Pasywa_B_II_3_D</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_II_3_E" model="account.account.tag">
+        <field name="name">Pasywa_B_II_3_E</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_III_1_A_1" model="account.account.tag">
+        <field name="name">Pasywa_B_III_1_A_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_III_1_A_2" model="account.account.tag">
+        <field name="name">Pasywa_B_III_1_A_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_III_1_B" model="account.account.tag">
+        <field name="name">Pasywa_B_III_1_B</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_III_2_A_1" model="account.account.tag">
+        <field name="name">Pasywa_B_III_2_A_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_III_2_A_2" model="account.account.tag">
+        <field name="name">Pasywa_B_III_2_A_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_III_2_B" model="account.account.tag">
+        <field name="name">Pasywa_B_III_2_B</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_III_3_A" model="account.account.tag">
+        <field name="name">Pasywa_B_III_3_A</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_III_3_B" model="account.account.tag">
+        <field name="name">Pasywa_B_III_3_B</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_III_3_C" model="account.account.tag">
+        <field name="name">Pasywa_B_III_3_C</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_III_3_D_1" model="account.account.tag">
+        <field name="name">Pasywa_B_III_3_D_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_III_3_D_2" model="account.account.tag">
+        <field name="name">Pasywa_B_III_3_D_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_III_3_E" model="account.account.tag">
+        <field name="name">Pasywa_B_III_3_E</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_III_3_F" model="account.account.tag">
+        <field name="name">Pasywa_B_III_3_F</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_III_3_G" model="account.account.tag">
+        <field name="name">Pasywa_B_III_3_G</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_III_3_H" model="account.account.tag">
+        <field name="name">Pasywa_B_III_3_H</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_III_3_I" model="account.account.tag">
+        <field name="name">Pasywa_B_III_3_I</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_III_4" model="account.account.tag">
+        <field name="name">Pasywa_B_III_4</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_IV_1" model="account.account.tag">
+        <field name="name">Pasywa_B_IV_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_IV_2_1" model="account.account.tag">
+        <field name="name">Pasywa_B_IV_2_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="Pasywa_B_IV_2_2" model="account.account.tag">
+        <field name="name">Pasywa_B_IV_2_2</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <!-- RZIS Porównawczy-->
+
+    <record id="RZiSPor_E_I" model="account.account.tag">
+        <field name="name">RZiSPor_E_I</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_D_I" model="account.account.tag">
+        <field name="name">RZiSPor_D_I</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_H_II_J" model="account.account.tag">
+        <field name="name">RZiSPor_H_II_J</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_H_I_J" model="account.account.tag">
+        <field name="name">RZiSPor_H_I_J</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_H_I" model="account.account.tag">
+        <field name="name">RZiSPor_H_I</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_B_I" model="account.account.tag">
+        <field name="name">RZiSPor_B_I</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_A_J" model="account.account.tag">
+        <field name="name">RZiSPor_A_J</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_G_III_J" model="account.account.tag">
+        <field name="name">RZiSPor_G_III_J</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_G_II_J" model="account.account.tag">
+        <field name="name">RZiSPor_G_II_J</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_B_IV_1" model="account.account.tag">
+        <field name="name">RZiSPor_B_IV_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_G_I_B_1" model="account.account.tag">
+        <field name="name">RZiSPor_G_I_B_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_G_I_A_1" model="account.account.tag">
+        <field name="name">RZiSPor_G_I_A_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_B_VI_1" model="account.account.tag">
+        <field name="name">RZiSPor_B_VI_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_G_I_A" model="account.account.tag">
+        <field name="name">RZiSPor_G_I_A</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_A_I" model="account.account.tag">
+        <field name="name">RZiSPor_A_I</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_B_II" model="account.account.tag">
+        <field name="name">RZiSPor_B_II</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_D_II" model="account.account.tag">
+        <field name="name">RZiSPor_D_II</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_E_II" model="account.account.tag">
+        <field name="name">RZiSPor_E_II</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_G_I_B" model="account.account.tag">
+        <field name="name">RZiSPor_G_I_B</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_G_II" model="account.account.tag">
+        <field name="name">RZiSPor_G_II</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_H_II" model="account.account.tag">
+        <field name="name">RZiSPor_H_II</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_E_III" model="account.account.tag">
+        <field name="name">RZiSPor_E_III</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_G_III" model="account.account.tag">
+        <field name="name">RZiSPor_G_III</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_B_III" model="account.account.tag">
+        <field name="name">RZiSPor_B_III</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_A_III" model="account.account.tag">
+        <field name="name">RZiSPor_A_III</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_A_II" model="account.account.tag">
+        <field name="name">RZiSPor_A_II</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_H_III" model="account.account.tag">
+        <field name="name">RZiSPor_H_III</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_D_III" model="account.account.tag">
+        <field name="name">RZiSPor_D_III</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_H_IV" model="account.account.tag">
+        <field name="name">RZiSPor_H_IV</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_G_IV" model="account.account.tag">
+        <field name="name">RZiSPor_G_IV</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_A_IV" model="account.account.tag">
+        <field name="name">RZiSPor_A_IV</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_B_IV" model="account.account.tag">
+        <field name="name">RZiSPor_B_IV</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_D_IV" model="account.account.tag">
+        <field name="name">RZiSPor_D_IV</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_B_V" model="account.account.tag">
+        <field name="name">RZiSPor_B_V</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_G_V" model="account.account.tag">
+        <field name="name">RZiSPor_G_V</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_B_VI" model="account.account.tag">
+        <field name="name">RZiSPor_B_VI</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_B_VII" model="account.account.tag">
+        <field name="name">RZiSPor_B_VII</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_B_VIII" model="account.account.tag">
+        <field name="name">RZiSPor_B_VIII</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_J" model="account.account.tag">
+        <field name="name">RZiSPor_J</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSPor_K" model="account.account.tag">
+        <field name="name">RZiSPor_K</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <!-- RZIS Kalkulacyjny-->
+
+    <record id="RZiSKalk_A_J" model="account.account.tag">
+        <field name="name">RZiSKalk_A_J</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_A_I" model="account.account.tag">
+        <field name="name">RZiSKalk_A_I</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_A_II" model="account.account.tag">
+        <field name="name">RZiSKalk_A_II</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_B_J" model="account.account.tag">
+        <field name="name">RZiSKalk_B_J</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_B_I" model="account.account.tag">
+        <field name="name">RZiSKalk_B_I</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_B_II" model="account.account.tag">
+        <field name="name">RZiSKalk_B_II</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_D" model="account.account.tag">
+        <field name="name">RZiSKalk_D</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_E" model="account.account.tag">
+        <field name="name">RZiSKalk_E</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_G_I" model="account.account.tag">
+        <field name="name">RZiSKalk_G_I</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_G_II" model="account.account.tag">
+        <field name="name">RZiSKalk_G_II</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_G_III" model="account.account.tag">
+        <field name="name">RZiSKalk_G_III</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_G_IV" model="account.account.tag">
+        <field name="name">RZiSKalk_G_IV</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_H_I" model="account.account.tag">
+        <field name="name">RZiSKalk_H_I</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_H_II" model="account.account.tag">
+        <field name="name">RZiSKalk_H_II</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_H_III" model="account.account.tag">
+        <field name="name">RZiSKalk_H_III</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_J_I_A" model="account.account.tag">
+        <field name="name">RZiSKalk_J_I_A</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_J_I_A_1" model="account.account.tag">
+        <field name="name">RZiSKalk_J_I_A_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_J_I_B" model="account.account.tag">
+        <field name="name">RZiSKalk_J_I_B</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_J_I_B_1" model="account.account.tag">
+        <field name="name">RZiSKalk_J_I_B_1</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_J_II" model="account.account.tag">
+        <field name="name">RZiSKalk_J_II</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_J_II_J" model="account.account.tag">
+        <field name="name">RZiSKalk_J_II_J</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_J_III" model="account.account.tag">
+        <field name="name">RZiSKalk_J_III</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_J_III_J" model="account.account.tag">
+        <field name="name">RZiSKalk_J_III_J</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_J_IV" model="account.account.tag">
+        <field name="name">RZiSKalk_J_IV</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_J_V" model="account.account.tag">
+        <field name="name">RZiSKalk_J_V</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_K_I" model="account.account.tag">
+        <field name="name">RZiSKalk_K_I</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_K_I_J" model="account.account.tag">
+        <field name="name">RZiSKalk_K_I_J</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_K_II" model="account.account.tag">
+        <field name="name">RZiSKalk_K_II</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_K_II_J" model="account.account.tag">
+        <field name="name">RZiSKalk_K_II_J</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_K_III" model="account.account.tag">
+        <field name="name">RZiSKalk_K_III</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_K_IV" model="account.account.tag">
+        <field name="name">RZiSKalk_K_IV</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_M" model="account.account.tag">
+        <field name="name">RZiSKalk_M</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+    <record id="RZiSKalk_N" model="account.account.tag">
+        <field name="name">RZiSKalk_N</field>
+        <field name="applicability">accounts</field>
+    </record>
+
+</odoo>

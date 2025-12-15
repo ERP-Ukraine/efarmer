@@ -1,0 +1,918 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* trilab_pl_reports
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 12.0+e-20190828\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-09-24 05:28+0000\n"
+"PO-Revision-Date: 2019-09-24 05:28+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_IV
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_K_III
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_IV
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_H_III
+msgid "Aktualizacja wartości aktywów finansowych"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_G_III
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_H_II
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_D_III
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_E_II
+msgid "Aktualizacja wartości aktywów niefinansowych"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B
+msgid "Aktywa obrotowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa
+msgid "Aktywa razem"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A
+msgid "Aktywa trwałe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_V_1
+msgid "Aktywa z tytułu odroczonego podatku dochodowego"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B_I
+msgid "Amortyzacja"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_G_II
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_D_II
+msgid "Dotacje"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_I
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_I
+msgid "Dywidendy i udziały w zyskach, w tym:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3
+msgid "Długoterminowe aktywa finansowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_V
+msgid "Długoterminowe rozliczenia międzyokresowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_4
+msgid "Fundusze specjalne"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_V
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_K_IV
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_V
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_H_IV
+msgid "Inne"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_4
+msgid "Inne inwestycje długoterminowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_2
+msgid "Inne inwestycje krótkoterminowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_H_III
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_E_III
+msgid "Inne koszty operacyjne"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_G_IV
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_D_IV
+msgid "Inne przychody operacyjne"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_V_2
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_IV_2
+msgid "Inne rozliczenia międzyokresowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_I_3
+msgid "Inne wartości niematerialne i prawne"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV
+msgid "Inwestycje długoterminowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III
+msgid "Inwestycje krótkoterminowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_I
+msgid "Kapitał (fundusz) podstawowy"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A
+msgid "Kapitał (fundusz) własny"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_III
+msgid "Kapitał (fundusz) z aktualizacji wyceny, w tym:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_II
+msgid "Kapitał (fundusz) zapasowy, w tym:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_A_III
+msgid "Koszt wytworzenia produktów na własne potrzeby jednostki"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_B_I
+msgid "Koszt wytworzenia sprzedanych produktów"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B
+msgid "Koszty działalności operacyjnej"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_K
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_H
+msgid "Koszty finansowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_E
+msgid "Koszty ogólnego zarządu"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_B
+msgid "Koszty sprzedanych produktów, towarów i materiałów, w tym:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_D
+msgid "Koszty sprzedaży"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_I_1
+msgid "Koszty zakończonych prac rozwojowych"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1
+msgid "Krótkoterminowe aktywa finansowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_IV
+msgid "Krótkoterminowe rozliczenia międzyokresowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_I_1
+msgid "Materiały"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_C
+msgid "Należne wpłaty na kapitał (fundusz) podstawowy"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_III
+msgid "Należności długoterminowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II
+msgid "Należności krótkoterminowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_1
+msgid "Należności od jednostek powiązanych"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_3
+msgid "Należności od pozostałych jednostek"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_2
+msgid "Należności od pozostałych jednostek, w których jednostka posiada zaangażowanie w kapitale"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_1
+msgid "Nieruchomości"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_III_1
+msgid "Od jednostek powiązanych"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_I_A
+msgid "Od jednostek powiązanych, w tym:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_I_B
+msgid "Od jednostek pozostałych, w tym:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_III_3
+msgid "Od pozostałych jednostek"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_III_2
+msgid "Od pozostałych jednostek, w których jednostka posiada zaangażowanie w kapitale"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_VII
+msgid "Odpisy z zysku netto w ciągu roku obrotowego (wielkość ujemna)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_II
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_K_I
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_II
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_H_I
+msgid "Odsetki, w tym:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report,name:trilab_pl_reports.trilab_balance_sheet
+#: model:ir.actions.client,name:trilab_pl_reports.account_financial_html_report_action_64
+#: model:ir.ui.menu,name:trilab_pl_reports.account_financial_html_report_menu_64
+msgid "PL Balance Sheet"
+msgstr "Bilans"
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report,name:trilab_pl_reports.trilab_pl_RZiSKalk
+#: model:ir.actions.client,name:trilab_pl_reports.account_financial_html_report_action_65
+#: model:ir.ui.menu,name:trilab_pl_reports.account_financial_html_report_menu_65
+msgid "PL Profil and Loss (calculation variant)"
+msgstr "Rachunek Zysków i Strat (wariant kalkulacyjny)"
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report,name:trilab_pl_reports.trilab_pl_RZiSPor
+#: model:ir.actions.client,name:trilab_pl_reports.account_financial_html_report_action_66
+#: model:ir.ui.menu,name:trilab_pl_reports.account_financial_html_report_menu_66
+msgid "PL Profil and Loss (comparative variant)"
+msgstr "Rachunek Zysków i Strat (wariant porównawczy)"
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa
+msgid "Pasywa razem"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_M
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_J
+msgid "Podatek dochodowy"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B_IV
+msgid "Podatki i opłaty, w tym:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_IV
+msgid "Pozostałe kapitały (fundusze) rezerwowe, w tym:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_H
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_E
+msgid "Pozostałe koszty operacyjne"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B_VII
+msgid "Pozostałe koszty rodzajowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_N
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_K
+msgid "Pozostałe obowiązkowe zmniejszenia zysku (zwiększenia straty)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_G
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_D
+msgid "Pozostałe przychody operacyjne"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_I_3
+msgid "Pozostałe rezerwy"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_I_3
+msgid "Produkty gotowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G
+msgid "Przychody finansowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_A
+msgid "Przychody netto ze sprzedaży i zrównane z nimi, w tym:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_A_I
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_A_I
+msgid "Przychody netto ze sprzedaży produktów"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_A
+msgid "Przychody netto ze sprzedaży produktów, towarów i materiałów, w tym:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_A_II
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_A_IV
+msgid "Przychody netto ze sprzedaży towarów i materiałów"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_I_2
+msgid "Półprodukty i produkty w toku"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_I_2
+msgid "Rezerwa na świadczenia emerytalne i podobne"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_I_1
+msgid "Rezerwa z tytułu odroczonego podatku dochodowego"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_I
+msgid "Rezerwy na zobowiązania"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_IV
+msgid "Rozliczenia międzyokresowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_II
+msgid "Rzeczowe aktywa trwałe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_K_II
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_H_II
+msgid "Strata z tytułu rozchodu aktywów finansowych, w tym:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_H_I
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_E_I
+msgid "Strata z tytułu rozchodu niefinansowych aktywów trwałych"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_I_4
+msgid "Towary"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B_VI
+msgid "Ubezpieczenia społeczne i inne świadczenia, w tym:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_D
+msgid "Udziały (akcje) własne"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_IV_1
+msgid "Ujemna wartość firmy"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B_III
+msgid "Usługi obce"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_I
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_2
+msgid "Wartości niematerialne i prawne"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_I_2
+msgid "Wartość firmy"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_B_II
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B_VIII
+msgid "Wartość sprzedanych towarów i materiałów"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_II_1
+msgid "Wobec jednostek powiązanych"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_II_3
+msgid "Wobec pozostałych jednostek"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_II_2
+msgid "Wobec pozostałych jednostek, w których jednostka posiada zaangażowanie w kapitale"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B_V
+msgid "Wynagrodzenia"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_I_5
+msgid "Zaliczki na dostawy i usługi"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_I_4
+msgid "Zaliczki na wartości niematerialne i prawne"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_II_3
+msgid "Zaliczki na środki trwałe w budowie"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_I
+msgid "Zapasy"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_A_II
+msgid "Zmiana stanu produktów (zwiększenie – wartość dodatnia, zmniejszenie – wartość ujemna)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_II
+msgid "Zobowiązania długoterminowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B
+msgid "Zobowiązania i rezerwy na zobowiązania"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III
+msgid "Zobowiązania krótkoterminowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_1
+msgid "Zobowiązania wobec jednostek powiązanych"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3
+msgid "Zobowiązania wobec pozostałych jednostek"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_2
+msgid "Zobowiązania wobec pozostałych jednostek, w których jednostka posiada zaangażowanie w kapitale"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B_II
+msgid "Zużycie materiałów i energii"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_I
+msgid "Zysk (strata) brutto (F+G–H)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_L
+msgid "Zysk (strata) brutto (I+J–K)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_C
+msgid "Zysk (strata) brutto ze sprzedaży (A–B)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_VI
+msgid "Zysk (strata) netto"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_L
+msgid "Zysk (strata) netto (I–J–K)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_O
+msgid "Zysk (strata) netto (L–M–N)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_F
+msgid "Zysk (strata) z działalności operacyjnej (C+D–E)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_I
+msgid "Zysk (strata) z działalności operacyjnej (F+G–H)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_V
+msgid "Zysk (strata) z lat ubiegłych"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_C
+msgid "Zysk (strata) ze sprzedaży (A–B)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_F
+msgid "Zysk (strata) ze sprzedaży (C–D–E)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_III
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_III
+msgid "Zysk z tytułu rozchodu aktywów finansowych, w tym:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_G_I
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_D_I
+msgid "Zysk z tytułu rozchodu niefinansowych aktywów trwałych"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_II_1_B
+msgid "budynki, lokale, prawa do lokali i obiekty inżynierii lądowej i wodnej"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_3_D
+msgid "dochodzone na drodze sądowej"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_II_1_A
+msgid "grunty (w tym prawo użytkowania wieczystego gruntu)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_1_B
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_2_B
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_3_C
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_1_B
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_2_B
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_I
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_II_3_E
+msgid "inne"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_C
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_II_3_C
+msgid "inne zobowiązania finansowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_II_1_E
+msgid "inne środki trwałe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_A
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_II_3_A
+msgid "kredyty i pożyczki"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_I_A
+msgid "od jednostek powiązanych, w tym:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_I_B
+msgid "od jednostek pozostałych, w tym:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_II_1_C
+msgid "urządzenia techniczne i maszyny"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_A
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_A
+msgid "w jednostkach powiązanych"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_B
+msgid "w pozostałych jednostkach"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_B
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_C
+msgid "w pozostałych jednostkach, w których jednostka posiada zaangażowanie w kapitale"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_1_A
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_2_A
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_3_A
+msgid "z tytułu dostaw i usług, o okresie spłaty:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_1_A
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_2_A
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_D
+msgid "z tytułu dostaw i usług, o okresie wymagalności:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_B
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_II_3_B
+msgid "z tytułu emisji dłużnych papierów wartościowych"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_G
+msgid "z tytułu podatków, ceł, ubezpieczeń społecznych i zdrowotnych oraz innych tytułów publicznoprawnych"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_3_B
+msgid "z tytułu podatków, dotacji, ceł, ubezpieczeń społecznych i zdrowotnych oraz innych tytułów publicznoprawnych"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_H
+msgid "z tytułu wynagrodzeń"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_E
+msgid "zaliczki otrzymane na dostawy i usługi"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_F
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_II_3_D
+msgid "zobowiązania wekslowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_II_1
+msgid "Środki trwałe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_II_2
+msgid "Środki trwałe w budowie"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_C
+msgid "środki pieniężne i inne aktywa pieniężne"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_II_1_D
+msgid "środki transportu"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_K_II_J
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_K_I_J
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_H_II_J
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_H_I_J
+msgid "– dla jednostek powiązanych"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_1_A_1
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_2_A_1
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_3_A_1
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_1_A_1
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_2_A_1
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_D_1
+msgid "– do 12 miesięcy"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_I_2_1
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_I_3_1
+msgid "– długoterminowa"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_IV_2_1
+msgid "– długoterminowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B_VI_1
+msgid "– emerytalne"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_C_3
+msgid "– inne aktywa pieniężne"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_A_4
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_B_4
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_C_4
+msgid "– inne długoterminowe aktywa finansowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_A_4
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_B_4
+msgid "– inne krótkoterminowe aktywa finansowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_A_2
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_B_2
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_C_2
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_A_2
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_B_2
+msgid "– inne papiery wartościowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_C_2
+msgid "– inne środki pieniężne"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_I_2_2
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_I_3_2
+msgid "– krótkoterminowa"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_IV_2_2
+msgid "– krótkoterminowe"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_IV_2
+msgid "– na udziały (akcje) własne"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_II_1
+msgid "– nadwyżka wartości sprzedaży (wartości emisyjnej) nad wartością nominalną udziałów (akcji)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_A_J
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_B_J
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_A_J
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_III_J
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_II_J
+msgid "– od jednostek powiązanych"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_III_J
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_II_J
+msgid "– od jednostek powiązanych:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B_IV_1
+msgid "– podatek akcyzowy"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_1_A_2
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_2_A_2
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_3_A_2
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_1_A_2
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_2_A_2
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_D_2
+msgid "– powyżej 12 miesięcy"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_IV_1
+msgid "– tworzone zgodnie z umową (statutem) spółki"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_A_1
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_B_1
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_C_1
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_A_1
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_B_1
+msgid "– udziały lub akcje"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_A_3
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_B_3
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_C_3
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_A_3
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_B_3
+msgid "– udzielone pożyczki"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_I_A_1
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_I_B_1
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_I_A_1
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_I_B_1
+msgid "– w których jednostka posiada zaangażowanie w kapitale"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_III_1
+msgid "– z tytułu aktualizacji wartości godziwej"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.financial.html.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_C_1
+msgid "– środki pieniężne w kasie i na rachunkach"
+msgstr ""
+
