@@ -10,10 +10,19 @@ def migrate(cr, version):
 
     env = api.Environment(cr, SUPERUSER_ID, {})
 
-    # Only fill when posted_uid is empty
+    # posted_uid on account.move
     cr.execute("""
         UPDATE account_move
            SET posted_uid = write_uid
          WHERE posted_uid IS NULL
            AND state = 'posted'
+    """)
+
+    cr.execute("""
+        UPDATE account_move_line aml
+        SET posted_uid = aml.write_uid
+        FROM account_move am
+        WHERE aml.move_id = am.id
+          AND aml.posted_uid IS NULL
+          AND am.state = 'posted'
     """)
