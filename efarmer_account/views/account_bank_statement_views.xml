@@ -20,6 +20,12 @@
             <xpath expr="//field[@name='analytic_tag_ids']" position="after">
                 <field name="department_id" optional="hide"/>
             </xpath>
+            <xpath expr="//field[@name='product_id']" position="after">
+                <field name="create_uid" optional="hide"/>
+            </xpath>
+            <xpath expr="//field[@name='create_uid']" position="after">
+                <field name="posted_uid" optional="hide"/>
+            </xpath>
         </field>
     </record>
 
