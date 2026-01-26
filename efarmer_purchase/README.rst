@@ -4,6 +4,9 @@ Purchase eFarmer module
 Change Log
 ##########
 
+* 1.3.0 (2026-01-26)
+    -  Add a user-level setting ‘Allow Purchase Order Lines’ to hide/show Purchase Order Lines menu
+
 * 1.2.0 (2023-04-25)
     -  Restructured Purhase access groups in User configuration
     -  Added new validations to Purchase Order processing
