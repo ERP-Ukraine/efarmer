@@ -200,22 +200,22 @@ msgid ""
 "By completing this purchase you declare that you have read and agreed to the"
 " contents of our"
 msgstr ""
-"Completando questo acquisto dichiari di aver letto e accettato il contenuto "
-"della nostra"
+"Al completar esta compra, declaras haber leído y aceptado el contenido "
+"de nuestra"
 
 #. module: efarmer_sale_workflow
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
 msgid ""
-"Completando questo acquisto dichiari di aver letto e accettato il contenuto "
-"della nostra"
+"Al completar esta compra, declaras haber leído y aceptado el contenido "
+"de nuestra"
 msgstr ""
-"Completando questo acquisto dichiari di aver letto e accettato il contenuto "
-"della nostra"
+"Al completar esta compra, declaras haber leído y aceptado el contenido "
+"de nuestra"
 
 #. module: efarmer_sale_workflow
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
 msgid "Datenschutzrichtlinie"
-msgstr "Política de privacidad"
+msgstr "Política de Privacidad"
 
 #. module: efarmer_sale_workflow
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
@@ -296,17 +296,17 @@ msgstr "Política de envío"
 #. module: efarmer_sale_workflow
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
 msgid "Polityki prywatności"
-msgstr "Política de privacidad"
+msgstr "Política de Privacidad"
 
 #. module: efarmer_sale_workflow
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
 msgid "Polityki wysyłki"
-msgstr "Política de envíos"
+msgstr "Política de Envíos"
 
 #. module: efarmer_sale_workflow
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
 msgid "Polityki zwrotów."
-msgstr "Política de privacidad"
+msgstr "Política de Privacidad"
 
 #. module: efarmer_sale_workflow
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
@@ -316,7 +316,7 @@ msgstr "Política de envío"
 #. module: efarmer_sale_workflow
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
 msgid "Return Policy."
-msgstr "Política de privacidad"
+msgstr "Política de Privacidad"
 
 #. module: efarmer_sale_workflow
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
@@ -326,7 +326,7 @@ msgstr "Política de devoluciones"
 #. module: efarmer_sale_workflow
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
 msgid "Shipping policy"
-msgstr "Política de envíos"
+msgstr "Política de Envíos"
 
 #. module: efarmer_sale_workflow
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
@@ -336,7 +336,7 @@ msgstr "Terminos del servicio"
 #. module: efarmer_sale_workflow
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
 msgid "Terms of Service"
-msgstr "Condiciones del servicio"
+msgstr "Condiciones de Servicio"
 
 #. module: efarmer_sale_workflow
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
@@ -359,7 +359,7 @@ msgstr ""
 #. module: efarmer_sale_workflow
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
 msgid "Versandrichtlinie"
-msgstr "Política de envíos"
+msgstr "Política de Envíos"
 
 #. module: efarmer_sale_workflow
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
@@ -386,7 +386,7 @@ msgstr ""
 #. module: efarmer_sale_workflow
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
 msgid "Warunków świadczenia usług"
-msgstr "Condiciones del servicio"
+msgstr "Condiciones de Servicio"
 
 #. module: efarmer_sale_workflow
 #: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
