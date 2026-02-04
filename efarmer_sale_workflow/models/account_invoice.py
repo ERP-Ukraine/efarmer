@@ -22,6 +22,9 @@ class AccountMove(models.Model):
 
     def get_report_vat_text_line(self):
         self.ensure_one()
+        if not self.company_id.additional_vat_note:
+            return ""
+
         eu_country_ids = self.env.ref('base.europe').country_ids
         nl_country_id = self.env.ref("base.nl")
         pl_country_id = self.env.ref("base.pl")
