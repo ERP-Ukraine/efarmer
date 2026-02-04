@@ -46,6 +46,7 @@
         'reports/device_label_70x35.xml',
         'reports/device_label_70x35_terra.xml',
         'reports/device_label_70x35_US.xml',
+        'views/res_config_settings_views.xml',
         'views/res_partner_views.xml',
         'views/stock_location_views.xml',
         'views/efarmer_client_type_views.xml',
