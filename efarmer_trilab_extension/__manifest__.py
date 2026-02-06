@@ -16,12 +16,10 @@
     'depends': [
         'efarmer_sale_workflow',
         'trilab_invoice',
-        'trilab_jpk_base',
         'mrp',
     ],
     'data': [
         # Model Views
-        'data/trilab_vat_reports.xml',
         'views/sale_order_views.xml',
     ],
     'installable': True,
