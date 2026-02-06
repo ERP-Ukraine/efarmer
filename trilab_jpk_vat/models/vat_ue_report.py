@@ -214,8 +214,25 @@ class VatUeReport(models.AbstractModel):
                 if partner_id not in group_lines:
                     group_lines[partner_id] = (None, orig_lines[partner_id])
 
+            prefix = self.GROUP_MAPPING[group]['prefix']
+
             for vat, (corr_line, orig_line) in group_lines.items():
                 group_vals = {}
+                orig_xml_values = {}
+                corr_xml_values = {}
+
+                if orig_line is None:
+                    orig_line = self.env['jpk.vat.ue.group']
+
+                if orig_line:
+                    orig_xml_values.update(
+                        {
+                            f'P_{prefix}Ba': orig_line.country_code,
+                            f'P_{prefix}Bb': orig_line.nip,
+                            f'P_{prefix}Bc': str(int(orig_line.amount)),
+                            f'P_{prefix}Bd': (('2' if orig_line.tt == 'X' else '1') if group != 'group3' else None),
+                        }
+                    )
 
                 if corr_line:  # prepare values for new UE group lines
                     _flags = set(corr_line['flags'].split(',')) if corr_line['flags'] else set()
@@ -236,36 +253,23 @@ class VatUeReport(models.AbstractModel):
 
                     group_vals_list[group].append(group_vals)
 
-                sale_row = etree.SubElement(pozycje_szczegolowe, etree.QName(self.GROUP_MAPPING[group]['name']))
-                prefix = self.GROUP_MAPPING[group]['prefix']
-
-                if orig_line is None:
-                    orig_line = self.env['jpk.vat.ue.group']
-
-                xml_values = {}
-
-                if orig_line:
-                    xml_values.update(
-                        {
-                            f'P_{prefix}Ba': orig_line.country_code,
-                            f'P_{prefix}Bb': orig_line.nip,
-                            f'P_{prefix}Bc': str(int(orig_line.amount)),
-                            f'P_{prefix}Bd': ('2' if orig_line.tt == 'X' else '1') if group != 'group3' else None,
-                        }
-                    )
-                if corr_line:
-                    xml_values.update(
+                    corr_xml_values.update(
                         {
                             f'P_{prefix}Ja': group_vals.get('country_code', 'BRAK'),
                             f'P_{prefix}Jb': group_vals.get('vat', 'BRAK'),
                             f'P_{prefix}Jc': str(group_vals.get('amount', 0)),
-                            f'P_{prefix}Jd': ('2' if group_vals.get('tt') == 'X' else '1')
-                            if group != 'group3'
-                            else None,
+                            f'P_{prefix}Jd': (
+                                ('2' if group_vals.get('tt') == 'X' else '1') if group != 'group3' else None
+                            ),
                         }
                     )
 
-                for tag_name, tag_value in xml_values.items():
+                # skip if all values are the same
+                if orig_line and corr_line and not set(corr_xml_values.values()) ^ set(orig_xml_values.values()):
+                    continue
+
+                sale_row = etree.SubElement(pozycje_szczegolowe, etree.QName(self.GROUP_MAPPING[group]['name']))
+                for tag_name, tag_value in (orig_xml_values | corr_xml_values).items():
                     if tag_value is not None:
                         etree.SubElement(sale_row, etree.QName(tag_name)).text = tag_value
 

@@ -546,6 +546,12 @@
         <field name="context" eval="{'model': 'account.report.jpk_vat7m_v2'}"/>
     </record>
 
+    <record id="action_account_report_jpk_vat7m_v3" model="ir.actions.client">
+        <field name="name">JPK VAT7M (3) 1.0E</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'model': 'account.report.jpk_vat7m_v3'}"/>
+    </record>
+
     <menuitem id="menu_action_account_report_jpk_vat" name="VAT" action="action_account_report_jpk_vat"
               parent="trilab_jpk_base.menu_report_jpk"/>
     <menuitem id="menu_action_account_report_jpk_vat_t" name="VAT" action="action_account_report_jpk_vat"
@@ -560,5 +566,13 @@
     <menuitem id="menu_action_account_report_jpk_vat7m_v2_t" name="VAT7M 1.0E"
               action="action_account_report_jpk_vat7m_v2" parent="trilab_jpk_base.jpk_report_menu"
               groups="trilab_jpk_base.jpk_user"/>
+
+    <menuitem id="menu_action_account_report_jpk_vat7m_v3" name="VAT7M (3) 1.0E"
+              action="action_account_report_jpk_vat7m_v3"
+              parent="trilab_jpk_base.menu_report_jpk"/>
+    <menuitem id="menu_action_account_report_jpk_vat7m_v3_t" name="VAT7M (3) 1.0E"
+              action="action_account_report_jpk_vat7m_v3" parent="trilab_jpk_base.jpk_report_menu"
+              groups="trilab_jpk_base.jpk_user"/>
+
 
 </odoo>

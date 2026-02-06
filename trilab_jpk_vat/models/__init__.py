@@ -7,6 +7,7 @@ from . import (
     jpk_vat7m,
     jpk_vat7m_report,
     jpk_vat7m_v2_report,
+    jpk_vat7m_v3_report,
     vat_ue,
     vat_ue_report,
 )

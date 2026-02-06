@@ -10,7 +10,7 @@
     'author': 'Trilab',
     'website': 'https://trilab.pl',
     'category': 'Accounting',
-    'version': '15.0.92.0.0',
+    'version': '15.0.96.0.0',
     'depends': ['account_accountant', 'account_reports', 'trilab_jpk_base', 'trilab_invoice'],
     'data': [
         'security/ir.model.access.csv',

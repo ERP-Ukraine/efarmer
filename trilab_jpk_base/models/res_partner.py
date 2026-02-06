@@ -17,38 +17,37 @@ class Partner(models.Model):
         'w art. 32 ust. 2 pkt 1 ustawy.',
     )
 
-    @tools.ormcache('self', 'validate', 'check_vies', 'raise_exception')
-    def x_get_eu_vat(self, validate=False, check_vies=False, raise_exception=False, vies_timeout=5):
+    @tools.ormcache('self', 'raise_exception')
+    def x_get_eu_vat(self, raise_exception=False):
         self.ensure_one()
 
-        country_id = self.country_id or self.company_id.country_id or self.env.company.country_id
+        def _error(msg, _error=None):
+            if raise_exception:
+                raise ValidationError(msg) from _error
 
-        if self.vat and country_id in self.env.ref('base.europe').country_ids:
-            # cleanup from all non-word characters
-            vat = re.sub(r'\W', '', self.vat.upper())
+        if not self.vat:
+            return _error(_('Missing VAT number'))
 
-            if not re.match(r'^[A-Z]{2}\w', vat):
-                # this is VAT w/o country code
+        vat = re.sub(r'\W', '', self.vat.upper())
+
+        if not re.match(r'^[A-Z]{2}\w', vat):
+            # this is VAT w/o country code
+
+            country_id = self.country_id or self.company_id.country_id
+
+            if country_id and country_id in self.env.ref('base.europe').country_ids:
                 vat = f'{country_id.code}{vat}'
 
-            try:
-                if validate:
-                    vat = std_eu_vat.validate(vat)
+            else:
+                return _error(_('Invalid VAT number (missing country code)'))
 
-                    if check_vies:
-                        result = std_eu_vat.check_vies(number=vat, timeout=vies_timeout)
+        try:
+            vat = std_eu_vat.validate(vat)
 
-                        if not result or not result.valid:
-                            raise ValidationError(_('Invalid VIES state'))
+        except std_eu_vat.ValidationError as error:
+            return _error(str(error), error)
 
-                else:
-                    vat = std_eu_vat.compact(vat)
-
-                return vat
-
-            except std_eu_vat.ValidationError as exc:
-                if raise_exception:
-                    raise ValidationError(str(exc))
+        return vat
 
     @tools.ormcache('self')
     def x_get_eu_vat_country(self):
@@ -72,3 +71,5 @@ class Partner(models.Model):
             except std_pl_nip.ValidationError as exc:
                 if raise_exception:
                     raise ValidationError(str(exc))
+
+        return None

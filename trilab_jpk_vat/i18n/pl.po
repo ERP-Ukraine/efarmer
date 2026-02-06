@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-29 16:52+0000\n"
-"PO-Revision-Date: 2024-01-29 16:52+0000\n"
+"POT-Creation-Date: 2026-01-29 19:38+0000\n"
+"PO-Revision-Date: 2026-01-29 19:38+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -851,14 +851,19 @@ msgstr "Anuluj"
 #: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__cel_zlozenia
 #: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__cel_zlozenia
 #: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
-#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_ue_view_form
 msgid "Cel złożenia"
 msgstr ""
 
 #. module: trilab_jpk_vat
 #: model:ir.model,name:trilab_jpk_vat.model_account_change_lock_date
 msgid "Change Lock Date"
-msgstr "Zmień datę blokady"
+msgstr "Zmiana daty blokady"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/jpk_vat7m_report.py:0
+#, python-format
+msgid "Check Partners' VAT"
+msgstr "Sprawdź NIP kontrahentów"
 
 #. module: trilab_jpk_vat
 #: code:addons/trilab_jpk_vat/models/account_move.py:0
@@ -882,6 +887,21 @@ msgstr "Firmy"
 #, python-format
 msgid "Company"
 msgstr "Firma"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_vat_ue_correction__correction_group1_line_ids
+msgid "Correction Group1 Lines"
+msgstr "Korekcyjne linie grupy 1"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_vat_ue_correction__correction_group2_line_ids
+msgid "Correction Group2 Lines"
+msgstr "Korekcyjne linie grupy 2"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_vat_ue_correction__correction_group3_line_ids
+msgid "Correction Group3 Lines"
+msgstr "Korekcyjne linie grupy 3"
 
 #. module: trilab_jpk_vat
 #: code:addons/trilab_jpk_vat/models/account_move.py:0
@@ -991,6 +1011,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_vat_ue_correction__display_name
 msgid "Display Name"
 msgstr "Nazwa wyświetlana"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__document_type_id
+msgid "Document Type"
+msgstr "Typ Dokumentu"
 
 #. module: trilab_jpk_vat
 #: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
@@ -1174,22 +1199,16 @@ msgstr "Linie grup"
 
 #. module: trilab_jpk_vat
 #: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__group1_line_ids
-#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_vat_ue_correction__correction_group1_line_ids
-#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_vat_ue_correction__original_group1_line_ids
 msgid "Group1 Lines"
 msgstr "Linie Grupy1"
 
 #. module: trilab_jpk_vat
 #: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__group2_line_ids
-#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_vat_ue_correction__correction_group2_line_ids
-#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_vat_ue_correction__original_group2_line_ids
 msgid "Group2 Lines"
 msgstr "Linie Grupy2"
 
 #. module: trilab_jpk_vat
 #: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_ue__group3_line_ids
-#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_vat_ue_correction__correction_group3_line_ids
-#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_vat_ue_correction__original_group3_line_ids
 msgid "Group3 Lines"
 msgstr "Linie Grupy3"
 
@@ -1286,6 +1305,11 @@ msgid "JPK VAT 7M"
 msgstr ""
 
 #. module: trilab_jpk_vat
+#: model:ir.model,name:trilab_jpk_vat.model_account_report_jpk_vat7m_v3
+msgid "JPK VAT 7M (3) 1.0E Report"
+msgstr "Raport JPK VAT 7m (3) 1.0E"
+
+#. module: trilab_jpk_vat
 #: model:ir.model,name:trilab_jpk_vat.model_account_report_jpk_vat7m_v2
 msgid "JPK VAT 7M 1.0E Report"
 msgstr "Raport JPK VAT 7M 1.0E"
@@ -1314,6 +1338,11 @@ msgstr ""
 #: model:ir.actions.client,name:trilab_jpk_vat.action_account_report_jpk_vat7m
 #: model:ir.actions.report,name:trilab_jpk_vat.report_jpk_vat_7m_pdf
 msgid "JPK VAT7M"
+msgstr ""
+
+#. module: trilab_jpk_vat
+#: model:ir.actions.client,name:trilab_jpk_vat.action_account_report_jpk_vat7m_v3
+msgid "JPK VAT7M (3) 1.0E"
 msgstr ""
 
 #. module: trilab_jpk_vat
@@ -1367,7 +1396,6 @@ msgstr ""
 
 #. module: trilab_jpk_vat
 #: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_7m_view_form
-#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.jpk_vat_ue_view_form
 #: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
 #: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template
 msgid "Korekta"
@@ -1526,9 +1554,16 @@ msgid "Lock date for JPK reporting"
 msgstr "Data blokady dla sprawozdawczości JPK"
 
 #. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/jpk_vat7m_report.py:0
+#, python-format
+msgid "MF VAT Validation Results"
+msgstr "Wyniki walidacji MF VAT"
+
+#. module: trilab_jpk_vat
 #: code:addons/trilab_jpk_vat/models/jpk_report.py:0
 #: code:addons/trilab_jpk_vat/models/jpk_vat7m_report.py:0
 #: code:addons/trilab_jpk_vat/models/jpk_vat7m_v2_report.py:0
+#: code:addons/trilab_jpk_vat/models/jpk_vat7m_v3_report.py:0
 #: code:addons/trilab_jpk_vat/models/vat_ue_report.py:0
 #, python-format
 msgid "Make sure that Company's VAT number is correct"
@@ -1569,6 +1604,7 @@ msgid "No"
 msgstr "Nie"
 
 #. module: trilab_jpk_vat
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_jpk_vat_7m
 #: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.report_vat_ue
 #: model_terms:ir.ui.view,arch_db:trilab_jpk_vat.search_template
 msgid "Nowa Deklaracja"
@@ -1592,9 +1628,30 @@ msgid "Origin"
 msgstr "Pochodzenie"
 
 #. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_vat_ue_correction__original_group1_line_ids
+msgid "Original Group1 Lines"
+msgstr "oryginalne linie grupy 1"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_vat_ue_correction__original_group2_line_ids
+msgid "Original Group2 Lines"
+msgstr "Oryginalne linie grupy 2"
+
+#. module: trilab_jpk_vat
+#: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_vat_ue_correction__original_group3_line_ids
+msgid "Original Group3 Lines"
+msgstr "Oryginalne linie grupy 3"
+
+#. module: trilab_jpk_vat
 #: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_vat_ue_correction__original_vat_ue_id
 msgid "Original VAT UE"
-msgstr ""
+msgstr "Oryginalny VAT UE"
+
+#. module: trilab_jpk_vat
+#: code:addons/trilab_jpk_vat/models/vat_ue_report.py:0
+#, python-format
+msgid "Original VAT UE report not found!"
+msgstr "Oryginalny raport VAT UE nie został znaleziony!"
 
 #. module: trilab_jpk_vat
 #: model:ir.model.fields,field_description:trilab_jpk_vat.field_jpk_vat_7m__p_55_58
@@ -1604,6 +1661,7 @@ msgstr ""
 #. module: trilab_jpk_vat
 #: code:addons/trilab_jpk_vat/models/jpk_vat7m_report.py:0
 #: code:addons/trilab_jpk_vat/models/jpk_vat7m_v2_report.py:0
+#: code:addons/trilab_jpk_vat/models/jpk_vat7m_v3_report.py:0
 #: code:addons/trilab_jpk_vat/models/vat_ue_report.py:0
 #, python-format
 msgid "PL Tax Office is not set for company %s"
@@ -2272,6 +2330,12 @@ msgid "VAT7M"
 msgstr ""
 
 #. module: trilab_jpk_vat
+#: model:ir.ui.menu,name:trilab_jpk_vat.menu_action_account_report_jpk_vat7m_v3
+#: model:ir.ui.menu,name:trilab_jpk_vat.menu_action_account_report_jpk_vat7m_v3_t
+msgid "VAT7M (3) 1.0E"
+msgstr ""
+
+#. module: trilab_jpk_vat
 #: model:ir.ui.menu,name:trilab_jpk_vat.menu_action_account_report_jpk_vat7m_v2
 #: model:ir.ui.menu,name:trilab_jpk_vat.menu_action_account_report_jpk_vat7m_v2_t
 msgid "VAT7M 1.0E"
@@ -2293,7 +2357,7 @@ msgstr ""
 #: code:addons/trilab_jpk_vat/wizard/vat_ue_correction.py:0
 #, python-format
 msgid "Warning"
-msgstr "Uwaga"
+msgstr ""
 
 #. module: trilab_jpk_vat
 #: model:account.financial.html.report.line,name:trilab_jpk_vat.trilab_VAT7_19_43_b
