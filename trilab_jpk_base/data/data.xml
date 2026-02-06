@@ -97,6 +97,19 @@
         <field name="gate_type">eDocuments</field>
     </record>
 
+    <record id="jpk_v7m_3_1_0e_doc_att" model="ir.attachment">
+        <field name="datas" type="base64" file="trilab_jpk_base/data/Schemat_JPK_V7M(3)_v1-0E.xsd"/>
+        <field name="name">Schemat_JPK_V7M(3)_v1-0E.xsd</field>
+    </record>
+
+    <record id="jpk_v7m_3_1_0e_doc_type" model="jpk.document.type">
+        <field name="name">JPK_V7M (3) 1.0E</field>
+        <field name="system_code">JPK_V7M (3)</field>
+        <field name="schema_version">1-0E</field>
+        <field name="xsd_id" ref="jpk_v7m_3_1_0e_doc_att"/>
+        <field name="gate_type">eDocuments</field>
+    </record>
+
     <record id="vat_ue5_v1_0e_doc_att" model="ir.attachment">
         <field name="datas" type="base64" file="trilab_jpk_base/data/Schemat_VAT_UE(5)_1-0E.xsd"/>
         <field name="name">Schemat_VAT_UE(5)_1-0E.xsd</field>

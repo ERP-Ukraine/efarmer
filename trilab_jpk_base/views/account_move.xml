@@ -54,6 +54,12 @@
                             for both 'in' and 'out' invoices -->
                             <field name="x_pl_change_jpk_proof"/>
                         </group>
+                        <group>
+                            <field name="x_pl_ksef_invoice_number"
+                                   attrs="{'readonly': [('move_type', 'in', ('out_invoice', 'out_refund')), ('state', '!=', 'draft')]}"/>
+                            <field name="x_pl_ksef_invoice_proof"
+                                   attrs="{'readonly': [('move_type', 'in', ('out_invoice', 'out_refund')), ('state', '!=', 'draft')]}"/>
+                        </group>
                     </group>
 
                     <group attrs="{'invisible': [('move_type', 'not in', ['in_invoice', 'in_refund'])]}">

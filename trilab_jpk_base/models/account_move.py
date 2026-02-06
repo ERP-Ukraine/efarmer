@@ -170,6 +170,21 @@ class AccountMove(models.Model):
         'w tym importu towarów rozliczanego zgodnie z art. 33a ustawy.',
     )
 
+    x_pl_ksef_invoice_number = fields.Char(string='KSeF Invoice Number', readonly=True, copy=False)
+    x_pl_ksef_invoice_proof = fields.Selection(
+        [
+            ('OFF', 'OFF'),
+            ('BFK', 'BFK'),
+            ('DI', 'DI'),
+        ],
+        string='KSeF Invoice Proof',
+        help='Dane z faktur lub oznaczenia dotyczące występowania faktur w Krajowym Systemie e-Faktur\n'
+        'OFF - Faktura, o której mowa w art. 106nf ust. 1 ustawy, która na dzień złożenia ewidencji nie posiada numeru identyfikującego tę fakturę w Krajowym Systemie e-Faktur\n'
+        'BFK - Faktura elektroniczna lub faktura w postaci papierowej\n'
+        'DI - Dowód inny niż faktura',
+    )
+
+
     def action_post(self):
         response = super(AccountMove, self).action_post()
         for move in self:

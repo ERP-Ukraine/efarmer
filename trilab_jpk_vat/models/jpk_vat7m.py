@@ -513,8 +513,13 @@ class JPKV7M(models.Model):
     )
 
     source_xml = fields.Binary()
+    document_type_id = fields.Many2one('jpk.document.type')
+    is_jpk_transfer_installed = fields.Boolean(compute='_compute_jpk_transfer')
 
-    is_jpk_transfer_installed = fields.Boolean(compute='_is_jpk_transfer_installed', store=False, readonly=True)
+    @api.depends_context('company')
+    def _compute_jpk_transfer(self):
+        for rec in self:
+            rec.is_jpk_transfer_installed = self.env.company.x_is_jpk_transfer_installed()
 
     @api.depends(*P_37_SUM_FIELDS)
     def _compute_p37(self):
@@ -570,12 +575,17 @@ class JPKV7M(models.Model):
     def get_report_filename(self, options=None):
         return f'v7m_{self.month}_{self.year}{self.cel_zlozenia > 1 and "_korekta" or ""}'
 
+    @api.model
+    def get_xml_tns_map(self):
+        return {
+            self.env.ref('trilab_jpk_base.jpk_v7m_3_1_0e_doc_type').id: 'http://crd.gov.pl/wzor/2025/12/19/14090/',
+            self.env.ref('trilab_jpk_base.jpk_v7m_1_0_doc_type').id: 'http://crd.gov.pl/wzor/2021/12/27/11148/',
+        }
+
     # noinspection HttpUrlsUsage
     # noinspection PyUnusedLocal
     def get_xml(self, options=None):
-        tns = 'http://crd.gov.pl/wzor/2020/05/08/9393/'
-        if self.version == '1-0E':
-            tns = 'http://crd.gov.pl/wzor/2021/12/27/11148/'
+        tns = self.get_xml_tns_map().get(self.document_type_id.id, 'http://crd.gov.pl/wzor/2020/05/08/9393/')
 
         root = etree.fromstring(base64.b64decode(self.source_xml))
 
@@ -641,10 +651,6 @@ class JPKV7M(models.Model):
 
         return etree.tostring(root, encoding='UTF-8', xml_declaration=True, pretty_print=True)
 
-    def _is_jpk_transfer_installed(self):
-        module = self.env['ir.module.module'].sudo().search([['name', '=', 'trilab_jpk_transfer']])
-        self.is_jpk_transfer_installed = module and module.state == 'installed'
-
     def action_generate_xml(self):
         return {
             'type': 'ir_actions_account_report_download',
@@ -655,6 +661,8 @@ class JPKV7M(models.Model):
         document_type = 'trilab_jpk_base.jpk_v7m_1_2_doc_type'
         if self.version == '1-0E':
             document_type = 'trilab_jpk_base.jpk_v7m_1_0_doc_type'
+            if self.document_type_id.system_code == 'JPK_V7M (3)':
+                document_type = 'trilab_jpk_base.jpk_v7m_3_1_0e_doc_type'
 
         # noinspection PyUnresolvedReferences
         transfer_id = self.env['jpk.transfer'].create_with_document(

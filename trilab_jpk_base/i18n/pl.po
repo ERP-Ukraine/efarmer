@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-28 15:53+0000\n"
-"PO-Revision-Date: 2023-08-28 15:53+0000\n"
+"POT-Creation-Date: 2026-01-29 18:19+0000\n"
+"PO-Revision-Date: 2026-01-29 18:19+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -58,6 +58,11 @@ msgid "B-SPV Dostawa"
 msgstr ""
 
 #. module: trilab_jpk_base
+#: model:ir.model.fields.selection,name:trilab_jpk_base.selection__account_move__x_pl_ksef_invoice_proof__bfk
+msgid "BFK"
+msgstr "BFK"
+
+#. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_change_jpk_proof
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_change_jpk_proof
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_change_jpk_proof
@@ -104,6 +109,22 @@ msgstr "Utworzone przez"
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_taxoffice__create_date
 msgid "Created on"
 msgstr "Utworzone"
+
+#. module: trilab_jpk_base
+#: model:ir.model.fields.selection,name:trilab_jpk_base.selection__account_move__x_pl_ksef_invoice_proof__di
+msgid "DI"
+msgstr "DI"
+
+#. module: trilab_jpk_base
+#: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_ksef_invoice_proof
+#: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_pl_ksef_invoice_proof
+#: model:ir.model.fields,help:trilab_jpk_base.field_account_payment__x_pl_ksef_invoice_proof
+msgid ""
+"Dane z faktur lub oznaczenia dotyczące występowania faktur w Krajowym Systemie e-Faktur\n"
+"OFF - Faktura, o której mowa w art. 106nf ust. 1 ustawy, która na dzień złożenia ewidencji nie posiada numeru identyfikującego tę fakturę w Krajowym Systemie e-Faktur\n"
+"BFK - Faktura elektroniczna lub faktura w postaci papierowej\n"
+"DI - Dowód inny niż faktura"
+msgstr ""
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_type__description
@@ -339,6 +360,20 @@ msgid "Jpk V7 Group"
 msgstr ""
 
 #. module: trilab_jpk_base
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_ksef_invoice_number
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_ksef_invoice_number
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_ksef_invoice_number
+msgid "KSeF Invoice Number"
+msgstr "Numer Faktury KSeF"
+
+#. module: trilab_jpk_base
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_ksef_invoice_proof
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_ksef_invoice_proof
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_ksef_invoice_proof
+msgid "KSeF Invoice Proof"
+msgstr "Typ Dowodu Faktury"
+
+#. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_korekta_podstawy_opodt
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_korekta_podstawy_opodt
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_korekta_podstawy_opodt
@@ -416,6 +451,11 @@ msgstr "Nazwa"
 #, python-format
 msgid "Name must be unique"
 msgstr "Nazwa musi być unikalna"
+
+#. module: trilab_jpk_base
+#: model:ir.model.fields.selection,name:trilab_jpk_base.selection__account_move__x_pl_ksef_invoice_proof__off
+msgid "OFF"
+msgstr "OFF"
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_typ_dokumentu

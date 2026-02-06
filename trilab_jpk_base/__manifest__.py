@@ -10,7 +10,7 @@
     'author': 'Trilab',
     'website': 'https://trilab.pl',
     'category': 'Accounting',
-    'version': '15.0.36.0.0',
+    'version': '15.0.38.0.0',
     'depends': ['account'],
     'data': [
         'security/security.xml',
