@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="res_partner_ksef_inherit_form" model="ir.ui.view">
+        <field name="name">res.partner.ksef.inherit.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="account.view_partner_property_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='accounting_entries']" position="after">
+                <group name='x_ksef' string='KSeF'>
+                    <field name="x_ksef_purchase_journal_id" domain="[('type', '=', 'purchase')]"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

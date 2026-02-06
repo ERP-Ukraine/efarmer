@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="ksef_symmetric_key_test" model="ir.attachment">
+        <field name="datas" type="base64" file="trilab_ksef/data/ksef-symmetric-test.pem"/>
+        <field name="name">ksef-symmetric-test.pem</field>
+    </record>
+
+    <record id="ksef_asymmetric_key_test" model="ir.attachment">
+        <field name="datas" type="base64" file="trilab_ksef/data/ksef-asymmetric-test.pem"/>
+        <field name="name">ksef-asymmetric-test.pem</field>
+    </record>
+
+    <record id="settings_test_obj" model="ksef.settings">
+        <field name="name">Test Environment</field>
+        <field name="endpoint_url">https://api-test.ksef.mf.gov.pl/v2/</field>
+        <field name="qr_code_url">https://qr-test.ksef.mf.gov.pl/</field>
+        <field name="public_asymmetric_key_id" ref="ksef_asymmetric_key_test"/>
+        <field name="public_symmetric_key_id" ref="ksef_symmetric_key_test"/>
+    </record>
+
+    <record id="ksef_symmetric_key_demo" model="ir.attachment">
+        <field name="datas" type="base64" file="trilab_ksef/data/ksef-symmetric-demo.pem"/>
+        <field name="name">ksef-symmetric-demo.pem</field>
+    </record>
+
+    <record id="ksef_asymmetric_key_demo" model="ir.attachment">
+        <field name="datas" type="base64" file="trilab_ksef/data/ksef-asymmetric-demo.pem"/>
+        <field name="name">ksef-asymmetric-demo.pem</field>
+    </record>
+
+    <record id="settings_demo_obj" model="ksef.settings">
+        <field name="name">Demo Environment</field>
+        <field name="endpoint_url">https://api-demo.ksef.mf.gov.pl/v2/</field>
+        <field name="qr_code_url">https://qr-demo.ksef.mf.gov.pl/</field>
+        <field name="public_asymmetric_key_id" ref="ksef_asymmetric_key_demo"/>
+        <field name="public_symmetric_key_id" ref="ksef_symmetric_key_demo"/>
+    </record>
+
+    <record id="ksef_symmetric_key_prod" model="ir.attachment">
+        <field name="datas" type="base64" file="trilab_ksef/data/ksef-symmetric-prod.pem"/>
+        <field name="name">ksef-symmetric-prod.pem</field>
+    </record>
+
+    <record id="ksef_asymmetric_key_prod" model="ir.attachment">
+        <field name="datas" type="base64" file="trilab_ksef/data/ksef-asymmetric-prod.pem"/>
+        <field name="name">ksef-asymmetric-prod.pem</field>
+    </record>
+
+    <record id="settings_prod_obj" model="ksef.settings">
+        <field name="name">Production Environment</field>
+        <field name="endpoint_url">https://api.ksef.mf.gov.pl/v2/</field>
+        <field name="qr_code_url">https://qr.ksef.mf.gov.pl/</field>
+        <field name="public_asymmetric_key_id" ref="ksef_asymmetric_key_prod"/>
+        <field name="public_symmetric_key_id" ref="ksef_symmetric_key_prod"/>
+    </record>
+
+    <record id="edi_ksef" model="account.edi.format">
+        <field name="name">KSeF (PL)</field>
+        <field name="code">ksef</field>
+    </record>
+
+    <record id="ksef_tax_tag_p_13_6_1" model="ksef.tax.tag">
+        <field name="name">P_13_6_1</field>
+        <field name="description">Suma wartości sprzedaży objętej stawką 0% z wyłączeniem wewnątrzwspólnotowej dostawy
+            towarów i eksportu. W przypadku faktur zaliczkowych, kwota zaliczki. W przypadku faktur korygujących, kwota
+            różnicy, o której mowa w art. 106j ust. 2 pkt 5 ustawy
+        </field>
+    </record>
+
+
+    <record id="ksef_tax_tag_p_13_6_2" model="ksef.tax.tag">
+        <field name="name">P_13_6_2</field>
+        <field name="description">Suma wartości sprzedaży objętej stawką 0% w przypadku wewnątrzwspólnotowej dostawy
+            towarów. W przypadku faktur korygujących, kwota różnicy, o której mowa w art. 106j ust. 2 pkt 5 ustawy
+        </field>
+    </record>
+
+    <record id="ksef_tax_tag_p_13_6_3" model="ksef.tax.tag">
+        <field name="name">P_13_6_3</field>
+        <field name="description">Suma wartości sprzedaży objętej stawką 0% w przypadku eksportu. W przypadku faktur
+            zaliczkowych, kwota zaliczki. W przypadku faktur korygujących, kwota różnicy, o której mowa w art. 106j ust.
+            2 pkt
+            5 ustawy
+        </field>
+    </record>
+
+    <record id="ksef_tax_tag_p_13_7" model="ksef.tax.tag">
+        <field name="name">P_13_7</field>
+        <field name="description">Suma wartości sprzedaży zwolnionej od podatku. W przypadku faktur zaliczkowych, kwota
+            zaliczki. W przypadku faktur korygujących, kwota różnicy wartości sprzedaży
+        </field>
+    </record>
+</odoo>
