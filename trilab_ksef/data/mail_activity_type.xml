@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="ksef_admin_activity" model="mail.activity.type">
+        <field name="name">KSeF</field>
+        <field name="icon">fa-plug</field>
+        <field name="decoration_type">danger</field>
+        <field name="delay_count">0</field>
+    </record>
+</odoo>
