@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_product_vat_form" model="ir.ui.view">
+        <field name="name">view.product.vat.form</field>
+        <field name="model">product.vat</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="description_on_docs"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_product_vat_tree" model="ir.ui.view">
+        <field name="name">view.product.vat.tree</field>
+        <field name="model">product.vat</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="action_product_vat">
+        <field name="name">Product Vat</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.vat</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_product_vat"
+              parent="sale.menu_sale_config"
+              action="action_product_vat"
+              sequence="51"
+              groups="base.group_user"/>
+
+</odoo>
