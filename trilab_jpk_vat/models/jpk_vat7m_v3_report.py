@@ -148,7 +148,7 @@ class JpkReportV3(models.AbstractModel):
                     AND am.pl_vat_date >= %(date_from)s
                     AND am.pl_vat_date <= %(date_to)s
                     AND am.company_id = %(company)s
-                    AND aml.display_type != ANY ('{"line_section", "line_note"}')
+                    AND coalesce(aml.display_type, '') != ANY ('{"line_section", "line_note"}') -- such as aml.display_type can be NULL or string we must use coalesce for correct ANY comparing
                   GROUP BY am.id, JPKSection, NrKontrahenta, NazwaKontrahenta, PartnerId, DowodSprzedazyZakupu, NrKSeF, \
                            KSeFDowod,
                            DataWystawienia, DataSprzedazy, DataZakupu, DataWplywu, isTax, TypDokumentu, Flags, \
