@@ -12,8 +12,5 @@
     "license": "AGPL-3",
     "installable": True,
     "depends": ["base"],
-    "data": [
-    ],
-
-
+    "data": [],
 }
