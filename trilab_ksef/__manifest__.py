@@ -26,6 +26,7 @@
     ],
     'assets': {'web.report_assets_common': ['trilab_ksef/static/src/scss/style.scss']},
     'images': ['static/description/banner.png'],
+    'pre_init_hook': 'pre_init',
     'post_init_hook': 'post_init',
     'uninstall_hook': 'uninstall',
     'installable': True,

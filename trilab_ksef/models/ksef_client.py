@@ -5,7 +5,11 @@ import json
 import logging
 import secrets
 import zipfile
-from collections.abc import Generator, Iterator
+import sys
+if sys.version_info >= (3, 9):
+    from collections.abc import Generator, Iterator
+else:
+    from typing import Generator, Iterator
 from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum, IntEnum, auto

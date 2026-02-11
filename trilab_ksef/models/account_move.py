@@ -572,7 +572,7 @@ class AccountMove(models.Model):
         self.ensure_one()
         return bool(self.x_pl_ksef_invoice_number)
 
-    def _x_ksef_generate_qr_pair(self, qr_url: str) -> tuple[str, str]:
+    def _x_ksef_generate_qr_pair(self, qr_url: str) -> Tuple[str, str]:
         try:
             barcode = self.env['ir.actions.report'].barcode(
                 **{
