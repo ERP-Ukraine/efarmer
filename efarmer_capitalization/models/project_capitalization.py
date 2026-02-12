@@ -176,8 +176,7 @@ class ProjectCapitalization(models.Model):
             }
             current_asset_book = line.asset_id.value_residual + line.asset_id.salvage_value
             increase = original_value - current_asset_book
-            new_residual = min(current_asset_book - min(original_value, line.asset_id.salvage_value),
-                               value_residual)
+            new_residual = min(current_asset_book - min(original_value, line.asset_id.salvage_value), value_residual)
             new_salvage = min(current_asset_book - new_residual, original_value)
             residual_increase = max(0, value_residual - new_residual)
             salvage_increase = max(0, original_value - new_salvage)
@@ -190,12 +189,14 @@ class ProjectCapitalization(models.Model):
                     'line_ids': [
                         (0, 0, {
                             'account_id': line.asset_id.account_asset_id.id,
+                            'currency_id': line.asset_id.currency_id.id,
                             'debit': residual_increase + salvage_increase,
                             'credit': 0,
                             'name': _('Value increase for: %(asset)s', asset=line.asset_id.name),
                         }),
                         (0, 0, {
                             'account_id': line.account_asset_counterpart_id.id,
+                            'currency_id': line.asset_id.currency_id.id,
                             'debit': 0,
                             'credit': residual_increase + salvage_increase,
                             'name': _('Value increase for: %(asset)s', asset=line.asset_id.name),
