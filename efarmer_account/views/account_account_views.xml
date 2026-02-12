@@ -1,0 +1,15 @@
+<odoo>
+    <record id="view_account_account_form_inherit_payable_transfer" model="ir.ui.view">
+        <field name="name">account.account.form.inherit.payable.transfer</field>
+        <field name="model">account.account</field>
+        <field name="inherit_id" ref="account.view_account_form"/>
+        <field name="arch" type="xml">
+            <field name="currency_id" position="after">
+                <label for="allow_payable_transfer"/>
+                <div>
+                    <field name="allow_payable_transfer"/>
+                </div>
+            </field>
+        </field>
+    </record>
+</odoo>
