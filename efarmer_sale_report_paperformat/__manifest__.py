@@ -1,16 +1,11 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=W0104
-"""
-eFarmer Sale Report Paperformat module manifest.
-Provides a custom paper format for sale reports in Odoo.
-"""
-
 # Copyright 2025 VentorTech OU
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
 {
     "name": "eFarmer Sale Report Paperformat",
-    "version": "1.0",
+    "version": "19.0.1.0.0",
     "category": "Others",
     "author": "VentorTech",
     "website": "https://ventor.tech",
