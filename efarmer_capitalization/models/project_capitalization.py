@@ -158,10 +158,10 @@ class ProjectCapitalization(models.Model):
         self.line_capitalize()
         lines = self.capitalization_line_ids
 
+        date_today = fields.Date.today()
+
         for line in lines:
-            value_residual = 0.00
-            currency = line.currency_id
-            original_value = currency._convert(line.amount, line.asset_id.currency_id, self.company_id, fields.Date.today())
+            original_value = line.currency_id._convert(line.amount, line.asset_id.currency_id, self.company_id, date_today)
             old_values = {
                 'method_number': line.asset_id.method_number,
                 'method_period': line.asset_id.method_period,
@@ -171,34 +171,31 @@ class ProjectCapitalization(models.Model):
             asset_vals = {
                 'method_number': line.asset_id.method_number,
                 'method_period': line.asset_id.method_period,
-                'value_residual': value_residual,
+                'value_residual': 0.0,
                 'salvage_value': original_value,
             }
             current_asset_book = line.asset_id.value_residual + line.asset_id.salvage_value
             increase = original_value - current_asset_book
-            new_residual = min(current_asset_book - min(original_value, line.asset_id.salvage_value), value_residual)
+            new_residual = min(current_asset_book - min(original_value, line.asset_id.salvage_value), 0.0)
             new_salvage = min(current_asset_book - new_residual, original_value)
-            residual_increase = max(0, value_residual - new_residual)
-            salvage_increase = max(0, original_value - new_salvage)
+            residual_increase = max(0.0, 0.0 - new_residual)
+            salvage_increase = max(0.0, original_value - new_salvage)
             if line.asset_id.currency_id.round(residual_increase + salvage_increase) > 0:
                 move = line.env['account.move'].create({
                     'ref': f"{self.name} {self.capitalization_date}",
                     'journal_id': line.asset_id.journal_id.id,
                     'date': self.capitalization_date,
-                    'currency_id': line.asset_id.currency_id.id,
                     'line_ids': [
                         (0, 0, {
                             'account_id': line.asset_id.account_asset_id.id,
-                            'currency_id': line.asset_id.currency_id.id,
-                            'debit': residual_increase + salvage_increase,
+                            'debit': line.asset_id.currency_id._convert(residual_increase + salvage_increase, self.company_id.currency_id, self.company_id, date_today),
                             'credit': 0,
                             'name': _('Value increase for: %(asset)s', asset=line.asset_id.name),
                         }),
                         (0, 0, {
                             'account_id': line.account_asset_counterpart_id.id,
-                            'currency_id': line.asset_id.currency_id.id,
                             'debit': 0,
-                            'credit': residual_increase + salvage_increase,
+                            'credit': line.asset_id.currency_id._convert(residual_increase + salvage_increase, self.company_id.currency_id, self.company_id, date_today),
                             'name': _('Value increase for: %(asset)s', asset=line.asset_id.name),
                         }),
                     ],
@@ -232,7 +229,7 @@ class ProjectCapitalization(models.Model):
 
             if increase < 0:
                 if self.env['account.move'].search(
-                        [('asset_id', '=', line.asset_id.id), ('state', '=', 'draft'), ('date', '<=', fields.Date.today())]):
+                        [('asset_id', '=', line.asset_id.id), ('state', '=', 'draft'), ('date', '<=', date_today)]):
                     raise UserError(
                         'There are unposted depreciations prior to the selected operation date, please deal with them first.')
                 move = line.env['account.move'].create(line.env['account.move']._prepare_move_for_asset_depreciation({
