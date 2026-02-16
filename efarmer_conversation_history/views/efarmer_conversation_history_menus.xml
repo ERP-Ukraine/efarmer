@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="mail_message_menu_conv_history_lead"
+        action="mail_message_action_conv_history_lead"
+        parent="crm.crm_menu_sales"
+        name="Conversations History"/>
+
+    <!-- set sequence to append this item lower than `All tickets` menuitem (sequence=20) -->
+    <menuitem id="mail_message_menu_conv_history_ticket"
+        action="mail_message_action_conv_history_ticket"
+        parent="helpdesk.helpdesk_ticket_menu_main"
+        sequence="30"
+        name="Conversations History"/>
+
+</odoo>
