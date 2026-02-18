@@ -57,6 +57,9 @@ Change Log
 
 |
 
+* 1.3.2 (2026-01-28)
+    - Added support for Data Matrix barcodes
+
 * 1.3.1 (2024-03-20)
     - Fixed issue with selection of custom ZPL Labels in "Print Labels" wizard on transfers
 

@@ -4,28 +4,28 @@
 {
     'name': 'Odoo Direct Print PRO',
     'summary': '''
-Print any reports or shipping labels directly to any local,
-Wi-Fi or Bluetooth printer without downloading PDF or ZPL!
+        Print any Odoo report, document, or shipping label directly to your local, Wi-Fi,
+        or Bluetooth printer - no PDF download required. Supports ZPL and PDF formats,
+        automations, and cloud-based print routing.
 
-Keywords: Odoo Print, Odoo Printing Solution, Print Directly from Odoo, Odoo Direct Print,
-Cloud Printing for Odoo, Local Printer Integration, Print Labels from Odoo, Print Reports from Odoo,
-Wi-Fi Printer for Odoo, Bluetooth Printer for Odoo, Direct Print Cloud Service,
-Print Using Cloud Service, PrintNode Alternative, PrintNode for Odoo, Odoo to Cloud Printer,
-Cloud Printing Automation, Print Shipping Labels in Odoo, Shipping Label Printing from Odoo,
-Print ZPL from Odoo, Odoo Label Printing, Barcode Printing for Odoo, Print Custom Labels,
-Print Directly without Downloading, Print Without Downloading PDF,
-Wi-Fi and Bluetooth Printer Support, Automatic Printing in Odoo, Print Automation for Odoo,
-ZPL Printer Support for Odoo, Seamless Printing Integration, Automated Print Workflow,
-ERP Printing Solution, Odoo Print Module, Direct Print Integration, Fast Printing from Odoo''',
+        Keywords: Odoo Direct Print | Odoo Print Module | Print Directly from Odoo |
+        Odoo Printing Solution | Local Printer Integration | Bluetooth Printer Odoo |
+        Wi-Fi Printer Odoo | ZPL Print Odoo | Print Shipping Labels Odoo | Cloud Printing Odoo |
+        Print Reports from Odoo | Barcode Printing Odoo | PDF Printing Odoo |
+        ERP Printing Solution | Odoo Print Automation | PrintNode Alternative |
+        Seamless Printing in Odoo | Direct Printing in Odoo | Print Custom Labels Odoo |
+        Print Without Downloading | Automatic Printing Odoo | Fast Printing from Odoo |
+        Thermal Printer Odoo | ZPL Printer Support
+    ''',
     'version': '15.0.2.6.5',
     'category': 'Tools',
     "images": ["static/description/images/banner.gif"],
     'author': 'VentorTech',
-    'website': 'https://ventor.tech',
+    'website': 'https://ecosystem.ventor.tech/product/direct-print-pro-one-time-payment/',
     'support': 'support@ventor.tech',
     'license': 'OPL-1',
     'live_test_url': 'https://odoo.ventor.tech/',
-    'price': 299.00,
+    'price': 199.00,
     'currency': 'EUR',
     'depends': [
         'web',
