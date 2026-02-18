@@ -1,0 +1,49 @@
+<odoo>
+    <data>
+
+    <record id="hr_payslip_import_wizard_view_form" model="ir.ui.view">
+        <field name="name">hr_payslip_import_wizard.form</field>
+        <field name="model">hr.payslip.import.wizard</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="import_file" readonly="message"/>
+                    <label for="date_from" string="Period" />
+                    <div>
+                        <field name="date_from" class="oe_inline" readonly="message"/> - <field name="date_to" class="oe_inline" readonly="message"/>
+                    </div>
+                    <field name="last_period" invisible="alert"/>
+                    <div colspan="4" invisible="not alert">
+                        <field name="alert" readonly="1" style="color:red;"/>
+                    </div>
+                    <div colspan="4" invisible="not message">
+                        <field name="message" readonly="1"/>
+                    </div>
+                </group>
+                <footer>
+                    <button string="Import" name="import_payslip" type="object" class="oe_highlight" invisible="message"/>
+                    <button string="Close" class="btn btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="launch_hr_payslip_import_wizard" model="ir.actions.act_window">
+        <field name="name">Import Payslips</field>
+        <field name="res_model">hr.payslip.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+        id="menu_hr_payslip_import_wizard"
+        name="Import Payslips"
+        parent="hr_work_entry_enterprise.menu_hr_payroll_root"
+        sequence="65"
+        action="launch_hr_payslip_import_wizard"
+        groups="hr_payroll.group_hr_payroll_user"
+    />
+
+    </data>
+</odoo>
