@@ -1,7 +1,11 @@
 # See LICENSE file for full copyright and licensing details.
 
-from odoo.exceptions import UserError
+
+class ShopifyApiError(Exception):
+
+    pass
 
 
-class ShopifyApiException(UserError):
+class ShopifyResourceNotFoundError(Exception):
+
     pass

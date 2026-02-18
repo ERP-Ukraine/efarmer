@@ -5,16 +5,22 @@ from itertools import groupby
 from operator import attrgetter
 from collections import defaultdict
 
-from odoo import models, fields
+from odoo import api, models, fields
 
 
 class ExternalStockLocationLine(models.Model):
     _name = 'external.stock.location.line'
     _description = 'External Stock Location Line'
+    _rec_name = 'location_name'
+
+    location_name = fields.Char(
+        string='Location Name',
+        compute='_compute_location_name',
+    )
 
     integration_id = fields.Many2one(
         comodel_name='sale.integration',
-        string='Integration',
+        string='E-Commerce Store',
         ondelete='cascade',
         required=True,
     )
@@ -37,7 +43,23 @@ class ExternalStockLocationLine(models.Model):
         related='erp_location_id.warehouse_id',
     )
 
-    def _group_by_exernal_code(self):
+    @api.depends('erp_location_id', 'external_location_id')
+    def _compute_location_name(self):
+        for record in self:
+            name_parts = []
+
+            if record.external_location_id:
+                name_parts.append(record.external_location_id.display_name)
+
+            if record.erp_location_id:
+                name_parts.append(f'({record.erp_location_id.display_name})')
+
+            if name_parts:
+                record.location_name = ' '.join(name_parts)
+            else:
+                record.location_name = f'Record ID: {record.id}'
+
+    def _group_by_external_code(self):
         """
         Group self-recordset by `external_location_id`
 

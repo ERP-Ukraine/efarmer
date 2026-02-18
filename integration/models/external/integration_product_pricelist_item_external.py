@@ -8,6 +8,7 @@ class IntegrationProductPricelistItemExternal(models.Model):
     _description = 'Integration Product Pricelist Item External. Hide.'
 
     integration_id = fields.Many2one(
+        string='E-Commerce Store',
         comodel_name='sale.integration',
         required=True,
         ondelete='cascade',

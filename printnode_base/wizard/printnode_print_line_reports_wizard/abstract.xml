@@ -15,22 +15,26 @@
                 </group>
 
                 <group>
-                    <field name="record_line_ids" nolabel="1">
-                        <tree editable="bottom" create="false">
+                    <field name="record_line_ids" nolabel="1" colspan="2">
+                        <list editable="bottom" create="false">
+                            <!--
+                                Technical field: do not remove! Without this field line_ids will be
+                                with empty record_id value.
+                            -->
+                            <field name="record_id" invisible="1"/> <!-- Required because it is used in the invisible condition above -->
                             <field name="name" readonly="1"/>
-                            <field name="record_id" invisible="1"/>
                             <field name="quantity"/>
-                        </tree>
+                        </list>
                     </field>
                 </group>
 
                 <group name="printer">
                     <field name="printer_id" options="{'no_create': True, 'no_open': True}"/>
                     <field name="printer_bin" options="{'no_create': True, 'no_open': True}"/>
-                    <field name="status" invisible="1"/>
+                    <field name="status" invisible="1"/> <!-- Required because it is used in the invisible condition above -->
                 </group>
 
-                <p colspan="4" class="text-danger" attrs="{'invisible': [('status', '!=', 'offline')]}">
+                <p colspan="4" class="text-danger" invisible="status != 'offline'">
                     Printer is not available. Please, choose another printer.
                 </p>
                 <footer>

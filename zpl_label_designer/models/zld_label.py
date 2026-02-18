@@ -44,7 +44,7 @@ class Label(models.Model):
         readonly=True,
     )
 
-    dpi = fields.Integer(
+    dpi = fields.Float(
         string="DPI",
         required=True,
         readonly=True,
@@ -199,6 +199,10 @@ class Label(models.Model):
 
         return True
 
+    def update_published_label(self):
+        self.publish()
+        self.is_modified = False
+
     def open_view(self):
         self.ensure_one()
 
@@ -312,18 +316,18 @@ class Label(models.Model):
         self.is_published = True
 
     def _get_random_record(self, model_name: str, fields: Dict[str, Union[None, List[Any], Dict[str, Any]]]):  # NOQA
-            """
-            This method returns random record from model
-            (tries to find record with fields that are not empty)
-            """
-            domain = [(f, '!=', False) for f in fields.keys()]
-            random_record = self.env[model_name].search(domain, limit=1)
+        """
+        This method returns random record from model
+        (tries to find record with fields that are not empty)
+        """
+        domain = [(f, '!=', False) for f in fields.keys()]
+        random_record = self.env[model_name].search(domain, limit=1)
 
-            if not random_record:
-                # If no object found, try to find any object
-                random_record = self.env[model_name].search([], limit=1)
+        if not random_record:
+            # If no object found, try to find any object
+            random_record = self.env[model_name].search([], limit=1)
 
-            return random_record
+        return random_record
 
     def _create_label_view(self, view_content: str):
         """ This method creates view for current label

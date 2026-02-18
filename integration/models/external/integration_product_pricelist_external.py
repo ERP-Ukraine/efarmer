@@ -35,13 +35,20 @@ class IntegrationProductPricelistExternal(models.Model):
                 integration,
                 f'{template_id}-{variant_id}',
             )
-            job = pricelist.with_delay(**job_kwargs)._create_integration_items(
-                integration,
-                (template_id, variant_id),
-                item_list,
-            )
+            context = {
+                'company_id': integration.company_id.id,
+                'job_integration_id': integration.id,
+                'job_integration_job_type': 'pricelist',
+            }
+            job = pricelist\
+                .with_context(**context) \
+                .with_delay(**job_kwargs) \
+                ._create_integration_items(
+                    integration,
+                    (template_id, variant_id),
+                    item_list,
+                )
 
-            pricelist.job_log(job)
             result.append(job)
 
         return result
@@ -93,7 +100,7 @@ class IntegrationProductPricelistExternal(models.Model):
 
     def _job_kwargs_import_special_prices(self, pricelist_id):
         complex_id = f'{self.integration_id.id}-{self.id}-{pricelist_id.id}'
-        complex_name = f'{self.name} --> {pricelist_id.name}'
+        complex_name = f'{self.name} → {pricelist_id.name}'
         return {
             'identity_key': f'import_special_prices-{complex_id}',
             'description': f'{self.integration_id.name}: Import Specific prices "{complex_name}"',

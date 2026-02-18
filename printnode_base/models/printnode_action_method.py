@@ -30,13 +30,10 @@ class PrintNodeActionMethod(models.Model):
         required=True,
     )
 
-    _sql_constraints = [
-        (
-            'unique_action_method',
-            'UNIQUE(model_id, method)',
-            'The same method already exists!',
-        ),
-    ]
+    _name_uniq = models.Constraint(
+        'UNIQUE(model_id, method)',
+        'The same method already exists!',
+    )
 
     @api.constrains('method')
     def _check_skip_method(self):

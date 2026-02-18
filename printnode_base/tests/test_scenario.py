@@ -124,13 +124,13 @@ class TestPrintNodeScenario(TestPrintNodeCommon):
         company.printnode_enabled = False
 
         user = self.env.user = self.user
-        user.groups_id = None
+        user.group_ids = None
         user.printnode_enabled = False
 
         self.assertFalse(self.scenario.print_reports('something', []))
 
         company.printnode_enabled = True
-        user.groups_id = [(6, 0, [self.env.ref(SECURITY_GROUP).id])]
+        user.group_ids = [(6, 0, [self.env.ref(SECURITY_GROUP).id])]
         user.printnode_enabled = True
 
         self.scenario.active = True

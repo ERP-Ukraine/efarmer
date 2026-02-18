@@ -6,13 +6,13 @@ from ..wizard.printnode_print_reports_universal_wizard import REPORT_DOMAIN
 
 
 WIZARD_TYPES = [
-    ('attachments', _('Print Attachments Wizard')),
-    ('reports', _('Print Reports Wizard')),
+    ('attachments', 'Print Attachments Wizard'),
+    ('reports', 'Print Reports Wizard'),
 ]
 
 ACTION_NAMES = {
-    'attachments': _('Print Attachments'),
-    'reports': _('Print Reports'),
+    'attachments': 'Print Attachments',
+    'reports': 'Print Reports',
 }
 
 ACTION_TYPES = {

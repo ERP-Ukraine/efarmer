@@ -1,17 +1,16 @@
 #  See LICENSE file for full copyright and licensing details.
 
-import json
 import hmac
 import base64
 from hashlib import sha256
 import logging
+from werkzeug.wrappers import Response
 
 from odoo.http import Controller, route, request
 from odoo.addons.integration.controllers.integration_webhook import IntegrationWebhook
-from odoo.addons.integration.controllers.utils import build_environment, validate_integration
+from odoo.addons.integration.controllers.utils import build_environment, validate_integration, with_webhook_context
 
 from ..shopify_api import SHOPIFY
-from ..shopify.shopify_order import ShopifyOrder
 
 
 _logger = logging.getLogger(__name__)
@@ -20,7 +19,7 @@ _logger = logging.getLogger(__name__)
 class ShopifyWebhook(Controller, IntegrationWebhook):
 
     _kwargs = {
-        'type': 'json',
+        'type': 'jsonrpc',
         'auth': 'none',
         'methods': ['POST'],
         'csrf': False,
@@ -49,147 +48,91 @@ class ShopifyWebhook(Controller, IntegrationWebhook):
 
     SHOP_NAME = 'X-Shopify-Shop-Domain'
     TOPIC_NAME = 'X-Shopify-Topic'
-    NEW_ORDER_METHOD_NAME = 'orders_create'
-    NEW_PRODUCT_METHOD_NAME = 'products_create'
 
     @property
     def integration_type(self):
         return SHOPIFY
 
-    @route(f'/<string:dbname>/integration/{SHOPIFY}/<int:integration_id>/orders', **_kwargs)
-    @build_environment
-    @validate_integration
-    def shopify_receive_orders(self, *args, **kw):
-        """
-        Expected methods:
-            orders/create
-            orders/paid
-            orders/cancelled
-            orders/fulfilled
-            orders/partially_fulfilled
-        """
-        _logger.info('Call shopify webhook controller method: shopify_receive_orders()')
-        integration = request.env['sale.integration'].browse(kw['integration_id'])
-        return self.receive_order_generic(integration)
+    def get_webhook_topic(self):
+        topic = super(ShopifyWebhook, self).get_webhook_topic()
 
-    @route(f'/<string:dbname>/integration/{SHOPIFY}/<int:integration_id>/products', **_kwargs)
-    @build_environment
-    @validate_integration
-    def shopify_receive_products(self, *args, **kw):
-        """
-        Expected methods:
-            products/create
-            products/update
-            products/delete
-        """
-        _logger.info('Call shopify webhook controller method: shopify_receive_products()')
-        integration = request.env['sale.integration'].browse(kw['integration_id'])
-        external_product_id = str(self._get_value_from_post_data('id'))
-        return self.receive_product_generic(integration, external_product_id)
+        if not topic:
+            return topic
 
-    def orders_paid(self, input_file, *args, **kw):
-        _logger.info('Call shopify webhook controller method: orders_paid()')
-        return self._receive_order(input_file)
-
-    def orders_cancelled(self, input_file, *args, **kw):
-        _logger.info('Call shopify webhook controller method: orders_cancelled()')
-        data = self._prepare_pipeline_data()
-        return input_file._run_cancel_order(data)
-
-    def orders_fulfilled(self, input_file, *args, **kw):
-        _logger.info('Call shopify webhook controller method: orders_fulfilled()')
-        return self._receive_order(input_file)
-
-    def orders_partially_fulfilled(self, input_file, *args, **kw):
-        _logger.info('Call shopify webhook controller method: orders_partially_fulfilled()')
-        return self._receive_order(input_file)
-
-    def orders_create(self, integration, external_order_id):
-        _logger.info('Call shopify webhook controller: orders_create()')
-        return integration.integration_receive_orders_cron(cron_operation=False)  # TODO: by ID
-
-    def products_create(self, integration, external_product_id):
-        _logger.info('Call shopify webhook controller: products_create()')
-
-        name = self._get_value_from_post_data('title')
-
-        job_kwargs = integration._job_kwargs_import_product(external_product_id, name)
-        job_kwargs['description'] = (
-            f'{integration.name}: Create External Product By ID "{name}" [{external_product_id}]'
-            ' + auto-matching [webhook action]'
-        )
-        job = integration.with_context(company_id=integration.company_id.id)\
-            .with_delay(**job_kwargs)\
-            .create_external_template_by_id(
-                external_product_id,
-                create_new_product=integration.auto_create_products_on_so,
-            )
-
-        integration.job_log(job)
-
-        return job
-
-    def products_update(self, integration, odoo_external_product_id):
-        _logger.info('Call shopify webhook controller: products_update()')
-
-        record = request.env['integration.product.template.external'].browse(odoo_external_product_id)
-
-        job_kwargs = integration._job_kwargs_import_product(record.code, record.name)
-        job_kwargs['description'] = (
-            f'{integration.name}: Refresh External Product "{record.name}" [{record.code}] [webhook action]'
-        )
-        job = integration.with_context(company_id=integration.company_id.id)\
-            .with_delay(**job_kwargs)\
-            .import_product(record.id, import_images=True)
-
-        integration.job_log(job)
-
-        return job
-
-    def products_delete(self, integration, odoo_external_product_id):
-        _logger.info('Call shopify webhook controller: products_delete()')
-
-        record = request.env['integration.product.template.external'].browse(odoo_external_product_id)
-
-        job = integration.with_context(company_id=integration.company_id.id)\
-            .with_delay(
-                description=(
-                    f'{integration.name}: Unlink External Odoo Record "{record.name}" [{record.code}] [webhook action]'
-                ),
-            ).drop_external_record(odoo_external_product_id)
-
-        integration.job_log(job)
-
-        return job
-
-    def _receive_order(self, input_file):
-        data = self._prepare_pipeline_data()
-        return input_file._build_and_run_order_pipeline(data)
-
-    def _prepare_pipeline_data(self):
-        post_data = self._get_post_data()
-        vals = {
-            'external_tags': ShopifyOrder._parse_tags(post_data),
-            'payment_method': ShopifyOrder._parse_payment_code(post_data),
-            'integration_workflow_states': ShopifyOrder._parse_workflow_states(post_data),
-        }
-        return vals
+        return '_'.join(topic.split('/')).upper()
 
     def _check_webhook_digital_sign(self, integration):
-        # https://shopify.dev/apps/webhooks/configuration/https#verify-a-webhook
+        """
+        Verify that the incoming webhook request is genuinely from Shopify.
+
+        Shopify signs webhooks using HMAC-SHA256 with the app's client secret.
+        Note: After secret rotation, Shopify uses the oldest unrevoked secret
+        and may take up to 1 hour to switch to a new secret.
+
+        Reference: https://shopify.dev/docs/apps/build/webhooks/subscribe/https#verify-a-webhook
+        """
+        # Check if validation is enabled
+        if not integration.enable_webhook_hmac_validation:
+            _logger.warning(
+                'Shopify webhook HMAC validation is DISABLED for integration %s. '
+                'This should only be temporary during secret rotation.',
+                integration.id
+            )
+            return True
+
         headers = self._get_headers()
         hmac_header = headers.get('X-Shopify-Hmac-Sha256')
 
-        post_data = self._get_post_data()
+        if not hmac_header:
+            _logger.warning(
+                'Shopify webhook missing X-Shopify-Hmac-Sha256 header. '
+                'This may indicate the request is not from Shopify.'
+            )
+            return False
+
+        # Get the raw request body (as bytes) - this is what Shopify signs
+        raw_body = request.httprequest.data
+        if not raw_body:
+            _logger.warning('Shopify webhook has empty request body')
+            return False
+
         api_secret_key = integration.get_settings_value('secret_key')
-        data = json.dumps(post_data).encode('utf-8')
+        if not api_secret_key:
+            _logger.error(
+                'Shopify integration %s is missing secret_key configuration',
+                integration.id
+            )
+            return False
 
-        digest = hmac.new(api_secret_key.encode('utf-8'), data, digestmod=sha256).digest()
-        computed_hmac = base64.b64encode(digest)
+        # Compute HMAC-SHA256 using the secret key and raw body
+        # Shopify uses the raw bytes of the request body for signing
+        try:
+            digest = hmac.new(
+                api_secret_key.encode('utf-8'),
+                raw_body,
+                digestmod=sha256
+            ).digest()
+            computed_hmac = base64.b64encode(digest).decode('utf-8')
+        except Exception as e:
+            _logger.exception('Error computing HMAC for webhook verification: %s', e)
+            return False
 
-        result = hmac.compare_digest(computed_hmac, hmac_header.encode('utf-8'))  # TODO
-        _logger.info('Shopify webhook digital sign: %s', result)
-        return True
+        # Use timing-safe comparison to prevent timing attacks
+        is_valid = hmac.compare_digest(computed_hmac, hmac_header)
+
+        if is_valid:
+            _logger.debug('Shopify webhook HMAC validation successful')
+        else:
+            _logger.warning(
+                'Shopify webhook HMAC validation FAILED. '
+                'If you recently rotated your secret key, note that Shopify may take '
+                'up to 1 hour to start using the new secret. '
+                'Expected HMAC: %s..., Received HMAC: %s...',
+                computed_hmac[:20] if computed_hmac else 'None',
+                hmac_header[:20] if hmac_header else 'None'
+            )
+
+        return is_valid
 
     def _get_hook_name_method(self):
         headers = self._get_headers()
@@ -202,3 +145,135 @@ class ShopifyWebhook(Controller, IntegrationWebhook):
             self.TOPIC_NAME,
             'X-Shopify-Hmac-Sha256',
         ]
+
+    def _get_events_mapping(self):
+        return {
+            'ORDERS_CREATE': '_process_create_order',
+            'ORDERS_PAID': '_process_pay_order',
+            'ORDERS_PARTIALLY_FULFILLED': '_process_partially_fulfill_order',
+            'ORDERS_FULFILLED': '_process_fulfill_order',
+            'ORDERS_CANCELLED': '_process_cancel_order',
+            'PRODUCTS_CREATE': '_process_create_product',
+            'PRODUCTS_UPDATE': '_process_update_product',
+            'PRODUCTS_DELETE': '_process_delete_product',
+        }
+
+    # Handle orders
+    @route(f'/<string:dbname>/integration/{SHOPIFY}/<int:integration_id>/orders', **_kwargs)
+    @build_environment
+    @validate_integration
+    def shopify_receive_orders(self, *args, **kw):
+        """
+        Expected methods:
+            ORDERS_CREATE
+            ORDERS_PAID
+            ORDERS_CANCELLED
+            ORDERS_FULFILLED
+            ORDERS_PARTIALLY_FULFILLED
+        """
+        _logger.info('Call shopify webhook controller method: shopify_receive_orders()')
+        integration = request.env['sale.integration'].browse(kw['integration_id'])
+        external_order_id = self._get_value_from_post_data('id')
+        return self._process_event(integration, external_order_id)
+
+    def _prepare_pipeline_data(self, integration, external_order_id):
+        order = integration.adapter.gql.Order.get_by_pk(external_order_id)  # FIXME: not a good idea
+
+        vals = {
+            'external_tags': order.tags,
+            'payment_method': order.parse_payment_method(),
+            'integration_workflow_states': order.parse_workflow_states(),
+            'order_fulfillments': order.parse_fulfillments(),
+            'date_order': order.created_at,
+        }
+
+        return vals
+
+    @with_webhook_context
+    def _process_cancel_order(self, integration, external_order_id):
+        _logger.info(f'Call {integration.name} webhook controller: _process_cancel_order')
+        data = self._prepare_pipeline_data(integration, external_order_id)
+
+        # Handle order existence check
+        should_import, message = integration._handle_missing_order(
+            external_order_id,
+            data['integration_workflow_states'],
+        )
+        if should_import is not None:
+            return Response(message)
+
+        # Order exists, proceed with cancel logic
+        integration.cancel_order_by_id_with_delay(external_order_id, data)
+        return Response(f'Job created for order with code={external_order_id}. Action: cancel order')
+
+    @with_webhook_context
+    def _process_pay_order(self, integration, external_order_id):
+        _logger.info(f'Call {integration.name} webhook controller method: _process_pay_order')
+        data = self._prepare_pipeline_data(integration, external_order_id)
+
+        # Handle order existence check
+        should_import, message = integration._handle_missing_order(
+            external_order_id,
+            data['integration_workflow_states'],
+        )
+        if should_import is not None:
+            return Response(message)
+
+        # Order exists, proceed with pay order processing
+        integration.process_pipeline_by_id_with_delay(external_order_id, data, build_and_run=True)
+        return Response(f'Job created for order with code={external_order_id}. Action: process pay order')
+
+    @with_webhook_context
+    def _process_fulfill_order(self, integration, external_order_id):
+        _logger.info(f'Call {integration.name} webhook controller method: _process_fulfill_order')
+        data = self._prepare_pipeline_data(integration, external_order_id)
+
+        # Handle order existence check
+        should_import, message = integration._handle_missing_order(
+            external_order_id,
+            data['integration_workflow_states'],
+        )
+        if should_import is not None:
+            return Response(message)
+
+        # Order exists, proceed with fulfill order processing
+        integration.process_pipeline_by_id_with_delay(external_order_id, data, build_and_run=True)
+        return Response(f'Job created for order with code={external_order_id}. Action: process fulfill order')
+
+    @with_webhook_context
+    def _process_partially_fulfill_order(self, integration, external_order_id):
+        _logger.info(f'Call {integration.name} webhook controller method: _process_partially_fulfill_order')
+        data = self._prepare_pipeline_data(integration, external_order_id)
+
+        # Handle order existence check
+        should_import, message = integration._handle_missing_order(
+            external_order_id,
+            data['integration_workflow_states'],
+        )
+        if should_import is not None:
+            return Response(message)
+
+        # Order exists, proceed with partially fulfill order processing
+        integration.process_pipeline_by_id_with_delay(external_order_id, data, build_and_run=True)
+        return Response(f'Job created for order with code={external_order_id}. Action: process partially fulfill order')
+
+    # Handle products
+    @route(f'/<string:dbname>/integration/{SHOPIFY}/<int:integration_id>/products', **_kwargs)
+    @build_environment
+    @validate_integration
+    def shopify_receive_products(self, *args, **kw):
+        """
+        Expected methods:
+            PRODUCTS_CREATE
+            PRODUCTS_UPDATE
+            PRODUCTS_DELETE
+        """
+        _logger.info('Call shopify webhook controller method: shopify_receive_products()')
+
+        integration = request.env['sale.integration'].browse(kw['integration_id'])
+        external_product_id = self._get_value_from_post_data('id')
+
+        return self._process_event(integration, external_product_id)
+
+    def _get_product_name(self, integration):
+        return self._get_value_from_post_data('title')

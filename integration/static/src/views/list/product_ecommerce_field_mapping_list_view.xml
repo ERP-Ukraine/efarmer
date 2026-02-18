@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="integration.ProductEcommerceFieldMappingListView" t-inherit="web.ListRenderer" t-inherit-mode="primary" owl="1">
+        <xpath expr="//div[@class='o_list_renderer o_renderer table-responsive']" position="before">
+            <div class="o_onboarding_container collapse show">
+                <div class="o_onboarding_main position-relative overflow-hidden o_onboarding_violet py-3"
+                     style="background: linear-gradient(135deg, #A04A25 0%, #9A033F 25%, #5F7A2A 75%, #3A1F5A 100%);">
+                    <div class="o_onboarding_steps d-flex justify-content-center align-items-center">
+                        <div class="container-fluid px-4">
+                            <div class="card shadow-sm border-0 bg-white">
+                                <div class="card-body p-3">
+                                    <div class="row align-items-start">
+                                        <div class="col-md-5 mb-3 mb-md-0">
+                                            <h4 class="card-title mb-2 text-dark">
+                                                <i class="fa fa-info-circle text-primary me-2"></i>
+                                                What is this?
+                                            </h4>
+                                            <p class="mb-0 text-dark">
+                                                Here you control which fields are synchronized for each of your stores. Each store can have its own synchronization settings.
+                                            </p>
+                                        </div>
+
+                                        <div class="col-md-4 mb-3 mb-md-0">
+                                            <h5 class="mb-2 text-dark">
+                                                <i class="fa fa-tasks text-success me-2"></i>
+                                                Common tasks:
+                                            </h5>
+                                            <ul class="list-unstyled mb-0">
+                                                <li class="mb-1 text-dark">
+                                                    <i class="fa fa-check-circle text-primary me-2"></i>
+                                                    Enable/disable import or export for specific fields
+                                                </li>
+                                                <li class="mb-1 text-dark">
+                                                    <i class="fa fa-check-circle text-primary me-2"></i>
+                                                    See which fields are active for each e-commerce store.
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="alert alert-info mb-0 py-2" role="alert">
+                                                <i class="fa fa-lightbulb-o me-1"></i>
+                                                <small><strong>Tip:</strong> Need to add a new field? Go to <strong>Field Definitions</strong> to create a new field configuration first.</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </t>
+
+</templates>

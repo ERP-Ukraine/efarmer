@@ -8,16 +8,16 @@
             <field name="priority" eval="40" />
             <field name="inherit_id" ref="base.res_config_settings_view_form" />
             <field name="arch" type="xml">
-                <xpath expr="//div[hasclass('settings')]" position="inside">
-                    <div class="app_settings_block" string="Direct Print" data-string="Direct Print" data-key="printnode_base" groups="printnode_base.printnode_security_group_manager">
-
+                <xpath expr="//form" position="inside">
+                    <app data-string="Direct Print PRO" string="Direct Print PRO" name="printnode_base" groups="printnode_base.printnode_security_group_manager">
                         <h2>Account</h2>
                         <div class="row mt16 o_settings_container">
                             <div class="col-12 col-lg-6 o_setting_box">
                                 <div class="o_setting_right_pane">
-                                    <field name="printnode_account_id" invisible="1"/>
+                                    <field name="printnode_account_id" invisible="1"/> <!-- Required because it is used in the invisible condition above -->
+                                    <field name="company_id" invisible="1" readonly="1"/> <!-- Required because it is used in the invisible condition above -->
                                     <label for="dpc_api_key" class="o_form_label d-block">API Key</label>
-                                    <field name="dpc_api_key" attrs="{'readonly': True}"/>
+                                    <field name="dpc_api_key" readonly="True" class="w-100" style="word-break: break-word" />
 
                                     <div class="text-muted pt-3 pb-3">
                                         <small>
@@ -25,7 +25,7 @@
                                         </small>
                                     </div>
 
-                                    <button name="%(printnode_installer_action)d" string="Get API Key" type="action" class="oe_highlight mr-4" />
+                                    <button name="%(printnode_installer_action)d" string="Get API Key" type="action" class="oe_highlight me-4" />
                                     <button name="import_devices" string=" Import Printers &amp; Scales" type="object" class="oe_highlight" icon="fa-cloud-download" />
                                     <br />
                                     <small>
@@ -55,14 +55,17 @@
                                 <div class="o_setting_right_pane">
                                     <label for="dpc_status" class="o_form_label d-block">Status</label>
                                     <strong class="mt-2 mb-2 d-block">
-                                        <field name="dpc_status" style="color: red;" attrs="{'invisible': [['dpc_status','=','OK']]}"/>
-                                        <field name="dpc_status" style="color: green;" attrs="{'invisible': [['dpc_status','!=','OK']]}"/>
+                                        <field name="dpc_status" style="color: red;" invisible="dpc_status == 'OK'"/>
+                                        <field name="dpc_status" style="color: green;" invisible="dpc_status != 'OK'"/>
                                     </strong>
 
                                     <div class="text-muted">
                                         Please, report us the text above if you have issues or errors.
                                     </div>
                                     <div class="content-group">
+                                        <div class="mt16">
+                                            <button name="%(printnode_base.printnode_computer_action)d" type="action" class="btn-link" icon="fa-arrow-right" string="View Computers" />
+                                        </div>
                                         <div class="mt16">
                                             <button name="%(printnode_base.printnode_printer_action)d" type="action" class="btn-link" icon="fa-arrow-right" string="View Printers" />
                                         </div>
@@ -90,7 +93,7 @@
                                     <div class="content-group">
                                         <div class="mt16 row">
                                             <label for="printnode_printer" string="Default Printer" class="col-4 col-lg-4 o_light_label" />
-                                            <field name="printnode_printer" class="oe_inline" options="{'no_open': [('printnode_enabled', '=', False)]}" attrs="{'readonly': [('printnode_enabled', '=', False)]}" />
+                                            <field name="printnode_printer" class="oe_inline" options="{'no_open': [('printnode_enabled', '=', False)]}" readonly="printnode_enabled == False" />
                                         </div>
                                     </div>
                                 </div>
@@ -113,15 +116,12 @@
                                             <button name="%(printnode_base.printnode_policy_report)d" type="action" class="btn-link" icon="fa-arrow-right" string="Define Report Settings" />
                                         </div>
                                     </div>
-                                    <div class="text-muted">
-                                        Other Settings
-                                    </div>
                                 </div>
                             </div>
 
                             <div class="col-12 col-lg-6 o_setting_box">
                                 <div class="o_setting_left_pane">
-                                    <field name="auto_send_slp" attrs="{'readonly': [('printnode_enabled', '=', False)]}"/>
+                                    <field name="auto_send_slp" readonly="printnode_enabled == False" />
                                 </div>
                                 <div class="o_setting_right_pane">
                                     <label for="auto_send_slp" />
@@ -137,7 +137,7 @@
                                     <div class="content-group">
                                         <div class="mt16 row">
                                             <label for="company_label_printer" string="Default Shipping Label Printer" class="col-4 col-lg-4 o_light_label" />
-                                            <field name="company_label_printer" class="oe_inline" options="{'no_open': [('printnode_enabled', '=', False)]}" attrs="{'readonly': [('printnode_enabled', '=', False)]}"/>
+                                            <field name="company_label_printer" class="oe_inline" options="{'no_open': [('printnode_enabled', '=', False)]}" readonly="printnode_enabled == False" />
                                         </div>
                                     </div>
                                 </div>
@@ -148,7 +148,7 @@
                                     <label for="print_labels_format" />
                                     <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." groups="base.group_multi_company"/>
                                     <br />
-                                    <field name="print_labels_format" class="oe_inline" options="{'no_open': [('printnode_enabled', '=', False)]}" attrs="{'readonly': [('printnode_enabled', '=', False)]}" />
+                                    <field name="print_labels_format" class="oe_inline" options="{'no_open': [('printnode_enabled', '=', False)]}" readonly="printnode_enabled == False" />
                                     <div class="text-muted">
                                         This option sets the default product label format for printing
                                         product labels using print scenarios. If this field is blank,
@@ -157,9 +157,9 @@
                                 </div>
                             </div>
 
-                            <div class="col-12 col-lg-6 o_setting_box" attrs="{'invisible': [('print_sl_from_attachment', '=', True)]}">
+                            <div class="col-12 col-lg-6 o_setting_box" invisible="print_sl_from_attachment == True">
                                 <div class="o_setting_left_pane">
-                                    <field name="print_package_with_label" attrs="{'readonly': [('printnode_enabled', '=', False)]}" />
+                                    <field name="print_package_with_label" readonly="printnode_enabled == False" />
                                 </div>
                                 <div class="o_setting_right_pane">
                                     <label for="print_package_with_label" />
@@ -174,21 +174,21 @@
                                         Label (just after Shipping Label is Printed).
                                     </div>
 
-                                    <div class="content-group" attrs="{'invisible': [('print_package_with_label', '=', False)]}">
+                                    <div class="content-group" invisible="print_package_with_label == False">
                                         <div class="mt16 row">
                                             <label for="printnode_package_report" class="col-4 col-lg-4 o_light_label" />
-                                            <field name="printnode_package_report" class="oe_inline" attrs="{'required': [('print_package_with_label', '=', True)]}" options="{'no_create': True}" domain="[('model', '=', 'stock.quant.package'), ('report_type', 'in', ['qweb-pdf', 'qweb-text', 'py3o'])]" />
+                                            <field name="printnode_package_report" class="oe_inline" required="print_package_with_label == True" options="{'no_create': True}" domain="[('model', '=', 'stock.package'), ('report_type', 'in', ['qweb-pdf', 'qweb-text', 'py3o'])]" />
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
 
-                            <div class="col-12 col-lg-6 o_setting_box" attrs="{'invisible': [('print_package_with_label', '=', True)]}">
+                            <div class="col-12 col-lg-6 o_setting_box" invisible="print_package_with_label == True">
                                 <div class="o_setting_left_pane">
-                                    <field name="print_sl_from_attachment" attrs="{'readonly': [('printnode_enabled', '=', False)]}" />
+                                    <field name="print_sl_from_attachment" readonly="printnode_enabled == False" />
                                 </div>
-                                <div class="o_setting_right_pane" attrs="{'invisible': [('print_package_with_label', '=', True)]}">
+                                <div class="o_setting_right_pane" invisible="print_package_with_label == True">
                                     <label for="print_sl_from_attachment" />
                                     <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." groups="base.group_multi_company"/>
                                     <div class="text-muted">
@@ -334,12 +334,12 @@
                                         Switch on/off logging
                                     </div>
 
-                                    <div class="content-group" attrs="{'invisible': [('debug_logging', '=', False)]}">
+                                    <div class="content-group" invisible="debug_logging == False">
                                         <div class="mt16">
                                             <label for="log_type_ids" string="Types of Logs" />
                                             <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." groups="base.group_multi_company"/>
                                             <br />
-                                            <field name="log_type_ids" widget="many2many_tags" options="{'no_create': True, 'no_open': True}" attrs="{'readonly': [('debug_logging', '=', False)]}" />
+                                            <field name="log_type_ids" widget="many2many_tags" options="{'no_create': True, 'no_open': True}" readonly="debug_logging == False" />
                                         </div>
                                         <div class="text-muted">
                                             Types of logs to collect
@@ -366,13 +366,35 @@
                                     <field name="secure_printing" />
                                 </div>
                                 <div class="o_setting_right_pane">
-                                    <a href="#" title="ATTENTION! Make sure you know what you're doing!" class="mr-2 fa fa-warning"></a>
+                                    <a href="#" title="ATTENTION! Make sure you know what you're doing!" class="me-2 fa fa-warning"></a>
                                     <label for="secure_printing" string="Enable secure printing" />
                                     <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." groups="base.group_multi_company"/>
                                     <div class="text-muted">
                                         This checkbox will enable Secure Printing Mode. In this mode, instead of sending the document's content to print, the print server receives a special download link for the document. 
                                         This link is then passed to the client application, which downloads the document and sends it to print. This means that your documents content is never sent to the Direct Print server.
                                         <p>More details <a href="https://print.ventor.tech/faq#how-secure-printing-works" target="_blank">here</a></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-6 o_setting_box" groups="base.group_no_one" >
+                                <div class="o_setting_left_pane">
+                                    <!-- Nothing to show -->
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <field name="dpc_is_scales_debug_enabled" invisible="1" /> <!-- Required because it is used in the invisible condition above -->
+
+                                    <!-- Button to enable debug mode for scales integration -->
+                                    <button name="enable_scales_debug_mode" string="Enable debug mode for scales" type="object" class="oe_highlight"  invisible="dpc_is_scales_debug_enabled == True" />
+                                    <button name="disable_scales_debug_mode" string="Disable debug mode for scales" type="object" class="oe_highlight" invisible="dpc_is_scales_debug_enabled == False" />
+                                    
+                                    <button name="generate_debug_scales_measurement" string="Generate Debug Scales Measurement" type="object" class="btn btn-outline-primary mt-3 mb-2" invisible="dpc_is_scales_debug_enabled == False" />
+
+                                    <div class="text-muted">
+                                        This button will enable debug mode for scales integration. In this mode, you will be able to generate debug measurements for scales integration (without real scales).
+                                        There will be created new scales named "PrintNode Test Scale" connected to the computer "Computer with test scales".
+                                        These devices will be automatically deleted after disabling debug mode.
+                                        Please note that test scales measurement will be available for 45 seconds. After that you will need to click "Generate debug scales measurement" button again.
                                     </div>
                                 </div>
                             </div>
@@ -397,7 +419,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </app>
                 </xpath>
             </field>
         </record>
@@ -407,7 +429,7 @@
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">res.config.settings</field>
             <field name="view_mode">form</field>
-            <field name="target">inline</field>
+            <field name="target">current</field>
             <field name="context">{'module' : 'printnode_base'}</field>
         </record>
 

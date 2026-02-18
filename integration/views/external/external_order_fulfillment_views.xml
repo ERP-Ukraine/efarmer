@@ -20,13 +20,13 @@
                     </group>
                     <group>
                         <field name="line_ids" readonly="1">
-                            <tree>
+                            <list>
                                 <field name="external_str_id"/>
                                 <field name="code"/>
                                 <field name="external_reference"/>
                                 <field name="quantity"/>
                                 <field name="fulfillable_quantity"/>
-                            </tree>
+                            </list>
                         </field>
                     </group>
                 </form>
@@ -34,23 +34,23 @@
         </record>
 
         <record id="external_order_fulfillment_view_tree" model="ir.ui.view">
-            <field name="name">external.order.fulfillment.view.tree</field>
+            <field name="name">external.order.fulfillment.view.list</field>
             <field name="model">external.order.fulfillment</field>
             <field name="arch" type="xml">
-                <tree create="0"
+                <list create="0"
                       decoration-muted="internal_status=='done'"
                       decoration-warning="internal_status=='skipped'"
                       decoration-danger="internal_status=='failed'">
                     <field name="id" groups="base.group_no_one"/>
                     <field name="erp_order_id"/>
-                    <field name="internal_status" invisible="1"/>
+                    <field name="internal_status" invisible="1"/> <!-- Required because it is used in list view decoration -->
                     <field name="external_str_id" optional="hide"/>
                     <field name="external_location_id"/>
                     <field name="external_status"/>
                     <field name="tracking_company"/>
                     <field name="tracking_number"/>
                     <field name="line_ids" widget="many2many_tags" optional="show"/>
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -61,7 +61,7 @@
                 <search>
                     <field name="erp_order_id"/>
                     <field name="external_str_id"/>
-                    <group expand="0" string="Group By">
+                    <group>
                         <filter string="ERP Order" name="group_by_erp_order_id" context="{'group_by': 'erp_order_id'}"/>
                     </group>
                 </search>
@@ -70,9 +70,10 @@
 
         <record id="external_order_fulfillment_tree_action" model="ir.actions.act_window">
             <field name="name">Order Fulfillments</field>
+            <field name="path">eci-order-fulfillments</field>
             <field name="res_model">external.order.fulfillment</field>
-            <field name="view_mode">tree,form</field>
-            <field name="groups_id" eval="[(4, ref('base.group_no_one'))]"/>
+            <field name="view_mode">list,form</field>
+            <field name="group_ids" eval="[(4, ref('base.group_no_one'))]"/>
         </record>
 
     </data>

@@ -8,13 +8,22 @@ from odoo.api import Environment
 from abc import ABCMeta, abstractmethod
 from six import with_metaclass
 
-from ..tools import IS_FALSE
+from ..tools import IS_FALSE, is_translated_value, parse_translated_value
 
 
 class AbsApiClient(with_metaclass(ABCMeta)):
 
+    settings_fields = (
+        ('process_order_delay', 'Process order with delay (min)', '0'),
+        ('export_template_delay', 'Export template delay (sec)', '0'),
+        ('receive_webhook_gap', 'Receive webhook gap (sec)', '60'),
+        ('adapter_version', 'Version number of the api client', '0'),
+        ('access_granted', 'Access Granted', 'False', True),
+    )
+
     def __init__(self, settings):
         super(AbsApiClient, self).__init__()
+
         self._integration_id = None
         self._integration_name = None
         self._settings = settings
@@ -32,19 +41,22 @@ class AbsApiClient(with_metaclass(ABCMeta)):
         value = self._settings['fields'][key]['value']
         return value
 
-    def _get_env(self, kw):
+    def _get_env(self, kw: dict):
         env = kw.get('_env')
         assert isinstance(env, Environment), 'Expected `_env` among key-word arguments'
         return env
 
-    def _get_integration(self, kw):
+    def _get_integration(self, kw: dict):
         env = self._get_env(kw)
         assert self._integration_id, 'Expected assigned `integration_id`'
         return env['sale.integration'].browse(self._integration_id)
 
-    @staticmethod
-    def _is_translated_field(value):
-        return isinstance(value, dict) and value.get('language')
+    def is_translated_value(self, value):
+        return is_translated_value(value)
+
+    def parse_translated_value(self, value, lang=None):
+        target_lang = lang or self.lang
+        return parse_translated_value(value, target_lang)
 
     def activate_adapter(self):
         pass
@@ -97,10 +109,6 @@ class AbsApiClient(with_metaclass(ABCMeta)):
 
         # case (4)
         return template_id, variant_id
-
-    @abstractmethod
-    def check_connection(self):
-        return
 
     @abstractmethod
     def get_api_resources(self):
@@ -175,7 +183,7 @@ class AbsApiClient(with_metaclass(ABCMeta)):
         return
 
     @abstractmethod
-    def order_fetch_kwargs(*ar, **kw):
+    def order_fetch_kwargs(self, *args, **kw):
         return
 
     @abstractmethod
@@ -256,68 +264,7 @@ class AbsApiClient(with_metaclass(ABCMeta)):
         return
 
     @abstractmethod
-    def export_images(self, images_data):
-        """
-        :images_data:
-
-        {
-            "template": {
-                "id": "69",
-                "default": {
-                    "data": b"...",
-                    "mimetype": "image/jpeg",
-                    "external_image_id": False,
-                    "odoo_obj_name": "product.template",
-                    "odoo_obj_id": 9155,
-                    "odoo_obj_field_name": "image_1920",
-                    "product_name": "presta pro"
-                },
-                "extra": [
-                    {
-                        "data": b"...",
-                        "mimetype": "image/jpeg",
-                        "external_image_id": False,
-                        "odoo_obj_name": "product.image",
-                        "odoo_obj_id": 2212,
-                        "odoo_obj_field_name": "image_1920",
-                        "product_name": "presta pro"
-                    },
-                    {
-                        "data": b"...",
-                        "mimetype": "image/jpeg",
-                        "external_image_id": False,
-                        "odoo_obj_name": "product.image",
-                        "odoo_obj_id": 2213,
-                        "odoo_obj_field_name": "image_1920",
-                        "product_name": "presta pro"
-                    }
-                ],
-                "default_code": False
-            },
-            "products": [
-                {
-                    "id": "69-179",
-                    "default": {
-                        "data": b"...",
-                        "mimetype": "image/jpeg",
-                        "external_image_id": False,
-                        "odoo_obj_name": "product.product",
-                        "odoo_obj_id": 9261,
-                        "odoo_obj_field_name": "image_variant_1920",
-                        "product_name": "presta pro"
-                    },
-                    "extra": [],
-                    "default_code": "ppr-1"
-                },
-                {
-                    "id": "69-180",
-                    "default": None,
-                    "extra": [],
-                    "default_code": "ppr-2"
-                }
-            ]
-        }
-        """
+    def export_template_images(self, images_data):
         return
 
     @abstractmethod
@@ -362,11 +309,11 @@ class AbsApiClient(with_metaclass(ABCMeta)):
         return
 
     @abstractmethod
-    def export_sale_order_status(self, order_id, status):
+    def send_sale_order_status(self, order_id, status):
         return
 
     @abstractmethod
-    def get_product_for_import(self, product_code, import_images=False):
+    def get_product_for_import(self, *args, **kw):
         return
 
     @abstractmethod
@@ -399,17 +346,19 @@ class AbsApiClient(with_metaclass(ABCMeta)):
     def get_weight_uoms(self):
         return
 
-    @staticmethod
-    def parse_mappings_to_update(variants):
-        mappings_to_update = dict()
+    @abstractmethod
+    def get_order_url(self, external_order_id):
+        """
+        Get the order URL for the given external order ID.
+        """
+        return
 
-        variants_ids = {x['id']: x['external_id'] for x in variants}
-        variants_ids_values = variants_ids.values()
-        if any(variants_ids_values) and not all(variants_ids_values):
-            mappings_to_update = {
-                x['id']: x['external_id'] for x in variants if x['external_id']
-            }
-        return mappings_to_update
+    @abstractmethod
+    def get_product_url(self, external_product_code):
+        """
+        Get the product URL for the given external product code.
+        """
+        return
 
     @staticmethod
     def _truncate_name_by_dot(field_name, index=-1):

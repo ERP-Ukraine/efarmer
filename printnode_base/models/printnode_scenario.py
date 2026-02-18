@@ -2,7 +2,7 @@
 # See LICENSE file for full copyright and licensing details.
 
 from odoo import models, fields, api, _
-from odoo.osv import expression
+from odoo.fields import Domain
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools.safe_eval import safe_eval
 
@@ -249,7 +249,7 @@ class PrintNodeScenario(models.Model):
         if self.domain == '[]':
             return self.env[self.model_id.model].browse(ids_list)
         return self.env[self.model_id.model].search(
-            expression.AND([[('id', 'in', ids_list)], safe_eval(self.domain)])
+            Domain.AND([[('id', 'in', ids_list)], safe_eval(self.domain)])
         )
 
     def _get_printer(self):

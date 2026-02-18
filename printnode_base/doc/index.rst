@@ -14,17 +14,50 @@ Change Log
 
 |
 
-* 2.6.5 (2024-08-14)
+* 2.7.1 (2025-04-18)
+    - Improved functionality for printing multiple shipping labels related to a single transfer
+    - Fixed issue with disabling modules for different users within the same company
+    - Fixed issue with limitations on importing printers and devices
+    - Fixed minor issues
+
+* 2.7.0 (2024-12-13)
+    - [NEW] Added new scenario: Print multiple lot labels (after validation) based on packaging quantity
+    - [NEW] Added new scenario: Print multiple product labels (after validation) based on packaging quantity
+    - [NEW] Added support for printing reports for both stock.move and stock.move.line models in the "Print Operations" wizard.
+    - Added the ability to select default bin on printer level
+    - Improved printing of EasyPost shipping labels
+    - Optimized real-time scenarios to support Ventor PRO/Lifetime and Odoo Barcode applications
+    - Added functionality to skip printing the UPS Commercial Invoice for UPS shipments.
+    - Added support for using scales with names that include "/" and whitespace characters.
+
+* 2.6.10 (2024-08-14)
     - Fixed issue with scenario
 
-* 2.6.4 (2024-07-04)
+* 2.6.9 (2024-07-04)
     - [NEW] Added the ability to use Report Rules and User Rules to define the default printer for Print Labels and other printing wizards.
 
-* 2.6.3 (2024-06-04)
+* 2.6.8 (2024-06-04)
+    - Fix issue with double printing for UPS Connector
     - Ignoring the printing of attachments that are not shipping labels for the SendCloud Connector
 
-* 2.6.2 (2023-11-20)
-    - Fix issue with double printing for UPS Connector
+* 2.6.7 (2024-04-03)
+    - Fixed issue with "Print Reports" wizard (Odoo 17.0)
+
+* 2.6.6 (2024-03-12)
+    - Fixed issue with missed Download button to invoices (Odoo 17.0)
+
+* 2.6.5 (2024-02-16)
+    - Fixed issue with QUnit tests (Odoo 17.0)
+
+* 2.6.4 (2024-02-08)
+    - Fixed issue with scales integration
+    - Added support of debug scales to simplify testing of scales integration
+
+* 2.6.3 (2023-12-13)
+    - Fixed issue with put in pack button
+
+* 2.6.2 (2023-10-28)
+    - Fix issue with printing reports created with py3o (OCA module)
 
 * 2.6.1 (2023-09-30)
     - Fix issue with missed notification after replenishment

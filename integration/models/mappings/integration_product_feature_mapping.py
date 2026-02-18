@@ -10,11 +10,13 @@ class IntegrationProductFeatureMapping(models.Model):
     _mapping_fields = ('feature_id', 'external_feature_id')
 
     feature_id = fields.Many2one(
+        string='Odoo Product Feature',
         comodel_name='product.feature',
         ondelete='cascade',
     )
 
     external_feature_id = fields.Many2one(
+        string='External Product Feature',
         comodel_name='integration.product.feature.external',
         required=True,
         ondelete='cascade',

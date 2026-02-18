@@ -3,15 +3,13 @@
 import json
 import logging
 
-from psycopg2 import Error
 from werkzeug.wrappers import Response
-from werkzeug.exceptions import NotFound
 
-from odoo import api, registry, SUPERUSER_ID, _
+from odoo import _
 from odoo.http import request
 from odoo.exceptions import ValidationError
 
-from ..models.sale_integration import LOG_SEPARATOR
+from .utils import with_webhook_context
 
 
 _logger = logging.getLogger(__name__)
@@ -21,8 +19,6 @@ class IntegrationWebhook:
 
     SHOP_NAME = ''
     TOPIC_NAME = ''
-    NEW_ORDER_METHOD_NAME = ''
-    NEW_PRODUCT_METHOD_NAME = ''
 
     @property
     def integration_type(self):
@@ -64,8 +60,7 @@ class IntegrationWebhook:
 
         # 5. Verify webhook-line activation
         topic = self.get_webhook_topic()
-        webhook_line_id = integration.webhook_line_ids\
-            .filtered(lambda x: x.technical_name == topic)
+        webhook_line_id = integration.webhook_line_ids.filtered(lambda x: x.technical_name == topic)
         if not webhook_line_id.is_active:
             return False, 'Disabled %s webhook in Odoo "%s".' % (name, topic)
 
@@ -105,133 +100,42 @@ class IntegrationWebhook:
         message_data = json.dumps(message_dict, indent=4)
         method_name = self._get_hook_name_method()
         vals = {
-            'name': f'{self.integration_type}: {method_name}',
-            'type': 'client',
-            'level': 'DEBUG',
-            'dbname': request.env.cr.dbname,
+            'integration_id': integration.id,
+            'event_type': 'webhook',
+            'event_name': method_name,
             'message': message_data,
-            'path': self.__module__,
-            'func': self.__class__.__name__,
-            'line': str(integration),
         }
         return vals
 
-    def _create_log(self, integration, *args, **kw):
-        vals = self._prepare_log_vals(integration, *args, **kw)
-        self._print_debug_data(vals)
-        return self._save_log(vals)
-
-    def _save_log(self, vals):
-        try:
-            db_registry = registry(request.env.cr.dbname)
-            with db_registry.cursor() as new_cr:
-                new_env = api.Environment(new_cr, SUPERUSER_ID, {})
-                log = new_env['ir.logging'].create(vals)
-        except Error:
-            log = request.env['ir.logging']
-
-        return log
-
-    def _print_debug_data(self, message_data):
-        _logger.info(LOG_SEPARATOR)
-        _logger.info('%s WEBHOOK DEBUG', self.integration_type)
-        _logger.info(message_data)
-        _logger.info(LOG_SEPARATOR)
-
-    def _is_new_order(self):
+    def _process_event(self, integration, external_id):
         """
-        Compare current event type with new order event type to check if
-        this is a new order was received
+        Process the webhook event generically based on event mapping.
         """
-        method_name_from_header = self._get_hook_name_method()
-        return method_name_from_header == self.NEW_ORDER_METHOD_NAME
+        topic = self.get_webhook_topic()
+        event_mapping = self._get_events_mapping()
 
-    def _is_new_product(self):
-        """
-        Compare current event type with new product event type to check if
-        this is a new product was received
-        """
-        method_name_from_header = self._get_hook_name_method()
-        return method_name_from_header == self.NEW_PRODUCT_METHOD_NAME
+        # Match the topic to a method
+        method_name = event_mapping.get(topic)
+        if not method_name:
+            _logger.warning(
+                'No method mapped for topic "%s" in integration "%s".',
+                topic,
+                integration.name,
+            )
+            return Response(f'No method for topic "{topic}".')
 
-    def _run_method_from_header(self, *args, **kw):
-        name_method = self._get_hook_name_method()
-        if not hasattr(self, name_method):
-            _logger.info('Hook method "%s" for %s not found!', name_method, self.integration_type)
-            return False
-        return getattr(self, name_method)(*args, **kw)
-
-    def _get_order_sub_status_tuple(self, integration, status_code):
-        _name = 'sale.order.sub.status'
-        sub_status_id = request.env[_name]\
-            .from_external(integration, status_code, raise_error=False)
-
-        external_sub_status = request.env[f'integration.{_name}.external']\
-            .get_external_by_code(integration, status_code, raise_error=False)
-
-        if not sub_status_id:
+        # Check if the method exists and call it
+        if not hasattr(self, method_name):
             _logger.error(
-                f'{integration.name}: Sales Order sub-status not found '
-                f'(status_code={status_code})'
+                'Mapped method "%s" for topic "%s" not found in "%s".',
+                method_name,
+                topic,
+                self.__class__.__name__,
             )
+            return Response(f'Method "{method_name}" not implemented.')
 
-        return sub_status_id, external_sub_status
-
-    def receive_order_generic(self, integration):
-        external_order_id = self._get_value_from_post_data('id')
-
-        if self._is_new_order():
-            return self._run_method_from_header(integration, external_order_id)
-
-        return self._receive_order_generic(integration, external_order_id)
-
-    def _receive_order_generic(self, integration, external_order_id):
-        input_file = request.env['sale.integration.input.file'].search([
-            ('si_id', '=', integration.id),
-            ('name', '=', str(external_order_id)),
-        ], limit=1)
-
-        if not input_file:
-            message = (
-                f'{integration.name}: Integration Input-file not found '
-                f'(external_id={external_order_id})'
-            )
-            _logger.warning(message)
-            return NotFound(message)
-
-        if not input_file.order_id:
-            input_file.mark_for_update()
-
-            if integration.save_webhook_log:
-                vals = input_file._prepare_log_vals()
-                self._save_log(vals)
-
-            message = (
-                f'{integration.name}: Odoo Sales Order not found '
-                f'(external_id={external_order_id})'
-            )
-            _logger.warning(message)
-            return NotFound(message)
-
-        return self._run_method_from_header(input_file)
-
-    def receive_product_generic(self, integration, external_product_id):
-        external_template = request.env['integration.product.template.external'].search([
-            ('integration_id', '=', integration.id),
-            ('code', '=', external_product_id),
-        ], limit=1)
-
-        # a. create product
-        if self._is_new_product():
-            if external_template:
-                return Response(f'Product with id={external_product_id} already exists!')
-            return self._run_method_from_header(integration, external_product_id)
-
-        # b. update/delete product
-        if external_template:
-            return self._run_method_from_header(integration, external_template.id)
-
-        return Response('Webhook skipped!')
+        method = getattr(self, method_name)
+        return method(integration, external_id)
 
     def _get_value_from_post_data(self, key):
         post_data = self._get_post_data()
@@ -242,3 +146,120 @@ class IntegrationWebhook:
         raise ValidationError(
             _('%s: "%s" not found in the post data') % (self.integration_type, key)
         )
+
+    def _get_events_mapping(self):
+        """
+        Return events mapping for the specific integration type.
+        This should be overridden in child classes.
+        """
+        raise NotImplementedError('Subclasses must define _get_events_mapping')
+
+    # Handle orders
+    @with_webhook_context
+    def _process_create_order(self, integration, external_order_id):
+        """"
+        Process create order event
+        """
+        _logger.info(f'Call {integration.name} webhook controller: _process_create_order')
+
+        if not integration.is_order_import_enabled:
+            message = f'Order import is disabled for integration {integration.name} or integration is not active.'
+            _logger.info(message)
+            return Response(message)
+
+        data = self._prepare_pipeline_data()
+
+        if not integration.is_importable_order_status(data['integration_workflow_states']):
+            message = f'Order with code={external_order_id} is not in the expected status.'
+            _logger.info(message)
+            return Response(message)
+
+        # Check cut-off date if configured
+        date_order = data.get('date_order')
+        if not integration.is_importable_order_date(date_order):
+            message = (
+                f'Order with code={external_order_id} was created before the cut-off date '
+                f'({integration.orders_cut_off_datetime}). Order creation date: {date_order}.'
+            )
+            _logger.info(message)
+            return Response(message)
+
+        integration.fetch_order_by_id_with_delay(external_order_id)
+
+        return Response(f'Job created for order with code={external_order_id}. Action: create order')
+
+    @with_webhook_context
+    def _process_update_status_order(self, integration, external_order_id):
+        """
+        Process update order status event
+        """
+        _logger.info(f'Call {integration.name} webhook controller: _process_update_status_order')
+
+        if not integration.is_order_import_enabled:
+            message = f'Order import is disabled for integration {integration.name} or integration is not active.'
+            _logger.info(message)
+            return Response(message)
+
+        data = self._prepare_pipeline_data()
+        status_codes = data['integration_workflow_states']
+
+        # Handle order existence check
+        should_import, message = integration._handle_missing_order(external_order_id, status_codes, data['date_order'])
+        if should_import is not None:
+            return Response(message)
+
+        # Order exists, proceed with status update logic
+        if integration.is_canceled_order_status(status_codes[0]):
+            integration.cancel_order_by_id_with_delay(external_order_id, data)
+            return Response(f'Job created for order with code={external_order_id}. Action: cancel order')
+
+        integration.update_order_status_by_id_with_delay(external_order_id, data)
+        return Response(f'Job created for order with code={external_order_id}. Action: update order status')
+
+    def _get_product_name(self, integration):
+        """
+        Get product name from post data
+        """
+        raise NotImplementedError(_('%s: Method "_get_product_name" not implemented!') % integration.name)
+
+    @with_webhook_context
+    def _process_create_product(self, integration, external_product_id):
+        """
+        Process create product event
+        """
+        _logger.info(f'Call {integration.name} webhook controller: _process_create_product')
+
+        name = self._get_product_name(integration)
+
+        integration \
+            .with_context(external_product_name=name) \
+            .update_product_by_id_with_delay(external_product_id, check_hook_gap=True)
+        # Right, Update it! Product creating may be invoked from update function if the product does not exist in Odoo.
+
+        return Response(f'Job created for product with code={external_product_id}. Action: create product')
+
+    @with_webhook_context
+    def _process_update_product(self, integration, external_product_id):
+        """
+        Process update product event
+        """
+        _logger.info(f'Call {integration.name} webhook controller: _process_update_product')
+
+        name = self._get_product_name(integration)
+
+        integration \
+            .with_context(external_product_name=name) \
+            .update_product_by_id_with_delay(external_product_id, check_hook_gap=True)
+
+        return Response(f'Job created for product with code={external_product_id}. Action: update product')
+
+    @with_webhook_context
+    def _process_delete_product(self, integration, external_product_id):
+        """
+        Process delete product event
+        """
+        _logger.info(f'Call {integration.name} webhook controller: _process_delete_product')
+
+        integration.delete_product_by_id_with_delay(external_product_id)
+
+        return Response(f'Job created for product with code={external_product_id}. Action: delete product')

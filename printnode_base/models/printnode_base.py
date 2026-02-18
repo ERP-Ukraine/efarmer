@@ -18,6 +18,8 @@ class PrintnodeBase(models.AbstractModel):
                 'limits': [],
                 'devices': {},
                 'releases': self.env['printnode.release'].get_releases(),
+                'dpc_company_enabled': self.env.company.printnode_enabled,
+                'dpc_user_enabled': self.env.user.printnode_enabled,
             }
 
         return {

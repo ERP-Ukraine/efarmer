@@ -8,7 +8,7 @@ class SaleOrderLine(models.Model):
     _inherit = ['sale.order.line', 'integration.model.mixin']
 
     integration_external_id = fields.Char(
-        string='Intgration External ID',
+        string='Integration External ID',
     )
 
     external_location_id = fields.Char(
@@ -20,7 +20,7 @@ class SaleOrderLine(models.Model):
         assert self.order_id.integration_id == integration
         return self.integration_external_id
 
-    def _get_relatives(self):
+    def _get_related_order_lines(self):
         """
         Get the all Odoo order-lines belonging to the same external-order-line
         which was automatically splitted by the location during order parsing.

@@ -2,7 +2,7 @@
 # See LICENSE file for full copyright and licensing details.
 
 from odoo import models, fields, api, _
-from odoo.osv import expression
+from odoo.fields import Domain
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools.safe_eval import safe_eval
 
@@ -122,7 +122,7 @@ class PrintNodeActionButton(models.Model):
         if self.domain == '[]':
             return related_model.browse(ids_list)
         return related_model.search(
-            expression.AND([
+            Domain.AND([
                 [
                     ('id', 'in', ids_list),
                     # TODO: Perhaps we need to add this ('printnode_printed', '=', False),

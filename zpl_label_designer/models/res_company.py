@@ -3,7 +3,7 @@ from odoo import api, fields, models
 
 ALLOWED_MODELS_TO_ZLD_LABEL = [
     "product.product", "product.template",
-    "stock.production.lot", "stock.quant.package"
+    "stock.lot", "stock.package"
 ]
 
 
@@ -12,6 +12,9 @@ class Company(models.Model):
 
     zld_allowed_models = fields.Many2many(
         'ir.model',
+        relation='ir_model_res_company_zld_rel',
+        column1='company_id',
+        column2='model_id',
         string='Allowed models to "ZPL Label Designer"',
     )
 

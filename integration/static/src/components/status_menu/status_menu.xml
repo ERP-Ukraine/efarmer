@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+<t t-name="integration.IntegrationStatusMenu">
+    <t t-if="state.isManager">
+        <div t-att-class="integrationStatusMenuSystray.class">
+            <Dropdown state="dropdown" beforeOpen.bind="beforeOpen" position="'bottom-end'" menuClass="integrationStatusMenuSystray.menuClass">
+                <button>
+                    <i class="fa fa-lg fa-rocket" role="img" aria-label="Integration Status"></i>
+                    <span t-if="state.activityVisible">
+                        <span class="IntegrationStatusMenu_badge badge rounded-pill">
+                            <t t-esc="state.activityCounter"/>
+                        </span>
+                    </span>
+                </button>
+                <t t-set-slot="content">
+                    <t t-call="integration.IntegrationStatusMenu.content"/>
+                </t>
+            </Dropdown>
+        </div>
+    </t>
+</t>
+
+<t t-name="integration.IntegrationStatusMenu.content">
+    <div t-att-class="`${integrationStatusMenuSystray.contentClass} o-integration-IntegrationStatusMenu`">
+        <div class="o-integration-IntegrationStatusMenu-list p-3 overflow-hidden">
+            <!-- Loader -->
+            <t t-if="!state.isLoaded">
+                <i class="IntegrationStatusMenu_loading fa fa-circle-o-notch fa-spin"/>
+            </t>
+
+            <t t-if="state.isLoaded">
+                <t t-if="state.integrations">
+                    <t t-foreach="state.integrations" t-as="integration" t-key="integration.name">
+                        <div class="o_IntegrationStatusMenu_item">
+                            <h4><t t-esc="integration.name"/></h4>
+                            <p class="mb-1">
+                                <span>Failed Jobs: </span>
+                                <span class="badge rounded-pill bg-danger text-white float-end px-3"><t t-esc="integration.failed_jobs_count"/></span>
+                            </p>
+                            <p class="mb-0">
+                                <span>Missing Mappings: </span>
+                                <span class="badge rounded-pill bg-warning text-white float-end px-3"><t t-esc="integration.missing_mappings_count"/></span>
+                            </p>
+                        </div>
+
+                        <hr class="mb-3 mt-3"/>
+                    </t>
+
+                    <!-- Rate Us block -->
+                    <div class="IntegrationStatusMenu_rate_us">
+                        <h4>Rate Us</h4>
+                        <t t-foreach="state.typeApis" t-as="typeApi" t-key="typeApi">
+                            <a t-att-href="getRateUsURL(typeApi)" target="_blank">
+                                <img t-att-src="getModuleIcon(typeApi)" alt="Integration Icon"/>
+                            </a>
+                        </t>
+                    </div>
+
+                </t>
+            </t>
+        </div>
+    </div>
+</t>
+
+</templates>

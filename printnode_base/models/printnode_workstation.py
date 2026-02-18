@@ -28,9 +28,10 @@ class PrintnodeWorkstation(models.Model):
         string='Default Workstation Scales',
     )
 
-    _sql_constraints = [
-        ('name', 'unique(name)', 'Workstation name must be unique'),
-    ]
+    _unique_name = models.Constraint(
+        'UNIQUE(name)',
+        'Workstation name must be unique',
+    )
 
     @api.model
     def get_workstation_devices(self):
@@ -63,12 +64,12 @@ class PrintnodeWorkstation(models.Model):
 
     @api.model
     def get_workstation(self):
-        workstation_id = self.env.context.get('printnode_workstation_id')
+        id = self.env.context.get('printnode_workstation_id')
 
-        if workstation_id:
+        if id:
             # We have to use exists() to make sure the entry exists in the database and
             # not just in the ORM cache.
-            workstation = self.env['printnode.workstation'].browse(workstation_id).exists()
+            workstation = self.env['printnode.workstation'].browse(id).exists()
             return workstation
 
         return None

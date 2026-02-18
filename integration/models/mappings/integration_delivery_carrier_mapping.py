@@ -10,23 +10,22 @@ class IntegrationDeliveryCarrierMapping(models.Model):
     _mapping_fields = ('carrier_id', 'external_carrier_id')
 
     carrier_id = fields.Many2one(
+        string='Odoo Delivery Carrier',
         comodel_name='delivery.carrier',
         ondelete='set null',
     )
 
     external_carrier_id = fields.Many2one(
+        string='External Delivery Carrier',
         comodel_name='integration.delivery.carrier.external',
         required=True,
         ondelete='cascade',
     )
 
-    _sql_constraints = [
-        (
-            'uniq_mapping',
-            'unique(integration_id, external_carrier_id)',
-            'Delivery Carrier mapping should be unique per integration'
-        ),
-    ]
+    _uniq_mapping = models.Constraint(
+        'unique(integration_id, external_carrier_id)',
+        'Delivery Carrier mapping should be unique per integration',
+    )
 
     def _fix_unmapped_shipping_multi(self):
         results = list()
@@ -59,7 +58,7 @@ class IntegrationDeliveryCarrierMapping(models.Model):
             'categ_id': self.env.ref('delivery.product_category_deliveries').id,
         }
 
-        product_template = self.env['product.template']\
+        product_template = self.env['product.template'] \
             .with_context(skip_product_export=True).create(product_vals)
         product_variant = product_template.product_variant_ids
 

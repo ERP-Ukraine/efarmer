@@ -17,14 +17,36 @@ class TestPrintNodeStockPicking(TestPrintNodeCommon):
     def setUp(self):
         super(TestPrintNodeStockPicking, self).setUp()
 
-        self.package = self.env['stock.quant.package'].create({
+        self.package = self.env['stock.package'].create({
             'name': 'Test package',
         })
+
+        self.product = self.env['product.product'].create({
+            'name': 'Test product',
+            'is_storable': True,
+        })
+
+        self.source_location = self.env['stock.location'].create({
+            'name': 'Source location',
+            'usage': 'internal',
+        })
+
+        self.destination_location = self.env['stock.location'].create({
+            'name': 'Destination location',
+            'usage': 'internal',
+        })
+
         self.test_stock_picking = self.env['stock.picking'].create({
             'location_id': self.env.ref('stock.stock_location_suppliers').id,
             'location_dest_id': self.location_dest.id,
             'move_type': 'direct',
             'picking_type_id': self.picking_type_incoming.id,
+            'move_line_ids': [(0, 0, {
+                'product_id': self.product.id,
+                'quantity': 1,
+                'location_id': self.source_location.id,
+                'location_dest_id': self.destination_location.id,
+            })]
         })
 
     def test_scenario_print_package_on_put_in_pack(self):
@@ -80,8 +102,8 @@ class TestPrintNodeStockPicking(TestPrintNodeCommon):
         Test _scenario_print_packages_label_on_transfer method
         """
 
-        self.test_stock_picking.update({
-            'package_ids': [self.package.id],
+        self.test_stock_picking.move_line_ids.update({
+            'result_package_id': self.package.id,
         })
 
         with self.cr.savepoint(), patch.object(

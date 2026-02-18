@@ -20,24 +20,24 @@ TYPE_MAPPING = {
     'money': ['char', 'text'],
     'multi_line_text_field': ['char', 'text'],
     'number_decimal': ['float', 'char', 'text'],
-    'list.collection_reference': ['char', 'text'],
-    'list.color': ['char', 'text'],
-    'list.date': ['char', 'text'],
-    'list.date_time': ['char', 'text'],
-    'list.dimension': ['char', 'text'],
-    'list.file_reference': ['char', 'text'],
-    'list.metaobject_reference': ['char', 'text'],
-    'list.mixed_reference': ['char', 'text'],
-    'list.number_integer': ['char', 'text'],
-    'list.number_decimal': ['char', 'text'],
-    'list.page_reference': ['char', 'text'],
-    'list.product_reference': ['char', 'text'],
-    'list.rating': ['char', 'text'],
-    'list.single_line_text_field': ['char', 'text'],
-    'list.url': ['char', 'text'],
-    'list.variant_reference': ['char', 'text'],
-    'list.volume': ['char', 'text'],
-    'list.weight': ['char', 'text'],
+    'list.collection_reference': ['char', 'text', 'json'],
+    'list.color': ['char', 'text', 'json'],
+    'list.date': ['char', 'text', 'json'],
+    'list.date_time': ['char', 'text', 'json'],
+    'list.dimension': ['char', 'text', 'json'],
+    'list.file_reference': ['char', 'text', 'json'],
+    'list.metaobject_reference': ['char', 'text', 'json'],
+    'list.mixed_reference': ['char', 'text', 'json'],
+    'list.number_integer': ['char', 'text', 'json'],
+    'list.number_decimal': ['char', 'text', 'json'],
+    'list.page_reference': ['char', 'text', 'json'],
+    'list.product_reference': ['char', 'text', 'json'],
+    'list.rating': ['char', 'text', 'json'],
+    'list.single_line_text_field': ['char', 'text', 'json'],
+    'list.url': ['char', 'text', 'json'],
+    'list.variant_reference': ['char', 'text', 'json'],
+    'list.volume': ['char', 'text', 'json'],
+    'list.weight': ['char', 'text', 'json'],
 }
 
 # Mapping between Shopify object types and Odoo field model
@@ -52,77 +52,63 @@ class Metafield(models.Model):
     _description = 'Represents the metafields in an external system that can be synced with Odoo'
     _rec_name = 'metafield_name'
 
-    _sql_constraints = [
-        (
-            'unique_metafield', 'UNIQUE(integration_id, type, metafield_name, metafield_key)',
-            'A metafield already exists.',
-        )
-    ]
+    _unique_metafield = models.Constraint(
+        'UNIQUE(integration_id, type, metafield_key, metafield_namespace)',
+        'A metafield already exists.',
+    )
 
     integration_id = fields.Many2one(
         comodel_name='sale.integration',
-        string='Integration',
+        string='E-Commerce Store',
         ondelete='cascade',
-        required=True,
     )
 
-    type = fields.Selection([
-        ('customer', 'Customer'),
-        ('order', 'Order'),
-    ],
+    type = fields.Selection(
+        selection=[
+            ('customer', 'Customer'),
+            ('order', 'Order'),
+        ],
         string='Type',
-        required=True,
         help=(
             'Select the type of the metafield. This information is used to map the metafield '
             'to the appropriate Odoo model.'
         ),
     )
 
+    metafield_code = fields.Char(
+        string='Code',
+        help='This is the unique identifier (gid) of the metafield in the external system.',
+    )
+
     metafield_name = fields.Char(
         string='Metafield Name',
-        help=(
-            'Enter the name of the metafield. This name will be used to identify the metafield '
-            'in Odoo.'
-        ),
+        help='Enter the name of the metafield. This name will be used to identify the metafield in Odoo.',
     )
 
     metafield_key = fields.Char(
         string='Metafield Key',
-        required=True,
-        help=(
-            'This key will be used to reference the metafield in the external system.'
-        ),
+        help='This key will be used to reference the metafield in the external system.',
+    )
+
+    metafield_namespace = fields.Char(
+        string='Namespace',
+        help='This is the namespace of the metafield in the external system.',
     )
 
     metafield_type = fields.Char(
         string='Metafield Type',
-        required=True,
-        help=(
-            'This determines the data type of the value that will be stored in the metafield.'
-        ),
+        help='This determines the data type of the value that will be stored in the metafield.'
     )
 
 
 class MetafieldMapping(models.Model):
     _name = 'integration.metafield.mapping'
+    _inherits = {'external.metafield': 'metafield_id'}
     _description = 'Mapping between metafields in an external system and fields in Odoo'
 
-    _sql_constraints = [
-        (
-            'unique_metafield_mapping', 'UNIQUE(metafield_id, odoo_field_id)',
-            'A mapping for this metafield already exists with the selected Odoo field.',
-        )
-    ]
-
-    integration_id = fields.Many2one(
-        comodel_name='sale.integration',
-        related='metafield_id.integration_id',
-        store=True,
-    )
-
-    type = fields.Selection(
-        related='metafield_id.type',
-        store=True,
+    _unique_metafield_mapping = models.Constraint(
+        'UNIQUE(metafield_id, odoo_field_id)',
+        'A mapping for this metafield already exists with the selected Odoo field.',
     )
 
     metafield_id = fields.Many2one(
@@ -134,24 +120,6 @@ class MetafieldMapping(models.Model):
         help=(
             'Select the metafield that you want to map to an Odoo field. The selected metafield '
             'must belong to the same integration as this mapping.'
-        ),
-    )
-
-    metafield_key = fields.Char(
-        string='Metafield Key',
-        readonly=True,
-        related='metafield_id.metafield_key',
-        help=(
-            'This key will be used to reference the metafield in the external system.'
-        ),
-    )
-
-    metafield_type = fields.Char(
-        string='Metafield Type',
-        readonly=True,
-        related='metafield_id.metafield_type',
-        help=(
-            'This determines the data type of the value that will be stored in the metafield.'
         ),
     )
 

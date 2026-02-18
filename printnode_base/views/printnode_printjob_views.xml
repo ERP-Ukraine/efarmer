@@ -19,26 +19,26 @@
             </field>
         </record>
 
-        <record id="printnode_printjob_tree" model="ir.ui.view">
-            <field name="name">printnode_printjob.tree</field>
+        <record id="printnode_printjob_list" model="ir.ui.view">
+            <field name="name">printnode_printjob.list</field>
             <field name="model">printnode.printjob</field>
-            <field name="type">tree</field>
+            <field name="type">list</field>
             <field name="arch" type="xml">
-                <tree string="Print Jobs" create="false" edit="false">
+                <list string="Print Jobs" create="false" edit="false">
                     <field name="create_date" string="Date" />
                     <field name="description" />
                     <field name="printer_id" />
                     <field name="printnode_id" />
                     <field name="attachment_id" />
-                </tree>
+                </list>
             </field>
         </record>
 
         <record id="printnode_printjob_action" model="ir.actions.act_window">
             <field name="name">Print Jobs</field>
             <field name="res_model">printnode.printjob</field>
-            <field name="view_mode">tree,form</field>
-            <field name="view_id" ref="printnode_printjob_tree" />
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="printnode_printjob_list" />
         </record>
 
         <menuitem id="menu_printnode_log"

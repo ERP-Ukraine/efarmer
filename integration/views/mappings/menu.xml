@@ -5,109 +5,115 @@
         <menuitem id="menu_mappings"
                   name="Mappings"
                   parent="menu_sale_integration"
-                  sequence="4"/>
+                  sequence="50"/>
 
         <menuitem id="menu_attributes_mapping"
                   name="Attributes"
                   parent="menu_mappings"
                   action="integration_product_attribute_mapping_action"
-                  sequence="1"/>
+                  sequence="4"/>
 
         <menuitem id="menu_attribute_values_mapping"
                   name="Attribute Values"
                   parent="menu_mappings"
                   action="integration_product_attribute_value_mapping_action"
-                  sequence="2"/>
+                  sequence="8"/>
 
         <menuitem id="menu_categories_mapping"
                   name="Categories"
                   parent="menu_mappings"
-                  action="integration_product_public_category_mapping_action"
-                  sequence="3"/>
+                  action="integration_ecommerce_product_category_mapping_action"
+                  sequence="12"/>
 
         <menuitem id="menu_contacts_mapping"
                   name="Contacts"
                   parent="menu_mappings"
                   action="integration_res_partner_mapping_action"
-                  sequence="4"/>
+                  sequence="16"/>
 
         <menuitem id="menu_countries_mapping"
                   name="Countries"
                   parent="menu_mappings"
                   action="integration_res_country_mapping_action"
-                  sequence="5"/>
+                  sequence="20"/>
 
         <menuitem id="menu_features_mapping"
                   name="Features"
                   parent="menu_mappings"
                   action="integration_product_feature_mapping_action"
-                  sequence="6"/>
+                  sequence="24"/>
 
         <menuitem id="menu_feature_values_mapping"
                   name="Feature Values"
                   parent="menu_mappings"
                   action="integration_product_feature_value_mapping_action"
-                  sequence="7"/>
+                  sequence="28"/>
 
         <menuitem id="menu_languages_mapping"
                   name="Languages"
                   parent="menu_mappings"
                   action="integration_res_lang_mapping_action"
-                  sequence="8"/>
+                  sequence="32"/>
 
         <menuitem id="menu_orders_mapping"
                   name="Orders"
                   parent="menu_mappings"
                   action="integration_sale_order_mapping_action"
-                  sequence="9"/>
+                  sequence="36"/>
+
+        <menuitem id="menu_order_statuses_mapping"
+                  name="Order Statuses"
+                  parent="menu_mappings"
+                  action="integration_sale_order_sub_status_mapping_action"
+                  sequence="40"/>
 
         <menuitem id="menu_payment_methods_mapping"
                   name="Payment Methods"
                   parent="menu_mappings"
                   action="integration_sale_order_payment_method_mapping_action"
-                  sequence="10"/>
+                  sequence="44"/>
 
         <menuitem id="menu_pricelist_mapping"
                   name="Pricelists"
                   parent="menu_mappings"
                   action="integration_product_pricelist_mapping_action"
-                  sequence="11"/>
+                  sequence="48"/>
 
         <menuitem id="menu_products_mapping"
                   name="Products"
                   parent="menu_mappings"
                   action="integration_product_template_mapping_action"
-                  sequence="12"/>
+                  sequence="52"/>
 
         <menuitem id="menu_variants_mapping"
                   name="Product Variants"
                   parent="menu_mappings"
                   action="integration_product_product_mapping_action"
-                  sequence="13"/>
+                  sequence="56"/>
+
+        <menuitem id="menu_images_mapping"
+                  name="Images"
+                  parent="menu_mappings"
+                  action="integration_ecommerce_product_image_mapping_action"
+                  sequence="60"/>
 
         <menuitem id="menu_shipping_methods_mapping"
                   name="Shipping Methods"
                   parent="menu_mappings"
                   action="integration_delivery_carrier_mapping_action"
-                  sequence="14"/>
+                  sequence="64"/>
 
         <menuitem id="menu_states_mapping"
                   name="States"
                   parent="menu_mappings"
                   action="integration_res_country_state_mapping_action"
-                  sequence="15"/>
-
-        <menuitem id="menu_sub-statuses_mapping"
-                  name="Sub-Statuses"
-                  parent="menu_mappings"
-                  action="integration_sale_order_sub_status_mapping_action"
-                  sequence="16"/>
+                  sequence="68"/>
 
         <menuitem id="menu_taxes_mapping"
                   name="Taxes"
                   parent="menu_mappings"
                   action="integration_account_tax_mapping_action"
-                  sequence="17"/>
+                  sequence="72"/>
 
     </data>
 </odoo>

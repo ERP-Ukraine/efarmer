@@ -21,7 +21,6 @@ def add_env(func):
 
         registry = Registry(db).check_signaling()
         with registry.cursor() as cr:
-            # request.env is readonly property, so we have to change "protected" attribute
-            request._env = api.Environment(cr, SUPERUSER_ID, {})
+            request.env = api.Environment(cr, SUPERUSER_ID, {})
             return func(*args, **kwargs)
     return wrapper

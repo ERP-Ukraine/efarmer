@@ -7,8 +7,6 @@
             <field name="user_id" ref="base.user_root"/>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
-            <field name="doall" eval="False" />
             <field name="model_id" ref="model_printnode_account" />
             <field name="code">model.update_limits()</field>
         </record>
@@ -18,8 +16,6 @@
             <field name="user_id" ref="base.user_root"/>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
-            <field name="doall" eval="False" />
             <field name="model_id" ref="model_printnode_release" />
             <field name="code">model.update_releases()</field>
         </record>
@@ -29,11 +25,8 @@
             <field name="user_id" ref="base.user_root"/>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
-            <field name="doall" eval="False" />
             <field name="model_id" ref="model_printnode_printjob" />
             <field name="code">model.clean_printjobs(older_than_days=15)</field>
         </record>
-
     </data>
 </odoo>

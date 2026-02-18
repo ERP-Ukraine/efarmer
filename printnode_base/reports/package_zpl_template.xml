@@ -67,12 +67,12 @@
 
     <record id="action_report_package_slip_zpl" model="ir.actions.report">
         <field name="name">Package Content (ZPL)</field>
-        <field name="model">stock.quant.package</field>
+        <field name="model">stock.package</field>
         <field name="report_type">qweb-text</field>
         <field name="report_name">printnode_base.report_package_slip_zpl</field>
         <field name="report_file">printnode_base.report_package_slip_zpl</field>
         <field name="print_report_name">'Package Slip - %s' % object.name</field>
-        <field name="binding_model_id" ref="stock.model_stock_quant_package"/>
+        <field name="binding_model_id" ref="stock.model_stock_package"/>
         <field name="binding_type">report</field>
     </record>
 

@@ -10,11 +10,11 @@ class ir_cron(models.Model):
 
     _inherit = "ir.cron"
 
-    def _callback(self, cron_name, server_action_id, job_id):
+    def _callback(self, cron_name, server_action_id):
         """
         Overriding the default method for adding the key "printnode_from_cron"
         to the context when executing cron.
         """
 
         contextual_self = self.with_context(printnode_from_cron=True)
-        super(ir_cron, contextual_self)._callback(cron_name, server_action_id, job_id)
+        super(ir_cron, contextual_self)._callback(cron_name, server_action_id)

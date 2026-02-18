@@ -7,19 +7,19 @@
         <field name="arch" type="xml">
             <form>
                 <group colspan="2">
-                    <field name="order_id" invisible="1"/>
+                    <field name="order_id" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
                     <field name="integration_id" readonly="1"/>
                     <field name="sub_state_external_ids" widget="many2many_tags" readonly="1"/>
                 </group>
-                <group string="Cancel e-Commerce Fulfillments" invisible="context.get('cancel_integration_fulfillment_done')">
+                <group string="Cancel E-Commerce Fulfillments" invisible="context.get('cancel_integration_fulfillment_done')">
                     <div colspan="2">
                         <div class="alert alert-info" role="alert">
-                            <i class="fa fa-check"/> Since the e-Commerce order contains fulfilled products, in some cases, fulfillment cancellations may be required.
+                            <i class="fa fa-check"/> Since the e-commerce order contains fulfilled products, in some cases, fulfillment cancellations may be required.
                         </div>
                     </div>
                     <field name="do_cancel_order_fulfillments" widget="boolean_toggle"/>
                 </group>
-                <group string="Cancel e-Commerce Order: options">
+                <group string="Cancel E-Commerce Order: options">
                     <div colspan="2">
                         <div class="alert alert-warning" role="alert" invisible="context.get('cancel_integration_order_done')">
                             Changes in this section affect the Shopify order only. If you refund an order here ("Refund" checkbox),
@@ -27,7 +27,7 @@
                             Why? Odoo offers lots of different ways to manage refunds, so connector let you choose what works best for your business
                         </div>
                         <div class="alert alert-info" role="alert" invisible="not context.get('cancel_integration_order_done')">
-                            <i class="fa fa-star"/> e-Commerce order already cancelled!
+                            <i class="fa fa-star"/> E-commerce order already cancelled!
                         </div>
                     </div>
                     <group invisible="context.get('cancel_integration_order_done')">
@@ -43,11 +43,11 @@
                 <footer>
                     <div class="d-flex justify-content-between w-100">
                         <div class="d-flex align-items-center align-content-around flex-wrap gap-1">
-                            <button string="Cancel e-Commerce Order" name="action_cancel_integration" invisible="context.get('cancel_integration_order_done')" type="object" class="btn-primary"/>
+                            <button string="Cancel E-Commerce Order" name="action_cancel_integration" invisible="context.get('cancel_integration_order_done')" type="object" class="btn-primary"/>
                             <button string="Skip" class="btn-secondary" special="cancel"/>
                         </div>
                         <div>
-                            <button string="Open in e-Commerce" name="open_integration_order" type="object" class="btn-secondary"/>
+                            <button string="Open in Shopify" name="action_open_integration_order" type="object" class="btn-secondary"/>
                         </div>
                     </div>
                 </footer>

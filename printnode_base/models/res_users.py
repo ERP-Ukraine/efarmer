@@ -121,6 +121,7 @@ class User(models.Model):
         if report_policy.printer_id:
             return report_policy.printer_id, report_policy.printer_bin
 
+        # There can be printer for the current workstation
         workstation_printer_id = self._get_workstation_device('printer_id')
 
         printer = (workstation_printer_id or self.printnode_printer

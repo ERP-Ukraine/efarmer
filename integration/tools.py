@@ -2,44 +2,131 @@
 
 import base64
 import logging
-import os
+import hashlib
+import json
 import io
-import time
-import re
 import inspect
-from typing import List
-
-from PIL import Image, UnidentifiedImageError
+import mimetypes
+import os
+import re
+import time
 
 from collections import defaultdict, namedtuple
-from functools import wraps
+from copy import deepcopy
+from dataclasses import dataclass
+from datetime import datetime, date, time as dt_time
+from decimal import Decimal, ROUND_HALF_UP
+from enum import Enum
+from functools import wraps, partial
 from itertools import groupby
 from operator import attrgetter
 from pprint import pprint
-from psycopg2 import OperationalError
-from decimal import Decimal, ROUND_HALF_UP
-from copy import deepcopy
-from typing import Callable
+from time import sleep
+from typing import Any, Callable, List, Union, Dict, Type
+from markupsafe import Markup
 
-from odoo import _
-from odoo.exceptions import ValidationError
+from psycopg2 import OperationalError
+from PIL import Image, UnidentifiedImageError
+
+from odoo import models, _
 from odoo.service.model import PG_CONCURRENCY_ERRORS_TO_RETRY
 from odoo.tools.image import IMAGE_MAX_RESOLUTION
+from odoo.tools.safe_eval import safe_eval
 from odoo.tools.mimetypes import guess_mimetype
 from odoo.tools.misc import groupby as odoo_groupby
 
-from odoo.addons.queue_job.exception import RetryableJobError
+
+try:
+    # Prefer import from integration_queue_job if available
+    from odoo.addons.integration_queue_job.exception import RetryableJobError
+except ImportError:
+    # Fallback if queue_job is not installed
+    from odoo.addons.queue_job.exception import RetryableJobError
+
+from .exceptions import ErrorStore
 
 
 _logger = logging.getLogger(__name__)
 
-
 IS_TRUE = '1'
 IS_FALSE = '0'
+
+CLIENT_LIMIT = 8
+SERVER_LIMIT = 5
+
+CLIENT_TIMEOUT = 4
+SERVER_TIMEOUT = 2
 
 # PIL: add possibility to load all available file format drivers
 Image._initialized = 1
 Image.preinit()
+
+
+class DateTimeJSONEncoder(json.JSONEncoder):
+    """
+    Custom JSON encoder that handles datetime objects, dates, and other non-serializable types.
+
+    This class extends the standard JSON encoder to handle:
+    - datetime objects (converted to ISO format strings)
+    - date objects (converted to ISO format strings)
+    - time objects (converted to ISO format strings)
+    - Decimal objects (converted to float)
+    - Enum objects (converted to their values)
+    - Markup objects (converted to strings)
+
+    Usage:
+        encoder = DateTimeJSONEncoder()
+        json_string = encoder.encode(data_with_datetime)
+
+        # Or use directly with json.dumps
+        json_string = json.dumps(data_with_datetime, cls=DateTimeJSONEncoder)
+    """
+
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        elif isinstance(obj, date):
+            return obj.isoformat()
+        elif isinstance(obj, dt_time):
+            return obj.isoformat()
+        elif isinstance(obj, Decimal):
+            return float(obj)
+        elif isinstance(obj, Enum):
+            return obj.value
+        elif isinstance(obj, Markup):
+            return str(obj)
+        elif hasattr(obj, '__dict__'):
+            # Handle objects with __dict__ attribute
+            return obj.__dict__
+        elif hasattr(obj, '__slots__'):
+            # Handle objects with __slots__
+            return {slot: getattr(obj, slot, None) for slot in obj.__slots__}
+
+        return super().default(obj)
+
+
+def safe_json_dumps(obj: Any, **kwargs) -> str:
+    """
+    Safely serialize Python objects to JSON string, handling datetime objects.
+
+    Args:
+        obj: The object to serialize
+        **kwargs: Additional arguments to pass to json.dumps
+
+    Returns:
+        JSON string representation of the object
+
+    Example:
+        data = {'timestamp': datetime.now(), 'name': 'test'}
+        json_str = safe_json_dumps(data)
+    """
+    return json.dumps(obj, cls=DateTimeJSONEncoder, **kwargs)
+
+
+def _compute_checksum(b64_bytes):  # Like ir.attachment._compute_checksum()
+    if not b64_bytes:
+        return None
+    return hashlib.sha1(base64.b64decode(b64_bytes)).hexdigest()
 
 
 def _guess_mimetype(data):
@@ -79,12 +166,30 @@ def _verify_image_data(data: bytes, logger_name: str):
     return resolution_ok
 
 
+def make_list_if_not(value):
+    if not isinstance(value, list):
+        value = [value]
+
+    return value
+
+
+def is_translated_value(value) -> bool:
+    return isinstance(value, dict) and ('language' in value) and value['language']
+
+
+def parse_translated_value(value: dict, lang: str):
+    if not is_translated_value(value):
+        return value
+
+    return value['language'].get(lang)
+
+
 def not_implemented(method):
     def wrapper(self, *args, **kw):
-        raise ValidationError(_(
-            '[Debug] This feature is still not implemented (%s.%s()).'
-            % (self.__class__.__name__, method.__name__)
-        ))
+        raise NotImplementedError(_(
+            'This functionality is not yet implemented. Please contact our support team (%(support_url)s) or '
+            'your Odoo partner for further details.'
+        ) % 'https://support.ventor.tech/')
     return wrapper
 
 
@@ -93,8 +198,8 @@ def raise_requeue_job_on_concurrent_update(method):
     def wrapper(self, *args, **kw):
         try:
             result = method(self, *args, **kw)
-            # flush() is needed to push all the pending updates to the database
-            self.env["base"].flush()
+            # flush_all() is needed to push all the pending updates to the database
+            self.env.flush_all()
             return result
         except OperationalError as e:
             if e.pgcode in PG_CONCURRENCY_ERRORS_TO_RETRY:
@@ -161,7 +266,7 @@ def escape_trash(value, allowed_chars=None, max_length=None, lowercase=False):
     if lowercase:
         value = value.lower()
 
-    return value
+    return value.strip('-')
 
 
 def round_float(value, decimal_precision):
@@ -230,12 +335,418 @@ def freeze_arguments(*args_to_copy: str) -> Callable:
     return decorator
 
 
+def track_changes(include_related_fields=None, sensitive_fields=None, exclude_fields=None):
+    """
+    Decorator to log field changes in chatter.
+
+    - Logs field changes before and after `write()`.
+    - Supports One2many fields (logs related record changes).
+    - Masks sensitive fields (e.g., passwords, API keys) dynamically.
+
+    :param include_related_fields: list of One2many fields to track (e.g., ['field_ids']).
+    :param sensitive_fields: list of fields to mask (e.g., ['password', 'api_key']).
+    :param exclude_fields: list of fields to exclude from tracking (e.g., ['name']).
+
+    Usage:
+        @track_changes(
+            include_related_fields=['field_ids'], sensitive_fields=['password', 'api_key'], exclude_fields=['name'],
+        )
+
+    Requires:
+        - Model must inherit from 'mail.thread'.
+    """
+    def decorator(method):
+        @wraps(method)
+        def wrapper(self, vals, *args, **kwargs):
+            changes = defaultdict(dict)
+            related_changes = defaultdict(dict)
+
+            exclude_fields_set = set(exclude_fields or [])
+
+            def mask_sensitive_data(value):
+                """Mask sensitive values (e.g., API keys, passwords)."""
+                if not isinstance(value, str):
+                    return value
+
+                length = len(value)
+                if length == 1:
+                    return 'X'
+
+                return value[:1] + 'X' * (length - 1) if length <= 5 else value[:-5] + 'X' * 5
+
+            def collect_values(record, state):
+                """
+                Collect changes in fields.
+                """
+                for field in vals:
+                    if field not in record._fields or field in include_related_fields:
+                        continue
+                    if field in exclude_fields_set:
+                        continue
+
+                    if isinstance(record[field], models.Model):
+                        value = record[field].mapped('display_name') or []
+                    else:
+                        value = record[field]
+
+                    value = f'{value} (ID: {record.id})'
+
+                    if value and sensitive_fields and field in sensitive_fields:
+                        value = mask_sensitive_data(value)
+
+                    if field not in changes[record.id]:
+                        changes[record.id][field] = {}
+                    changes[record.id][field][state] = value
+
+            def collect_updated_related_changes(record, state):
+                """
+                Collect changes in related fields.
+                """
+                for field in include_related_fields:
+                    if field not in vals or field not in record._fields:
+                        continue
+
+                    related_model = self.env[record._fields[field].comodel_name]
+
+                    for value in vals[field]:
+                        if not isinstance(value, list) or len(value) < 3:
+                            continue
+
+                        operation_type, related_id, change_data = value
+                        if operation_type != 1:  # 1 - update
+                            continue
+
+                        related_record = related_model.browse(related_id)
+                        related_record_name = related_record.display_name
+
+                        if field == 'field_ids':
+                            value = getattr(related_record, 'value', related_record_name)
+                        else:
+                            value = related_record_name
+
+                        value = f'{value} (ID: {related_record.id})'
+
+                        if value and related_record_name in sensitive_fields:
+                            value = mask_sensitive_data(value)
+
+                        field_key = f'{related_record._description} ({related_record_name})'
+
+                        if field_key not in related_changes[record.id]:
+                            related_changes[record.id][field_key] = {}
+                        related_changes[record.id][field_key][state] = value
+
+            def collect_added_removed_related_changes(record):
+                """
+                Collect added/removed related records.
+                """
+                for field in include_related_fields:
+                    if field not in vals or field not in record._fields:
+                        continue
+
+                    related_model = self.env[record._fields[field].comodel_name]
+
+                    for val in vals[field]:
+                        if not isinstance(val, list):
+                            continue
+
+                        operation_type, related_id, *change_data = val
+                        change_data = change_data[0] if change_data else {}
+
+                        if operation_type == 0:  # 0 - create
+                            new_values = [
+                                f'{k}: {mask_sensitive_data(v) if k in sensitive_fields else v}'
+                                for k, v in change_data.items()
+                                if v
+                            ]
+
+                            field_key = f'{related_model._description} ({related_id})'
+
+                            if field_key not in related_changes[record.id]:
+                                related_changes[record.id][field_key] = {}
+                            related_changes[record.id][field_key]['new'] = ', '.join(new_values)
+
+                        elif operation_type == 2:  # 2 - delete
+                            related_record = related_model.browse(related_id)
+                            related_record_name = related_record.display_name
+
+                            if field == 'field_ids':
+                                value = getattr(related_record, 'value', related_record_name)
+                            else:
+                                value = related_record_name
+
+                            value = f'{value} (ID: {related_record.id})'
+
+                            if value and related_record_name in sensitive_fields:
+                                value = mask_sensitive_data(value)
+
+                            field_key = f'{related_record._description} ({related_record_name})'
+
+                            if field_key not in related_changes[record.id]:
+                                related_changes[record.id][field_key] = {}
+                            related_changes[record.id][field_key]['old'] = value or related_record_name
+
+            # 1. Collect old values before changes
+            for record in self:
+                collect_values(record, 'old')
+
+            # 2. Collect old values of related records
+            if include_related_fields:
+                for record in self:
+                    collect_updated_related_changes(record, 'old')
+
+            # 3. Collect added/removed related records
+            if include_related_fields:
+                for record in self:
+                    collect_added_removed_related_changes(record)
+
+            # 4. Execute original method (write)
+            res = method(self, vals, *args, **kwargs)
+
+            # 5. Collect new values after changes
+            for record in self:
+                collect_values(record, 'new')
+
+            # 6. Collect new values of related records
+            if include_related_fields:
+                for record in self:
+                    collect_updated_related_changes(record, 'new')
+
+            # 7. Log changes in chatter
+            for record_id, fields_data in changes.items():
+                record = self.browse(record_id)
+
+                for field, values in fields_data.items():
+                    if values.get('old') != values['new']:
+                        msg = Markup(_('<b>{}</b> parameter changed:<i> "{}" → "{}"</i>').format(
+                            record._fields[field].string, values.get('old'), values['new']
+                        ))
+                        record._message_log(body=msg, message_type='comment', author_id=self.env.user.partner_id.id)
+
+            # 8. Log related records changes in chatter
+            for record_id, fields_data in related_changes.items():
+                record = self.browse(record_id)
+
+                for field_name, values in fields_data.items():
+                    old_value = values.get('old', '')
+                    new_value = values.get('new', '')
+
+                    if all([old_value, new_value]):
+                        if old_value != new_value:
+                            msg = Markup(_(
+                                '🔄 <b>{}</b> field changed:<i> "{}" → "{}"</i>').format(
+                                    field_name, old_value, new_value)
+                            )
+                        else:
+                            msg = Markup(_(
+                                '🔄 <b>{}</b> field changed:<i> Record updated: "{}"</i>').format(
+                                    field_name, new_value)
+                            )
+
+                        record._message_log(body=msg, message_type='comment', author_id=self.env.user.partner_id.id)
+
+                    elif new_value and not old_value:
+                        msg = Markup(_(
+                            '➕ <b>{}</b> field added:<i> "{}"</i>').format(
+                                field_name, new_value,
+                            )
+                        )
+                        record._message_log(body=msg, message_type='comment', author_id=self.env.user.partner_id.id)
+
+                    elif old_value and not new_value:
+                        msg = Markup(_(
+                            '➖ <b>{}</b> field removed:<i> "{}"</i>').format(
+                                field_name, old_value,
+                            )
+                        )
+                        record._message_log(body=msg, message_type='comment', author_id=self.env.user.partner_id.id)
+
+            return res
+
+        return wrapper
+
+    return decorator
+
+
+class ProductType(Enum):
+    PRODUCT_TEMPLATE = 'product.template'
+    PRODUCT_PRODUCT = 'product.product'
+
+    @property
+    def is_template(self):
+        return self == ProductType.PRODUCT_TEMPLATE
+
+    @property
+    def is_variant(self):
+        return self == ProductType.PRODUCT_PRODUCT
+
+
+class ActionType(Enum):
+    """
+        "none" - mapping is actual, no needs to do smth.
+        "pending" - initial state, need to check and decide what to do. If value didn't change - drop this mapping.
+        "assign" - mapping is actual, but need to be reassigned to the other product.
+        "create" - mapping is assigned to product with id=False and but need to be created in the external system.
+    """
+
+    NONE = 'none'
+    PENDING = 'pending'
+    ASSIGN = 'assign'
+    CREATE = 'create'
+
+    @property
+    def to_create(self):
+        return self == ActionType.CREATE
+
+    @property
+    def to_none(self):
+        return self == ActionType.NONE
+
+    @property
+    def to_assign(self):
+        return self == ActionType.ASSIGN
+
+
+@dataclass
+class ExternalImage:
+
+    integration_id: int
+    code: str
+    name: str
+    src: str
+    is_cover: bool
+    template_code: str
+    ttype: ProductType
+
+    sku: str = None
+    b64_bytes: bytes = None
+    variant_code: str = None
+    verbose_name: str = None
+    product_image_mapping_id: int = None
+    action_type: ActionType = ActionType.NONE
+
+    def __repr__(self):
+        name = f'action_type={self.action_type.value}, code={self.code}, '
+        name += f'template_code={self.template_code}, variant_code={self.variant_code}, is_cover={self.is_cover}'
+        return f'<{self.__class__.__name__}: {name}>'
+
+    __str__ = __repr__
+
+    @property
+    def code_int(self):
+        if not self.code:
+            return 0
+        return int(self.code.rsplit('/', 1)[-1])
+
+    @property
+    def to_create(self):
+        return self.action_type.to_create
+
+    @property
+    def to_none(self):
+        return self.action_type.to_none
+
+    @property
+    def to_assign(self):
+        return self.action_type.to_assign
+
+    @property
+    def is_template(self):
+        return self.ttype.is_template
+
+    @property
+    def is_variant(self):
+        return self.ttype.is_variant
+
+    @property
+    def is_template_cover(self):
+        return bool(self.is_template and self.is_cover)
+
+    @property
+    def is_variant_cover(self):
+        return bool(self.is_variant and self.is_cover)
+
+    @property
+    def mimetype(self):
+        return _guess_mimetype(self.b64_bytes)
+
+    @property
+    def extension(self):
+        return mimetypes.guess_extension(self.mimetype)
+
+    @property
+    def checksum(self):
+        return _compute_checksum(self.b64_bytes)
+
+    @property
+    def b64_ascii(self):
+        return base64.b64decode(self.b64_bytes)
+
+    def update(self, **kw):
+        for key, value in kw.items():
+            setattr(self, key, value)
+
+    @classmethod
+    def from_mapping(cls, mapping):
+        """
+        mapping: models.Model.integration.product.image.mapping
+        """
+        return cls(
+            code=mapping.code,
+            name=mapping.name,
+            src=mapping.src,
+            ttype=ProductType(mapping.ttype),
+            template_code=mapping.template_code,
+            variant_code=mapping.variant_code,
+            is_cover=mapping.is_cover,
+            b64_bytes=mapping.get_b64_data(),
+            sku=mapping.get_external_sku(),
+            verbose_name=escape_trash(mapping.res_name, max_length=100),
+            action_type=ActionType(mapping.action_type),
+            product_image_mapping_id=mapping.id,
+            integration_id=mapping.integration_id.id,
+        )
+
+    def to_dict(self):  # It needs for the `integration.import.product.wizard`
+        return {
+            'code': self.code,
+            'template_code': self.template_code,
+            'variant_code': self.variant_code,
+            'is_cover': self.is_cover,
+            'src': self.src,
+        }
+
+    def _to_external_dict(self):
+        return {
+            'code': self.code,
+            'name': self.name,
+            'src': self.src,
+            'template_code': self.template_code,
+            'integration_id': self.integration_id,
+        }
+
+    def _to_mapping_dict(self):
+        return {
+            **self._to_external_dict(),
+            'ttype': self.ttype.value,
+            'is_cover': self.is_cover,
+            'checksum': self.checksum,
+            'variant_code': self.variant_code,
+            'action_type': self.action_type.value,
+        }
+
+    def _get_filename(self):
+        return f'{self.verbose_name}{self.extension}'
+
+    def _get_unique_filename(self):
+        return f'{self.template_code}-{self.checksum}{self.extension}'
+
+
 class Adapter:
     """Class wrapper for Integration API-Client."""
 
-    def __init__(self, adapter_core, integration):
+    def __init__(self, adapter_core, env):
         self.__cache_core = adapter_core
-        self._env = integration.env
+        self._env = env
 
     def __repr__(self):
         return f'<{self.__class__.__name__} at {hex(id(self))}: [{self.__cache_core}]>'
@@ -251,6 +762,10 @@ class Adapter:
         return {
             '_env': self._env,
         }
+
+    @property
+    def cls(self):
+        return self.__cache_core.__class__
 
 
 class AdapterHub:
@@ -287,13 +802,6 @@ class AdapterHub:
         core.activate_adapter()
         _logger.info('Get integration api-client core: %s, %s', key, core)
         return core
-
-
-def make_list_if_not(value):
-    if not isinstance(value, list):
-        value = [value]
-
-    return value
 
 
 class PriceList:
@@ -458,18 +966,20 @@ class TemplateHub:
 
     _schema = ProductTuple._fields
 
-    def __init__(self, input_list):
-        assert type(input_list) == list
-        self.product_list = self._convert_to_clean(input_list)
+    def __init__(self, product_data_list):
+        assert isinstance(product_data_list, list)
+        self.products = self._convert_to_namedtuples(product_data_list)
 
     def __iter__(self):
-        for rec in self.product_list:
+        for rec in self.products:
             yield rec
 
     def get_templates(self):
+        """Filter and sort products that are templates (no parent_id)"""
         return sorted(filter(lambda x: not x.parent_id, self), key=lambda x: int(x.id))
 
     def get_variants(self):
+        """Filter and sort products that are variants (have parent_id)."""
         return sorted(filter(lambda x: x.parent_id, self), key=lambda x: int(x.id))
 
     def get_template_ids(self):
@@ -480,25 +990,29 @@ class TemplateHub:
         variants = self.get_variants()
         return self._get_ids(variants)
 
-    def get_part_fill_barcodes(self):
+    def get_products_with_partial_barcodes(self):
+        """Return list of products with part fill barcodes."""
         variants = self._group_by(self.get_variants(), 'parent_id')
-        part_fill_variants = [
+        # Find templates where some variants have barcodes but not all
+        part_filled_barcode_variants = [
             template_id
             for template_id, variants in variants.items()
             if any(x.barcode for x in variants) and not all(x.barcode for x in variants)
         ]
-        products = [x for x in self if x.id in part_fill_variants]
+        products = [x for x in self if x.id in part_filled_barcode_variants]
         return products
 
-    def get_empty_ref_ids(self):
-        templates, variants = self._split_products(
+    def get_products_with_empty_references(self):
+        """Split products into templates and variants based on empty references"""
+        templates, variants = self._split_templates_and_variants(
             [x for x in self if not x.ref and not x.skip_ref]
         )
         return templates, variants
 
-    def get_dupl_refs(self):
-        skip_ids = list()
-        repeated_ids = self.get_repeated_ids()
+    def get_products_with_duplicate_references(self):
+        """Return dictionary of products grouped by reference."""
+        templates_to_skip_ids = list()
+        repeated_ids = self.get_repeated_product_ids()
         products = [x for x in self if x.ref and x.id not in repeated_ids]
         group_dict = self._group_by(products, 'ref', level=2)
 
@@ -506,37 +1020,29 @@ class TemplateHub:
             templates = [x for x in record_list if not x.parent_id]
             variants = [x for x in record_list if x.parent_id]
 
+            # Skip single templates with only one child variant
             if len(templates) == 1 and len(variants) == 1:
-                template = templates[0]
-                variant = variants[0]
-                if variant.parent_id == template.id:
-                    skip_ids.append(template.id)
-            elif len(templates) == 1 and len(variants) > 1:
-                template = templates[0]
-                skip_ids.append(template.id)
+                if variants[0].parent_id == templates[0].id:
+                    templates_to_skip_ids.append(templates[0].id)
+            # Skip single templates without variants or with multiple variants
+            elif len(templates) == 1:
+                templates_to_skip_ids.append(templates[0].id)
 
-        products = [x for x in products if x.id not in skip_ids]
+        # Filter out excluded templates, keep variants
+        products = [x for x in products if (x.id not in templates_to_skip_ids) or x.parent_id]
         return self._group_by(products, 'ref', level=2)
 
-    def get_tmpl_dupl_refs(self):
-        skip_ids = self.get_repeated_ids()
-        products = [x for x in self if all([x.ref, not x.parent_id, x.id not in skip_ids])]
-        return self._group_by(products, 'ref', level=2)
-
-    def get_var_dupl_refs(self):
-        skip_ids = self.get_repeated_ids()
-        products = [x for x in self if all([x.ref, x.parent_id, x.id not in skip_ids])]
-        return self._group_by(products, 'ref', level=2)
-
-    def get_dupl_barcodes(self):
+    def get_products_with_duplicate_barcodes(self):
         products = [x for x in self if x.barcode]
         return self._group_by(products, 'barcode', level=2)
 
-    def get_repeated_configurations(self):
+    def get_products_with_repeated_configurations(self):
+        """Return dictionary of repeated configurations grouped by parent record."""
         variants = self.get_variants()
         record_dict = self._group_by(variants, 'id', level=2)
         record_dict_upd = defaultdict(list)
 
+        # Transform variant IDs to actual records and map to their parent templates
         for key, value_list in record_dict.items():
             record = self.find_record_by_id(key)
             record_dict_upd[record] = [
@@ -544,33 +1050,37 @@ class TemplateHub:
             ]
         return record_dict_upd
 
-    def get_nested_configurations(self):
+    def get_products_with_nested_configurations(self):
+        """Return dictionary of nested configurations grouped by parent record."""
         record_dict = defaultdict(list)
         templates = self.get_templates()
+        # Get template IDs that are also used as variants (nested structure)
         template_ids = self._get_ids(filter(lambda x: x.joint_namespace, templates))
 
         for var in self.get_variants():
             if var.id in template_ids:
+                # This variant is also a template, creating nested configuration
                 parent = self.find_record_by_id(var.parent_id)
                 record_dict[parent].append(var)
 
         return dict(record_dict)
 
-    def get_repeated_ids(self):
-        rep_config = self.get_repeated_configurations()
+    def get_repeated_product_ids(self):
+        rep_config = self.get_products_with_repeated_configurations()
         return self._get_ids(rep_config.keys())
 
     def find_record_by_id(self, rec_id):
         for rec in self:
             if rec.id == rec_id:
                 return rec
-        # In my opinion there is no way not to find the required record
-        assert 1 == 0, 'Parent record not found'
+        # This should never happen in normal operation - indicates data inconsistency
+        raise ValueError(_('Parent record not found for id: %s') % rec_id)
 
     @classmethod
     def from_odoo(cls, search_list, reference='default_code', barcode='barcode'):
         """Make class instance from odoo search."""
         def parse_args(rec):
+            # Map Odoo product fields to ProductTuple schema
             values = (
                 str(rec['id']),
                 rec['name'] or '',
@@ -592,31 +1102,36 @@ class TemplateHub:
         def filter_records(scope):
             return [x for x in self_a if x.ref in scope], [x for x in self_b if x.ref in scope]
 
+        # Find common references between two TemplateHub instances
         joint_ref = parse_ref(self_a) & parse_ref(self_b)
         records_a, records_b = filter_records(joint_ref)
 
         return self_a._group_by(records_a, 'ref'), self_b._group_by(records_b, 'ref')
 
-    def _convert_to_clean(self, input_list):
+    def _convert_to_namedtuples(self, input_list):
         """Convert to namedtuple for convenient handling."""
-        return [self._serialize_by_scheme(rec) for rec in input_list]
+        return [self._create_product_tuple(rec) for rec in input_list]
 
-    def _serialize_by_scheme(self, record):
+    def _create_product_tuple(self, record):
         args_list = [record[key] for key in self._schema]
         return ProductTuple(*args_list)
 
     @staticmethod
-    def _split_products(records):
+    def _split_templates_and_variants(records):
+        """Split records into templates and variants."""
         templates = [x for x in records if not x.parent_id]
         variants = [x for x in records if x.parent_id]
         return templates, variants
 
     def _group_by(self, records, attr, level=False):
+        """Group records by attribute."""
         dict_ = defaultdict(list)
         [
             [dict_[key].append(x) for x in grouper]
             for key, grouper in groupby(records, key=attrgetter(attr))
         ]
+
+        # If level is provided, return only groups with at least level items
         if level:
             return {
                 key: val for key, val in dict_.items() if len(val) >= level
@@ -627,7 +1142,7 @@ class TemplateHub:
         return [str(x.id) for x in records]
 
 
-PLine = namedtuple('PickingLine', 'external_id qty_demand qty_done is_kit')
+PLine = namedtuple('PickingLine', 'external_id qty_demand qty_done is_kit multi_serialization')
 
 
 class PickingLine(PLine):
@@ -641,7 +1156,7 @@ class PickingLine(PLine):
         return self.qty_demand == self.get_qty()
 
     def get_qty(self):
-        if self.is_kit:
+        if self.is_kit and self.multi_serialization:
             return self.qty_demand
         return self.qty_done
 
@@ -689,14 +1204,14 @@ class PickingSerializer:
         return set([x.external_id for x in self.approved_lines if not x.is_done])
 
     def serialize(self):
-        data = dict(
+        return dict(
             name=self.name,
             carrier=self.carrier,
+            carrier_code=self.carrier_code,
             tracking=self.tracking,
             picking_id=self.erp_id,
             lines=[x.serialize() for x in self.approved_lines],
         )
-        return data
 
     def has_components(self):
         return bool(self.kit_ids)
@@ -707,8 +1222,7 @@ class PickingSerializer:
         pprint(self.approved_lines)
 
     def _extend_tracking(self, ext_tracking):
-        values = [self.tracking, ext_tracking]
-        self.tracking = ', '.join(filter(None, values))
+        self.tracking = ', '.join(filter(None, [self.tracking, ext_tracking]))
 
     def _drop_lines(self, ids):
         lines = [x for x in self.approved_lines if x.external_id not in ids]
@@ -836,8 +1350,8 @@ class HtmlWrapper:
 
     def __init__(self, integration):
         self.integration = integration
-        self.adapter = integration._build_adapter()
-        self.base_url = integration.sudo().env['ir.config_parameter'].get_param('web.base.url')
+        self.adapter = integration.adapter
+        self.base_url = integration.get_base_url_config()
         self.html_list = list()
 
     @property
@@ -962,15 +1476,15 @@ class HtmlWrapper:
 
     @staticmethod
     def _wrap_string(title):
-        return f'<div>{title}<ul>%s</ul></div>'
+        return f'<div><strong>{title}</strong><ul>%s</ul></div>'
 
     @staticmethod
     def _wrap_title(title):
-        return f'<div><strong>{title}</strong><hr/></div>'
+        return f'<div><strong>{title}</strong></div>'
 
     @staticmethod
     def _wrap_subtitle(title):
-        return f'<div>{title}<hr/></div>'
+        return f'<div>{title}</div>'
 
     @staticmethod
     def _cut_duplicates(dct):
@@ -1041,3 +1555,216 @@ class MeasureTime:
                 f'[{self.description}] Code block executed in: {self.interval:.4f} seconds')
         else:
             self.logger.info(f'Code block executed in: {self.interval:.4f} seconds')
+
+
+class MergeableDict:
+
+    def __init__(self):
+        self._dict = {}
+
+    def dump(self):
+        return self._dict
+
+    def merge(self, **kw):
+        """
+        Merge the given keyword arguments into the current data.
+        If the key already exists, the value is merged with the existing value.
+        If the value is a list, the new values are appended to the existing list.
+        If the value is a dict, the new values are merged with the existing dict.
+        """
+
+        for key, value in kw.items():
+            if key in self._dict:
+                nested_data = self._dict[key]
+
+                if isinstance(nested_data, list):
+                    nested_data.extend(value)
+                elif isinstance(nested_data, dict):
+                    nested_data.update(value)
+                else:
+                    self._dict[key] = value
+            else:
+                self._dict[key] = value
+
+
+class ExtractNode:
+
+    class MissedValue:
+        pass
+
+    def __init__(self, key_string: str, return_type, raise_error: bool = False):
+        self.keys = key_string.split('.')
+        self._type = return_type
+        self._raise_error = raise_error
+
+    def __call__(self, func):
+        def wrapper(*args, **kwargs):
+            result = func(*args, **kwargs)
+
+            if isinstance(result, str):
+                result = json.loads(result)
+
+            data = self._extract(result, self.keys)
+
+            if isinstance(data, ExtractNode.MissedValue):
+                if self._raise_error:
+                    raise ErrorStore.JsonMissedKey(
+                        'ExtractNode parse error: Key "%s" not found' % ('.'.join(self.keys))
+                    )
+
+                return self.get_default()
+
+            return data
+
+        return wrapper
+
+    def _extract(self, data, key_list):
+        """
+        Recursively extract the value based on the provided key list
+        """
+        if not key_list:
+            # No more keys to process, return the current data
+            return data
+
+        key, *remaining_keys = deepcopy(key_list)
+
+        if isinstance(data, list):
+            if key.isdigit():
+                if int(key) < len(data):
+                    # If the key is an integer and within the list bounds, continue extraction
+                    return self._extract(data[int(key)], remaining_keys)
+
+                _logger.warning('Integration-data parse error: Index "%s" out of range', key)
+                return ExtractNode.MissedValue()
+
+            # Handle the all lists elements
+            return list(filter(
+                lambda x: not isinstance(x, ExtractNode.MissedValue),
+                [self._extract(x, key_list) for x in data],
+            ))
+
+        if isinstance(data, dict):
+            if key in data:
+                return self._extract(data[key], remaining_keys)
+
+            _logger.warning('Integration-data parse error: Key "%s" not found', key)
+            return ExtractNode.MissedValue()
+
+        # Unknown data type (neither a list nor a dictionary)_extract
+        _logger.warning(
+            'Integration-data parse error: Expected list or dict at key "%s", got %s', key, type(data).__name__
+        )
+        return ExtractNode.MissedValue()
+
+    def get_default(self):
+        return self._type() if callable(self._type) else self._type
+
+    @classmethod
+    def extract_raw(
+        cls,
+        json_data : Union[str, Dict, List],
+        key_string: str,
+        return_type: Type,
+        raise_error: bool = False,
+    ):
+        # 1. init instance
+        # 2. invoke the __call__ method
+        # 3. invoke the `wrapper` function returned from the step 2
+        return cls(key_string, return_type, raise_error)(lambda: json_data)()
+
+
+def run_preprocessing_script(script: str, context: dict, raise_error: bool = False) -> str:
+    """
+    Executes the preprocessing script in a controlled environment.
+    """
+    try:
+        safe_eval(script.strip(), context=context, mode='exec')
+    except Exception as e:
+        if raise_error:
+            raise
+        _logger.warning('Preprocess script execution failed: %s', e)
+        return ''
+
+    try:
+        return context['value']
+    except (TypeError, ValueError) as e:
+        if raise_error:
+            raise
+        _logger.warning('Failed to serialize value in preprocess script: %s', e)
+        return ''
+
+
+def expose_for_testing(label):
+    """
+    Decorator to mark methods as debuggable with a user-friendly name.
+
+    Args:
+        label (str): User-friendly name to display in the selection field
+
+    Usage:
+        @expose_for_testing('Import Order by ID')
+        def integrationApiReceiveOrder(self):
+            # method implementation
+    """
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+
+        wrapper._expose_for_testing = True
+        wrapper._testing_label = label
+
+        return wrapper
+
+    return decorator
+
+
+def _get_retry_timeout(ex: Exception, attempt: int, is_client: bool = True) -> int:
+    default_timeout = CLIENT_TIMEOUT if is_client else SERVER_TIMEOUT
+    retry_after = getattr(ex, 'retry_after', None)
+    return retry_after or default_timeout * attempt
+
+
+def _format_retry_exception(ex: Exception, attempt: int, wait: int, method_name: str, is_client: bool = True) -> str:
+    """Format exception message for logging."""
+    return 'Integration %s (%s); %s-attempt %s --> wait %s: %s' % (
+        ex.__class__.__name__,
+        ex.args[0] if ex.args else str(ex),
+        'Client' if is_client else 'Server',
+        attempt,
+        wait,
+        method_name,
+    )
+
+
+def catch_exception(method):
+    @wraps(method)
+    def _catch_exception(*args, _client_attempt=1, _server_attempt=1, **kwargs):
+        retry = partial(_catch_exception, *args, **kwargs)
+
+        try:
+            result = method(*args, **kwargs)
+        except (
+            ErrorStore.SSLError,
+            ErrorStore.RequestsConnectionError,
+            ErrorStore.ResourceConflict,
+            ErrorStore.TooManyRequestsError,
+        ) as ex:
+            if _client_attempt <= CLIENT_LIMIT:
+                wait = _get_retry_timeout(ex, _client_attempt)
+                _logger.warning(_format_retry_exception(ex, _client_attempt, wait, method.__name__, is_client=True))
+                sleep(wait)
+                return retry(_client_attempt=_client_attempt + 1)
+            raise ex
+
+        except ErrorStore.ServerError as ex:
+            if _server_attempt <= SERVER_LIMIT:
+                wait = _get_retry_timeout(ex, _server_attempt, is_client=False)
+                _logger.warning(_format_retry_exception(ex, _server_attempt, wait, method.__name__, is_client=False))
+                sleep(wait)
+                return retry(_server_attempt=_server_attempt + 1)
+            raise ex
+
+        return result
+
+    return _catch_exception

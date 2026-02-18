@@ -6,8 +6,38 @@
         <field name="model">printnode.print.stock.move.reports.wizard</field>
         <field name="inherit_id" ref="printnode_base.printnode_abstract_print_line_reports_wizard_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//form" position="inside">
-                <!-- Nothing to change -->
+            <xpath expr="//field[@name='report_id']" position="before">
+                <field name="show_operations" />
+                <!-- Technical field -->
+                <field name="report_ids" invisible="1"/> <!-- Required because it is used in the invisible condition above -->
+            </xpath>
+
+            <xpath expr="//field[@name='record_line_ids']" position="replace">
+                <field name="stock_move_record_line_ids" invisible="show_operations == False">
+                    <list editable="bottom" create="false">
+                        <!--
+                            Technical field: do not remove! Without this field line_ids will be
+                            with empty record_id value.
+                        -->
+                        <field name="record_id" invisible="1"/> <!-- Required because it is used in the invisible condition above -->
+                        <field name="name" readonly="1"/>
+                        <field name="quantity"/>
+                    </list>
+                </field>
+                <field name="stock_move_line_record_line_ids" invisible="show_operations == False">
+                    <list editable="bottom" create="false">
+                        <!--
+                            Technical field: do not remove! Without this field line_ids will be
+                            with empty record_id value.
+                            -->
+                        <field name="record_id" invisible="1"/> <!-- Required because it is used in the invisible condition above -->
+                        <field name="name" readonly="1"/>
+                        <field name="package_id" readonly="1"/>
+                        <field name="result_package_id" readonly="1"/>
+                        <field name="lot_id" readonly="1"/>
+                        <field name="quantity"/>
+                    </list>
+                </field>
             </xpath>
         </field>
     </record>

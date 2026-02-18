@@ -1,7 +1,7 @@
 import json
 
 from odoo import fields, release
-from odoo.http import Controller, route, request, Response
+from odoo.http import Controller, route, request
 from werkzeug.exceptions import NotFound
 
 from .utils import add_env, required, validate
@@ -82,11 +82,11 @@ class ZLDController(Controller):
 
         fields_.sort(key=lambda d: d['label'])
 
-        return request.make_response(
-            json.dumps({'data': fields_}),
+        return request.make_json_response(
+            {'data': fields_},
             headers=RESPONSE_HEADERS)
 
-    @route('/zld/<string:db>/preview', type='json', auth='none', csrf=False, methods=['POST'])
+    @route('/zld/<string:db>/preview', type='http', auth='none', csrf=False, methods=['POST'])
     @add_env
     @validate
     @required('model', 'fields')
@@ -94,21 +94,23 @@ class ZLDController(Controller):
         """
         Returns preview with demo data.
         """
-        data = request.jsonrequest
+        data = request.get_json_data()
         model = data['model']
         fields = data['fields']
 
         try:
             data_for_preview = request.env['zld.label'].get_preview_data(model, fields)
         except Exception as e:
-            return Response(
-                json.dumps({'error': str(e)}),
-                status=400,
-                headers=RESPONSE_HEADERS)
+            return request.make_json_response(
+                {'error': str(e)},
+                headers=RESPONSE_HEADERS,
+                status=400)
 
-        return data_for_preview
+        return request.make_json_response(
+            {'data': data_for_preview},
+            headers=RESPONSE_HEADERS)
 
-    @route('/zld/<string:db>/labels', type='json', auth='none', csrf=False, methods=['POST'])
+    @route('/zld/<string:db>/labels', type='http', auth='none', csrf=False, methods=['POST'])
     @add_env
     @validate
     @required('name', 'model', 'qweb_xml', 'label_fields', 'width', 'height', 'dpi', 'orientation', 'designer_label_id')  # NOQA
@@ -116,19 +118,21 @@ class ZLDController(Controller):
         """
         Return preview with demo data.
         """
-        data = request.jsonrequest
+        data = request.get_json_data()
 
         try:
             label_id = request.env['zld.label'].create_label(data)
         except Exception as e:
-            return Response(
-                json.dumps({'error': str(e)}),
-                status=400,
-                headers=RESPONSE_HEADERS)
+            return request.make_json_response(
+                {'error': str(e)},
+                headers=RESPONSE_HEADERS,
+                status=400)
 
-        return {'label_id': label_id}
+        return request.make_json_response(
+            {'data': {'label_id': label_id}},
+            headers=RESPONSE_HEADERS)
 
-    @route('/zld/<string:db>/labels/<int:label_id>', type='json', auth='none', csrf=False, methods=['PUT'])  # NOQA
+    @route('/zld/<string:db>/labels/<int:label_id>', type='http', auth='none', csrf=False, methods=['PUT'])  # NOQA
     @add_env
     @validate
     @required('name', 'qweb_xml', 'label_fields', 'width', 'height', 'dpi', 'orientation', 'designer_label_id')  # NOQA
@@ -136,17 +140,19 @@ class ZLDController(Controller):
         """
         Update label and return label ID.
         """
-        data = request.jsonrequest
+        data = request.get_json_data()
 
         try:
             label_id = request.env['zld.label'].update_label(label_id, data)
         except Exception as e:
-            return Response(
-                json.dumps({'error': str(e)}),
-                status=400,
-                headers=RESPONSE_HEADERS)
+            return request.make_json_response(
+                {'error': str(e)},
+                headers=RESPONSE_HEADERS,
+                status=400)
 
-        return {'label_id': label_id}
+        return request.make_json_response(
+            {'data': {'label_id': label_id}},
+            headers=RESPONSE_HEADERS)
 
     @route('/zld/<string:db>/labels/<int:label_id>', type='http', auth='none', csrf=False, methods=['DELETE'])  # NOQA
     @add_env
@@ -158,11 +164,11 @@ class ZLDController(Controller):
         try:
             request.env['zld.label'].delete_label(label_id)
         except Exception as e:
-            return Response(
-                json.dumps({'error': str(e)}),
-                status=400,
-                headers=RESPONSE_HEADERS)
+            return request.make_json_response(
+                {'error': str(e)},
+                headers=RESPONSE_HEADERS,
+                status=400)
 
-        return request.make_response(
-            json.dumps({'data': []}),
+        return request.make_json_response(
+            {'data': []},
             headers=RESPONSE_HEADERS)

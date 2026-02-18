@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="integration_ecommerce_product_category_mapping_view_tree" model="ir.ui.view">
+            <field name="name">integration.ecommerce.product.category.mapping.view.list</field>
+            <field name="model">integration.ecommerce.product.category.mapping</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="id" groups="base.group_no_one"/>
+                    <field name="integration_id"/>
+                    <field name="category_id"/>
+                    <field name="external_category_id" domain="[('integration_id', '=', integration_id)]"/>
+                    <button type="object"
+                            name="import_categories"
+                            string="Import Category"
+                            invisible="category_id"
+                            icon="fa-download"
+                            class="btn-outline-primary"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="integration_ecommerce_product_category_mapping_view_search" model="ir.ui.view">
+            <field name="name">integration.ecommerce.product.category.mapping.view.search</field>
+            <field name="model">integration.ecommerce.product.category.mapping</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="category_id"/>
+                    <field name="external_category_id"/>
+                    <field name="integration_id"/>
+                    <filter string="Not Mapped" name="not_mapped" domain="[('category_id', '=', False)]"/>
+                    <group>
+                        <filter string="E-Commerce Store" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="integration_ecommerce_product_category_mapping_action" model="ir.actions.act_window">
+            <field name="name">Category Mappings</field>
+            <field name="path">eci-category-mappings</field>
+            <field name="res_model">integration.ecommerce.product.category.mapping</field>
+            <field name="view_mode">list</field>
+            <field name="context">{'search_default_not_mapped': 1}</field>
+        </record>
+
+        <record id="integration_ecommerce_product_category_mapping_action_import_categories" model="ir.actions.server">
+            <field name="name">Import Categories</field>
+            <field name="model_id" ref="integration.model_integration_ecommerce_product_category_mapping"/>
+            <field name="binding_model_id" ref="integration.model_integration_ecommerce_product_category_mapping"/>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">action = records.import_categories()</field>
+        </record>
+
+        <record id="integration_ecommerce_product_category_mapping_action_show_unmapped" model="ir.actions.server">
+            <field name="name">Show Unmapped Objects</field>
+            <field name="model_id" ref="integration.model_integration_ecommerce_product_category_mapping"/>
+            <field name="binding_model_id" ref="integration.model_integration_ecommerce_product_category_mapping"/>
+            <field name="binding_view_types">list</field>
+            <field name="group_ids" eval="[(4, ref('base.group_no_one'))]"/>
+            <field name="state">code</field>
+            <field name="code">action = records.show_unmapped_object()</field>
+        </record>
+
+    </data>
+</odoo>

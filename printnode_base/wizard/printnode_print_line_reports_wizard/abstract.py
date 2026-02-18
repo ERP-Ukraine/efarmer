@@ -18,7 +18,7 @@ class PrintnodePrintAbstractLineReportsWizard(models.AbstractModel):
         domain=lambda self: self._get_report_domain(),
     )
 
-    # This field should be overridden in child models
+    # This field should be overridden in children models
     record_line_ids = fields.One2many(
         comodel_name='printnode.abstract.print.line.reports.wizard.line',
         inverse_name='wizard_id',
@@ -77,14 +77,16 @@ class PrintnodePrintAbstractLineReportsWizard(models.AbstractModel):
         self.ensure_one()
         return self.report_id
 
-    def get_docids(self):
-        self.ensure_one()
-
-        objects = self.record_line_ids.mapped('record_id')
-        return objects
-
     def _default_record_line_ids(self):
         raise NotImplementedError()
+
+    def _get_lines(self):
+        """
+        Wrapped in method to avoid overriding in child models
+        """
+        self.ensure_one()
+
+        return self.record_line_ids
 
     def _get_line_model(self):
         raise NotImplementedError()
@@ -92,8 +94,7 @@ class PrintnodePrintAbstractLineReportsWizard(models.AbstractModel):
     def do_print(self):
         self.ensure_one()
 
-        if not self.record_line_ids:
-            raise exceptions.UserError(_('No documents to print!'))
+        record_line_ids = self._get_lines()
 
         report = self.get_report()
 
@@ -101,7 +102,7 @@ class PrintnodePrintAbstractLineReportsWizard(models.AbstractModel):
         docids = self._get_line_model().browse()
 
         # Add copies
-        for line_id in self.record_line_ids:
+        for line_id in record_line_ids:
             for i in range(line_id.quantity):
                 docids += line_id.record_id
 
@@ -145,7 +146,12 @@ class PrintnodePrintAbstractLineReportsWizard(models.AbstractModel):
 
 class PrintnodePrintAbstractLineReportsWizardLine(models.TransientModel):
     _name = 'printnode.abstract.print.line.reports.wizard.line'
-    _description = 'Record Line'
+    _description = 'Abstract Record Line'
+
+    # This field should be overridden in child models
+    wizard_id = fields.Many2one(
+        comodel_name='printnode.abstract.print.line.reports.wizard',
+    )
 
     # This field should be overridden in child models
     record_id = fields.Integer(
@@ -158,11 +164,6 @@ class PrintnodePrintAbstractLineReportsWizardLine(models.TransientModel):
     quantity = fields.Integer(
         required=True,
         default=1,
-    )
-
-    # This field should be overridden in child models
-    wizard_id = fields.Many2one(
-        comodel_name='printnode.abstract.print.line.reports.wizard',
     )
 
     @api.constrains('quantity')

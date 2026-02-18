@@ -1,6 +1,7 @@
 # See LICENSE file for full copyright and licensing details.
 
-from odoo import models, fields
+from odoo import api, models, fields, _
+from odoo.exceptions import UserError
 
 
 class ProductFeatureValue(models.Model):
@@ -20,12 +21,33 @@ class ProductFeatureValue(models.Model):
         index=True,
     )
 
+    @api.model_create_multi
+    def create(self, vals):
+        res = super(ProductFeatureValue, self).create(vals)
+
+        # If the sequence is not set, we must set it to the next available sequence
+        # We can't use simple check like "not r.sequence" because sequence will be 0 by default, so
+        # we won't know if the user set it to 0 or if it's the default value
+        for (r, v) in list(zip(res, vals)):
+            if v.get('sequence') is None:
+                next_sequence = r.feature_id._get_next_sequence()
+                r.write({'sequence': next_sequence})
+
+        return res
+
     def to_export_format(self, integration):
         self.ensure_one()
 
+        feature_code = self.feature_id.to_external_or_export(integration)
+
+        if not self.feature_id:
+            raise UserError(_(
+                'The external feature code cannot be empty for the feature value "%s".\n\n'
+            ) % self.name)
+
         return {
-            'feature_id': self.feature_id.to_external_or_export(integration),
-            'name': integration.convert_translated_field_to_integration_format(self, 'name'),
+            'feature_id': feature_code,
+            'name': self.convert_field_translations_to_external(integration.id, 'name'),
         }
 
     def export_with_integration(self, integration):

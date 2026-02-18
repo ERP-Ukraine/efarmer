@@ -11,10 +11,10 @@ import werkzeug
 from copy import deepcopy
 from datetime import datetime
 
-from odoo import http, api
-from odoo.addons.web.controllers.main import DataSet, ReportController
+from odoo import _, http
+from odoo.addons.web.controllers.report import ReportController
+from odoo.addons.web.controllers.dataset import DataSet
 from odoo.http import request, db_list, serialize_exception
-from odoo.tools.translate import _
 
 from werkzeug.exceptions import BadRequest, NotFound, SecurityError
 from werkzeug.urls import url_unquote
@@ -28,45 +28,55 @@ SECURITY_GROUP = 'printnode_base.printnode_security_group_user'
 SUPPORTED_REPORT_TYPES = [
     'qweb-pdf',
     'qweb-text',
-    'py3o',
+    'qweb-py3o',
 ]
 
 
 class DataSetProxy(DataSet):
 
-    def _call_kw(self, model, method, args, kwargs):
-        """ Overriding the default method to add custom logic with action buttons, etc.
-        """
+    @http.route(
+        [
+            '/web/dataset/call_button',
+            '/web/dataset/call_button/<path:path>',
+        ],
+        type='jsonrpc',
+        auth="user",
+        readonly=DataSet._call_kw_readonly
+    )
+    def call_button(self, model, method, args, kwargs, path=None):
         # We have to skip this method due to an issue with this method
         # (action_replenish uses filter by date and will break if transaction will be opened earlier
         # than value in variable "now"). Check ticket VENSUP-3536 for more details
         if method == 'action_replenish':
-            return super(DataSetProxy, self)._call_kw(model, method, args, kwargs)
+            return super(DataSetProxy, self).call_button(model, method, args, kwargs, path)
 
         user = request.env.user
         if not user.has_group(SECURITY_GROUP) \
                 or not request.env.company.printnode_enabled or not user.printnode_enabled:
-            return super(DataSetProxy, self)._call_kw(model, method, args, kwargs)
+            return super(DataSetProxy, self).call_button(model, method, args, kwargs, path)
 
         # We have a list of methods which will never be handled in 'printnode.action.button'.
         # In that case just will be returned a 'super method'.
         methods_list = request.env['ir.config_parameter'].sudo() \
             .get_param('printnode_base.skip_methods', '').split(',')
+
         # In addition, we need to choose only 'call_kw_multi' sub method, so
         # let's filter this like in standard Odoo function 'def call_kw()'.
-        method_ = getattr(type(request.env[model]), method)
         api_ = getattr(method, '_api', None)
         if (method in methods_list) or (api_ in ('model', 'model_create')):
-            return super(DataSetProxy, self)._call_kw(model, method, args, kwargs)
+            return super(DataSetProxy, self).call_button(model, method, args, kwargs, path)
+
+        ActionButton = request.env['printnode.action.button']
+        post_action_ids, pre_action_ids = \
+            ActionButton._get_post_pre_action_button_ids(model, method)
+
+        if not post_action_ids and not pre_action_ids:
+            return super(DataSetProxy, self).call_button(model, method, args, kwargs, path)
 
         # Get context parameters with keys starting with 'printnode_' (workstation devices)
         printnode_context = dict(filter(
             lambda i: i[0].startswith('printnode_'), kwargs.get('context', {}).items()
         ))
-
-        ActionButton = request.env['printnode.action.button']
-        post_action_ids, pre_action_ids = \
-            ActionButton._get_post_pre_action_button_ids(model, method)
 
         report_object_ids = args[0] if args else None
 
@@ -74,14 +84,15 @@ class DataSetProxy(DataSet):
             print_reports(report_object_ids)
 
         # We need to update variables 'post_action_ids' and 'printnode_object_id' from context.
-        args_, kwargs_ = deepcopy(args[1:]), deepcopy(kwargs)
-        context_, *_rest = api.split_context(method_, args_, kwargs_)
+        kwargs_ = deepcopy(kwargs)
+        context_ = kwargs_.pop('context', None) or {}
+
         if isinstance(context_, dict):
             post_action_ids += context_.get('printnode_action_ids', [])
             object_ids_from_kwargs = context_.get('report_object_ids')
             report_object_ids = object_ids_from_kwargs or report_object_ids
 
-        result = super(DataSetProxy, self)._call_kw(model, method, args, kwargs)
+        result = super(DataSetProxy, self).call_button(model, method, args, kwargs, path)
 
         # If we had gotten 'result' as another one wizard or something - we need to save our
         # variables 'printnode_action_ids' and 'report_object_ids' in context and do printing
@@ -184,7 +195,9 @@ class ReportControllerProxy(ReportController):
         if not printer_id:
             # Update context (there can be information about workstation devices)
             new_context = dict(request.env.context)
-            context = json.loads(context or '{}')
+            # converting context from string to dict
+            if isinstance(context, str):
+                context = json.loads(context or '{}')
             new_context.update(context)
 
             printer_id, printer_bin = user.with_context(**new_context).get_report_printer(report.id)
@@ -234,6 +247,8 @@ class ReportControllerProxy(ReportController):
         along with a message to the user indicating the name of the report and the printer to which
         it was sent.
         """
+        context = json.loads(context or '{}')
+
         print_data = self._check_direct_print(data, context)
         if not print_data['can_print']:
             return json.dumps({
@@ -248,7 +263,8 @@ class ReportControllerProxy(ReportController):
         printer_id = print_data['printer_id']
 
         # Finally if we reached this place - we can send report to printer.
-        standard_response = self.report_download(data, context)
+        # And convert the context from dict to string
+        standard_response = self.report_download(data, json.dumps(context))
 
         # If we do not have Content-Disposition headed, than no file-name
         # was generated (maybe error)
@@ -381,7 +397,7 @@ class DPCJobContentController(http.Controller):
 
         # Validate expiration
         if datetime.utcnow() > datetime.fromtimestamp(int(expiration_timestamp)):
-            raise SecurityError('The URL has expired')
+            raise SecurityError('URL has expired')
 
         # Validate signature
         secret_key = request.env['ir.config_parameter'].sudo().get_param('database.secret')

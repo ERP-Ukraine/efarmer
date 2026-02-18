@@ -11,13 +11,14 @@ import requests
 from datetime import datetime, timedelta
 from urllib.parse import quote_plus, urlencode
 
-from odoo import api, fields, models, registry, SUPERUSER_ID, _
+from odoo import api, fields, models, SUPERUSER_ID, _
+from odoo.modules.registry import Registry
 from odoo.exceptions import UserError
 
 from .constants import Constants
 
-
 _logger = logging.getLogger(__name__)
+
 
 REQUIRED_REPORT_KEYS = ['title', 'type', 'size']
 
@@ -88,6 +89,11 @@ class PrintNodePrinter(models.Model):
         required=False,
     )
 
+    default_paper_id = fields.Many2one(
+        'printnode.paper',
+        string='Default Paper'
+    )
+
     account_id = fields.Many2one(
         'printnode.account',
         string='Account',
@@ -105,13 +111,10 @@ class PrintNodePrinter(models.Model):
         compute='_compute_print_rules',
     )
 
-    _sql_constraints = [
-        (
-            'printnode_id',
-            'unique(printnode_id)',
-            'Printer ID should be unique.'
-        ),
-    ]
+    _unique_printnode_id = models.Constraint(
+        'UNIQUE(printnode_id)',
+        'Printer ID should be unique.',
+    )
 
     @api.depends('status', 'computer_id.status')
     def _compute_printer_status(self):
@@ -149,12 +152,10 @@ class PrintNodePrinter(models.Model):
             else:
                 printer.error, printer.notes = _ok(_('Configuration is valid.'))
 
-    def name_get(self):
-        result = []
+    @api.depends('name', 'computer_id.name')
+    def _compute_display_name(self):
         for printer in self:
-            name = f'{printer.name} ({printer.computer_id.name})'
-            result.append((printer.id, name))
-        return result
+            printer.display_name = f'{printer.name} ({printer.computer_id.name})'
 
     def printnode_print(self, report_id, objects, copies=1, options=None, data=None):
         """
@@ -168,7 +169,8 @@ class PrintNodePrinter(models.Model):
             options = {}
 
         ids = objects and objects.mapped('id') or None
-        content, content_type = report_id._render(ids, data=data)
+        content, content_type = report_id._render(
+            report_ref=report_id.xml_id, res_ids=ids, data=data)
 
         data = {
             'printerId': self.printnode_id,
@@ -362,7 +364,7 @@ class PrintNodePrinter(models.Model):
             # The new cursor is used to create a printjob outside of the current transaction.
             # This provides access to the created print job (for example, through the controller)
             # immediately, without waiting for the current transaction to complete.
-            db_registry = registry(self.env.cr.dbname)
+            db_registry = Registry(self.env.cr.dbname)
             with db_registry.cursor() as cr:
                 try:
                     env = api.Environment(cr, SUPERUSER_ID, {})
@@ -429,7 +431,7 @@ class PrintNodePrinter(models.Model):
             self.printnode_logger(Constants.REQUESTS_LOG_TYPE, f'POST response: {job_id}')
 
             if self.env.company.secure_printing:
-                db_registry = registry(self.env.cr.dbname)
+                db_registry = Registry(self.env.cr.dbname)
 
                 with db_registry.cursor() as cr:
                     try:
@@ -446,7 +448,6 @@ class PrintNodePrinter(models.Model):
                             f'Set "{job_id}" to "printnode_id" field for printjob_id:{printjob_id}'
                             'in "secure printing" mode.',
                         )
-
             else:
                 printjob = self.env['printnode.printjob'].sudo().search([('id', '=', printjob_id)])
                 printjob.sudo().write({'printnode_id': str(job_id)})
@@ -469,8 +470,8 @@ class PrintNodePrinter(models.Model):
 
     def _format_title(self, objects, copies):
         if len(objects) == 1:
-            return '{}_{}'.format(objects.display_name, copies)
-        return '{}_{}_{}'.format(objects._description, len(objects), copies)
+            return f'{objects.display_name}_{copies}'
+        return f'{objects._description}_{len(objects)}_{copies}'
 
     def _get_source_name(self):
         full_version = self.env['ir.module.module'].sudo().search(
@@ -490,6 +491,10 @@ class PrintNodePrinter(models.Model):
             options.update({'fit_to_page': False})
         if params:
             options.update(params)
+        if 'bin' not in options and self.default_printer_bin:
+            options.update({'bin': self.default_printer_bin.name})
+        if 'paper' not in options and self.default_paper_id:
+            options.update({'paper': self.default_paper_id.name})
 
         return options
 

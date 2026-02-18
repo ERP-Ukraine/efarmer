@@ -17,22 +17,23 @@
     </record>
 
     <record id="product_feature_value_tree_view" model="ir.ui.view">
-        <field name="name">product.feature.value.tree</field>
+        <field name="name">product.feature.value.list</field>
         <field name="model">product.feature.value</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="feature_id"/>
-            </tree>
+            </list>
         </field>
     </record>
 
     <record id="product_feature_value_action" model="ir.actions.act_window">
         <field name="name">Product Feature Values</field>
+        <field name="path">eci-product-feature-values</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">product.feature.value</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="view_id" eval="False"/>
     </record>
 

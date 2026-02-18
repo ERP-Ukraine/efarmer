@@ -6,9 +6,9 @@
         <field name="model">message.wizard</field>
         <field name="arch" type="xml">
             <form>
-                <field name="message" readonly="True"/>
+                <field name="message" readonly="1"/>
                 <footer>
-                    <button name="action_close" string="Ok" type="object" default_focus="1" class="oe_highlight"/>
+                    <button name="action_close" string="Close" type="object" default_focus="1" class="oe_highlight"/>
                 </footer>
             </form>
         </field>
@@ -19,10 +19,22 @@
         <field name="model">message.wizard</field>
         <field name="arch" type="xml">
             <form>
-                <field name="message" readonly="True" invisible="1"/>
-                <field name="message_html" readonly="True"/>
+                <field name="export_html" readonly="1"/>
                 <footer>
-                    <button name="action_close" string="Ok" type="object" default_focus="1" class="oe_highlight"/>
+                    <button name="action_close" string="Close" type="object" default_focus="1" class="oe_highlight"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="integration_message_wizard_json_form" model="ir.ui.view">
+        <field name="name">integration.message.wizard.json.form</field>
+        <field name="model">message.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="export_json" widget="code" options="{'mode': 'python'}" readonly="1"/>
+                <footer>
+                    <button name="action_close" string="Close" type="object" default_focus="1" class="oe_highlight"/>
                 </footer>
             </form>
         </field>
@@ -33,11 +45,11 @@
         <field name="model">message.wizard</field>
         <field name="arch" type="xml">
             <form>
-                <field name="message" readonly="True" invisible="1"/>
-                <field name="message_html" readonly="True"/>
+                <field name="message" readonly="1" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                <field name="export_html" readonly="1"/>
                 <footer>
-                    <button name="action_close" string="Ok" type="object" default_focus="1" class="oe_highlight"/>
-                    <button name="download_html" string="Download Html" type="object"/>
+                    <button name="action_close" string="Close" type="object" default_focus="1" class="oe_highlight"/>
+                    <button name="download_pdf" string="PDF" type="object"/>
                 </footer>
             </form>
         </field>
@@ -48,8 +60,8 @@
         <field name="model">message.wizard</field>
         <field name="arch" type="xml">
             <form>
-                <field name="message" invisible="1"/>
-                <field name="message_html" readonly="True"/>
+                <field name="message" readonly="1" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                <field name="export_html" readonly="1"/>
                 <footer>
                     <button name="action_close" string="Close" type="object" default_focus="0" class="oe_highlight"/>
                     <button name="open_mapping" string="Open" type="object" default_focus="1" class="oe_highlight"/>

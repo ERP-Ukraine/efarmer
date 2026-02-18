@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="integration_auth_shopify_form_authentication" model="ir.ui.view">
+        <field name="name">integration.auth.shopify.form.authentication</field>
+        <field name="model">integration.auth.shopify</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="state"
+                        widget="statusbar"
+                        statusbar_visible="authentication,authorization"/>
+                </header>
+                <sheet string="Connection Authentication">
+                    <!-- Hidden fields -->
+                    <field name="integration_id" readonly="1" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                    <field name="access_granted" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                    <field name="error_message" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                    <field name="error_traceback" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                    <field name="authentication_redirected" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+
+                    <!-- Authentication Method Info -->
+                    <div class="alert alert-info" role="alert">
+                        <h5 class="mb-2">
+                            <i class="fa fa-info-circle me-2" title="Information"/> Authentication Method
+                        </h5>
+                        <p class="mb-3">
+                            <strong>We recommend using OAuth</strong> for new integrations.
+                            Shopify has deprecated legacy custom apps and replaced them with a new approach
+                            using their Dev Dashboard. We maintain support for legacy applications
+                            to ensure existing customers can continue using their current setup without reconnecting.
+                            However, for new integrations or when possible, we strongly recommend using
+                            the OAuth option.
+                        </p>
+                        <p class="mb-4">
+                            <a href="https://www.youtube.com/watch?v=mqtw3jH55m0" target="_blank" class="text-decoration-underline">
+                                Watch video tutorial: How to create application and get credentials
+                            </a>
+                        </p>
+                        <group class="mb-0">
+                            <field name="use_oauth" widget="boolean_toggle" readonly="access_granted"/>
+                        </group>
+                    </div>
+
+                    <!-- Section 1: Create Shopify App (OAuth only) -->
+                    <group class="border p-3 mb-4" invisible="not use_oauth">
+                        <h5 class="mb-3" colspan="2">
+                            <i class="fa fa-cog me-2"/> Step 1: Create Shopify App
+                        </h5>
+                        <p class="text-muted mb-3" colspan="2">
+                            Use these values when creating your app in the Shopify Dev Dashboard.
+                            Copy each value to use in your app configuration.
+                        </p>
+                        <field name="application_name" widget="CopyClipboardChar"/>
+                        <field name="access_scopes" widget="CopyClipboardChar"/>
+                        <field name="redirect_url" widget="CopyClipboardChar"/>
+                    </group>
+
+                    <!-- Section 2: Enter Credentials -->
+                    <group class="border p-3 mb-4">
+                        <h5 class="mb-3" colspan="2" invisible="use_oauth">
+                            <i class="fa fa-key me-2"/> Step 1: Enter Credentials
+                        </h5>
+                        <h5 class="mb-3" colspan="2" invisible="not use_oauth">
+                            <i class="fa fa-key me-2"/> Step 2: Enter Credentials
+                        </h5>
+                        <field name="url" required="1" readonly="access_granted"/>
+
+                        <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                        <div class="text-muted mt-1 mb-3 small">
+                            Enter your store&apos;s name found in your Shopify admin URL.
+                            For example, if your URL is <i>https://admin.shopify.com/store/awesome-shop</i>,
+                            enter <i>awesome-shop</i> here.
+                        </div>
+
+                        <field name="client_id" required="1" invisible="not use_oauth" readonly="access_granted"/>
+                        <field name="key" required="1" invisible="use_oauth" readonly="access_granted"/>
+                        <field name="secret_key" required="1" password="True" readonly="access_granted"/>
+                    </group>
+
+                    <!-- Section 3: Review Connection Status -->
+                    <div class="border p-3 mb-4">
+                        <h5 class="mb-3" invisible="use_oauth">
+                            <i class="fa fa-check-circle me-2"/> Step 2: Review Connection Status
+                        </h5>
+                        <h5 class="mb-3" invisible="not use_oauth">
+                            <i class="fa fa-check-circle me-2"/> Step 3: Review Connection Status
+                        </h5>
+
+                        <!-- Success Message -->
+                        <div class="alert alert-success" role="alert" invisible="not access_granted or error_message">
+                            <p class="mb-1"><strong>Authentication Successful!</strong></p>
+                            <p class="mb-0">
+                                Your Shopify connection has been established successfully.
+                                You can now proceed to check access permissions or test the connection.
+                            </p>
+                        </div>
+
+                        <!-- OAuth Redirect Warning -->
+                        <div class="alert alert-warning" role="alert"
+                             invisible="not authentication_redirected or access_granted or error_message">
+                            <i class="fa fa-exclamation-triangle me-2" title="OAuth in Progress"/>
+                            <strong>OAuth in Progress</strong> - You've been redirected to Shopify in another tab
+                            to complete authentication. This tab may now be outdated - please close it or refresh
+                            to see the latest status.
+                        </div>
+
+                        <!-- Error Message -->
+                        <div class="alert alert-danger" role="alert" invisible="not error_message">
+                            <p class="mb-2"><strong>An error occurred</strong></p>
+                            <p class="mb-2">Please review the error details below and correct your credentials if needed.</p>
+                            <p class="mb-2"><strong>Error Message:</strong></p>
+                            <p class="mb-3"><field name="error_message" nolabel="1" readonly="1" widget="text"/></p>
+                            <div class="accordion" id="errorAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <a href="#" class="accordion-button collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#errorCollapse" aria-expanded="false" aria-controls="errorCollapse">
+                                            See full traceback
+                                        </a>
+                                    </h2>
+                                    <div id="errorCollapse" class="accordion-collapse collapse" data-bs-parent="#errorAccordion">
+                                        <div class="accordion-body">
+                                            <div class="alert alert-danger o_error_detail mb-0" role="alert" invisible="not error_traceback">
+                                                <pre><field name="error_traceback" nolabel="1" readonly="1" widget="text"/></pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Badge -->
+                        <div class="mt-3">
+                            <span class="badge rounded-pill d-inline-flex align-items-center integration-api-badge-button"
+                                  invisible="not access_granted"
+                                  title="API Access Granted">
+                                <i class="fa fa-check-circle me-2" style="font-size: 1.1rem;" title="API Access Granted"/>
+                                <span>API Access Granted</span>
+                            </span>
+                            <span class="badge rounded-pill d-inline-flex align-items-center integration-api-badge-button api-access-not-granted"
+                                  invisible="access_granted or not use_oauth"
+                                  title="API Access Not Granted">
+                                <i class="fa fa-exclamation-circle me-2" style="font-size: 1.1rem;" title="API Access Not Granted"/>
+                                <span>API Access Not Granted</span>
+                            </span>
+                            <span class="badge rounded-pill d-inline-flex align-items-center integration-api-badge-button api-access-not-granted"
+                                  invisible="access_granted or use_oauth"
+                                  title="API Access Not Granted">
+                                <i class="fa fa-exclamation-circle me-2" style="font-size: 1.1rem;" title="API Access Not Granted"/>
+                                <span>API Access Not Granted</span>
+                            </span>
+                        </div>
+                    </div>
+                </sheet>
+                <footer>
+                    <!-- Main buttons -->
+                    <button name="connect_to_shopify_oauth"
+                        string="Connect to Shopify →"
+                        type="object"
+                        class="btn-primary me-4"
+                        invisible="access_granted or not use_oauth"
+                    />
+                    <button name="connect_to_ecommerce_store"
+                        string="Connect to Shopify →"
+                        type="object"
+                        class="btn-primary me-4"
+                        invisible="access_granted or use_oauth"
+                    />
+                    <button name="check_access_permissions"
+                        string="Check Access Permissions →"
+                        type="object"
+                        class="btn-primary me-4"
+                        invisible="not access_granted"
+                    />
+
+                    <!-- Secondary buttons -->
+                    <button name="test_connection"
+                        string="Test Connection"
+                        type="object"
+                        class="btn-outline-secondary"
+                        invisible="not access_granted"
+                    />
+                    <button name="reset_credentials"
+                        string="Reset Credentials"
+                        type="object"
+                        class="btn-outline-danger"
+                        invisible="not access_granted"
+                    />
+
+                    <!-- Help & Support -->
+                    <a href="https://support.ventor.tech/"
+                       role="button"
+                       target="_blank"
+                       class="btn btn-outline-info ms-auto">Help &amp; Support</a>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="integration_auth_shopify_form_authorization" model="ir.ui.view">
+        <field name="name">integration.auth.shopify.form.authorization</field>
+        <field name="model">integration.auth.shopify</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="state"
+                        widget="statusbar"
+                        statusbar_visible="authentication,authorization"/>
+                </header>
+                <sheet string="Access Permissions">
+                    <group string="Access Permissions">
+                        <field name="is_valid_access_scopes" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="use_oauth" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <div class="alert alert-info" colspan="2" role="alert" invisible="is_valid_access_scopes">
+                            Listed below permissions needed to be enabled on Shopify side, so connector will work properly.
+                            If you see some "red lines" below, then listed permission were not granted.
+                            <a href="https://help.shopify.com/en/manual/apps/private-apps" target="_blank">
+                                Here you can find document on how to grant permission.
+                            </a>
+                        </div>
+                        <field name="configuration_scope_ids" colspan="2" nolabel="1">
+                            <list create="0" edit="0" delete="0" editable="bottom" decoration-danger="is_missed == True" decoration-success="is_missed == False">
+                                <field name="integration_auth_shopify_id" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                                <field name="name" readonly="1"/>
+                                <field name="is_missed" readonly="1"/>
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="open_form_authentication"
+                        string="← Back"
+                        type="object"
+                        class="btn-outline-primary"
+                    />
+                    <button name="continue_to_configuration"
+                        string="Continue to Configuration →"
+                        type="object"
+                        class="btn-primary"
+                        invisible="not is_valid_access_scopes"
+                    />
+                    <button name="check_access_permissions"
+                        string="Recheck Access Permissions"
+                        type="object"
+                        class="btn-outline-primary ms-auto"
+                        invisible="is_valid_access_scopes"
+                    />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_view_shopify_integration_authentication" model="ir.actions.act_window">
+        <field name="name">Connect to Shopify</field>
+        <field name="path">eci-shopify-authentication</field>
+        <field name="res_model">integration.auth.shopify</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="integration_shopify.integration_auth_shopify_form_authentication"/>
+        <field name="target">new</field>
+    </record>
+
+    <record id="action_view_shopify_integration_authorization" model="ir.actions.act_window">
+        <field name="name">Check Shopify Permissions</field>
+        <field name="path">eci-shopify-authorization</field>
+        <field name="res_model">integration.auth.shopify</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="integration_shopify.integration_auth_shopify_form_authorization"/>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

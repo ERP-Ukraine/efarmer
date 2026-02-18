@@ -23,6 +23,7 @@ class SaleOrderSubStatus(models.Model):
     )
 
     integration_id = fields.Many2one(
+        string='E-Commerce Store',
         comodel_name='sale.integration',
         ondelete='cascade',
     )

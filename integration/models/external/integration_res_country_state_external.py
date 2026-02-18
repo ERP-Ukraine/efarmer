@@ -28,7 +28,7 @@ class IntegrationResCountryStateExternal(models.Model):
             ('external_reference', '=', country_code),
         ], limit=1)
         if external_country:
-            odoo_country = self.env['res.country']\
+            odoo_country = self.env['res.country'] \
                 .from_external(external_country.integration_id,
                                external_country.code,
                                raise_error=False

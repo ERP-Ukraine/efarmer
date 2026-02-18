@@ -10,11 +10,13 @@ class IntegrationProductAttributeMapping(models.Model):
     _mapping_fields = ('attribute_id', 'external_attribute_id')
 
     attribute_id = fields.Many2one(
+        string='Odoo Product Attribute',
         comodel_name='product.attribute',
         ondelete='cascade',
     )
 
     external_attribute_id = fields.Many2one(
+        string='External Product Attribute',
         comodel_name='integration.product.attribute.external',
         required=True,
         ondelete='cascade',

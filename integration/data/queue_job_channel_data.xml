@@ -4,12 +4,14 @@
 
         <record id="channel_product_template" model="queue.job.channel">
             <field name="name">product_template</field>
-            <field name="parent_id" ref="queue_job.channel_root" />
+            <!-- TODO: Provide compatibility with Job Queue module -->
+            <field name="parent_id" ref="integration_queue_job.channel_root" />
         </record>
 
         <record id="channel_sale_order" model="queue.job.channel">
             <field name="name">sale_order</field>
-            <field name="parent_id" ref="queue_job.channel_root" />
+            <!-- TODO: Provide compatibility with Job Queue module -->
+            <field name="parent_id" ref="integration_queue_job.channel_root" />
         </record>
 
     </data>

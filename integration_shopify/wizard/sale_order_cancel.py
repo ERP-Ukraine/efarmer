@@ -47,37 +47,31 @@ class SaleOrderCancel(models.TransientModel):
         relation='cancel_order_external_sub_state_relation',
         column1='wizard_id',
         column2='sub_state_external_id',
-        string='e-Commerce Sub Status',
+        string='E-Commerce Store Order Status(es)',
     )
 
     do_cancel_order_fulfillments = fields.Boolean(
-        string='Cancel e-Commerce Fulfillments',
+        string='Cancel E-Commerce Fulfillments',
     )
 
     @property
     def ecommerce_active_fulfillments(self):
         return self.order_id.external_fulfillment_ids.filtered(lambda x: x.external_status == 'success')
 
-    def open_integration_order(self):
-        admin_url = self.integration_id.adapter._client._session.site.rsplit('/api', maxsplit=1)[0]
-
-        return {
-            'type': 'ir.actions.act_url',
-            'url': f'{admin_url}/orders/{self.integration_input_file.name}',
-            'target': 'new',
-        }
+    def action_open_integration_order(self):
+        return self.order_id.action_open_store_order()
 
     def _check_integration_order_status(self):
-        if not self.integration_id.is_shopify():
+        if not self.integration_id.is_integration_shopify:
             return super()._check_integration_order_status()
 
         # 1.Get actual fulfillments
         self.order_id\
-            .with_context(skip_integration_order_post_action=True)\
+            .with_context(skip_integration_order_post_action=True) \
             .action_refresh_data_from_external(
                 data={
                     'order_risks': [],
-                    'order_transactions': [],
+                    'payment_transactions': [],
                 },
             )
 
@@ -87,6 +81,9 @@ class SaleOrderCancel(models.TransientModel):
 
         # 2. Get actual sub-statuses
         input_file = self.integration_input_file
+        if not input_file:
+            return self.with_context(**ctx)
+
         input_file.mark_for_update()
         order_data, __ = input_file.update_current_pipeline()
 
@@ -113,18 +110,20 @@ class SaleOrderCancel(models.TransientModel):
         return self.with_context(**ctx)
 
     def _action_cancel_integration(self):
-        if not self.integration_id.is_shopify():
+        if not self.integration_id.is_integration_shopify:
             return super()._action_cancel_integration()
 
-        # 1. Cancel order fulfillments
+        # 1. Check input file
+        input_file = self.integration_input_file
+        if not input_file:
+            return True, 'Cannot cancel in Shopify: external record is missing.'
+
+        # 2. Cancel order fulfillments
         if self.do_cancel_order_fulfillments:
             for rec in self.ecommerce_active_fulfillments:
-                res = rec.cancel_in_ecommerce_system()
+                rec.cancel_in_ecommerce_system()
 
-                if res.get('userErrors'):
-                    return False, str(res['userErrors'][0]['message'])
-
-        # 2. Cancel Shopify order
+        # 3. Cancel Shopify order
         if not self.env.context.get('cancel_integration_order_done'):
             params = {
                 'reason': self.reason_type,
@@ -133,9 +132,6 @@ class SaleOrderCancel(models.TransientModel):
                 'restock': ('false', 'true')[self.do_restock],
                 'notify_cutomer': ('false', 'true')[self.do_notify_customer],
             }
-            res = self.integration_input_file.cancel_order_in_ecommerce_system(params)
-
-            if res.get('orderCancelUserErrors'):
-                return False, str(res['orderCancelUserErrors'][0]['message'])
+            input_file.cancel_order_in_ecommerce_system(params)
 
         return True, ''

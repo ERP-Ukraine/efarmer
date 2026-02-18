@@ -334,7 +334,7 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
 
         with self.cr.savepoint(), patch.object(type(self.account), '_send_printnode_request') as \
                 mock_account_send_printnode_request:
-            def side_effect_send_printnode_request(uri: str):
+            def side_effect_send_printnode_request(uri: str, params=None):
                 if uri == 'computers':
                     return test_computers
 
@@ -392,7 +392,7 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
 
         with self.cr.savepoint(), patch.object(type(self.account), '_send_printnode_request') as \
                 mock_send_printnode_request:
-            def side_effect_send_printnode_request(uri: str):
+            def side_effect_send_printnode_request(uri: str, params=None):
                 if uri == 'computers':
                     return TEST_COMPUTERS_FROM_PRINTNODE
 
@@ -565,7 +565,7 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
 
         with self.cr.savepoint(), patch.object(type(self.account), '_send_printnode_request', ) \
                 as mock_send_printnode_request:
-            def side_effect_send_printnode_request(uri: str):
+            def side_effect_send_printnode_request(uri: str, params=None):
                 vals = {
                     'billing/statistics': PRINTNODE_STATISTICS,
                     'billing/plan': PRINTNODE_BILLING_PLAN

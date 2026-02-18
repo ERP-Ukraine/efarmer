@@ -7,10 +7,10 @@
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
             <notebook position="inside">
-                <page string="e-Commerce Integration" name="accounts_integration" attrs="{'invisible': ['|',('integration_id', '=', False),('move_type', 'not in', ['out_invoice','out_refund'])]}" >
+                <page string="E-Commerce Integration" name="accounts_integration" invisible="not integration_id or move_type not in ['out_invoice','out_refund']" >
                     <group>
-                        <field name="integration_id" />
-                        <field name="external_payment_method_id" />
+                        <field name="integration_id"/>
+                        <field name="external_payment_method_id"/>
                     </group>
                 </page>
             </notebook>

@@ -1,16 +1,26 @@
-# Copyright 2021 VentorTech OU
+# Copyright 2022 VentorTech OU
 # See LICENSE file for full copyright and licensing details.
 
 {
-    'name': 'ZPL Label Designer',
+    'name': 'ZPL Label Designer PRO',
     'summary': """
-        Design and publish ZPL labels with easy to use interface.
+        No-code ZPL label designer for Odoo. Design and print labels for products,
+        inventory, sales, manufacturing, and barcode operations. Supports one-to-many,
+        many-to-many fields, dynamic content, and custom formats. Works with Zebra and
+        other ZPL-compatible printers. Integrates with Odoo Direct Print PRO for automated printing
+        without IoT Box.
+        Keywords: ZPL Label Designer | Zebra Label Odoo | Thermal Label Designer |
+        Odoo Print Labels | ZPL Editor Odoo | Barcode Label Print | Product Labels Odoo |
+        Print from Odoo | Odoo Label Creator |Odoo Zebra Printer | ZPL Template Odoo |
+        Odoo Manufacturing Labels | Inventory Labeling Odoo | No-Code Label Design |
+        Dynamic ZPL Labels | Custom Labels in Odoo | Direct Print Integration | ZPL Print Odoo |
+        Label Generator for Odoo | Odoo Warehouse Labels
     """,
-    'version': '15.0.1.3.1',
+    'version': '19.0.1.3.4',
     'category': 'Tools',
     "images": ["static/description/images/banner.gif"],
     'author': 'VentorTech',
-    'website': 'https://ventor.tech',
+    'website': 'https://ecosystem.ventor.tech/product/zpl-label-designer-one-time-payment/',
     'support': 'support@ventor.tech',
     'license': 'OPL-1',
     'live_test_url': 'https://odoo.ventor.tech/',
@@ -31,11 +41,13 @@
         'views/label_designer_view.xml',
         'views/res_config_settings_views.xml',
         'wizard/product_label_layout.xml',
+        'wizard/stock_lot_label_layout.xml',
     ],
     'assets': {
         'web.assets_backend': [
             'zpl_label_designer/static/src/css/**/*',
             'zpl_label_designer/static/src/js/**/*',
+            'zpl_label_designer/static/src/**/*',
         ],
     },
     'installable': True,

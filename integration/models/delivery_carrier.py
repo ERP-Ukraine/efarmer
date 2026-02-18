@@ -10,3 +10,8 @@ class DeliveryCarrier(models.Model):
 
     def get_external_carrier_code(self, integration):
         return self.to_external(integration)
+
+    def _get_carrier_by_external_name(self, integration, external_name):
+        return self.env['delivery.carrier'].search([
+            ('name', '=', external_name),
+        ], limit=1)

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="integration_product_pricelist_batch_view_list" model="ir.ui.view">
+            <field name="name">integration.product.pricelist.batch.view.list</field>
+            <field name="model">integration.product.pricelist.batch</field>
+            <field name="arch" type="xml">
+                <list editable="bottom" create="0">
+                    <field name="id" readonly="1"/>
+                    <field name="integration_id" readonly="1"/>
+                    <field name="catalog_id" readonly="1"/>
+                    <field name="pricelist_id" readonly="1"/>
+                    <field name="pricelist_compare_at_id" readonly="1"/>
+                    <field name="job_id" readonly="1"/>
+                    <field name="state" readonly="1"/>
+                    <field name="batch" readonly="1"/>
+                    <field name="create_date" string="Created At" optional="hide" readonly="1"/>
+                    <button name="action_active_prices_report"
+                            string="Report"
+                            type="object"
+                            class="btn-outline-primary"
+                            icon="fa-list"
+                    />
+                    <button name="create_job"
+                            string="Send"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-upload"
+                    />
+                    <button name="action_open_job"
+                            string="Open Job"
+                            type="object"
+                            class="btn-outline-primary"
+                            icon="fa-eye"
+                            invisible="not job_id"
+                    />
+                </list>
+            </field>
+        </record>
+
+        <record id="integration_product_pricelist_batch_view_form" model="ir.ui.view">
+            <field name="name">integration.product.pricelist.batch.view.form</field>
+            <field name="model">integration.product.pricelist.batch</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="id"/>
+                            <field name="integration_id" readonly="1"/>
+                            <field name="catalog_external_line_id" readonly="1"/>
+                            <field name="batch" readonly="1"/>
+                            <field name="state" readonly="1"/>
+                            <field name="prices_data" readonly="1"/>
+                            <field name="publication_data" readonly="1"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="integration_product_pricelist_batch_action" model="ir.actions.act_window">
+            <field name="name">Pricelist Batches</field>
+            <field name="path">eci-pricelist-batches</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">integration.product.pricelist.batch</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="integration_product_pricelist_batch_view_list"/>
+        </record>
+
+        <record id="integration_product_pricelist_batch_action_report" model="ir.actions.server">
+            <field name="name">Report</field>
+            <field name="model_id" ref="integration_shopify.model_integration_product_pricelist_batch"/>
+            <field name="binding_model_id" ref="integration_shopify.model_integration_product_pricelist_batch"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">action = records.action_active_prices_report()</field>
+        </record>
+
+    </data>
+</odoo>

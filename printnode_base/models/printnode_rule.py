@@ -58,9 +58,10 @@ class PrintNodeRule(models.Model):
         compute='_compute_print_rules',
     )
 
-    _sql_constraints = [
-        ('rule_id', 'unique(user_id,report_id)', 'Rule should be unique.'),
-    ]
+    _unique_user_report = models.Constraint(
+        'UNIQUE(user_id, report_id)',
+        'Rule should be unique.',
+    )
 
     @api.depends('report_id', 'printer_id')
     def _compute_print_rules(self):

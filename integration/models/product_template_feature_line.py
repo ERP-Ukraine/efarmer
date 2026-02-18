@@ -31,4 +31,7 @@ class ProductTemplateFeatureLine(models.Model):
     def check_matching_feature_id(self):
         for record in self:
             if record.feature_id != record.feature_value_id.feature_id:
-                raise ValidationError(_('Feature Value must match Feature'))
+                raise ValidationError(_(
+                    'The selected Feature Value ("%s") does not belong to the Feature ("%s"). Please select a '
+                    'matching Feature Value.'
+                ) % (record.feature_value_id.name, record.feature_id.name))

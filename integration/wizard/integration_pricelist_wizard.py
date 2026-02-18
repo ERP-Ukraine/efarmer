@@ -9,7 +9,7 @@ class IntegrationPricelistWizard(models.TransientModel):
 
     integration_id = fields.Many2one(
         comodel_name='sale.integration',
-        string='Integration',
+        string='E-Commerce Store',
         default=lambda self: self.integration_ctx_id,
         required=True,
     )
@@ -24,7 +24,7 @@ class IntegrationPricelistWizard(models.TransientModel):
 
     @property
     def integration_ctx_id(self):
-        return self._context.get('active_id')
+        return self.env.context.get('active_id')
 
     def run_import_special_prices(self):
         mappings = self.pricelist_mapping_ids.filtered(lambda x: x.pricelist_id)

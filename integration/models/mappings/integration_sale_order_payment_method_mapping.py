@@ -10,19 +10,18 @@ class IntegrationSaleOrderPaymentMethodMapping(models.Model):
     _mapping_fields = ('payment_method_id', 'external_payment_method_id')
 
     payment_method_id = fields.Many2one(
+        string='Odoo Payment Method',
         comodel_name='sale.order.payment.method',
         ondelete='cascade',
     )
     external_payment_method_id = fields.Many2one(
+        string='External Payment Method',
         comodel_name='integration.sale.order.payment.method.external',
         required=True,
         ondelete='cascade',
     )
 
-    _sql_constraints = [
-        (
-            'uniq_mapping',
-            'unique(integration_id, external_payment_method_id)',
-            'Payment methods mapping should be unique per integration'
-        ),
-    ]
+    _uniq_mapping = models.Constraint(
+        'unique(integration_id, external_payment_method_id)',
+        'Payment methods mapping should be unique per integration',
+    )

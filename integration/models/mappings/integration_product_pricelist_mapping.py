@@ -10,13 +10,13 @@ class IntegrationProductPricelistMapping(models.Model):
     _mapping_fields = ('pricelist_id', 'external_pricelist_id')
 
     pricelist_id = fields.Many2one(
-        comodel_name='product.pricelist',
         string='Odoo Pricelist',
+        comodel_name='product.pricelist',
         ondelete='cascade',
     )
     external_pricelist_id = fields.Many2one(
-        comodel_name='integration.product.pricelist.external',
         string='External Pricelist',
+        comodel_name='integration.product.pricelist.external',
         ondelete='cascade',
         required=True,
     )
@@ -26,9 +26,13 @@ class IntegrationProductPricelistMapping(models.Model):
         external = self.external_pricelist_id
         job_kwargs = external._job_kwargs_import_special_prices(self.pricelist_id)
 
-        job = external.with_context(company_id=self.integration_id.company_id.id)\
+        context = {
+            'company_id': self.integration_id.company_id.id,
+            'job_integration_id': self.integration_id.id,
+            'job_integration_job_type': 'pricelist',
+        }
+        external.with_context(**context) \
             .with_delay(**job_kwargs).import_special_prices_external()
-        external.job_log(job)
 
         return {
             'type': 'ir.actions.client',

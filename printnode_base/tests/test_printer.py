@@ -43,7 +43,7 @@ class TestPrintNodePrinter(TestPrintNodeCommon):
 
         name = f'{self.printer.name} ({self.printer.computer_id.name})'
         test_composite_printer_name = [(self.printer.id, name), ]
-        composite_printer_name_from_method = self.printer.name_get()
+        composite_printer_name_from_method = [(self.printer.id, self.printer.display_name), ]
         self.assertEqual(
             test_composite_printer_name,
             composite_printer_name_from_method,
@@ -84,7 +84,7 @@ class TestPrintNodePrinter(TestPrintNodeCommon):
         Test for the correct composition source name with correct latest version
         """
         module = self.env['ir.module.module'].search([('name', '=', 'printnode_base')])
-        module.latest_version = '15.0.5.5.5'
+        module.latest_version = '16.0.5.5.5'
 
         self.assertEqual(self.printer._get_source_name(), 'Odoo Direct Print PRO 5.5.5')
 
@@ -216,7 +216,8 @@ class TestPrintNodePrinter(TestPrintNodeCommon):
         """
 
         ids = self.test_sale_order.mapped('id')
-        content, content_type = self.so_report._render(ids)
+        content, content_type = self.so_report._render(
+            report_ref=self.so_report.xml_id, res_ids=ids, data=None)
 
         params = {}
         print_data = {

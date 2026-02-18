@@ -36,3 +36,11 @@ class PrintNodeScenarioMixin(models.AbstractModel):
                 return False
 
             raise err
+
+    def change_dictionary_keys_type_to_string(self, dct):
+        """Change dictionary keys type to string
+        """
+        new_dict = {}
+        for i in dct:
+            new_dict[str(i)] = dct[i]
+        return new_dict

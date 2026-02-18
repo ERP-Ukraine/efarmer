@@ -1,6 +1,8 @@
 # See LICENSE file for full copyright and licensing details.
 
-from odoo import models, fields, _
+from collections import defaultdict
+
+from odoo import api, models, fields, _
 from odoo.exceptions import UserError, ValidationError
 
 from ..tools import IS_FALSE
@@ -16,6 +18,11 @@ class ProductPricelist(models.Model):
     _inherit = ['product.pricelist', 'integration.model.mixin']
     _internal_reference_field = 'name'
 
+    currency_code = fields.Char(
+        related='currency_id.name',
+        string='Currency Code',
+    )
+
     def trigger_force_export(self):
         price_mapping_ids = self.env['integration.product.pricelist.mapping'].search([
             ('pricelist_id', 'in', self.ids),
@@ -29,11 +36,16 @@ class ProductPricelist(models.Model):
             pricelist_ids = map_ids.mapped('pricelist_id')
 
             job_kwargs = integration._job_kwargs_prepare_specific_prices(pricelist_ids)
-            _integration = integration.with_context(company_id=integration.company_id.id)\
-                .with_delay(**job_kwargs)
 
-            job = _integration.export_pricelists_multi(pricelist_ids=pricelist_ids.ids)
-            integration.job_log(job)
+            context = {
+                'company_id': integration.company_id.id,
+                'job_integration_id': integration.id,
+                'job_integration_job_type': 'pricelist',
+            }
+            integration \
+                .with_context(**context) \
+                .with_delay(**job_kwargs) \
+                .export_pricelists_multi(pricelist_ids=pricelist_ids.ids)
 
         return self._return_display_notification()
 
@@ -60,11 +72,11 @@ class ProductPricelist(models.Model):
             force_sync_pricelist = False
             date_point = integration.last_update_pricelist_items
             map_ids = price_mapping_ids.filtered(lambda x: x.integration_id == integration)
+            active_pricelist_ids = map_ids.mapped('pricelist_id').filtered('active').ids
 
             all_item_ids = self.env['product.pricelist.item'].search([
-                ('active', '=', True),
                 ('write_date', '>=', date_point),
-                ('pricelist_id', 'in', map_ids.mapped('pricelist_id').ids),
+                ('pricelist_id', 'in', active_pricelist_ids),
             ])
 
             # Skip previously imported items
@@ -110,10 +122,16 @@ class ProductPricelist(models.Model):
             pricelist_ids = item_ids.mapped('pricelist_id')
             job_kwargs = integration._job_kwargs_prepare_specific_prices(pricelist_ids)
 
-            job = integration.with_context(company_id=integration.company_id.id)\
-                .with_delay(**job_kwargs).export_pricelists_multi(item_ids=item_ids.ids, updating=True)
+            context = {
+                'company_id': integration.company_id.id,
+                'job_integration_id': integration.id,
+                'job_integration_job_type': 'pricelist',
+            }
+            job = integration \
+                .with_context(**context) \
+                .with_delay(**job_kwargs) \
+                .export_pricelists_multi(item_ids=item_ids.ids, updating=True)
 
-            integration.job_log(job)
             message_list.append(
                 _('%s: Find Products for Specific Prices job created: %s') % (integration.name, job)
             )
@@ -224,26 +242,36 @@ class ProductPricelist(models.Model):
                 compute_price=FIXED,
             )
         else:
-            raise ValidationError(
-                _('Unsupported pricelist configuration: %s, %s') % (product, item)
-            )
+            raise ValidationError(_(
+                'Unsupported pricelist configuration detected for product "%s".\n\n'
+                'Details of the issue:\n'
+                '- Product ID: %s\n'
+                '- Item details: %s\n\n'
+                'Please check the product and pricelist configuration and ensure that valid price or '
+                'reduction data is provided.'
+            ) % (product.display_name, product.id, item))
+
         return vals
 
     def _job_kwargs_create_pricelist_items(self, integration, external_id):
         complex_id = f'{integration.id}-{self.id}-{external_id}'
         complex_name = f'"{self.name}" (external={external_id})'
         return {
+            'priority': 18,
             'identity_key': f'create_pricelist_items-{complex_id}',
-            'description': f'{integration.name}: Create Pricelist Items for {complex_name}',
+            'description': f'{integration.name}: Create Pricelist Items in Odoo for {complex_name}',
         }
 
     @staticmethod
     def _integration_not_mapped_error():
-        return _('There is no active integrations or mapped pricelists.')
+        return _(
+            'No active integrations or mapped pricelists were found. Please ensure that an integration is '
+            'active and pricelists are correctly mapped.'
+        )
 
     @staticmethod
     def _integration_no_need_message():
-        return _('Skipped. Pricelist items for export not found.')
+        return _('Operation skipped. No pricelist items were found for export.')
 
     def _return_display_notification(self, msg=False):
         message = msg or _('Queue Jobs "Find Products for Specific Prices" were created')
@@ -262,14 +290,99 @@ class ProductPricelist(models.Model):
 class ProductPricelistItem(models.Model):
     _inherit = 'product.pricelist.item'
 
+    @property
+    def is_applied_on_product(self):
+        return self.applied_on in ('1_product', '0_product_variant')
+
+    def _get_applied_on_template(self):
+        if self.applied_on == '1_product':
+            return self.product_tmpl_id
+        elif self.applied_on == '0_product_variant':
+            return self.product_id.product_tmpl_id
+        return self.env['product.template']
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super(ProductPricelistItem, self.with_context(skip_product_export=True)) \
+            .create(vals_list)
+
+        if self.env.context.get('skip_product_export') or self.env.context.get('skip_mark_template_to_force_sync'):
+            return records
+
+        records.trigger_integration_products_export()
+
+        return records
+
+    def write(self, values):
+        res = super().write(values)
+
+        if self.env.context.get('skip_product_export') or self.env.context.get('skip_mark_template_to_force_sync'):
+            return res
+
+        self.trigger_integration_products_export()
+
+        return res
+
     def unlink(self):
         if not self.env.context.get('skip_mark_template_to_force_sync'):
             for rec in self:
                 rec._mark_template_to_force_sync()
+
+            if not self.env.context.get('skip_product_export'):
+                self.trigger_integration_products_export()
+
         return super(ProductPricelistItem, self).unlink()
+
+    def trigger_integration_products_export(self):
+        integrations = self.env['sale.integration'] \
+            .get_integrations('export_template') \
+            .filtered(lambda x: x.integration_pricelist_id or x.integration_sale_pricelist_id)
+
+        if not integrations:
+            return False
+
+        data = defaultdict(set)
+
+        # 1. Collect data dictionary
+        for rec in self:
+            if not rec.is_applied_on_product:
+                continue
+
+            template = rec._get_applied_on_template()
+            if not template.product_variant_ids or template.exclude_from_synchronization:
+                continue
+
+            template_integrations = template._get_enabled_integrations()
+
+            for integration in integrations:
+                if integration not in template_integrations:
+                    continue
+
+                pricelist_ids = [
+                    integration.integration_pricelist_id.id,
+                    integration.integration_sale_pricelist_id.id,
+                ]
+
+                if rec.pricelist_id.id in pricelist_ids:
+                    data[integration].add(template)
+
+        # 2. Process data dictionary (trigger template export)
+        for integration, template_set in data.items():
+            integration = integration.with_context(company_id=integration.company_id.id)
+
+            for template in template_set:
+                job_kwargs = integration._job_kwargs_export_template(template, False)
+                context = {
+                    'company_id': integration.company_id.id,
+                    'job_integration_id': integration.id,
+                    'job_integration_job_type': 'product',
+                    'job_template_id': template.id,
+                }
+                integration.with_context(**context).with_delay(**job_kwargs).export_template(template)
 
     def to_export_format(self, integration, res_model, raise_error=False):
         is_valid, error = self._validate_for_integration_export()
+
         if not is_valid:
             if raise_error:
                 raise ValidationError(error)
@@ -292,7 +405,6 @@ class ProductPricelistItem(models.Model):
             'min_quantity': int(self.min_quantity),
             'external_name': external_pricelist_id.name,
             'external_group_id': external_pricelist_id.code,
-            'discount_policy': pricelist_id.discount_policy,  # Currently not used
             'price': (int(), price)[self.compute_price == FIXED],
             'reduction': (int(), price)[self.compute_price in (PERCENTAGE, FORMULA)],
             'reduction_type': self._get_reduction_type_for_integration(),
@@ -349,54 +461,61 @@ class ProductPricelistItem(models.Model):
 
         return reduction_type
 
-    @staticmethod
-    def _is_tax_included_for_integration(value):
-        # Deprecated. Currently used `integration.price_including_taxes`
-        tax_mapping = dict(no_changes=True, tax_included=True, tax_excluded=False)
-        return tax_mapping[value]
-
     def _mark_template_to_force_sync(self):
-        router = {
-            '3_global': '',
-            '2_product_category': 'categ_id = %s' % self.categ_id.id,
-            '1_product': 'id = %s' % self.product_tmpl_id.id,
-            '0_product_variant': 'id = %s' % self.product_id.product_tmpl_id.id,
-        }
+        if self.is_applied_on_product:
+            template = self._get_applied_on_template()
+            if not template:
+                return False
+            condition = f'id = {template.id}'
+        elif self.applied_on == '2_product_category':
+            if not self.categ_id:
+                return False
+            condition = f'categ_id = {self.categ_id.id}'
+        elif self.applied_on == '3_global':
+            condition = ''
+        else:
+            return False
 
-        condition = router.get(self.applied_on, False)
         query = 'UPDATE product_template SET to_force_sync_pricelist = true'
-
-        if condition and isinstance(condition, str):
+        if condition:
             query = f'{query} WHERE {condition}'
 
         self.env.cr.execute(query)
+
         return True
 
     def _validate_for_integration_export(self):
         error = str()
         is_valid = True
 
+        # If not formula-based, return early as it's valid
         if self.compute_price != FORMULA:
             return is_valid, error
 
+        # Check conditions specific to formula-based pricelist items
         if self.base != 'list_price':
             is_valid = False
-            error = _('Formula based on "%s". Not supported.') % self.base
+            error = _('Formula is based on "%s", which is not supported for export.') % self.base
         elif self.price_min_margin:
             is_valid = False
-            error = _('Pricelist margin in formula not supported.')
+            error = _('Pricelist margin in formula is not supported for export.')
         elif self.price_surcharge > 0:
             is_valid = False
-            error = _('Positive "Extra Fee" in formula not supported.')
+            error = _('Positive "Extra Fee" in the formula is not supported for export.')
         elif self.price_surcharge and self.price_discount:
             is_valid = False
             error = _('"Extra Fee" and "Price Discount" may not be handled together.')
         elif not self.price_surcharge and not self.price_discount:
             is_valid = False
-            error = _('"Extra Fee" or "Price Discount" are npt specified.')
+            error = _('Neither "Extra Fee" nor "Price Discount" is specified in the formula.')
 
+        # Construct a detailed error message if validation fails
         if error:
-            error = _('Pricelist: %s (%s). Item: %s (%s). Error: %s') % (
+            error = _(
+                'Pricelist: "%s" (ID: %s).\n'
+                'Item: "%s" (ID: %s).\n'
+                'Error: %s'
+            ) % (
                 self.pricelist_id.display_name,
                 self.pricelist_id.id,
                 self.display_name,

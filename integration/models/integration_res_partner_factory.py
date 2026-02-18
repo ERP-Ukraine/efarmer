@@ -1,11 +1,18 @@
 # See LICENSE file for full copyright and licensing details.
 
-from typing import Dict, List, Tuple
+from typing import Dict, Optional, Tuple
 
-from odoo import api, fields, models, registry, _
+from odoo import api, fields, models, _
+from odoo.modules.registry import Registry
 
 from ..exceptions import ApiImportError, NotMappedFromExternal
 from ..tools import freeze_arguments
+
+
+FIELDS_TO_COPY = [
+    'person_name', 'company_name', 'company_reg_number', 'street', 'street2',
+    'country', 'state', 'city', 'country_code', 'state_code', 'zip', 'phone',
+]
 
 
 class IntegrationResPartnerFactory(models.TransientModel):
@@ -13,7 +20,7 @@ class IntegrationResPartnerFactory(models.TransientModel):
     _description = 'Integration Res Partner Factory'
 
     integration_id = fields.Many2one(
-        string='e-Commerce Integration',
+        string='E-Commerce Store',
         comodel_name='sale.integration',
         required=True,
     )
@@ -45,28 +52,24 @@ class IntegrationResPartnerFactory(models.TransientModel):
         return self.proxy_ids.filtered(lambda r: r.type == 'billing_address')
 
     @property
-    def other_proxies(self):
-        return self.proxy_ids.filtered(lambda r: r.type == 'other_address')
-
-    @property
     def customer_id(self):
         return self.customer_proxy.partner_id
 
     @api.model
-    @freeze_arguments('customer_data', 'billing_data', 'shipping_data', 'addresses_data')
+    @freeze_arguments('customer_data', 'billing_data', 'shipping_data')
     def create_factory(
-            self, integration_id: int, customer_data: Dict, *,
-            billing_data: Dict = None, shipping_data: Dict = None,
-            addresses_data: List = None, is_initial_import: bool = False,
+            self, integration_id: int, customer_data: Optional[Dict], *,
+            billing_data: Optional[Dict] = None, shipping_data: Optional[Dict] = None,
+            is_initial_import: bool = False,
     ) -> models.Model:
         """
         Creates a new factory and associated proxies.
+
         Args:
             integration_id : ID of the integration.
             customer_data: Customer data for creating customer proxy.
             billing_data: Billing data for creating billing proxy.
             shipping_data: Shipping data for creating shipping proxy.
-            addresses_data: List of additional addresses data for creating other proxies.
             is_initial_import: Flag indicating if this is an initial import.
         Returns:
             models.Model: The created factory instance.
@@ -78,26 +81,45 @@ class IntegrationResPartnerFactory(models.TransientModel):
         })
 
         # Helper function to create proxy
-        def create_proxy_from_data(proxy_type, data):
-            if data:
-                Proxy.create_proxy(proxy_type, factory.id, data)
+        def create_proxy_from_data(proxy_type: str, data: Dict) -> None:
+            Proxy.create_proxy(proxy_type, integration_id, factory.id, data)
+
+        # If the data is empty, we consider that there is no data
+        if billing_data and all(not v for v in billing_data.values()):
+            billing_data = None
+
+        if shipping_data and all(not v for v in shipping_data.values()):
+            shipping_data = None
+
+        # Use shipping_data as billing_data fallback if billing_data is missing or empty
+        # This is because billing_data is used to create the partner, so if it's not available,
+        # we fallback to shipping_data (if it's filled).
+        if not billing_data and shipping_data:
+            billing_data = shipping_data
 
         # Update customer data with billing data if available
         customer_data = self._update_customer_data(customer_data, billing_data, shipping_data)
 
         # Create proxies
         # Use billing_data if customer_data is empty to create a partner for guest orders
-        create_proxy_from_data('customer', customer_data or billing_data)
-        create_proxy_from_data('billing_address', billing_data)
-        create_proxy_from_data('shipping_address', shipping_data)
+        customer_proxy_data = customer_data or billing_data
+        if customer_proxy_data:
+            create_proxy_from_data('customer', customer_proxy_data)
 
-        if addresses_data:
-            for address in addresses_data:
-                create_proxy_from_data('other_address', address)
+        if billing_data:
+            create_proxy_from_data('billing_address', billing_data)
+
+        if shipping_data:
+            create_proxy_from_data('shipping_address', shipping_data)
 
         return factory
 
-    def _update_customer_data(self, customer_data, billing_data, shipping_data):
+    def _update_customer_data(
+        self,
+        customer_data: Optional[Dict],
+        billing_data: Optional[Dict],
+        shipping_data: Optional[Dict],
+    ) -> Dict:
         """
             Update customer data with billing data if available.
             Args:
@@ -105,16 +127,33 @@ class IntegrationResPartnerFactory(models.TransientModel):
                 billing_data: Billing data.
                 shipping_data: Shipping data. Shipping data is not used in this method. For overriding this method.
         """
-        if customer_data and billing_data:
+        # To correct process orders customer data should be present
+        if not customer_data:
+            if billing_data:
+                return billing_data
+            return shipping_data
+
+        # Save information about company and person in customer data
+        if billing_data:
             customer_data['person_id_number'] = billing_data.get('person_id_number', '')
 
             # Update company-related fields from billing data if available
-            if 'company_name' in billing_data:
-                customer_data['company_name'] = billing_data.get('company_name', '')
+            company_name = billing_data.get('company_name', '')
+            if company_name:
+                customer_data['company_name'] = company_name
                 customer_data['company_reg_number'] = billing_data.get('company_reg_number', '')
                 # Get the country or country_code from the billing data to validation VAT for the company
                 customer_data['country'] = billing_data.get('country', '')
                 customer_data['country_code'] = billing_data.get('country_code', '')
+
+            # Update customer data with billing data if email and person_name matches (assume that the person who is
+            # placing the order is the same as the person who is being billed)
+            if (
+                str(customer_data.get('email', '')).lower() == str(billing_data.get('email', '')).lower() and  # NOQA
+                str(customer_data.get('person_name', '')).lower() == str(billing_data.get('person_name', '')).lower()
+            ):
+                for field in FIELDS_TO_COPY:
+                    customer_data[field] = billing_data.get(field, '')
 
         return customer_data
 
@@ -124,11 +163,11 @@ class IntegrationResPartnerFactory(models.TransientModel):
         Create or retrieve customer and contact addresses.
         Returns:
             A tuple containing the customer partner record and a dictionary containing shipping,
-            billing, and other addresses.
+            billing addresses.
         """
         self.validate_data()
 
-        customer = shipping = billing = self.integration_id.default_customer
+        customer = self.integration_id.default_customer
 
         if self.customer_proxy:
             if self.integration_id.use_manual_customer_mapping:
@@ -138,18 +177,17 @@ class IntegrationResPartnerFactory(models.TransientModel):
 
             self.customer_proxy._post_update_partner(customer)
 
-        if self.shipping_proxy:
-            shipping = self.shipping_proxy._get_or_create_address()
-
         if self.billing_proxy:
             billing = self.billing_proxy._get_or_create_address()
+        else:
+            billing = customer
 
-        other_addresses = []
-        if self.other_proxies:
-            for other_address in self.other_proxies:
-                other_addresses.append(other_address._get_or_create_address())
+        if self.shipping_proxy:
+            shipping = self.shipping_proxy._get_or_create_address()
+        else:
+            shipping = customer
 
-        return customer, {'shipping': shipping, 'billing': billing, 'other': other_addresses}
+        return customer, {'shipping': shipping, 'billing': billing}
 
     def validate_data(self):
         """
@@ -169,7 +207,13 @@ class IntegrationResPartnerFactory(models.TransientModel):
         This method checks if the customer has an external ID, raising an error if it's missing.
         """
         if not self.customer_proxy.external_id:
-            raise ApiImportError('Customer external ID is missing')
+            raise ApiImportError(
+                _(
+                    'Technical error: Customer external ID is missing during the initial import process. '
+                    'This may indicate improper usage of the method or a bug.\n'
+                    'Please contact support team for further investigation: https://support.ventor.tech'
+                )
+            )
 
         mapping = self.env['res.partner'].get_mapping(
             self.integration_id,
@@ -183,13 +227,20 @@ class IntegrationResPartnerFactory(models.TransientModel):
 
             # Raise an NotMappedFromExternal with a message indicating the failure in
             # mapping customers.
-            raise NotMappedFromExternal(_(
-                '\nThe "Enable Manual Customer Mapping" setting is enabled on the integration.\n'
-                'Partner "%s" not mapped for external ID %s\n'
-                'Please map partners in the "Mappings → Contacts" menu.') % (
-                self.customer_proxy.person_name, self.customer_proxy.external_id,
-                ), 'integration.res.partner.mapping', self.customer_proxy.external_id,
-                self.integration_id)
+            raise NotMappedFromExternal(
+                _(
+                    'Manual customer mapping is enabled for the integration "%s".\n'
+                    'The partner "%s" with external ID "%s" has not been mapped yet.\n\n'
+                    'Please go to the "Mappings → Contacts" menu and manually map the partner.'
+                ) % (
+                    self.integration_id.name,
+                    self.customer_proxy.person_name,
+                    self.customer_proxy.external_id,
+                ),
+                model_name='integration.res.partner.mapping',
+                code=self.customer_proxy.external_id,
+                integration=self.integration_id,
+            )
 
     def _validate_for_sales_orders(self) -> bool:
         """
@@ -198,26 +249,28 @@ class IntegrationResPartnerFactory(models.TransientModel):
         If any of them is missing and the default customer setting is not enabled, it raises an
         error.
         """
-        partner = self.customer_proxy.get_customer(False)
-
-        if not all([self.customer_proxy, self.shipping_proxy, self.billing_proxy]):
-            if not self.integration_id.default_customer:
-                raise ApiImportError(_('\n\n' 'Order we are trying to import into Odoo do not have '
-                                       'Customer, Invoice Address or/and Delivery Address defined. '
-                                       'But in Odoo it is not possible to create Sales Order '
-                                       'without this information. Please, go to menu "e-Commerce '
-                                       'Integration → select your sales integration" and on "Sales '
-                                       'Order Defaults" tab select setting "Default Customer". '
-                                       'And requeue job. Selected partner will be used instead of '
-                                       'missing information, so sales order will not be blocked '
-                                       'from creation'))
+        if not self.customer_proxy and not self.integration_id.default_customer:
+            raise ApiImportError(
+                _(
+                    'Missing required customer or address information for the sales order.\n'
+                    'In Odoo, sales orders cannot be created without Customer, Invoice Address, '
+                    'and Delivery Address.\n\n'
+                    'To resolve this issue, please enable the "Default Customer" setting in '
+                    'the "Sales Order Defaults" tab:\n'
+                    '1. Go to "E-Commerce Integrations → %s".\n'
+                    '2. Navigate to the "Sales Orders" tab.\n'
+                    '3. Select the "Default Customer" setting.\n\n'
+                    'Once this is done, requeue the job, and the selected default partner will be used '
+                    'to create the order.'
+                ) % self.integration_id.name
+            )
 
         # Handle manual partner mapping enabled case.
-        if self.integration_id.use_manual_customer_mapping and not partner:
+        if self.integration_id.use_manual_customer_mapping and not self.customer_proxy.get_customer(False):
             # If customer is not found in the order - skip sending notifications and apply
             # "Default customer" to the order
             if not self.customer_proxy.external_id:
-                return False
+                return True
 
             # Notify about the failure in mapping customers
             self._notify_about_missed_customer_mapping()
@@ -227,12 +280,21 @@ class IntegrationResPartnerFactory(models.TransientModel):
 
             # Raise an NotMappedFromExternal with a message indicating the failure in
             # mapping customers.
-            raise NotMappedFromExternal(_(
-                '\nPartner "%s" not found for external ID %s; notification emails have been sent.\n'
-                'Please map partners in the "Mappings → Contacts" menu.') % (
-                self.customer_proxy.person_name, self.customer_proxy.external_id,
-                ), 'integration.res.partner.mapping', self.customer_proxy.external_id,
-                self.integration_id)
+            raise NotMappedFromExternal(
+                _(
+                    'Manual customer mapping is enabled for the integration "%s".\n'
+                    'The partner "%s" with external ID "%s" has not been mapped yet; notification emails '
+                    'have been sent.\n\n'
+                    'Please map partners in the "Mappings → Contacts" menu.'
+                ) % (
+                    self.integration_id.name,
+                    self.customer_proxy.person_name,
+                    self.customer_proxy.external_id,
+                ),
+                model_name='integration.res.partner.mapping',
+                code=self.customer_proxy.external_id,
+                integration=self.integration_id,
+            )
 
         return True
 
@@ -241,7 +303,7 @@ class IntegrationResPartnerFactory(models.TransientModel):
         Sends notification emails about failed customer mapping using a separate database cursor.
         This ensures that the email is sent reliably, even if the main transaction is rolled back.
         """
-        db_registry = registry(self.env.cr.dbname)
+        db_registry = Registry(self.env.cr.dbname)
         with db_registry.cursor() as new_cr:
             new_env = api.Environment(new_cr, self.env.uid, {})
             mail_template = new_env.ref('integration.mail_template_notify_failed_mapping')

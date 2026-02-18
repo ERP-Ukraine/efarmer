@@ -15,18 +15,23 @@ class StockMove(models.Model):
     def has_kits(self):
         return any(getattr(x, 'bom_line_id', False) for x in self)
 
-    def _get_new_picking_values(self):
-        vals = super()._get_new_picking_values()
-        integration = self.sale_line_id.order_id.integration_id
+    def _assign_picking_post_process(self, *args, **kwargs):
+        result = super()._assign_picking_post_process(*args, **kwargs)
 
-        if integration:
-            src_field_name = integration.so_delivery_note_field.name
-            tgt_field_name = integration.picking_delivery_note_field.name
+        for picking in self.mapped('picking_id'):
+            integration = picking.sale_id.integration_id
 
-            src_value = getattr(self.sale_line_id.order_id, src_field_name)
-            if src_value:
-                vals[tgt_field_name] = src_value
-        return vals
+            if integration:
+                source_note_name = integration.so_delivery_note_field.name
+                target_note_name = integration.picking_delivery_note_field.name
+
+                if source_note_name and target_note_name:
+                    value = getattr(picking.sale_id, source_note_name)
+
+                    if value:
+                        picking.write({target_note_name: value})
+
+        return result
 
     def _move_qty_lack(self):
         return self.compare_qty_to_realqty == -1
@@ -37,7 +42,7 @@ class StockMove(models.Model):
     @property
     def compare_qty_to_realqty(self):
         return float_compare(
-            self.quantity_done,
+            self.quantity,
             self.product_qty,
             precision_rounding=self.product_id.uom_id.rounding,
         )

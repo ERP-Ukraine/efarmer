@@ -39,10 +39,7 @@ class PrintNodeComputer(models.Model):
         ondelete='cascade',
     )
 
-    _sql_constraints = [
-        (
-            'printnode_id',
-            'unique(printnode_id)',
-            'Computer ID should be unique.'
-        ),
-    ]
+    _unique_printnode_id = models.Constraint(
+        'UNIQUE(printnode_id)',
+        'Computer ID should be unique.',
+    )

@@ -13,10 +13,10 @@
                     <notebook>
                         <page string="Feature Values" name="feature_values">
                             <field name="value_ids" widget="one2many" nolabel="1">
-                                <tree>
+                                <list>
                                     <field name="sequence" widget="handle"/>
                                     <field name="name"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                     </notebook>
@@ -26,21 +26,22 @@
     </record>
 
     <record id="product_feature_tree_view" model="ir.ui.view">
-        <field name="name">product.feature.tree</field>
+        <field name="name">product.feature.list</field>
         <field name="model">product.feature</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
-            </tree>
+            </list>
         </field>
     </record>
 
     <record id="product_feature_action" model="ir.actions.act_window">
         <field name="name">Product Features</field>
+        <field name="path">eci-product-features</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">product.feature</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="view_id" eval="False"/>
     </record>
 

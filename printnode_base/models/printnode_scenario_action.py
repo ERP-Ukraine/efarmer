@@ -14,13 +14,13 @@ class PrintNodeScenarioAction(models.Model):
 
     name = fields.Char(
         string='Name',
-        size=64,
+        size=200,
         required=True,
     )
 
     code = fields.Char(
         string='Code',
-        size=64,
+        size=200,
         required=True,
     )
 
