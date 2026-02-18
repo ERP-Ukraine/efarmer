@@ -1,0 +1,819 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_integration_import_wizard_form" model="ir.ui.view">
+            <field name="name">integration.import.wizard.form</field>
+            <field name="model">integration.import.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Import External Data">
+
+                    <field name="state" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                    <field name="integration_id" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                    <field name="integration_type" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+
+                    <!--
+                        Choose Import Mode
+                    -->
+                    <group invisible="state != 'choose_mode'">
+                        <p colspan="2">
+                            Please select how you'd like to proceed with importing data into Odoo.
+                            <ul>
+                                <li>First-Time Import is for your initial sync - ideal right after setting up the connector.</li>
+                                <li>Update Import is for refreshing or syncing data after the initial setup.</li>
+                            </ul>
+                        </p>
+
+                        <field name="import_mode" required="1" widget="radio"/>
+                    </group>
+
+                    <footer invisible="state != 'choose_mode'">
+                        <button name="action_choose_import_mode" type="object" string="Next →" class="btn-primary"/>
+                    </footer>
+
+                    <!--
+                        First-time Import: Welcome to First-Time Import
+                    -->
+                    <group invisible="state != 'first_time_import_1'">
+                        <div colspan="2">
+                            <p>
+                                <strong>👋 Welcome!</strong>
+                                <br />
+                                This wizard will guide you through the initial data sync between your e-commerce store and Odoo.
+                                It helps prepare your system by fetching and linking critical data, without creating Odoo records automatically.
+                            </p>
+
+                            <p>The diagram below shows the full import &amp; sync workflow.</p>
+
+                            <img
+                                name="import_process_diagram"
+                                alt="Import Process Diagram"
+                                src="/integration/static/description/images/import-process-diagram.png"
+                                class="img img-fluid px-4 py-4"
+                            />
+
+                            <div class="alert alert-warning mt-4" role="alert">
+                                <strong>Please Note</strong>
+                                <ul class="mb-0">
+                                    <li>This wizard <strong>does not create</strong> new records in Odoo directly.</li>
+                                    <li>It only prepares external mappings and attempts to link data where possible.</li>
+                                    <li>You can review or create missing records manually later via the Mappings menu.</li>
+                                </ul>
+                            </div>
+
+                            <p class="mb-0">
+                                Click <strong>Continue</strong> to begin the import of master data.
+                            </p>
+                        </div>
+                    </group>
+
+                    <footer invisible="state != 'first_time_import_1'">
+                        <button name="action_back_to_choose_mode" type="object" string="← Go Back" class="btn-secondary me-2"/>
+                        <button name="action_start_initial_import" type="object" string="Continue →" class="btn-primary"/>
+                    </footer>
+
+                    <!--
+                        First-time Import: Master Data Import
+                    -->
+                    <group invisible="state != 'first_time_import_2'">
+                        <div colspan="2">
+                            <p>
+                                Before linking products, we need to import the master data that products depend on - like categories, attributes, taxes, or shipping methods.
+                            </p>
+                            <p>
+                                These records will be fetched from your e-commerce platform and prepared in Odoo as external records.
+                                This step ensures that the system is ready for clean product linking and prevents sync issues later.
+                            </p>
+                        </div>
+
+                        <field name="entities_to_import" widget="many2many_checkboxes"/>
+                        <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                        <p class="mb-0">
+                            <small>
+                                We strongly recommend importing <strong>all entities</strong> during the first-time setup
+                                to ensure a complete and reliable foundation for product synchronization.
+                            </small>
+                        </p>
+
+                        <hr colspan="2"/>
+
+                        <field name="import_in_background" widget="boolean_toggle"/>
+                        <p class="o_wrap_label" invisible="import_in_background"/><!-- Do not remove - important for layout! -->
+                        <p invisible="import_in_background">
+                            <small>
+                                If you have a large product catalog or complex tax/attribute structures,
+                                running this step in the background may help avoid timeouts and improve stability.
+                            </small>
+                        </p>
+
+                        <field name="remove_existing_records" widget="boolean_toggle"/>
+                        <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                        <p>
+                            <small>
+                                If enabled, this option will <strong>delete</strong> all previously fetched external records and mappings before importing new data.
+                                <strong>If you've manually mapped any records, they will be lost.</strong>
+                                Use this if you're starting fresh or replacing outdated mappings.
+                            </small>
+                        </p>
+
+                        <div class="alert alert-info mt-2 mb-0" role="alert" colspan="2">
+                            <p class="mb-0">
+                                What this step does:
+                                <ul class="mb-0">
+                                    <li>
+                                        Fetches master data from your e-commerce system (taxes, attributes, categories, etc.)
+                                    </li>
+                                    <li>
+                                        Prepares external records and tries to match them to Odoo records (e.g. attributes are linked by name)
+                                    </li>
+                                    <li>
+                                        <strong>Does not create</strong> Odoo records - only external records and mappings are created
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+
+                        <p class="mb-0" colspan="2">When you're ready, click <strong>Import Master Data</strong> to begin importing your master data.</p>
+                    </group>
+
+                    <footer invisible="state != 'first_time_import_2'">
+                        <div class="d-flex justify-content-between w-100">
+                            <div>
+                                <button name="action_back_to_choose_mode" type="object" string="← Go Back" class="btn-secondary me-2"/>
+                                <button name="action_import_master_data" type="object" string="Import Master Data →" class="btn-primary me-2"/>
+                            </div>
+
+                            <button name="action_master_data_import_skip" type="object" string="Skip This Step" class="btn-secondary me-2"/>
+                        </div>
+                    </footer>
+
+                    <!--
+                        First-time Import: Background Jobs
+                    -->
+                    <group invisible="state != 'first_time_import_2_1'">
+                        <field name="jobs_done" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="jobs_failed" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+
+                        <p colspan="2">
+                            Your master data import has been queued for background processing. Please review the jobs below before continuing.
+                        </p>
+
+                        <h4 colspan="2">Queued Jobs</h4>
+
+                        <!-- Jobs List -->
+                        <field name="jobs" nolabel="1" colspan="2">
+                            <list decoration-success="state=='done'" decoration-danger="state=='failed'">
+                                <field name="name"/>
+                                <field name="state"/>
+                            </list>
+                        </field>
+
+                        <p colspan="2"><small><i>Click a job name to view logs and troubleshoot if needed.</i></small></p>
+
+                        <div class="alert alert-success mt-2" role="alert" invisible="not jobs_done" colspan="2">
+                            <h6>✅ All Jobs Completed</h6>
+                            <p class="mb-0">
+                                All background import jobs have been completed successfully.
+                                You can now safely continue to the product import step.
+                            </p>
+                        </div>
+
+                        <div class="alert alert-warning" role="alert" invisible="not jobs_failed" colspan="2">
+                            <strong>Warning:</strong>
+                            <br />
+                            One or more jobs have failed.
+                            Open the job go to the Job Queue to review and fix them before starting product import.
+                            After fixing the issue, you can restart the failed job and skip the Master Data step if needed.
+                        </div>
+                    </group>
+
+                    <footer invisible="state != 'first_time_import_2_1'">
+                        <div class="d-flex justify-content-between w-100">
+                            <div>
+                                <button
+                                    name="action_continue_to_product_import"
+                                    type="object"
+                                    string="Continue to Product Import →"
+                                    class="btn-primary me-2"
+                                    invisible="not jobs_done"
+                                />
+
+                                <button
+                                    name="action_refresh_view"
+                                    type="object"
+                                    string="Refresh Status"
+                                    class="btn-secondary me-2"
+                                />
+                            </div>
+
+                            <button
+                                name="action_open_queue_jobs"
+                                type="object"
+                                string="Open Queue Jobs"
+                                class="btn-secondary float-start"
+                            />
+                        </div>
+                    </footer>
+
+                    <!--
+                        First-time Import: Results (after real-time import)
+                    -->
+                    <group invisible="state != 'first_time_import_2_2'">
+                        <p colspan="2">
+                            Your master data import has been completed. Below is a summary of the results
+                            for each data type imported from your e-commerce platform.
+                        </p>
+
+                        <field name="results" nolabel="1" readonly="1" colspan="2" widget="html"/>
+
+                        <div class="alert alert-info" role="alert" colspan="2">
+                            <strong>Next Steps</strong>
+                            <ul class="mb-0 mt-2">
+                                <li><strong>✅ All successful:</strong> Great! You can move on to the next step (product import).</li>
+                                <li><strong>⚠️ Some warnings:</strong> You can usually proceed, but reviewing skipped records is recommended.</li>
+                                <li><strong>❌ Errors found:</strong> Please resolve these before continuing to avoid sync issues.</li>
+                            </ul>
+                            <p class="mb-0 mt-2">
+                                <small>
+                                    <strong>Need help?</strong> If you encounter persistent issues, our support team is here to help:
+                                    <a href="https://support.ventor.tech/" target="_blank" class="alert-link">support.ventor.tech</a>
+                                </small>
+                            </p>
+                        </div>
+                    </group>
+
+                    <footer invisible="state != 'first_time_import_2_2'">
+                        <button name="action_back_to_import_master_data" type="object" string="← Go Back" class="btn-secondary me-2"/>
+                        <button name="action_continue_to_product_import" type="object" string="Continue to Product Import →" class="btn-primary me-2"/>
+                    </footer>
+
+                    <!--
+                        First-time Import: Unmapped Mappings Review
+                    -->
+                    <group invisible="state != 'first_time_import_2_3'">
+                        <div colspan="2">
+                            <p>
+                                The following entities from your e-commerce system were successfully imported,
+                                but have not yet been mapped to any Odoo records.
+                            </p>
+                            <p>
+                                Mappings are essential to ensure that products can be linked correctly in the next step.
+                                Please review and complete them before continuing.
+                            </p>
+                        </div>
+
+                        <h5 colspan="2">Unmapped Records Summary</h5>
+
+                        <field name="errors" nolabel="1" readonly="1" colspan="2" widget="html"/>
+
+                        <div class="alert alert-info mt-3 mb-0" role="alert" colspan="2">
+                            <h6><strong>What You Need to Do:</strong></h6>
+                            <ol class="mb-0">
+                                <li>
+                                    Navigate to <strong>E-Commerce Integrations → Mappings</strong>
+                                    (we recommend opening it in a separate browser tab)
+                                </li>
+                                <li>For each entity type listed above:
+                                    <ul class="mb-0">
+                                        <li>Map external records to existing Odoo ones, or</li>
+                                        <li>Use the "Import" button to create new Odoo records and link them automatically</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    Once all necessary mappings are done, return to this wizard and
+                                    click <strong>"Continue to Product Import →"</strong>
+                                </li>
+                            </ol>
+                        </div>
+
+                        <div class="alert alert-warning mt-4" role="alert" colspan="2">
+                            <h6><strong>⚠️ Alternative Option: Proceed Without Completing Mappings</strong></h6>
+                            <p class="mb-2">You can skip this step, but please note:</p>
+                            <ul class="mb-3">
+                                <li>Some products may not be imported if they depend on unmapped data</li>
+                                <li>You may need to revisit these mappings later for full synchronization</li>
+                                <li>Certain product features might not work correctly until all dependencies are mapped</li>
+                            </ul>
+
+                            <p class="mb-2">
+                                <strong>To proceed anyway, confirm that you understand the risks:</strong>
+                            </p>
+
+                            <div class="form-check">
+                                <field name="accept_unmapped_mappings" nolabel="1"/>
+                                <label for="accept_unmapped_mappings">
+                                    <strong>I understand the risks of skipping unmapped mappings</strong>
+                                </label>
+                            </div>
+                        </div>
+                    </group>
+
+                    <footer invisible="state != 'first_time_import_2_3'">
+                        <button
+                            name="action_back_to_import_master_data"
+                            type="object"
+                            string="← Go Back"
+                            class="btn-secondary me-2"
+                        />
+
+                        <button
+                            name="action_refresh_unmapped_records"
+                            type="object"
+                            string="Refresh Status"
+                            class="btn-secondary me-2"
+                        />
+
+                        <button
+                            name="action_continue_to_product_import"
+                            type="object"
+                            string="Continue to Product Import →"
+                            class="btn-primary me-2"
+                            invisible="not accept_unmapped_mappings"
+                        />
+                    </footer>
+
+                    <!--
+                        First-time Import: Product Import (overview)
+                    -->
+                    <group invisible="state != 'first_time_import_3'">
+                        <div colspan="2">
+                            <p class="mb-2">
+                                You're now ready to begin <strong>product import</strong> from your e-commerce platform.
+                            </p>
+                            <p>
+                                This step will prepare your external product catalog and try to match it with existing Odoo products.
+                                It does <strong>not</strong> create any new products in Odoo - only mappings will be created or updated where matches are found.
+                            </p>
+                            <p>What this step will do:</p>
+                            <ul>
+                                <li><strong>Validate product catalog in your e-commerce system and Odoo:</strong> Ensures required fields (like SKUs or barcodes) are present and unique</li>
+                                <li><strong>Prepare external product &amp; variant records:</strong> All products and their variations will be imported as external records</li>
+                                <li><strong>Attempt automatic linking:</strong> Products will be matched to existing Odoo records using internal references or barcodes</li>
+                            </ul>
+
+                            <p class="alert alert-info mt-3" role="alert">
+                                <h6><strong>Important Note</strong></h6>
+                                This step <strong>does not create</strong> any Odoo products.
+                                It only builds or updates mappings between external and Odoo records.
+                                You can manually review and create missing products later via the Mappings menu.
+                            </p>
+
+                            <p class="mb-0">
+                                Click Continue to begin the product import process.
+                            </p>
+                        </div>
+                    </group>
+
+                    <footer invisible="state != 'first_time_import_3'">
+                        <button
+                            name="action_start_catalog_validation"
+                            type="object"
+                            string="Start Catalog Validation →"
+                            class="btn-primary me-2"
+                        />
+                    </footer>
+
+
+                    <!--
+                        First-time Import: Product Import (validation report)
+                    -->
+                    <group invisible="state != 'first_time_import_3_1'">
+                        <p colspan="2">
+                            Before importing products, we've analyzed your product catalog in both Odoo and your e-commerce platform.
+                            The validation report below lists any issues that could prevent products from being linked correctly -
+                            such as missing SKUs, duplicate barcodes, or mismatched data.
+                        </p>
+
+                        <h5 colspan="2">Validation Report</h5>
+
+                        <field name="errors" nolabel="1" readonly="1" colspan="2" widget="html"/>
+
+                        <div class="alert alert-info mt-2 mb-0" role="alert" colspan="2">
+                            <p class="mb-0">
+                                <strong>Next Steps:</strong>
+                                <ul class="mb-0">
+                                    <li>Carefully review the validation report above</li>
+                                    <li>Resolve all listed issues in Odoo or your e-commerce system</li>
+                                    <li>Once done, return to this wizard and click <strong>"Continue to Product Import →"</strong></li>
+                                </ul>
+                            </p>
+                        </div>
+
+                        <div class="alert alert-warning mt-3" role="alert" colspan="2">
+                            <p class="mb-2"><strong>⚠️ Proceed with Unresolved Issues?</strong></p>
+                            <p class="mb-2">
+                                <strong>We strongly recommend fixing all validation issues before proceeding.</strong>
+                                Continuing with known issues may result in:
+                            </p>
+                            <ul class="mb-2">
+                                <li>Products failing to link properly</li>
+                                <li>Incomplete or inconsistent data in Odoo</li>
+                                <li>Additional manual mapping and cleanup work later</li>
+                            </ul>
+                            <p class="mb-2">If you still wish to continue, please confirm below:</p>
+                            <div class="form-check">
+                                <field name="accept_validation_failures" nolabel="1"/>
+                                <label for="accept_validation_failures">
+                                    <strong>I understand the risks of proceeding with unresolved issues</strong>
+                                </label>
+                            </div>
+                        </div>
+                    </group>
+
+                    <footer invisible="state != 'first_time_import_3_1'">
+                        <button
+                            name="action_back_to_product_import"
+                            type="object"
+                            string="← Go Back"
+                            class="btn-secondary me-2"
+                        />
+                        <button
+                            name="action_start_catalog_validation"
+                            type="object"
+                            string="Revalidate Catalog"
+                            class="btn-secondary me-2"
+                        />
+                        <button
+                            name="download_pdf"
+                            type="object"
+                            string="PDF"
+                            class="btn-secondary me-2"
+                        />
+                        <button
+                            name="action_import_products"
+                            type="object"
+                            string="Continue to Product Import →"
+                            class="btn-primary me-2"
+                            invisible="not accept_validation_failures"
+                        />
+                    </footer>
+
+                    <!--
+                        First-time Import: Product Import
+                    -->
+                    <group invisible="state != 'first_time_import_3_2'">
+                        <p colspan="2">
+                            You're now ready to begin the product import process.
+                            Please choose how the import should run and confirm whether you want to clear previous external data.
+                        </p>
+                        <field name="import_in_background" widget="boolean_toggle"/>
+                        <p class="o_wrap_label" invisible="import_in_background"/><!-- Do not remove - important for layout! -->
+                        <p invisible="import_in_background">
+                            <small>
+                                If you have a large product catalog, running this step in the background may help avoid timeouts and improve stability.
+                            </small>
+                        </p>
+
+                        <field name="remove_existing_records" widget="boolean_toggle"/>
+                        <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                        <p>
+                            <small>
+                                If enabled, this option will <strong>delete</strong> all previously fetched external records
+                                and mappings before importing new data.
+                                <strong>If you've manually mapped any records, they will be lost.</strong>
+                                Use this if you're starting fresh or replacing outdated mappings.
+                            </small>
+                        </p>
+
+                        <div class="alert alert-info mt-2 mb-0" role="alert" colspan="2">
+                            <p class="mb-0">
+                                <ul class="mb-0">
+                                    <li>
+                                        Ensure all related entities (like attributes, categories, and taxes) are fully mapped before running product import
+                                    </li>
+                                    <li>
+                                        This operation <strong>will not create</strong> Odoo products
+                                    </li>
+                                    <li>
+                                        It will attempt to link products based on internal references (e.g., SKUs) or barcodes
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </group>
+
+                    <footer invisible="state != 'first_time_import_3_2'">
+                        <button
+                            name="action_back_to_product_import"
+                            type="object"
+                            string="← Go Back"
+                            class="btn-secondary me-2"
+                        />
+                        <button
+                            name="action_run_product_import"
+                            type="object"
+                            string="Run Product Import"
+                            class="btn-primary me-2"
+                        />
+                    </footer>
+
+                    <!--
+                        First-time Import: Product Import Background Jobs
+                    -->
+                    <group invisible="state != 'first_time_import_3_3'">
+                        <p class="mb-2" colspan="2">
+                            Your product import has been successfully queued for background processing.
+                            The system will process products in batches to maintain performance and avoid timeouts.
+                        </p>
+
+                        <h5 colspan="2">Queued Jobs</h5>
+
+                        <!-- Jobs List -->
+                        <field name="jobs" nolabel="1" colspan="2">
+                            <list decoration-success="state=='done'" decoration-danger="state=='failed'">
+                                <field name="name"/>
+                                <field name="state"/>
+                            </list>
+                        </field>
+
+                        <p colspan="2"><small><i>Click a job name to view logs and troubleshoot if needed.</i></small></p>
+
+                        <div class="alert alert-success mt-2" role="alert" invisible="not jobs_done" colspan="2">
+                            <h6>✅ All Jobs Completed</h6>
+                            <p class="mb-0">
+                                All background product import jobs have been completed successfully.
+                                You can now move on to the next steps with confidence.
+                            </p>
+                        </div>
+
+                        <div class="alert alert-info" role="alert" colspan="2">
+                            <p class="mb-0">
+                                <strong>Next Steps:</strong>
+                                <ul class="mb-0">
+                                    <li>Use the Refresh Status button to check job progress</li>
+                                    <li>You can continue working in Odoo while background import continues</li>
+                                    <li>Click on any job line to view details</li>
+                                    <li>If some of the jobs have failed, please click on them to review the issues and fix them according to the description</li>
+                                </ul>
+                            </p>
+                        </div>
+                    </group>
+
+                    <footer invisible="state != 'first_time_import_3_3'">
+                        <div class="d-flex justify-content-between w-100">
+                            <div>
+                                <button name="action_back_to_product_import" type="object" string="← Go Back" class="btn-secondary me-2"/>
+                                <button name="action_refresh_view" type="object" string="Refresh Status" class="btn-secondary me-2"/>
+                                <button name="action_finish_initial_import" type="object" string="Continue →" class="btn-primary me-2" invisible="not jobs_done"/>
+                            </div>
+
+                            <button name="action_open_queue_jobs" type="object" string="Open Queue Jobs" class="btn-primary me-2"/>
+                        </div>
+                    </footer>
+
+                    <!--
+                        First-time Import: Product Import Results
+                    -->
+                    <group invisible="state != 'first_time_import_3_4'">
+                        <p colspan="2">
+                            The product import process has completed. Below is a summary of the results.
+                        </p>
+
+                        <field name="results" nolabel="1" readonly="1" colspan="2" widget="html"/>
+                    </group>
+
+                    <footer invisible="state != 'first_time_import_3_4'">
+                        <button name="action_back_to_product_import" type="object" string="← Go Back" class="btn-secondary me-2"/>
+                        <button name="action_finish_initial_import" type="object" string="Continue →" class="btn-primary me-2" invisible="not jobs_done"/>
+                    </footer>
+
+                    <!--
+                        First-time Import: Additional Steps
+                    -->
+                    <group invisible="state != 'first_time_import_4'">
+                        <div colspan="2">
+                            <p>
+                                Product import is complete, but <strong>no Odoo products were created automatically</strong>.
+                            </p>
+
+                            <p>To finish setup:</p>
+                            <ul>
+                                <li>Click the button below to open the Product Mappings screen</li>
+                                <li>Review all unmapped products</li>
+                                <li>
+                                    For each one:
+                                    <ul>
+                                        <li>
+                                            Use the <strong>Import Product</strong> button to create it in Odoo, or
+                                        </li>
+                                        <li>
+                                            Manually map it to an existing Odoo product
+                                            <br />
+                                            <strong>Note:</strong> If a product has variants, each variant must also be mapped individually.
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+
+                            <hr />
+
+                            <p class="alert alert-info mb-0" role="alert">
+                                Need Help? If you need assistance at any point, contact <a href="https://support.ventor.tech/" target="_blank"><strong>our support</strong></a>
+                            </p>
+                        </div>
+                    </group>
+
+                    <footer invisible="state != 'first_time_import_4'">
+                        <button name="action_open_product_mappings" type="object" string="Open Product Mappings" class="btn-primary me-2"/>
+                    </footer>
+
+                    <!--
+                        Update Import: Step 1 - Choose Import Type
+                    -->
+                    <group invisible="state != 'update_import_1'">
+                        <div colspan="2">
+                            <p>
+                                The Update Import tool allows you to refresh or sync specific data from your e-commerce platform
+                                into Odoo - at any time. You can choose to:
+                            </p>
+
+                            <ul>
+                                <li>Import all records of a specific data type (e.g. all attributes or all products)</li>
+                                <li>Import specific records by providing their external IDs</li>
+                            </ul>
+
+                            <p>This is especially useful for:</p>
+
+                            <ul>
+                                <li>Refreshing master data (attributes, categories, taxes, etc.)</li>
+                                <li>Syncing specific products or orders</li>
+                                <li>Importing new records recently added to your e-commerce platform</li>
+                            </ul>
+                        </div>
+                    </group>
+
+                    <footer invisible="state != 'update_import_1'">
+                        <button name="action_back_to_choose_mode" type="object" string="← Go Back" class="btn-secondary me-2"/>
+                        <button name="action_start_update_import" type="object" string="Continue →" class="btn-primary me-2"/>
+                    </footer>
+
+                    <!--
+                        Update Import: Step 2 - Configure Import
+                    -->
+                    <group invisible="state != 'update_import_2'">
+                        <field name="entity_supports_import_by_id" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="entity_external_model" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+
+                        <div colspan="2">
+                            <p>
+                                Select the type of data you want to import and configure how the import should be handled.
+                            </p>
+                        </div>
+
+                        <field name="entity_to_import" options="{'no_create': True, 'no_create_edit': True}" />
+                        <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                        <p class="text-muted">
+                            <small>
+                                Choose the type of record you want to import (e.g., attributes, categories, products, customers, orders).
+                            </small>
+                        </p>
+
+                        <field name="external_ids" invisible="not entity_to_import or not entity_supports_import_by_id"/>
+                        <p class="o_wrap_label" invisible="not entity_to_import or not entity_supports_import_by_id"/><!-- Do not remove - important for layout! -->
+                        <p class="text-muted" invisible="not entity_to_import or not entity_supports_import_by_id">
+                            <small>
+                                Leave this field empty to import all records of the selected type.
+                                Or enter one or more external IDs (comma- or line-separated) to import only specific records.
+                            </small>
+                        </p>
+
+                        <div class="alert alert-info" role="alert" colspan="2" invisible="not entity_to_import or entity_supports_import_by_id">
+                            <strong>Note:</strong> This entity type does not support importing specific records by ID.
+                            The import will include all records of this type from your e-commerce system.
+                        </div>
+
+                        <div class="alert alert-info" role="alert" colspan="2" invisible="entity_external_model != 'integration.sale.order.external' and entity_external_model != 'integration.res.partner.external'">
+                            <strong>Note:</strong> Orders and customers will be immediately created in Odoo during import.
+                            <ul class="mb-0">
+                                <li>Orders will become Sales Orders</li>
+                                <li>Customers will become Contacts</li>
+                            </ul>
+                        </div>
+
+                        <hr colspan="2"/>
+
+                        <field name="remove_existing_records" widget="boolean_toggle" readonly="external_ids"/>
+                        <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                        <p>
+                            <small>
+                                If enabled, this option will <strong>delete</strong> all previously fetched external records
+                                and mappings for this entity type before importing new data.
+                                <strong>If you've manually mapped any records, they will be lost.</strong>
+                            </small>
+                        </p>
+                    </group>
+
+                    <footer invisible="state != 'update_import_2'">
+                        <button name="action_back_to_update_import" type="object" string="← Go Back" class="btn-secondary me-2"/>
+                        <button name="action_run_update_import" type="object" string="Import Record(s) →" class="btn-primary me-2"/>
+                    </footer>
+
+                    <!--
+                        Update Import: Step 2.1 - Validation Report (if applicable)
+                    -->
+                    <group invisible="state != 'update_import_2_1'">
+                        <p colspan="2">
+                            Before importing products, we've analyzed your product catalog in both Odoo and your e-commerce platform.
+                            The validation report below lists any issues that could prevent products from being linked correctly -
+                            such as missing SKUs, duplicate barcodes, or mismatched data.
+                        </p>
+
+                        <h5 colspan="2">Validation Report</h5>
+
+                        <field name="errors" nolabel="1" readonly="1" colspan="2" widget="html"/>
+
+                        <div class="alert alert-info mt-2 mb-0" role="alert" colspan="2">
+                            <p class="mb-0"></p>
+                            <strong>Next Steps:</strong>
+                            <ul class="mb-0">
+                                <li>Carefully review the validation report above</li>
+                                <li>Resolve all listed issues in Odoo or your e-commerce system</li>
+                                <li>Once done, return to this wizard and click <strong>"Import Record(s) →"</strong></li>
+                            </ul>
+                        </div>
+                        <div class="alert alert-warning mt-3" role="alert" colspan="2">
+                            <p class="mb-2"><strong>⚠️ Proceed with Unresolved Issues?</strong></p>
+                            <p class="mb-2">
+                                <strong>We strongly recommend fixing all validation issues before proceeding.</strong>
+                                Continuing with known issues may result in:
+                            </p>
+                            <ul class="mb-2">
+                                <li>Products failing to link properly</li>
+                                <li>Incomplete or inconsistent data in Odoo</li>
+                                <li>Additional manual mapping and cleanup work later</li>
+                            </ul>
+                            <p class="mb-2">If you still wish to continue, please confirm below:</p>
+                            <div class="form-check">
+                                <field name="accept_validation_failures" nolabel="1"/>
+                                <label for="accept_validation_failures">
+                                    <strong>I understand the risks of proceeding with unresolved issues</strong>
+                                </label>
+                            </div>
+                        </div>
+                    </group>
+                    <footer invisible="state != 'update_import_2_1'">
+                        <button
+                            name="action_back_to_update_import"
+                            type="object"
+                            string="← Go Back"
+                            class="btn-secondary me-2"
+                        />
+                        <button
+                            name="action_start_catalog_validation"
+                            type="object"
+                            string="Revalidate Catalog"
+                            class="btn-secondary me-2"
+                        />
+                        <button
+                            name="download_pdf"
+                            type="object"
+                            string="PDF"
+                            class="btn-secondary me-2"
+                        />
+                        <button
+                            name="action_update_import_products"
+                            type="object"
+                            string="Import Record(s) →"
+                            class="btn-primary me-2"
+                            invisible="not accept_validation_failures"
+                        />
+                    </footer>
+
+                    <!--
+                        Update Import: Step 3 - Import Results
+                    -->
+                    <group invisible="state != 'update_import_3'">
+                        <div colspan="2">
+                            <p>
+                                Review the results of your import below.
+                                If everything looks good, you can close this wizard or go back to import additional records.
+                            </p>
+                        </div>
+
+                        <h5 colspan="2">Import Summary</h5>
+
+                        <field name="results" nolabel="1" readonly="1" colspan="2" widget="html"/>
+
+                    </group>
+
+                    <footer invisible="state != 'update_import_3'">
+                        <button name="action_back_to_update_import" type="object" string="← Import Another" class="btn-secondary me-2"/>
+                        <button special="cancel" type="object" string="Close" class="btn-secondary me-2"/>
+                    </footer>
+
+                </form>
+
+            </field>
+        </record>
+
+        <record id="integration_import_wizard_action" model="ir.actions.act_window">
+            <field name="name">Import External Data</field>
+            <field name="path">eci-import-data-wizard</field>
+            <field name="res_model">integration.import.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_integration_import_wizard_form"/>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="ecosystem_configs_action" model="ir.actions.act_window">
+            <field name="name">Setting</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="context">{'module' : 'integration'}</field>
+        </record>
+
+        <record id="action_integration_dashboard" model="ir.actions.client">
+            <field name="name">Dashboard</field>
+            <field name="path">eci</field>
+            <field name="tag">integration_dashboard.client_action</field>
+        </record>
+
+        <menuitem id="menu_sale_integration"
+                  groups="group_integration_manager"
+                  web_icon="integration,static/description/icon.png"
+                  name="E-Commerce Integrations"/>
+
+        <menuitem id="menu_dashboard"
+                name="Dashboard"
+                action="action_integration_dashboard"
+                parent="menu_sale_integration"
+                sequence="10"/>
+
+        <menuitem id="stores_menu"
+                  name="Stores"
+                  parent="menu_sale_integration"
+                  action="integrations_list_action"
+                  sequence="20"/>
+
+        <menuitem id="input_file_menu"
+                  name="External Orders"
+                  parent="menu_sale_integration"
+                  action="input_files_list_action"
+                  sequence="30"/>
+
+        <menuitem id="jobs_menu"
+                  name="Jobs"
+                  parent="menu_sale_integration"
+                  action="integration_jobs_action"
+                  groups="integration.group_integration_manager"
+                  sequence="60"/>
+
+        <menuitem id="configuration_menu"
+                  name="Configuration"
+                  parent="menu_sale_integration"
+                  groups="integration.group_integration_manager"
+                  sequence="70"/>
+
+        <menuitem id="settings_menu"
+                  name="Settings"
+                  parent="configuration_menu"
+                  action="integration_res_config_settings_action"
+                  sequence="40"/>
+    </data>
+</odoo>

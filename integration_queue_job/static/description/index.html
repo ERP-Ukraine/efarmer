@@ -1,0 +1,113 @@
+<head>
+  <meta charset="utf-8">
+</head>
+
+
+  
+    <!-- INTRO -->
+<section class="introduction p-3 mt-5 mb-5" id="introduction">
+  <div class="row">
+    <div class="col-md-9 hstack">
+      <header>
+        <h1 class="mt-4 display-2 fw-light">Integration Job Queue</h1>
+        <h3 class="mb-3 display-6 fw-light">VentorTech fork of OCA <code>queue_job</code></h3>
+        <p class="lead">
+          It provides a background job queue for Odoo, used to run asynchronous tasks outside of normal user transactions.
+        </p>
+        <p class="text-muted mb-0">
+          License: <strong>LGPL-3.0-or-later</strong><br />
+         Technical name: <code>integration_queue_job</code>
+        </p>
+      </header>
+    </div>
+    <div class="col-md-3 hstack">
+      <img class="w-75 m-auto" src="images/integration_queue_job_logo_3e750ccea9e418.png" alt="Integration Queue Job Logo"/>
+    </div>
+  </div>
+</section>
+
+  
+
+  
+    <!-- WHY -->
+<section class="p-4 mb-4" id="why" style="border: 1px solid #e0e1e1; border-radius: 6px; background:#FAFAFA;">
+  <h2 class="fw-light">Why this fork?</h2>
+  <p class="mb-2">
+    The original OCA <code>queue_job</code> is powerful and feature-rich. Many of our customers, however, only need a focused subset for
+    day-to-day integrations. This fork keeps things <strong>simple and lightweight</strong>, remains <strong>compatible with our
+    integration_* connectors</strong>, and is maintained in step with current Odoo versions.
+  </p>
+  <p class="mb-0">
+    Learn more about our connectors: <a href="https://ecosystem.ventor.tech/" target="_blank" rel="noopener">https://ecosystem.ventor.tech/</a>
+  </p>
+</section>
+
+  
+
+  
+    <!-- FEATURES -->
+<section class="px-3 mb-4" id="features">
+  <h2 class="fw-light">Key capabilities</h2>
+  <ul class="key-benefits">
+    <li>Postpone any model method with <code>with_delay()</code>; jobs run in a separate transaction</li>
+    <li>Channels & capacity limits; priorities, ETA, retries & retry patterns</li>
+    <li>Related record actions (open record, retry job, mark done)</li>
+    <li>Concise error summary with optional full traceback</li>
+    <li>PostgreSQL-backed storage with a dedicated, NOTIFY-driven runner</li>
+  </ul>
+</section>
+
+  
+
+  
+    <!-- USAGE -->
+<section class="px-3 mb-4" id="usage">
+  <h2 class="fw-light">Usage example</h2>
+  <p>Delay any method call; the job will be executed by the runner:</p>
+  <pre class="border rounded p-3" style="background:#F9FAFB; overflow:auto;"><code>from odoo import models
+
+class MyModel(models.Model):
+    _name = "my.model"
+
+    def my_method(self, value):
+        _logger.info("Executed with value: %s", value)
+
+class MyOtherModel(models.Model):
+    _name = "my.other.model"
+
+    def button_do_stuff(self):
+        self.env["my.model"].with_delay(priority=10).my_method("Hello")</code></pre>
+  <p class="text-muted mb-0">
+    Tip: run Odoo with workers and load the module server-wide (e.g., <code>server_wide_modules = web,integration_queue_job</code>).
+  </p>
+</section>
+
+  
+
+  
+    <!-- SUPPORT (small, neutral) -->
+<section class="request-demo mt-4 mb-4" id="support" style="padding:1rem; text-align:center; border:1px solid #e0e1e1; border-radius:5px; background-color:#F9FAFB;">
+  <h3 class="text-center mt-2 mb-3 fw-light">Questions or issues?</h3>
+  <p class="mb-4">Open a ticket on our support portal and we’ll get back to you.</p>
+  <p class="mb-3">
+    <a href="https://support.ventor.tech" target="_blank" rel="noopener"
+       style="font-weight:700; color:#714b67; border:1px solid #714b67; padding:.5rem 1rem; border-radius:5px; text-decoration:none;">
+      https://support.ventor.tech
+    </a>
+  </p>
+</section>
+
+  
+
+  
+    <!-- CREDITS -->
+<section class="contact text-center mt-5 mb-3" id="credits">
+  <h2 class="text-center mt-2 mb-3 fw-light">Credits & License</h2>
+  <p class="mb-1">
+    Fork of OCA’s <code>queue_job</code> — original authors: ACSONE SA/NV, Camptocamp SA, Odoo Community Association (OCA).
+  </p>
+  <p class="mb-1">Fork &amp; modifications: © 2025 VentorTech</p>
+  <p class="text-muted">License: LGPL-3.0-or-later</p>
+</section>
+
+  

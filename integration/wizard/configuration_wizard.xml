@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="view_configuration_wizard" model="ir.ui.view">
+            <field name="name">configuration.wizard.form</field>
+            <field name="model">configuration.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Quick Configuration">
+                    <sheet>
+                        <h3 class="mb-3"><field name="state_name"/></h3>
+                        <field name="state" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="integration_id" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+
+                        <div name="step_intro" invisible="state != 'step_intro'">
+                            <p>
+                                This wizard helps you quickly review and adjust the most important integration settings.
+                                It's the fastest way to configure how your e-commerce data synchronizes with Odoo.
+                            </p>
+                            <ul class="mb-3">
+                                <li>Set defaults for product, customer, and order handling</li>
+                                <li>Adjust key import/export options and mappings</li>
+                                <li>Apply best-practice defaults for new connections</li>
+                            </ul>
+                            <p class="mb-0">
+                                Click <strong>Start</strong> to start reviewing your configuration. You can re-run this wizard at any time if you need to make changes later.
+                            </p>
+                        </div>
+                        <div name="step_languages" invisible="state != 'step_languages'">
+                            <group string="Default Languages">
+                                <field name="language_integration_id"/>
+                                <field name="language_default_id"/>
+                            </group>
+
+                            <group string="Language Mappings">
+                                <field name="language_mapping_ids" readonly="0" nolabel="1" colspan="2">
+                                    <list editable="bottom"
+                                          create="0"
+                                          delete="0"
+                                          no_open="1"
+                                          decoration-success="language_id != False"
+                                          decoration-danger="language_id == False">
+                                        <field name="external_language_id" readonly="1"/>
+                                        <field name="language_id" options="{'no_create': True, 'no_edit': True}"/>
+                                    </list>
+                                </field>
+                            </group>
+
+                            <div class="alert alert-info mt-4" role="alert">
+                                <p class="mb-2">
+                                    Need to activate or configure languages in Odoo?
+                                </p>
+                                <button name="action_go_to_languages" string="Go To Languages" type="object" class="btn btn-sm btn-info"/>
+                            </div>
+                        </div>
+                        <div name="step_finish" invisible="state != 'step_finish'">
+                            <p>
+                                Initial setup is complete!<br/>
+                                You can now start importing data from your e-commerce platform into Odoo.
+                            </p>
+                        </div>
+                    </sheet>
+                    <footer>
+                        <field name="show_previous" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="show_next" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="show_initial_import" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="show_start" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <button name="action_previous_step"
+                                string="← Previous"
+                                type="object"
+                                class="btn-outline-primary"
+                                invisible="show_previous != True"/>
+                        <button name="action_start"
+                                string="Start"
+                                type="object"
+                                class="btn-primary"
+                                invisible="show_start != True"/>
+                        <button name="action_next_step"
+                                string="Next →"
+                                type="object"
+                                class="btn-primary"
+                                invisible="show_next != True"/>
+                        <button name="action_run_import_wizard"
+                                type="object"
+                                string="Start Initial Import"
+                                class="btn-primary"
+                                invisible="show_initial_import != True"/>
+                        <button name="action_eraze"
+                                string="Reset Wizard Progress"
+                                type="object"
+                                class="btn-outline-secondary ms-auto"
+                                groups="base.group_no_one"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

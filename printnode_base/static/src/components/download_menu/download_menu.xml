@@ -1,0 +1,21 @@
+<templates>
+    <t t-name="printnode_base.ActionMenus" t-inherit="web.ActionMenus" t-inherit-mode="extension">
+        <xpath expr="//div[contains(@class, 'o_cp_action_menus')]/div[1]" position="after">
+            <div t-if="downloadItems and downloadItems.length" class="d-inline-block">
+                <Dropdown beforeOpen.bind="loadPrintItems">
+                    <button class="btn btn-secondary">
+                        <i class="small me-1 fa fa-download"/>
+                        <span class="o_dropdown_title">Download</span>
+                    </button>
+                    <t t-set-slot="content">
+                        <t t-foreach="downloadItems" t-as="item" t-key="item.key">
+                            <DropdownItem class="'o_menu_item'" onSelected="() => this.onItemSelected(item)">
+                                <t t-esc="item.description"/>
+                            </DropdownItem>
+                        </t>
+                    </t>
+                </Dropdown>
+            </div>
+        </xpath>
+    </t>
+</templates>

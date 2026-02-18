@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="integration_import_product_wizard_form" model="ir.ui.view">
+        <field name="name">Import Integration Product Form</field>
+        <field name="model">integration.import.product.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Advanced Integration Product Import">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <group>
+                    <field name="integration_id" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                    <field name="line_ids" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                    <field name="product_template_id" readonly="1"/>
+                    <field name="external_template_id" readonly="1"/>
+                </group>
+                <group string="Incoming Mappings" invisible="state not in ('draft', 'checked')">
+                    <div colspan="2">
+                        <field name="incoming_line_ids" nolabel="1"/>
+                    </div>
+                </group>
+                <group string="Existing Mappings">
+                    <div colspan="2">
+                        <field name="internal_line_ids" nolabel="1"/>
+                    </div>
+                </group>
+                <group>
+                    <group>
+                        <field name="operation_mode" widget="radio" readonly="state != 'draft'"/>
+                    </group>
+                    <group>
+                        <field name="import_images" widget="boolean_toggle" readonly="state != 'draft'" invisible="operation_mode != 'import'"/>
+                    </group>
+                </group>
+                <div class="alert alert-warning" role="alert" invisible="state != 'checked'">
+                    Pressing the "Approve Incoming" button confirms that the incoming mapping records
+                    have up-to-date values and will be used in subsequent products import.
+                </div>
+                <div class="debug-info mt-4">
+                    <a href="#" onclick="var el = document.getElementById('raw-data-id'); el.classList.toggle('d-none'); el.classList.toggle('d-block');">
+                        TOGGLE DATA
+                    </a>
+                    <div id="raw-data-id" class="alert alert-info d-none" role="alert">
+                        <div name="raw-data-block" class="o_field_widget o_readonly_modifier o_field_text">
+                            <span>
+                                <field name="raw_data" readonly="1"/>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <footer class="d-flex justify-content-between">
+                    <!-- Left-Aligned Buttons -->
+                    <div>
+                        <button name="check" string="Check" type="object" class="btn-primary me-2" invisible="state != 'draft'" context="{'integration_catch_exception': True}"/>
+                        <button name="approve" string="Approve Incoming" type="object" class="btn-outline-danger me-2" invisible="state != 'checked'" context="{'integration_catch_exception': True}"/>
+                        <button name="perform" string="Perform" type="object" class="btn-primary me-2" invisible="state != 'approved'" context="{'integration_catch_exception': True}"/>
+                        <button string="Close" class="btn-secondary me-2" special="cancel"/>
+                        <button name="to_draft" string="To Draft" type="object" class="btn-secondary me-2" invisible="state == 'draft'"/>
+                    </div>
+
+                    <!-- Right-Aligned Button -->
+                    <div>
+                        <button name="to_export_format_template" string="To Export Format" type="object" class="btn-secondary" invisible="not product_template_id or state not in ('draft', 'done')"/>
+                    </div>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="import_product_line_view_tree" model="ir.ui.view">
+        <field name="name">import.product.line.list</field>
+        <field name="model">import.product.line</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="wizard_id" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                <field name="type" column_invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                <field name="state" column_invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                <button name="drop"
+                        title="Drop"
+                        icon="fa-trash"
+                        type="object"
+                        invisible="model_name == 'product.template' or type == 'incoming' or state in ('approved', 'done')"
+                />
+                <field name="code"/>
+                <field name="name" optional='hide'/>
+                <field name="reference"/>
+                <field name="barcode"/>
+                <field name="mapping_id" invisible="type == 'incoming'"/>
+                <field name="model_name" optional='hide'/>
+                <field name="odoo_id" invisible="type == 'incoming'"/>
+                <field name="attribute_list" optional='hide'/>
+            </list>
+        </field>
+    </record>
+
+</odoo>

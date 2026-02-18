@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="view_configuration_wizard" model="ir.ui.view">
+            <field name="name">configuration.wizard.shopify.form</field>
+            <field name="model">configuration.wizard.shopify</field>
+            <field name="inherit_id" ref="integration.view_configuration_wizard"/>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet" position="inside">
+                    <field name="configuration_shopify_line_ids" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                    <div name="step_order_status" invisible="state != 'step_order_status'">
+                        <field name="configuration_order_status_ids" nolabel="1">
+                            <list create="0" edit="0" delete="0" editable="bottom">
+                                <field name="configuration_wizard_id" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                                <field name="activate" widget="boolean_toggle"/>
+                                <field name="name" readonly="1"/>
+                                <field name="code" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                                <field name="info" readonly="1"/>
+                            </list>
+                        </field>
+                    </div>
+                    <div name="step_order_financial_status" invisible="state != 'step_order_financial_status'">
+                        <field name="configuration_order_financial_status_ids" nolabel="1">
+                            <list create="0" edit="0" delete="0" editable="bottom">
+                                <field name="configuration_wizard_id" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                                <field name="activate" widget="boolean_toggle"/>
+                                <field name="name" readonly="1"/>
+                                <field name="code" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                                <field name="info" readonly="1"/>
+                            </list>
+                        </field>
+                    </div>
+                    <div name="step_order_fulfillment_status" invisible="state != 'step_order_fulfillment_status'">
+                        <field name="configuration_order_fulfillment_status_ids" nolabel="1">
+                            <list create="0" edit="0" delete="0" editable="bottom">
+                                <field name="configuration_wizard_id" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                                <field name="activate" widget="boolean_toggle"/>
+                                <field name="name" readonly="1"/>
+                                <field name="code" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                                <field name="info" readonly="1"/>
+                            </list>
+                        </field>
+                    </div>
+                </xpath>
+                <xpath expr="//field[@name='language_default_id']" position="attributes">
+                    <attribute name="string">Primary Language</attribute>
+                    <attribute name="readonly">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

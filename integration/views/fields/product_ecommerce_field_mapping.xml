@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="product_ecommerce_field_mapping_view_tree" model="ir.ui.view">
+            <field name="name">product.ecommerce.field.mapping.view.list</field>
+            <field name="model">product.ecommerce.field.mapping</field>
+            <field name="arch" type="xml">
+                <list editable="bottom"
+                      decoration-success="is_reference"
+                      decoration-info="is_barcode"
+                      decoration-muted="not active"
+                      decoration-danger="not active and (is_reference or is_barcode)"
+                      js_class="product_ecommerce_field_mapping_list_view"
+                 >
+                    <!-- Hidden fields for decorations and logic -->
+                    <field name="id" groups="base.group_no_one"/>
+                    <field name="integration_api_type" column_invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                    <field name="is_reference" column_invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                    <field name="is_barcode" column_invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+
+                    <!-- Editable columns -->
+                    <field name="active" string="Active" widget="boolean_toggle"/>
+                    <field name="export_enabled" string="Export (Odoo → Shop)" widget="boolean_toggle"/>
+                    <field name="import_enabled" string="Import (Shop → Odoo)" widget="boolean_toggle"/>
+
+                    <!-- Read-only info columns -->
+                    <field name="integration_id" string="Store"/>
+                    <field name="ecommerce_field_id" string="Field Definition"/>
+                    <field name="odoo_model_id" string="Odoo Model" readonly="1"/>
+                    <field name="odoo_field_id" string="Odoo Field" readonly="1"/>
+                    <field name="technical_name" string="E-Commerce Field" readonly="1"/>
+
+                    <!-- Optional columns (read-only) -->
+                    <field name="odoo_field_name" string="Odoo Field (Technical Name)" readonly="1" optional="hide"/>
+                    <field name="trackable_fields_rel" string="Tracked Fields" widget="many2many_tags" readonly="1" optional="hide"/>
+                    <field name="is_translatable_field" string="Multi-Language" widget="boolean_toggle" readonly="1" optional="hide"/>
+                    <field name="is_scriptable_field" string="Uses Script" widget="boolean_toggle" readonly="1" optional="hide"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="product_ecommerce_field_mapping_view_search" model="ir.ui.view">
+            <field name="name">product.ecommerce.field.mapping.view.search</field>
+            <field name="model">product.ecommerce.field.mapping</field>
+            <field name="arch" type="xml">
+                <search>
+                    <!-- Search fields -->
+                    <field name="id" groups="base.group_no_one"/>
+                    <field name="integration_id" string="E-Commerce Store"/>
+                    <field name="ecommerce_field_id" string="Field Definition" domain="[('is_private', '=', False)]"/>
+                    <field name="odoo_field_id" string="Odoo Field"/>
+                    <field name="technical_name" string="E-Commerce Field"/>
+                    <field name="trackable_fields_rel" string="Tracked Fields"/>
+
+                    <separator/>
+
+                    <!-- Status filters -->
+                    <filter string="Active" name="filter_active"
+                            domain="[('active', '=', True)]"/>
+                    <filter string="Inactive" name="filter_inactive"
+                            domain="[('active', '=', False)]"/>
+
+                    <separator/>
+
+                    <!-- Direction filters -->
+                    <filter string="Odoo → Shop Enabled" name="filter_export_enabled"
+                            domain="[('export_enabled', '=', True)]"/>
+                    <filter string="Odoo → Shop Disabled" name="filter_export_disabled"
+                            domain="[('export_enabled', '=', False)]"/>
+
+                    <separator/>
+
+                    <filter string="Shop → Odoo Enabled" name="filter_import_enabled"
+                            domain="[('import_enabled', '=', True)]"/>
+                    <filter string="Shop → Odoo Disabled" name="filter_import_disabled"
+                            domain="[('import_enabled', '=', False)]"/>
+
+                    <separator/>
+
+                    <!-- Special field filters -->
+                    <filter string="Multi-Language" name="filter_translatable"
+                            domain="[('is_translatable_field', '=', True)]"/>
+                    <filter string="Uses Script" name="filter_scriptable"
+                            domain="[('is_scriptable_field', '=', True)]"/>
+
+                    <separator/>
+
+                    <!-- Group by -->
+                    <group>
+                        <filter string="Store" name="group_integration_id"
+                                context="{'group_by': 'integration_id'}"/>
+                        <filter string="Field Definition" name="group_ecommerce_field_id"
+                                context="{'group_by': 'ecommerce_field_id'}"/>
+                        <filter string="Odoo Model" name="group_odoo_model_id"
+                                context="{'group_by': 'odoo_model_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="product_ecommerce_field_mapping_action" model="ir.actions.act_window">
+            <field name="name">Field Synchronization</field>
+            <field name="res_model">product.ecommerce.field.mapping</field>
+            <field name="view_mode">list</field>
+            <field name="context">
+                {
+                    'active_test': False,
+                    'search_default_group_integration_id': 1,
+                }
+            </field>
+        </record>
+
+    </data>
+</odoo>

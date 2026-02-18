@@ -1,0 +1,26 @@
+.o-integration-IntegrationStatusMenu {
+    min-width: 500px;
+}
+
+.IntegrationStatusMenu_badge {
+    position: relative;
+    transform: translate(-5px, -5px);
+    background-color: #017e84;
+    margin-right: -10px;
+}
+
+.IntegrationStatusMenu_loading {
+    width: 100%;
+    text-align: center;
+}
+
+.IntegrationStatusMenu_rate_us img {
+    max-width: 33px;
+    margin-right: .5rem;
+    cursor: pointer;
+
+}
+
+.IntegrationStatusMenu_rate_us img:hover {
+    border: 1px solid #dddddd;
+}

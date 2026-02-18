@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="printnode_action_method_list" model="ir.ui.view">
+            <field name="name">printnode.action.method.list</field>
+            <field name="model">printnode.action.method</field>
+            <field name="type">list</field>
+            <field name="arch" type="xml">
+                <list string="Methods" editable="bottom">
+                    <field name="model_id" />
+                    <field name="name" />
+                    <field name="method" />
+                </list>
+            </field>
+        </record>
+
+        <record id="printnode_action_methods" model="ir.actions.act_window">
+            <field name="name">Methods</field>
+            <field name="res_model">printnode.action.method</field>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="printnode_action_method_list" />
+        </record>
+
+        <menuitem id="menu_printnode_methods"
+                  name="Methods"
+                  parent="menu_printnode_service"
+                  sequence="60"
+                  action="printnode_action_methods"
+        />
+
+    </data>
+</odoo>

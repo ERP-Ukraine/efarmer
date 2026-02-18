@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_integration_order_field_mapping_editor_wizard_form" model="ir.ui.view">
+        <field name="name">integration.order.field.mapping.editor.wizard.form</field>
+        <field name="model">integration.order.field.mapping.editor.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Integration Order Field Mapping Editor Wizard" create="0" delete="0" edit="1">
+                <field name="integration_id" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                <sheet>
+                    <div>
+                        <p>
+                            Map custom fields from external orders (e.g. Shopify) to Odoo's Sales or Delivery Orders.
+                        </p>
+                        <ul>
+                            <li>Code Tab – Write a Python script to transform values before saving. Test it on imported orders.</li>
+                            <li>Help Tab – See available variables, return formats, and examples.</li>
+                        </ul>
+                        <p>
+                        Use this for advanced field mapping and data preprocessing during import.
+                        </p>
+                    </div>
+                    <notebook>
+                        <page name="integration_code" string="Code">
+                            <group>
+                                <field name="external_order_field"/>
+                            </group>
+                            <div class="w-100 d-flex flex-row gap-3" style="background-color: #f9f9f9;">
+                                <field name="integration_code" class="w-100" widget="code" options="{'mode': 'python'}"/>
+                            </div>
+                            <hr/>
+                            <div class="alert alert-info" role="alert">
+                                In this section you can test your pre-processing script on imported external orders. Choose order you want to use during script validation and click “Test Pre-processing Script” button to run validation. You will see result of pre-processing in Result field below.
+                            </div>
+                            <group class="o_group pb-3">
+                                <group colspan="3">
+                                    <field name="test_input_file_id"/>
+                                </group>
+                                <div colspan="2">
+                                    <button name="action_test" string="Test Pre-processing Script" type="object" class="btn btn-primary"/>
+                                </div>
+                            </group>
+                            <label for="result" string="Result"/>
+                            <div style="background-color: #f9f9f9; border: 1px solid #ddd;">
+                                <field name="result" readonly="1" style="height: 80px;"/>
+                            </div>
+                        </page>
+                        <page name="integration_help" string="Help">
+                            <div class="w-100 d-flex flex-row gap-3">
+                                <div class="opacity-75">
+                                    <span class="text-muted"> Available variables: </span>
+                                    <ul colspan="2" class="text-muted">
+                                        <li><code>integration</code>: the integration record</li>
+                                        <li><code>value</code>: the external field's raw value (or None if not found)</li>
+                                        <li><code>order</code>: he complete external order JSON</li>
+                                        <li><code>logger</code>: Odoo's logger(e.g. <code>logger.info("...")</code>)</li>
+                                        <li><code>env</code>: the Odoo environment</li>
+                                        <li><code>re</code>: Python's regex module</li>
+                                        <li><code>json</code>: Python's JSON module</li>
+                                    </ul>
+                                    <p class="text-muted mt-3">
+                                        Use <code>value</code> variable to store the processed value or to see the final value now.<br/>
+                                    </p>
+                                    Example:<br/>
+                                    <div class="bg-light border p-2 mb-2" style="font-family: monospace; white-space: pre-wrap;">
+                                        if isinstance(value, str):<br/>
+                                        <div style="padding-left: 40px;">value = value.strip()</div><br/>
+                                        <br/>
+                                        if isinstance(value, dict):<br/>
+                                        <div style="padding-left: 40px;">value = json.dumps(value)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <footer>
+                    <button name="action_save_code" string="Save" type="object" class="btn btn-primary"/>
+                    <button string="Cancel" class="btn btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

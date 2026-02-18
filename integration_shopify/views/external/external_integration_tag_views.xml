@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="view_shopify_external_integration_tag_tree" model="ir.ui.view">
+            <field name="name">external.integration.tag.list</field>
+            <field name="model">external.integration.tag</field>
+            <field name="arch" type="xml">
+                <list editable="bottom" create="1">
+                    <field name="integration_id" options="{'no_create': True}" domain="[('type_api', '=', 'shopify')]"/>
+                    <field name="ttype" column_invisible="1" force_save="1"/>
+                    <field name="name" readonly="not integration_id"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_external_integration_tag_search" model="ir.ui.view">
+            <field name="name">external.integration.tag.view.search</field>
+            <field name="model">external.integration.tag</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <group>
+                        <filter string="E-Commerce Store" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_external_integration_shopify_product_tag" model="ir.actions.act_window">
+            <field name="name">External Product Tags (Shopify)</field>
+            <field name="path">eci-external-integration-shopify-product-tags</field>
+            <field name="res_model">external.integration.tag</field>
+            <field name="domain">[('ttype', '=', 'product'), ('integration_id.type_api', '=', 'shopify')]</field>
+            <field name="context">{'default_ttype': 'product'}</field>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="view_shopify_external_integration_tag_tree"/>
+        </record>
+
+        <record id="action_external_integration_shopify_order_tag" model="ir.actions.act_window">
+            <field name="name">External Order Tags (Shopify)</field>
+            <field name="path">eci-external-integration-shopify-order-tags</field>
+            <field name="res_model">external.integration.tag</field>
+            <field name="domain">[('ttype', '=', 'order'), ('integration_id.type_api', '=', 'shopify')]</field>
+            <field name="context">{'default_ttype': 'order'}</field>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="view_shopify_external_integration_tag_tree"/>
+        </record>
+
+    </data>
+</odoo>

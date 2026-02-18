@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_order_from_inherit_shopify" model="ir.ui.view">
+            <field name="name">sale.order.form.view.inherit.shopify</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="integration.view_order_from_inherit"/>
+            <field name="arch" type="xml">
+                <field name="sub_status_id" position="after">
+                    <field name="shopify_fulfilment_status" readonly="1"
+                           invisible="type_api != 'shopify'"/>
+                </field>
+
+                <xpath expr="//notebook/page[@name='sales_integration']/group[@name='external_transactions']/." position="after">
+                    <group name="order_risk_info" string="Order Risk Assessment" invisible="type_api != 'shopify'">
+                        <field name="is_risky_sale"/>
+
+                        <div colspan="2">
+                            <field name="order_risk_ids" nolabel="1">
+                                <list create="0" edit="0" delete="0">
+                                    <field name="recommendation"/>
+                                    <field name="score"/>
+                                    <field name="message"/>
+                                    <field name="source" optional="show"/>
+                                    <field name="external_str_id" optional="hide"/>
+                                    <field name="external_order_str_id" optional="hide"/>
+                                </list>
+                            </field>
+                        </div>
+                    </group>
+                </xpath>
+
+                <xpath expr="//notebook/page[@name='sales_integration']//group[@name='integration_store_specific']/." position="inside">
+                    <field name="integration_sale_channel_id" readonly="1" invisible="type_api != 'shopify'" />
+                    <field name="integration_order_source_name_id" readonly="1" invisible="type_api != 'shopify'" />
+                    <field name="external_tag_ids" readonly="1" widget="many2many_tags" invisible="type_api != 'shopify'" domain="[('ttype', '=', 'order')]"/>
+                </xpath>
+
+                <field name="payment_method_id" position="replace">
+                    <field name="payment_method_id" string="E-Commerce Payment Methods" invisible="type_api == 'shopify'"/>
+                    <field name="payment_method_id" string="Primary E-Commerce Payment Method" invisible="type_api != 'shopify'"/>
+                </field>
+
+                <field name="payment_method_id" position="before">
+                    <field name="payment_method_ids" readonly="1" invisible="type_api != 'shopify'" widget="many2many_tags"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="sale_order_view_search" model="ir.ui.view">
+            <field name="name">sale.order.view.search</field>
+            <field name="model">sale.order</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="integration_sale_channel_id"/>
+                    <group>
+                        <filter string="Sale Channel" name="group_by_integration_sale_channel_id" context="{'group_by': 'integration_sale_channel_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+    </data>
+</odoo>

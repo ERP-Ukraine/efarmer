@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="integration_account_tax_external_view_tree" model="ir.ui.view">
+            <field name="name">integration.account.tax.external.view.list</field>
+            <field name="model">integration.account.tax.external</field>
+            <field name="arch" type="xml">
+                <list editable="bottom" create="0">
+                    <field name="id" groups="base.group_no_one"/>
+                    <field name="integration_id"/>
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="external_tax_group_ids" widget="many2many_tags"/>
+                    <button name="action_open_mapping"
+                            type="object"
+                            string="Open Mapping"
+                            icon="fa-external-link"
+                            class="btn-outline-primary"
+                    />
+                </list>
+            </field>
+        </record>
+
+        <record id="integration_account_tax_external_view_search" model="ir.ui.view">
+            <field name="name">integration.account.tax.external.view.search</field>
+            <field name="model">integration.account.tax.external</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="external_tax_group_ids"/>
+                    <field name="integration_id"/>
+                    <group>
+                        <filter string="E-Commerce Store" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="integration_account_tax_external_action" model="ir.actions.act_window">
+            <field name="name">External Taxes</field>
+            <field name="path">eci-external-taxes</field>
+            <field name="res_model">integration.account.tax.external</field>
+            <field name="view_mode">list</field>
+        </record>
+
+        <record id="integration_account_tax_external_action_import_taxes" model="ir.actions.server">
+            <field name="name">Import Taxes</field>
+            <field name="model_id" ref="integration.model_integration_account_tax_external"/>
+            <field name="binding_model_id" ref="integration.model_integration_account_tax_external"/>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">action = records.action_import_taxes_from_external()</field>
+        </record>
+
+    </data>
+</odoo>

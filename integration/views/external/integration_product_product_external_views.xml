@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="integration_product_product_external_view_tree" model="ir.ui.view">
+            <field name="name">integration.product.product.external.view.list</field>
+            <field name="model">integration.product.product.external</field>
+            <field name="arch" type="xml">
+                <list editable="bottom" create="0">
+                    <field name="id" groups="base.group_no_one"/>
+                    <field name="integration_id"/>
+                    <field name="external_product_template_id" string="Parent Product" readonly="1"/>
+                    <field name="code" string="External ID"/>
+                    <field name="name" string="Variant Name"/>
+                    <field name="external_reference" string="SKU / Reference"/>
+                    <field name="external_barcode" string="Barcode"/>
+                    <field name="external_attribute_value_ids" string="Attributes" widget="many2many_tags" optional="show"/>
+
+                    <!-- Action buttons -->
+                    <button name="action_open_mapping"
+                            string="Open Mapping"
+                            title="Open the mapping record to see linked Odoo variant"
+                            icon="fa-link"
+                            type="object"
+                            class="btn-outline-secondary"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="integration_product_product_external_search" model="ir.ui.view">
+            <field name="model">integration.product.product.external</field>
+            <field name="name">Search Integration Variants</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name" string="Variant Name"/>
+                    <field name="code" string="External ID"/>
+                    <field name="external_reference" string="SKU / Reference"/>
+                    <field name="external_barcode" string="Barcode"/>
+                    <field name="integration_id" string="E-Commerce Store"/>
+                    <field name="external_product_template_id" string="Parent Product"/>
+                    <group>
+                        <filter string="E-Commerce Store" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="integration_product_product_external_action" model="ir.actions.act_window">
+            <field name="name">External Variants</field>
+            <field name="path">eci-external-variants</field>
+            <field name="res_model">integration.product.product.external</field>
+            <field name="view_mode">list</field>
+        </record>
+
+    </data>
+</odoo>
