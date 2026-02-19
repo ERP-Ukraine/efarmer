@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="channel_product_template" model="queue.job.channel">
+            <field name="name">product_template</field>
+            <!-- TODO: Provide compatibility with Job Queue module -->
+            <field name="parent_id" ref="integration_queue_job.channel_root" />
+        </record>
+
+        <record id="channel_sale_order" model="queue.job.channel">
+            <field name="name">sale_order</field>
+            <!-- TODO: Provide compatibility with Job Queue module -->
+            <field name="parent_id" ref="integration_queue_job.channel_root" />
+        </record>
+
+    </data>
+</odoo>

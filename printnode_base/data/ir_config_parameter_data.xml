@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data noupdate="1">
+
+        <record model="ir.config_parameter" id="skip_methods">
+            <field name="key">printnode_base.skip_methods</field>
+            <field name="value">create,write,unlink,read,onchange,load_views,check_access_rights</field>
+        </record>
+
+        <record model="ir.config_parameter" id="dpc_url">
+            <field name="key">printnode_base.dpc_url</field>
+            <field name="value">https://print.ventor.tech</field>
+        </record>
+
+        <record model="ir.config_parameter" id="dpc_api_url">
+            <field name="key">printnode_base.dpc_api_url</field>
+            <field name="value">https://print.api.ventor.tech</field>
+        </record>
+
+        <!-- Printjob content urls lifespan in minutes -->
+        <record model="ir.config_parameter" id="printjob_content_url_lifespan">
+            <field name="key">printnode_base.printjob_content_url_lifespan</field>
+            <field name="value">10</field>
+        </record>
+
+    </data>
+</odoo>

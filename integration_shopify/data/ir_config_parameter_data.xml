@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data noupdate="1">
+
+        <record model="ir.config_parameter" id="interation_order_fraud_threshold">
+            <field name="key">integration.fraud_threshold</field>
+            <field name="value">0.5</field>
+        </record>
+
+    </data>
+
+    <data noupdate="0">
+
+        <record model="ir.config_parameter" id="interation_graphql_version">
+            <field name="key">integration.graphql_version</field>
+            <field name="value">2026-01</field>
+        </record>
+
+    </data>
+</odoo>

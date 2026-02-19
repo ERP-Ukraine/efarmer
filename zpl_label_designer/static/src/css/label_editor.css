@@ -1,0 +1,8 @@
+/* Preview */
+.zld-preview-container {
+    overflow-x: scroll;
+}
+
+.zld-preview-container img {
+    border: 1px solid #ddd;
+}

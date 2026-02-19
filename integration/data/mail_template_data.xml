@@ -1,0 +1,34 @@
+<odoo>
+
+    <data noupdate="1">
+
+        <record id="mail_template_notify_failed_mapping" model="mail.template">
+            <field name="name">Integration: Notify on Failed Mapping</field>
+            <field name="model_id" ref="integration.model_sale_integration"/>
+            <field name="subject">Subject: {{ object.name }} - Important: Action Needed for Unmapped Contact in Order</field>
+            <field name="description">Sends email alerts for unmapped external contacts.</field>
+            <field name="lang">{{ user.lang }}</field>
+            <field name="body_html"><![CDATA[
+                Hello,<br/><br/><br/>
+
+
+                We noticed an external contact in a recent order wasn't linked to an existing contact in your Odoo. The contact name through during order processing and couldn't be mapped automatically due to manual settings. This step is important for the correct handling of new orders.<br/><br/><br/>
+
+
+                <b>Contact Details:</b><br/><br/>
+                Name: <t t-out="ctx['person_name']"/><br/><br/>
+                Email: <t t-out="ctx['email']"/> <br/><br/><br/>
+
+                <b>Next Steps:</b><br/><br/>
+                - Visit <a t-att-href="ctx['url_menu']">"Contact Mappings"</a> to see this unmapped contact.<br/><br/>
+                - Link the contact to an existing customer or create a new one in Odoo.<br/><br/><br/>
+
+                This action is important to ensure accurate order and customer data in your system.<br/><br/>
+
+                Thank you.
+            ]]></field>
+        </record>
+
+    </data>
+
+</odoo>

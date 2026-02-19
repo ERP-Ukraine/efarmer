@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="integration_workflow_pipeline_form_view" model="ir.ui.view">
+            <field name="name">integration.workflow.pipeline.form</field>
+            <field name="model">integration.workflow.pipeline</field>
+            <field name="arch" type="xml">
+                <form string="Integration Workflow Pipeline Form" create="0" edit="0" delete="0">
+                    <group>
+                        <field name="order_id" readonly="1"/>
+                        <field name="sub_state_external_ids" readonly="1" widget="many2many_tags"/>
+                        <field name="skip_dispatch" readonly="1"/>
+                        <field name="invoice_journal_id" readonly="1"/>
+                        <field name="payment_journal_id" readonly="1"/>
+                        <field name="input_file_id" readonly="1"/>
+                        <field name="input_file_state"/>
+                        <field name="update_required"/>
+                        <field name="current_info" readonly="1"/>
+                        <field name="pipeline_task_ids" readonly="1">
+                            <list no_open="1"
+                                decoration-muted="state=='skip'" 
+                                decoration-success="state=='done'" 
+                                decoration-danger="state=='failed'"
+                                decoration-warning="state=='in_process'"
+                            >
+                                <field name="name"/>
+                                <field name="current_step_method" column_invisible="1"/> <!-- Can be removed in the future? -->
+                                <field name="next_step_method" column_invisible="1"/> <!-- Can be removed in the future? -->
+                                <field name="state"/>
+                                <button name="run"
+                                        string="Run" 
+                                        type="object"
+                                        invisible="state in ['skip', 'done']"
+                                />
+                                <button name="task_force_done"
+                                        string="Force Done" 
+                                        type="object"
+                                        invisible="state == 'done'"
+                                        groups="base.group_no_one"
+                                />
+                                <button name="task_force_draft"
+                                        string="To Draft" 
+                                        type="object"
+                                        invisible="state == 'todo'"
+                                        groups="base.group_no_one"
+                                />
+                            </list>
+                        </field>
+                    </group>
+                    <group>
+                        <button name="manual_run"
+                                string="Re-Run With Delay" 
+                                type="object" 
+                        />
+                        <button name="mark_input_as_done"
+                                string="Mark Input as DONE" 
+                                type="object"
+                                class="float-right mr-1"
+                                groups="base.group_no_one"
+                        />
+                        <button name="open_form"
+                                string="Refresh Form" 
+                                type="object"
+                                class="float-right mr-1"
+                                groups="base.group_no_one"
+                        />
+                        <button name="clear_info"
+                                string="Clear Info" 
+                                type="object" 
+                                class="float-right mr-1"
+                        />
+                    </group>
+                    <group>
+                        <button name="drop_pipeline"
+                                string="Drop Workflow" 
+                                type="object" 
+                                class="btn-outline-danger float-right mr-1"
+                                groups="base.group_no_one"
+                        />
+                    </group>
+                    <footer>
+                        <button string="Close" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="integration_workflow_pipeline_form_tree" model="ir.ui.view">
+            <field name="name">integration.workflow.pipeline.list</field>
+            <field name="model">integration.workflow.pipeline</field>
+            <field name="arch" type="xml">
+                <list string="Integration Workflow Pipeline Tree" create="0" edit="0">
+                    <field name="order_id"/>
+                    <field name="pipeline_task_ids" widget="many2many_tags"/>
+                </list>
+            </field>
+        </record>
+
+    </data>
+</odoo>

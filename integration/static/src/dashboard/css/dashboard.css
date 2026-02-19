@@ -1,0 +1,64 @@
+.integration_dashboard_container {
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.integration_dashboard_sales_cards .card .card-body {
+    height: 120px;
+    position: relative;
+}
+
+.integration_dashboard_chart_sales .card .card-body {
+    height: 400px;
+    position: relative;
+}
+
+.integration_dashboard_chart_sales .card canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.integration_dashboard_chart_customers .card .card-body {
+    height: 266px;
+    position: relative;
+}
+
+.integration_dashboard_chart_customers .card canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.o_loader_container {
+    position: relative;
+    min-height: 120px;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.o_loader_spinner {
+    width: 50px;
+    height: 50px;
+    border: 6px solid #e5e5e5;
+    border-top: 6px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.blurred {
+    filter: blur(4px);
+    pointer-events: none;
+    user-select: none;
+    /* opacity: 0.6; */
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="job_function_sale_integration_export_template" model="queue.job.function">
+            <field name="model_id" ref="integration.model_sale_integration"/>
+            <field name="method">export_template</field>
+            <field name="channel_id" ref="channel_product_template"/>
+        </record>
+
+        <record id="job_function_sale_integration_import_product" model="queue.job.function">
+            <field name="model_id" ref="integration.model_sale_integration"/>
+            <field name="method">import_product</field>
+            <field name="channel_id" ref="channel_product_template"/>
+        </record>
+
+        <record id="job_function_sale_integration_create_order" model="queue.job.function">
+            <field name="model_id" ref="integration.model_sale_integration"/>
+            <field name="method">create_order_from_input</field>
+            <field name="channel_id" ref="channel_sale_order"/>
+        </record>
+
+        <record id="job_function_sale_integration_input_file_process" model="queue.job.function">
+            <field name="model_id" ref="integration.model_sale_integration_input_file"/>
+            <field name="method">process</field>
+            <field name="channel_id" ref="channel_sale_order"/>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="printnode_print_reports_universal_wizard_form" model="ir.ui.view">
+        <field name="name">printnode.print.reports.universal.wizard.form</field>
+        <field name="model">printnode.print.reports.universal.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="report_id" required="1" options="{'no_create': True}"/>
+                    <field name="available_report_ids" invisible="1"/> <!-- Required because it is used in the invisible condition above -->
+                </group>
+
+                <group name="documents_for_printing">
+                    <field name="record_model" invisible="1"/> <!-- Required because it is used in the invisible condition above -->
+                    <field name="record_ids" invisible="1"/> <!-- Required because it is used in the invisible condition above -->
+                    <field name="record_names" readonly="1"/> <!-- Required because it is used in the invisible condition above -->
+                </group>
+
+                <group name="quantity_to_print">
+                    <field name="number_copy" required="1"/>
+                </group>
+
+                <group name="printer">
+                    <field name="printer_id" options="{'no_create': True, 'no_open': True}"/>
+                    <field name="printer_bin" options="{'no_create': True, 'no_open': True}"/>
+                    <field name="status" invisible="1"/> <!-- Required because it is used in the invisible condition above -->
+                </group>
+
+                <p colspan="4" class="text-danger" invisible="status != 'offline'">
+                    Printer is not available. Please, choose another printer.
+                </p>
+
+                <footer>
+                    <button string="Print" name="do_print" type="object" class="oe_highlight"/>
+                    <button string="Cancel" class="btn btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

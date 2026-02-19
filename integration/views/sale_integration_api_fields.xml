@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="view_sale_integration_api_fields_form" model="ir.ui.view">
+            <field name="name">sale.integration.api.field.form</field>
+            <field name="model">sale.integration.api.field</field>
+            <field name="arch" type="xml">
+                <form string="E-Commerce Store API Field">
+                    <group>
+                        <field name="name" />
+                        <field name="description" />
+                        <field name="value" readonly="is_secure" invisible="is_secure" />
+                        <field name="is_secure" readonly="1" />
+                        <field name="eval" readonly="1" widget="boolean_toggle" force_save="1" />
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_sale_integration_api_fields_list" model="ir.ui.view">
+            <field name="name">sale.integration.api.field.list</field>
+            <field name="model">sale.integration.api.field</field>
+            <field name="arch" type="xml">
+                <list string="E-Commerce Store API Fields" editable="bottom">
+                    <field name="is_secure" column_invisible="1" /> <!-- Required because it is used in the invisible condition below -->
+                    <field name="name" />
+                    <field name="description" />
+                    <field name="value" readonly="is_secure" invisible="is_secure" /> <!-- Use invisible instead of column_invisible to hide the value -->
+                    <field name="eval" readonly="1" widget="boolean_toggle" force_save="1" />
+                </list>
+            </field>
+        </record>
+
+    </data>
+</odoo>

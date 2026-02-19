@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_queue_job_manager,queue job manager,model_queue_job,group_queue_job_manager,1,1,1,1
+access_queue_job_function_manager,queue job functions manager,model_queue_job_function,group_queue_job_manager,1,1,1,1
+access_queue_job_channel_manager,queue job channel manager,model_queue_job_channel,group_queue_job_manager,1,1,1,1
+access_queue_requeue_job,queue requeue job manager,model_queue_requeue_job,group_queue_job_manager,1,1,1,1
+access_queue_jobs_to_done,queue jobs to done manager,model_queue_jobs_to_done,group_queue_job_manager,1,1,1,1
+access_queue_jobs_to_cancelled,queue jobs to cancelled manager,model_queue_jobs_to_cancelled,group_queue_job_manager,1,1,1,1

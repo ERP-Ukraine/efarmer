@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="integration_sale_order_external_view_tree" model="ir.ui.view">
+            <field name="name">integration.sale.order.external.view.list</field>
+            <field name="model">integration.sale.order.external</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="id" groups="base.group_no_one"/>
+                    <field name="integration_id"/>
+                    <field name="code"/>
+                    <field name="name"/>
+                    <button name="action_open_mapping"
+                            type="object"
+                            string="Open Mapping"
+                            icon="fa-external-link"
+                            class="btn-outline-primary"
+                    />
+                </list>
+            </field>
+        </record>
+
+        <record id="integration_sale_order_external_view_search" model="ir.ui.view">
+            <field name="name">integration.sale.order.view.search</field>
+            <field name="model">integration.sale.order.external</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="integration_id"/>
+                    <group>
+                        <filter string="E-Commerce Store" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+    </data>
+</odoo>
