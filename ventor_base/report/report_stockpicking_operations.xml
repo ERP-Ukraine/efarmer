@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_picking" inherit_id="stock.report_picking">
+        <xpath expr="//div[@name='right_box']" position="after">
+            <div t-if="o.sale_id.name and o.company_id.barcode_on_picking_document">
+                <div t-field="o.sale_id.name"
+                    style="display:flex;justify-content:flex-end;display:-webkit-box;-webkit-box-pack:end;"
+                    t-options="{'widget': 'barcode', 'humanreadable': 1, 'width': 600, 'height': 100, 'img_style': 'width:300px;height:50px;'}"/>
+            </div>
+        </xpath>
+    </template>
+
+</odoo>

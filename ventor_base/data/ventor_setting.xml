@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="bool_true" model="ventor.setting.value">
+        <field name="setting_type">bool</field>
+        <field name="setting_value">True</field>
+    </record>
+
+    <record id="bool_false" model="ventor.setting.value">
+        <field name="setting_type">bool</field>
+        <field name="setting_value">False</field>
+    </record>
+
+    <record id="always_create_backorder" model="ventor.setting.value">
+        <field name="setting_type">behavior_on_backorder_creation</field>
+        <field name="setting_value">Always Create Backorder</field>
+    </record>
+
+    <record id="never_create_backorder" model="ventor.setting.value">
+        <field name="setting_type">behavior_on_backorder_creation</field>
+        <field name="setting_value">Never Create Backorder</field>
+    </record>
+
+    <record id="ask_me_every_time" model="ventor.setting.value">
+        <field name="setting_type">behavior_on_backorder_creation</field>
+        <field name="setting_value">Ask Me Every Time</field>
+    </record>
+
+    <record id="always_create_backorder_split" model="ventor.setting.value">
+        <field name="setting_type">behavior_on_split_operation</field>
+        <field name="setting_value">Always Split the Line</field>
+    </record>
+
+    <record id="never_create_backorder_split" model="ventor.setting.value">
+        <field name="setting_type">behavior_on_split_operation</field>
+        <field name="setting_value">Always Move Less Items</field>
+    </record>
+
+    <record id="ask_me_every_time_split" model="ventor.setting.value">
+        <field name="setting_type">behavior_on_split_operation</field>
+        <field name="setting_value">Ask Me Every Time</field>
+    </record>
+
+    <record id="save_transfer" model="ventor.setting.value">
+        <field name="setting_type">save_transfer_after_exit</field>
+        <field name="setting_value">Save transfer</field>
+    </record>
+
+    <record id="cancel_transfer" model="ventor.setting.value">
+        <field name="setting_type">save_transfer_after_exit</field>
+        <field name="setting_value">Cancel transfer</field>
+    </record>
+</odoo>
