@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+validate_inventory_user,validate_inventory_user,model_stock_location,ventor_base.merp_user_validate_inventory_adjustment,1,1,0,0
+ventor_settings_admin,ventor_settings_admin,ventor_base.model_ventor_option_setting,ventor_base.merp_manage_ventor_configuration_app,1,1,0,0
+ventor_setting_value,ventor_setting_value,ventor_base.model_ventor_setting_value,ventor_base.merp_manage_ventor_configuration_app,1,0,0,0
+pallet_transfer_stock_user,pallet_transfer_stock_user,model_pallet_transfer,stock.group_stock_user,1,1,1,0
+pallet_transfer_stock_manager,pallet_transfer_stock_manager,model_pallet_transfer,stock.group_stock_manager,1,1,1,1

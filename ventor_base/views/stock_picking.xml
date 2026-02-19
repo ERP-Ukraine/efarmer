@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+        <!-- Views-->
+        <record id='ventor_stock_picking_view' model='ir.ui.view'>
+            <field name="name">Operation Types</field>
+            <field name="model">stock.picking.type</field>
+            <field name="priority">1000</field>
+            <field name="arch" type="xml">
+                <list create="false" class="ventor_base_tree" editable="top">
+                    <field name="name" readonly="True"/>
+                    <field name="warehouse_id" readonly="True"/>
+                    <field name="company_id" invisible="True"/>
+                    <field name="confirm_source_location"/>
+                    <field name="change_source_location"/>
+                    <field name="scan_source_location_once"
+                           readonly="confirm_source_location == False"/>
+                    <field name="confirm_product"/>
+                    <field name="show_next_product"/>
+                    <field name="confirm_destination_location"/>
+                    <field name="change_destination_location"/>
+                    <field name="scan_destination_location_once"/>
+                    <field name="apply_quantity_automatically"/>
+                    <field name="is_package_tracking_enabled" invisible='1'/>
+                    <field name="manage_packages" readonly="is_package_tracking_enabled == False"/>
+                    <field name="ventor_entire_package" groups="stock.group_tracking_lot"/>
+                    <field name="allow_creating_new_packages"
+                           readonly="is_package_tracking_enabled == False or manage_packages == False"/>
+                    <field name="is_consignment_enabled" invisible='1'/>
+                    <field name="confirm_source_package"
+                           readonly="is_package_tracking_enabled == False or manage_packages == False"/>
+                    <field name="scan_destination_package"
+                           readonly="is_package_tracking_enabled == False or manage_packages == False"/>
+                    <field name="manage_product_owner" readonly="is_consignment_enabled == False"/>
+                    <field name="is_stock_production_lot_enabled" invisible='1'/>
+                    <field name="apply_default_lots" readonly="is_stock_production_lot_enabled == False"/>
+                    <field name="show_only_lots_from_source_location"/>
+                    <field name="change_lots"/>
+                    <field name="transfer_more_items"/>
+                    <field name="move_reserved_quantities"
+                           readonly="change_source_location == False"/>
+                    <field name="autocomplete_the_item_quantity_field"/>
+                    <field name="behavior_on_backorder_creation"/>
+                    <field name="behavior_on_split_operation" required="1"/>
+                    <field name="default_batch_menu" required="1"/>
+                    <field name="show_product_information" />
+                    <field name="show_print_attachment_button"/>
+                    <field name="show_put_in_pack_button" readonly="is_package_tracking_enabled == False"/>
+                    <field name="code" invisible='1'/>
+                    <field name="check_shipping_information" readonly="code != 'outgoing'"/>
+                    <field name="hide_qty_to_receive" readonly="code != 'incoming'"/>
+                    <field name="open_details_screen_first"/>
+                    <field name="is_quality_control_module_installed" invisible='1'/>
+                    <field name="quality_check_per_product_line" readonly="is_quality_control_module_installed == False"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="ventor_stock_picking_form" model="ir.ui.view">
+            <field name="name">Operation Types</field>
+            <field name="model">stock.picking.type</field>
+            <field name="inherit_id" ref="stock.view_picking_type_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='stock_picking_type_lot']" position="before">
+                    <group string="Ventor Configuration" colspan="12">
+                        <group>
+                            <field name="confirm_source_location"/>
+                            <field name="change_source_location"
+                                   readonly="confirm_source_location != True"/>
+                            <field name="scan_source_location_once"
+                                   readonly="confirm_source_location == False"/>
+                            <field name="confirm_product"/>
+                            <field name="show_next_product"/>
+                            <field name="confirm_destination_location"/>
+                            <field name="change_destination_location"/>
+                            <field name="scan_destination_location_once"/>
+                            <field name="apply_quantity_automatically"
+                                   readonly="confirm_destination_location != True"/>
+                            <field name="is_package_tracking_enabled" invisible='1'/>
+                            <field name="manage_packages" invisible="is_package_tracking_enabled == False"/>
+                            <field name="allow_creating_new_packages"
+                                   invisible="is_package_tracking_enabled == False or manage_packages == False"
+                                   readonly="is_package_tracking_enabled == False or manage_packages == False"/>
+                            <field name="confirm_source_package"
+                                   invisible="is_package_tracking_enabled == False or manage_packages == False"
+                                   readonly="is_package_tracking_enabled == False or manage_packages == False"/>
+                            <field name="scan_destination_package"
+                                   invisible="is_package_tracking_enabled == False or manage_packages == False"
+                                   readonly="is_package_tracking_enabled == False or manage_packages == False"/>
+                            <field name="is_consignment_enabled" invisible='1'/>
+                            <field name="manage_product_owner" invisible="is_consignment_enabled == False"/>
+                        </group>
+                        <group>
+                            <field name="is_stock_production_lot_enabled" invisible='1'/>
+                            <field name="apply_default_lots" invisible="is_stock_production_lot_enabled == False"/>
+                            <field name="show_only_lots_from_source_location"/>
+                            <field name="change_lots"/>
+                            <field name="transfer_more_items"/>
+                            <field name="move_reserved_quantities"
+                                   readonly="change_source_location == False"/>
+                            <field name="autocomplete_the_item_quantity_field"/>
+                            <field name="behavior_on_backorder_creation"/>
+                            <field name="behavior_on_split_operation" required="1"/>
+                            <field name="default_batch_menu" required="1"/>
+                            <field name="show_product_information" />
+                            <field name="show_print_attachment_button"/>
+                            <field name="show_put_in_pack_button" invisible="is_package_tracking_enabled == False"/>
+                            <field name="check_shipping_information" invisible="code != 'outgoing'"/>
+                            <field name="hide_qty_to_receive" invisible="code != 'incoming'"/>
+                            <field name="open_details_screen_first"/>
+                            <field name="is_quality_control_module_installed" invisible='1'/>
+                            <field name="quality_check_per_product_line" readonly="is_quality_control_module_installed == False"/>
+                        </group>
+                    </group>
+                </xpath>
+                <xpath expr="//field[@name='set_package_type']" position="after">
+                    <field name="ventor_entire_package" groups="stock.group_tracking_lot"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Actions-->
+        <record id='ventor_stock_picking_action' model='ir.actions.act_window'>
+            <field name="name">Warehouse Operations</field>
+            <field name="res_model">stock.picking.type</field>
+            <field name="view_mode">list,form</field>
+            <field name="usage">menu</field>
+            <field name="view_id" ref="ventor_stock_picking_view"/>
+        </record>
+
+        <record id="ventor_configs_action" model="ir.actions.act_window">
+            <field name="name">Configuration</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="target">current</field>
+            <field name="context">{'module' : 'ventor_base'}</field>
+        </record>
+
+        <!-- Menus -->
+        <menuitem name="Ventor Configuration"
+                  id="ventor_app_base_menu"
+                  web_icon="ventor_base,static/description/icon.png"
+                  groups="merp_manage_ventor_configuration_app"/>
+
+        <menuitem id="ventor_app_settings"
+                  name="Settings"
+                  parent="ventor_app_base_menu"
+                  action="ventor_configs_action"/>
+
+        <menuitem name="Global Ventor Settings"
+                  id="ventor_settings_app_menu"
+                  parent="ventor_app_base_menu"/>
+
+        <menuitem name="Warehouse Operations"
+                  id="ventor_wh_operations_app_menu"
+                  parent="ventor_settings_app_menu"
+                  action="ventor_stock_picking_action"
+                  sequence="1"/>
+
+        <menuitem name="User Settings"
+                  id="ventor_app_user_settings_menu"
+                  parent="ventor_app_base_menu"
+                  action="base.action_res_users"/>
+    </data>
+</odoo>

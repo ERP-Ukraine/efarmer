@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <record id="view_location_form_inherit_additional_barcode" model="ir.ui.view">
+        <field name="name">stock.location.form.inherit.additional.barcode</field>
+        <field name="model">stock.location</field>
+        <field name="active" eval="False"/>
+        <field name="inherit_id" ref="stock.view_location_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='replenish_location']" position="after">
+                <field name="barcode"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_location_form_inherited" model="ir.ui.view">
+        <field name="name">stock.location.form.inherited</field>
+        <field name="model">stock.location</field>
+        <field name="inherit_id" ref="stock.view_location_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='replenish_location']" position="after">
+                <field name="is_pallet" invisible="usage != 'internal'"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
