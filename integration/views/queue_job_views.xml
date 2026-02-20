@@ -52,6 +52,7 @@
                             <group string="Job Information">
                                 <field name="integration_id" readonly="1"/>
                                 <field name="integration_job_type" readonly="1"/>
+                                <field name="parent_id" readonly="1"/>
 
                                 <field name="template_id" invisible="not template_id" readonly="1"/>
                                 <field name="input_file_id" invisible="not input_file_id" readonly="1"/>

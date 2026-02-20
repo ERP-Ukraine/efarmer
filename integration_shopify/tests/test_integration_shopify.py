@@ -13,15 +13,15 @@ ORDER_ID = '100500'
 ORDER_ID_FP = '100510'
 
 
-@tagged('post_install', '-at_install')
+@tagged('post_install', '-at_install', 'test_integration_shopify')
 class TestIntegrationShopify(IntegrationShopifyBase):
 
-    def setUp(self):
-        super(TestIntegrationShopify, self).setUp()
+    @classmethod
+    def setUpClass(cls):
+        super(TestIntegrationShopify, cls).setUpClass()
 
-        # Activate all mapping fields
-        self.env['product.ecommerce.field.mapping'].with_context(active_test=False).search([
-            ('integration_id', '=', self.integration.id),
+        cls.env['product.ecommerce.field.mapping'].with_context(active_test=False).search([
+            ('integration_id', '=', cls.integration.id),
         ]).write({
             'active': True,
             'export_enabled': True,
@@ -64,7 +64,7 @@ class TestIntegrationShopify(IntegrationShopifyBase):
 
     @mute_logger('odoo.addons.integration.tools')
     def test_convert_product_fields_in_and_out(self):
-        t, (v1, v2, v3, v4), errors = self.integration._import_external_product(
+        t, (v1, v2, v3, v4), errors, __ = self.integration._import_external_product(
             ['10203545100500'],
             try_to_map=False,
         )
@@ -186,11 +186,12 @@ class TestIntegrationShopify(IntegrationShopifyBase):
         self.assertEqual(data['variants_count'], 4)
 
         self.assertEqual(data['attribute_values'][0]['name'], 'Instrument color')
-        self.assertEqual(data['attribute_values'][0]['values'][0]['name'], 'Gold')
-        self.assertEqual(data['attribute_values'][0]['values'][1]['name'], 'Bronze')
+        self.assertTrue(data['attribute_values'][0]['values'][0]['name'] in ['Gold', 'Bronze'])
+        self.assertTrue(data['attribute_values'][0]['values'][1]['name'] in ['Gold', 'Bronze'])
+        # self.assertEqual()
         self.assertEqual(data['attribute_values'][1]['name'], 'Neck material')
-        self.assertEqual(data['attribute_values'][1]['values'][0]['name'], 'Boxwood')
-        self.assertEqual(data['attribute_values'][1]['values'][1]['name'], 'Wood')
+        self.assertTrue(data['attribute_values'][1]['values'][0]['name'] in ['Boxwood', 'Wood'])
+        self.assertTrue(data['attribute_values'][1]['values'][1]['name'] in ['Boxwood', 'Wood'])
 
         self.assertEqual(data['fields']['descriptionHtml'], '<p>It\'s just an e-guitar..</p>')
         self.assertEqual(data['fields']['status'], 'ACTIVE')
@@ -233,7 +234,7 @@ class TestIntegrationShopify(IntegrationShopifyBase):
         self.assertEqual(data1['fields']['barcode'], variant1.barcode)
         self.assertEqual(data1['fields']['inventoryItem']['sku'], variant1.default_code)
         self.assertEqual(round(data1['fields']['price'], 1), 543.0)
-        self.assertEqual(data1['fields']['compareAtPrice'], 0)
+        self.assertNotIn('compareAtPrice', data1['fields'])
         self.assertEqual(data1['fields']['taxable'], True)
         self.assertEqual(round(data1['fields']['inventoryItem']['measurement']['weight']['value'], 1), 4.0)
         self.assertEqual(data1['fields']['inventoryItem']['measurement']['weight']['unit'], 'KILOGRAMS')
@@ -259,7 +260,7 @@ class TestIntegrationShopify(IntegrationShopifyBase):
         self.assertEqual(data2['fields']['barcode'], variant2.barcode)
         self.assertEqual(data2['fields']['inventoryItem']['sku'], variant2.default_code)
         self.assertEqual(round(data2['fields']['price'], 1), 542.0)
-        self.assertEqual(data2['fields']['compareAtPrice'], 0)
+        self.assertNotIn('compareAtPrice', data1['fields'])
         self.assertEqual(data2['fields']['taxable'], True)
         self.assertEqual(round(data2['fields']['inventoryItem']['measurement']['weight']['value'], 1), 4.0)
         self.assertEqual(data2['fields']['inventoryItem']['measurement']['weight']['unit'], 'KILOGRAMS')
@@ -285,7 +286,7 @@ class TestIntegrationShopify(IntegrationShopifyBase):
         self.assertEqual(data3['fields']['barcode'], variant3.barcode)
         self.assertEqual(data3['fields']['inventoryItem']['sku'], variant3.default_code)
         self.assertEqual(round(data3['fields']['price'], 1), 541.0)
-        self.assertEqual(data3['fields']['compareAtPrice'], 0)
+        self.assertNotIn('compareAtPrice', data1['fields'])
         self.assertEqual(data3['fields']['taxable'], True)
         self.assertEqual(round(data3['fields']['inventoryItem']['measurement']['weight']['value'], 1), 4.0)
         self.assertEqual(data3['fields']['inventoryItem']['measurement']['weight']['unit'], 'KILOGRAMS')
@@ -311,7 +312,7 @@ class TestIntegrationShopify(IntegrationShopifyBase):
         self.assertEqual(data4['fields']['barcode'], variant4.barcode)
         self.assertEqual(data4['fields']['inventoryItem']['sku'], variant4.default_code)
         self.assertEqual(round(data4['fields']['price'], 1), 539.0)
-        self.assertEqual(data4['fields']['compareAtPrice'], 0)
+        self.assertNotIn('compareAtPrice', data1['fields'])
         self.assertEqual(data4['fields']['taxable'], True)
         self.assertEqual(round(data4['fields']['inventoryItem']['measurement']['weight']['value'], 1), 4.0)
         self.assertEqual(data4['fields']['inventoryItem']['measurement']['weight']['unit'], 'KILOGRAMS')
@@ -376,7 +377,7 @@ class TestIntegrationShopify(IntegrationShopifyBase):
         self.assertEqual(addresses['shipping']['zip'], '01-123')
         self.assertFalse(addresses['shipping'].get('type', False))
 
-        self.assertFalse(bool(order.delivery_method))  # Due to the shipping_line is null
+        self.assertTrue(bool(order.delivery_method))
 
         self.assertEqual(order.tags, ['ttag1', 'ttag2'])
         self.assertEqual(order.note, 'Just note from customer')

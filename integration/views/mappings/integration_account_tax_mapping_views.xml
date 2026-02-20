@@ -10,8 +10,8 @@
                     <field name="id" groups="base.group_no_one"/>
                     <field name="integration_id"/>
                     <field name="company_id" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
-                    <field name="tax_id"/>
                     <field name="external_tax_id" domain="[('integration_id', '=', integration_id)]"/>
+                    <field name="tax_id"/>
                     <button name="action_import_taxes_from_mapping"
                             type="object"
                             string="Import Taxes"

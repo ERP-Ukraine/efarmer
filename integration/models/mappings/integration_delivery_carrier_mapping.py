@@ -8,6 +8,7 @@ class IntegrationDeliveryCarrierMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'Integration Delivery Carrier Mapping'
     _mapping_fields = ('carrier_id', 'external_carrier_id')
+    _mapping_label = 'Delivery Carrier'
 
     carrier_id = fields.Many2one(
         string='Odoo Delivery Carrier',

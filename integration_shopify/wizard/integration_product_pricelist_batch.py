@@ -5,6 +5,8 @@ import itertools
 
 from odoo import models, fields
 
+from odoo.addons.integration_queue_job.job import Job
+
 
 EMPTY_BATCH_PATTERN = """
 <div class="alert alert-info">
@@ -141,7 +143,7 @@ class IntegrationProductPricelistBatch(models.TransientModel):
             .with_delay(**job_kwargs) \
             .export_prices()
 
-        record = job.db_record()
+        record = job.db_record() if isinstance(job, Job) else job
 
         self.job_id = record.id
 

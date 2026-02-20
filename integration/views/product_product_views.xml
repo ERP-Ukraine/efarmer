@@ -74,7 +74,20 @@ if records:
 
             <sheet position="inside">
                 <group name="integrations" string="Stores">
+                    <div colspan="2">
+                        <div class="alert alert-warning" role="alert"
+                            invisible="not integration_company_mismatch">
+                            <i class="fa fa-warning" title="Warning"/>
+                            <strong>Company mismatch:</strong>
+                            this product belongs to another company than the selected e-commerce store(s).
+                            This may affect mapping and synchronization.
+                        </div>
+                    </div>
                     <field name="integration_ids" widget="many2many_checkboxes"/>
+                </group>
+
+                <group name="store_specific_settings_variant">
+                    <!-- Content will be added here dynamically based on the selected stores -->
                 </group>
 
                 <group name="product_variant_images" string="Extra Variant Media">

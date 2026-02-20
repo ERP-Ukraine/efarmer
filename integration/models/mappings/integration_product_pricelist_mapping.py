@@ -8,6 +8,7 @@ class IntegrationProductPricelistMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'Integration Product Pricelist Mapping'
     _mapping_fields = ('pricelist_id', 'external_pricelist_id')
+    _mapping_label = 'Pricelist'
 
     pricelist_id = fields.Many2one(
         string='Odoo Pricelist',

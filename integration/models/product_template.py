@@ -93,12 +93,6 @@ class ProductTemplate(models.Model):
         translate=True,
     )
 
-    feature_line_ids = fields.One2many(
-        comodel_name='product.template.feature.line',
-        string='Product Features',
-        inverse_name='product_tmpl_id',
-    )
-
     to_force_sync_pricelist = fields.Boolean(
         string='Force Update Pricelists',
         help='Export specific prices of the product even if the are no pricelist items. '
@@ -140,6 +134,14 @@ class ProductTemplate(models.Model):
         string='External Tags',
     )
 
+    integration_company_mismatch = fields.Boolean(
+        compute='_compute_integration_company_mismatch',
+        help='Technical field used to detect multi-company mismatch.'
+             'It is True when this product belongs to a company, but at least one of the selected '
+             'e-commerce integrations belongs to a different company.'
+             'Make sure the product company matches the integration company, or remove mismatching integrations.'
+    )
+
     def _get_view_postprocessed(self, view, arch, **options):
         # Redefined the standard method to update a form-view architecture
         arch, models_ = super()._get_view_postprocessed(view, arch, **options)
@@ -160,6 +162,22 @@ class ProductTemplate(models.Model):
             and not self.exclude_from_synchronization
             and not self.exclude_from_synchronization_stock
         )
+
+    @api.depends('company_id', 'integration_ids', 'integration_ids.company_id')
+    def _compute_integration_company_mismatch(self):
+        """
+        Compute whether this template company conflicts with any linked integration company.
+
+        If `company_id` is not set, mismatch is always False.
+        """
+        for rec in self:
+            if not rec.company_id:
+                rec.integration_company_mismatch = False
+                continue
+            mismatched = rec.integration_ids.filtered(
+                lambda i: i.company_id and i.company_id != rec.company_id
+            )
+            rec.integration_company_mismatch = bool(mismatched)
 
     def _compute_mapping_count(self):
         for rec in self:
@@ -910,33 +928,16 @@ class ProductTemplate(models.Model):
 
         return result
 
-    def get_product_features(self, integration_id: int):
-        integration = self.env['sale.integration'].browse(integration_id)
-
-        return [
-            {
-                'id': feature_line.feature_id.to_external_or_export(integration),
-                'id_feature_value': feature_line.feature_value_id.to_external_or_export(integration)
-            }
-            for feature_line in self.feature_line_ids
-        ]
-
     def copy(self, default=None):
         ctx = dict(skip_product_export=True)
-        template = super(ProductTemplate, self.with_context(**ctx)).copy(default=default)
+        records = super(ProductTemplate, self.with_context(**ctx)).copy(default=default)
 
-        vals = self._get_empty_mandatory_fields_vals()
-        if vals:
-            template.product_variant_ids.write(vals)
+        for template, original_template in zip(records, self):
+            vals = original_template._get_empty_mandatory_fields_vals()
+            if vals:
+                template.product_variant_ids.write(vals)
 
-        template.feature_line_ids = [
-            (0, 0, {
-                'feature_id': feature_line.feature_id.id,
-                'feature_value_id': feature_line.feature_value_id.id,
-            })
-            for feature_line in self.feature_line_ids
-        ]
-        return template
+        return records
 
     def _get_empty_mandatory_fields_vals(self):
         integrations = self._get_enabled_integrations()
@@ -1096,8 +1097,13 @@ class ProductTemplate(models.Model):
         return template_attribute_value_ids
 
     def _get_kits(self, integration_id: int):
-        # If the integration is configured to ignore BOMs, return an empty list
         integration = self.env['sale.integration'].browse(integration_id)
+
+        # Kit/bundle export is only supported for PrestaShop and Magento 2 connectors
+        if not (integration.is_integration_prestashop or integration.is_integration_magento_two):
+            return []
+
+        # If the integration is configured to ignore BOMs, return an empty list
         if integration.ignore_boms_for_product_export:
             return []
 

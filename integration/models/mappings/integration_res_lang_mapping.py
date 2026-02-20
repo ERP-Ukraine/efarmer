@@ -10,6 +10,7 @@ class IntegrationResLangMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'Integration Res Lang Mapping'
     _mapping_fields = ('language_id', 'external_language_id')
+    _mapping_label = 'Language'
 
     language_id = fields.Many2one(
         string='Odoo Language',

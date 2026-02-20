@@ -33,6 +33,11 @@ class IntegrationImportEntity(models.Model):
     _description = 'Integration Import Entity'
     _order = 'name asc'
 
+    _unique_name_integration_type = models.Constraint(
+        'UNIQUE(name, integration_type)',
+        "An import entity with this name and integration type already exists!",
+    )
+
     name = fields.Char(
         string='Name',
     )
@@ -363,6 +368,8 @@ class IntegrationImportWizard(models.TransientModel):
 
     def action_refresh_unmapped_records(self):
         self.check_unmapped_mappings_before_product_import()
+        if not self.errors:
+            return self.action_continue_to_product_import()
         return self.action_refresh_view()
 
     def download_pdf(self):
@@ -380,6 +387,14 @@ class IntegrationImportWizard(models.TransientModel):
             'view_mode': 'form',
             'target': 'new',
         }
+
+    def action_refresh_queue_jobs_view(self):
+        child_jobs = self.env['queue.job'].search([
+            ('parent_id', 'in', self.jobs),
+        ])
+        self.jobs = child_jobs + self.jobs
+
+        return self.action_refresh_view()
 
     def action_continue_to_product_import(self):
         if self.import_in_background and not self.jobs_done:

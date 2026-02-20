@@ -87,7 +87,7 @@ class IntegrationWebhook:
     def _get_essential_headers(self):
         raise NotImplementedError
 
-    def _prepare_pipeline_data(self):
+    def _prepare_pipeline_data(self, *args, **kwargs):
         raise NotImplementedError
 
     def _prepare_log_vals(self, integration, *args, **kw):
@@ -167,7 +167,7 @@ class IntegrationWebhook:
             _logger.info(message)
             return Response(message)
 
-        data = self._prepare_pipeline_data()
+        data = self._prepare_pipeline_data(integration, external_order_id)
 
         if not integration.is_importable_order_status(data['integration_workflow_states']):
             message = f'Order with code={external_order_id} is not in the expected status.'
@@ -200,7 +200,7 @@ class IntegrationWebhook:
             _logger.info(message)
             return Response(message)
 
-        data = self._prepare_pipeline_data()
+        data = self._prepare_pipeline_data(integration, external_order_id)
         status_codes = data['integration_workflow_states']
 
         # Handle order existence check

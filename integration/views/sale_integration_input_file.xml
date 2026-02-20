@@ -78,7 +78,7 @@
                             <field name="has_error"/>
                             <field name="update_required"/>
                             <field name="si_id"/>
-                            <field name="type_api" invisible="1"/>
+                            <field name="type_api" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
                             <field name="create_date"/>
 
                             <label for="order_id" string="Sales Order"/>
@@ -107,7 +107,7 @@
                                     />
                                 </p>
                             </div>
-                            <field name="display_data" nolabel="1" colspan="2" widget="json_editor" />
+                            <field name="display_data" nolabel="1" colspan="2" widget="json_editor" options="{'maxLines': 1000}"/>
                         </group>
                     </sheet>
                 </form>

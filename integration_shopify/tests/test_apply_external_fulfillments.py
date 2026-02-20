@@ -9,64 +9,72 @@ from .init_integration_shopify import IntegrationShopifyBase
 from .json_data import fulfillment_list_1, fulfillment_list_2
 
 
-@tagged('post_install', '-at_install')
-class TestIntegrationShopifyFulfillments(IntegrationShopifyBase):
+class TestIntegrationShopifyFulfillmentsCommon(IntegrationShopifyBase):
 
-    def setUp(self):
-        super(TestIntegrationShopifyFulfillments, self).setUp()
+    @classmethod
+    def setUpClass(cls):
+        super(TestIntegrationShopifyFulfillmentsCommon, cls).setUpClass()
 
-        self.customer = self.env['res.partner'].with_company(self.company).create({
+        cls.customer = cls.env['res.partner'].with_company(cls.company).create({
             'name': 'test-customer',
         })
 
-        self.wh_odoo1 = self.env['stock.warehouse'].with_company(self.company).create({
+        cls.wh_odoo1 = cls.env['stock.warehouse'].with_company(cls.company).create({
             'name': 'wh-odoo-1',
             'code': 'wh100',
-            'company_id': self.company.id,
+            'company_id': cls.company.id,
         })
-        self.wh_odoo2 = self.env['stock.warehouse'].with_company(self.company).create({
+        cls.wh_odoo2 = cls.env['stock.warehouse'].with_company(cls.company).create({
             'name': 'wh-odoo-2',
             'code': 'wh200',
-            'company_id': self.company.id,
+            'company_id': cls.company.id,
         })
 
         # First product
-        vals_product_1 = self.generate_product_data(
-            name='table100',
-            integration=self.integration,
-        )
-        product_1 = self.env['product.template'].with_context(skip_product_export=True).create(vals_product_1)
-        self.prod1 = product_1.product_variant_ids
+        vals_product_1 = {
+            'name': 'table100',
+            'is_storable': True,
+            'default_code': 'default_code_table100',
+            'integration_ids': [(6, 0, cls.integration.ids)],
+        }
+        product_1 = cls.env['product.template'].with_context(skip_product_export=True).create(vals_product_1)
+        cls.prod1 = product_1.product_variant_ids
 
-        self.env['stock.quant'].create({
-            'product_id': self.prod1.id,
-            'location_id': self.wh_odoo1.lot_stock_id.id,
+        cls.env['stock.quant'].create({
+            'product_id': cls.prod1.id,
+            'location_id': cls.wh_odoo1.lot_stock_id.id,
             'quantity': 500,
         })
-        self.env['stock.quant'].create({
-            'product_id': self.prod1.id,
-            'location_id': self.wh_odoo2.lot_stock_id.id,
+        cls.env['stock.quant'].create({
+            'product_id': cls.prod1.id,
+            'location_id': cls.wh_odoo2.lot_stock_id.id,
             'quantity': 600,
         })
 
         # Second product
-        vals_product_2 = self.generate_product_data(
-            name='table200',
-            integration=self.integration,
-        )
-        product_2 = self.env['product.template'].with_context(skip_product_export=True).create(vals_product_2)
-        self.prod2 = product_2.product_variant_ids
+        vals_product_2 = {
+            'name': 'table200',
+            'is_storable': True,
+            'default_code': 'default_code_table200',
+            'integration_ids': [(6, 0, cls.integration.ids)],
+        }
+        product_2 = cls.env['product.template'].with_context(skip_product_export=True).create(vals_product_2)
+        cls.prod2 = product_2.product_variant_ids
 
-        self.env['stock.quant'].create({
-            'product_id': self.prod2.id,
-            'location_id': self.wh_odoo1.lot_stock_id.id,
+        cls.env['stock.quant'].create({
+            'product_id': cls.prod2.id,
+            'location_id': cls.wh_odoo1.lot_stock_id.id,
             'quantity': 700,
         })
-        self.env['stock.quant'].create({
-            'product_id': self.prod2.id,
-            'location_id': self.wh_odoo2.lot_stock_id.id,
+        cls.env['stock.quant'].create({
+            'product_id': cls.prod2.id,
+            'location_id': cls.wh_odoo2.lot_stock_id.id,
             'quantity': 800,
         })
+
+
+@tagged('post_install', '-at_install')
+class TestIntegrationShopifyFulfillments(TestIntegrationShopifyFulfillmentsCommon):
 
     def _get_wh_from_external_location_patch(self, external_location):
         if external_location == 'external-location-1':

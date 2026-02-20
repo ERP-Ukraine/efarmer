@@ -88,7 +88,7 @@ class InventoryItem(ShopifyResourceUpdate):
 
     def update_quantity(self, location_id: str, quantity: int):
         self.ensure_one()
-        return self.update_quantity_batch([(self.gid, location_id, quantity)])
+        return self._update_quantity_batch([(self.gid, location_id, quantity)])
 
     def update_quantity_batch(self, data: list):
         """
@@ -96,6 +96,14 @@ class InventoryItem(ShopifyResourceUpdate):
             [(item_id, location_id, quantity), ...]
         """
 
+        result = []
+        for i in range(0, len(data), 250):
+            response = self._update_quantity_batch(data[i:i + 250])
+            result.append(response)
+
+        return result
+
+    def _update_quantity_batch(self, data: list):
         payload = {
             'name': 'available',
             'reason': 'correction',

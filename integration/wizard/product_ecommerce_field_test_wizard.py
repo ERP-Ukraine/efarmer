@@ -7,6 +7,8 @@ import traceback
 from odoo import api, models, fields, _
 from odoo.exceptions import UserError
 
+from ..api.abstract_apiclient import AbsApiClient
+
 _logger = logging.getLogger(__name__)
 
 
@@ -357,7 +359,6 @@ class ProductEcommerceFieldTestWizard(models.TransientModel):
         # Find variant data if needed
         variant_data = None
         if self.is_variant_field and self.external_variant_id:
-            from ...api.abstract_apiclient import AbsApiClient
             __, variant_code = AbsApiClient._parse_product_external_code(self.external_variant_id.code)
 
             variant_data = next(
@@ -390,8 +391,6 @@ class ProductEcommerceFieldTestWizard(models.TransientModel):
                 raise_error=False,
             )
         else:
-            from ...api.abstract_apiclient import AbsApiClient
-
             if self.external_variant_id:
                 __, variant_code = AbsApiClient._parse_product_external_code(self.external_variant_id.code)
             else:

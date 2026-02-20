@@ -2,7 +2,7 @@
 
 from odoo.tests import tagged
 
-from .config.integration_init import OdooIntegrationInit
+from .config.integration_init import OdooIntegrationInit, load_xml
 
 
 NL_CODE = 'nl'
@@ -20,61 +20,68 @@ PL_CODE_FULL = 'pl_PL'
 @tagged('post_install', '-at_install', 'test_integration_core')
 class TestTranslations(OdooIntegrationInit):
 
-    def setUp(self):
-        super(TestTranslations, self).setUp()
+    @classmethod
+    def setUpClass(cls):
+        super(TestTranslations, cls).setUpClass()
 
-        self.lang_en = self.env.ref('base.lang_en')
-        self.lang_nl = self.env.ref('base.lang_nl')
-        self.lang_de = self.env.ref('base.lang_de')
-        self.lang_it = self.env.ref('base.lang_it')
-        self.lang_pl = self.env.ref('base.lang_pl')
+        # Load base integration XML data first (needed for refs)
+        load_xml(
+            cls.env,
+            module='integration',
+            path_file='tests/data',
+            filename='init_sale_integration.xml',
+        )
+
+        cls.lang_en = cls.env.ref('base.lang_en')
+        cls.lang_nl = cls.env.ref('base.lang_nl')
+        cls.lang_de = cls.env.ref('base.lang_de')
+        cls.lang_it = cls.env.ref('base.lang_it')
+        cls.lang_pl = cls.env.ref('base.lang_pl')
 
         lang_ids = [
-            self.lang_en.id,
-            self.lang_nl.id,
-            self.lang_de.id,
-            self.lang_it.id,
-            self.lang_pl.id,
+            cls.lang_en.id,
+            cls.lang_nl.id,
+            cls.lang_de.id,
+            cls.lang_it.id,
+            cls.lang_pl.id,
         ]
         wizard_vals = dict(lang_ids=[(6, 0, lang_ids)])
-        wizard = self.env['base.language.install'].create(wizard_vals)
+        wizard = cls.env['base.language.install'].create(wizard_vals)
         wizard.lang_install()
 
-        self.assertEqual(self.lang_en.active, True)
-        self.assertEqual(self.lang_en.code, EN_CODE_FULL)
-        self.assertEqual(self.lang_en.iso_code, EN_CODE)
+        assert cls.lang_en.active is True
+        assert cls.lang_en.code == EN_CODE_FULL
+        assert cls.lang_en.iso_code == EN_CODE
 
-        self.assertEqual(self.lang_nl.active, True)
-        self.assertEqual(self.lang_nl.code, NL_CODE_FULL)
-        self.assertEqual(self.lang_nl.iso_code, NL_CODE)
+        assert cls.lang_nl.active is True
+        assert cls.lang_nl.code == NL_CODE_FULL
+        assert cls.lang_nl.iso_code == NL_CODE
 
-        self.assertEqual(self.lang_de.active, True)
-        self.assertEqual(self.lang_de.code, DE_CODE_FULL)
-        self.assertEqual(self.lang_de.iso_code, DE_CODE)
+        assert cls.lang_de.active is True
+        assert cls.lang_de.code == DE_CODE_FULL
+        assert cls.lang_de.iso_code == DE_CODE
 
-        self.assertEqual(self.lang_de.active, True)
-        self.assertEqual(self.lang_de.code, DE_CODE_FULL)
-        self.assertEqual(self.lang_de.iso_code, DE_CODE)
+        assert cls.lang_it.active is True
+        assert cls.lang_it.code == IT_CODE_FULL
+        assert cls.lang_it.iso_code == IT_CODE
 
-        self.assertEqual(self.lang_it.active, True)
-        self.assertEqual(self.lang_it.code, IT_CODE_FULL)
-        self.assertEqual(self.lang_it.iso_code, IT_CODE)
+        assert cls.lang_pl.active is True
+        assert cls.lang_pl.code == PL_CODE_FULL
+        assert cls.lang_pl.iso_code == PL_CODE
 
-        self.assertEqual(self.lang_pl.active, True)
-        self.assertEqual(self.lang_pl.code, PL_CODE_FULL)
-        self.assertEqual(self.lang_pl.iso_code, PL_CODE)
-
-        self.translation_vals = {
+        cls.translation_vals = {
             'name': 'Test Translation Product updated',
             'website_short_description': {
                 'language': {
-                    self.lang_en.id: 'Description-X EN',
-                    self.lang_nl.id: 'Description-X NL'
+                    cls.lang_en.id: 'Description-X EN',
+                    cls.lang_nl.id: 'Description-X NL'
                 }
             }
         }
 
-        self.integration_no_api_1.integration_lang_id = self.lang_en.id
+        # Access integration via env.ref since it's set up in parent's setUp (instance method)
+        integration_no_api_1 = cls.env.ref('integration.integration_no_api_1')
+        integration_no_api_1.integration_lang_id = cls.lang_en.id
 
     def test_context_language_no_matter(self):
         tmp_user = self.env['res.users'].create({

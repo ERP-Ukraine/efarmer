@@ -9,8 +9,8 @@
                 <list editable="bottom">
                     <field name="id" groups="base.group_no_one"/>
                     <field name="integration_id"/>
-                    <field name="carrier_id"/>
                     <field name="external_carrier_id" domain="[('integration_id', '=', integration_id)]"/>
+                    <field name="carrier_id"/>
                 </list>
             </field>
         </record>

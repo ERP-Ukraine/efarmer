@@ -9,8 +9,8 @@
             <field name="arch" type="xml">
                 <list editable="bottom">
                     <field name="integration_id"/>
-                    <field name="pricelist_id"/>
                     <field name="external_pricelist_id" domain="[('integration_id', '=', integration_id)]"/>
+                    <field name="pricelist_id"/>
                 </list>
             </field>
         </record>

@@ -3,7 +3,7 @@
 from odoo.tests import tagged
 from odoo.exceptions import UserError
 
-from .config.integration_init import OdooIntegrationInit
+from .config.integration_init import OdooIntegrationInit, load_xml
 
 
 class TestErrorCreate(UserError):
@@ -25,18 +25,24 @@ class TestErrorExportImage(UserError):
 @tagged('post_install', '-at_install', 'test_integration_core')
 class TestProductCreateWriteExport(OdooIntegrationInit):
 
-    def setUp(self):
-        super(TestProductCreateWriteExport, self).setUp()
-
-        self.assertTrue(self.integration_no_api_1.is_active)
-        self.assertTrue(self.integration_no_api_2.is_active)
-
-        self.assertTrue(
-            self.get_all_integrations() == (self.integration_no_api_1 + self.integration_no_api_2)
+    @classmethod
+    def setUpClass(cls):
+        super(TestProductCreateWriteExport, cls).setUpClass()
+        # Load base integration XML data first (needed for refs)
+        load_xml(
+            cls.env,
+            module='integration',
+            path_file='tests/data',
+            filename='init_sale_integration.xml',
         )
 
-        self.assertTrue(self.integration_no_api_1.export_template_job_enabled)
-        self.assertTrue(self.integration_no_api_2.export_template_job_enabled)
+        integration_no_api_1 = cls.env.ref('integration.integration_no_api_1')
+        integration_no_api_2 = cls.env.ref('integration.integration_no_api_2')
+
+        assert integration_no_api_1.is_active
+        assert integration_no_api_2.is_active
+        assert integration_no_api_1.export_template_job_enabled
+        assert integration_no_api_2.export_template_job_enabled
 
     @property
     def skip_ctx(self):
@@ -427,3 +433,29 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
 
         with self.assertRaises(TestErrorExportImage):
             record._trigger_export_single_template({})
+
+    def test_integration_company_mismatch_compute(self):
+        integration1 = self.integration_no_api_1  # company A
+        integration2 = self.integration_no_api_2  # company B
+        self.assertNotEqual(integration1.company_id, integration2.company_id)
+
+        tmpl = self.template.with_context(**self.skip_ctx).create(
+            self.generate_product_data(name='p', integration=integration1)
+        )
+
+        # A
+        tmpl.company_id = integration1.company_id
+        tmpl.integration_ids = [(6, 0, integration1.ids)]
+        tmpl._compute_integration_company_mismatch()
+        self.assertFalse(tmpl.integration_company_mismatch)
+
+        # B
+        tmpl.integration_ids = [(6, 0, integration2.ids)]
+        tmpl._compute_integration_company_mismatch()
+        self.assertTrue(tmpl.integration_company_mismatch)
+
+        # C
+        tmpl.company_id = False
+        tmpl.integration_ids = [(6, 0, (integration1 | integration2).ids)]
+        tmpl._compute_integration_company_mismatch()
+        self.assertFalse(tmpl.integration_company_mismatch)

@@ -97,7 +97,7 @@ class ExternalOrderFieldMapping(models.Model):
     )
 
     def get_script(self):
-        lines = self.script.splitlines()
+        lines = (self.script or '').splitlines()
         return '\n'.join(line for line in lines if not line.strip().startswith('#')).strip()
 
     @api.constrains('odoo_order_field_id')

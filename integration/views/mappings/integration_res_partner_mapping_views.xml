@@ -9,8 +9,8 @@
                 <list editable="bottom">
                     <field name="id" groups="base.group_no_one"/>
                     <field name="integration_id"/>
-                    <field name="partner_id"/>
                     <field name="external_partner_id" domain="[('integration_id', '=', integration_id)]"/>
+                    <field name="partner_id"/>
                 </list>
             </field>
         </record>

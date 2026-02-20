@@ -85,7 +85,7 @@ class SaleOrderCancel(models.TransientModel):
             return self.with_context(**ctx)
 
         input_file.mark_for_update()
-        order_data, __ = input_file.update_current_pipeline()
+        order_data = input_file.update_current_pipeline()
 
         if not order_data:
             ctx.update(

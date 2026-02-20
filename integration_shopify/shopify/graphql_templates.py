@@ -220,6 +220,8 @@ class GraphQLTemplate:
     INVENTORY_ITEM_BODY = """
         id
         tracked
+        harmonizedSystemCode
+        countryCodeOfOrigin
         variant {
             id
             product {
@@ -471,6 +473,7 @@ class GraphQLTemplate:
         price
         taxable
         title
+        inventoryPolicy
         inventoryQuantity
         compareAtPrice
         inventoryItem {
@@ -1301,10 +1304,12 @@ class GraphQLTemplate:
         mutation deleteOptions(
             $productId: ID!,
             $options: [ID!]!,
+            $strategy: ProductOptionDeleteStrategy
         ) {
             productOptionsDelete(
                 productId: $productId,
-                options: $options
+                options: $options,
+                strategy: $strategy
             ) {
                 userErrors {
                     %s

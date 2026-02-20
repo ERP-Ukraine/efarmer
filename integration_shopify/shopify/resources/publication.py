@@ -61,9 +61,10 @@ class Publication(ShopifyResourceUpdate):
         to_exclude = [pt.create_gid(x) for x in (product_ids_to_exclude or [])]
 
         # Split by 50 according to GraphQL API limitations
+        to_include_chunks = [to_include[i:i + 50] for i in range(0, len(to_include), 50)]
         to_exclude_chunks = [to_exclude[i:i + 50] for i in range(0, len(to_exclude), 50)]
 
-        for to_include_, to_exclude_ in zip_longest([to_include], to_exclude_chunks, fillvalue=[]):
+        for to_include_, to_exclude_ in zip_longest(to_include_chunks, to_exclude_chunks, fillvalue=[]):
             self._update(to_include_, to_exclude_)
 
         return True
@@ -72,7 +73,7 @@ class Publication(ShopifyResourceUpdate):
         if not product_ids_to_include and not product_ids_to_exclude:
             return False
 
-        return self.execute(
+        response = self.execute(
             self.MUTATION_UPDATE,
             variables={
                 'id': self.gid,
@@ -83,6 +84,8 @@ class Publication(ShopifyResourceUpdate):
             },
             user_errors_path='data.publicationUpdate.userErrors',
         )
+
+        return response
 
     def to_odoo_format(self):
         self.ensure_one()

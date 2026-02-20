@@ -211,7 +211,22 @@ class StockPicking(models.Model):
             try:
                 # Let's rely on the `_sanity_check` (skip_sanity_check=False)
                 # standard method to get verbose error
-                picking.with_context(**PKG_CONTEXT).button_validate()
+                res = picking.with_context(**PKG_CONTEXT).button_validate()
+
+                # Picking validation is not guaranteed to complete automatically:
+                # it may raise a UserError or return a UI action requiring manual input.
+                # Such cases are treated as non-auto-validatable.
+                if isinstance(res, dict) and res.get('type') == 'ir.actions.act_window':
+                    _logger.info(
+                        'Picking [%s] requires manual validation.',
+                        picking.display_name,
+                    )
+
+                    return False, _(
+                        '[%s] requires manual validation.\n'
+                        'Validation result: %s'
+                    ) % (picking.display_name, res)
+
             except UserError as ex:
                 return False, f'[{picking.display_name}]: {ex.args[0]}'
 

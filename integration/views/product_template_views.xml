@@ -110,7 +110,7 @@ if records:
                                 <ul class="mb-0">
                                     <li>Select which stores to sync with</li>
                                     <li>Customize product information for stores</li>
-                                    <li>Set up categories and features</li>
+                                    <li>Set up categories</li>
                                     <li>Add product images and media</li>
                                 </ul>
                             </div>
@@ -119,6 +119,13 @@ if records:
                         <!-- Store Selection -->
                         <group name="integrations" string="E-Commerce Stores">
                             <div colspan="2">
+                                <div class="alert alert-warning" role="alert"
+                                    invisible="not integration_company_mismatch">
+                                    <i class="fa fa-warning" title="Warning"/>
+                                    <strong>Company mismatch:</strong>
+                                    this product belongs to another company than the selected e-commerce store(s).
+                                    This may affect mapping and synchronization.
+                                </div>
                                 <div class="alert alert-info" role="alert" invisible="not id or product_variant_count &lt;= 1 or is_product_variant">
                                     <i class="fa fa-info-circle" title="Information"/>
                                     This product has multiple variants. Store synchronization must be configured at the Product Variant level.
@@ -152,27 +159,17 @@ if records:
                         </group>
                     </group>
 
-                    <!-- Categories and Features Section -->
-                    <group name="categorization">
-                        <group string="Categories">
+                    <!-- Categories Section -->
+                    <group string="Categories" colspan="2">
+                        <group >
                             <field name="integration_default_category_id" domain="[('id', 'in', available_category_ids)]" options="{'no_create': True, 'no_edit': True}" help="Primary category for this product in e-commerce stores"/>
                             <field name="integration_category_ids" widget="many2many">
                                 <list string="Additional Categories">
                                     <field name="display_name" nolabel="1"/>
                                 </list>
                             </field>
-                            <field name="available_category_ids" widget="many2many_tags" invisible="1"/>
+                            <field name="available_category_ids" widget="many2many_tags" invisible="1"/>  <!-- Required because it is used in the fields domains in the model -->
                         </group>
-
-                        <group string="Product Features">
-                            <field name="feature_line_ids" widget="one2many" nolabel="1" colspan="2">
-                                <list editable="bottom" string="Product Features">
-                                    <field name="feature_id" help="Select a feature (e.g., Color, Size, Material)"/>
-                                    <field name="feature_value_id" context="{'default_feature_id': feature_id}" help="Select the specific value for this feature"/>
-                                </list>
-                            </field>
-                        </group>
-
                     </group>
 
                     <!-- SEO Section -->
@@ -192,7 +189,7 @@ if records:
 
                         <field name="external_tag_group_ids" colspan="2" context="{'default_product_tmpl_id': id}">
                             <list editable="bottom" string="Tags by Store" create="1">
-                                <field name="integration_type_api" column_invisible="1"/>
+                                <field name="integration_type_api" column_invisible="1"/> <!-- Required because it is used in the invisible condition in inherited views -->
                                 <field name="integration_id" options="{'no_create': True}" domain="[('type_api', 'in', ('shopify', 'prestashop'))]"/>
                                 <field name="tag_ids"
                                        widget="many2many_tags"

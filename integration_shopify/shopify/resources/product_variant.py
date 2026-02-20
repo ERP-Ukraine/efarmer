@@ -11,6 +11,7 @@ class ProductVariant(ShopifyResourceRead, ProductMixin, DeleteMixin):
     _body = ShopifyResourceRead._tmpl.PRODUCT_VARIANT_BODY
 
     MUTATION_DELETE = ShopifyResourceRead._tmpl.MUTATION_PRODUCT_VARIANT_DELETE
+    PRODUCT_VARIANT_MINIMAL_BODY_WITH_INVENTORY = ShopifyResourceRead._tmpl.PRODUCT_VARIANT_MINIMAL_BODY_WITH_INVENTORY
 
     @property
     def external_id(self):
@@ -46,6 +47,11 @@ class ProductVariant(ShopifyResourceRead, ProductMixin, DeleteMixin):
     def inventory_item(self):
         self.ensure_one()
         return self._env.InventoryItem.set(**(self['inventoryItem'] or {}))
+
+    @property
+    def inventory_policy(self):
+        self.ensure_one()
+        return self['inventoryPolicy']
 
     @property
     def selected_options(self):
@@ -95,6 +101,12 @@ class ProductVariant(ShopifyResourceRead, ProductMixin, DeleteMixin):
             result['id'] = self.id_str
 
         return result
+
+    def get_by_ids_for_inventory_items(self, ids: list):
+        return self.get_by_ids(
+            ids,
+            body=self.PRODUCT_VARIANT_MINIMAL_BODY_WITH_INVENTORY,
+        )
 
     def get_attribute_values(self, lowercase: bool = False):
         self.ensure_one()

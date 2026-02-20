@@ -5,8 +5,6 @@ from . import integration_account_tax_group_external
 from . import integration_sale_order_payment_method_external
 from . import integration_product_attribute_external
 from . import integration_product_attribute_value_external
-from . import integration_product_feature_external
-from . import integration_product_feature_value_external
 from . import integration_res_lang_external
 from . import integration_res_partner_external
 from . import integration_res_country_external

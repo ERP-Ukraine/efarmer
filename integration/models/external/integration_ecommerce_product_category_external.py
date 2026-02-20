@@ -199,9 +199,9 @@ class IntegrationEcommerceProductCategoryExternal(models.Model):
 
         if len(odoo_category) > 1:
             raise UserError(_(
-                f'Multiple e-commerce categories with the name "{self.name}" were found. Please ensure that category '
+                'Multiple e-commerce categories with the name "%s" were found. Please ensure that category '
                 'names are unique to avoid conflicts.'
-            ))
+            ) % self.name)
 
         return odoo_category
 

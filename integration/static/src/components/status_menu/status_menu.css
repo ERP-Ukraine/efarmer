@@ -1,12 +1,15 @@
 .o-integration-IntegrationStatusMenu {
-    min-width: 500px;
+    width: 450px;
+    max-width: 90vw;
 }
 
 .IntegrationStatusMenu_badge {
     position: relative;
     transform: translate(-5px, -5px);
-    background-color: #017e84;
+    background-color: #dc3545;
     margin-right: -10px;
+    font-size: 0.7rem;
+    font-weight: 600;
 }
 
 .IntegrationStatusMenu_loading {
@@ -14,13 +17,90 @@
     text-align: center;
 }
 
-.IntegrationStatusMenu_rate_us img {
-    max-width: 33px;
-    margin-right: .5rem;
-    cursor: pointer;
-
+.o_IntegrationStatusMenu_item {
+    padding: 0.5rem;
+    background-color: #f0f2f4;
+    border-radius: 0.375rem;
 }
 
-.IntegrationStatusMenu_rate_us img:hover {
-    border: 1px solid #dddddd;
+.o_IntegrationStatusMenu_item h5 {
+    color: #212529;
+    font-size: 1rem;
+}
+
+/* Integration name link */
+.integration-name-link {
+    color: #212529;
+    transition: color 0.2s ease;
+}
+
+.integration-name-link:hover {
+    color: #0d6efd;
+}
+
+.integration-name-link .fa-external-link {
+    opacity: 0.5;
+    font-size: 0.75rem;
+}
+
+.integration-name-link:hover .fa-external-link {
+    opacity: 1;
+}
+
+/* Status menu buttons (kanban-style) */
+.status-menu-btn {
+    min-height: 52px;
+    font-size: 0.85rem;
+}
+
+.status-menu-btn.btn-outline-secondary {
+    background-color: #fff;
+}
+
+.status-menu-btn.btn-outline-secondary:hover {
+    background-color: #e7e9ed;
+}
+
+.status-menu-badge.badge {
+    font-size: 0.7rem !important;
+    min-width: 28px;
+    text-align: center;
+    /* Disabled Odoo styles */
+    margin-right: 0 !important;
+    transform: none !important;
+}
+
+/* Status menu counter (horizontal layout) */
+.status-menu-counter {
+    font-size: 1.1rem;
+    color: #495057;
+}
+
+.integration-status-link {
+    transition: color 0.2s ease;
+}
+
+.integration-status-link:hover {
+    color: #0d6efd !important;
+    text-decoration: underline !important;
+}
+
+/* Mappings section - de-emphasized */
+.mappings-section {
+    opacity: 0.85;
+    border-top-color: #dee2e6;
+}
+
+.mappings-section:hover {
+    opacity: 1;
+}
+
+.integration-status-link-muted {
+    color: #6c757d;
+    transition: color 0.2s ease;
+}
+
+.integration-status-link-muted:hover {
+    color: #0d6efd !important;
+    text-decoration: underline !important;
 }

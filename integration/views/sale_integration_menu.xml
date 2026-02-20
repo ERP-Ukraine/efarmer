@@ -10,8 +10,8 @@
         </record>
 
         <record id="action_integration_dashboard" model="ir.actions.client">
-            <field name="name">Dashboard</field>
-            <field name="path">eci</field>
+            <field name="name">Analytics</field>
+            <field name="path">eci-analytics</field>
             <field name="tag">integration_dashboard.client_action</field>
         </record>
 
@@ -20,17 +20,17 @@
                   web_icon="integration,static/description/icon.png"
                   name="E-Commerce Integrations"/>
 
-        <menuitem id="menu_dashboard"
-                name="Dashboard"
-                action="action_integration_dashboard"
-                parent="menu_sale_integration"
-                sequence="10"/>
-
         <menuitem id="stores_menu"
                   name="Stores"
                   parent="menu_sale_integration"
                   action="integrations_list_action"
-                  sequence="20"/>
+                  sequence="10"/>
+
+        <menuitem id="menu_dashboard"
+                name="Analytics"
+                action="action_integration_dashboard"
+                parent="menu_sale_integration"
+                sequence="20"/>
 
         <menuitem id="input_file_menu"
                   name="External Orders"

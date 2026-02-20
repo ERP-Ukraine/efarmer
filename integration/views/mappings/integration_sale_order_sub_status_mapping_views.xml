@@ -9,8 +9,8 @@
                 <list editable="bottom">
                     <field name="id" groups="base.group_no_one"/>
                     <field name="integration_id"/>
-                    <field name="odoo_id" required="1"/>
                     <field name="external_id" domain="[('integration_id', '=', integration_id)]"/>
+                    <field name="odoo_id" required="1"/>
                 </list>
             </field>
         </record>

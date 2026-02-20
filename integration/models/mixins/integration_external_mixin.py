@@ -1,5 +1,7 @@
 # See LICENSE file for full copyright and licensing details.
 
+import logging
+
 from collections import defaultdict
 
 from odoo import models, fields, api, _
@@ -9,6 +11,9 @@ from odoo.tools.sql import escape_psql
 
 from ...tools import is_translated_value
 from ...exceptions import NoExternal, MultipleExternalRecordsFound
+
+
+_logger = logging.getLogger(__name__)
 
 
 RESULT_CREATED = 1
@@ -497,10 +502,10 @@ class IntegrationExternalMixin(models.AbstractModel):
         element_code = adapter_external_record.get('id_group')
         if not element_code:
             raise UserError(_(
-                f'External {element.capitalize()} value is missing the required "id_group" field. '
+                'External %s value is missing the required "id_group" field. '
                 'This is a technical issue with the data received from the e-commerce system. '
                 'Please contact our support team to investigate the issue: https://support.ventor.tech/'
-            ))
+            ) % element.capitalize())
 
         # 2. Get "Product Attribute/Feature External" by Code (External ID)
         external_element = self.env[f'integration.product.{element}.external'].search([
@@ -510,18 +515,18 @@ class IntegrationExternalMixin(models.AbstractModel):
 
         if not external_element:
             raise UserError(_(
-                f'No External Product {element.capitalize()} found with code {element_code}. '
-                f'It is possible that {element}s have not been imported yet. '
-                f'Please ensure that {element}s are imported from the e-commerce system.\n'
+                'No External Product %s found with code %s. '
+                'It is possible that %ss have not been imported yet. '
+                'Please ensure that %ss are imported from the e-commerce system.\n'
                 'If the issue persists, contact support: https://support.ventor.tech/'
-            ))
+            ) % (element.capitalize(), element_code, element, element))
 
         if len(external_element) != 1:
             raise UserError(_(
-                f'Multiple or no external {element.capitalize()} records found for code {element_code}. '
+                'Multiple or no external %s records found for code %s. '
                 'This is a technical issue that requires investigation. '
                 'Please contact our support team for assistance: https://support.ventor.tech/'
-            ))
+            ) % (element.capitalize(), element_code))
 
         # 3. Set external_attribute_id or external_feature_id
         setattr(self, f'external_{element}_id', external_element.id)
@@ -578,6 +583,22 @@ class IntegrationExternalMixin(models.AbstractModel):
 
             # Create mapping for new attribute
             self.create_or_update_mapping(odoo_id=element_record.id)
+
+            # Warn if this Odoo record already has a mapping to a different external record
+            existing_mappings = MappingProductElement.search([
+                ('integration_id', '=', self.integration_id.id),
+                (f'{element}_id', '=', element_record.id),
+            ])
+            if len(existing_mappings) > 1:
+                external_field = f'external_{element}_id'
+                existing_codes = [getattr(m, external_field).code for m in existing_mappings]
+                _logger.warning(
+                    'Multiple external %s records mapped to the same Odoo record '
+                    '"%s" (id=%s) for integration "%s". External codes: %s.',
+                    element, element_record.name, element_record.id,
+                    self.integration_id.name, existing_codes,
+                )
+
             result['element'] = RESULT_CREATED
 
         # 3. Create Product Attribute/Feature Values

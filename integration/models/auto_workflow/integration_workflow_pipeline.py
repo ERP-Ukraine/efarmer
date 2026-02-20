@@ -428,10 +428,12 @@ class IntegrationWorkflowPipeline(models.Model):
     def _tasks_info(self):
         return [(x.id, x.name, x.state) for x in self.pipeline_task_ids]
 
-    def _update_pipeline(self, order_data):
+    def _update_pipeline(self, workflow_states, payment_method_code):
         _logger.info('Updating integration pipeline: %s →', self.loginfo)
 
-        task_list, pipeline_vals = self.order_id._build_task_list_and_vals(order_data)
+        task_list, pipeline_vals = self.order_id._build_task_list_and_vals(
+            workflow_states, payment_method_code,
+        )
         sub_state_ids = pipeline_vals['sub_state_external_ids'][0][-1]
         payment_method_external_id = pipeline_vals['payment_method_external_id']
         vals = {
@@ -452,7 +454,7 @@ class IntegrationWorkflowPipeline(models.Model):
                 task.mark_todo()
                 _logger.info('%s: integration pipeline task "%s" was marked as "TODO".', self, task_name)
 
-        return order_data, vals
+        return vals
 
     def get_payment_journal_or_raise(self):
         self.payment_method_external_id._raise_for_missing_journal()

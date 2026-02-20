@@ -33,16 +33,6 @@
             <field name="supports_import_by_id">False</field>
         </record>
 
-        <record model="integration.import.entity" id="integration_import_entity_features">
-            <field name="name">Features</field>
-            <field name="method_name">initial_import_features</field>
-            <field name="external_model">integration.product.feature.external</field>
-            <field name="mapping_model">integration.product.feature.mapping</field>
-            <field name="integration_type"></field>
-            <field name="is_master_data">True</field>
-            <field name="supports_import_by_id">False</field>
-        </record>
-
         <record model="integration.import.entity" id="integration_import_entity_languages">
             <field name="name">Languages</field>
             <field name="method_name">integrationApiImportLanguages</field>

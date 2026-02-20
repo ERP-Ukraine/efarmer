@@ -9,16 +9,16 @@
                 <form string="Test Field Mapping">
                     <sheet>
                         <!-- Hidden fields -->
-                        <field name="is_template_field" invisible="1"/>
-                        <field name="is_variant_field" invisible="1"/>
-                        <field name="type_api" invisible="1"/>
-                        <field name="mapping_exists" invisible="1"/>
-                        <field name="import_tested" invisible="1"/>
-                        <field name="export_tested" invisible="1"/>
-                        <field name="import_success" invisible="1"/>
-                        <field name="export_success" invisible="1"/>
-                        <field name="has_error" invisible="1"/>
-                        <field name="error_traceback" invisible="1"/>
+                        <field name="is_template_field" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="is_variant_field" invisible="1"/> <!-- Required because it is used in the required condition below -->
+                        <field name="type_api" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                        <field name="mapping_exists" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="import_tested" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="export_tested" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="import_success" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="export_success" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="has_error" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="error_traceback" invisible="1"/> <!-- Required because it is used in the error display below -->
 
                         <!-- Header info -->
                         <div class="alert alert-info" role="alert">

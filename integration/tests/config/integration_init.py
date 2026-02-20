@@ -72,10 +72,6 @@ class OdooIntegrationBase(TransactionCase):
             'tax_group_id': tax_group_id.id,
         })
 
-        # Creating product future
-        self.feature_id = self.env.ref('integration.feature_id')
-        self.feature_value_id = self.env.ref('integration.feature_value_id')
-
         # Creating product category
         self.product_public_category = self.env.ref('integration.product_public_category')
         self.integration_product_public_category_external = self.env.ref(

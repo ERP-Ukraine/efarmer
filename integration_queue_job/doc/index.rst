@@ -40,6 +40,9 @@ You can postpone method calls to be executed asynchronously:
 
 Release Notes
 -------------
+* 1.0.4 (2026-13-02)
+    - Added automatic requeuing of stuck jobs (5 min enqueued, 15 min started).
+
 * 1.0.3 (2025-11-10)
     - Fixed create method to handle empty vals_list (Odoo tests compatibility).
 

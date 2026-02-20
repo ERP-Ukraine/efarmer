@@ -9,7 +9,7 @@
             <field name="type_api">shopify</field>
             <field name="odoo_model_id" ref="product.model_product_template"/>
             <field name="odoo_field_id" ref="product.field_product_template__name"/>
-            <field name="auto_create_mapping" eval="True"/>
+            <field name="mapping_active_by_default" eval="True"/>
             <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="False"/>
             <field name="default_for_import" eval="False"/>
@@ -26,7 +26,7 @@
             <field name="type_api">shopify</field>
             <field name="odoo_model_id" ref="product.model_product_template"/>
             <field name="odoo_field_id" ref="integration.field_product_template__website_product_name"/>
-            <field name="auto_create_mapping" eval="False"/>
+            <field name="mapping_active_by_default" eval="False"/>
             <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="False"/>
             <field name="default_for_import" eval="False"/>
@@ -43,7 +43,7 @@
             <field name="type_api">shopify</field>
             <field name="odoo_model_id" ref="product.model_product_template"/>
             <field name="odoo_field_id" ref="integration.field_product_template__website_description"/>
-            <field name="auto_create_mapping" eval="True"/>
+            <field name="mapping_active_by_default" eval="True"/>
             <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="False"/>
             <field name="default_for_import" eval="False"/>
@@ -96,7 +96,7 @@
             <field name="technical_name">status</field>
             <field name="type_api">shopify</field>
             <field name="odoo_model_id" ref="product.model_product_template"/>
-            <field name="auto_create_mapping" eval="True"/>
+            <field name="mapping_active_by_default" eval="True"/>
             <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="True"/>
             <field name="default_for_import" eval="True"/>
@@ -141,7 +141,7 @@ value = {
             <field name="type_api">shopify</field>
             <field name="odoo_model_id" ref="product.model_product_template"/>
             <field name="odoo_field_id" ref="integration.field_product_template__integration_category_ids"/>
-            <field name="auto_create_mapping" eval="True"/>
+            <field name="mapping_active_by_default" eval="True"/>
             <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="False"/>
             <field name="default_for_import" eval="False"/>
@@ -187,7 +187,7 @@ value = {
             <field name="type_api">shopify</field>
             <field name="odoo_model_id" ref="product.model_product_template"/>
             <field name="odoo_field_id" ref="integration.field_product_template__external_tag_group_ids"/>
-            <field name="auto_create_mapping" eval="False"/>
+            <field name="mapping_active_by_default" eval="False"/>
             <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="True"/>
             <field name="default_for_import" eval="True"/>
@@ -231,7 +231,7 @@ value = {
             <field name="type_api">shopify</field>
             <field name="odoo_model_id" ref="product.model_product_template"/>
             <field name="odoo_field_id" ref="product.field_product_template__list_price"/>
-            <field name="auto_create_mapping" eval="True"/>
+            <field name="mapping_active_by_default" eval="True"/>
             <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="True"/>
             <field name="default_for_import" eval="True"/>
@@ -270,7 +270,7 @@ value = {}
             <field name="type_api">shopify</field>
             <field name="odoo_model_id" ref="product.model_product_product"/>
             <field name="odoo_field_id" ref="product.field_product_product__barcode"/>
-            <field name="auto_create_mapping" eval="True"/>
+            <field name="mapping_active_by_default" eval="True"/>
             <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="True"/>
             <field name="default_for_import" eval="True"/>
@@ -286,7 +286,7 @@ value = {}
             <field name="type_api">shopify</field>
             <field name="odoo_model_id" ref="product.model_product_product"/>
             <field name="odoo_field_id" ref="product.field_product_product__weight"/>
-            <field name="auto_create_mapping" eval="True"/>
+            <field name="mapping_active_by_default" eval="True"/>
             <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="True"/>
             <field name="default_for_import" eval="True"/>
@@ -341,7 +341,7 @@ else:
             <field name="type_api">shopify</field>
             <field name="odoo_model_id" ref="product.model_product_product"/>
             <field name="odoo_field_id" ref="product.field_product_product__default_code"/>
-            <field name="auto_create_mapping" eval="True"/>
+            <field name="mapping_active_by_default" eval="True"/>
             <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="True"/>
             <field name="default_for_import" eval="True"/>
@@ -365,7 +365,7 @@ value = {
             <field name="type_api">shopify</field>
             <field name="odoo_model_id" ref="product.model_product_product"/>
             <field name="odoo_field_id" ref="integration.field_product_product__variant_extra_price"/>
-            <field name="auto_create_mapping" eval="True"/>
+            <field name="mapping_active_by_default" eval="True"/>
             <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="True"/>
             <field name="default_for_import" eval="True"/>
@@ -392,26 +392,44 @@ else:
             </field>
             <field name="export_script">
 pricelist = integration.integration_pricelist_id
+sale_pricelist = integration.integration_sale_pricelist_id
 
-if pricelist:
-    sale_price = pricelist._get_product_price(variant, 0)
-    compare_at_price = variant.lst_price
-
-    if sale_price == compare_at_price:
-        compare_at_price = 0
-else:
-    sale_price = variant.lst_price
-    compare_at_price = 0
-
-sale_price_value = variant.get_price_by_send_tax_incl(integration.id, sale_price)
-compare_at_price_value = variant.get_price_by_send_tax_incl(integration.id, compare_at_price)
-
+base_price = variant.lst_price
 api_name = field.get_api_field_name()
 
-value = {
-    api_name: sale_price_value,
-    'compareAtPrice': compare_at_price_value,
-}
+# Override with pricelist price if configured
+if pricelist:
+    regular_price = pricelist._get_product_price(variant, 0)
+
+# Handle sale pricelist logic
+if sale_pricelist:
+    sale_price, rule_id = sale_pricelist._get_product_price_rule(variant, 0)
+
+    if rule_id and sale_price != regular_price:
+        # Variant is in sale pricelist with active discount - swap prices
+        final_price = sale_price
+        compare_at_price = base_price
+    else:
+        # Variant not in sale pricelist or no discount - explicitly clear compare_at_price
+        final_price = base_price
+        compare_at_price = None
+
+    # Apply tax adjustments
+    final_price = variant.get_price_by_send_tax_incl(integration.id, final_price)
+    if compare_at_price is not None:
+        compare_at_price = variant.get_price_by_send_tax_incl(integration.id, compare_at_price)
+
+    value = {
+        api_name: final_price,
+        'compareAtPrice': compare_at_price,
+    }
+else:
+    # No sale pricelist - only send regular price, don't touch compareAtPrice
+    final_price = variant.get_price_by_send_tax_incl(integration.id, base_price)
+
+    value = {
+        api_name: final_price,
+    }
             </field>
         </record>
 
@@ -421,7 +439,7 @@ value = {
             <field name="type_api">shopify</field>
             <field name="odoo_model_id" ref="product.model_product_product"/>
             <field name="odoo_field_id" ref="product.field_product_product__standard_price"/>
-            <field name="auto_create_mapping" eval="True"/>
+            <field name="mapping_active_by_default" eval="True"/>
             <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="True"/>
             <field name="default_for_import" eval="True"/>
@@ -462,7 +480,7 @@ value = {
             <field name="type_api">shopify</field>
             <field name="odoo_model_id" ref="product.model_product_product"/>
             <field name="odoo_field_id" ref="account.field_product_product__taxes_id"/>
-            <field name="auto_create_mapping" eval="True"/>
+            <field name="mapping_active_by_default" eval="True"/>
             <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="True"/>
             <field name="default_for_import" eval="True"/>
@@ -492,12 +510,170 @@ value = {
             </field>
         </record>
 
+        <!-- Shipping / Customs Fields (InventoryItem) -->
+        <record id="shopify_ecommerce_field_variant_hs_code" model="product.ecommerce.field">
+            <field name="name">Product Variant HS Code</field>
+            <field name="technical_name">harmonizedSystemCode</field>
+            <field name="type_api">shopify</field>
+            <field name="odoo_model_id" ref="product.model_product_product"/>
+            <field name="odoo_field_id" ref="stock_delivery.field_product_product__hs_code"/>
+            <field name="mapping_active_by_default" eval="False"/>
+            <field name="is_default" eval="True"/>
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('stock_delivery.field_product_template__hs_code'),))]"/>
+            <field name="export_field_type">string</field>
+            <field name="import_script">
+_, variant_data = external_data
+product_variant = integration.adapter.gql.ProductVariant.set(**variant_data)
+inventory_item = product_variant.inventory_item
+
+odoo_name = field.get_odoo_field_name()
+
+if inventory_item and inventory_item['harmonizedSystemCode']:
+    value = {
+        odoo_name: inventory_item['harmonizedSystemCode'],
+    }
+else:
+    value = {
+        odoo_name: '',
+    }
+            </field>
+            <field name="export_script">
+value_ = variant.hs_code.strip() if variant.hs_code else None
+
+value = {
+    'inventoryItem': {
+        'harmonizedSystemCode': value_,
+    }
+}
+            </field>
+        </record>
+
+        <record id="shopify_ecommerce_field_variant_country_of_origin" model="product.ecommerce.field">
+            <field name="name">Product Variant Country of Origin</field>
+            <field name="technical_name">countryCodeOfOrigin</field>
+            <field name="type_api">shopify</field>
+            <field name="odoo_model_id" ref="product.model_product_product"/>
+            <field name="odoo_field_id" ref="stock_delivery.field_product_product__country_of_origin"/>
+            <field name="mapping_active_by_default" eval="False"/>
+            <field name="is_default" eval="True"/>
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('stock_delivery.field_product_template__country_of_origin'),))]"/>
+            <field name="export_field_type">string</field>
+            <field name="import_script">
+_, variant_data = external_data
+product_variant = integration.adapter.gql.ProductVariant.set(**variant_data)
+inventory_item = product_variant.inventory_item
+
+odoo_name = field.get_odoo_field_name()
+
+if inventory_item and inventory_item['countryCodeOfOrigin']:
+    country_of_origin_code = inventory_item['countryCodeOfOrigin']
+    country = env['res.country'].search([('code', '=', country_of_origin_code)], limit=1)
+
+    value = {
+        odoo_name: country.id if country else False,
+    }
+else:
+    value = {
+        odoo_name: False,
+    }
+            </field>
+            <field name="export_script">
+value_ = variant.country_of_origin.code if variant.country_of_origin else None
+
+value = {
+    'inventoryItem': {
+        'countryCodeOfOrigin': value_,
+    }
+}
+            </field>
+        </record>
+
+        <record id="shopify_ecommerce_field_variant_is_storable" model="product.ecommerce.field">
+            <field name="name">Product Variant Is Storable</field>
+            <field name="technical_name">tracked</field>
+            <field name="type_api">shopify</field>
+            <field name="odoo_model_id" ref="product.model_product_product"/>
+            <field name="odoo_field_id" ref="stock.field_product_product__is_storable"/>
+            <field name="mapping_active_by_default" eval="False"/>
+            <field name="is_default" eval="True"/>
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('stock.field_product_template__is_storable'),))]"/>
+            <field name="export_field_type">boolean</field>
+            <field name="import_script">
+_, variant_data = external_data
+product_variant = integration.adapter.gql.ProductVariant.set(**variant_data)
+inventory_item = product_variant.inventory_item
+
+odoo_name = field.get_odoo_field_name()
+
+if inventory_item:
+    value = {
+        odoo_name: inventory_item['tracked'],
+    }
+else:
+    value = {}
+            </field>
+            <field name="export_script">
+value_ = variant.is_storable
+
+value = {
+    'inventoryItem': {
+        'tracked': value_,
+    }
+}
+            </field>
+        </record>
+
+        <record id="shopify_ecommerce_field_variant_continue_selling_without_stock" model="product.ecommerce.field">
+            <field name="name">Product Variant Continue Selling Without Stock</field>
+            <field name="technical_name">inventoryPolicy</field>
+            <field name="type_api">shopify</field>
+            <field name="odoo_model_id" ref="product.model_product_product"/>
+            <field name="odoo_field_id" ref="integration_shopify.field_product_product__continue_selling_without_stock"/>
+            <field name="mapping_active_by_default" eval="False"/>
+            <field name="is_default" eval="True"/>
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('integration_shopify.field_product_template__continue_selling_without_stock'), ref('integration_shopify.field_product_product__continue_selling_without_stock'),))]"/>
+            <field name="export_field_type">string</field>
+            <field name="import_script">
+_, variant_data = external_data
+product_variant = integration.adapter.gql.ProductVariant.set(**variant_data)
+
+odoo_name = field.get_odoo_field_name()
+
+inventory_policy = product_variant.inventory_policy if product_variant else None
+
+if not inventory_policy:
+    value = {
+        odoo_name: inventory_policy,
+    }
+else:
+    value = {}
+            </field>
+            <field name="export_script">
+inventory_policy = variant.continue_selling_without_stock
+
+if inventory_policy == 'from_template':
+    inventory_policy = template.continue_selling_without_stock
+
+value = {
+    'inventoryPolicy': inventory_policy,
+}
+            </field>
+        </record>
+
         <!-- Private Fields -->
         <record id="shopify_template_reference_private" model="product.ecommerce.field">
             <field name="name">DEFAULT SKU</field>
             <field name="technical_name">sku</field>
             <field name="type_api">shopify</field>
-            <field name="auto_create_mapping" eval="True"/>
+            <field name="mapping_active_by_default" eval="True"/>
             <field name="is_default" eval="True"/>
             <field name="odoo_model_id" ref="product.model_product_template"/>
             <field name="odoo_field_id" ref="product.field_product_template__default_code"/>
@@ -508,7 +684,7 @@ value = {
             <field name="name">DEFAULT BARCODE</field>
             <field name="technical_name">barcode</field>
             <field name="type_api">shopify</field>
-            <field name="auto_create_mapping" eval="True"/>
+            <field name="mapping_active_by_default" eval="True"/>
             <field name="is_default" eval="True"/>
             <field name="odoo_model_id" ref="product.model_product_template"/>
             <field name="odoo_field_id" ref="product.field_product_template__barcode"/>

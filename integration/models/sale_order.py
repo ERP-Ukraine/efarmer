@@ -558,8 +558,7 @@ class SaleOrder(models.Model):
         if external_data.get('integration_workflow_states'):
             status_code = external_data['integration_workflow_states'][0]
 
-            sub_status = self.env['integration.sale.order.factory'] \
-                ._get_order_sub_status(self.integration_id, status_code)
+            sub_status = self.integration_id._get_order_sub_status(status_code)
 
             vals['sub_status_id'] = sub_status.id
 
@@ -604,16 +603,16 @@ class SaleOrder(models.Model):
 
         return delivery_date
 
-    def _build_and_run_integration_workflow(self, order_data):
+    def _build_and_run_integration_workflow(self, workflow_states, payment_method_code):
         _logger.info('%s: create new / update existing Integration pipeline: %s', self.integration_id.name, self.name)
 
         self.ensure_one()
         pipeline = self.integration_pipeline
 
         if pipeline:
-            pipeline._update_pipeline(order_data)
+            pipeline._update_pipeline(workflow_states, payment_method_code)
         else:
-            _task_list, vals = self._build_task_list_and_vals(order_data)
+            _task_list, vals = self._build_task_list_and_vals(workflow_states, payment_method_code)
             next_step_task_list = _task_list and (_task_list[1:] + [(False, False)])
 
             pipeline_task_ids = [
@@ -687,24 +686,25 @@ class SaleOrder(models.Model):
             ),
         }
 
-    def _build_task_list_and_vals(self, order_data):
+    def _build_task_list_and_vals(self, workflow_states, payment_method_code):
         """
         Builds the list of workflow tasks and corresponding pipeline values for an order.
 
-        :param order_data: dict containing the parsed order data, including payment and substatus.
+        :param workflow_states: list of external order status codes.
+        :param payment_method_code: external payment method code.
         :return: a tuple containing the updated task list and pipeline values.
         """
         integration = self.integration_id
-        payment = order_data.get('payment_method')
-        state_list = order_data.get('integration_workflow_states')
+        payment = payment_method_code
+        state_list = workflow_states
         PaymentExternal = self.env['integration.sale.order.payment.method.external']
         SubStatusExternal = self.env['integration.sale.order.sub.status.external']
 
         if not all(state_list):
             raise ApiImportError(_(
                 'Order substatus or payment method not found in the parsed data.\n\n'
-                'Please check the order data: %s'
-            ) % order_data)
+                'Please check the order data: workflow_states=%s, payment_method_code=%s'
+            ) % (state_list, payment))
 
         payment_external = PaymentExternal.get_external_by_code(integration, payment, raise_error=False)
 

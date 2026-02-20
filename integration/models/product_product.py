@@ -59,6 +59,14 @@ class ProductProduct(models.Model):
         help='The number of mappings associated with this variant.',
     )
 
+    integration_company_mismatch = fields.Boolean(
+        compute='_compute_integration_company_mismatch',
+        help='Technical field used to detect multi-company mismatch.'
+             'It is True when this product belongs to a company, but at least one of the selected '
+             'e-commerce integrations belongs to a different company.'
+             'Make sure the product company matches the integration company, or remove mismatching integrations.'
+    )
+
     def _get_view_postprocessed(self, view, arch, **options):
         # Redefined the standard method to update a form-view architecture
         arch, models_ = super()._get_view_postprocessed(view, arch, **options)
@@ -79,6 +87,22 @@ class ProductProduct(models.Model):
             and not self.exclude_from_synchronization
             and not self.exclude_from_synchronization_stock
         )
+
+    @api.depends('company_id', 'integration_ids', 'integration_ids.company_id')
+    def _compute_integration_company_mismatch(self):
+        """
+        Flag variants whose company differs from at least one linked integration's company.
+
+        If the variant is company-less (company_id is False), mismatch is always False.
+        """
+        for rec in self:
+            if not rec.company_id:
+                rec.integration_company_mismatch = False
+                continue
+            mismatched = rec.integration_ids.filtered(
+                lambda i: i.company_id and i.company_id != rec.company_id
+            )
+            rec.integration_company_mismatch = bool(mismatched)
 
     def _compute_mapping_count(self):
         for rec in self:

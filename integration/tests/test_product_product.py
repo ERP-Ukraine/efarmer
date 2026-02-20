@@ -7,62 +7,64 @@ from odoo.tools.float_utils import float_is_zero
 from .config.integration_init import OdooIntegrationInit
 
 
-@tagged('post_install', '-at_install', 'test_bom_calculation')
-class TestProductBomCalculation(OdooIntegrationInit):
+class TestProductBomCalculationCommon(OdooIntegrationInit):
 
-    def setUp(self):
-        super().setUp()
-        self._create_test_locations()
-        self._create_test_products()
-        self._setup_boms()
-        self._setup_stock_quantities()
+    @classmethod
+    def setUpClass(cls):
+        super(TestProductBomCalculationCommon, cls).setUpClass()
+        cls._create_test_locations()
+        cls._create_test_products()
+        cls._setup_boms()
+        cls._setup_stock_quantities()
 
-    def _create_test_locations(self):
+    @classmethod
+    def _create_test_locations(cls):
         """Create test warehouse and locations"""
-        self.warehouse = self.env['stock.warehouse'].create({
+        cls.warehouse = cls.env['stock.warehouse'].create({
             'name': 'Test Warehouse',
             'code': 'TEST',
         })
-        self.stock_location = self.warehouse.lot_stock_id
-        self.stock_location_company2 = None  # Will be created for company2 tests
+        cls.stock_location = cls.warehouse.lot_stock_id
+        cls.stock_location_company2 = None  # Will be created for company2 tests
 
-    def _create_test_products(self):
+    @classmethod
+    def _create_test_products(cls):
         """Create test products for BOM calculation scenarios"""
         # Main product (storable goods)
-        self.main_product = self.env['product.product'].create({
+        cls.main_product = cls.env['product.product'].create({
             'name': 'Main Product',
             'default_code': 'MAIN',
             'type': 'consu',
             'is_storable': True,
-            'uom_id': self.env.ref('uom.product_uom_unit').id,
+            'uom_id': cls.env.ref('uom.product_uom_unit').id,
         })
 
         # Components (storable goods)
-        self.component_a = self.env['product.product'].create({
+        cls.component_a = cls.env['product.product'].create({
             'name': 'Component A',
             'default_code': 'COMP_A',
             'type': 'consu',
             'is_storable': True,
-            'uom_id': self.env.ref('uom.product_uom_unit').id,
+            'uom_id': cls.env.ref('uom.product_uom_unit').id,
         })
 
-        self.component_b = self.env['product.product'].create({
+        cls.component_b = cls.env['product.product'].create({
             'name': 'Component B',
             'default_code': 'COMP_B',
             'type': 'consu',
             'is_storable': True,
-            'uom_id': self.env.ref('uom.product_uom_kgm').id,
+            'uom_id': cls.env.ref('uom.product_uom_kgm').id,
         })
 
         # Special component types
-        self.service_component = self.env['product.product'].create({
+        cls.service_component = cls.env['product.product'].create({
             'name': 'Service Component',
             'default_code': 'SERV_COMP',
             'type': 'service',
         })
 
-        # “Consumable”: goods excluding inventory
-        self.consumable_component = self.env['product.product'].create({
+        # "Consumable": goods excluding inventory
+        cls.consumable_component = cls.env['product.product'].create({
             'name': 'Consumable Component',
             'default_code': 'CONS_COMP',
             'type': 'consu',
@@ -70,86 +72,96 @@ class TestProductBomCalculation(OdooIntegrationInit):
         })
 
         # Raw materials (storable goods)
-        self.material_a = self.env['product.product'].create({
+        cls.material_a = cls.env['product.product'].create({
             'name': 'Material for Component A',
             'default_code': 'MATERIAL_A',
             'type': 'consu',
             'is_storable': True,
-            'uom_id': self.env.ref('uom.product_uom_unit').id,
+            'uom_id': cls.env.ref('uom.product_uom_unit').id,
         })
 
-        self.material_b = self.env['product.product'].create({
+        cls.material_b = cls.env['product.product'].create({
             'name': 'Material for Component B',
             'default_code': 'MATERIAL_B',
             'type': 'consu',
             'is_storable': True,
-            'uom_id': self.env.ref('uom.product_uom_kgm').id,
+            'uom_id': cls.env.ref('uom.product_uom_kgm').id,
         })
 
-    def _setup_boms(self):
+    @classmethod
+    def _setup_boms(cls):
         """Configure BOM structures for testing"""
         # BOM for Component A (1 material_a -> 1 component_a)
-        self.env['mrp.bom'].create({
-            'product_tmpl_id': self.component_a.product_tmpl_id.id,
-            'product_id': self.component_a.id,
+        cls.env['mrp.bom'].create({
+            'product_tmpl_id': cls.component_a.product_tmpl_id.id,
+            'product_id': cls.component_a.id,
             'type': 'normal',
             'product_qty': 1.0,
-            'product_uom_id': self.component_a.uom_id.id,  # <— IMPORTANT in Odoo 19
+            'product_uom_id': cls.component_a.uom_id.id,  # <— IMPORTANT in Odoo 19
             'bom_line_ids': [
                 (0, 0, {
-                    'product_id': self.material_a.id,
+                    'product_id': cls.material_a.id,
                     'product_qty': 1.0,
-                    'product_uom_id': self.material_a.uom_id.id,  # <— IMPORTANT in Odoo 19
+                    'product_uom_id': cls.material_a.uom_id.id,  # <— IMPORTANT in Odoo 19
                 })
             ]
         })
 
         # BOM for Component B (1 material_b -> 1 component_b)
-        self.env['mrp.bom'].create({
-            'product_tmpl_id': self.component_b.product_tmpl_id.id,
-            'product_id': self.component_b.id,
+        cls.env['mrp.bom'].create({
+            'product_tmpl_id': cls.component_b.product_tmpl_id.id,
+            'product_id': cls.component_b.id,
             'type': 'normal',
             'product_qty': 1.0,
-            'product_uom_id': self.component_b.uom_id.id,  # <— IMPORTANT in Odoo 19
+            'product_uom_id': cls.component_b.uom_id.id,  # <— IMPORTANT in Odoo 19
             'bom_line_ids': [
                 (0, 0, {
-                    'product_id': self.material_b.id,
+                    'product_id': cls.material_b.id,
                     'product_qty': 1.0,
-                    'product_uom_id': self.material_b.uom_id.id,  # <— IMPORTANT in Odoo 19
+                    'product_uom_id': cls.material_b.uom_id.id,  # <— IMPORTANT in Odoo 19
                 })
             ]
         })
 
         # BOM for main product (requires 2*A and 0.5 kg of B)
-        self.main_bom = self.env['mrp.bom'].create({
-            'product_tmpl_id': self.main_product.product_tmpl_id.id,
-            'product_id': self.main_product.id,
+        cls.main_bom = cls.env['mrp.bom'].create({
+            'product_tmpl_id': cls.main_product.product_tmpl_id.id,
+            'product_id': cls.main_product.id,
             'type': 'normal',
             'product_qty': 1.0,
-            'product_uom_id': self.main_product.uom_id.id,  # <— IMPORTANT in Odoo 19
+            'product_uom_id': cls.main_product.uom_id.id,  # <— IMPORTANT in Odoo 19
             'bom_line_ids': [
                 (0, 0, {
-                    'product_id': self.component_a.id,
+                    'product_id': cls.component_a.id,
                     'product_qty': 2.0,
-                    'product_uom_id': self.component_a.uom_id.id,  # <— IMPORTANT in Odoo 19
+                    'product_uom_id': cls.component_a.uom_id.id,  # <— IMPORTANT in Odoo 19
                 }),
                 (0, 0, {
-                    'product_id': self.component_b.id,
+                    'product_id': cls.component_b.id,
                     'product_qty': 0.5,
-                    'product_uom_id': self.env.ref('uom.product_uom_kgm').id,
+                    'product_uom_id': cls.env.ref('uom.product_uom_kgm').id,
                 }),
                 (0, 0, {
-                    'product_id': self.service_component.id,
+                    'product_id': cls.service_component.id,
                     'product_qty': 1.0,
                 }),
                 (0, 0, {
-                    'product_id': self.consumable_component.id,
+                    'product_id': cls.consumable_component.id,
                     'product_qty': 1.0,
                 })
             ]
         })
 
-    def _set_onhand(self, product, location, qty, company=None):
+    @classmethod
+    def _setup_stock_quantities(cls):
+        """Configure test stock quantities using safe methods"""
+        # Material A: 10 units (→ 10 * component_a)
+        cls._set_onhand(cls.material_a, cls.stock_location, 10.0)
+        # Material B: 20 kg (→ 20 * component_b)
+        cls._set_onhand(cls.material_b, cls.stock_location, 20.0)
+
+    @classmethod
+    def _set_onhand(cls, product, location, qty, company=None):
         """
         Set on-hand quantity for a product at a given location/company
         using low-level quant APIs. Safe for tests and multi-company.
@@ -159,11 +171,11 @@ class TestProductBomCalculation(OdooIntegrationInit):
         :param qty: float target on-hand
         :param company: res.company or None (defaults to env.company)
         """
-        company = company or self.env.company
+        company = company or cls.env.company
 
         # Build an env that guarantees correct company/visibility
-        env = self.env(context=dict(
-            self.env.context,
+        env = cls.env(context=dict(
+            cls.env.context,
             company_id=company.id,
             allowed_company_ids=[company.id],
             compute_child=False,  # be explicit: use exactly this location
@@ -184,12 +196,9 @@ class TestProductBomCalculation(OdooIntegrationInit):
         env.flush_all()
         env.invalidate_all()
 
-    def _setup_stock_quantities(self):
-        """Configure test stock quantities using safe methods"""
-        # Material A: 10 units (→ 10 * component_a)
-        self._set_onhand(self.material_a, self.stock_location, 10.0)
-        # Material B: 20 kg (→ 20 * component_b)
-        self._set_onhand(self.material_b, self.stock_location, 20.0)
+
+@tagged('post_install', '-at_install', 'test_bom_calculation')
+class TestProductBomCalculation(TestProductBomCalculationCommon):
 
     def _compute_producible_qty(self, product, qty_field='qty_available', location=None):
         """Helper method to call _compute_qty_producible with context"""

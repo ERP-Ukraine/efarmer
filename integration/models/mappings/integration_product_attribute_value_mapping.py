@@ -8,6 +8,7 @@ class IntegrationProductAttributeValueMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'Integration Product Attribute Value Mapping'
     _mapping_fields = ('attribute_value_id', 'external_attribute_value_id')
+    _mapping_label = 'Attribute Value'
 
     attribute_value_id = fields.Many2one(
         string='Odoo Attribute Value',

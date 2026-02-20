@@ -14,6 +14,7 @@ class IntegrationProductProductMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'Integration Product Product Mapping'
     _mapping_fields = ('product_id', 'external_product_id')
+    _mapping_label = 'Product Variant'
 
     product_id = fields.Many2one(
         string='Odoo Variant',

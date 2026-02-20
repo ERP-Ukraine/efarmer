@@ -8,6 +8,7 @@ class IntegrationResPartnerMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'Integration Res Partner Mapping'
     _mapping_fields = ('partner_id', 'external_partner_id')
+    _mapping_label = 'Contact'
 
     partner_id = fields.Many2one(
         string='Odoo Contact',

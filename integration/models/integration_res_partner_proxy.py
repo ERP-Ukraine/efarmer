@@ -492,6 +492,11 @@ class IntegrationResPartnerProxy(models.TransientModel):
         if not mapped_partner:
             return self.env['res.partner']
 
+        # Do not use inactive (archived) partners from mapping.
+        if not mapped_partner.active:
+            _logger.debug('Mapped partner is archived, skipping mapping: %s', mapped_partner.display_name)
+            return self.env['res.partner']
+
         if self._is_mapping_compatible(mapped_partner):
             _logger.debug('Using mapped partner: %s', mapped_partner.display_name)
             return mapped_partner
@@ -503,6 +508,10 @@ class IntegrationResPartnerProxy(models.TransientModel):
         """
         Check if mapped partner is compatible with current context.
         """
+        # Do not use inactive (archived) partners from mapping.
+        if mapped_partner and not mapped_partner.active:
+            return False
+
         skip_individual = self.integration_id.skip_individual_contacts
 
         company = self.env['res.partner']

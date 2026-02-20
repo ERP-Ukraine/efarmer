@@ -129,12 +129,34 @@ class OrderParseMixin:
         return money_bag.get_amount(self.props.use_customer_currency)
 
     def parse_delivery_data(self):
+        """
+        In some cases delivery method may not be parsed from fulfillment orders because of the
+        `shipping_line.code` is not matched with the `delivery_method.serviceCode`.
+        So we use the shipping line instead and this option is usable only with the
+        `integration.auto_create_delivery_carrier_on_so` flag enabled.
+
+        For example `shipping_line.code != delivery_method.serviceCode`:
+
+            shippingLine = {
+                "id": "gid://shopify/ShippingLine/11967452840318",
+                "title": "Shipped by Seller: Shipped by seller",
+                "code": "Shipped by Seller: Shipped by seller",
+                "carrierIdentifier": null,
+            }
+
+            delivery_method = {
+                "id": "gid://shopify/DeliveryMethod/8165399691646",
+                "presentedName": "Shipped by Seller: Shipped by seller",
+                "methodType": "SHIPPING",
+                "serviceCode": "custom"
+            }
+        """
         shipping_line = self.shipping_line
         delivery_method = self.delivery_method
 
         carrier, shipping_cost, taxes, note = {}, 0, [], ''
 
-        if (shipping_line and delivery_method and delivery_method.is_valid):
+        if shipping_line and delivery_method and delivery_method.is_valid:
             carrier = delivery_method.to_odoo_format()
             shipping_cost = shipping_line.get_price(self.props.use_customer_currency)
             taxes = [x.to_odoo_format(self.is_taxable) for x in shipping_line.tax_lines]
@@ -145,8 +167,9 @@ class OrderParseMixin:
             'shipping_cost': shipping_cost,
             'taxes': taxes,
             'delivery_notes': note,
-            'discount': {},  # Discount already included in the shipping cost
+            # Discount already included in the shipping cost
             # TODO: add discount data if it's essential to see the discount value right in the delivery-order-line
+            'discount': {},
         }
 
     def parse_order_risks(self, risklevel: str = 'HIGH'):
@@ -370,23 +393,64 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
         fulfillment_orders = self.fulfillment_orders
         default_delivery_method = self._env.DeliveryMethod
 
+        # If there is no fulfillment orders, return the default delivery method.
         if not fulfillment_orders:
             return default_delivery_method
 
-        shipping_code = self.shipping_line['code']
+        # Parse available delivery methods.
+        delivery_methods = [x.delivery_method for x in fulfillment_orders]
 
-        if not shipping_code:
+        # Sort delivery methods by validity (it means the valid ones are first).
+        delivery_methods.sort(key=lambda x: x.is_valid, reverse=True)
+
+        # If the delivery_methods variable is an empty or all the delivery methods are Falsy or invalid,
+        # return the default delivery method.
+        if all(not x for x in delivery_methods) or all(not x.is_valid for x in delivery_methods):
             return default_delivery_method
 
-        fulfillment_order = next(
-            filter(lambda x: x.delivery_method.code == shipping_code, fulfillment_orders),
+        # If there is only one delivery method, return it.
+        delivery_method_first = delivery_methods[0]
+        if len(delivery_methods) == 1:
+            return delivery_method_first
+        # If all the delivery methods have the same code, return the first delivery method.
+        elif len(set([x.code for x in delivery_methods])) == 1:
+            return delivery_method_first
+        # If all the delivery methods have the same name, return the first delivery method.
+        elif len(set([x.name for x in delivery_methods])) == 1:
+            return delivery_method_first
+
+        # If there are multiple fulfillment orders, return the delivery method
+        # of the fulfillment order with the appropriate shipping code.
+        shipping_line = self.shipping_line
+
+        shipping_code = shipping_line['code']
+        shipping_name = shipping_line['title']
+
+        # If the shipping code is not set, return the first valid delivery method.
+        if not shipping_code and not shipping_name:
+            return delivery_method_first
+
+        # Return the delivery method with the appropriate shipping code.
+        delivery_method = next(
+            filter(lambda x: x.code == shipping_code, delivery_methods),
             None,
         )
 
-        if not fulfillment_order:
-            return default_delivery_method
+        # If the delivery method is not found by shipping code, try to find it by the shipping line title.
+        if not delivery_method and shipping_name:
+            delivery_method = next(
+                filter(lambda x: x.name == shipping_name, delivery_methods),
+                None,
+            )
 
-        return fulfillment_order.delivery_method
+        # If the delivery method is not found by shipping code, return the first valid delivery method.
+        if not delivery_method:
+            raise self._es.ValidationError(
+                'Delivery method may not be parsed. Please contact VentorTech support '
+                'at support@ventor.tech to report this issue.',
+            )
+
+        return delivery_method
 
     @property
     def publication(self):

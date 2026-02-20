@@ -1,10 +1,21 @@
 # See LICENSE file for full copyright and licensing details.
 
-from odoo import models
+from odoo import models, fields
 
 
 class ProductProduct(models.Model):
     _inherit = 'product.product'
+
+    continue_selling_without_stock = fields.Selection(
+        selection=[
+            ('from_template', 'Use Value From Template'),
+            ('CONTINUE', 'Continue'),
+            ('DENY', 'Deny'),
+        ],
+        string='Continue Selling Without Stock',
+        default='from_template',
+        help='Continue selling the product even if it is out of stock.',
+    )
 
     def _get_integration_cost_price(self, integration_id: int):
         self.ensure_one()

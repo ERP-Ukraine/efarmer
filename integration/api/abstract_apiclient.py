@@ -2,7 +2,6 @@
 
 from __future__ import absolute_import
 
-from odoo import _
 from odoo.api import Environment
 
 from abc import ABCMeta, abstractmethod
@@ -143,14 +142,6 @@ class AbsApiClient(with_metaclass(ABCMeta)):
         return
 
     @abstractmethod
-    def get_features(self):
-        return
-
-    @abstractmethod
-    def get_feature_values(self):
-        return
-
-    @abstractmethod
     def get_countries(self):
         return
 
@@ -276,14 +267,6 @@ class AbsApiClient(with_metaclass(ABCMeta)):
         return
 
     @abstractmethod
-    def export_feature(self, feature):
-        return
-
-    @abstractmethod
-    def export_feature_value(self, feature_value):
-        return
-
-    @abstractmethod
     def get_pricelists(self):
         return
 
@@ -336,7 +319,7 @@ class AbsApiClient(with_metaclass(ABCMeta)):
         return dict()
 
     def unlink_existing_webhooks(self, external_ids=None):
-        return _('Not Implemented!')
+        return 'Not Implemented!'
 
     @abstractmethod
     def _convert_to_html(self, id_list):

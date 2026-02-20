@@ -316,6 +316,6 @@ class IntegrationInstallationWizard(models.TransientModel):
     def close_wizard(self):
         return {
             'type': 'ir.actions.act_url',
-            'url': '/odoo/eci-stores',
+            'url': '/odoo/eci',
             'target': 'self',
         }

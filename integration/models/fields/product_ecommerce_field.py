@@ -136,12 +136,13 @@ class ProductEcommerceField(models.Model):
         help='Technical field',
     )
 
-    auto_create_mapping = fields.Boolean(
-        string='Auto-Add to New Stores',
+    mapping_active_by_default = fields.Boolean(
+        string='Active by Default',
         default=False,
-        help='When new Integration of API type is created, field mapping will '
-             'be automatically pre-created based on this checkbox. So user do not '
-             'need to create mapping manually',
+        help='When a new Integration is created, field mapping will be '
+             'automatically created for all default fields. This checkbox '
+             'controls whether the mapping should be marked as active (enabled) '
+             'or inactive (disabled) by default.',
     )
 
     odoo_model_id = fields.Many2one(
@@ -313,7 +314,7 @@ class ProductEcommerceField(models.Model):
 
         :return: Cleaned script string ready for execution
         """
-        lines = self.import_script.splitlines()
+        lines = (self.import_script or '').splitlines()
         return '\n'.join(line for line in lines if not line.strip().startswith('#')).strip()
 
     @property
@@ -323,7 +324,7 @@ class ProductEcommerceField(models.Model):
 
         :return: Cleaned script string ready for execution
         """
-        lines = self.export_script.splitlines()
+        lines = (self.export_script or '').splitlines()
         return '\n'.join(line for line in lines if not line.strip().startswith('#')).strip()
 
     @api.onchange('odoo_field_id')
@@ -446,7 +447,7 @@ class ProductEcommerceField(models.Model):
         return self.env['product.ecommerce.field.mapping'].create({
             'ecommerce_field_id': self.id,
             'integration_id': integration_id,
-            'active': self.auto_create_mapping,
+            'active': self.mapping_active_by_default,
             'export_enabled': self.default_for_update,
             'import_enabled': self.default_for_import,
             **kwargs,

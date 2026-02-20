@@ -85,12 +85,6 @@ class NoAPIClient(AbsApiClient):
     def get_attribute_values(self):
         return
 
-    def get_features(self):
-        return
-
-    def get_feature_values(self):
-        return
-
     def get_countries(self):
         return
 
@@ -142,12 +136,6 @@ class NoAPIClient(AbsApiClient):
     def export_attribute_value(self, attribute_value):
         return
 
-    def export_feature(self, feature):
-        return
-
-    def export_feature_value(self, feature_value):
-        return
-
     def get_pricelists(self):
         return
 
@@ -179,7 +167,7 @@ class NoAPIClient(AbsApiClient):
         return dict()
 
     def unlink_existing_webhooks(self, external_ids=None):
-        return _('Not Implemented!')
+        return 'Not Implemented!'
 
     def _convert_to_html(self, id_list):
         return
@@ -198,3 +186,12 @@ class NoAPIClient(AbsApiClient):
             'This functionality is not yet implemented. Please contact our support team (%(support_url)s) or '
             'your Odoo partner for further details.'
         ) % 'https://support.ventor.tech/')
+
+    def get_locations(self):
+        return
+
+    def order_fetch_kwargs(self, *args, **kw):
+        return
+
+    def send_picking(self, sale_order_id, tracking_data, *args, **kw):
+        return

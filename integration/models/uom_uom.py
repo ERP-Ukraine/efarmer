@@ -21,7 +21,7 @@ class UomUom(models.Model):
         if not external_uom_name:
             return weight
 
-        external_weight_uom = self.env['uom.uom'].search([
+        external_weight_uom = self.env['uom.uom'].with_context(active_test=False).search([
             ('name', '=ilike', normalize_uom_name(external_uom_name)),
         ], limit=1)
 

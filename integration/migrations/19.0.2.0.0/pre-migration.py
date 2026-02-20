@@ -16,9 +16,21 @@ def migrate(cr, version):
 
     env.cr.execute(
         """
-        UPDATE product_ecommerce_field_mapping
-            SET
-                export_enabled = send_on_update,
-                import_enabled = receive_on_import;
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = 'product_ecommerce_field_mapping'
+          AND column_name IN ('send_on_update', 'receive_on_import');
         """
     )
+
+    existing_columns = {row[0] for row in env.cr.fetchall()}
+
+    if {'send_on_update', 'receive_on_import'}.issubset(existing_columns):
+        env.cr.execute(
+            """
+            UPDATE product_ecommerce_field_mapping
+                SET
+                    export_enabled = send_on_update,
+                    import_enabled = receive_on_import;
+            """
+        )

@@ -134,16 +134,6 @@
             <field name="attribute_id" ref="product_attribute_color"/>
         </record>
 
-        <!-- Creating product future -->
-        <record id="feature_id" model="product.feature">
-            <field name="name">Test Feature</field>
-        </record>
-
-        <record id="feature_value_id" model="product.feature.value">
-            <field name="name">Test Feature Value</field>
-            <field name="feature_id" ref="feature_id"/>
-        </record>
-
         <!-- Creating category -->
         <record id="product_public_category" model="ecommerce.product.category">
             <field name="name">Test Category</field>

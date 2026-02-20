@@ -8,6 +8,7 @@ class IntegrationSaleOrderSubStatusMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'External Order Status Mapping'
     _mapping_fields = ('odoo_id', 'external_id')
+    _mapping_label = 'Order Status'
 
     odoo_id = fields.Many2one(
         string='Odoo E-Commerce Order Status',

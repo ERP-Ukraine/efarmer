@@ -22,3 +22,11 @@ class ShippingLine(GqlDict):
         self.ensure_one()
         money_bag = self.current_discounted_price_set
         return money_bag.get_amount(use_customer_currency)
+
+    def format_delivery(self):
+        self.ensure_one()
+        # REST API deprecated formatting
+        return {
+            'name': self.title,
+            'id': self._env.DeliveryMethod.format_delivery_code(self.code, self.title),
+        }

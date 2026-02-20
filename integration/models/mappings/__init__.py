@@ -6,8 +6,6 @@ from . import integration_account_tax_group_mapping
 from . import integration_sale_order_payment_method_mapping
 from . import integration_product_attribute_mapping
 from . import integration_product_attribute_value_mapping
-from . import integration_product_feature_mapping
-from . import integration_product_feature_value_mapping
 from . import integration_res_lang_mapping
 from . import integration_res_partner_mapping
 from . import integration_res_country_mapping

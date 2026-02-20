@@ -8,6 +8,7 @@ class IntegrationResCountryMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'Integration Res Country Mapping'
     _mapping_fields = ('country_id', 'external_country_id')
+    _mapping_label = 'Country'
 
     country_id = fields.Many2one(
         string='Odoo Country',

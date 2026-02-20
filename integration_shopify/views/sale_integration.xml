@@ -93,7 +93,7 @@
                             <div colspan="2">
                                 <field name="catalog_line_ids" colspan="2" nolabel="1">
                                     <list editable="bottom">
-                                        <field name="integration_id" column_invisible="1"/>
+                                        <field name="integration_id" column_invisible="1"/> <!-- Required because it is used in the fields domains below -->
                                         <field name="catalog_id"
                                                domain="[('integration_id', '=', integration_id)]"
                                                options="{'no_create': True}"

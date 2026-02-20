@@ -332,10 +332,14 @@ class SaleIntegrationInputFile(models.Model):
 
         pipiline = self.order_id.integration_pipeline
         if not pipiline:
-            return {}, {}
+            return {}
 
         data = self.parse()
-        return pipiline._update_pipeline(data)
+        pipiline._update_pipeline(
+            workflow_states=data.get('integration_workflow_states', []),
+            payment_method_code=data.get('payment_method'),
+        )
+        return data
 
     def open_pipeline_form(self):
         pipeline = self.order_id.integration_pipeline
@@ -453,7 +457,10 @@ class SaleIntegrationInputFile(models.Model):
         order._apply_values_from_external(updated_data)
 
         # Build and run workflow
-        return order._build_and_run_integration_workflow(updated_data)
+        return order._build_and_run_integration_workflow(
+            workflow_states=updated_data.get('integration_workflow_states', []),
+            payment_method_code=updated_data.get('payment_method'),
+        )
 
     def _get_file_id_for_log(self):
         return self.id

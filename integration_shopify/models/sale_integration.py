@@ -125,7 +125,7 @@ class SaleIntegration(models.Model):
         if not self.is_integration_shopify:
             raise NotImplementedError
 
-        tag_list = self.adapter.get_tags()
+        tag_list = self.adapter.get_product_tags()
 
         Tag = self.env['external.integration.tag']
         tags = Tag.browse()

@@ -20,7 +20,6 @@ MODELS_WITH_IMPORT_AVAILABLE = [
     'account.tax.group',
     'sale.order.sub.status',
     'product.attribute',
-    'product.feature',
 ]
 JOB_STATE_FAILED = 'failed'
 
@@ -59,6 +58,12 @@ class QueueJob(models.Model):
         ],
         string='Job Type',
         default='other',
+    )
+
+    parent_id = fields.Many2one(
+        comodel_name='queue.job',
+        string='Parent Job',
+        ondelete='cascade',
     )
 
     # Links to different types of records to make it easier to track jobs
@@ -388,7 +393,6 @@ class QueueJob(models.Model):
             'res.country.state': self.integration_id.integrationApiImportStates,
             'sale.order.sub.status': self.integration_id.integrationApiImportSaleOrderStatuses,
             'product.attribute': self.integration_id.integrationApiImportAttributes,
-            'product.feature': self.integration_id.integrationApiImportFeatures,
         }
 
         # Run the corresponding import method based on the model

@@ -16,6 +16,7 @@ class IntegrationProductTemplateMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'Integration Product Template Mapping'
     _mapping_fields = ('template_id', 'external_template_id')
+    _mapping_label = 'Product Template'
 
     template_id = fields.Many2one(
         string='Odoo Product',
@@ -101,14 +102,14 @@ class IntegrationProductTemplateMapping(models.Model):
         records = self.filtered(lambda x: not x.template_id)
         external_ids = records.mapped('external_template_id.code')
 
-        integration._import_external_product(external_ids)
+        integration.import_products_in_background(external_ids)
 
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'title': _('Reimport Product'),
-                'message': _('Product%s reimported successfully') % ('s were' if len(self) > 1 else ' was'),
+                'message': _('Products import jobs are created'),
                 'type': 'success',
                 'sticky': False,
             }

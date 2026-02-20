@@ -411,6 +411,9 @@ class IntegrationProductTemplateExternal(models.Model):
         values = self.env['product.template'] \
             .calculate_import_fields_data(integration.id, template_data)
 
+        if integration.apply_company_on_product and not values.get('company_id'):
+            values['company_id'] = integration.company_id.id
+
         attr_values_ids_by_attr_id = integration.convert_external_attributes(
             template_data['_attributes']
         )
@@ -645,7 +648,13 @@ class IntegrationProductTemplateExternal(models.Model):
             - product.template
         """
         klass = self.env[model_name]
-        product = klass.search([(field_name, '=ilike', escape_psql(value))])
+
+        domain = [
+            ('company_id', 'in', [self.integration_id.company_id.id, False]),
+            (field_name, '=ilike', escape_psql(value)),
+        ]
+
+        product = klass.search(domain, limit=2)
 
         if len(product) > 1:
             raise ApiImportError(_(
@@ -699,11 +708,11 @@ class IntegrationProductTemplateExternal(models.Model):
         existing_kit_lines, incoming_kit_lines = [], []
 
         # 1. Serialize incoming boms
+        integration = self.integration_id
         for component in component_list:
             assert ('product_id' in component), _('Product complex-ID missed.')
 
-            odoo_variant = self.env['integration.sale.order.factory'] \
-                ._try_get_odoo_product(self.integration_id, component, force_create=True)
+            odoo_variant = integration._try_get_odoo_product(component, force_create=True)
 
             incoming_kit_lines.append(
                 (

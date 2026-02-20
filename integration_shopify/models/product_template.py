@@ -1,10 +1,11 @@
 # See LICENSE file for full copyright and licensing details.
 
 import logging
+from collections import defaultdict
 
 import requests
 
-from odoo import models
+from odoo import models, fields
 
 
 _logger = logging.getLogger(__name__)
@@ -14,6 +15,16 @@ PRODUCT_IMAGE_CODE_PREFIX = 'ProductImage'
 
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
+
+    continue_selling_without_stock = fields.Selection(
+        selection=[
+            ('CONTINUE', 'Continue'),
+            ('DENY', 'Deny'),
+        ],
+        string='Continue Selling Without Stock',
+        help='Continue selling the product even if it is out of stock.',
+        default='DENY',
+    )
 
     def to_export_format(self, integration):
         result = super().to_export_format(integration)
@@ -29,11 +40,18 @@ class ProductTemplate(models.Model):
 
             result['gid'] = value
 
-            # Update attribute_values to match Shopify format
-            attribute_lines = self.attribute_line_ids \
-                .filtered(lambda x: not x.exclude_from_synchronization)
+            # Serialize the attributes taken from the serialized variants
+            attribute_values = defaultdict(set)
+            for variant in result['products']:
+                for attribute in variant['attribute_values']:
+                    attribute_values[attribute['optionName']].add(attribute['name'])
 
-            result['attribute_values'] = [x.to_export_format_gql(integration.id) for x in attribute_lines]
+            result['attribute_values'] = [
+                {
+                    'name': option_name,
+                    'values': [{'name': v} for v in value_names],
+                } for option_name, value_names in attribute_values.items()
+            ]
 
         return result
 
@@ -45,7 +63,10 @@ class ProductTemplate(models.Model):
         ):
             job_kwargs = self._job_kwargs_import_template_translations(integration_id)
             self \
-                .with_context(company_id=integration.company_id.id) \
+                .with_context(
+                    job_integration_id=integration_id,
+                    company_id=integration.company_id.id,
+                ) \
                 .with_delay(**job_kwargs) \
                 .integration_import_translations(integration_id, force_import)
 

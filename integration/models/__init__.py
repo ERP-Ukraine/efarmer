@@ -20,10 +20,7 @@ from . import product_template_external_tag_group
 from . import product_template_attribute_value
 from . import product_attribute
 from . import product_attribute_value
-from . import product_feature
-from . import product_feature_value
 from . import product_pricelist
-from . import product_template_feature_line
 from . import integration_logging
 from . import integration_webhook_line
 from . import sale_integration
