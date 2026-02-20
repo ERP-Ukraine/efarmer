@@ -7,11 +7,13 @@ from io import BytesIO
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 from odoo.tests.common import TransactionCase
+from odoo import fields
 
 
 class TestHrPayslipImportWizard(TransactionCase):
     def setUp(self):
         super().setUp()
+        self.base_date = fields.Date.today()
 
         self.employee_1 = self.env['hr.employee'].create({
             'name': 'John',
@@ -28,14 +30,25 @@ class TestHrPayslipImportWizard(TransactionCase):
             'name': 'Deduction',
             'code': 'DED',
         })
+        versions = self.employee_1.version_ids.sorted('date_version')
 
-        self.contract_1 = self.env['hr.contract'].create({
-            'name': 'Test Contract',
-            'employee_id': self.employee_1.id,
-            'wage': 2000,
-            'date_start': date.today() - relativedelta(years=1),
-            'date_end': date.today() + relativedelta(years=1),
-        })
+        current_versions = versions.filtered(lambda v: v.is_current)
+
+        if current_versions:
+            self.contract_1 = current_versions[0]
+        else:
+            # fallback: latest version
+            if versions:
+                self.contract_1 = versions[-1]
+            else:
+                self.contract_1 = self.env['hr.version'].create({
+                    'name': 'Current Version',
+                    'employee_id': self.employee_1.id,
+                    'wage': 2000,
+                    'date_version': self.base_date,
+                    'date_generated_from': self.base_date,
+                    # 'structure_type_id': self.structure_type.id,
+                })
 
         self.binary_data = b'VGhpcyBpcyBhIHRlc3QgYmluYXJ5IGZpbGUuCg=='
         self.wizard = self._create_import_wizard(self.binary_data)
@@ -90,15 +103,6 @@ class TestHrPayslipImportWizard(TransactionCase):
         )
 
     def test_create_payslip(self):
-        # create old contract to test getting of employye's last contract
-        self.env['hr.contract'].create({
-            'name': 'Test Old Contract',
-            'state': 'cancel',
-            'employee_id': self.employee_1.id,
-            'wage': 2000,
-            'date_start': date.today() - relativedelta(years=3),
-            'date_end': date.today() - relativedelta(years=3),
-        })
         payslip_vals = [
             {self.employee_1: [(self.input_type_1.id, 0.0), (self.input_type_2.id, 10.0)]},
             {self.employee_2: [(self.input_type_1.id, 20.0), (self.input_type_2.id, 30.0)]},
@@ -116,8 +120,7 @@ class TestHrPayslipImportWizard(TransactionCase):
 
         self.assertTrue(all([payslip_1, payslip_2]))
 
-        self.assertEqual(payslip_1.contract_id, self.contract_1)
-        self.assertFalse(payslip_2.contract_id)
+        self.assertEqual(payslip_1.version_id, self.contract_1)
 
         self.assertEqual(payslip_1.date_from, self.wizard.date_from)
         self.assertEqual(payslip_1.date_to, self.wizard.date_to)

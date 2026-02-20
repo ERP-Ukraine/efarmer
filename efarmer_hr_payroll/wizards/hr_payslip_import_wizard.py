@@ -3,7 +3,7 @@
 
 import base64
 import io
-import xlrd
+from openpyxl import load_workbook
 
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
@@ -109,13 +109,6 @@ class HrPayslipImportWizard(models.TransientModel):
         sorted_input_types = input_types.sorted(lambda x: input_type_names.index(x.name))
         return sorted_input_types
 
-    def get_last_contract(self, employee):
-        last_contract = None
-        valid_contracts = employee.contract_ids.filtered(lambda c: c.state != 'cancel')
-        if valid_contracts:
-            last_contract = valid_contracts.sorted(key='date_start', reverse=True)[0]
-        return last_contract
-
     def create_batch(self):
         batch = self.env['hr.payslip.run'].create({
             'name': 'From {} to {}'.format(
@@ -124,7 +117,7 @@ class HrPayslipImportWizard(models.TransientModel):
             ),
             'date_start': self.date_from,
             'date_end': self.date_to,
-            'state': 'verify',
+            'state': '01_ready',
         })
         return batch
 
@@ -139,7 +132,7 @@ class HrPayslipImportWizard(models.TransientModel):
                     'amount': input_type[1],
                 }) for input_type in non_zero_types]
 
-                last_contract = self.get_last_contract(employee)
+                last_contract = employee.current_version_id
 
                 payslip = self.env['hr.payslip'].create({
                     'name': '',
@@ -147,7 +140,7 @@ class HrPayslipImportWizard(models.TransientModel):
                     'employee_id': employee.id,
                     'date_from': self.date_from,
                     'date_to': self.date_to,
-                    'contract_id': last_contract.id if last_contract else None,
+                    'version_id': last_contract.id if last_contract else None,
                     'input_line_ids': input_lines
                 })
                 # _compute_name() isn't run while creating object, run it explicitly
@@ -159,26 +152,46 @@ class HrPayslipImportWizard(models.TransientModel):
 
     def import_payslip(self):
         self.ensure_one()
+
         # delete alert message if new file was uploaded in the same wizard
         if self.alert:
             self.alert = ''
 
         fileobj = self._decode_file(self.import_file)
+
         try:
-            workbook = xlrd.open_workbook(file_contents=fileobj.read())
-        except xlrd.biffh.XLRDError:
-            raise UserError('Only Excel files are supported.')
+            file_content = fileobj.read()
+            workbook = load_workbook(
+                filename=io.BytesIO(file_content),
+                data_only=True
+            )
+        except Exception:
+            raise UserError('Only .xlsx Excel files are supported.')
 
-        sheet = workbook.sheet_by_index(0)
-        input_types_row = 1
-        employee_col = 1
-        first_row_data = 2
-        last_row_data = len([x for x in sheet.col_values(0) if x])
+        sheet = workbook.active  # first sheet
 
-        # input type names are started from 2 position in a row
-        input_type_names = sheet.row_values(input_types_row)[2:]
-        # employee names are started from 2 position in a column
-        employee_names = sheet.col_values(employee_col)[2:last_row_data]
+        input_types_row = 2      # Excel rows start from 1
+        employee_col = 2         # Column B
+        first_row_data = 3       # Data starts from row 3
+
+        # Last row with data in column A
+        last_row_data = sheet.max_row
+
+        # 🔹 Get input type names (row 2, starting from column C)
+        input_type_names = []
+        col = 3  # column C
+        while sheet.cell(row=input_types_row, column=col).value:
+            input_type_names.append(
+                str(sheet.cell(row=input_types_row, column=col).value).strip()
+            )
+            col += 1
+
+        # 🔹 Get employee names (column B, starting from row 3)
+        employee_names = []
+        for row in range(first_row_data, last_row_data + 1):
+            employee_name = sheet.cell(row=row, column=employee_col).value
+            if employee_name:
+                employee_names.append(str(employee_name).strip())
 
         employee_data = self.validate_employees(employee_names)
         input_types = self.validate_input_types(input_type_names)
@@ -188,11 +201,22 @@ class HrPayslipImportWizard(models.TransientModel):
             return self.finish_import()
 
         payslip_vals = []
-        for row in range(first_row_data, last_row_data):
+
+        for row in range(first_row_data, last_row_data + 1):
+            employee_name = sheet.cell(row=row, column=employee_col).value
+
+            if not employee_name:
+                continue
+
+            employee = employee_data.get(str(employee_name).strip())
             row_dict = {}
-            row_values = sheet.row_values(row)
-            employee = employee_data.get(row_values[1].strip())
-            row_dict[employee] = list(zip(input_types.ids, row_values[2:]))
+
+            values = []
+            for idx, input_type_id in enumerate(input_types.ids):
+                value = sheet.cell(row=row, column=3 + idx).value or 0
+                values.append((input_type_id, value))
+
+            row_dict[employee] = values
             payslip_vals.append(row_dict)
 
         self.create_payslip(payslip_vals)
