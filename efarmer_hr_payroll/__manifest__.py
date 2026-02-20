@@ -3,22 +3,22 @@
 
 
 {
-    'name': 'eFarmer Hr Payroll',
-    'version': '19.0.1.0.0',
-    'category': 'Other',
-    'author': 'VentorTech',
-    'website': 'https://ventor.tech',
-    'license': 'LGPL-3',
-    'depends': [
-        'hr_payroll',
-        'hr_work_entry_enterprise',
+    "name": "eFarmer Hr Payroll",
+    "version": "19.0.1.0.0",
+    "category": "Other",
+    "author": "VentorTech",
+    "website": "https://ventor.tech",
+    "license": "LGPL-3",
+    "depends": [
+        "hr_payroll",
+        "hr_work_entry_enterprise",
     ],
-    'data': [
+    "data": [
         # Security
-        'security/ir.model.access.csv',
+        "security/ir.model.access.csv",
         # Wizard Views
-        'wizards/hr_payslip_import_wizard.xml',
+        "wizards/hr_payslip_import_wizard.xml",
     ],
-    'installable': True,
-    'application': True,
+    "installable": True,
+    "application": True,
 }
