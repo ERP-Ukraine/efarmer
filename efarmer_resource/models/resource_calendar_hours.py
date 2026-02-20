@@ -29,13 +29,14 @@ class ResourceCalendarHours(models.Model):
     _rec_name = 'month'
 
     year = fields.Char(
-        string='Year',
+        string='Year', compute="_compute_year", store=True
     )
 
     month = fields.Selection(
         MONTH_SELECTION,
         string='Month',
         required=True,
+        default=lambda self: str(fields.Date.today().month).zfill(2)
     )
 
     total_hours = fields.Float(
@@ -52,6 +53,11 @@ class ResourceCalendarHours(models.Model):
         comodel_name='resource.calendar',
         string='Resource Calendar',
     )
+
+    @api.depends("resource_calendar_id.year")
+    def _compute_year(self):
+        for record in self:
+            record.year = record.resource_calendar_id.year
 
     @api.depends('resource_calendar_id', 'year', 'month')
     def _compute_hours(self):
