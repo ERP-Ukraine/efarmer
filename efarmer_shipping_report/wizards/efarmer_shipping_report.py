@@ -2,7 +2,8 @@ import io
 import base64
 from collections import defaultdict
 from odoo import api, fields, models
-from odoo.tools import PatchedXlsxWorkbook
+from odoo.exceptions import ValidationError
+from odoo._monkeypatches.xlsxwriter import PatchedXlsxWorkbook
 
 PICKING_STATUS_WAITING_AND_READY = 'waiting_and_ready'
 PICKING_STATUS_DONE = 'done'
@@ -21,16 +22,19 @@ class EfarmerShipingReport(models.TransientModel):
         required=True,
     )
 
-    _sql_constraints = [
-        ('valid_dates', 'CHECK(date_from <= date_to)', 'Date from must be greater than or equal to that date to.'),
-    ]
-
     @api.model
     def _get_picking_status_variants(self):
         return [
             (PICKING_STATUS_WAITING_AND_READY, 'Waiting or Ready'),
             (PICKING_STATUS_DONE, 'Done'),
         ]
+
+    @api.constrains("date_from", "date_to")
+    def _check_date(self):
+        for rec in self.filtered(lambda r: r.date_from and r.date_to):
+            if rec.date_from > rec.date_to:
+                msg = "Date from must be less than or equal to that date to."
+                raise ValidationError(msg)
 
     def build(self):
         self.ensure_one()
