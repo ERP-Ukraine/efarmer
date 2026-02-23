@@ -2,7 +2,7 @@
 <odoo>
     <record model="res.groups" id="group_attachment_admin">
         <field name="name">Attachment Admin</field>
-        <field name="users" eval="[Command.link(ref('base.user_admin'))]"/>
+        <field name="user_ids" eval="[Command.link(ref('base.user_admin'))]"/>
         <field name="implied_ids"
                eval="[(4, ref('base.group_user'))]"/>
     </record>
