@@ -12,20 +12,17 @@ ADDON = "account_journal_general_sequence"
 class AccountMove(models.Model):
     _inherit = "account.move"
 
-    _sql_constraints = [
-        (
-            "entry_number_unique",
-            "UNIQUE(entry_number, journal_id)",
-            "Entry number must be unique per journal.",
-        ),
-    ]
-
     entry_number = fields.Char(
         index=True,
         readonly=True,
         store=True,
         compute="_compute_entry_number",
         help="Automatic numbering, based on journal configuration.",
+    )
+
+    _entry_number_unique = models.Constraint(
+        "UNIQUE(entry_number, journal_id)",
+        "Entry number must be unique per journal."
     )
 
     @api.depends("state")
