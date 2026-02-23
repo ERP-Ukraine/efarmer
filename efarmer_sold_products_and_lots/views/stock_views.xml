@@ -8,12 +8,12 @@
                 <field name="reference" string="Reference"/>
                 <field name="product_id"/>
                 <field name="lot_id"/>
-                <field name="partner_id"/>
+                <field name="picking_partner_id"/>
                 <field name="state"/>
                 <filter string="Outgoing" name="moves_ougoing" domain="[('location_dest_id.usage', '=', 'customer')]"/>
                 <filter string="Returns" name="moves_returned" domain="[('location_id.usage', '=', 'customer')]"/>
                 <group>
-                    <filter string="Customer" name="customer" domain="['|', ('location_dest_id.usage', '=', 'customer'),('location_id.usage', '=', 'customer')]" context="{'group_by':'partner_id'}"/>
+                    <filter string="Customer" name="customer" domain="['|', ('location_dest_id.usage', '=', 'customer'),('location_id.usage', '=', 'customer')]" context="{'group_by':'picking_partner_id'}"/>
                 </group>
             </search>
         </field>
@@ -24,7 +24,7 @@
         <field name="model">stock.move.line</field>
         <field name="arch" type="xml">
             <list>
-                <field name="partner_id" />
+                <field name="picking_partner_id" />
                 <field name="picking_id" optional="show"/>
                 <field name="date" optional="show"/>
                 <field name="reference" optional="hide"/>
