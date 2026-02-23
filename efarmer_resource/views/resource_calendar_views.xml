@@ -1,0 +1,30 @@
+<odoo>
+    <data>
+
+        <record id="view_resource_calendar_form_inherit" model="ir.ui.view">
+            <field name="name">resource.calendar.form.inherit</field>
+            <field name="model">resource.calendar</field>
+            <field name="inherit_id" ref="resource.resource_calendar_form"/>
+            <field name="arch" type="xml">
+                <page name="working_hours" position="after">
+                    <page name="resource_calendar_hours" string="Hours per Year">
+                        <group>
+                            <group>
+                                <field name="year"/>
+                            </group>
+                        </group>
+
+                        <field name="hours_per_year">
+                            <list string="Hours per Month" create="0" delete="0" default_order="month asc">
+                                <field name="month"/>
+                                <field name="total_hours" sum="Total"/>
+                                <field name="working_hours" sum="Total"/>
+                            </list>
+                        </field>
+                    </page>
+                </page>
+            </field>
+        </record>
+
+    </data>
+</odoo>
