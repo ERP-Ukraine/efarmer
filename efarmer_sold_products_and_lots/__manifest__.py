@@ -6,7 +6,7 @@
     'author': 'VentorTech',
     'website': 'https://ventor.tech/',
     'license': 'LGPL-3',
-    'depends': ['stock'],
+    'depends': ['stock_barcode'],
     'description': '',
     'data': [
         'views/stock_views.xml',
