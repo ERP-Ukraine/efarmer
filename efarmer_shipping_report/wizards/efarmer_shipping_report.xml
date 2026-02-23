@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="efarmer_shipping_report_view_form" model="ir.ui.view">
+        <field name="name">efarmer.shipping.report.view.form</field>
+        <field name="model">efarmer.shipping.report</field>
+        <field name="arch" type="xml">
+            <form string="Shipping Report">
+                <sheet>
+                    <group name="base">
+                        <group>
+                            <field name="date_from" />
+                            <field name="date_to" />
+                            <field name="picking_status" />
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Build" name="build" type="object" class="btn-primary" />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="efarmer_shipping_report_action_view_form" model="ir.actions.act_window">
+        <field name="name">Shipping Report</field>
+        <field name="res_model">efarmer.shipping.report</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="efarmer_shipping_report_view_form" />
+        <field name="target">new</field>
+    </record>
+
+    <menuitem name="Shipping Report" action="efarmer_shipping_report_action_view_form" id="efarmer_shipping_report_menu" parent="stock.menu_warehouse_report" />
+
+</odoo>

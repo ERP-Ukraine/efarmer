@@ -1,0 +1,220 @@
+import io
+import base64
+from collections import defaultdict
+
+from xlsxwriter import Workbook
+
+from odoo import api, fields, models
+from odoo.exceptions import ValidationError
+
+PICKING_STATUS_WAITING_AND_READY = 'waiting_and_ready'
+PICKING_STATUS_DONE = 'done'
+
+
+class EfarmerShipingReport(models.TransientModel):
+    _name = 'efarmer.shipping.report'
+    _description = 'eFarmer Shipping Report'
+
+    date_from = fields.Datetime()
+    date_to = fields.Datetime()
+    picking_status = fields.Selection(
+        string='Status',
+        selection='_get_picking_status_variants',
+        default='done',
+        required=True,
+    )
+
+    @api.model
+    def _get_picking_status_variants(self):
+        return [
+            (PICKING_STATUS_WAITING_AND_READY, 'Waiting or Ready'),
+            (PICKING_STATUS_DONE, 'Done'),
+        ]
+
+    @api.constrains("date_from", "date_to")
+    def _check_date(self):
+        for rec in self.filtered(lambda r: r.date_from and r.date_to):
+            if rec.date_from > rec.date_to:
+                msg = "Date from must be less than or equal to that date to."
+                raise ValidationError(msg)
+
+    def build(self):
+        self.ensure_one()
+
+        pickings = self._get_filtered_pickings()
+        report_data = self._build_report_data(pickings)
+        report_bytes = self._get_report_bytes(report_data)
+        report_encoded_bytes = base64.b64encode(report_bytes.read())
+
+        picking_status_label = next(y for x, y in self._get_picking_status_variants() if x == self.picking_status)
+        report_name = 'Shipping Report ({})'.format(picking_status_label)
+        if self.date_from:
+            report_name += ' from {0:%d.%m.%Y}'.format(self.date_from)
+        if self.date_to:
+            report_name += ' to {0:%d.%m.%Y}'.format(self.date_to)
+        report_name += '.xlsx'
+
+        report_mark = 'Shipping Report'
+        attach = self.env['ir.attachment'].search([('description', '=', report_mark)], limit=1)
+        if attach:
+            attach.write({
+                'name': report_name,
+                'datas': report_encoded_bytes,
+            })
+        else:
+            attach = self.env['ir.attachment'].create({
+                'name': report_name,
+                'type': 'binary',
+                'description': report_mark,
+                'datas': report_encoded_bytes,
+            })
+
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/web/content/{}/{}'.format(attach.id, report_name),
+            'target': 'self',
+        }
+
+    def _get_filtered_pickings(self):
+        self.ensure_one()
+        domain = [('picking_type_code', '=', 'outgoing')]
+
+        if self.picking_status == PICKING_STATUS_WAITING_AND_READY:
+            domain.append(('state', 'in', ('waiting', 'confirmed', 'assigned')))
+
+        elif self.picking_status == PICKING_STATUS_DONE:
+            domain.append(('state', '=', 'done'))
+
+        if self.date_from:
+            domain.extend(['|', ('date_done', '=', False), ('date_done', '>=', self.date_from)])
+        if self.date_to:
+            domain.extend(['|', ('date_done', '=', False), ('date_done', '<=', self.date_to)])
+
+        return self.env['stock.picking'].search(domain)
+
+    @api.model
+    def _build_report_data(self, pickings):
+        """Returns
+        {
+            products: <<product.product recordset>>,
+            moves: {
+                (order, picking, partner): {
+                    product_id: <<stock.move recordset>>
+                }
+            }
+        }
+        """
+        report_data = {
+            'products': self.env['product.product'],
+            'moves': {},
+        }
+        for move in pickings.move_ids.filtered(lambda m: m.state != 'cancel'):
+            order = move.sale_line_id.order_id
+            picking = move.picking_id
+            partner = picking.partner_id or order.partner_id
+            product = move.product_id
+
+            report_data['products'] |= product
+
+            data_key = (order, picking, partner)
+            data_by_key = report_data['moves'].get(data_key)
+            if not data_by_key:
+                data_by_key = defaultdict(self.get_empty_stock_move_recordset)
+                report_data['moves'][data_key] = data_by_key
+            data_by_key[product.id] |= move
+
+        return report_data
+
+    @api.model
+    def _get_report_bytes(self, report_data):
+        stream = io.BytesIO()
+
+        with Workbook(stream) as workbook:
+            worksheet = workbook.add_worksheet()
+            row_no = 0
+
+            header_format = workbook.add_format({
+                'bold': True,
+                'align': 'center',
+                'valign': 'vcenter',
+            })
+
+            cell_format = workbook.add_format({
+                'align': 'center',
+                'valign': 'bottom',
+            })
+
+            product_cell_format = workbook.add_format({
+                'align': 'center',
+                'valign': 'vcenter',
+            })
+
+            worksheet.set_column(0, 0, 20)
+            worksheet.set_column(1, 1, 10)
+            worksheet.set_column(2, 2, 15)
+            worksheet.set_column(3, 3, 25)
+            worksheet.set_column(4, 4, 25)
+            worksheet.set_column(5, 5, 15)
+            worksheet.set_column(6, 6, 30)
+
+            # First row
+
+            worksheet.write(row_no, 0, 'Date of shipping', header_format)
+            worksheet.write(row_no, 1, 'SO #', header_format)
+            worksheet.write(row_no, 2, 'Delivery #', header_format)
+            worksheet.write(row_no, 3, 'Name of Customer', header_format)
+            worksheet.write(row_no, 4, 'Address', header_format)
+            worksheet.write(row_no, 5, 'Country', header_format)
+            worksheet.write(row_no, 6, 'Email', header_format)
+            col_no = 7
+
+            for product in report_data['products']:
+                worksheet.set_column(col_no, col_no, 15)
+                worksheet.write(row_no, col_no, product.name, header_format)
+                col_no += 1
+
+            # Other rows
+
+            for data_key, move_info in report_data['moves'].items():
+                order, picking, partner = data_key
+                row_no += 1
+
+                worksheet.write(row_no, 0, picking.date_done.strftime('%d/%m/%Y') if picking.date_done else '', cell_format)
+                worksheet.write(row_no, 1, order.name or '', cell_format)
+                worksheet.write(row_no, 2, picking.name or '', cell_format)
+                worksheet.write(row_no, 3, partner.name or '', cell_format)
+                worksheet.write(row_no, 4, partner._display_address())
+                worksheet.write(row_no, 5, partner.country_id.name or '', cell_format)
+                worksheet.write(row_no, 6, partner.email or '', cell_format)
+                col_no = 7
+
+                for product in report_data['products']:
+                    moves = move_info.get(product.id)
+                    if moves:
+                        lot_names = moves.move_line_ids.lot_id.mapped('name')
+
+                        # Display either lots (if exists)
+                        if self.picking_status != PICKING_STATUS_WAITING_AND_READY and lot_names:
+                            worksheet.write(row_no, col_no, ',\n'.join(lot_names), product_cell_format)
+                        # Or quantity
+                        else:
+                            qty = sum(moves.mapped(get_sm_qty))
+                            worksheet.write(row_no, col_no, str(qty), product_cell_format)
+
+                    col_no += 1
+
+            worksheet.freeze_panes(1, 0)
+
+        stream.seek(0)
+        return stream
+
+    @api.model
+    def get_empty_stock_move_recordset(self):
+        return self.env['stock.move']
+
+
+def get_sm_qty(sm):
+    if sm.state == 'done':
+        return sm.quantity
+    else:
+        return sm.product_qty
