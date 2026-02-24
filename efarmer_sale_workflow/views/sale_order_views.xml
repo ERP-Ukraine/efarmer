@@ -1,0 +1,266 @@
+<odoo>
+    <data>
+
+        <record id="sale_order_view_form_inherit" model="ir.ui.view">
+            <field name="name">sale.order.view.form.inherit.sale.workflow</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header" position="inside">
+                    <field name="missed_partner_data_banner" invisible="1"/>
+                    <field name="missed_fiscal_position_banner" invisible="1"/>
+                </xpath>
+                <xpath expr="//header" position="after">
+                    <div class="alert alert-danger mb-0 pb-0" role="alert" attrs="{'invisible': [('missed_partner_data_banner', '=', '')]}">
+                        <field name="missed_partner_data_banner" widget="html"/>
+                    </div>
+                    <div class="alert alert-warning mb-0" role="alert" attrs="{'invisible': [('missed_fiscal_position_banner', '=', '')]}">
+                        <field name="missed_fiscal_position_banner"/>
+                    </div>
+                </xpath>
+                <xpath expr="//field[@name='payment_term_id']" position="after">
+                    <field name="delivery_term_id" options="{'no_open':True,'no_create': True}"/>
+                </xpath>
+                <xpath expr="//group[@name='sale_info']" position="inside">
+                    <field name="paid_on_date"/>
+                </xpath>
+                <xpath expr="//field[@name='name']" position="before">
+                    <field name="priority" widget="priority" readonly="1"/>
+                    <span style="margin-left: 10px;"/>
+                </xpath>
+                <xpath expr="//group[@name='sale_shipping']" position="inside">
+                    <field name="pick_scheduled_date" readonly="1" />
+                    <field name="planned_shipping_date" readonly="1" />
+                    <field name="efarmer_confirm_date" readonly="1" />
+                </xpath>
+                <xpath expr="//field[@name='order_line']//tree//field[@name='name']" position="before">
+                    <button name="open_replacement_wizard"
+                            type="object"
+                            icon="fa-edit"
+                            states="to_confirm"
+                            width="0.1" />
+                </xpath>
+
+                <xpath expr="//button[@name='action_confirm'][1]" position="after">
+                    <button name="action_to_payment"
+                            string="To Payment"
+                            class="btn-primary"
+                            states="draft,sent"
+                            type="object"
+                            groups='efarmer_sale_workflow.convert_sale_state_to_payment_group' />
+                    <button name="action_to_confirm"
+                            string="To Confirm"
+                            class="btn-primary"
+                            states="to_payment"
+                            type="object"
+                            groups='efarmer_sale_workflow.convert_sale_state_to_confirm_group' />
+                </xpath>
+
+                <xpath expr="//button[@name='action_confirm'][2]" position="attributes">
+                    <attribute name="groups">efarmer_sale_workflow.allow_sale_order_confirmation</attribute>
+                    <attribute name="attrs">
+                        {'invisible': [('state', 'not in', ['draft','sent'])]}
+                    </attribute>
+                </xpath>
+
+                <xpath expr="//button[@name='action_confirm'][1]" position="attributes">
+                    <attribute name="groups">efarmer_sale_workflow.allow_sale_order_confirmation</attribute>
+                    <attribute name="attrs">
+                        {'invisible': [('state', 'not in', ['to_confirm'])]}
+                    </attribute>
+                </xpath>
+
+                <field name="state" position="attributes">
+                    <attribute name="statusbar_visible">draft,sent,to_payment,to_confirm,sale</attribute>
+                </field>
+                <field name="partner_shipping_id" position="attributes">
+                    <attribute name="attrs">{'readonly': [('state', 'in', ['done','cancel'])]}</attribute>
+                </field>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='price_unit']" position="after">
+                    <field name="detailed_type" invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='price_unit']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('detailed_type', '=', 'product')]}</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="efarmer_sale_workflow.sale_order_view_form" model="ir.ui.view">
+            <field name="name">sale.order.tree</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="efarmer_sale_workflow.sale_order_view_form_inherit"/>
+            <field name="groups_id" eval="[(4, ref('efarmer_sale_workflow.allow_set_sales_priority_group'))]"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='priority']" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="sale_order_view_form_planned_shipping_date_edited" model="ir.ui.view">
+            <field name="name">sale.order.planned.shipping.date.edited</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="efarmer_sale_workflow.sale_order_view_form_inherit"/>
+            <field name="groups_id" eval="[(4, ref('efarmer_sale_workflow.allow_enter_planned_shipping_date'))]"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='planned_shipping_date']" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_sale_order_quotation_efarmer_search" model="ir.ui.view">
+            <field name="name">sale.order.quotation.search</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.sale_order_view_search_inherit_quotation"/>
+            <field name="arch" type="xml">
+                <filter name="draft" position="after">
+                    <filter string="To Payment" name="to_payment" domain="[('state', '=', 'to_payment')]"/>
+                    <filter string="To Confirm" name="to_confirm" domain="[('state', '=', 'to_confirm')]"/>
+                </filter>
+            </field>
+        </record>
+
+        <record id="efarmer_view_sale_order_search" model="ir.ui.view">
+            <field name="name">sale.order.search</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='analytic_account_id']" position="after">
+                    <field name="priority" invisible="1"/>
+                </xpath>
+                <xpath expr="//filter[@name='activities_upcoming_all']" position="after">
+                    <separator/>
+                    <filter string="Urgent" domain="[('priority', '=', 3)]" name="urgent_priority"/>
+                    <filter string="High Priority" domain="[('priority', '=', 2)]" name="high_priority"/>
+                    <filter string="Medium Priority" domain="[('priority', '=', 1)]" name="medium_priority"/>
+                    <filter string="Low Priority" domain="[('priority', '=', 0)]" name="low_priority"/>
+                    <separator/>
+                </xpath>
+                <xpath expr="//filter[@name='order_month']" position="after">
+                    <filter string="Schedule Shipping Date" name="groupby_scheduled_date" domain="[]" context="{'group_by': 'pick_scheduled_date'}" />
+                    <filter string="Planned Shipping Date" name="groupby_planned_shipping_date" domain="[]" context="{'group_by': 'planned_shipping_date'}" />
+                    <filter string="Confirm Date" name="groupby_efarmer_confirm_date" domain="[]" context="{'group_by': 'efarmer_confirm_date'}" />
+                </xpath>
+                <xpath expr="//filter[@name='my_sale_orders_filter']" position="after">
+                    <filter string="Schedule Shipping Date" name="scheduled_date" date="pick_scheduled_date" />
+                    <filter string="Planned Shipping Date" name="planned_shipping_date" date="planned_shipping_date" />
+                    <filter string="Confirm Date" name="efarmer_confirm_date" date="efarmer_confirm_date" />
+                </xpath>
+            </field>
+        </record>
+
+        <record id="efarmer_sale_workflow.view_order_tree" model="ir.ui.view">
+            <field name="name">sale.order.tree</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="before">
+                    <field name="priority" readonly="1" optional="show" widget="priority"/>
+                </xpath>
+                <xpath expr="//field[@name='activity_ids']" position="after">
+                    <field name="pick_scheduled_date"
+                           readonly="1"
+                           optional="show"
+                           decoration-danger="state not in ('done', 'cancel') and delivery_state in ('unprocessed', 'partially') and pick_scheduled_date &lt; context_today().strftime('%Y-%m-%d')"
+                           decoration-warning="state not in ('done', 'cancel') and delivery_state in ('unprocessed', 'partially') and pick_scheduled_date &gt;= context_today().strftime('%Y-%m-%d') and pick_scheduled_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')" />
+                </xpath>
+                <xpath expr="//field[@name='pick_scheduled_date']" position="before">
+                    <field name="paid_on_date"/>
+                </xpath>
+                <xpath expr="//field[@name='tag_ids']" position="after">
+                    <field name="planned_shipping_date" readonly="1" optional="hide"/>
+                    <field name="efarmer_confirm_date" readonly="1" optional="hide"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="efarmer_sale_workflow.view_order_tree_inherit" model="ir.ui.view">
+            <field name="name">sale.order.tree</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="efarmer_sale_workflow.view_order_tree"/>
+            <field name="groups_id" eval="[(4, ref('efarmer_sale_workflow.allow_set_sales_priority_group'))]"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='priority']" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="efarmer_sale_workflow.view_quotation_tree_inherit" model="ir.ui.view">
+            <field name="name">sale.order.tree</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_quotation_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="before">
+                    <field name="priority" readonly="1" optional="show" widget="priority"/>
+                </xpath>
+                <xpath expr="//field[@name='activity_ids']" position="after">
+                    <field name="pick_scheduled_date"
+                           readonly="1"
+                           optional="show"
+                           decoration-danger="state not in ('done', 'cancel') and delivery_state in ('unprocessed', 'partially') and pick_scheduled_date &lt; context_today().strftime('%Y-%m-%d')"
+                           decoration-warning="state not in ('done', 'cancel') and delivery_state in ('unprocessed', 'partially') and pick_scheduled_date &gt;= context_today().strftime('%Y-%m-%d') and pick_scheduled_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')" />
+                </xpath>
+                <xpath expr="//field[@name='pick_scheduled_date']" position="before">
+                    <field name="paid_on_date"/>
+                </xpath>
+                <xpath expr="//field[@name='delivery_state']" position="after">
+                    <field name="planned_shipping_date" readonly="1" optional="hide"/>
+                    <field name="efarmer_confirm_date" readonly="1" optional="hide"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="efarmer_sale_workflow_view_quotation_inherit_tree" model="ir.ui.view">
+            <field name="name">sale.order.tree</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="efarmer_sale_workflow.view_quotation_tree_inherit"/>
+            <field name="groups_id" eval="[(4, ref('efarmer_sale_workflow.allow_set_sales_priority_group'))]"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='priority']" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </xpath>
+            </field>
+        </record>
+        <record id="efarmer_sale_line_menu_inherit_tree" model="ir.ui.view">
+            <field name="name">sale.order.line.menu.tree</field>
+            <field name="model">sale.order.line</field>
+            <field name="inherit_id" ref="sale_order_line_menu.sale_order_line_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='qty_delivered']" position="after">
+                    <field name="qty_to_deliver" optional="hide"/>
+                </xpath>
+                <xpath expr="//field[@name='order_partner_id']" position="after">
+                    <field name="efarmer_client_type"/>
+                </xpath>
+                <xpath expr="//field[@name='invoice_lines']" position="after">
+                    <field name="planned_shipping_date" optional="hide"/>
+                    <field name="paid_on_date" optional="hide"/>
+                    <field name="efarmer_confirm_date" optional="hide"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="efarmer_view_sale_order_line_search" model="ir.ui.view">
+            <field name="name">sale.order.line.search.efarmer</field>
+            <field name="model">sale.order.line</field>
+            <field name="inherit_id" ref="sale_order_line_menu.sale_order_line_search"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='groupby_date_order']" position="after">
+                    <filter string="Planned Shipping Date" name="groupby_planned_shipping_date" domain="[]" context="{'group_by': 'planned_shipping_date'}" />
+                    <filter string="Paid on" name="groupby_paid_on_date" domain="[]" context="{'group_by': 'paid_on_date'}" />
+                    <filter string="Confirm Date" name="groupby_efarmer_confirm_date" domain="[]" context="{'group_by': 'efarmer_confirm_date'}" />
+                </xpath>
+                <xpath expr="//filter[@name='flt_state_cancel']" position="after">
+                    <separator/>
+                    <filter string="Planned Shipping Date" name="planned_shipping_date" date="planned_shipping_date" />
+                    <separator/>
+                    <filter string="Paid on" name="paid_on_date" date="paid_on_date" />
+                    <separator/>
+                    <filter string="Confirm Date" name="efarmer_confirm_date" date="efarmer_confirm_date" />
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="external_layout_standard" inherit_id="web.external_layout_standard">
+    <!-- Don't print the company info. -->
+    <xpath expr="//div[@name='company_address']" position="attributes">
+        <attribute name="t-if">not (is_pro_forma or efarmer_address_placement or env.context.get('proforma'))</attribute>
+    </xpath>
+    <xpath expr="//div[@name='moto']" position="replace">
+      <div class="col-9 text-right" style="margin-top:22px;" name="moto">
+        <span t-field="company.report_header"/>
+        <t t-if="o and 'product_vat_id' in o and o.product_vat_id and o.product_vat_id.description_on_docs">
+          <span t-field="o.product_vat_id.description_on_docs"/>
+        </t>
+      </div>
+    </xpath>
+</template>
+
+<template id="address_layout" inherit_id="web.address_layout">
+    <!-- Print the payment term note instead of invoice and delivery addresses. -->
+    <xpath expr="//t[@t-if='information_block']" position="replace">
+        <t t-set="colclass" t-value="'col-5 offset-1'"/>
+        <div name="proforma_payment_term" class="col-6">
+            <div t-if="o._name == 'sale.order'" t-field="o.payment_term_id.note"/>
+            <div t-if="o._name == 'account.move'">
+            <!-- Head the company address with a title. The company is a "Sender" of invoices and a "Consignee" of vendor bills. -->
+<!--                <div class="address_title mb-2" t-if="o.invoice_payment_term_id.note">-->
+<!--                    <strong t-if="o.move_type.startswith('out_')">Sender:</strong>-->
+<!--                    <strong t-else="">Consignee:</strong>-->
+<!--                </div>-->
+                <div t-field="o.invoice_payment_term_id.note"/>
+            </div>
+        </div>
+    </xpath>
+</template>
+
+</odoo>

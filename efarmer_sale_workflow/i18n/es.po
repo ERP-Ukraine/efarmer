@@ -1,0 +1,450 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sale
+# 	* account_intrastat
+# 	* purchase_order_line_sequence
+# 	* sale_stock
+# 	* efarmer_sale_workflow
+# 	* stock_account
+# 	* account
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-11-05 10:22+0000\n"
+"PO-Revision-Date: 2025-11-05 10:22+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_invoice_document
+msgid "<strong>IMPORTANT!</strong>"
+msgstr "<strong>IMPORTANTE!</strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.efarmer_sale_workflow_document_tax_totals_inherit
+msgid "<strong>VAT Amount in PLN</strong>"
+msgstr "<strong>Importe del IVA en ESP</strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_invoice_document
+msgid ""
+"For shipments to countries outside of the European Union, additional taxes may apply.These\n"
+"                            taxes are the responsibility of the customer and the amount will vary depending on the\n"
+"                            destination country.\n"
+"                            Please check with your local customs office for more information on the applicable taxes."
+msgstr ""
+"Para envíos a países fuera de la Unión Europea, pueden aplicarse impuestos adicionales. Estos\n"
+"                            impuestos son responsabilidad del cliente y su importe variará según el país.\n"
+"                            Consulte con su oficina de aduanas local para obtener más información sobre los impuestos aplicables."
+
+
+#. module: purchase_order_line_sequence
+#: model_terms:ir.ui.view,arch_db:purchase_order_line_sequence.report_invoice_document_inherit_purchase_sequence
+msgid "Line Number"
+msgstr "Número de línea"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_invoice_document
+msgid ""
+"To ensure timely processing and shipping of your order, please provide the specific\n"
+"                                model of\n"
+"                                your tractor and the parameters of the steering wheel shaft ("
+msgstr ""
+"Para garantizar el procesamiento y envío oportuno de su pedido, proporcione el\n"
+"                                modelo específico de\n"
+"                                su tractor y los parámetros del eje de la dirección ("
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">Amount</span>\n"
+"                                <span groups=\"account.group_show_line_subtotals_tax_included\">Total Price</span>"
+msgstr ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">Importe</span>\n"
+"                                <span groups=\"account.group_show_line_subtotals_tax_included\">Precio total</span>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "<strong> kg.</strong>"
+msgstr "<strong> kg</strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "<strong>Consignee: </strong>"
+msgstr "<strong>Destinatario: </strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "<strong>Delivery Date:</strong>"
+msgstr "<strong>Fecha de entrega:</strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "<strong>From: </strong>"
+msgstr "<strong>Desde: </strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "<strong>Gross Weight: </strong>"
+msgstr "<strong>Peso bruto: </strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "<strong>Incoterm: </strong>"
+msgstr "<strong>Incoterm: </strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "<strong>Net Weight: </strong>"
+msgstr "<strong>Peso neto: </strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "<strong>Responsible: </strong>"
+msgstr "<strong>Responsable: </strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "<strong>This Invoice is for Customs Purposes</strong>"
+msgstr "<strong>Esta factura es para fines aduaneros</strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "<strong>Total</strong>"
+msgstr "<strong>Total</strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "Commercial Invoice #"
+msgstr "Número de factura comercial"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "Country of Origin:"
+msgstr "País de origen:"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "Description"
+msgstr "Descripción"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "Disc.%"
+msgstr "Descuento (%)"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "HS Code:"
+msgstr "Código SA:"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "Quantity"
+msgstr "Cantidad"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "Unit Price"
+msgstr "Precio unitario"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+")\n"
+"                              If this information is not provided at the time of placing the order, there will be delays in shipping.\n"
+"                              Consequently, the lead time and overall order processing time will increase."
+msgstr ""
+")\n"
+"                              Si esta información no se proporciona al realizar el pedido, habrá retrasos en el envío.\n"
+"                              En consecuencia, el plazo de entrega y el tiempo total de procesamiento del pedido aumentarán."
+
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+")\n"
+"                              If this information is not provided at the time of placing the order, there will be delays in shipping.\n"
+"                              Consequently, the lead time and overall order processing time will increase.\n"
+"                              <i><u>(print this point if at least one product which internal reference starts from KDU.0044 internal exists on Sales Order)</u></i>"
+msgstr ""
+")\n"
+"                              Si esta información no se proporciona al realizar el pedido, habrá retrasos en el envío.\n"
+"                              En consecuencia, el plazo de entrega y el tiempo total de procesamiento del pedido aumentarán.\n"
+"                              <i><u>(Imprimir este punto si existe al menos un producto en el pedido de ventas cuya referencia interna comience por KDU.0044)</u></i>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "<strong>IMPORTANT!</strong>"
+msgstr "<strong>¡IMPORTANTE!</strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "<strong>IMPORTANTE!</strong>"
+msgstr "<strong>¡IMPORTANTE!</strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "<strong>WAŻNE!</strong>"
+msgstr "<strong>¡IMPORTANTE!</strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"By completing this purchase you declare that you have read and agreed to the"
+" contents of our"
+msgstr ""
+"Al completar esta compra, declaras haber leído y aceptado el contenido "
+"de nuestra"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"Al completar esta compra, declaras haber leído y aceptado el contenido "
+"de nuestra"
+msgstr ""
+"Al completar esta compra, declaras haber leído y aceptado el contenido "
+"de nuestra"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Datenschutzrichtlinie"
+msgstr "Política de Privacidad"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Delivery terms:"
+msgstr "Condiciones de entrega:"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"Dokonując tego zakupu, oświadczasz, że przeczytałeś i akceptujesz treść "
+"naszej"
+msgstr "Al realizar esta compra, usted declara que ha leído y acepta el contenido de nuestros"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"For shipments to countries outside of the European Union, additional taxes may apply.These taxes are the responsibility of the customer and the amount will vary depending on the destination country.\n"
+"                          Please check with your local customs office for more information on the applicable taxes."
+msgstr ""
+"Para envíos a países fuera de la Unión Europea, pueden aplicarse impuestos adicionales. Estos impuestos son responsabilidad del cliente y su importe varía según el país de destino.\n"
+"                          Consulte con su oficina de aduanas local para obtener más información sobre los impuestos aplicables."
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"Für Sendungen in Länder außerhalb der Europäischen Union können zusätzliche Steuern anfallen.\n"
+"Diese Steuern liegen in der Verantwortung des Kunden und die Höhe kann je nach Zielland variieren.\n"
+"                          Weitere Informationen zu den anfallenden Steuern erhalten Sie bei Ihrem örtlichen Zollamt."
+msgstr ""
+"Es posible que se apliquen impuestos adicionales a los envíos a países fuera de la Unión Europea.\n"
+"Estos impuestos son responsabilidad del cliente y su importe puede variar según el país de destino."
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"Mit dem Abschluss dieses Kaufs erklären Sie, dass Sie den Inhalt unserer"
+msgstr ""
+"Al completar esta compra, usted declara que ha leído y acepta el contenido de nuestros términos y condiciones."
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Nutzungsbedingungen"
+msgstr "Condiciones de uso"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Payment terms:"
+msgstr "Condiciones de pago:"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"Per garantire una tempestiva elaborazione e una spedizione dell'ordine, ti preghiamo di fornire il modello\n"
+"                              specifico del tuo trattore e i parametri asse del volante ("
+msgstr ""
+"Para garantizar el procesamiento y envío oportuno de su pedido, por favor proporcione el modelo\n"
+"                              específico de su tractor y los parámetros del eje de la dirección ("
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"Per le spedizioni a paesi al di fuori dell'Unione Europea, potrebbero essere applicate tasse aggiuntive. Queste tasse sono a carico del cliente\n"
+"                          e l'importo varierà a seconda del paese di destinazione. Si prega di verificare con l'ufficio doganale locale per maggiori informazioni sulle tasse applicabili."
+msgstr ""
+"Para envíos a países fuera de la Unión Europea, podrían aplicarse impuestos adicionales. Estos impuestos son responsabilidad del cliente.\n"
+"                          El importe variará según el país de destino. Consulte con su oficina de aduanas local para obtener más información sobre los impuestos aplicables."
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Politica di reso."
+msgstr "Política de revendedores"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Politica di spedizione"
+msgstr "Política de envío"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Polityki prywatności"
+msgstr "Política de Privacidad"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Polityki wysyłki"
+msgstr "Política de Envíos"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Polityki zwrotów."
+msgstr "Política de Privacidad"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Privacy Policy"
+msgstr "Política de envío"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Return Policy."
+msgstr "Política de Privacidad"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Rückgaberichtlinie"
+msgstr "Política de devoluciones"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Shipping policy"
+msgstr "Política de Envíos"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Termini di servizio"
+msgstr "Terminos del servicio"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Terms of Service"
+msgstr "Condiciones de Servicio"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"To ensure timely processing and shipping of your order, please provide the specific model of\n"
+"                              your tractor and the parameters of the steering wheel shaft ("
+msgstr ""
+"Para garantizar el procesamiento y envío oportuno de su pedido, proporcione el modelo específico de\n"
+"                              su tractor y los parámetros del eje del volante ("
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"Um eine zeitnahe Bearbeitung und Auslieferung Ihrer Bestellung zu gewährleisten, geben Sie bitte das\n"
+"                              spezifische Modell Ihres Traktors und die Parameter der Lenkradwelle an ("
+msgstr ""
+"Para garantizar el procesamiento y la entrega oportunos de su pedido, especifique\n"
+"                              el modelo específico de su tractor y los parámetros del eje de dirección."
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Versandrichtlinie"
+msgstr "Política de Envíos"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"W celu zapewnienia terminowej realizacji i wysyłki zamówienia prosimy o "
+"podanie konkretnego modelu posiadanego ciągnika oraz parametrów wału "
+"kierownicy ("
+msgstr ""
+"Para garantizar la tramitación y el envío puntuales de su pedido, por favor, "
+"facilite el modelo específico de su tractor y los parámetros del eje de "
+"dirección ("
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"W przypadku przesyłek do krajów spoza Unii Europejskiej mogą obowiązywać dodatkowe podatki.\n"
+"Podatki te leżą w gestii klienta, a ich wysokość różni się w zależności od kraju docelowego. Więcej\n"
+"                          informacji na temat obowiązujących podatków można uzyskać w lokalnym urzędzie celnym."
+msgstr ""
+"Es posible que se apliquen impuestos adicionales a los envíos a países fuera de la Unión Europea.\n"
+"Estos impuestos son responsabilidad del cliente y varían según el país de destino. Para\n"
+"                          obtener más información sobre los impuestos aplicables, póngase en contacto con su oficina de aduanas local."
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Warunków świadczenia usług"
+msgstr "Condiciones de Servicio"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "and"
+msgstr "y"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "e i nostri"
+msgstr "y el nuestro"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "gelesen haben und diesen zustimmen."
+msgstr "He leído y acepto estos términos."
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "und"
+msgstr "y"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.efarmer_sale_workflow_document_tax_totals_inherit
+msgid "zł"
+msgstr "€"
+
+#. modules: efarmer_sale_workflow, sale
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+#: model_terms:ir.ui.view,arch_db:sale.report_saleorder_document
+msgid "<strong>Shipping Address:</strong>"
+msgstr "<strong>Dirección de Entrega:</strong>"
+
+#. modules: efarmer_sale_workflow, sale
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+#: model_terms:ir.ui.view,arch_db:sale.report_saleorder_document
+msgid "Invoicing Address:"
+msgstr "Dirección de facturación:"
+
+#. modules: efarmer_sale_workflow, sale
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+#: model_terms:ir.ui.view,arch_db:sale.report_saleorder_document
+msgid "Invoicing and Shipping Address:"
+msgstr "Dirección de facturación y envío:"
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/models/account_invoice.py:37
+#, python-format
+msgid "Reverse charge applies (Art. 196 VAT Directive 2006/112/EC)."
+msgstr "Se aplica la inversión del sujeto pasivo (Art. 196 Directiva IVA 2006/112/CE)."
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/models/account_invoice.py:44
+#, python-format
+msgid "VAT exempt according to art.138 VAT Directive 2006/112/EC"
+msgstr "Exento de IVA según el art.138 Directiva IVA 2006/112/CE"
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/models/account_invoice.py:50
+#, python-format
+msgid "VAT exempt according to art.146 VAT Directive 2006/112/EC"
+msgstr "Exento de IVA según el art.146 Directiva IVA 2006/112/CE"

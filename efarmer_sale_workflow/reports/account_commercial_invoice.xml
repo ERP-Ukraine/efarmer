@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+
+<template id="account_commercial_report_invoice_document" inherit_id="account.report_invoice_document" name="account_commercial_report_invoice_document">
+    <xpath expr="//table[@name='invoice_snln_table']" position="replace">
+    </xpath>
+    <xpath expr="//span[@t-field='o.invoice_payment_term_id.note']" position="replace">
+    </xpath>
+</template>
+
+<template id="report_account_commercial_invoice_document" inherit_id="account.report_invoice_document" primary="True">
+    <!-- Change the header. -->
+    <xpath expr="//div[hasclass('page')]/h2" position="replace">
+        <h2>
+            <span>Сommercial Invoice # </span>
+            <span t-field="doc.name"/>
+        </h2>
+    </xpath>
+    <!-- Remove "Please use the following communication for your payment". -->
+    <xpath expr="//span[@t-field='o.payment_reference']/../.." position="replace"/>
+    <!-- Remove "Due date". -->
+    <xpath expr="//div[@name='due_date']" position="replace"/>
+    <!-- Head the company address with a title. The partner is a "Consignee" of invoices and a "Sender" of vendor bills. -->
+    <xpath expr="//t[@t-set='address']/address" position="before">
+        <div class="address_title mb-2">
+            <strong t-if="o.move_type.startswith('out_')">Consignee:</strong>
+            <strong t-else="">Sender:</strong>
+        </div>
+    </xpath>
+    <!-- Append phone and email fields below the partner address. -->
+    <xpath expr="//t[@t-set='address']" position="inside">
+        <div t-if="o.partner_id.phone or o.partner_id.mobile">Phone: <span t-esc="o.partner_id.phone or o.partner_id.mobile"/></div>
+        <div t-if="o.partner_id.email">Email: <span t-field="o.partner_id.email"/></div>
+    </xpath>
+    <!-- Remove the payment term notes. -->
+    <xpath expr="//p[@name='payment_term']" position="replace">
+        <p t-if="o.invoice_payment_term_id" name="payment_term">
+          <span>Payment Terms: <span t-field="o.invoice_payment_term_id.name"/></span>
+        </p>
+    </xpath>
+    <!-- Display `HS Code` and `Country of origin` into the description column. -->
+    <xpath expr="//table[@name='invoice_line_table']//td[@name='account_invoice_line_name']" position="inside">
+        <div name="hs_code" t-if="line.product_id.intrastat_id.code">
+            HS Code: <span t-field="line.product_id.intrastat_id.code"/>
+        </div>
+        <div name="country_of_origin" t-if="line.product_id.intrastat_origin_country_id.name">
+            Country of Origin: <span t-field="line.product_id.intrastat_origin_country_id.name"/>
+        </div>
+    </xpath>
+</template>
+
+<template id="report_account_commercial_invoice">
+    <t t-call="web.html_container">
+        <t t-set="efarmer_address_placement" t-value="True"/>
+        <t t-set="print_with_payments" t-value="True"/>
+        <t t-foreach="docs" t-as="doc">
+            <t t-set="o" t-value="doc"/>
+            <t t-set="lang" t-value="o.invoice_user_id.sudo().lang if o.move_type in ('in_invoice', 'in_refund') else o.partner_id.lang"/>
+            <t t-call="efarmer_sale_workflow.report_account_commercial_invoice_document" t-lang="lang"/>
+        </t>
+    </t>
+</template>
+
+<record id="action_report_account_commercial_invoice" model="ir.actions.report">
+    <field name="name">Сommercial Invoice</field>
+    <field name="model">account.move</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">efarmer_sale_workflow.report_account_commercial_invoice</field>
+    <field name="report_file">efarmer_sale_workflow.report_account_commercial_invoice</field>
+    <field name="print_report_name">'Сommercial Invoice - %s' % (object.name)</field>
+    <field name="binding_model_id" ref="account.model_account_move"/>
+    <field name="binding_type">report</field>
+</record>
+
+</odoo>
