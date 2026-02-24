@@ -49,7 +49,7 @@ class TestPurchaseWorkflow(TransactionCase):
                     'name': self.product.name,
                     'product_id': self.product.id,
                     'product_qty': 1.0,
-                    'product_uom': self.product.uom_po_id.id,
+                    'product_uom': self.product.uom_id.id,
                     'price_unit': 100.0,
                 })],
         })
