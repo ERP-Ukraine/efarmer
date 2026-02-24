@@ -9,15 +9,15 @@
                 <field name="state" position="attributes">
                     <attribute name="statusbar_visible">draft,sent,confirm_demand,fin_approve,purchase</attribute>
                 </field>
-
-                <xpath expr="//page[@name='products']//tree/field[@name='analytic_tag_ids']" position="attributes">
+                <!-- TODO -->
+                <!-- <xpath expr="//page[@name='products']//tree/field[@name='analytic_tag_ids']" position="attributes">
                     <attribute name="attrs">{'required': [('display_type', '=', False)]}</attribute>
                     <attribute name="optional">show</attribute>
-                </xpath>
+                </xpath> -->
 
                 <xpath expr="//button[@name='button_confirm'][1]" position="attributes">
                     <attribute name="groups">purchase.group_purchase_manager</attribute>
-                    <attribute name="states">sent,fin_approve</attribute>
+                    <attribute name="invisible">state not in ('sent', 'fin_approve')</attribute>
                 </xpath>
 
                 <xpath expr="//button[@name='button_confirm'][2]" position="attributes">
@@ -25,22 +25,22 @@
                 </xpath>
 
                 <xpath expr="//button[@name='button_cancel']" position="attributes">
-                    <attribute name="states">draft,to approve,sent,confirm_demand,fin_approve,purchase</attribute>
+                    <attribute name="invisible">state not in ('draft', 'to approve', 'sent', 'confirm_demand', 'fin_approve', 'purchase')</attribute>
                 </xpath>
 
                 <xpath expr="//button[@name='print_quotation'][1]" position="after">
                     <button name="action_confirm_rfq"
                             string="CONFIRM RFQ"
                             class="btn-primary"
-                            states="draft,sent"
+                            invisible="state not in ('draft', 'sent')"
                             type="object"
                             groups='efarmer_purchase.efarmer_purchase_allow_confirm_rfq' />
                     <button name="action_confirm_demand"
                             string="CONFIRM DEMAND"
                             class="btn-primary"
-                            states="confirm_demand"
+                            invisible="state != 'confirm_demand'"
                             type="object"
-                            groups='efarmer_purchase.efarmer_purchase_allow_confirm_demand, efarmer_purchase.efarmer_purchase_allow_confirm_demand_all' />
+                            groups='efarmer_purchase.efarmer_purchase_allow_confirm_demand,efarmer_purchase.efarmer_purchase_allow_confirm_demand_all' />
                 </xpath>
                 <xpath expr="//field[@name='user_id']" position="after">
                     <field name="department_id"/>
@@ -84,22 +84,21 @@
             <field name="model">purchase.order</field>
             <field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
             <field name="arch" type="xml">
-                 <search>
+                <xpath expr="//search" position="inside">
                     <field name="department_id"/>
                     <separator/>
-
-                <filter name="draft" position="after">
+                </xpath>
+                <filter name="draft_rfqs" position="after">
                     <filter string="Confirm Demand" name="confirm_demand" domain="[('state','=', 'confirm_demand')]"/>
                     <filter string="Financial Approval" name="fin_approve" domain="[('state','=', 'fin_approve')]"/>
                 </filter>
-                <group string="Group By" name="group_by">
+                <xpath expr="//group" position="inside">
                     <filter
                         string="Department"
                         name="department_id_group_by"
                         context="{'group_by':'department_id'}"
                     />
-                </group>
-                 </search>
+                </xpath>
             </field>
         </record>
 
@@ -109,7 +108,8 @@
             <field name="inherit_id" ref="purchase.purchase_order_view_tree" />
             <field name="arch" type="xml">
                 <field name="activity_ids" position="after">
-                    <field name="analytic_tag_ids" readonly="1" widget="many2many_tags" optional="show" />
+                    <!-- TODO -->
+                    <!-- <field name="analytic_tag_ids" readonly="1" widget="many2many_tags" optional="show" /> -->
                     <field name="amount_total_in_eur" optional="hide" />
                     <field name="untaxed_amount_in_eur" optional="hide" />
                     <field name="residual_amount_in_eur" optional="hide" />
@@ -126,7 +126,8 @@
             <field name="inherit_id" ref="purchase.purchase_order_kpis_tree" />
             <field name="arch" type="xml">
                 <field name="activity_ids" position="after">
-                    <field name="analytic_tag_ids" readonly="1" widget="many2many_tags" optional="show" />
+                    <!-- TODO -->
+                    <!-- <field name="analytic_tag_ids" readonly="1" widget="many2many_tags" optional="show" /> -->
                     <field name="amount_total_in_eur" optional="hide" />
                     <field name="untaxed_amount_in_eur" optional="hide" />
                     <field name="residual_amount_in_eur" optional="hide" />
@@ -138,7 +139,7 @@
         </record>
 
         <record id="purchase_order_line_menu.purchase_order_line_menu" model="ir.ui.menu">
-            <field name="groups_id" eval="[(4, ref('efarmer_purchase.group_allow_purchase_order_lines'))]"/>
+            <field name="group_ids" eval="[(4, ref('efarmer_purchase.group_allow_purchase_order_lines'))]"/>
         </record>
 
     </data>
