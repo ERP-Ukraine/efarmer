@@ -6,7 +6,7 @@ from datetime import datetime
 from unittest.mock import patch
 
 from odoo.tests.common import TransactionCase
-from odoo.addons.resource.models.resource import Intervals
+from odoo.tools.intervals import Intervals
 from ..models.resource_calendar_hours import MONTH_SELECTION
 
 
