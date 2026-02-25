@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data noupdate='1'>
+
+        <record id="work_type_development" model="youtrack.work.type">
+            <field name="name">Development</field>
+            <field name="is_default">True</field>
+        </record>
+
+    </data>
+</odoo>
