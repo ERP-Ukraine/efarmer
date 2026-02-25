@@ -82,7 +82,8 @@ class AccountMove(models.Model):
                 )
             default_rate = currency_pln.rate_ids.filtered(
                 lambda x: x.company_id == move.company_id
-            ).sorted(key='name', reverse=True)[0].company_rate
+            ).sorted(key='name', reverse=True)
+            default_rate = default_rate and default_rate[0].company_rate or 0
             account_payment_rate = 0
             invoice_date_rate = 0
 
@@ -105,15 +106,17 @@ class AccountMove(models.Model):
             so there no deposit lines left
             same logic as in move._compute_amount()
         """
+        self.ensure_one()
         currencies = self._get_lines_onchange_currency().currency_id
         total = 0.0
         total_currency = 0.0
         total_untaxed = 0.0
         total_untaxed_currency = 0.0
+        is_invoice = self.is_invoice(include_receipts=True)
         for line in self.line_ids.filtered(lambda line: not line.has_deposit_deducted()):
-            if self._payment_state_matters():
+            if is_invoice:
                 # === Invoices ===
-                if not line.exclude_from_invoice_tab:
+                if not line.exclude_from_invoice_tab: # TODO
                     total_untaxed += line.balance
                     total_untaxed_currency += line.amount_currency
                     total += line.balance
@@ -131,6 +134,11 @@ class AccountMove(models.Model):
         amount_total = sign * (total_currency if len(currencies) == 1 else total)
         return amount_total, amount_untaxed
 
+    # TODO this method in Odoo 15 was called for compute tax_totals_json
+    # This field doesn't exist anymore in Odoo 19
+    # The rough equivalent to it is tax_totals field
+    # Seems like we need a new task to rewrite this logic completely
+    # If so methods _recompute_amount and has_deposit_deducted on account.move.line also needed to be rewritten
     def _prepare_tax_lines_data_for_totals_from_invoice(self, tax_line_id_filter=None, tax_ids_filter=None):
         skip_deposit = self._context.get('without_deposit')
         if not skip_deposit:
@@ -138,6 +146,11 @@ class AccountMove(models.Model):
 
         return super()._prepare_tax_lines_data_for_totals_from_invoice(lambda aml, tax: not aml.has_deposit_deducted(), lambda aml, tax: not aml.has_deposit_deducted())
 
+    # TODO this method in Odoo 15 was called for compute tax_totals_json
+    # This field doesn't exist anymore in Odoo 19
+    # The rough equivalent to it is tax_totals field
+    # Seems like we need a new task to rewrite this logic completely
+    # If so methods _recompute_amount and has_deposit_deducted on account.move.line also needed to be rewritten
     @api.model
     def _get_tax_totals(self, partner, tax_lines_data, amount_total, amount_untaxed, currency):
         skip_deposit = self._context.get('without_deposit')
