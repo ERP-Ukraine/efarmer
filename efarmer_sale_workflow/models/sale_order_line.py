@@ -9,7 +9,7 @@ class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
     product_type = fields.Selection(related='product_id.type')
-    qty_to_deliver = fields.Float(compute='_compute_qty_to_deliver', digits='Product Unit of Measure', store=True)
+    qty_to_deliver = fields.Float(store=True)
     planned_shipping_date = fields.Date(
         string='Planned Shipping Date',
         related="order_id.planned_shipping_date",
