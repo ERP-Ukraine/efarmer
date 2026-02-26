@@ -17,10 +17,10 @@
         <field name="model">product.template</field>
         <field name="inherit_id" ref="stock.view_template_property_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//page[@name='inventory']/group[3]" position="inside">
+            <xpath expr="//group[@string='Description for Internal Transfers']" position="after">
                 <group string="Description for Product Labels">
                     <field name="description_label" nolabel="1"
-                           placeholder="The note is added to product labels."/>
+                        placeholder="The note is added to product labels."/>
                 </group>
             </xpath>
         </field>
