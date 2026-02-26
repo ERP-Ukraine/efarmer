@@ -30,6 +30,7 @@ class PurchaseOrder(models.Model):
         selection_add=[
             ('confirm_demand', 'Confirm Demand'),
             ('fin_approve', 'Financial Approval'),
+            ('purchase',)
         ],
     )
     # TODO
