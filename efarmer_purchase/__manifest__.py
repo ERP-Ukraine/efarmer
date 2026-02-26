@@ -15,6 +15,7 @@
         'mrp',
         'hr',
         'purchase_order_line_menu',
+        'account_analytic_tag'
     ],
     'data': [
         # Security
