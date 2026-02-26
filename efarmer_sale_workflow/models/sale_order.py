@@ -64,10 +64,10 @@ class SaleOrder(models.Model):
             self.message_subscribe([self.partner_id.id])
         return self.write({'state': 'to_payment'})
 
-    @api.depends('picking_ids', 'picking_ids.scheduled_date', 'state', 'delivery_state')
+    @api.depends('picking_ids', 'picking_ids.scheduled_date', 'state', 'delivery_status')
     def _compute_pick_scheduled_date(self):
         for order in self:
-            if order.state != 'sale' or order.delivery_state == 'done':
+            if order.state != 'sale' or order.delivery_status == 'full':
                 order.pick_scheduled_date = None
             else:
                 active_picks = order.picking_ids.filtered(
