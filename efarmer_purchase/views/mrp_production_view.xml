@@ -1,0 +1,14 @@
+<odoo>
+    <data>
+        <record id="mrp_production_form_view_efarmer_purchase_inherit" model="ir.ui.view">
+            <field name="name">mrp.production.for.inherit.efarmer.purchase</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_assign']" position="attributes">
+                    <attribute name="invisible">state in ('draft', 'done', 'cancel')</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

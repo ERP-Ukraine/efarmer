@@ -1,0 +1,152 @@
+<odoo>
+    <data>
+
+        <record id="purchase_order_form_inherit_efarmer_purchase" model="ir.ui.view">
+            <field name="name">purchase.order.form.inherit.efarmer.purchase</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <field name="state" position="attributes">
+                    <attribute name="statusbar_visible">draft,sent,confirm_demand,fin_approve,purchase</attribute>
+                </field>
+
+                <xpath expr="//button[@name='button_confirm'][1]" position="attributes">
+                    <attribute name="groups">purchase.group_purchase_manager</attribute>
+                    <attribute name="invisible">state not in ('sent', 'fin_approve')</attribute>
+                </xpath>
+
+                <xpath expr="//button[@name='button_confirm'][2]" position="attributes">
+                    <attribute name="groups">purchase.group_purchase_manager</attribute>
+                </xpath>
+
+                <xpath expr="//button[@name='button_cancel']" position="attributes">
+                    <attribute name="invisible">state not in ('draft', 'to approve', 'sent', 'confirm_demand', 'fin_approve', 'purchase')</attribute>
+                </xpath>
+
+                <xpath expr="//button[@name='print_quotation'][1]" position="after">
+                    <button name="action_confirm_rfq"
+                            string="CONFIRM RFQ"
+                            class="btn-primary"
+                            invisible="state not in ('draft', 'sent')"
+                            type="object"
+                            groups='efarmer_purchase.efarmer_purchase_allow_confirm_rfq' />
+                    <button name="action_confirm_demand"
+                            string="CONFIRM DEMAND"
+                            class="btn-primary"
+                            invisible="state != 'confirm_demand'"
+                            type="object"
+                            groups='efarmer_purchase.efarmer_purchase_allow_confirm_demand,efarmer_purchase.efarmer_purchase_allow_confirm_demand_all' />
+                </xpath>
+                <xpath expr="//field[@name='user_id']" position="after">
+                    <field name="department_id"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="purchase_order_efarmer_purchase_form_inherit" model="ir.ui.view">
+            <field name="name">purchase.order.efarmer.purchase.form.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase_advance_payment.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <field name="amount_residual" position="after">
+                    <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                        <label for="amount_total_in_eur" />
+                    </div>
+                    <field
+                        name="amount_total_in_eur"
+                        nolabel="1"
+                    />
+                    <div class="oe_inline o_td_label">
+                        <label for="untaxed_amount_in_eur" />
+                    </div>
+                    <field
+                        name="untaxed_amount_in_eur"
+                        nolabel="1"
+                    />
+                    <div class="oe_inline o_td_label">
+                        <label for="residual_amount_in_eur" />
+                    </div>
+                    <field
+                        name="residual_amount_in_eur"
+                        nolabel="1"
+                    />
+                </field>
+            </field>
+        </record>
+
+        <record id="view_purchase_order_rfq_efarmer_purchase_search" model="ir.ui.view">
+            <field name="name">purchase.order.rfq.search</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search" position="inside">
+                    <field name="department_id"/>
+                    <separator/>
+                </xpath>
+                <filter name="draft_rfqs" position="after">
+                    <filter string="Confirm Demand" name="confirm_demand" domain="[('state','=', 'confirm_demand')]"/>
+                    <filter string="Financial Approval" name="fin_approve" domain="[('state','=', 'fin_approve')]"/>
+                </filter>
+                <xpath expr="//group" position="inside">
+                    <filter
+                        string="Department"
+                        name="department_id_group_by"
+                        context="{'group_by':'department_id'}"
+                    />
+                </xpath>
+            </field>
+        </record>
+
+        <record id="efarmer_purchase_order_view_tree_inherit" model="ir.ui.view">
+            <field name="name">efarmer.purchase.order.view.tree.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_view_tree" />
+            <field name="arch" type="xml">
+                <field name="activity_ids" position="after">
+                    <field name="analytic_tag_ids" widget="many2many_tags" optional="show" />
+                    <field name="amount_total_in_eur" optional="hide" />
+                    <field name="untaxed_amount_in_eur" optional="hide" />
+                    <field name="residual_amount_in_eur" optional="hide" />
+                </field>
+                <field name="user_id" position="after">
+                    <field name="department_id" optional="hide" />
+                </field>
+            </field>
+        </record>
+
+        <record id="efarmer_purchase_order_view_kpis_tree_inherit" model="ir.ui.view">
+            <field name="name">efarmer.purchase.order.view.kpis.tree.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_kpis_tree" />
+            <field name="arch" type="xml">
+                <field name="activity_ids" position="after">
+                    <field name="analytic_tag_ids" widget="many2many_tags" optional="show" />
+                    <field name="amount_total_in_eur" optional="hide" />
+                    <field name="untaxed_amount_in_eur" optional="hide" />
+                    <field name="residual_amount_in_eur" optional="hide" />
+                </field>
+                <field name="user_id" position="after">
+                    <field name="department_id" optional="hide" />
+                </field>
+            </field>
+        </record>
+
+        <record id="purchase_order_line_menu.purchase_order_line_menu" model="ir.ui.menu">
+            <field name="group_ids" eval="[(4, ref('efarmer_purchase.group_allow_purchase_order_lines'))]"/>
+        </record>
+
+
+        <record id="purchase_order_form_purchase_analytic_tag_inherit" model="ir.ui.view">
+            <field name="name">purchase.order.form - purchase_analytic_tag inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase_analytic_tag.purchase_order_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='analytic_tag_ids']" position="attributes">
+                    <attribute name="required">display_type == False</attribute>
+                    <attribute name="optional">show</attribute>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>
