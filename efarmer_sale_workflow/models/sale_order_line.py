@@ -8,9 +8,7 @@ from odoo import models, fields, _
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
-    detailed_type = fields.Selection(
-        related='product_id.detailed_type',
-    )
+    product_type = fields.Selection(related='product_id.type')
     qty_to_deliver = fields.Float(compute='_compute_qty_to_deliver', digits='Product Unit of Measure', store=True)
     planned_shipping_date = fields.Date(
         string='Planned Shipping Date',
