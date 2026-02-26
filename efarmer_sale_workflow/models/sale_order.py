@@ -87,11 +87,11 @@ class SaleOrder(models.Model):
             if order.state in ('to_confirm', 'sale') and not order.efarmer_confirm_date:
                 order.efarmer_confirm_date = today
 
-
     @api.onchange('delivery_term_id')
     def _onchange_delivery_term_fields(self):
+        today = datetime.today()
         for order in self:
-            order.commitment_date = (datetime.today() + relativedelta(days=order.delivery_term_id.delivery_days))
+            order.commitment_date = today + relativedelta(days=order.delivery_term_id.delivery_days)
             order.tag_ids = order.delivery_term_id.tag_ids
 
     @api.depends(
