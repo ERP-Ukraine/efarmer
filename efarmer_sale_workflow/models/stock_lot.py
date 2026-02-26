@@ -1,9 +1,9 @@
 from odoo import api, fields, models
 
 
-class StockProductionLot(models.Model):
-    _inherit = 'stock.production.lot'
-    
+class StockLot(models.Model):
+    _inherit = 'stock.lot'
+
     is_unused = fields.Boolean(
         string='Unused',
         compute='_compute_is_unused',

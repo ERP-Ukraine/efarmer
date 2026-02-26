@@ -10,7 +10,7 @@ class StockPicking(models.Model):
         readonly=False,
     )
     product_vat_id = fields.Many2one(
-        related='sale_id.product_vat_id',
+        related='sale_id.product_vat_id', # TODO module efarmer_product must be migrated
         string='VAT ID',
     )
     opportunity_stage_id = fields.Many2one(
