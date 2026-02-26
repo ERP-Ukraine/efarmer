@@ -22,11 +22,7 @@ class OrderLineProductReplacementWizard(models.TransientModel):
         readonly=True,
     )
 
-    product_uom_qty = fields.Float(
-        string='Quantity',
-        related='sale_line_id.product_uom_qty',
-        digits='Product Unit of Measure',
-    )
+    product_uom_qty = fields.Float(related='sale_line_id.product_uom_qty')
 
     replacement_line_ids = fields.One2many(
         comodel_name='product.replacement.lines',
@@ -76,6 +72,6 @@ class ProductReplacements(models.TransientModel):
     product_uom_qty = fields.Float(
         string='Quantity',
         default=0.0,
-        digits='Product Unit of Measure',
+        digits='Product Unit',
         required=True,
     )
