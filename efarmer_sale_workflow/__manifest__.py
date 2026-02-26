@@ -21,7 +21,7 @@
         'sale',
         'stock',
         'sale_crm',
-        'sale_delivery_state',
+        'sale_delivery_state', # TODO: remove? because delivery_status field is defined in Odoo standard
         'sale_stock',
         'sales_team',
         'account',

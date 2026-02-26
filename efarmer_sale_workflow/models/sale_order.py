@@ -76,9 +76,10 @@ class SaleOrder(models.Model):
 
     @api.depends('state')
     def _compute_efarmer_confirm_date(self):
+        today = fields.Date().today()
         for order in self:
-            if order.state in ('to_confirm', 'sale', 'done') and not order.efarmer_confirm_date:
-                order.efarmer_confirm_date = fields.Date().today()
+            if order.state in ('to_confirm', 'sale') and not order.efarmer_confirm_date:
+                order.efarmer_confirm_date = today
 
     def _get_default_delivery_term_id(self):
         return self.env['delivery.terms'].search([('default_for_company', '=', True), ('company_id', '=', self.env.company.id)], limit=1)
