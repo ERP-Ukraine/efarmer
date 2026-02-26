@@ -33,12 +33,11 @@ class PurchaseOrder(models.Model):
             ('purchase',)
         ],
     )
-    # TODO
-    # analytic_tag_ids = fields.Many2many(
-    #     comodel_name='account.analytic.tag',
-    #     string='Analytic Tags',
-    #     compute='_compute_purchase_analytic_tag_ids',
-    # )
+    analytic_tag_ids = fields.Many2many(
+        comodel_name='account.analytic.tag',
+        string='Analytic Tags',
+        compute='_compute_purchase_analytic_tag_ids',
+    )
     department_id = fields.Many2one(related="user_id.default_department_id", string="Department", readonly=True, store=True)
 
     def __get_default_currency(self, currency_id):
@@ -63,10 +62,9 @@ class PurchaseOrder(models.Model):
         for record in self:
             record.residual_amount_in_eur = record.amount_residual * record.__get_default_currency(record.currency_id)
 
-    # TODO
-    # def _compute_purchase_analytic_tag_ids(self):
-    #     for po in self:
-    #         po.analytic_tag_ids = po.order_line.mapped('analytic_tag_ids')
+    def _compute_purchase_analytic_tag_ids(self):
+        for po in self:
+            po.analytic_tag_ids = po.order_line.analytic_tag_ids
 
     def _get_next_weekday(self, date):
         """
