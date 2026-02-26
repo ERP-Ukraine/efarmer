@@ -32,7 +32,6 @@ class SaleOrder(models.Model):
             ('2', 'High priority'),
             ('3', 'Urgent'),
         ],
-        string='Priority',
         default='0',
         tracking=True,
     )
@@ -45,9 +44,7 @@ class SaleOrder(models.Model):
         help='Scheduled date of last modified stock picking',
     )
 
-    planned_shipping_date = fields.Date(
-        string='Planned Shipping Date',
-    )
+    planned_shipping_date = fields.Date()
 
     efarmer_confirm_date = fields.Date(
         string='Confirm Date',
@@ -56,12 +53,8 @@ class SaleOrder(models.Model):
         readonly=True,
     )
 
-    missed_partner_data_banner = fields.Text(
-        compute="_compute_form_partner_banner"
-    )
-    missed_fiscal_position_banner = fields.Text(
-        compute="_compute_form_partner_banner"
-    )
+    missed_partner_data_banner = fields.Text(compute="_compute_form_partner_banner")
+    missed_fiscal_position_banner = fields.Text(compute="_compute_form_partner_banner")
 
     def action_to_confirm(self):
         return self.write({'state': 'to_confirm'})
