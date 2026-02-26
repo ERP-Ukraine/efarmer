@@ -11,15 +11,15 @@
                     <field name="missed_fiscal_position_banner" invisible="1"/>
                 </xpath>
                 <xpath expr="//header" position="after">
-                    <div class="alert alert-danger mb-0 pb-0" role="alert" attrs="{'invisible': [('missed_partner_data_banner', '=', '')]}">
+                    <div class="alert alert-danger mb-0 pb-0" role="alert" invisible="not missed_partner_data_banner">
                         <field name="missed_partner_data_banner" widget="html"/>
                     </div>
-                    <div class="alert alert-warning mb-0" role="alert" attrs="{'invisible': [('missed_fiscal_position_banner', '=', '')]}">
+                    <div class="alert alert-warning mb-0" role="alert" invisible="not missed_fiscal_position_banner">
                         <field name="missed_fiscal_position_banner"/>
                     </div>
                 </xpath>
                 <xpath expr="//field[@name='payment_term_id']" position="after">
-                    <field name="delivery_term_id" options="{'no_open':True,'no_create': True}"/>
+                    <field name="delivery_term_id" options="{'no_open': True, 'no_create': True}"/>
                 </xpath>
                 <xpath expr="//group[@name='sale_info']" position="inside">
                     <field name="paid_on_date"/>
@@ -33,11 +33,11 @@
                     <field name="planned_shipping_date" readonly="1" />
                     <field name="efarmer_confirm_date" readonly="1" />
                 </xpath>
-                <xpath expr="//field[@name='order_line']//tree//field[@name='name']" position="before">
+                <xpath expr="//field[@name='order_line']//list//field[@name='name']" position="before">
                     <button name="open_replacement_wizard"
                             type="object"
                             icon="fa-edit"
-                            states="to_confirm"
+                            invisible="state != 'to_confirm'"
                             width="0.1" />
                 </xpath>
 
@@ -45,51 +45,47 @@
                     <button name="action_to_payment"
                             string="To Payment"
                             class="btn-primary"
-                            states="draft,sent"
+                            invisible="state not in ('draft', 'sent')"
                             type="object"
                             groups='efarmer_sale_workflow.convert_sale_state_to_payment_group' />
                     <button name="action_to_confirm"
                             string="To Confirm"
                             class="btn-primary"
-                            states="to_payment"
+                            invisible="state != 'to_payment'"
                             type="object"
                             groups='efarmer_sale_workflow.convert_sale_state_to_confirm_group' />
                 </xpath>
 
                 <xpath expr="//button[@name='action_confirm'][2]" position="attributes">
                     <attribute name="groups">efarmer_sale_workflow.allow_sale_order_confirmation</attribute>
-                    <attribute name="attrs">
-                        {'invisible': [('state', 'not in', ['draft','sent'])]}
-                    </attribute>
+                    <attribute name="invisible">state not in ('draft', 'sent')</attribute>
                 </xpath>
 
                 <xpath expr="//button[@name='action_confirm'][1]" position="attributes">
                     <attribute name="groups">efarmer_sale_workflow.allow_sale_order_confirmation</attribute>
-                    <attribute name="attrs">
-                        {'invisible': [('state', 'not in', ['to_confirm'])]}
-                    </attribute>
+                    <attribute name="invisible">state != 'to_confirm'</attribute>
                 </xpath>
 
                 <field name="state" position="attributes">
                     <attribute name="statusbar_visible">draft,sent,to_payment,to_confirm,sale</attribute>
                 </field>
                 <field name="partner_shipping_id" position="attributes">
-                    <attribute name="attrs">{'readonly': [('state', 'in', ['done','cancel'])]}</attribute>
+                    <attribute name="readonly">state in ('done', 'cancel')</attribute>
                 </field>
-                <xpath expr="//field[@name='order_line']/tree/field[@name='price_unit']" position="after">
+                <xpath expr="//field[@name='order_line']/list/field[@name='price_unit']" position="after">
                     <field name="product_type" invisible="1"/>
                 </xpath>
-                <xpath expr="//field[@name='order_line']/tree/field[@name='price_unit']" position="attributes">
-                    <attribute name="attrs">{'readonly': [('product_type', '=', 'product')]}</attribute>
+                <xpath expr="//field[@name='order_line']/list/field[@name='price_unit']" position="attributes">
+                    <attribute name="readonly">product_type == 'product'</attribute>
                 </xpath>
             </field>
         </record>
 
         <record id="efarmer_sale_workflow.sale_order_view_form" model="ir.ui.view">
-            <field name="name">sale.order.tree</field>
+            <field name="name">sale.order.form</field>
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="efarmer_sale_workflow.sale_order_view_form_inherit"/>
-            <field name="groups_id" eval="[(4, ref('efarmer_sale_workflow.allow_set_sales_priority_group'))]"/>
+            <field name="group_ids" eval="[(4, ref('efarmer_sale_workflow.allow_set_sales_priority_group'))]"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='priority']" position="attributes">
                     <attribute name="readonly">0</attribute>
@@ -101,7 +97,7 @@
             <field name="name">sale.order.planned.shipping.date.edited</field>
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="efarmer_sale_workflow.sale_order_view_form_inherit"/>
-            <field name="groups_id" eval="[(4, ref('efarmer_sale_workflow.allow_enter_planned_shipping_date'))]"/>
+            <field name="group_ids" eval="[(4, ref('efarmer_sale_workflow.allow_enter_planned_shipping_date'))]"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='planned_shipping_date']" position="attributes">
                     <attribute name="readonly">0</attribute>
@@ -126,11 +122,9 @@
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_sales_order_filter"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='analytic_account_id']" position="after">
-                    <field name="priority" invisible="1"/>
-                </xpath>
                 <xpath expr="//filter[@name='activities_upcoming_all']" position="after">
                     <separator/>
+                    <field name="priority" invisible="1"/>
                     <filter string="Urgent" domain="[('priority', '=', 3)]" name="urgent_priority"/>
                     <filter string="High Priority" domain="[('priority', '=', 2)]" name="high_priority"/>
                     <filter string="Medium Priority" domain="[('priority', '=', 1)]" name="medium_priority"/>
@@ -179,7 +173,7 @@
             <field name="name">sale.order.tree</field>
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="efarmer_sale_workflow.view_order_tree"/>
-            <field name="groups_id" eval="[(4, ref('efarmer_sale_workflow.allow_set_sales_priority_group'))]"/>
+            <field name="group_ids" eval="[(4, ref('efarmer_sale_workflow.allow_set_sales_priority_group'))]"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='priority']" position="attributes">
                     <attribute name="readonly">0</attribute>
@@ -216,7 +210,7 @@
             <field name="name">sale.order.tree</field>
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="efarmer_sale_workflow.view_quotation_tree_inherit"/>
-            <field name="groups_id" eval="[(4, ref('efarmer_sale_workflow.allow_set_sales_priority_group'))]"/>
+            <field name="group_ids" eval="[(4, ref('efarmer_sale_workflow.allow_set_sales_priority_group'))]"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='priority']" position="attributes">
                     <attribute name="readonly">0</attribute>
@@ -245,7 +239,7 @@
         <record id="efarmer_view_sale_order_line_search" model="ir.ui.view">
             <field name="name">sale.order.line.search.efarmer</field>
             <field name="model">sale.order.line</field>
-            <field name="inherit_id" ref="sale_order_line_menu.sale_order_line_search"/>
+            <field name="inherit_id" ref="sale_order_line_menu.view_sales_order_line_filter"/>
             <field name="arch" type="xml">
                 <xpath expr="//filter[@name='groupby_date_order']" position="after">
                     <filter string="Planned Shipping Date" name="groupby_planned_shipping_date" domain="[]" context="{'group_by': 'planned_shipping_date'}" />
