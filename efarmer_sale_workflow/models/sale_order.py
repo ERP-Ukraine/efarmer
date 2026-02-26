@@ -7,6 +7,9 @@ from odoo import fields, models, api, _
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
+    def _get_default_delivery_term_id(self):
+        return self.env['delivery.terms'].search([('default_for_company', '=', True), ('company_id', '=', self.env.company.id)], limit=1)
+
     paid_on_date = fields.Date(
         string='Paid on',
     )
@@ -55,6 +58,9 @@ class SaleOrder(models.Model):
 
     missed_partner_data_banner = fields.Text(compute="_compute_form_partner_banner")
     missed_fiscal_position_banner = fields.Text(compute="_compute_form_partner_banner")
+    delivery_term_id = fields.Many2one('delivery.terms', string='Delivery Terms', domain="[('company_id', '=', company_id)]", default=_get_default_delivery_term_id,)
+    commitment_date = fields.Datetime(default=lambda self: datetime.today() + relativedelta(days=self._get_default_delivery_term_id().delivery_days))
+    tag_ids = fields.Many2many(default=lambda self: self.delivery_term_id.tag_ids)
 
     def action_to_confirm(self):
         return self.write({'state': 'to_confirm'})
@@ -81,12 +87,6 @@ class SaleOrder(models.Model):
             if order.state in ('to_confirm', 'sale') and not order.efarmer_confirm_date:
                 order.efarmer_confirm_date = today
 
-    def _get_default_delivery_term_id(self):
-        return self.env['delivery.terms'].search([('default_for_company', '=', True), ('company_id', '=', self.env.company.id)], limit=1)
-
-    delivery_term_id = fields.Many2one('delivery.terms', string='Delivery Terms', domain="[('company_id', '=', company_id)]", default=_get_default_delivery_term_id,)
-    commitment_date = fields.Datetime(default=lambda self: datetime.today() + relativedelta(days=self._get_default_delivery_term_id().delivery_days))
-    tag_ids = fields.Many2many(default=lambda self: self.delivery_term_id.tag_ids)
 
     @api.onchange('delivery_term_id')
     def _onchange_delivery_term_fields(self):
