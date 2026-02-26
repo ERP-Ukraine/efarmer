@@ -98,14 +98,13 @@ class SaleOrder(models.Model):
         "partner_id",
         "partner_id.country_id",
         "partner_id.phone",
-        "partner_id.mobile",
         "partner_id.email",
         "partner_id.property_account_position_id",
         "fiscal_position_id",
     )
     def _compute_form_partner_banner(self):
         ref = "<a href='#' data-oe-model='%s' data-oe-id='%d'>%s</a>"
-        data = [(_("Country"), "country_id"), (_("Email"), "email"), (_("Phone"), "phone", "mobile")]
+        data = [(_("Country"), "country_id"), (_("Email"), "email"), (_("Phone"), "phone")]
         for rec in self:
             rec.missed_fiscal_position_banner = (
                 _("Please update the Fiscal Position on the Sales Order to match the one on the Contact.")
