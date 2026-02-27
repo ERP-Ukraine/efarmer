@@ -9,9 +9,10 @@
     <xpath expr="//tbody[hasclass('invoice_tbody')]/t[@t-foreach='lines']/tr[1]" position="attributes">
         <attribute name="t-if">not line.has_deposit_deducted()</attribute>
     </xpath>
-    <xpath expr="//div[@id='total']//t[@t-set='tax_totals']" position="attributes">
+    <!-- TODO: after migrating tax_totals_json -->
+    <!-- <xpath expr="//div[@id='total']//t[@t-set='tax_totals']" position="attributes">
         <attribute name="t-value">json.loads(o.with_context(without_deposit=True).tax_totals_json)</attribute>
-    </xpath>
+    </xpath> -->
 </template>
 
 <template id="report_account_invoice_wo_downpayment">
