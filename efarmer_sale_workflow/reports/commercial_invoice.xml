@@ -3,18 +3,18 @@
 
 <template id="report_commercial_invoice_document" inherit_id="sale.report_saleorder_document" primary="True">
     <!-- Set a custom header format. -->
-    <xpath expr="//div[hasclass('page')]/h2" position="replace">
-        <h2 class="mt16">
+    <xpath expr="//t[@t-set='layout_document_title']" position="replace">
+        <t t-set="layout_document_title">
             <span>Сommercial Invoice # </span>
-            <span t-field="doc.name"/>
-        </h2>
+            <span t-field="doc.name">SO0000</span>
+        </t>
     </xpath>
     <!-- Hide the payment term note. -->
     <xpath expr="//div[@name='delivery-term-div']" position="replace"/>
     <!-- Display `HS Code` and `Country of origin` into the description column. -->
-    <xpath expr="//table[hasclass('o_main_table')]//td[@name='td_name']" position="inside">
-        <div name="hs_code" t-if="line.product_id.intrastat_id.code">
-            HS Code: <span t-field="line.product_id.intrastat_id.code"/>
+    <xpath expr="//table[hasclass('o_main_table')]//td[@name='td_product_name']" position="inside">
+        <div name="hs_code" t-if="line.product_id.intrastat_code_id.code">
+            HS Code: <span t-field="line.product_id.intrastat_code_id.code"/>
         </div>
         <div name="country_of_origin" t-if="line.product_id.intrastat_origin_country_id.name">
             Country of Origin: <span t-field="line.product_id.intrastat_origin_country_id.name"/>
@@ -62,13 +62,11 @@
                             <li><t t-esc="doc.user_id.name"/></li>
                             <li><t t-esc="doc.user_id.email"/></li>
                             <li><t t-esc="doc.user_id.phone"/></li>
-                            <li><t t-esc="doc.user_id.mobile"/></li>
                         </t>
                         <t t-else="">
                             <li><t t-esc="doc.sale_id.warehouse_id.user_id.name"/></li>
                             <li><t t-esc="doc.sale_id.warehouse_id.user_id.email"/></li>
                             <li><t t-esc="doc.sale_id.warehouse_id.user_id.phone"/></li>
-                            <li><t t-esc="doc.sale_id.warehouse_id.user_id.mobile"/></li>
                         </t>
                     </ul>
                 </div>
@@ -103,28 +101,26 @@
                             <th name="th_quantity" class="text-right">Quantity</th>
                             <th name="th_priceunit" class="text-right">Unit Price</th>
                             <th name="th_discount" class="text-right">Disc.%</th>
-                            <th name="th_subtotal" class="text-right">
-                                <span groups="account.group_show_line_subtotals_tax_excluded">Amount</span>
-                                <span groups="account.group_show_line_subtotals_tax_included">Total Price</span>
-                            </th>
+                            <th name="th_subtotal" class="text-right">Amount</th>
                         </tr>
                     </thead>
                     <tbody class="sale_tbody">
 
-                        <t t-set="current_subtotal" t-value="0"/>
                         <t t-set="tax_totals" t-value="0"/>
                         <t t-set="weight_sum" t-value="0"/>
                         <t t-set="service_lines" t-value="doc.move_lines.sale_line_id.order_id.order_line.filtered(lambda r: not r.display_type and r.product_id.type == 'service' and ('shipping' in r.with_context(lang='en_US').product_id.name.lower() or 'insurance' in r.with_context(lang='en_US').product_id.name.lower()))"/>
                         <t t-set="lines" t-value="doc.env['sale.order.line'].browse(set(doc.move_lines.sale_line_id.ids)) + doc.env['sale.order.line'].browse(set(service_lines.ids))"/>
                         <t t-foreach="lines" t-as="line">
-
                             <t t-set="weight_sum" t-value="weight_sum + line.product_id.weight * line.product_uom_qty"/>
-                            <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"
-                               groups="account.group_show_line_subtotals_tax_excluded"/>
-                            <t t-set="current_subtotal" t-value="current_subtotal + line.price_total"
-                               groups="account.group_show_line_subtotals_tax_included"/>
-                            <t t-set="tax_totals" t-value="tax_totals + line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
-                            <t t-set="tax_totals" t-value="tax_totals + line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
+                            <t t-set="hide_prices" t-value="line.collapse_prices"/>
+                            <t t-if="not hide_prices">
+                                <t t-if="line.company_price_include == 'tax_excluded'">
+                                    <t t-set="tax_totals" t-value="tax_totals + line.price_subtotal"/>
+                                </t>
+                                <t t-else="">
+                                    <t t-set="tax_totals" t-value="tax_totals + line.price_total" />
+                                </t>
+                            </t>
                             <tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''">
                                 <t t-if="not line.display_type">
                                     <td name="td_name">
@@ -149,10 +145,8 @@
                                         <span t-field="line.discount"/>
                                     </td>
                                     <td name="td_subtotal" class="text-right o_price_total">
-                                        <span t-field="line.price_subtotal"
-                                              groups="account.group_show_line_subtotals_tax_excluded"/>
-                                        <span t-field="line.price_total"
-                                              groups="account.group_show_line_subtotals_tax_included"/>
+                                        <span t-if="not hide_prices and line.company_price_include == 'tax_excluded'" t-field="line.price_subtotal"/>
+                                        <span t-if="not hide_prices and line.company_price_include == 'tax_included'" t-field="line.price_total"/>
                                     </td>
                                 </t>
                             </tr>
