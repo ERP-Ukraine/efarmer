@@ -20,6 +20,7 @@
         'mail',
         'sale',
         'stock',
+        'mrp',
         'sale_crm',
         'sale_stock',
         'sales_team',
