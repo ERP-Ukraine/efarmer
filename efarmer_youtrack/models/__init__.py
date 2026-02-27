@@ -11,3 +11,4 @@ from . import hr_employee
 from . import account_analytic_line
 from . import youtrack_work_type
 from . import account_asset
+from . import timesheets_analysis_report

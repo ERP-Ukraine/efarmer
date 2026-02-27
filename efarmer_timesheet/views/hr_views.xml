@@ -1,0 +1,76 @@
+<odoo>
+    <data>
+
+        <record id="view_employee_form_timesheet_inherit" model="ir.ui.view">
+            <field name="name">hr.employee.form.timesheet.inherit</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+                <notebook position="inside">
+                    <page string="Salary Information">
+                        <group name="salary_info">
+                            <group name="salary_info_left" string="Bamboo HR">
+                                <field name="salary_type"/>
+                                <field name="paid_per"/>
+                                <field name="pay_rate"/>
+                                <field name="med_insurance_rate"/>
+                                <field name="bamboo_currency_id"/>
+                                <field name="contract_pay_rate"/>
+                            </group>
+                            <group name="salary_info_right" string="Annual Timesheet Costs">
+                                <field name="ann_gross_salary"/>
+                                <field name="ann_payroll_tax"/>
+                                <field name="ann_med_insurance_cost"/>
+                                <field name="ann_bonus"/>
+                                <field name="other_allowances"/>
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
+                <xpath expr="//notebook/page[@name='hr_settings']" position="inside">
+                    <group>
+                        <field name="account_asset_counterpart_id" string="Account Asset Counterpart"/>
+                    </group>
+                </xpath>
+                <xpath expr="//field[@name='user_id']" position="after">
+                    <field name="related_contact_id"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="efarmer_timesheet_view_employee_tree_inherit" model="ir.ui.view">
+            <field name="name">hr.employee.tree</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_tree"></field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='category_ids']" position="after">
+                    <field name="paid_per" optional="hide" />
+                    <field name="pay_rate" optional="hide" />
+                    <field name="bamboo_currency_id" optional="hide"/>
+                    <field name="ann_gross_salary" optional="hide" />
+                    <field name="ann_payroll_tax" optional="hide" />
+                    <field name="ann_med_insurance_cost" optional="hide" />
+                    <field name="ann_bonus" optional="hide" />
+                    <field name="other_allowances" optional="hide" />
+                </xpath>
+            </field>
+        </record>
+
+    <record id="efarmer_hr_employee_public_view_form" model="ir.ui.view">
+        <field name="name">efarmer.hr.employee.public.form</field>
+        <field name="model">hr.employee.public</field>
+        <field name="inherit_id" ref="hr.hr_employee_public_view_form"/>
+        <field name="arch" type="xml">
+
+            <group name="location" position="after">
+                <field name="bamboo_currency_id" invisible="1"/>
+                <field name="contract_pay_rate" invisible="1"/>
+                <field name="account_asset_counterpart_id" invisible="1"/>
+                <field name="related_contact_id" invisible="1"/>
+            </group>
+        </field>
+    </record>
+
+
+    </data>
+</odoo>

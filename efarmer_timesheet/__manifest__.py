@@ -1,0 +1,32 @@
+# Copyright 2026 VentorTech OU
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
+
+
+{
+    "name": "Timesheet eFarmer",
+    "version": "19.0.1.0.0",
+    "category": "Other",
+    "author": "VentorTech",
+    "website": "https://ventor.tech",
+    "license": "LGPL-3",
+    "depends": [
+        "account",
+        "account_asset",
+        "project",
+        "hr",
+        "hr_timesheet",
+        "hr_expense",
+        "hr_payroll",
+        "timesheet_grid",
+        "efarmer_youtrack",
+    ],
+    "data": [
+        # Initial Data
+        "data/ir_cron_data.xml",
+        # Model Views
+        "views/hr_views.xml",
+        "views/account_analytic_line_views.xml",
+    ],
+    "installable": True,
+    "application": True,
+}
