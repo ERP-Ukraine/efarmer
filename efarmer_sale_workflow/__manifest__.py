@@ -27,7 +27,7 @@
         'account',
         'account_intrastat',
         'efarmer_product',
-        'delivery',
+        'stock_delivery',
         'sale_order_line_menu',
     ],
 
