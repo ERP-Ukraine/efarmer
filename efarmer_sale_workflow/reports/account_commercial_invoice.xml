@@ -29,7 +29,7 @@
     </xpath>
     <!-- Append phone and email fields below the partner address. -->
     <xpath expr="//t[@t-set='address']" position="inside">
-        <div t-if="o.partner_id.phone or o.partner_id.mobile">Phone: <span t-esc="o.partner_id.phone or o.partner_id.mobile"/></div>
+        <div t-if="o.partner_id.phone">Phone: <span t-esc="o.partner_id.phone"/></div>
         <div t-if="o.partner_id.email">Email: <span t-field="o.partner_id.email"/></div>
     </xpath>
     <!-- Remove the payment term notes. -->
@@ -40,8 +40,8 @@
     </xpath>
     <!-- Display `HS Code` and `Country of origin` into the description column. -->
     <xpath expr="//table[@name='invoice_line_table']//td[@name='account_invoice_line_name']" position="inside">
-        <div name="hs_code" t-if="line.product_id.intrastat_id.code">
-            HS Code: <span t-field="line.product_id.intrastat_id.code"/>
+        <div name="hs_code" t-if="line.product_id.intrastat_code_id.code">
+            HS Code: <span t-field="line.product_id.intrastat_code_id.code"/>
         </div>
         <div name="country_of_origin" t-if="line.product_id.intrastat_origin_country_id.name">
             Country of Origin: <span t-field="line.product_id.intrastat_origin_country_id.name"/>
