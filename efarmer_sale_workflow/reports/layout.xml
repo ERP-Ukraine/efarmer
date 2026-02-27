@@ -6,8 +6,8 @@
     <xpath expr="//div[@name='company_address']" position="attributes">
         <attribute name="t-if">not (is_pro_forma or efarmer_address_placement or env.context.get('proforma'))</attribute>
     </xpath>
-    <xpath expr="//div[@name='moto']" position="replace">
-      <div class="col-9 text-right" style="margin-top:22px;" name="moto">
+    <xpath expr="//div[@t-field='company.report_header']" position="replace">
+      <div class="col-9 text-right" style="margin-top:22px;">
         <span t-field="company.report_header"/>
         <t t-if="o and 'product_vat_id' in o and o.product_vat_id and o.product_vat_id.description_on_docs">
           <span t-field="o.product_vat_id.description_on_docs"/>
