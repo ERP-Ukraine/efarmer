@@ -5,9 +5,9 @@
             <t t-foreach="docs" t-as="doc">
             <t t-foreach="doc.move_line_ids_without_package if doc._name == 'stock.picking' else doc" t-as="line">
                 <t t-set="product" t-value="line.product_id if line._name != 'product.template' and line._name != 'product.product' else line"/>
-                <t t-if="line._name != 'product.template' and line._name != 'product.product' and line._name != 'stock.production.lot'">
-                    <t t-set="lot_id" t-value="line.lot_id if line._name != 'mrp.production' else line.lot_producing_id"/>
-                    <t t-set="lot_name" t-value="lot_id.name if product.tracking != 'none' else ''"/>
+                <t t-if="line._name != 'product.template' and line._name != 'product.product' and line._name != 'stock.lot'">
+                    <t t-set="lot_ids" t-value="line.lot_id if line._name != 'mrp.production' else line.lot_producing_ids"/>
+                    <t t-set="lot_name" t-value="lot_ids.mapped('name') if product.tracking != 'none' else ''"/>
         
                     <t t-if="line._name == 'stock.quant'">
                         <t t-set="pre_qty" t-value="line.quantity"/>
@@ -22,7 +22,7 @@
                     <t t-set="qty" t-value="pre_qty if product.tracking != 'serial' else 'S/N'"/>
                     <t t-set="valid_qty" t-value="qty if isinstance(qty,str) or not qty.is_integer() else str(qty).split('.')[0]"/>
                 </t>
-                <t t-if="line._name == 'stock.production.lot'">
+                <t t-if="line._name == 'stock.lot'">
                     <t t-set="lot_name" t-value="line.name if product.tracking != 'none' else ''"/>
                 </t>
 
@@ -185,12 +185,12 @@
 
         <record id="action_stock_label_production_lot_without_qty" model="ir.actions.report">
             <field name="name">Stock Label (without qty)</field>
-            <field name="model">stock.production.lot</field>
+            <field name="model">stock.lot</field>
             <field name="report_type">qweb-text</field>
             <field name="report_name">efarmer_sale_workflow.stock_production_lot_without_qty</field>
             <field name="report_file">efarmer_sale_workflow.stock_production_lot_without_qty</field>
             <field name="print_report_name">'Stock Label (without qty) - %s' % (object.product_id.default_code)</field>
-            <field name="binding_model_id" ref="stock.model_stock_production_lot"/>
+            <field name="binding_model_id" ref="stock.model_stock_lot"/>
             <field name="binding_type">report</field>
         </record>
 
