@@ -4,7 +4,7 @@
         <template id="device_label_70x35_US">
 
             <t t-foreach="docs" t-as="doc">
-                <t t-set="lot" t-value="doc.lot_producing_id if doc._name == 'mrp.production' else doc.lot_id"/>
+                <t t-set="lots" t-value="doc.lot_producing_ids if doc._name == 'mrp.production' else doc.lot_id"/>
                 <t t-set="upper_amendment"
                    t-value="lambda s,n,t: int(t and sum(1 for c in s[:n] if c.isupper() or c == '-')//5 + bool(sum(1 for c in s[:n] if c.isupper())%5)*1)"/>
                 <t t-set="cutter"
@@ -113,16 +113,16 @@
                     t-esc="cutter((doc.product_id.description_label if doc.product_id.description_label else ''), 380, True)"/>
                 ^FS
 
-                <t t-if="lot">
+                <t t-if="lots">
                     ^FO782,30
                     ^FB370,1,1,L,0
                     ^A0B,33
                     ^FH`
-                    ^FD<t t-esc="lot.display_name"/>\&amp;^FS
+                    ^FD<t t-esc="lots.mapped('display_name')"/>\&amp;^FS
 
                     ^FO620,254
                     ^BQN,2,7
-                    ^FDMA,<t t-esc="lot.display_name"/>^FS
+                    ^FDMA,<t t-esc="lots.mapped('display_name')"/>^FS
 
                     ^FO590,270
                     ^FB120,2,7,L,0
