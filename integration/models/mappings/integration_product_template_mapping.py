@@ -1,7 +1,6 @@
 # See LICENSE file for full copyright and licensing details.
 
 import logging
-import traceback
 
 from odoo import fields, models
 from odoo.exceptions import UserError
@@ -135,19 +134,13 @@ class IntegrationProductTemplateMapping(models.Model):
         if not external_template:
             return {}
 
-        try:
-            data = external_template.calculate_import_fields_data()
+        data = external_template.calculate_import_fields_data()
 
-            data['products'] = []
-            for variant in external_template.external_product_variant_ids:
-                data['products'].append(
-                    variant.calculate_import_fields_data()
-                )
-        except Exception as e:
-            data = {
-                'error_message': str(e),
-                'error_traceback': traceback.format_exc().splitlines(),
-            }
+        data['products'] = []
+        for variant in external_template.external_product_variant_ids:
+            data['products'].append(
+                variant.calculate_import_fields_data()
+            )
 
         if self.env.context.get('integration_return_action'):
             return self.env['message.wizard'].create_json_and_run(data)
@@ -161,13 +154,7 @@ class IntegrationProductTemplateMapping(models.Model):
         if not template:
             return {}
 
-        try:
-            data = template.to_export_format(self.integration_id)
-        except Exception as e:
-            data = {
-                'error_message': str(e),
-                'error_traceback': traceback.format_exc().splitlines(),
-            }
+        data = template.to_export_format(self.integration_id)
 
         if self.env.context.get('integration_return_action'):
             return self.env['message.wizard'].create_json_and_run(data)

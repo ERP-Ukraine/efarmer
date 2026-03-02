@@ -15,8 +15,10 @@ class UomUom(models.Model):
         This method try to find unit of weight measure by name from e-Commerce System
         and convert it
         """
-        if not weight:
-            return 0
+        if weight in (None, False, ''):
+            return 0.0
+
+        weight = float(weight)
 
         if not external_uom_name:
             return weight

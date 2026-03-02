@@ -2,7 +2,7 @@
 
 {
     'name': 'Odoo E-Commerce Connector Core',
-    'version': '19.0.2.1.0',
+    'version': '19.0.2.1.1',
     'category': 'Sales',
     'author': 'VentorTech',
     'website': 'https://ventor.tech',
@@ -45,7 +45,6 @@ inventory, customers & more.''',
         'wizard/import_customers_wizard.xml',
         'wizard/refresh_products_wizard.xml',
         'wizard/import_stock_levels_wizard.xml',
-        'wizard/integration_pricelist_wizard.xml',
         'wizard/message_wizard.xml',
         'wizard/configuration_wizard.xml',
         'wizard/external_integration_wizard.xml',
@@ -58,6 +57,7 @@ inventory, customers & more.''',
         'wizard/product_ecommerce_field_test_wizard.xml',
 
         # Views
+        'views/ir_module_views.xml',
         'views/sale_integration.xml',
         'views/sale_integration_api_fields.xml',
         'views/sale_integration_input_file.xml',

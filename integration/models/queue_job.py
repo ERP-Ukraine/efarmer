@@ -4,6 +4,7 @@ import re
 
 from odoo import api, models, fields, _
 from odoo.exceptions import UserError
+from odoo.addons.integration_queue_job.job import Job
 
 
 MODELS_WITH_IMPORT_AVAILABLE = [
@@ -440,6 +441,20 @@ class QueueJob(models.Model):
             'res_id': message_id.id,
             'target': 'new'
         }
+
+    def action_run_now(self):
+        """Run the job synchronously in real time (debug tool)."""
+        self.ensure_one()
+        job = Job.load(self.env, self.uuid)
+        job.set_started()
+        job.store()
+        try:
+            result = job.perform()
+            job.set_done(result=result)
+            job.enqueue_waiting()
+            job.store()
+        except Exception as e:
+            raise UserError(_('Job failed:\n\n%s') % str(e))
 
     def action_toggle_exc(self):
         self.toggle_exc = not self.toggle_exc

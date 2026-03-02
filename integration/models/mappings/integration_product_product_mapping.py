@@ -1,7 +1,6 @@
 # See LICENSE file for full copyright and licensing details.
 
 import logging
-import traceback
 
 from odoo import fields, models, api, _
 
@@ -158,13 +157,7 @@ class IntegrationProductProductMapping(models.Model):
         if not external_variant:
             return {}
 
-        try:
-            data = external_variant.calculate_import_fields_data()
-        except Exception as e:
-            data = {
-                'error_message': str(e),
-                'error_traceback': traceback.format_exc().splitlines(),
-            }
+        data = external_variant.calculate_import_fields_data()
 
         if self.env.context.get('integration_return_action'):
             return self.env['message.wizard'].create_json_and_run(data)
@@ -178,17 +171,11 @@ class IntegrationProductProductMapping(models.Model):
         if not product:
             return {}
 
-        try:
-            __, variant_code = self.external_product_id.code.split('-')
-            if variant_code == '0':
-                product = product.product_tmpl_id
+        __, variant_code = self.external_product_id.code.split('-')
+        if variant_code == '0':
+            product = product.product_tmpl_id
 
-            data = product.calculate_export_fields_data(self.integration_id.id)
-        except Exception as e:
-            data = {
-                'error_message': str(e),
-                'error_traceback': traceback.format_exc().splitlines(),
-            }
+        data = product.calculate_export_fields_data(self.integration_id.id)
 
         if self.env.context.get('integration_return_action'):
             return self.env['message.wizard'].create_json_and_run(data)

@@ -160,9 +160,6 @@ class NoAPIClient(AbsApiClient):
     def get_stock_levels(self):
         return
 
-    def get_products_for_accessories(self):
-        return
-
     def create_webhooks_from_routes(self, routes_dict):
         return dict()
 

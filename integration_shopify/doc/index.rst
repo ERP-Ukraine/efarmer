@@ -2,29 +2,29 @@
 VentorTech Shopify Connector
 ==============================
 
-|
-|
-
 Get Support & Access Documentation
 ----------------------------------
 
 Having trouble or want to explore detailed documentation? Visit our support portal for in-depth guides, FAQs, and the ability to contact our support team: https://support.ventor.tech/
 
-|
-|
-
 Quick configuration guide
 -------------------------
 
-Get started with our installation and configuration guide:
-
-https://ventortech.atlassian.net/servicedesk/customer/portal/1/article/482541668
-
-|
-|
+Get started with our installation and configuration guide: https://ventortech.atlassian.net/servicedesk/customer/portal/1/article/482541668
 
 Release Notes
 -------------
+
+* 2.1.1 (2026-03-01)
+    - [NEW] Added "Export Inventory Now" button to the Inventory tab, allowing users to manually trigger a full inventory export for all products at any time — regardless of the Scheduled Inventory Sync setting. The export runs in batches as background jobs, the same way the scheduled action does.
+    - [NEW] Added "Run Now" button on background jobs (available in debug mode), allowing jobs to be executed in real time instead of being queued. This is primarily intended to simplify debugging and issue investigation.
+    - [NEW] Added support for importing "Additional Details" from Shopify orders, allowing users to extract and map VAT number and Personal ID fields using two new configuration options: "Additional Details Key for VAT Number" and "Additional Details Key for Personal ID". Additional details data is also now available in the "Order and Delivery Attribute Import Mapping" feature, enabling users to save any additional details values to custom fields on Sales Orders or Deliveries.
+    - [IMP] Added pre-defined filters "Mapped to Store(s)" and "Not Mapped to any Store" on the product list, making it easier to identify which products are synchronized with your e-commerce store and which still require mapping.
+    - [IMP] Improved shipping discount handling during order import. The connector now correctly creates discount lines for shipping coupons by fetching the original pre-discount shipping price from Shopify and computing discount allocations the same way it does for product lines. When "Add Multiple Discount Lines" is enabled, shipping discount lines include the coupon code in the description and are placed immediately after the delivery line.
+    - [FIX] Fixed an issue where external records for newly created categories did not have the parent category set, causing inconsistency with imported categories where the parent was correctly assigned.
+    - [FIX] Fixed an issue where zero-amount tax lines returned by the Shopify API (where the rate is non-zero but the amount is zero) were incorrectly applied in Odoo, causing the order total in Odoo to be higher than in Shopify. Such tax lines are now detected and skipped during order import.
+    - [FIX] Fixed an error during order import that occurred when a Shopify order had neither a billing nor a shipping address, causing an "Address with id= not found" error. Such orders are now handled gracefully.
+    - [FIX] Other improvements and fixes implemented to boost overall performance, stability, and reliability.
 
 * 2.1.0 (2026-02-18)
     - [NEW] Added support for managing "Track quantity" and "Continue selling when out of stock" settings from Odoo. Two new checkboxes are now available on the product template, allowing users to control Shopify inventory tracking behavior directly from Odoo.

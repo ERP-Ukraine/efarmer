@@ -19,6 +19,15 @@
                             groups="integration_queue_job.group_queue_job_manager"
                         />
                         <button
+                            name="action_run_now"
+                            type="object"
+                            string="Run Now"
+                            groups="base.group_no_one"
+                            invisible="state not in ('pending', 'enqueued', 'failed')"
+                            confirm="This will run the job synchronously in the current process. Proceed?"
+                            class="btn-outline-secondary"
+                        />
+                        <button
                             name="button_done"
                             invisible="state not in ('wait_dependencies', 'pending', 'enqueued', 'failed')"
                             class="oe_highlight"

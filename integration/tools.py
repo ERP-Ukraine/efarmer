@@ -1732,6 +1732,12 @@ def run_preprocessing_script(script: str, context: dict, raise_error: bool = Fal
 
     try:
         return context['value']
+    except KeyError:
+        msg = 'Preprocess script must define a "value" variable with the result'
+        if raise_error:
+            raise ValueError(msg)
+        _logger.warning(msg)
+        return ''
     except (TypeError, ValueError) as e:
         if raise_error:
             raise

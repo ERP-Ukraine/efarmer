@@ -1,17 +1,19 @@
 # See LICENSE file for full copyright and licensing details.
 
 import json
+import logging
 from typing import Dict
 
 from odoo import fields, models, _
 from odoo.exceptions import UserError
-from odoo.tools.float_utils import float_is_zero, float_round
+from odoo.tools.float_utils import float_compare, float_round
 from odoo.tools.translate import LazyTranslate
 
 from ..exceptions import ErrorStore, ApiImportError, NotMappedFromExternal
 
 
 _lt = LazyTranslate(__name__)
+_logger = logging.getLogger(__name__)
 
 
 # Mark strings for extraction (never executed, just for translation tools)
@@ -173,8 +175,7 @@ class IntegrationSaleOrderFactory(models.TransientModel):
 
             # Separate discount line (if enabled)
             if integration.separate_discount_line:
-                discount_line_vals = self._prepare_order_discount_line_vals(order, line)
-                if discount_line_vals:
+                for discount_line_vals in self._prepare_order_discount_line_vals(order, line):
                     lines_to_create.append((0, 0, discount_line_vals))
 
         # Hook for customizations
@@ -200,12 +201,12 @@ class IntegrationSaleOrderFactory(models.TransientModel):
         # 1. Creating Delivery Line
         self._create_delivery_line(order, order_data['delivery_data'])
 
-        # 2. Creating Discount Line.
-        # !!! It should be after Creating Delivery Line
-        self._create_discount_line(order, order_data['discount_data'])  # Prestashop only
-
-        # 3. Creating Gift Wrapping Line
+        # 2. Creating Gift Wrapping Line
         self._create_gift_line(order, order_data['gift_data'])
+
+        # 3. Creating Order-Level Discount Lines.
+        # !!! It should be after Creating Delivery Line !!!
+        self._create_discount_line(order, order_data['discount_data'])
 
         # 4. Check difference of total order amount and correct it
         #    !!! This block must be the last !!!
@@ -301,28 +302,16 @@ class IntegrationSaleOrderFactory(models.TransientModel):
         :param order: sale.order recordset
         :param line_data: dict with raw line data from e-commerce platform
         :param product: product.product recordset (optional)
-        :return: dict with prepared order line values for discount line
+        :return: list of dicts with prepared order line values for discount line(s)
         """
-        integration = self.integration_id
         discount = line_data['discount']
         if not isinstance(discount, dict):
             raise ValueError(_('Expected the dict object for discount data'))
 
         if not discount or not discount.get('discount_amount'):
-            return dict()
+            return []
 
-        discount_product = integration.discount_product_id
-        if not discount_product:
-            raise ApiImportError(
-                _(
-                    'Discount Product is not configured for the "%s" integration.\n'
-                    'To resolve this issue, please configure the "Discount Product" setting in '
-                    'the "Sales Orders" tab of the integration settings:\n'
-                    '1. Go to "E-Commerce Integrations → Stores → %s → Sales Orders" tab.\n'
-                    '2. Set the "Discount Product" field.\n\n'
-                    'Once this is done, requeue the job to continue processing.'
-                ) % (integration.name, integration.name)
-            )
+        discount_product = self._get_discount_product()
 
         discount_price = discount['discount_amount']
 
@@ -332,9 +321,7 @@ class IntegrationSaleOrderFactory(models.TransientModel):
             except (ErrorStore.UndefinedExternalProduct, ErrorStore.NotFoundExternalProduct):
                 product = self.env['product.product']
 
-        taxes = self.env['account.tax']
-        if not discount.get('discount_skip_taxes', False):
-            taxes = self.get_taxes_from_external_list(product, line_data['taxes'])
+        taxes = self.get_taxes_from_external_list(product, line_data['taxes'])
 
         if discount.get('discount_amount_tax_incl'):
             if taxes and self._get_tax_price_included(taxes):
@@ -369,7 +356,7 @@ class IntegrationSaleOrderFactory(models.TransientModel):
             'tax_ids': [(6, 0, taxes.ids)],
         }
 
-        return vals
+        return [vals]
 
     def _get_order_pricelist(self, order_currency_iso, partner):
         integration = self.integration_id
@@ -656,12 +643,11 @@ class IntegrationSaleOrderFactory(models.TransientModel):
         # 4. Apply discount
         if delivery_data.get('discount'):
             if integration.separate_discount_line:
-                discount_line_vals = self._prepare_order_discount_line_vals(
+                for discount_line_vals in self._prepare_order_discount_line_vals(
                     order,
                     delivery_data,
                     product=delivery_product,
-                )
-                if discount_line_vals:
+                ):
                     order.order_line = [(0, 0, discount_line_vals)]
             else:
                 delivery_line.discount = delivery_data['discount']['discount_percent']
@@ -762,26 +748,7 @@ class IntegrationSaleOrderFactory(models.TransientModel):
 
         return False
 
-    def _insert_line_in_order(self, order, price_unit, tax_ids):
-        discount_product = self.integration_id.discount_product_id
-
-        line = self.env['sale.order.line'].create({
-            'product_id': discount_product.id,
-            'order_id': order.id,
-            'price_unit': price_unit,
-            'tax_ids': tax_ids and tax_ids.ids or False,
-        })
-        return line
-
-    def _create_discount_line(self, order, discount_data):
-        discount_tax_incl = discount_data.get('total_discounts_tax_incl')
-        discount_tax_excl = discount_data.get('total_discounts_tax_excl')
-        if not discount_tax_incl or not discount_tax_excl:
-            return self.env['sale.order.line']
-
-        discount_tax_incl = abs(discount_tax_incl)
-        discount_tax_excl = abs(discount_tax_excl)
-
+    def _get_discount_product(self):
         integration = self.integration_id
         if not integration.discount_product_id:
             raise ApiImportError(
@@ -789,127 +756,74 @@ class IntegrationSaleOrderFactory(models.TransientModel):
                     'Discount Product is not configured for the "%s" integration.\n'
                     'To resolve this issue, please configure the "Discount Product" setting in '
                     'the "Sales Orders" tab of the integration settings:\n'
-                    '1. Go to "E-Commerce Integrations -> %s -> Sales Orders" tab.\n'
+                    '1. Go to "E-Commerce Integrations → Stores → %s → Sales Orders" tab.\n'
                     '2. Set the "Discount Product" field.\n\n'
                     'Once this is done, requeue the job to continue processing.'
                 ) % (integration.name, integration.name)
             )
+        return integration.discount_product_id
 
-        precision = self.env['decimal.precision'].precision_get('Product Price')
+    def _insert_line_in_order(self, order, price_unit, tax_id):
+        discount_product = self._get_discount_product()
+        lang = order.partner_id.lang
+        if lang:
+            discount_product = discount_product.with_context(lang=lang)
 
-        product_lines = order.order_line.filtered(lambda x: not x.is_delivery)
+        line = self.env['sale.order.line'].create({
+            'product_id': discount_product.id,
+            'order_id': order.id,
+            'name': discount_product.get_product_multiline_description_sale(),
+            'price_unit': price_unit,
+            'tax_ids': tax_id and tax_id.ids or False,
+        })
+        return line
 
-        # Taxes must be with '-'
-        discount_taxes = discount_tax_excl - discount_tax_incl
+    def _find_order_tax_by_amounts(self, order, tax_incl, tax_excl):
+        """
+        Identify the tax that was applied to a discount amount by working
+        backwards from the tax-included and tax-excluded monetary values.
 
-        if self._get_tax_price_included(product_lines.mapped('tax_ids')):
-            discount_price = discount_tax_incl * -1
-        else:
-            discount_price = discount_tax_excl * -1
+        For each percent tax already on the order's product lines, compute
+        the tax-excluded price that tax would produce from ``tax_incl``, then
+        compare to ``tax_excl`` using the company currency's rounding precision.
+        This avoids computing an explicit rate percentage and sidesteps the
+        rounding noise inherent in monetary amounts.
 
-        discount_line = self._insert_line_in_order(order, discount_price, False)
+        Returns the matching tax recordset, or an empty recordset when:
+          - tax_incl == tax_excl (zero-tax discount), or
+          - no order tax produces a match.
+        """
+        if not tax_excl or tax_incl == tax_excl:
+            return self.env['account.tax']
 
-        # 1. Discount without taxes
-        if float_is_zero(discount_taxes, precision_digits=precision):
-            return discount_line
+        currency_rounding = self.integration_id.company_id.currency_id.rounding
 
-        # 2. Try to find the most suitable tax.
-        #  Basically it's made for PrestaShop because it gives only discount with/without taxes
-        #  We try to understand whether discount applied to all lines, one line
-        #  or lines with identical taxes by the minimal calculated tax difference.
-        #  Otherwise we apply discount to all lines
-        #  TODO For Other shops we should make with taxes from discount in order data
+        product_lines = order.order_line.filtered(lambda line: not line.is_delivery)
+        order_taxes = product_lines.mapped('tax_ids')
 
-        # 2.1 Group lines by taxes
-        all_grouped_taxes = {}
-        grouped_taxes = {}
-        line_taxes = {}
-        all_lines_sum = 0
-        delivery_line = order.order_line.filtered(lambda line: line.is_delivery)
-        carrier_tax_id = delivery_line.tax_ids
+        for tax in order_taxes:
+            if tax.amount_type != 'percent':
+                continue
+            expected_excl = tax_incl / (1 + tax.amount / 100)
+            if float_compare(expected_excl, tax_excl, precision_rounding=currency_rounding) == 0:
+                return tax
 
-        for line in product_lines:
-            tax_key = str(line.tax_ids)
-            line_key = str(line.id)
-            all_lines_sum += line.price_subtotal
+        _logger.warning(
+            '"%s": no order tax matches the discount amounts '
+            '(tax_incl=%.2f, tax_excl=%.2f). Discount line will have no tax.',
+            self.integration_id.name, tax_incl, tax_excl,
+        )
+        return self.env['account.tax']
 
-            grouped_taxes.update({tax_key: {
-                'tax_ids': line.tax_ids if line.price_unit and not all_lines_sum else carrier_tax_id,
-                'discount': discount_price,
-            }})
-            line_taxes.update({line_key: {
-                'tax_ids': line.tax_ids,
-                'discount': discount_price,
-            }})
-            all_grouped_taxes.update({tax_key: {
-                'price_subtotal': (
-                    line.price_subtotal
-                    + all_grouped_taxes.get(tax_key, {}).get('price_subtotal', 0)
-                ),
-                'tax_ids': line.tax_ids,
-            }})
+    def _create_discount_line(self, order, discount_data):
+        """
+        Hook for connector-specific order-level discount lines.
 
-        # 2.2 Distribution of the amount to different tax groups
-        all_grouped_taxes = [grouped_tax for grouped_tax in all_grouped_taxes.values()]
-        residual_amount = discount_price
-        line_num = len(all_grouped_taxes)
-
-        for tax_value in all_grouped_taxes:
-            if line_num == 1 or not all_lines_sum:
-                tax_value['discount'] = residual_amount
-            else:
-                tax_value['discount'] = float_round(
-                    value=discount_price * tax_value['price_subtotal'] / all_lines_sum,
-                    precision_digits=precision
-                )
-
-            residual_amount -= tax_value['discount']
-            line_num -= 1
-
-        # 2.3 Calculate tax difference for different combinations
-        def calc_tax_summa(tax_values):
-            tax_amount = 0
-
-            for tax_value in tax_values:
-                discount_line.tax_ids = tax_value['tax_ids']
-                discount_line.price_unit = tax_value['discount']
-                tax_amount += discount_line.price_tax
-
-            return {
-                'grouped_taxes': tax_values,
-                'tax_diff': abs(tax_amount - discount_taxes),
-            }
-
-        # discount taxes for all
-        calc_taxes = [calc_tax_summa(all_grouped_taxes)]
-        # discount taxes one by one for tax groups
-        calc_taxes += [calc_tax_summa([grouped_tax]) for grouped_tax in grouped_taxes.values()]
-        # discount taxes one by one for line
-        calc_taxes += [calc_tax_summa([line_tax]) for line_tax in line_taxes.values()]
-
-        # 2.4 Get tax with MINIMAL difference
-        # If price difference > 1% then apply discount to all taxes
-        calc_taxes.sort(key=lambda calc_tax: calc_tax['tax_diff'])
-
-        if abs(calc_taxes[0]['tax_diff'] / discount_taxes) < 0.01:
-            the_most_suitable_discount = calc_taxes[0]['grouped_taxes']
-        else:
-            the_most_suitable_discount = all_grouped_taxes
-
-        # Delete old delivery line
-        discount_line.unlink()
-
-        discount_lines = self.env['sale.order.line']
-
-        # 2.5 Create discount lines for discount
-        for tax_value in the_most_suitable_discount:
-            discount_lines += self._insert_line_in_order(
-                order,
-                tax_value['discount'],
-                tax_value['tax_ids']
-            )
-
-        return discount_lines
+        The base implementation does nothing. PrestaShop overrides this with its
+        own tax-inference logic. All other connectors pass an empty discount_data
+        dict and rely on line-level discounts instead.
+        """
+        return self.env['sale.order.line']
 
     def _get_payment_method(self, external_code):
         integration = self.integration_id

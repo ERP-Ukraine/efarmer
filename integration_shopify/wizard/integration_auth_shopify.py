@@ -129,7 +129,8 @@ class IntegrationAuthShopify(models.TransientModel):
 
         self.set_authorization_state()
 
-        action = self.env.ref('integration_shopify.action_view_shopify_integration_authorization').read()[0]
+        action = self.sudo().env.ref(
+            'integration_shopify.action_view_shopify_integration_authorization').read()[0]
         action['res_id'] = self.id
 
         return action

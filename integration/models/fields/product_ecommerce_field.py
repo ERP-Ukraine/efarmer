@@ -1,7 +1,7 @@
 # See LICENSE file for full copyright and licensing details.
 
 import logging
-from datetime import datetime
+from datetime import date, datetime
 
 from odoo import api, models, fields, _
 from odoo.exceptions import UserError, ValidationError
@@ -45,7 +45,7 @@ def _convert_to_import_type(value, import_field_type: str):
         return bool(value)
 
     if import_field_type == INTEGER_FIELD:
-        return int(value) if value else 0
+        return int(float(value)) if value else 0
 
     if import_field_type in FLOAT_FIELDS:
         return float(value) if value else 0.0
@@ -75,6 +75,14 @@ def _convert_to_export_type(value, export_field_type: str):
 
     if export_field_type == 'string':
         return str(value) if value else ''
+
+    # Safety net: convert date/datetime to ISO string to prevent serialization errors
+    # in API clients (e.g. Dict2Xml) that only handle primitive types.
+    if isinstance(value, datetime):
+        return value.isoformat()
+
+    if isinstance(value, date):
+        return value.isoformat()
 
     return value
 
@@ -314,7 +322,10 @@ class ProductEcommerceField(models.Model):
 
         :return: Cleaned script string ready for execution
         """
-        lines = (self.import_script or '').splitlines()
+        if not self.import_script:
+            return ''
+
+        lines = self.import_script.splitlines()
         return '\n'.join(line for line in lines if not line.strip().startswith('#')).strip()
 
     @property
@@ -324,7 +335,10 @@ class ProductEcommerceField(models.Model):
 
         :return: Cleaned script string ready for execution
         """
-        lines = (self.export_script or '').splitlines()
+        if not self.export_script:
+            return ''
+
+        lines = self.export_script.splitlines()
         return '\n'.join(line for line in lines if not line.strip().startswith('#')).strip()
 
     @api.onchange('odoo_field_id')
@@ -360,8 +374,10 @@ class ProductEcommerceField(models.Model):
         self.ensure_one()
 
         kw = {}
+
         if not self.import_script:
             kw['import_script'] = SCRIPT_PATTERN
+
         if not self.export_script:
             kw['export_script'] = SCRIPT_PATTERN
 
@@ -605,13 +621,16 @@ class ProductEcommerceField(models.Model):
 
         return {odoo_name: value_}
 
-    def _extract_import_value(self, integration_id: int, data: tuple):
+    def _extract_import_value(self, integration_id: int, data: tuple, raw: bool = False):
         """
         Extract and convert field value from external API data.
 
         :param integration_id: ID of the sale.integration record
         :param data: Tuple of (template_data, variant_data) from external API
-        :return: Converted value ready for Odoo field
+        :param raw: If True, return raw extracted value without type conversion.
+            Useful in preprocessing scripts that need original API values
+            for custom comparisons or transformations.
+        :return: Converted value ready for Odoo field (or raw value if raw=True)
         """
         template_data, variant_data = data
 
@@ -622,6 +641,9 @@ class ProductEcommerceField(models.Model):
 
         api_name = self.get_api_field_name()
         value = ExtractNode.extract_raw(source_data, api_name, '', raise_error=False)
+
+        if raw:
+            return value
 
         return self.convert_to_import_type(integration_id, value)
 

@@ -6,6 +6,13 @@ Change Log
 
 |
 
+* 2.1.1 (2026-03-01)
+    - [NEW] Added "Export Inventory Now" button to the Inventory tab, allowing users to manually trigger a full inventory export for all products at any time — regardless of the Scheduled Inventory Sync setting. The export runs in batches as background jobs, the same way the scheduled action does.
+    - [NEW] Added "Run Now" button on background jobs (available in debug mode), allowing jobs to be executed in real time instead of being queued. This is primarily intended to simplify debugging and issue investigation.
+    - [IMP] Added pre-defined filters "Mapped to Store(s)" and "Not Mapped to any Store" on the product list, making it easier to identify which products are synchronized with your e-commerce store and which still require mapping.
+    - [FIX] Fixed an issue where external records for newly created categories did not have the parent category set, causing inconsistency with imported categories where the parent was correctly assigned.
+    - [FIX] Other improvements and fixes implemented to boost overall performance, stability, and reliability.
+
 * 2.1.0 (2026-02-18)
     - [IMP] Enhanced UI/UX across connector views, based on customer feedback. The Status menu is now more functional, with quick access to unmapped records, store connections, and other key areas. The connections Kanban view was also improved, including a small 7-day orders chart and overall usability refinements to make daily monitoring and navigation more efficient.
     - [IMP] Improved initial product import batching logic. When importing products in batches, the connector now processes all valid products even if some items contain errors (e.g., missing or duplicated SKU). Problematic products are automatically grouped into a separate background job with a clear error message, allowing users to fix issues and requeue only the affected records - without blocking the entire batch.

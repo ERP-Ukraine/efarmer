@@ -311,10 +311,6 @@ class AbsApiClient(with_metaclass(ABCMeta)):
     def get_stock_levels(self, *args, **kw):
         return
 
-    @abstractmethod
-    def get_products_for_accessories(self):
-        return
-
     def create_webhooks_from_routes(self, routes_dict):
         return dict()
 

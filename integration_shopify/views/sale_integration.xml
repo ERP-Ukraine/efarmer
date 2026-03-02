@@ -79,7 +79,7 @@
                                                 If disabled, no prices will be exported automatically, but you can still use the "Send Prices” button on catalogs lines for manual updates.
                                             </small>
                                     </p>
-                                    <field name="export_prices_cron_id_lastcall" invisible="not export_prices_cron_id_active"/>
+                                    <field name="export_prices_cron_id_lastcall" invisible="not export_prices_cron_id_active or not export_prices_cron_id_lastcall"/>
                                     <field name="export_prices_cron_id_nextcall" invisible="not export_prices_cron_id_active"/>
                                 </group>
                             </div>
@@ -165,6 +165,8 @@
                 </page>
 
                 <field name="ignore_vat_validation" position="after">
+                    <field name="shopify_personal_id_additional_field_name" invisible="id == False or not is_integration_shopify"/>
+                    <field name="shopify_vat_number_additional_field_name" invisible="id == False or not is_integration_shopify"/>
                     <field name="shopify_customer_language" invisible="not is_integration_shopify"/>
                 </field>
 
@@ -191,10 +193,8 @@
                     </div>
                 </xpath>
 
-                <group name="barcode_ecomm_fields" position="after">
-                    <group name="shopify_advanced_sync_settings" string="Advanced Synchronization Settings" invisible="not is_integration_shopify">
-                        <field name="translations_sync" widget="boolean_toggle"/>
-                    </group>
+                <group name="import_settings" position="inside">
+                    <field name="translations_sync" widget="boolean_toggle" invisible="not is_integration_shopify"/>
                 </group>
 
                 <!-- Webhook Security (Advanced) section - only visible in debug mode for Shopify -->

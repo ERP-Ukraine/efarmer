@@ -451,6 +451,20 @@ class GraphQLTemplate:
         allocatedAmountSet {
             %s
         }
+        discountApplication {
+            ... on DiscountCodeApplication {
+                code
+            }
+            ... on AutomaticDiscountApplication {
+                title
+            }
+            ... on ManualDiscountApplication {
+                title
+            }
+            ... on ScriptDiscountApplication {
+                title
+            }
+        }
     """ % MONEY_BAG_BODY
 
     SELECTED_OPTION_BODY = """
@@ -631,15 +645,23 @@ class GraphQLTemplate:
         title
         code
         carrierIdentifier
+        originalPriceSet {
+            %s
+        }
         currentDiscountedPriceSet {
             %s
         }
         taxLines {
             %s
         }
+        discountAllocations {
+            %s
+        }
     """ % (
         MONEY_BAG_BODY,
+        MONEY_BAG_BODY,
         TAX_LINE_BODY,
+        DISCOUNT_ALLOCATION_BODY,
     )
 
     CUSTOMER_BODY = """
@@ -840,6 +862,11 @@ class GraphQLTemplate:
         recommendation
     """
 
+    ORDER_CUSTOM_ATTRIBUTE_BODY = """
+        key
+        value
+    """
+
     ORDER_BODY = """
         id
         name
@@ -873,6 +900,7 @@ class GraphQLTemplate:
         canMarkAsPaid
         paymentGatewayNames
         billingAddressMatchesShippingAddress
+        poNumber
         publication {
             %s
         }
@@ -911,6 +939,9 @@ class GraphQLTemplate:
         transactions(first: 10) {
             %s
         }
+        customAttributes {
+            %s
+        }
     """ % (
         PUBLICATION_BODY,
         ORDER_RISK_SUMMARY_BODY,
@@ -923,6 +954,7 @@ class GraphQLTemplate:
         MAILING_ADDRESS_BODY,
         SHIPPING_LINE_BODY,
         ORDER_TRANSACTION_BODY,
+        ORDER_CUSTOM_ATTRIBUTE_BODY,
     )
 
     ORDER_GET_TAXES_BODY = """
@@ -933,18 +965,24 @@ class GraphQLTemplate:
         }
         shippingLines(first: 5) {
             nodes {
-                %s
+                id
+                taxLines {
+                    %s
+                }
             }
         }
-        lineItems(first: 250) {
+        lineItems(first: 10) {
             nodes {
-                %s
+                id
+                taxLines {
+                    %s
+                }
             }
         }
     """ % (
         TAX_LINE_BODY,
-        SHIPPING_LINE_BODY,
-        LINE_ITEM_BODY,
+        TAX_LINE_BODY,
+        TAX_LINE_BODY,
     )
 
     ORDER_GET_PAYMENT_METHODS_BODY = """

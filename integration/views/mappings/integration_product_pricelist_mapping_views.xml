@@ -11,20 +11,6 @@
                     <field name="integration_id"/>
                     <field name="external_pricelist_id" domain="[('integration_id', '=', integration_id)]"/>
                     <field name="pricelist_id"/>
-                </list>
-            </field>
-        </record>
-
-        <record id="integration_product_pricelist_mapping_view_tree_lite" model="ir.ui.view">
-            <field name="name">integration.product.pricelist.mapping.view.list.lite</field>
-            <field name="model">integration.product.pricelist.mapping</field>
-            <field name="priority">20</field>
-            <field name="arch" type="xml">
-                <list editable="bottom">
-                    <field name="id" groups="base.group_no_one"/>
-                    <field name="integration_id" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
-                    <field name="external_pricelist_id" domain="[('integration_id', '=', integration_id)]"/>
-                    <field name="pricelist_id"/>
                     <button name="import_special_prices_mapping"
                             type="object"
                             string="Synchronize"

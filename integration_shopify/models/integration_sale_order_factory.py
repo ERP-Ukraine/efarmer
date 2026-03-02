@@ -98,6 +98,40 @@ class IntegrationSaleOrderFactory(models.TransientModel):
 
         return order
 
+    def _prepare_order_discount_line_vals(self, order, line_data, product=None):
+        """
+        When multiple_discount_lines is enabled for Shopify, return one set of vals per
+        coupon/discount allocation so that the base loop places each discount line
+        immediately after its corresponding product or delivery line.
+        When disabled, delegates to the base connector (one aggregate line per line).
+        """
+        integration = self.integration_id
+        if not integration.is_integration_shopify or not integration.multiple_discount_lines:
+            return super()._prepare_order_discount_line_vals(order, line_data, product=product)
+
+        allocations = line_data.get('discount', {}).get('discount_allocations', [])
+        if not allocations:
+            return []
+
+        result = []
+        for allocation in allocations:
+            if not allocation.get('discount_amount'):
+                continue
+
+            allocation_line_data = dict(line_data, discount={
+                'discount_amount': allocation['discount_amount'],
+                'discount_amount_tax_incl': allocation.get('discount_amount_tax_incl', 0),
+            })
+            for vals in super()._prepare_order_discount_line_vals(
+                order, allocation_line_data, product=product
+            ):
+                code = allocation.get('code', '')
+                if code:
+                    vals['name'] = f'{vals["name"]} (CODE: {code})'
+                result.append(vals)
+
+        return result
+
     def _post_create_order(self, order: models.Model, order_data: Dict):
         """
         Update order fields based on meta field mappings from the integration.

@@ -79,22 +79,29 @@ class ProductPricelist(models.Model):
                 ('pricelist_id', 'in', active_pricelist_ids),
             ])
 
-            # Skip previously imported items
-            item_ids = all_item_ids.browse()
+            # Skip previously imported items.
+            # Newly created items (create_date == write_date) that already have an external
+            # mapping record were imported from the external system, not created locally, so
+            # we must not re-export them.
             integration_id = integration.id
-            cursor = self.env.cr
+            newly_created_ids = [
+                rec.id for rec in all_item_ids if rec.create_date == rec.write_date
+            ]
 
-            check_query = """
-                SELECT id from integration_product_pricelist_item_external
-                WHERE integration_id = %s AND item_id = %s
-                LIMIT 1
-            """
-            for rec in all_item_ids:
-                if rec.create_date == rec.write_date:
-                    cursor.execute(check_query, (integration_id, rec.id))
-                    if cursor.fetchone():
-                        continue
-                item_ids |= rec
+            already_mapped_ids = set()
+            if newly_created_ids:
+                self.env.cr.execute("""
+                    SELECT item_id
+                    FROM integration_product_pricelist_item_external
+                    WHERE integration_id = %s
+                      AND item_id = ANY(%s)
+                """, (integration_id, newly_created_ids))
+                already_mapped_ids = {row[0] for row in self.env.cr.fetchall()}
+
+            item_ids = all_item_ids.filtered(
+                lambda rec: rec.id not in already_mapped_ids
+                or rec.create_date != rec.write_date
+            )
 
             if not item_ids:
                 # If not any changed items, try to find at least one product template

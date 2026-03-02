@@ -60,12 +60,15 @@ if records:
                 <separator/>
                 <filter string="With Bill of Materials" name="with_bom" domain="[('bom_ids', '!=', False)]"/>
                 <separator/>
-                <filter string="E-Commerce Store(s) set (on all variants)" name="all_integrations_set" domain="[('integration_ids', '!=', False)]"/>
-                <filter string="No E-Commerce Store(s) set (on any variant)" name="no_integrations_set" domain="[('integration_ids', '=', False)]"/>
-                <filter string="E-Commerce Store(s) set (on some variants)" name="partial_integrations_set" domain="[('integration_ids', '=', -1)]"/>
+                <filter string="Store(s) set (on all variants)" name="all_integrations_set" domain="[('integration_ids', '!=', False)]"/>
+                <filter string="No Store(s) set (on any variant)" name="no_integrations_set" domain="[('integration_ids', '=', False)]"/>
+                <filter string="Store(s) set (on some variants)" name="partial_integrations_set" domain="[('integration_ids', '=', -1)]"/>
                 <separator/>
-                <filter string="Do not sync with E-Commerce Stores" name="exclude_from_synchronization" domain="[('exclude_from_synchronization', '=', True)]"/>
-                <filter string="Do not sync stock with E-Commerce Stores" name="exclude_from_synchronization_stock" domain="[('exclude_from_synchronization_stock', '=', True)]"/>
+                <filter string="Mapped to Store(s)" name="has_mapping" domain="[('integration_mapping_ids', '!=', False)]"/>
+                <filter string="Not Mapped to any Store" name="no_mapping" domain="[('integration_mapping_ids', '=', False)]"/>
+                <separator/>
+                <filter string="Do not sync with Stores" name="exclude_from_synchronization" domain="[('exclude_from_synchronization', '=', True)]"/>
+                <filter string="Do not sync stock with Stores" name="exclude_from_synchronization_stock" domain="[('exclude_from_synchronization_stock', '=', True)]"/>
             </xpath>
         </field>
     </record>

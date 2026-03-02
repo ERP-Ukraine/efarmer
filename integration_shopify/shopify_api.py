@@ -66,7 +66,6 @@ REQUIRED_SCOPES = (
     'write_translations',
     'read_files',
     'write_files',
-    'read_shopify_payments_payouts',
 )
 
 _logger = logging.getLogger(__name__)
@@ -864,18 +863,19 @@ class ShopifyAPIClient(AbsApiClient):
 
         return order.to_odoo_format()
 
-    @add_dynamic_kwargs
     @check_scope(
         'read_orders',
         'read_merchant_managed_fulfillment_orders',
     )
-    def parse_order(self, input_file: dict, **kw) -> dict:
+    def parse_order(self, input_file: dict) -> dict:
         _logger.info('Shopify "%s": parse_order() from input file.', self._integration_name)
 
         order = self.gql.Order.set(**input_file)
 
         result = order.parse(
             use_customer_currency=self._settings['use_customer_currency'],
+            personal_id_additional_field_name=self._settings.get('personal_id_additional_field_name', ''),
+            vat_number_additional_field_name=self._settings.get('vat_number_additional_field_name', ''),
         )
 
         return result
@@ -955,7 +955,7 @@ class ShopifyAPIClient(AbsApiClient):
 
                 for tax in taxes:
                     result.add(
-                        tax.to_odoo_format(taxes_included=record.is_taxable)
+                        tax.to_odoo_format(taxes_included=record.taxes_included_in_price)
                     )
 
             if (len(orders) < Order._request_limit) or not Order.cursor:
@@ -1323,11 +1323,7 @@ class ShopifyAPIClient(AbsApiClient):
 
         raise ShopifyApiError(response.text)
 
-    @not_implemented
-    def get_products_for_accessories(self):
-        return [], {}
-
-    @check_scope('read_inventory')
+    @check_scope('read_products', 'read_inventory')
     def get_stock_levels(self, external_location_id: str) -> dict:
         _logger.info('Shopify "%s": get_stock_levels(%s)', self._integration_name, external_location_id)
 

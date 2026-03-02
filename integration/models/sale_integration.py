@@ -206,8 +206,12 @@ class SaleIntegration(models.Model):
         related='receive_orders_cron_id.active',
         readonly=False,
         help=(
-            'Enable this option to import orders from the connected E-Commerce System. '
-            'Orders will only be imported when this option is enabled AND the integration is active.'
+            'Enable this option to automatically import new orders from the connected '
+            'E-Commerce System via a scheduled job. '
+            'Orders are only imported when this option is enabled AND the integration is active.\n\n'
+            'Note: This setting also controls webhook processing for already-imported orders. '
+            'When disabled, incoming webhook events (e.g. order fulfillments, payments, '
+            'cancellations) will not be applied — even for orders that already exist in Odoo.'
         ),
     )
     export_template_job_enabled = fields.Boolean(
@@ -757,6 +761,16 @@ class SaleIntegration(models.Model):
             'discount is added as a separate line item for every product that requires a discount. '
             'If disabled, the connector calculates the discount percentage and applies it directly '
             'to the corresponding product\'s order line by utilizing the Discount field.'
+        ),
+    )
+
+    multiple_discount_lines = fields.Boolean(
+        string='Add Multiple Discount Lines (per Discount/Coupon)',
+        default=False,
+        help=(
+            'When enabled, each discount coupon or promotion is added as a separate discount '
+            'line on the order, with the coupon code shown in the line description. '
+            'Requires "Add Discounts as a Separate Order Lines" to be enabled.'
         ),
     )
 
@@ -2612,106 +2626,6 @@ class SaleIntegration(models.Model):
     def action_import_master_data(self):
         return self.integrationApiImportData()
 
-    def action_import_related_products(self):
-        adapter = self.adapter
-        # Fetch data.
-        adapter_products, template_router = adapter.get_products_for_accessories()
-
-        model_name = 'product.template'
-        ProductTemplateExternal = self.env[f'integration.{model_name}.external']
-        ProductTemplateMapping = self.env[f'integration.{model_name}.mapping']
-        mappings = self.env[f'integration.{model_name}.mapping']
-        internal_field_name, external_field_name = ProductTemplateMapping._mapping_fields
-        MessageWizard = self.env['message.wizard']
-
-        # Create / update external and mappings.
-        for product in adapter_products:
-            name = product['name']
-            # Get translation if name contains different languages
-            if isinstance(name, dict) and name.get('language'):
-                original, __ = ProductTemplateExternal.get_original_and_translation(name, self)
-
-                if original:
-                    name = original
-
-            external_record = ProductTemplateExternal.create_or_update({
-                'integration_id': self.id,
-                'code': product['id'],
-                'name': name,
-                'external_reference': product.get('external_reference'),
-            })
-            external_record._post_import_external_one(product)
-
-            mapping = ProductTemplateMapping.search([
-                ('integration_id', '=', self.id),
-                (external_field_name, '=', external_record.id),
-            ])
-            if not mapping:
-                mapping = ProductTemplateMapping.create({
-                    'integration_id': self.id,
-                    external_field_name: external_record.id,
-                })
-
-            mappings |= mapping
-
-        if not mappings:
-            return MessageWizard.create_and_run(_('No related products to synchronize.'))
-
-        mappings_to_fix = mappings.filtered(lambda x: not getattr(x, internal_field_name))
-
-        # Fix unmapped records if necessary. Format message.
-        if mappings_to_fix:
-            message = _(
-                'Some of the related products are not yet synchronised to Odoo or not yet mapped '
-                'to corresponding Odoo Products so it is not possible to import them. '
-                'Please, make sure to launch products synchronisation again and make sure '
-                'to map products in menu "Mappings → Products" '
-                '(or create them in Odoo by clicking "Import Products" button in the same menu):'
-            )
-            mapping_names = mappings_to_fix.mapped(f'{external_field_name}.display_name')
-
-            html_message = f'<div>{message}</div>'
-            html_names = f'<ul>{"".join([f"<li>{x}</li>" for x in mapping_names])}</ul>'
-
-            message_wizard = MessageWizard.create({
-                'message': str(mappings_to_fix.ids),
-                'export_html': html_message + '<br/>' + html_names,
-            })
-            return message_wizard.run_wizard('integration_message_wizard_form_mapping_product')
-
-        # Assign related products to the parent product.
-        templates = self.env[model_name]
-        for template_external_id, related_products_ids in template_router.items():
-            template = templates.from_external(self, template_external_id, False)
-
-            optional_product_ids = self.env[model_name]
-            for product_id in related_products_ids:
-                optional_product_ids |= templates.from_external(self, product_id, False)
-
-            template.optional_product_ids = [(6, 0, optional_product_ids.ids)]
-            templates |= template
-
-        # Summary. Format message.
-        mapping_names = list()
-        base_url = self.get_base_url_config()
-        pattern = (
-            '<a href="%s/web#id=%s&model=%s&view_type=form" target="_blank">%s</a>'
-        )
-
-        def _format_optional_products(template):
-            names = template.optional_product_ids.mapped('name')
-            html_names = f'<ul>{"".join([f"<li>{x}</li>" for x in names])}</ul>'
-            template_name = pattern % (base_url, template.id, model_name, template.name)
-            return f'<li>{template_name + html_names}</li>'
-
-        for template in templates:
-            mapping_names.append(
-                _format_optional_products(template)
-            )
-
-        message = _('The Products were synchronized:\n%s') % (f'<ul>{"".join(mapping_names)}</ul>')
-        return MessageWizard.create_html_and_run(message)
-
     @expose_for_testing('Import Delivery (Shipping) Methods')
     def integrationApiImportDeliveryMethods(self, remove_existing_records=False):
         external_records, adapter_external_data = self._import_external(
@@ -3677,7 +3591,7 @@ class SaleIntegration(models.Model):
                         # Try auto-mapping (non-critical, errors are collected)
                         try:
                             external_template.try_map_template_and_variants(template_data)
-                        except (es.ApiImportError, es.NotMappedToExternal, es.NotMappedFromExternal) as e:
+                        except (es.ApiImportError, es.NotMappedToExternal, es.NotMappedFromExternal, es.NoExternal) as e:  # NOQA
                             error_message = _('Errors when trying to auto-match products:\n%s') % str(e)
                             errors.append(error_message)
                             failed_external_template_ids.append(template_id)
@@ -3757,8 +3671,13 @@ class SaleIntegration(models.Model):
             f'force={force}',
         )
 
-        # Determine the `force_export` flag
-        force_export = force or not template.get_external_code(self.id)
+        # Determine the `force_export` and `first_time_export` flags
+        # - first_time_export: product has no external code yet (never exported before)
+        #   Controls field mapping filtering: all mappings are included on first export
+        # - force_export: manual trigger or first-time export
+        #   Controls auxiliary exports (prices, images, inventory) and FORCE_PRODUCT_EXPORT script var
+        first_time_export = not template.get_external_code(self.id)
+        force_export = force or first_time_export
 
         context = {
             'company_id': self.company_id.id,
@@ -3773,6 +3692,7 @@ class SaleIntegration(models.Model):
             lang=self.get_integration_lang_code(),
             default_integration_id=self.id,
             integration_force_product_export=force_export,
+            integration_first_time_export=first_time_export,
         )
 
         if make_validation:
@@ -4025,9 +3945,53 @@ class SaleIntegration(models.Model):
         raise NotImplementedError
 
     def search_templates_for_specific_prices(self, pricelist_ids=None, item_ids=None):
-        # TODO: use `pricelist_ids`` or 'item_ids' to do search more accurately
+        mapping_domain = [
+            ('integration_id', '=', self.id),
+            ('template_id.active', '=', True),
+        ]
+
+        # No filters — return all mapped templates (e.g. full-catalogue force export or
+        # to_force_sync_pricelist path where item_ids is deliberately cleared).
+        if not item_ids and not pricelist_ids:
+            mapping_ids = self.env['integration.product.template.mapping'].search(mapping_domain)
+            return mapping_ids.mapped('template_id')
+
+        # Resolve the pricelist items we are working with.
+        PricelistItem = self.env['product.pricelist.item']
+        if item_ids:
+            items = PricelistItem.browse(item_ids)
+        else:
+            items = PricelistItem.search([('pricelist_id', 'in', pricelist_ids)])
+
+        if not items:
+            mapping_ids = self.env['integration.product.template.mapping'].search(mapping_domain)
+            return mapping_ids.mapped('template_id')
+
+        # Category-based (2_product_category) and global (3_global) items potentially affect
+        # every product, so fall back to the full template list for safety.
+        applied_on_values = set(items.mapped('applied_on'))
+        if applied_on_values & {'2_product_category', '3_global'}:
+            mapping_ids = self.env['integration.product.template.mapping'].search(mapping_domain)
+            return mapping_ids.mapped('template_id')
+
+        # All items are product/variant-specific — resolve affected templates directly.
+        template_ids = self.env['product.template']
+
+        product_items = items.filtered(lambda x: x.applied_on == '1_product')
+        if product_items:
+            template_ids |= product_items.mapped('product_tmpl_id')
+
+        variant_items = items.filtered(lambda x: x.applied_on == '0_product_variant')
+        if variant_items:
+            template_ids |= variant_items.mapped('product_id.product_tmpl_id')
+
+        if not template_ids:
+            return template_ids
+
+        # Intersect with mapped, active templates only.
         mapping_ids = self.env['integration.product.template.mapping'].search([
             ('integration_id', '=', self.id),
+            ('template_id', 'in', template_ids.ids),
             ('template_id.active', '=', True),
         ])
         return mapping_ids.mapped('template_id')
@@ -4323,8 +4287,19 @@ class SaleIntegration(models.Model):
         self.ensure_one()
         adapter = self.adapter
 
-        code = adapter.export_category(category.to_export_format(self))
-        category.create_mapping(self, code, extra_vals={'name': category.name})
+        data = category.to_export_format(self)
+        code = adapter.export_category(data)
+
+        extra_vals = {'name': category.name}
+        if data.get('parent_id'):
+            parent_external = self.env['integration.ecommerce.product.category.external'].search([
+                ('integration_id', '=', self.id),
+                ('code', '=', str(data['parent_id'])),
+            ], limit=1)
+            if parent_external:
+                extra_vals['parent_id'] = parent_external.id
+
+        category.create_mapping(self, code, extra_vals=extra_vals)
 
         return code
 
@@ -6656,3 +6631,38 @@ class SaleIntegration(models.Model):
             return True, f'Order import job created for order with code={external_order_id}'
 
         return None, None  # Order exists, continue with normal processing
+
+    def build_external_language_translations(self, record: models.Model, field_name: str):
+        """
+        Gets translations of the specified field from the record and maps them to external integration language codes.
+        :param record: Odoo record (e.g., product.template) from which we read the field.
+        :param field_name: Name of the field to translate.
+        :return: Dictionary in format {'language': {'ext_lang_code': 'Value'}}
+        """
+        self.ensure_one()
+
+        # 1. If translations are not needed, return the field value in the store language
+        if not self.is_translations_needed():
+            lang_code = self.get_adapter_lang_code()
+            language = self.env['res.lang'].from_external(self, lang_code)
+            return getattr(record.with_context(lang=language.code), field_name)
+
+        # 2. If translations are needed, convert field into the dict with translations
+        language_mappings = self.env['integration.res.lang.mapping'].search([
+            ('integration_id', '=', self.id),
+        ])
+
+        translations = {}
+        for mapping in language_mappings:
+            odoo_code = mapping.language_id.code
+            external_code = mapping.external_language_id.code
+
+            if field_name:
+                value = getattr(record.with_context(lang=odoo_code), field_name)
+            else:
+                # If field_name is empty, we just want to get the list of languages without actual translations
+                value = ''
+
+            translations[external_code] = value
+
+        return {'language': translations}

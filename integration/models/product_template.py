@@ -756,6 +756,7 @@ class ProductTemplate(models.Model):
             'kits': self._get_kits(integration.id),
             'products': products,
             'variants_count': len(variants),
+            'has_attributes': bool(self.attribute_line_ids.filtered(lambda x: not x.exclude_from_synchronization)),
             'fields': self.calculate_export_fields_data(integration.id),
         }
 

@@ -71,25 +71,7 @@ class IntegrationModelMixin(models.AbstractModel):
 
     def convert_field_translations_to_external(self, integration_id: int, field_name: str):
         integration = self.env['sale.integration'].browse(integration_id)
-
-        # 1. If translations are not needed, return the field value in the store language
-        if not integration.is_translations_needed():
-            return self.get_field_value_in_store_language(integration_id, field_name)
-
-        # 2. If translations are needed, convert field into the dict with translations
-        language_mappings = self.env['integration.res.lang.mapping'].search([
-            ('integration_id', '=', integration_id),
-        ])
-
-        translations = {}
-        for language_mapping in language_mappings:
-            odoo_code = language_mapping.language_id.code
-            value = getattr(self.with_context(lang=odoo_code), field_name)
-
-            external_code = language_mapping.external_language_id.code
-            translations[external_code] = value
-
-        return {'language': translations}
+        return integration.build_external_language_translations(self, field_name)
 
     def get_field_value_in_store_language(self, integration_id: int, field_name: str):
         integration = self.env['sale.integration'].browse(integration_id)

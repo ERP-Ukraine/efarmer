@@ -82,7 +82,8 @@ class IntegrationCatalogExternalLine(models.Model):
 
         items = self.create_price_batches(run_export=False)
 
-        action = self.env.ref('integration_shopify.integration_product_pricelist_batch_action').read()[0]
+        action = self.sudo().env.ref(
+            'integration_shopify.integration_product_pricelist_batch_action').read()[0]
         action['domain'] = [('id', 'in', items.ids)]
 
         return action
