@@ -25,12 +25,18 @@
                     <field name="paid_on_date"/>
                 </xpath>
                 <xpath expr="//field[@name='name']" position="before">
-                    <field name="priority" widget="priority" readonly="1"/>
+                    <field name="priority" widget="priority" readonly="1"
+                    groups="!efarmer_sale_workflow.allow_set_sales_priority_group"/>
+                    <field name="priority" widget="priority" readonly="0"
+                    groups="efarmer_sale_workflow.allow_set_sales_priority_group"/>
                     <span style="margin-left: 10px;"/>
                 </xpath>
                 <xpath expr="//group[@name='sale_shipping']" position="inside">
                     <field name="pick_scheduled_date" readonly="1" />
-                    <field name="planned_shipping_date" readonly="1" />
+                    <field name="planned_shipping_date" readonly="1"
+                    groups="!efarmer_sale_workflow.allow_enter_planned_shipping_date"/>
+                    <field name="planned_shipping_date" readonly="0"
+                    groups="efarmer_sale_workflow.allow_enter_planned_shipping_date"/>
                     <field name="efarmer_confirm_date" readonly="1" />
                 </xpath>
                 <xpath expr="//field[@name='order_line']//list//field[@name='name']" position="before">
@@ -81,30 +87,6 @@
             </field>
         </record>
 
-        <record id="efarmer_sale_workflow.sale_order_view_form" model="ir.ui.view">
-            <field name="name">sale.order.form</field>
-            <field name="model">sale.order</field>
-            <field name="inherit_id" ref="efarmer_sale_workflow.sale_order_view_form_inherit"/>
-            <field name="group_ids" eval="[(4, ref('efarmer_sale_workflow.allow_set_sales_priority_group'))]"/>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='priority']" position="attributes">
-                    <attribute name="readonly">0</attribute>
-                </xpath>
-            </field>
-        </record>
-
-        <record id="sale_order_view_form_planned_shipping_date_edited" model="ir.ui.view">
-            <field name="name">sale.order.planned.shipping.date.edited</field>
-            <field name="model">sale.order</field>
-            <field name="inherit_id" ref="efarmer_sale_workflow.sale_order_view_form_inherit"/>
-            <field name="group_ids" eval="[(4, ref('efarmer_sale_workflow.allow_enter_planned_shipping_date'))]"/>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='planned_shipping_date']" position="attributes">
-                    <attribute name="readonly">0</attribute>
-                </xpath>
-            </field>
-        </record>
-
         <record id="view_sale_order_quotation_efarmer_search" model="ir.ui.view">
             <field name="name">sale.order.quotation.search</field>
             <field name="model">sale.order</field>
@@ -150,14 +132,15 @@
             <field name="inherit_id" ref="sale.view_order_tree"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='name']" position="before">
-                    <field name="priority" readonly="1" optional="show" widget="priority"/>
+                    <field name="priority" readonly="1" optional="show" widget="priority" groups="!efarmer_sale_workflow.allow_set_sales_priority_group"/>
+                    <field name="priority" readonly="0" optional="show" widget="priority" groups="efarmer_sale_workflow.allow_set_sales_priority_group"/>
                 </xpath>
                 <xpath expr="//field[@name='activity_ids']" position="after">
                     <field name="pick_scheduled_date"
                            readonly="1"
                            optional="show"
-                           decoration-danger="state not in ('done', 'cancel') and delivery_state in ('unprocessed', 'partially') and pick_scheduled_date &lt; context_today().strftime('%Y-%m-%d')"
-                           decoration-warning="state not in ('done', 'cancel') and delivery_state in ('unprocessed', 'partially') and pick_scheduled_date &gt;= context_today().strftime('%Y-%m-%d') and pick_scheduled_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')" />
+                           decoration-danger="state not in ('done', 'cancel') and delivery_status in ('unprocessed', 'partially') and pick_scheduled_date &lt; context_today().strftime('%Y-%m-%d')"
+                           decoration-warning="state not in ('done', 'cancel') and delivery_status in ('unprocessed', 'partially') and pick_scheduled_date &gt;= context_today().strftime('%Y-%m-%d') and pick_scheduled_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')" />
                 </xpath>
                 <xpath expr="//field[@name='pick_scheduled_date']" position="before">
                     <field name="paid_on_date"/>
@@ -169,17 +152,6 @@
             </field>
         </record>
 
-        <record id="efarmer_sale_workflow.view_order_tree_inherit" model="ir.ui.view">
-            <field name="name">sale.order.tree</field>
-            <field name="model">sale.order</field>
-            <field name="inherit_id" ref="efarmer_sale_workflow.view_order_tree"/>
-            <field name="group_ids" eval="[(4, ref('efarmer_sale_workflow.allow_set_sales_priority_group'))]"/>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='priority']" position="attributes">
-                    <attribute name="readonly">0</attribute>
-                </xpath>
-            </field>
-        </record>
 
         <record id="efarmer_sale_workflow.view_quotation_tree_inherit" model="ir.ui.view">
             <field name="name">sale.order.tree</field>
@@ -187,36 +159,26 @@
             <field name="inherit_id" ref="sale.view_quotation_tree"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='name']" position="before">
-                    <field name="priority" readonly="1" optional="show" widget="priority"/>
+                    <field name="priority" readonly="1" optional="show" widget="priority" groups="!efarmer_sale_workflow.allow_set_sales_priority_group"/>
+                    <field name="priority" readonly="0" optional="show" widget="priority" groups="efarmer_sale_workflow.allow_set_sales_priority_group"/>
                 </xpath>
                 <xpath expr="//field[@name='activity_ids']" position="after">
                     <field name="pick_scheduled_date"
                            readonly="1"
                            optional="show"
-                           decoration-danger="state not in ('done', 'cancel') and delivery_state in ('unprocessed', 'partially') and pick_scheduled_date &lt; context_today().strftime('%Y-%m-%d')"
-                           decoration-warning="state not in ('done', 'cancel') and delivery_state in ('unprocessed', 'partially') and pick_scheduled_date &gt;= context_today().strftime('%Y-%m-%d') and pick_scheduled_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')" />
+                           decoration-danger="state not in ('done', 'cancel') and delivery_status in ('unprocessed', 'partially') and pick_scheduled_date &lt; context_today().strftime('%Y-%m-%d')"
+                           decoration-warning="state not in ('done', 'cancel') and delivery_status in ('unprocessed', 'partially') and pick_scheduled_date &gt;= context_today().strftime('%Y-%m-%d') and pick_scheduled_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')" />
                 </xpath>
                 <xpath expr="//field[@name='pick_scheduled_date']" position="before">
                     <field name="paid_on_date"/>
                 </xpath>
-                <xpath expr="//field[@name='delivery_state']" position="after">
+                <xpath expr="//field[@name='invoice_status']" position="after">
                     <field name="planned_shipping_date" readonly="1" optional="hide"/>
                     <field name="efarmer_confirm_date" readonly="1" optional="hide"/>
                 </xpath>
             </field>
         </record>
 
-        <record id="efarmer_sale_workflow_view_quotation_inherit_tree" model="ir.ui.view">
-            <field name="name">sale.order.tree</field>
-            <field name="model">sale.order</field>
-            <field name="inherit_id" ref="efarmer_sale_workflow.view_quotation_tree_inherit"/>
-            <field name="group_ids" eval="[(4, ref('efarmer_sale_workflow.allow_set_sales_priority_group'))]"/>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='priority']" position="attributes">
-                    <attribute name="readonly">0</attribute>
-                </xpath>
-            </field>
-        </record>
         <record id="efarmer_sale_line_menu_inherit_tree" model="ir.ui.view">
             <field name="name">sale.order.line.menu.tree</field>
             <field name="model">sale.order.line</field>

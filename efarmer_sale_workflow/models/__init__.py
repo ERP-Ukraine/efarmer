@@ -2,7 +2,7 @@
 from . import res_company
 from . import res_config_settings
 from . import account_invoice
-from . import account_intrastat_report
+# from . import account_intrastat_report # TODO: uncomment when it's migrated
 from . import delivery_terms
 from . import efarmer_client_type
 from . import product_category

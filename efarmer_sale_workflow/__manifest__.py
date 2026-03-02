@@ -26,7 +26,7 @@
         'sales_team',
         'account',
         'account_intrastat',
-        'efarmer_product',
+        # 'efarmer_product', #TODO: uncomment when it's migrated
         'stock_delivery',
         'sale_order_line_menu',
     ],
@@ -48,7 +48,6 @@
         'reports/device_label_70x35_US.xml',
         'views/res_config_settings_views.xml',
         'views/res_partner_views.xml',
-        'views/stock_location_views.xml',
         'views/efarmer_client_type_views.xml',
         'views/efarmer_sale_workflow_menus.xml',
         'views/product_template_views.xml',
@@ -58,7 +57,7 @@
         'views/delivery_terms_views.xml',
         'views/account_move_views.xml',
         'views/stock_picking_views.xml',
-        'views/stock_production_lot_views.xml',
+        'views/stock_lot_views.xml',
         'wizards/product_variant_replacement_wizard.xml',
     ],
 

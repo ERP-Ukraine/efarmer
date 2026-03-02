@@ -15,10 +15,10 @@ class AccountMove(models.Model):
     _current_rate_pln = fields.Boolean(string='Current Rate PLN', compute='_get_current_rate_pln',)
     is_manually_current_rate = fields.Boolean('Manually Current Rate')
     current_rate_pln = fields.Float(string='Current Rate PLN', digits=(16, 4))
-    product_vat_id = fields.Many2one(
-        comodel_name='product.vat',
-        string='VAT ID',
-    )
+    # product_vat_id = fields.Many2one( # TODO: uncomment when it's migrated
+    #     comodel_name='product.vat',
+    #     string='VAT ID',
+    # )
 
     def get_report_vat_text_line(self):
         self.ensure_one()

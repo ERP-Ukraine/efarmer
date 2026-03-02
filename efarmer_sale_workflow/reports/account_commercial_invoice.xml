@@ -10,11 +10,11 @@
 
 <template id="report_account_commercial_invoice_document" inherit_id="account.report_invoice_document" primary="True">
     <!-- Change the header. -->
-    <xpath expr="//div[hasclass('page')]/h2" position="replace">
-        <h2>
+    <xpath expr="//t[@t-set='layout_document_title']" position="replace">
+        <t t-set="layout_document_title">
             <span>Сommercial Invoice # </span>
-            <span t-field="doc.name"/>
-        </h2>
+            <span t-if="o.name and o.name != '/'" t-field="o.name">INV/2023/0001</span>
+        </t>
     </xpath>
     <!-- Remove "Please use the following communication for your payment". -->
     <xpath expr="//span[@t-field='o.payment_reference']/../.." position="replace"/>
@@ -33,7 +33,7 @@
         <div t-if="o.partner_id.email">Email: <span t-field="o.partner_id.email"/></div>
     </xpath>
     <!-- Remove the payment term notes. -->
-    <xpath expr="//p[@name='payment_term']" position="replace">
+    <xpath expr="//span[@name='payment_term']" position="replace">
         <p t-if="o.invoice_payment_term_id" name="payment_term">
           <span>Payment Terms: <span t-field="o.invoice_payment_term_id.name"/></span>
         </p>
