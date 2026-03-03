@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_project_capitalization_user,Project Capitalization User,model_project_capitalization,base.group_user,1,1,1,0
+access_project_capitalization_admin,Project Capitalization Admin,model_project_capitalization,base.group_system,1,1,1,1
+access_project_capitalization_line_user,user project_capitalization User,model_project_capitalization_line,base.group_user,1,1,1,0
+access_project_capitalization_line_admin,admin project_capitalization Admin,model_project_capitalization_line,base.group_system,1,1,1,1
