@@ -71,6 +71,7 @@ class TestPrintNodeStockPicking(TestPrintNodeCommon):
                 test_objects_for_print,
                 copies=1,
                 options={},
+                data={'source_document': []},
             )
 
     def test_scenario_print_document_on_picking_status_change(self):
@@ -95,6 +96,7 @@ class TestPrintNodeStockPicking(TestPrintNodeCommon):
                 stock_picking,
                 copies=1,
                 options={},
+                data={'source_document': stock_picking.mapped('name')},
             )
 
     def test_scenario_print_packages_label_on_transfer(self):
@@ -102,9 +104,15 @@ class TestPrintNodeStockPicking(TestPrintNodeCommon):
         Test _scenario_print_packages_label_on_transfer method
         """
 
-        self.test_stock_picking.move_line_ids.update({
-            'result_package_id': self.package.id,
+        history = self.env['stock.package.history'].create({
+            'company_id': self.test_stock_picking.company_id.id,
+            'package_id': self.package.id,
+            'package_name': self.package.name,
+            'move_line_ids': [(6, 0, self.test_stock_picking.move_line_ids.ids)],
+            'picking_ids': [(4, self.test_stock_picking.id)],
         })
+
+        self.test_stock_picking.package_history_ids = [(4, history.id)]
 
         with self.cr.savepoint(), patch.object(
                 type(self.env['printnode.printer']),
@@ -120,4 +128,5 @@ class TestPrintNodeStockPicking(TestPrintNodeCommon):
                 self.package,
                 copies=1,
                 options={},
+                data={'source_document': self.test_stock_picking.mapped('name')},
             )

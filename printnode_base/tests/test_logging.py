@@ -67,7 +67,7 @@ class TestPrintNodeLogger(TestPrintNodeCommon):
             ids_list=[self.stock_picking.id, self.stock_picking_2.id],
         )
 
-        self.assertEqual(self.mock_write_logs.call_count, 4)
+        self.assertEqual(self.mock_write_logs.call_count, 2)
 
         # Case 2: UserError expected
         self.mock_scenario_get_printer.side_effect = UserError("Test UserError")

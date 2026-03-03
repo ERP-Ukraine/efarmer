@@ -120,10 +120,10 @@ class TestPrintNodeScenario(TestPrintNodeCommon):
         Test for correct finding all scenarios and printing reports for each of them
         """
 
-        company = self.env.company = self.company
+        company = self.company
         company.printnode_enabled = False
 
-        user = self.env.user = self.user
+        user = self.user
         user.group_ids = None
         user.printnode_enabled = False
 
@@ -135,6 +135,8 @@ class TestPrintNodeScenario(TestPrintNodeCommon):
 
         self.scenario.active = True
         self.scenario.report_id = self.so_report
+        self.scenario.printer_id = self.printer
+        self.scenario.printer_bin = self.printer_bin
 
         # Expected to call default printnode_print method
         self.scenario_action.code = 'print_document_on_sales_order'
@@ -151,6 +153,7 @@ class TestPrintNodeScenario(TestPrintNodeCommon):
                 self.sale_order,
                 copies=1,
                 options={'bin': self.printer_bin.name},
+                data={'source_document': self.sale_order.mapped('name')},
             )
 
         # Expected to call a special method for printing

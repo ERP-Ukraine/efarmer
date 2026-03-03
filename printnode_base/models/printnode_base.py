@@ -2,11 +2,14 @@
 # See LICENSE file for full copyright and licensing details.
 
 from odoo import api, models, _
+from odoo.tools.misc import str2bool
 
 
 class PrintnodeBase(models.AbstractModel):
+    """ Direct Print Base
+    """
     _name = 'printnode.base'
-    _description = 'Printnode Base'
+    _description = 'Direct Print Base'
 
     @api.model
     def get_status(self, only_releases=False):
@@ -20,6 +23,7 @@ class PrintnodeBase(models.AbstractModel):
                 'releases': self.env['printnode.release'].get_releases(),
                 'dpc_company_enabled': self.env.company.printnode_enabled,
                 'dpc_user_enabled': self.env.user.printnode_enabled,
+                'is_advertising_disabled': self._get_advertising_disabled(),
             }
 
         return {
@@ -31,7 +35,14 @@ class PrintnodeBase(models.AbstractModel):
             ],
             'releases': self.env['printnode.release'].get_releases(),
             'workstations': self.env['printnode.workstation'].search_read([]),
+            'is_advertising_disabled': self._get_advertising_disabled(),
         }
+
+    def _get_advertising_disabled(self):
+        param = self.env['ir.config_parameter'].sudo().get_param(
+            'printnode_base.disable_advertising', 'False'
+        )
+        return str2bool(param)
 
     def _get_workstation_devices(self):
         """

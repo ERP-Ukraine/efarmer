@@ -5,8 +5,10 @@ from odoo import api, models, fields
 
 
 class PrintnodeWorkstation(models.Model):
+    """ Direct Print Workstation
+    """
     _name = 'printnode.workstation'
-    _description = 'Printnode Workstation'
+    _description = 'Direct Print Workstation'
 
     name = fields.Char(
         string='Workstation Name',

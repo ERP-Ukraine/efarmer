@@ -57,6 +57,10 @@ Change Log
 
 |
 
+* 1.3.5 (2026-03-02)
+    - [IMP] Improved compatibility with Odoo 19 and integration with Direct Print.
+    - [FIX] Fixed minor internal issues to improve overall reliability.
+
 * 1.3.4 (2026-01-28)
     - Added support for Data Matrix barcodes
 

@@ -56,7 +56,7 @@ class PrintnodePrintStockMoveReportsWizard(models.TransientModel):
     def _default_stock_move_record_line_ids(self):
         picking_id = self.env['stock.picking'].browse(self.env.context.get('active_id'))
 
-        record_ids = picking_id.move_ids_without_package
+        record_ids = picking_id.move_ids
 
         return [
             (0, 0, {
@@ -70,7 +70,7 @@ class PrintnodePrintStockMoveReportsWizard(models.TransientModel):
     def _default_stock_move_line_record_line_ids(self):
         picking_id = self.env['stock.picking'].browse(self.env.context.get('active_id'))
 
-        record_ids = picking_id.move_line_ids_without_package
+        record_ids = picking_id.move_line_ids
 
         return [
             (0, 0, {

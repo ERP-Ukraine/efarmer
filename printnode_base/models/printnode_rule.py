@@ -8,7 +8,7 @@ class PrintNodeRule(models.Model):
     """ Rule
     """
     _name = 'printnode.rule'
-    _description = 'PrintNode Rule'
+    _description = 'Direct Print Rule'
 
     active = fields.Boolean(
         'Active', default=True,

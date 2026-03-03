@@ -57,7 +57,7 @@ class TestPrintNodeCommon(common.TransactionCase):
         self.user = self.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Direct Print User',
             'company_id': self.company.id,
-            'login': 'user',
+            'login': 'user_pn',
             'email': 'user@print.node',
             'group_ids': [(6, 0, [
                 self.env.ref(SECURITY_GROUP).id,
@@ -164,7 +164,7 @@ class TestPrintNodeCommon(common.TransactionCase):
 
         # Scenarios
         self.scenario_action = self.env['printnode.scenario.action'].create({
-            'name': "Test Printnode Scenario Action",
+            'name': "Test Direct Print Scenario Action",
             'code': 'test_scenario_action',
             'model_id': self.so_model.id,
             'reports_model_id': self.so_model.id,

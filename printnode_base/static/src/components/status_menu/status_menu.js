@@ -55,21 +55,23 @@ export class DirectPrintStatusMenu extends Component {
 
         onWillRender(async () => {
             if (!this.state.loaded) {
+                const data = await this.orm.call(
+                    "printnode.base",
+                    "get_status",
+                    [],
+                    { "only_releases": true });
+
+                this.state.dpc_company_enabled = data.dpc_company_enabled;
+                this.state.dpc_user_enabled = data.dpc_user_enabled;
+                this.state.devices = data.devices;
+                this.state.workstations = data.workstations;
+                this.state.isAdvertisingDisabled = true;
+
                 this.state.isManager = await this.user.hasGroup(MANAGER_GROUP);
-
                 if (this.state.isManager) {
-                    const data = await this.orm.call(
-                        "printnode.base",
-                        "get_status",
-                        [],
-                        { "only_releases": true });
-
                     this.state.limits = data.limits;
                     this.state.releases = data.releases;
-                    this.state.devices = data.devices;
-                    this.state.workstations = data.workstations;
-                    this.state.dpc_company_enabled = data.dpc_company_enabled;
-                    this.state.dpc_user_enabled = data.dpc_user_enabled;
+                    this.state.isAdvertisingDisabled = data.is_advertising_disabled;
                 }
 
                 this.state.loaded = true;

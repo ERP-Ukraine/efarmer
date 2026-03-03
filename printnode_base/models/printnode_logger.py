@@ -17,7 +17,7 @@ class PrintNodeLoggerMixin(models.AbstractModel):
     To add logging to a model, first inherit from this model: _inherit = ['printnode.logger.mixin']
     """
     _name = 'printnode.logger.mixin'
-    _description = 'PrintNode logger'
+    _description = 'Direct Print logger'
 
     def printnode_logger(self, log_type, log_string, **kwargs):
         """
@@ -44,7 +44,7 @@ class PrintNodeLoggerMixin(models.AbstractModel):
         logging_object = {
             'name': f"printnode_base.{log_type_id.name}",
             'type': 'server',
-            'dbname': self._cr.dbname,
+            'dbname': self.env.cr.dbname,
             'level': 'DEBUG',
             'message': str(log_string),
             'path': path,
@@ -52,7 +52,7 @@ class PrintNodeLoggerMixin(models.AbstractModel):
             'line': line
         }
 
-        self._write_logs(logging_object, self._cr.dbname)
+        self._write_logs(logging_object, self.env.cr.dbname)
         return True
 
     def _write_logs(self, logging_object, db_name):
@@ -81,10 +81,10 @@ class PrintNodeLoggerMixin(models.AbstractModel):
 
 
 class PrintNodeLogType(models.Model):
-    """PrintNode logging types entity
+    """Direct Print logging types entity
     """
     _name = 'printnode.log.type'
-    _description = 'PrintNode Log Types'
+    _description = 'Direct Print Log Types'
 
     active = fields.Boolean(
         string='Active',

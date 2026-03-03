@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_company_form" model="ir.ui.view">
+            <field name="name">Settings</field>
+            <field name="model">res.company</field>
+            <field name="priority" eval="40" />
+            <field name="inherit_id" ref="base.view_company_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//notebook/page[@name='general_info']" position="after">
+                    <page string="Direct Print Settings" name="dpc_settings">
+                        <group>
+                            <!-- Printing Settings -->
+                            <h2 class="mt-3 mb-3" colspan="2">Printing Settings</h2>
+                            <group>
+                                <field name="printnode_enabled" widget="boolean_toggle" options="{'autosave': false}"/>
+                                <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                                <p class="mb-0">
+                                    <small>
+                                        Print reports immediately via Direct Print service (otherwise it would be downloaded)
+                                    </small>
+                                </p>
+
+                                <field name="printnode_printer"
+                                       options="{'no_open': [('printnode_enabled', '=', False)], 'autosave': false}"
+                                       readonly="printnode_enabled == False" />
+                            </group>
+
+                            <group>
+                                <div>
+                                    <div class="text-muted">
+                                        Other Settings
+                                    </div>
+                                    <div class="mt4">
+                                        <button name="%(printnode_base.printnode_scenarios)d" type="action" class="btn-link" icon="fa-arrow-right" string="Configure Print Scenarios" />
+                                    </div>
+                                    <div class="mt4">
+                                        <button name="%(printnode_base.printnode_rules)d" type="action" class="btn-link" icon="fa-arrow-right" string="Configure User Print Rules" />
+                                    </div>
+                                    <div class="mt4">
+                                        <button name="%(printnode_base.printnode_policy_report)d" type="action" class="btn-link" icon="fa-arrow-right" string="Define Report Settings" />
+                                    </div>
+                                </div>
+                            </group>
+
+                            <!-- Shipping Labels Printing Settings -->
+                            <h2 class="mt-5 mb-3" colspan="2">Shipping Labels Printing Settings</h2>
+                            <div colspan="2">
+                                <h3 class="mb-1">Basic Setup</h3>
+                                <p class="text-muted">Only these settings are required for the basic configuration.</p>
+                            </div>
+                            <group colspan="2">
+                                <field name="auto_send_slp" readonly="printnode_enabled == False" widget="boolean_toggle" options="{'autosave': false}"/>
+                                <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                                <p class="mb-2">
+                                    <small>
+                                        When enabled, shipping labels will automatically print when you validate a delivery order.
+                                        The system first checks your personal printer setting. If none is set, it will use the default
+                                        printer selected below. If neither printer is set, you will receive an error.
+                                        Select a fallback printer to be used when you have not set a personal shipping label printer
+
+                                    </small>
+                                </p>
+                                <field name="company_label_printer"
+                                       options="{'no_open': [('printnode_enabled', '=', False)], 'avosave': false}"
+                                       readonly="auto_send_slp == False" />
+                            </group>
+                            <div colspan="2">
+                                <h3 class="mb-1 mt-3">Advanced Options (Optional)</h3>
+                                <p class="text-muted">These settings provide extra functionality for more specific scenarios</p>
+                            </div>
+                            <group colspan="2">
+                                <field name="print_sl_by_keyword"
+                                       readonly="auto_send_slp == False"
+                                       widget="boolean_toggle"
+                                       options="{'autosave': false}"/>
+                                <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                                <p class="mb-2">
+                                    <small>
+                                        By default, the system extracts tracking numbers from the delivery order and searches
+                                        for messages containing these numbers to locate shipping labels. If the tracking number
+                                        search doesn’t give the desired result, such as when messages lack static text, you can
+                                        specify an additional keyword or phrase here to improve the search accuracy
+                                    </small>
+                                </p>
+                                <field name="company_sl_keyword"
+                                        options="{'no_open': [('auto_send_slp', '=', False), ('print_sl_by_keyword', '=', False)], 'autosave': false}"
+                                        readonly="auto_send_slp == False or print_sl_by_keyword == False"/>
+                            </group>
+
+                            <div class="border-top my-3 mx-auto" style="width: 95%"/>
+
+                            <group colspan="2" class="mt-4">
+                                <field name="print_package_with_label"
+                                       readonly="printnode_enabled == False"
+                                       widget="boolean_toggle"
+                                       options="{'autosave': false}"/>
+                                <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                                <p class="mb-0">
+                                    <small>
+                                        If enabled, the system will automatically print the package label right after the shipping label.
+                                        Requires using the "Put In Pack" feature on every delivery order
+                                    </small>
+                                </p>
+                                <field name="printnode_package_report"
+                                       required="print_package_with_label == True"
+                                       readonly="printnode_enabled == False or print_package_with_label == False"
+                                       options="{'no_create': True, 'avosave': false}"
+                                       domain="[('model', '=', 'stock.package'), ('report_type', 'in', ['qweb-pdf', 'qweb-text', 'py3o'])]" />
+                            </group>
+
+                            <div class="border-top my-3 mx-auto" style="width: 95%"/>
+
+                            <group colspan="2" class="mt-4">
+                                <field name="print_sl_from_attachment"
+                                       readonly="printnode_enabled == False"
+                                       widget="boolean_toggle"
+                                       options="{'autosave': false}"/>
+                                <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                                <p class="mb-0">
+                                    <small>
+                                        When enabled, if the system cannot identify a shipping label using tracking numbers
+                                        or the specified keyword (for example, due to missing or dynamic message text), it
+                                        will perform a fallback search across all attachments in the delivery order and print
+                                        the most recent one. This option is primarily intended for use with third-party carriers
+                                        that do not follow standard Odoo practices
+                                    </small>
+                                </p>
+                            </group>
+
+                            <!-- Product Labels Settings -->
+                            <h2 class="mt-5 mb-3" colspan="2">Product Labels Settings</h2>
+                            <group name="product_labels_settings">
+                                <field name="print_labels_format"
+                                       class="mt-2"
+                                       options="{'no_open': [('printnode_enabled', '=', False)], 'avosave': false}"
+                                       readonly="printnode_enabled == False" />
+                                <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                                <p class="mb-0 mt-0">
+                                    <small>
+                                        This option sets the default product label format for printing
+                                        product labels using print scenarios. If this field is blank,
+                                        then the user will not be able to use scenarios for print product labels
+                                    </small>
+                                </p>
+                            </group>
+
+                            <!-- Scales Settings -->
+                            <h2 class="mt-5 mb-3" colspan="2">Scales Settings</h2>
+                            <group>
+                                <field name="scales_enabled"
+                                       class="mt-2"
+                                       widget="boolean_toggle"
+                                       options="{'autosave': false}"/>
+                                <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                                <p class="mb-0">
+                                    <small>
+                                        Select a default scale to be used for weighing products.
+                                        Users can still select their own scale in their preferences
+                                    </small>
+                                </p>
+                            </group>
+                            <group>
+                                <field name="printnode_scales"
+                                       readonly="scales_enabled == False"
+                                       options="{'autosave': false}"/>
+                            </group>
+                            <group colspan="2" class="mt-4" groups="base.group_no_one">
+                                <div colspan="2">
+                                    <h6 class="fw-bold mb-1">Define Pickings to which we should apply auto-weighing</h6>
+                                </div>
+
+                                <div colspan="2">
+                                    <field name="scales_picking_domain"
+                                        widget="domain"
+                                        options="{'model': 'stock.picking', 'avosave': false}"/>
+                                </div>
+                            </group>
+
+                            <!-- Notifications -->
+                            <h2 class="mt-5 mb-3" colspan="2">Notifications</h2>
+                            <group>
+                                <field name="printnode_notification_email" options="{'autosave': false}"/>
+                                <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                                <p class="mb-0">
+                                    <small>
+                                        When enabled, users will receive notifications if a direct print job fails
+                                    </small>
+                                </p>
+                            </group>
+                            <group>
+                                <field name="printnode_notification_page_limit" options="{'autosave': false}"/>
+                                <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                                <p class="mb-0">
+                                    <small>
+                                        Odoo will send notificaiton email when number of available pages will be less than value of this field
+                                    </small>
+                                </p>
+                            </group>
+
+                            <!-- Technical Settings -->
+                            <h2 class="mt-5 mb-3" colspan="2" groups="base.group_no_one">Technical Setting</h2>
+                            <group colspan="2" groups="base.group_no_one">
+                                <group>
+                                    <field name="printnode_recheck" widget="boolean_toggle" options="{'autosave': false}"/>
+                                </group>
+
+                                <group>
+                                    <field name="im_a_teapot" widget="boolean_toggle" options="{'autosave': false}"/>
+                                </group>
+
+                                <group>
+                                    <field name="printnode_fit_to_page" widget="boolean_toggle" options="{'autosave': false}"/>
+                                </group>
+
+                                <group>
+                                    <field name="debug_logging" widget="boolean_toggle" options="{'autosave': false}"/>
+                                </group>
+
+                                <group invisible="debug_logging == False"> <!-- Required because it is used in the invisible condition above -->
+                                    <field name="log_type_ids"
+                                        widget="many2many_tags"
+                                        options="{'no_create': True, 'no_open': True, 'avosave': false}"
+                                        readonly="debug_logging == False"/>
+                                </group>
+
+                                <group>
+                                    <field name="printing_scenarios_from_crons" widget="boolean_toggle" options="{'autosave': false}"/>
+                                </group>
+
+                                <group>
+                                    <field name="prevent_duplicate_printing" widget="boolean_toggle" options="{'autosave': false}"/>
+                                </group>
+
+                                <group groups="base.group_no_one">
+                                    <field name="secure_printing" widget="boolean_toggle" options="{'autosave': false}"/>
+                                </group>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+
+</odoo>

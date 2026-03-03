@@ -7,8 +7,10 @@ import hmac
 import logging
 import psycopg2
 import requests
+import time
 
 from datetime import datetime, timedelta
+from functools import partial
 from urllib.parse import quote_plus, urlencode
 
 from odoo import api, fields, models, SUPERUSER_ID, _
@@ -22,15 +24,19 @@ _logger = logging.getLogger(__name__)
 
 REQUIRED_REPORT_KEYS = ['title', 'type', 'size']
 
+# Retry configuration for PrintNode API rate limiting
+MAX_RETRIES = 3
+RETRY_DELAY_BASE = 1  # Base delay in seconds for exponential backoff
+
 
 class PrintNodePrinter(models.Model):
-    """ PrintNode Printer entity
+    """ Direct Print Printer entity
     """
     _name = 'printnode.printer'
     _inherit = 'printnode.logger.mixin'
-    _description = 'PrintNode Printer'
+    _description = 'Direct Print Printer'
 
-    printnode_id = fields.Integer('Direct Print ID')
+    printnode_id = fields.Integer('Printer ID')
 
     active = fields.Boolean(
         'Active',
@@ -51,7 +57,7 @@ class PrintNodePrinter(models.Model):
     )
 
     status = fields.Char(
-        'PrintNode Status',
+        'Status',
         size=64
     )
 
@@ -157,13 +163,32 @@ class PrintNodePrinter(models.Model):
         for printer in self:
             printer.display_name = f'{printer.name} ({printer.computer_id.name})'
 
-    def printnode_print(self, report_id, objects, copies=1, options=None, data=None):
+    def _add_postcommit_print_job(self, data):
+        """
+        Execute job after successful transaction commit to prevent duplicate printing
+        """
+        def after_commit(dbname, printer, data):
+            # Use new cursor to ensure the print job is saved
+            db_registry = Registry(dbname)
+            with db_registry.cursor() as cr:
+                env = api.Environment(cr, SUPERUSER_ID, {})
+                env[self._name].browse(printer)._post_printnode_job(data)
+                cr.commit()
+
+        self.env.cr.postcommit.add(partial(after_commit, self.env.cr.dbname, self.id, data))
+
+        return True
+
+    def printnode_print(self, report_id, objects, copies=1, options=None, data=None, postcommit=True):
         """
         This method is for preparing data for the "qweb-text" report types before sending it to
-        the Printnode API. It can be called, for example, from print_scenario() and so on.
+        the Direct Print API. It can be called, for example, from print_scenario() and so on.
         """
         self.ensure_one()
         self.printnode_check_report(report_id)
+
+        if not data:
+            data = {}
 
         if not options:
             options = {}
@@ -176,11 +201,19 @@ class PrintNodePrinter(models.Model):
             'printerId': self.printnode_id,
             'title': self._format_title(objects, copies),
             'source': self._get_source_name(),
+            'source_document': data.get('source_document'),
             'contentType': self._get_content_type(report_id.report_type),
             'content': base64.b64encode(content).decode('ascii'),
             'qty': copies,
             'options': self._get_data_options(options),
+            'report_name': report_id.display_name,
         }
+
+        # postcommit=True is used to avoid duplicate printing.
+        # The print job is added to cr.postcommit and will be executed
+        # only once after the transaction is successfully committed.
+        if postcommit and self.env.company.prevent_duplicate_printing:
+            return self._add_postcommit_print_job(data)
 
         res = self._post_printnode_job(data)
 
@@ -196,11 +229,11 @@ class PrintNodePrinter(models.Model):
 
         return res
 
-    def printnode_print_b64(self, ascii_data, params, check_printer_format=True):
+    def printnode_print_b64(self, ascii_data, params, check_printer_format=True, postcommit=True):
         """
-        This method is for preparing data for the "qweb-pdf" and "py3o" ("pdf_base64") report types
-        before sending it to the Printnode API. Used for printing via Actions -> Print, as well
-        as for printing attachments, etc.
+        This method is for preparing data for the "qweb-pdf" and "py3o" ("pdf_base64")
+        report types before sending it to the Direct Print API. Used for printing via
+        Actions -> Print, as well as for printing attachments, etc.
         """
         self.ensure_one()
         error = self.printnode_check(report=(check_printer_format and params))
@@ -212,10 +245,19 @@ class PrintNodePrinter(models.Model):
             'qty': params.get('copies', 1),
             'title': params.get('title'),
             'source': self._get_source_name(),
+            'source_document': params.get('source_document', 'unknown'),
             'contentType': self._get_content_type(params.get('type')),
             'content': ascii_data,
             'options': self._get_data_options(params.get('options', {})),
+            'report_name': params.get('report_name'),
         }
+
+        # postcommit=True is used to avoid duplicate printing.
+        # The print job is added to cr.postcommit and will be executed
+        # only once after the transaction is successfully committed.
+        if postcommit and self.env.company.prevent_duplicate_printing:
+            return self._add_postcommit_print_job(printnode_data)
+
         return self._post_printnode_job(printnode_data)
 
     def printnode_check_report(self, report_id, raise_exception=True):
@@ -267,7 +309,7 @@ class PrintNodePrinter(models.Model):
             raise UserError(error)
 
     def printnode_check(self, report=None):
-        """ PrintNode Check
+        """ Direct Print Check
             eg. report = {'type': 'qweb-pdf', 'size': <printnode.format(0,)>}
         """
 
@@ -279,7 +321,7 @@ class PrintNodePrinter(models.Model):
 
         if not self.env.company.printnode_enabled:
             return _(
-                'Immediate printing via PrintNode is disabled for company %(company)s.'
+                'Immediate printing via Odoo Direct Print is disabled for company %(company)s.'
                 ' Please, contact Administrator to re-enable it.',
                 company=self.env.company.name,
             )
@@ -347,17 +389,14 @@ class PrintNodePrinter(models.Model):
         """
         Create a new printnode job with the provided data.
 
-        :param data:            A dict of attrs of the request to create printjobs to the Printnode.
-        :param force_commit:    A flag that indicates whether the printjob should be force committed
-                                into the database.
+        :param data:            A dict of attrs of the request to create printjobs
+                                to the Direct Print.
+        :param force_commit:    A flag that indicates whether the printjob should be force
+                                committed into the database.
         :return:                ID (int) of the created printjob.
         """
 
-        title = data.get('title')
         printer_id = self.id
-        content = data.get('content')
-        content_type = data.get('contentType')
-
         printjob_id = None
 
         if force_commit:
@@ -369,7 +408,7 @@ class PrintNodePrinter(models.Model):
                 try:
                     env = api.Environment(cr, SUPERUSER_ID, {})
                     printjob_id = env['printnode.printjob'].create_job(
-                        title, printer_id, content, content_type).id
+                        data, printer_id).id
                     cr.commit()
                 except psycopg2.Error as exc:
                     _logger.exception(exc)
@@ -377,26 +416,26 @@ class PrintNodePrinter(models.Model):
 
         else:
             printjob_id = self.env['printnode.printjob'].sudo().create_job(
-                title, printer_id, content, content_type).id
+                data, printer_id).id
 
         return printjob_id
 
     def _post_printnode_job(self, data):
         """
-        Send job into PrintNode. Return new job ID
+        Send job into Direct Print. Return new job ID
 
-        :param uri:     The Printnode URI to post printjobs.
-        :param data:    A dict of attrs of the request to create printjobs to the Printnode.
-                        This should contain the attributes needed by the PrintNode API to process
-                        the printjob, such as: 'printerId', 'qty', 'title', 'source', 'contentType',
-                        'content'.
+        :param uri:     The Direct Print URI to post printjobs.
+        :param data:    A dict of attrs of the request to create printjobs to the Direct Print.
+                        This should contain the attributes needed by the Direct Print API to
+                        process the printjob, such as: 'printerId', 'qty', 'title', 'source',
+                        'contentType', 'content'.
         :return:        The printjob ID.
         """
         # Instance ID (int) of 'printnode.printjob' model
         printjob_id = self._create_printnode_job(
             data, force_commit=self.env.company.secure_printing)
 
-        # Job ID from PrintNode API
+        # Job ID from Direct Print API
         job_id = False
 
         auth = requests.auth.HTTPBasicAuth(
@@ -416,15 +455,46 @@ class PrintNodePrinter(models.Model):
                 'content': content_url,
             })
 
+        # Normalize data to send it to PrintNode API
+        data = data.copy()
+        data.pop('report_name', None)
+        data.pop('source_document', None)
+
         self.printnode_logger(
             log_type=Constants.REQUESTS_LOG_TYPE,
             log_string=f'POST request: {post_url}\n{data if data else None}',
         )
-        resp = requests.post(
-            post_url,
-            auth=auth,
-            json=data
-        )
+
+        # Retry logic for rate limiting
+        retry_count = 0
+
+        while retry_count <= MAX_RETRIES:
+            resp = requests.post(
+                post_url,
+                auth=auth,
+                json=data
+            )
+
+            # If successful, break out of retry loop
+            if resp.status_code == 201:
+                break
+
+            # If rate limited (429), retry with exponential backoff
+            if resp.status_code == 429 and retry_count < MAX_RETRIES:
+                retry_count += 1
+                # Exponential backoff: 1s, 2s, 4s
+                delay = RETRY_DELAY_BASE * (2 ** (retry_count - 1))
+
+                self.printnode_logger(
+                    Constants.REQUESTS_LOG_TYPE,
+                    f'Rate limited (429). Retrying in {delay} seconds '
+                    f'(attempt {retry_count}/{MAX_RETRIES})'
+                )
+                time.sleep(delay)
+                continue
+            else:
+                # For other errors or max retries exceeded, break and handle error
+                break
 
         if resp.status_code == 201:
             job_id = resp.json()
@@ -470,8 +540,10 @@ class PrintNodePrinter(models.Model):
 
     def _format_title(self, objects, copies):
         if len(objects) == 1:
-            return f'{objects.display_name}_{copies}'
-        return f'{objects._description}_{len(objects)}_{copies}'
+            return f'{objects.display_name} ({objects.name} objects, {copies} copies)'
+
+        names = objects.mapped('display_name')[:150]
+        return f'{objects._description} ({len(objects)} records, {names} objects, {copies} copies)'
 
     def _get_source_name(self):
         full_version = self.env['ir.module.module'].sudo().search(

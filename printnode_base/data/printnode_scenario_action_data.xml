@@ -81,7 +81,7 @@
         </record>
 
         <record id="print_single_lot_label_on_transfer" model="printnode.scenario.action">
-            <field name="name">Print single lot label on Transfer (real time; supported only in Ventor PRO/Odoo Barcodee)</field>
+            <field name="name">Print single lot label on Transfer (real time; supported only in Ventor PRO/Odoo Barcode)</field>
             <field name="code">print_single_lot_label_on_transfer</field>
             <field name="model_id" eval="ref('stock.model_stock_picking')"/>
             <field name="reports_model_id" eval="ref('stock.model_stock_lot')"/>

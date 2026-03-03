@@ -6,7 +6,7 @@ from odoo import api, fields, models
 
 class ProductLabelLayoutMixin(models.AbstractModel):
     _name = 'printnode.label.layout.mixin'
-    _description = 'Printnode Label Layout Mixin'
+    _description = 'Direct Print Label Layout Mixin'
 
     printer_id = fields.Many2one(
         comodel_name='printnode.printer',
@@ -27,6 +27,10 @@ class ProductLabelLayoutMixin(models.AbstractModel):
 
     is_dpc_enabled = fields.Boolean(
         default=lambda self: self._default_is_dpc_enabled(),
+    )
+
+    is_dpu_enabled = fields.Boolean(
+        default=lambda self: self._default_is_dpu_enabled(),
     )
 
     @api.depends('printer_id')
@@ -52,6 +56,12 @@ class ProductLabelLayoutMixin(models.AbstractModel):
         Returns True only if DPC enabled on the company level
         """
         return self.env.company.printnode_enabled
+
+    def _default_is_dpu_enabled(self):
+        """
+        Returns True only if DPU enabled on the user level
+        """
+        return self.env.user.printnode_enabled
 
     def _get_label_printer(self):
         """

@@ -5,10 +5,10 @@ from odoo import models, fields
 
 
 class PrintNodeFormat(models.Model):
-    """ PrintNode Content Type
+    """ Direct Print Content Type
     """
     _name = 'printnode.format'
-    _description = 'PrintNode Format'
+    _description = 'Direct Print Format'
 
     name = fields.Char(
         'Content Type',

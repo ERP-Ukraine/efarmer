@@ -17,7 +17,7 @@
         USB Printer Odoo | Odoo Manufacturing Labels | Inventory Label Printing |
         ZPL Print from Odoo | Odoo Print Automation
     """,
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Tools',
     "images": ["static/description/images/banner.gif"],
     'author': 'VentorTech',
@@ -30,7 +30,7 @@
     'depends': ['zpl_label_designer', 'printnode_base'],
     'data': [
         # Views
-        'views/res_config_settings_views.xml',
+        'views/res_company_views.xml',
     ],
     'installable': True,
     'application': False,

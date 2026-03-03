@@ -138,7 +138,7 @@ class PrintnodePrintReportsUniversalWizard(models.TransientModel):
         record_ids = list(map(int, self.record_ids.split(',')))
         record_ids = self.env[self.record_model].browse(record_ids)
 
-        # If immediate printing via PrintNode is disabled for the current user,
+        # If immediate printing via Odoo Direct Print is disabled for the current user,
         # or if no printer is defined for the wizard, the PDF will be downloaded
         if not self.env.user.printnode_enabled or not self.printer_id:
             return self.report_id.with_context(download_only=True).report_action(docids=record_ids)
@@ -152,6 +152,7 @@ class PrintnodePrintReportsUniversalWizard(models.TransientModel):
             record_ids,
             copies=self.number_copy,
             options=options,
+            postcommit=False,
         )
 
         title = _('Report was sent to printer')

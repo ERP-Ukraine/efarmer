@@ -16,7 +16,7 @@
                 </xpath>
                 <xpath expr="//page[last()]" position="after">
                     <page string="Shipping Labels"
-                        invisible="picking_type_code != 'outgoing' or state in ('draft', 'cancel') or is_locked == False"
+                          invisible="picking_type_code != 'outgoing' or state in ('draft', 'cancel') or is_locked == False"
                           groups="printnode_base.printnode_security_group_user">
                         <field name="shipping_label_ids" />
                     </page>

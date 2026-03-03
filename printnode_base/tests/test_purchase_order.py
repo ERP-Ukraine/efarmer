@@ -29,10 +29,10 @@ class TestPrintNodePurchaseOrder(TestPrintNodeCommon):
                     'name': self.product.name,
                     'product_id': self.product.id,
                     'product_qty': 5.0,
-                    'product_uom': self.product.uom_po_id.id,
+                    'product_uom_id': self.product_id.uom_id.id,
                     'price_unit': 100.0,
                     'date_planned': datetime.today(),
-                    'taxes_id': False,
+                    'tax_ids': False,
                 })],
         })
 
@@ -52,6 +52,7 @@ class TestPrintNodePurchaseOrder(TestPrintNodeCommon):
                 self.purchase_order.picking_ids,
                 copies=1,
                 options={},
+                data={'source_document': []},
             )
 
     def test_button_confirm(self):

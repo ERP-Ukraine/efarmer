@@ -117,12 +117,22 @@ class PrintnodePrintAbstractLineReportsWizard(models.AbstractModel):
         if self.printer_bin:
             options['bin'] = self.printer_bin.name
 
+        # Add source_document for gebug_info
+        source_document = []
+        model = self.env.context.get('active_model')
+        active_ids = self.env.context.get('active_ids')
+
+        if model and active_ids:
+            source_document = self.env[model].browse(active_ids).name
+
         # If printer than send to printnode
         self.printer_id.printnode_print(
             report,
             docids,
             options=options,
             copies=self.number_copy,
+            data={'source_document': source_document},
+            postcommit=False,
         )
 
         title = _('Report was sent to printer')

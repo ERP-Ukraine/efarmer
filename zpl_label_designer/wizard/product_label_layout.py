@@ -45,7 +45,7 @@ class ProductLabelLayout(models.TransientModel):
             elif rec.product_ids:
                 active_model = 'product.product'
 
-            rec.zld_label_ids = self.env['zld.label'].search([
+            rec.zld_label_ids = self.env['zld.label'].sudo().search([
                 ('is_published', '=', True),
                 ('model_id', '=', PRODUCT_LABEL_MODELS_MAPPING[active_model])
             ])

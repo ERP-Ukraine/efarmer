@@ -45,6 +45,7 @@ class SaleOrder(models.Model):
                 picking_ids,
                 copies=number_of_copies,
                 options=print_options,
+                data={'source_document': picking_ids.mapped('name')},
             )
 
         return printed

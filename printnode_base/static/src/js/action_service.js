@@ -81,6 +81,7 @@ export default class PrintActionHandler {
             url, rtype,
             action.context.printer_id,
             action.context.printer_bin,
+            action.context.source_document,
         ]);
 
         const context = JSON.stringify(user.context);

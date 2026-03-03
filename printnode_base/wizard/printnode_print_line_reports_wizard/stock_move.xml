@@ -13,7 +13,7 @@
             </xpath>
 
             <xpath expr="//field[@name='record_line_ids']" position="replace">
-                <field name="stock_move_record_line_ids" invisible="show_operations == False">
+                <field name="stock_move_record_line_ids" invisible="show_operations == False"> <!-- Required because it is used in the invisible condition above -->
                     <list editable="bottom" create="false">
                         <!--
                             Technical field: do not remove! Without this field line_ids will be
@@ -24,7 +24,7 @@
                         <field name="quantity"/>
                     </list>
                 </field>
-                <field name="stock_move_line_record_line_ids" invisible="show_operations == False">
+                <field name="stock_move_line_record_line_ids" invisible="show_operations == False"> <!-- Required because it is used in the invisible condition above -->
                     <list editable="bottom" create="false">
                         <!--
                             Technical field: do not remove! Without this field line_ids will be

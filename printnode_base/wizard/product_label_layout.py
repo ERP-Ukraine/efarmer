@@ -40,9 +40,9 @@ class ProductLabelLayout(models.TransientModel):
             qties = defaultdict(int, {k: 0 for k in product_ids})
 
             if move_line_ids:
-                uom_unit = self.env.ref('uom.product_uom_categ_unit', raise_if_not_found=False)
+                uom_unit = self.env.ref('uom.product_uom_unit', raise_if_not_found=False)
                 for line in self.env['stock.move.line'].browse(move_line_ids):
-                    if line.product_uom_id.category_id == uom_unit:
+                    if line.product_uom_id == uom_unit:
                         qties[line.product_id.id] += line.quantity
 
             default_vals.update({
@@ -124,8 +124,9 @@ class ProductLabelLayout(models.TransientModel):
         if self.move_quantity == 'custom_per_product':
             self._check_quantity()
 
-        # Download PDF if no printer selected
-        if not self.printer_id:
+        # Download PDF if no printer selected and disable printing on company and user level
+        printing_allowed = self.env.company.printnode_enabled and self.env.user.printnode_enabled and self.printer_id
+        if not printing_allowed:
             # Update context to download on client side instead of printing
             # Check action_service.js file for details
             return super(ProductLabelLayout, self.with_context(download_only=True)).process()
@@ -137,7 +138,8 @@ class ProductLabelLayout(models.TransientModel):
 
         return self.env.ref(xml_id).with_context(
             printer_id=self.printer_id.id,
-            printer_bin=self.printer_bin.id
+            printer_bin=self.printer_bin.id,
+            source_document='Product Print Label Wizard',
         ).report_action(None, data=data)
 
     def _check_quantity(self):

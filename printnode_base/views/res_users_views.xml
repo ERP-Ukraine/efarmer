@@ -32,7 +32,7 @@
                                     <small>
                                         NOTE: Automatic weighing will be done only on Delivery Orders.
                                         Make sure that either you specify scales here
-                                        or they are specified in PrintNode -> Settings (check with your Administrator)
+                                        or they are specified in Direct Print PRO -> Settings (check with your Administrator)
                                     </small>
                                 </div>
                             </div>
@@ -73,7 +73,7 @@
                                         <small>
                                             NOTE: Automatic weighing will be done only on Delivery Orders.
                                             Make sure that either you specify scales here
-                                            or they are specified in PrintNode -> Settings (check with your Administrator)
+                                            or they are specified in Direct Print PRO -> Settings (check with your Administrator)
                                         </small>
                                     </div>
                                 </div>
