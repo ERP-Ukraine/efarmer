@@ -8,18 +8,20 @@
         Module is designed to change and improve
         the functionality of the Trilab Modules
     """,
-    'version': '15.0.1.0.0',
+    'version': '15.0.1.1.0',
     'category': 'Other',
     'author': 'VentorTech',
     'website': 'https://ventor.tech',
     'license': 'LGPL-3',
     'depends': [
         'efarmer_sale_workflow',
+        'trilab_jpk_base',
         'trilab_invoice',
         'mrp',
     ],
     'data': [
         # Model Views
+        'data/trilab_vat_reports.xml',
         'views/sale_order_views.xml',
     ],
     'installable': True,
