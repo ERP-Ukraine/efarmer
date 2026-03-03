@@ -229,8 +229,10 @@ class JpkReportV3(models.AbstractModel):
 
         ewidencja = etree.SubElement(jpk, etree.QName(tns, 'Ewidencja'))
 
+        ctx = self._set_context(options)
+
         # deactivating the prefetching saves ~35% on get_lines running time
-        ctx = {'no_format': True, 'print_mode': False, 'prefetch_fields': False, 'dict_output': True}
+        ctx.update({'no_format': True, 'print_mode': False, 'prefetch_fields': False, 'dict_output': True})
         # noinspection PyProtectedMember
         sections = self.with_context(ctx)._get_lines(options)
 
