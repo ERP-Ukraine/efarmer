@@ -507,7 +507,10 @@ class KsefClient:
     ) -> requests.Response:
         try:
             if self.access_token is not None:
-                kwargs['headers'] = kwargs.get('headers', {}) | {'Authorization': f'Bearer {self.access_token}'}
+                kwargs['headers'] = {
+                    **kwargs.get('headers', {}),
+                    'Authorization': f'Bearer {self.access_token}',
+                }
 
             response: requests.Response = getattr(self._session, method.lower())(
                 url=urljoin(self.base_url, endpoint), timeout=TIMEOUT_SECS, **kwargs
@@ -974,8 +977,8 @@ class KsefClient:
                         'to': date_to.isoformat() if date_to else None,
                         'restrictToPermanentStorageHwmDate': True,
                     },
+                    **(filters or {}),
                 }
-                | filters,
             },
         ).json()
 
