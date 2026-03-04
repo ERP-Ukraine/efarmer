@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_project_contractors_user,Project Contractors User,model_project_contractors,base.group_user,1,1,1,0
+access_project_contractors_admin,Project Contractors Admin,model_project_contractors,base.group_system,1,1,1,1
+access_project_contractors_line_user,user project_contractors User,model_project_contractors_line,base.group_user,1,1,1,0
+access_project_contractors_line_admin,admin project_contractors Admin,model_project_contractors_line,base.group_system,1,1,1,1
