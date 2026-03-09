@@ -7,7 +7,7 @@
     "author": "Tecnativa, Odoo Community Association (OCA)",
     "category": "Account",
     "website": "https://github.com/OCA/account-analytic",
-    "depends": ["account", "analytic"],
+    "depends": ["accountant", "analytic"],
     "data": [
         "security/analytic_security.xml",
         "security/ir.model.access.csv",
