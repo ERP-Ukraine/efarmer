@@ -1,0 +1,17 @@
+# -*- coding: utf-8 -*-
+from . import res_company
+from . import res_config_settings
+from . import account_invoice
+# from . import account_intrastat_report # TODO: uncomment when it's migrated
+from . import delivery_terms
+from . import efarmer_client_type
+from . import product_category
+from . import product_template
+from . import res_partner
+from . import sale_order
+from . import sale_order_line
+from . import stock_picking
+from . import ir_actions_report
+from . import stock_warehouse
+from . import product_product
+from . import stock_lot

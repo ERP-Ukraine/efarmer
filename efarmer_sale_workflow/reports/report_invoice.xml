@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <template id="efarmer_sale_workflow_document_tax_totals_inherit" inherit_id="account.document_tax_totals">
+        <xpath expr="//tr[@class='o_total']" position="after">
+            <t t-if="o and o.currency_id.name != 'PLN' and o.partner_id.country_id.code == 'PL' and o.product_vat_id.name == 'PL'">
+                <tr class="border-black o_total">
+                    <td>
+                        <strong>VAT Amount in PLN</strong>
+                    </td>
+                    <td class="text-right">
+                        <span t-esc="round(o.amount_tax * o.current_rate_pln, 2)"/>
+                        zł
+                    </td>
+                </tr>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- TODO: define if exists a similar place in Odoo 19 templates -->
+    <!-- <template id="efarmer_sale_workflow_tax_groups_totals_inherit" inherit_id="account.tax_groups_totals">
+        <xpath expr="//t[contains(@t-if, 'len(tax_totals[')]" position="attributes">
+            <attribute name="t-if">len(tax_totals['groups_by_subtotal'][subtotal_to_show]) &gt; 1 or (sale_order or doc or order or o).currency_id.compare_amounts(tax_totals['amount_untaxed'],amount_by_group['tax_group_base_amount']) != 0</attribute>
+        </xpath>
+    </template> -->
+
+    <template id="report_invoice_document" inherit_id="account.report_invoice_document">
+        <xpath expr="//div[hasclass('page')]" position="inside">
+            <t t-if="o.move_type == 'out_invoice'">
+                <div>
+                    <br/>
+                    <p>
+                        <strong>IMPORTANT!</strong>
+                        <t t-if="any(code.startswith('KDU.0044') for code in o.invoice_line_ids.product_id.filtered(lambda p: p.default_code).mapped('default_code'))">
+                            <li>
+                                To ensure timely processing and shipping of your order, please provide the specific
+                                model of
+                                your tractor and the parameters of the steering wheel shaft (<a target="_blank"
+                                                                                                href="https://tech.fieldbee.com/">LINK</a>)
+                                If this information is not provided at the time of placing the order, there will be
+                                delays in shipping.
+                                Consequently, the lead time and overall order processing time will increase.
+                            </li>
+                        </t>
+                        <li>
+                            For shipments to countries outside of the European Union, additional taxes may apply.These
+                            taxes are the responsibility of the customer and the amount will vary depending on the
+                            destination country.
+                            Please check with your local customs office for more information on the applicable taxes.
+                        </li>
+                    </p>
+                </div>
+            </t>
+        </xpath>
+        <xpath expr="//div[@name='incoterm_id']" position="after">
+            <t t-set="additional_vat_note" t-value="o.get_report_vat_text_line()"/>
+            <p t-if="additional_vat_note" name="additional_vat_note">
+                <span t-esc="additional_vat_note"/>
+            </p>
+        </xpath>
+        <xpath expr="//span[@t-field='o.partner_bank_id']" position="replace">
+            <span t-out="(o.company_id.partner_id.bank_ids.sorted(key='sequence').filtered(lambda r: r.currency_id == o.currency_id)[:1] or o.partner_bank_id).acc_number" class="font-weight-bold"/>
+        </xpath>
+    </template>
+</odoo>

@@ -1,0 +1,1730 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* efarmer_sale_workflow
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-07-31 13:22+0000\n"
+"PO-Revision-Date: 2024-07-31 13:22+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: efarmer_sale_workflow
+#: model:ir.actions.report,print_report_name:efarmer_sale_workflow.action_report_account_invoice_wo_downpayment
+msgid "'Invoice - %s' % (object.name)"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.actions.report,print_report_name:efarmer_sale_workflow.action_device_label_50x30_mrp_production
+#: model:ir.actions.report,print_report_name:efarmer_sale_workflow.action_stock_device_50x30_label_quant
+msgid "'Product Device Label 50x30 - %s' % (object.product_id.default_code)"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.actions.report,print_report_name:efarmer_sale_workflow.action_device_label_mrp_production
+#: model:ir.actions.report,print_report_name:efarmer_sale_workflow.action_stock_device_label_quant
+msgid "'Product Device Label 70x35 - %s' % (object.product_id.default_code)"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.actions.report,print_report_name:efarmer_sale_workflow.action_stock_label_picking_without_qty
+#: model:ir.actions.report,print_report_name:efarmer_sale_workflow.action_stock_label_quant_without_qty
+msgid "'Stock Label (without qty) - %s' % (object.product_id.default_code)"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.actions.report,print_report_name:efarmer_sale_workflow.action_stock_label_product_product
+#: model:ir.actions.report,print_report_name:efarmer_sale_workflow.action_stock_label_product_template
+msgid "'Stock Label - %s' % (object.default_code)"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.actions.report,print_report_name:efarmer_sale_workflow.action_stock_label_mrp_production
+#: model:ir.actions.report,print_report_name:efarmer_sale_workflow.action_stock_label_picking
+#: model:ir.actions.report,print_report_name:efarmer_sale_workflow.action_stock_label_quant
+msgid "'Stock Label - %s' % (object.product_id.default_code)"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.actions.report,print_report_name:efarmer_sale_workflow.action_picking_report_commercial_invoice
+#: model:ir.actions.report,print_report_name:efarmer_sale_workflow.action_report_account_commercial_invoice
+msgid "'Сommercial Invoice - %s' % (object.name)"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_invoice_document
+msgid ""
+")\n"
+"                                If this information is not provided at the time of placing the order, there will be\n"
+"                                delays in shipping.\n"
+"                                Consequently, the lead time and overall order processing time will increase."
+msgstr ""
+").\n"
+"Wenn diese Informationen zum Zeitpunkt der Bestellung nicht angegeben werden, kann es zu Verzögerungen beim Versand kommen. Folglich verlängern sich die Vorlaufzeit und die Gesamtbearbeitungszeit der Bestellung."
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+")\n"
+"                              If this information is not provided at the time of placing the order, there will be delays in shipping.\n"
+"                              Consequently, the lead time and overall order processing time will increase."
+msgstr ""
+").\n"
+"Wenn diese Informationen zum Zeitpunkt der Bestellung nicht angegeben werden, kann es zu Verzögerungen beim Versand kommen. Folglich verlängern sich die Vorlaufzeit und die Gesamtbearbeitungszeit der Bestellung."
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+")\n"
+"                              If this information is not provided at the time of placing the order, there will be delays in shipping.\n"
+"                              Consequently, the lead time and overall order processing time will increase.\n"
+"                              <i><u>(print this point if at least one product which internal reference starts from KDU.0044 internal exists on Sales Order)</u></i>"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+").\n"
+"                              Jeśli te informacje nie zostaną podane w momencie składania zamówienia, wysyłka będzie opóźniona.\n"
+"                              W związku z tym wydłuży się całkowity czas realizacji zamówienia."
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+").\n"
+"                              Wenn diese Informationen zum Zeitpunkt der Bestellung nicht angegeben werden, kann es zu\n"
+"                              Verzögerungen beim Versand kommen. Folglich verlängern sich die Vorlaufzeit und die\n"
+"                              Gesamtbearbeitungszeit der Bestellung."
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">Amount</span>\n"
+"                                <span groups=\"account.group_show_line_subtotals_tax_included\">Total Price</span>"
+msgstr ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">Betrag</span>\n"
+"                                <span groups=\"account.group_show_line_subtotals_tax_included\">Gesamtpreis</span>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_delivery_document
+msgid "<span><strong>Vendor Address:</strong></span>"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_delivery_document
+msgid "<span><strong>Warehouse Address:</strong></span>"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_account_commercial_invoice_document
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_commercial_invoice_document
+msgid "<span>Сommercial Invoice # </span>"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "<strong> kg.</strong>"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "<strong>Consignee: </strong>"
+msgstr "<strong>Empfänger: </strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "<strong>Delivery Date:</strong>"
+msgstr "<strong>Liefertermin:</strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_delivery_document
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "<strong>From: </strong>"
+msgstr "<strong>Von: </strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "<strong>Gross Weight: </strong>"
+msgstr "<strong>Bruttogewicht: </strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_invoice_document
+msgid "<strong>IMPORTANT!</strong>"
+msgstr "<strong>WICHTIG!</strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_delivery_document
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "<strong>Net Weight: </strong>"
+msgstr "<strong>Nettogewicht: </strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_delivery_document
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "<strong>Responsible: </strong>"
+msgstr "<strong>Verantwortlich: </strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "<strong>Shipping Address:</strong>"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "<strong>This Invoice is for Customs Purposes</strong>"
+msgstr "<strong>Diese Rechnung dient Zollzwecken</strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_delivery_document
+msgid "<strong>Total Weight:</strong>"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "<strong>Total</strong>"
+msgstr "<strong>Gesamt</strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.efarmer_sale_workflow_document_tax_totals_inherit
+msgid "<strong>VAT Amount in PLN</strong>"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "<strong>WAŻNE!</strong>"
+msgstr "<strong>WICHTIG!</strong>"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "<strong>WICHTIG!</strong>"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.constraint,message:efarmer_sale_workflow.constraint_delivery_terms_unique_name_company
+msgid ""
+"A delivery term with the same name for the same company already exists."
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,help:efarmer_sale_workflow.field_sale_order_line__product_type
+msgid ""
+"A storable product is a product for which you manage stock. The Inventory app has to be installed.\n"
+"A consumable product is a product for which stock is not managed.\n"
+"A service is a non-material product you provide."
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:res.groups,name:efarmer_sale_workflow.allow_set_sales_priority_group
+msgid "Allow to Set up Sales Priority"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.order_line_product_replacement_wizard_view_form
+msgid "Apply"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"By completing this purchase you declare that you have read and agreed to the"
+" contents of our"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:res.groups,name:efarmer_sale_workflow.efarmer_sale_workflow_group_prod_categ_creator
+msgid "Can create products and categories"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.order_line_product_replacement_wizard_view_form
+msgid "Cancel"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model,name:efarmer_sale_workflow.model_efarmer_client_type
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_res_partner__efarmer_client_type
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_res_users__efarmer_client_type
+msgid "Client Type"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.actions.act_window,name:efarmer_sale_workflow.efarmer_client_type_action
+#: model:ir.ui.menu,name:efarmer_sale_workflow.menu_efarmer_client_type
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.efarmer_client_type_view_tree
+msgid "Client Types"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "Commercial Invoice #"
+msgstr "Handelsrechnung #"
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/models/account_intrastat_report.py:0
+#, python-format
+msgid "Commodity Code"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_delivery_terms__company_id
+msgid "Company"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_account_commercial_invoice_document
+msgid "Consignee:"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model,name:efarmer_sale_workflow.model_res_partner
+msgid "Contact"
+msgstr "Kontakt"
+
+#. module: efarmer_sale_workflow
+#: model:res.groups,name:efarmer_sale_workflow.convert_sale_state_to_confirm_group
+msgid "Convert Sales to \"To Confirm\" Status"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:res.groups,name:efarmer_sale_workflow.convert_sale_state_to_payment_group
+msgid "Convert Sales to \"To Payment\" Status"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/models/account_intrastat_report.py:0
+#, python-format
+msgid "Country Code"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_account_commercial_invoice_document
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_commercial_invoice_document
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "Country of Origin:"
+msgstr "Herkunftsland"
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_delivery_terms__create_uid
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_efarmer_client_type__create_uid
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_order_line_product_replacement_wizard__create_uid
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_product_replacement_lines__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_delivery_terms__create_date
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_efarmer_client_type__create_date
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_order_line_product_replacement_wizard__create_date
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_product_replacement_lines__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_order_line_product_replacement_wizard__product_tmpl_id
+msgid "Current Product"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_account_bank_statement_line___current_rate_pln
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_account_bank_statement_line__current_rate_pln
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_account_move___current_rate_pln
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_account_move__current_rate_pln
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_account_payment___current_rate_pln
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_account_payment__current_rate_pln
+msgid "Current Rate PLN"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Datenschutzrichtlinie"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_delivery_terms__default_for_company
+msgid "Default for the Company"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_sale_order__commitment_date
+msgid "Delivery Date"
+msgstr "Liefertermin"
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_delivery_terms__delivery_days
+msgid "Delivery Days"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.actions.act_window,name:efarmer_sale_workflow.action_delivery_terms
+#: model:ir.model,name:efarmer_sale_workflow.model_delivery_terms
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_sale_order__delivery_term_id
+#: model:ir.ui.menu,name:efarmer_sale_workflow.menu_delivery_terms
+#: model:ir.ui.menu,name:efarmer_sale_workflow.menu_delivery_terms_form
+msgid "Delivery Terms"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Delivery terms:"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "Description"
+msgstr "Beschreibung"
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_product_product__description_label
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_product_template__description_label
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.view_template_label_form
+msgid "Description for Product Labels"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_delivery_terms__description
+msgid "Description on the Invoice"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "Disc.%"
+msgstr "Rabatt"
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_delivery_terms__display_name
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_efarmer_client_type__display_name
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_order_line_product_replacement_wizard__display_name
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_product_replacement_lines__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"Dokonując tego zakupu, oświadczasz, że przeczytałeś i akceptujesz treść "
+"naszej"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_account_commercial_invoice_document
+msgid "Email:"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_invoice_document
+msgid ""
+"For shipments to countries outside of the European Union, additional taxes may apply.These\n"
+"                            taxes are the responsibility of the customer and the amount will vary depending on the\n"
+"                            destination country.\n"
+"                            Please check with your local customs office for more information on the applicable taxes."
+msgstr ""
+"Für Sendungen in Länder außerhalb der Europäischen Union können zusätzliche Steuern anfallen.\n"
+"Diese Steuern liegen in der Verantwortung des Kunden und die Höhe kann je nach Zielland variieren.\n"
+"                          Weitere Informationen zu den anfallenden Steuern erhalten Sie bei Ihrem örtlichen Zollamt."
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"For shipments to countries outside of the European Union, additional taxes may apply.These taxes are the responsibility of the customer and the amount will vary depending on the destination country.\n"
+"                          Please check with your local customs office for more information on the applicable taxes."
+msgstr ""
+"Für Sendungen in Länder außerhalb der Europäischen Union können zusätzliche Steuern anfallen.\n"
+"Diese Steuern liegen in der Verantwortung des Kunden und die Höhe kann je nach Zielland variieren.\n"
+"                          Weitere Informationen zu den anfallenden Steuern erhalten Sie bei Ihrem örtlichen Zollamt."
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"Für Sendungen in Länder außerhalb der Europäischen Union können zusätzliche Steuern anfallen.\n"
+"Diese Steuern liegen in der Verantwortung des Kunden und die Höhe kann je nach Zielland variieren.\n"
+"                          Weitere Informationen zu den anfallenden Steuern erhalten Sie bei Ihrem örtlichen Zollamt."
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_account_commercial_invoice_document
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_commercial_invoice_document
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "HS Code:"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.efarmer_view_sale_order_search
+msgid "High Priority"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields.selection,name:efarmer_sale_workflow.selection__sale_order__priority__2
+msgid "High priority"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_delivery_terms__id
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_efarmer_client_type__id
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_order_line_product_replacement_wizard__id
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_product_replacement_lines__id
+msgid "ID"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/models/account_intrastat_report.py:0
+#, python-format
+msgid "Incoterm Code"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model,name:efarmer_sale_workflow.model_account_intrastat_report
+msgid "Intrastat Report"
+msgstr "Intrastat Bericht"
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/models/account_intrastat_report.py:0
+#, python-format
+msgid "Invoice Date"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.actions.report,name:efarmer_sale_workflow.action_report_account_invoice_wo_downpayment
+msgid "Invoices without Downpayment"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Invoicing Address:"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Invoicing and Shipping Address:"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model,name:efarmer_sale_workflow.model_account_move
+msgid "Journal Entry"
+msgstr "Journalbuchung"
+
+#. module: efarmer_sale_workflow
+#: model:ir.model,name:efarmer_sale_workflow.model_account_move_line
+msgid "Journal Item"
+msgstr "Buchungszeile"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_invoice_document
+msgid "LINK"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_delivery_terms____last_update
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_efarmer_client_type____last_update
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_order_line_product_replacement_wizard____last_update
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_product_replacement_lines____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_delivery_terms__write_uid
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_efarmer_client_type__write_uid
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_order_line_product_replacement_wizard__write_uid
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_product_replacement_lines__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_delivery_terms__write_date
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_efarmer_client_type__write_date
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_order_line_product_replacement_wizard__write_date
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_product_replacement_lines__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.efarmer_view_sale_order_search
+msgid "Low Priority"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields.selection,name:efarmer_sale_workflow.selection__sale_order__priority__0
+msgid "Low priority"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_account_bank_statement_line__is_manually_current_rate
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_account_move__is_manually_current_rate
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_account_payment__is_manually_current_rate
+msgid "Manually Current Rate"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.efarmer_view_sale_order_search
+msgid "Medium Priority"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields.selection,name:efarmer_sale_workflow.selection__sale_order__priority__1
+msgid "Medium priority"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"Mit dem Abschluss dieses Kaufs erklären Sie, dass Sie den Inhalt unserer"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_delivery_terms__name
+msgid "Name"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.product_template_search_view
+msgid "Nonzero qty"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Nutzungsbedingungen"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_sale_order__opportunity_stage_id
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_stock_picking__opportunity_stage_id
+msgid "Opportunity Stage"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.actions.act_window,name:efarmer_sale_workflow.launch_order_line_product_replacement_wizard
+msgid "Order Line Product Replacement"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/models/account_intrastat_report.py:0
+#, python-format
+msgid "Origin Country"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_sale_order__paid_on_date
+msgid "Paid on"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/models/account_intrastat_report.py:0
+#, python-format
+msgid "Partner Name"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/models/account_intrastat_report.py:0
+#, python-format
+msgid "Partner VAT"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_account_commercial_invoice_document
+msgid "Payment Terms:"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Payment terms:"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_account_commercial_invoice_document
+msgid "Phone:"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Polityki prywatności"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Polityki wysyłki"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Polityki zwrotów."
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_sale_order__priority
+msgid "Priority"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Privacy Policy"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model,name:efarmer_sale_workflow.model_product_category
+msgid "Product Category"
+msgstr "Produktkategorie"
+
+#. module: efarmer_sale_workflow
+#: model:ir.actions.report,name:efarmer_sale_workflow.action_device_label_50x30_mrp_production
+#: model:ir.actions.report,name:efarmer_sale_workflow.action_stock_device_50x30_label_quant
+msgid "Product Device Label (50x30)"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.actions.report,name:efarmer_sale_workflow.action_device_label_mrp_production
+#: model:ir.actions.report,name:efarmer_sale_workflow.action_stock_device_label_quant
+msgid "Product Device Label (70x35)"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/models/account_intrastat_report.py:0
+#, python-format
+msgid "Product Name"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model,name:efarmer_sale_workflow.model_product_replacement_lines
+msgid "Product Replacement Line"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model,name:efarmer_sale_workflow.model_order_line_product_replacement_wizard
+msgid "Product Replacement Wizard"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model,name:efarmer_sale_workflow.model_product_template
+msgid "Product Template"
+msgstr "Produktvorlage"
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_sale_order_line__product_type
+msgid "Product Type"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/models/account_intrastat_report.py:0
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_order_line_product_replacement_wizard__product_uom_qty
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_product_replacement_lines__product_uom_qty
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+#, python-format
+msgid "Quantity"
+msgstr "Menge"
+
+#. module: efarmer_sale_workflow
+#: model:ir.model,name:efarmer_sale_workflow.model_account_payment_register
+msgid "Register Payment"
+msgstr "Zahlung registrieren"
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_product_replacement_lines__replacement_id
+msgid "Replacement"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_order_line_product_replacement_wizard__replacement_line_ids
+msgid "Replacement Lines"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_product_replacement_lines__product_id
+msgid "Replacement Product"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.order_line_product_replacement_wizard_view_form
+msgid "Replacements"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model,name:efarmer_sale_workflow.model_ir_actions_report
+msgid "Report Action"
+msgstr "Berichtsaktion"
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_stock_warehouse__user_id
+msgid "Responsible"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Return Policy."
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Rückgaberichtlinie"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_order_line_product_replacement_wizard__sale_line_id
+msgid "Sale Order Line"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_stock_picking__sale_priority
+msgid "Sale Priority"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_stock_picking__sale_state
+msgid "Sale Status"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.module.category,name:efarmer_sale_workflow.module_category_sales_other
+msgid "Sales"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model,name:efarmer_sale_workflow.model_sale_order
+msgid "Sales Order"
+msgstr "Verkaufsauftrag"
+
+#. module: efarmer_sale_workflow
+#: model:ir.model,name:efarmer_sale_workflow.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Verkaufsauftragszeile"
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_sale_order__pick_scheduled_date
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.efarmer_view_sale_order_search
+msgid "Scheduled Delivery Date"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,help:efarmer_sale_workflow.field_sale_order__pick_scheduled_date
+msgid "Scheduled date of last modified stock picking"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/models/sale_order_line.py:0
+#, python-format
+msgid "Select Product Replacement"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_account_commercial_invoice_document
+msgid "Sender:"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Shipping policy"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_sale_order__state
+msgid "Status"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.actions.report,name:efarmer_sale_workflow.action_stock_label_mrp_production
+#: model:ir.actions.report,name:efarmer_sale_workflow.action_stock_label_picking
+#: model:ir.actions.report,name:efarmer_sale_workflow.action_stock_label_product_product
+#: model:ir.actions.report,name:efarmer_sale_workflow.action_stock_label_product_template
+#: model:ir.actions.report,name:efarmer_sale_workflow.action_stock_label_quant
+msgid "Stock Label"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.actions.report,name:efarmer_sale_workflow.action_stock_label_picking_without_qty
+#: model:ir.actions.report,name:efarmer_sale_workflow.action_stock_label_quant_without_qty
+msgid "Stock Label (without qty)"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model,name:efarmer_sale_workflow.model_stock_quantity_history
+msgid "Stock Quantity History"
+msgstr "Historie der Bestandsmenge"
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/models/account_intrastat_report.py:0
+#, python-format
+msgid "Supplementary Units"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_delivery_terms__tag_ids
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_sale_order__tag_ids
+msgid "Tags"
+msgstr "Stichwörter"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Terms of Service"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/models/ir_actions_report.py:0
+#, python-format
+msgid "The \"Lot/Serial Number\" field must be populated."
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.view_template_label_form
+msgid "The note is added to product labels."
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,help:efarmer_sale_workflow.field_sale_order__commitment_date
+msgid ""
+"This is the delivery date promised to the customer. If set, the delivery "
+"order will be scheduled based on this date rather than product lead times."
+msgstr ""
+"Dies ist der dem Kunden zugesagte Liefertermin. Wenn gesetzt, wird der "
+"Lieferauftrag nicht auf der Grundlage der Produktvorlaufzeiten, sondern auf "
+"der Grundlage dieses Datums terminiert."
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields.selection,name:efarmer_sale_workflow.selection__sale_order__state__to_confirm
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.sale_order_view_form_inherit
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.view_sale_order_quotation_efarmer_search
+msgid "To Confirm"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields.selection,name:efarmer_sale_workflow.selection__sale_order__state__to_payment
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.sale_order_view_form_inherit
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.view_sale_order_quotation_efarmer_search
+msgid "To Payment"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_invoice_document
+msgid ""
+"To ensure timely processing and shipping of your order, please provide the specific\n"
+"                                model of\n"
+"                                your tractor and the parameters of the steering wheel shaft ("
+msgstr ""
+"Um eine zeitnahe Bearbeitung und Auslieferung Ihrer Bestellung zu "
+"gewährleisten, geben Sie bitte das spezifische Modell Ihres Traktors und die"
+" Parameter der Lenkradwelle an ("
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"To ensure timely processing and shipping of your order, please provide the specific model of\n"
+"                              your tractor and the parameters of the steering wheel shaft ("
+msgstr ""
+"Um eine zeitnahe Bearbeitung und Auslieferung Ihrer Bestellung zu "
+"gewährleisten, geben Sie bitte das spezifische Modell Ihres Traktors und die"
+" Parameter der Lenkradwelle an ("
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/models/account_intrastat_report.py:0
+#, python-format
+msgid "Transaction Code"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model,name:efarmer_sale_workflow.model_stock_picking
+msgid "Transfer"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/models/account_intrastat_report.py:0
+#, python-format
+msgid "Transport Code"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/models/account_intrastat_report.py:0
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_efarmer_client_type__name
+#, python-format
+msgid "Type"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"Um eine zeitnahe Bearbeitung und Auslieferung Ihrer Bestellung zu gewährleisten, geben Sie bitte das\n"
+"                              spezifische Modell Ihres Traktors und die Parameter der Lenkradwelle an ("
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_picking_commercial_invoice_document_document
+msgid "Unit Price"
+msgstr "Einzelpreis"
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields.selection,name:efarmer_sale_workflow.selection__sale_order__priority__3
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.efarmer_view_sale_order_search
+msgid "Urgent"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_account_bank_statement_line__product_vat_id
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_account_move__product_vat_id
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_account_payment__product_vat_id
+#: model:ir.model.fields,field_description:efarmer_sale_workflow.field_stock_picking__product_vat_id
+msgid "VAT ID"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/models/account_intrastat_report.py:0
+#, python-format
+msgid "Value"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Versandrichtlinie"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"W celu zapewnienia terminowej realizacji i wysyłki zamówienia prosimy o "
+"podanie konkretnego modelu posiadanego ciągnika oraz parametrów wału "
+"kierownicy ("
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid ""
+"W przypadku przesyłek do krajów spoza Unii Europejskiej mogą obowiązywać dodatkowe podatki.\n"
+"Podatki te leżą w gestii klienta, a ich wysokość różni się w zależności od kraju docelowego. Więcej\n"
+"                          informacji na temat obowiązujących podatków można uzyskać w lokalnym urzędzie celnym."
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model,name:efarmer_sale_workflow.model_stock_warehouse
+msgid "Warehouse"
+msgstr "Lagerhaus"
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "Warunków świadczenia usług"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/models/account_intrastat_report.py:0
+#, python-format
+msgid "Weight"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.model.constraint,message:efarmer_sale_workflow.constraint_delivery_terms_unique_default_for_company
+msgid "You can select only one default value for the company."
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: code:addons/efarmer_sale_workflow/wizards/product_variant_replacement_wizard.py:0
+#, python-format
+msgid ""
+"You cannot apply new variants if before and after quantities are not equal. "
+"To continue set the same quantities at the top Quantity and Replacements "
+"Tab."
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.device_label_50x30
+msgid ""
+"\\&amp;^FS\n"
+"\n"
+"                    ^FO422,199\n"
+"                    ^BQN,2,6\n"
+"                    ^FDMA,"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.device_label_70x35
+msgid ""
+"\\&amp;^FS\n"
+"\n"
+"                    ^FO620,254\n"
+"                    ^BQN,2,7\n"
+"                    ^FDMA,"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.stock_label
+msgid "^FD"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.stock_label
+msgid ""
+"^FO10,25.0\n"
+"^FB440,2,7,L,0\n"
+"^A0N,25\n"
+"^FH`\n"
+"^FD"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.stock_label
+msgid ""
+"^FO215,95\n"
+"^BQN,2,3\n"
+"^FDMA,"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.stock_label
+msgid ""
+"^FO219,107\n"
+"^A0N,110\n"
+"^FDX^FS\n"
+"^FH`"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.device_label_50x30
+msgid ""
+"^FO300,40\n"
+"                ^FB250,1,6,R,0\n"
+"                ^A0N,24,20\n"
+"                ^FH`\n"
+"                ^FD"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.device_label_70x35
+msgid ""
+"^FO300,49\n"
+"                ^FB465,1,6,R,0\n"
+"                ^A0N,30,22\n"
+"                ^FH`\n"
+"                ^FD"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.stock_label
+msgid ""
+"^FO340.48,108\n"
+"^FB102,2,5,R,0\n"
+"^A0N,26\n"
+"^FH`\n"
+"^FD"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.device_label_50x30
+msgid ""
+"^FO556\n"
+"                    ^FB335,1,1,L,0\n"
+"                    ^A0B,27\n"
+"                    ^FH`\n"
+"                    ^FD"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.device_label_70x35
+msgid ""
+"^FO782,30\n"
+"                    ^FB370,1,1,L,0\n"
+"                    ^A0B,33\n"
+"                    ^FH`\n"
+"                    ^FD"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.device_label_50x30
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.device_label_70x35
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.stock_label
+msgid "^FS"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.device_label_50x30
+msgid ""
+"^FS\n"
+"\n"
+"                    ^FO395,213\n"
+"                    ^FB101,2,7,L,0\n"
+"                    ^A0B,20\n"
+"                    ^FH`\n"
+"                    ^FDSerial No:^FS"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.device_label_70x35
+msgid ""
+"^FS\n"
+"\n"
+"                    ^FO590,270\n"
+"                    ^FB120,2,7,L,0\n"
+"                    ^A0B,25\n"
+"                    ^FH`\n"
+"                    ^FDSerial No:^FS"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.device_label_50x30
+msgid ""
+"^FS\n"
+"\n"
+"                ^FO393,60\n"
+"                ^FB103,2,8,L,0\n"
+"                ^A0B,20\n"
+"                ^FH`\n"
+"                ^FDPart No:^FS\n"
+"\n"
+"                ^FO119,42.31\n"
+"                ^FB204,2,13,L,0\n"
+"                ^A0N,50\n"
+"                ^FH`\n"
+"                ^FDFieldBee^FS\n"
+"\n"
+"                ^FO119,105\n"
+"                ^FB186,2,8,L,0\n"
+"                ^A0N,30\n"
+"                ^FH`\n"
+"                ^FDFieldbee.com^FS\n"
+"\n"
+"                ^FO295,275\n"
+"                ^FB72,2,10,L,0\n"
+"                ^A0N,27\n"
+"                ^FH`\n"
+"                ^FDRoHS^FS\n"
+"                ^FO17,295\n"
+"                ^FB300,2,10,L,0\n"
+"                ^A0N,22\n"
+"                ^FH`\n"
+"                ^FDDESIGNED IN UKRAINE \\&amp;MANUFACTURED IN POLAND^FS\n"
+"\n"
+"                ^FO17,40\n"
+"                ^XGR:IMG1675332444807,1,1^FS\n"
+"                ^FO295,311\n"
+"                ^XGR:IMG1675332878859,1,1^FS\n"
+"                ^FO347,306\n"
+"                ^XGR:IMG1675333303253,1,1^FS\n"
+"                ^XZ"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.device_label_70x35
+msgid ""
+"^FS\n"
+"\n"
+"                ^FO590,72\n"
+"                ^FB120,2,8,L,0\n"
+"                ^A0B,25\n"
+"                ^FH`\n"
+"                ^FDPart No:^FS\n"
+"\n"
+"                ^FO132,52.31\n"
+"                ^FB204,2,13,L,0\n"
+"                ^A0N,50\n"
+"                ^FH`\n"
+"                ^FDFieldBee^FS\n"
+"\n"
+"                ^FO132,115\n"
+"                ^FB186,2,8,L,0\n"
+"                ^A0N,30\n"
+"                ^FH`\n"
+"                ^FDFieldbee.com^FS\n"
+"\n"
+"                ^FO423,376\n"
+"                ^FB78,2,10,L,0\n"
+"                ^A0N,34\n"
+"                ^FH`\n"
+"                ^FDRoHS^FS\n"
+"                ^FO25,350\n"
+"                ^FB350,2,10,L,0\n"
+"                ^A0N,25\n"
+"                ^FH`\n"
+"                ^FDDESIGNED IN UKRAINE \\&amp;MANUFACTURED IN POLAND^FS\n"
+"\n"
+"                ^FO25,50\n"
+"                ^XGR:IMG1675332444807,1,1^FS\n"
+"                ^FO510,370\n"
+"                ^XGR:IMG1675332878859,1,1^FS\n"
+"                ^FO360,345\n"
+"                ^XGR:IMG1679070841280,1,1^FS\n"
+"                ^XZ"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.device_label_50x30
+msgid ""
+"^FS\n"
+"                ^FO422,65\n"
+"                ^BXN,7,200\n"
+"                ^FD"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.device_label_70x35
+msgid ""
+"^FS\n"
+"                ^FO620,80\n"
+"                ^BXN,8,200\n"
+"                ^FD"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.stock_label
+msgid ""
+"^FS\n"
+"^FO18,225.0\n"
+"^FB420,2,6,L,0\n"
+"^A0N,24\n"
+"^FH`\n"
+"^FD"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.stock_label
+msgid ""
+"^FS\n"
+"^FO18,95\n"
+"^BQN,2,4\n"
+"^FDMA,"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.stock_label
+msgid ""
+"^FS\n"
+"^FO215,185.0\n"
+"^FB240,2,7,L,0\n"
+"^A0N,23\n"
+"^FH`"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.stock_label
+msgid ""
+"^FS\n"
+"^XZ"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.stock_label
+msgid ""
+"^XA\n"
+"^PW812\n"
+"^FO8,90\n"
+"^GB440,5,5^FS\n"
+"^FO200,95\n"
+"^GB5,110,5^FS"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "and"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "gelesen haben und diesen zustimmen."
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.report_delivery_document
+msgid "kg"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.proforma_report_saleorder_document
+msgid "und"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.efarmer_sale_workflow_document_tax_totals_inherit
+msgid "zł"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.device_label_50x30
+msgid ""
+"~DGR:IMG1675332444807,1196,13,0000000FFFFFFFFFFFC0000000\n"
+"                0000003FFFFFFFFFFFF0000000\n"
+"                000000FFFFFFFFFFFFFC000000\n"
+"                000001FFFFFFFFFFFFFE000000\n"
+"                000003FFFFFFFFFFFFFF000000\n"
+"                000007FFFFFFFFFFFFFF800000\n"
+"                000007FFFFFFFFFFFFFF800000\n"
+"                00000FFFFFFFFFFFFFFFC00000\n"
+"                00000FFFFFFFFFFFFFFFC00000\n"
+"                00001FFE0000000001FFE00000\n"
+"                00003FF800000000007FF00000\n"
+"                00003FF800000000007FF00000\n"
+"                00007FF000000000003FF80000\n"
+"                00007FE000000000001FF80000\n"
+"                0000FFE000000000001FFC0000\n"
+"                0000FFC00000C000000FFC0000\n"
+"                0001FFC00000C000000FFE0000\n"
+"                0001FF800001C0000007FE0000\n"
+"                0003FF000001C0000003FF0000\n"
+"                0007FF00000180000003FF8000\n"
+"                0007FE00000180000001FF8000\n"
+"                000FFE00000380000001FFC000\n"
+"                000FFC00000380000000FFC000\n"
+"                001FFC00000F80000000FFE000\n"
+"                003FF800001F800000007FF000\n"
+"                003FF000007FC00078003FF000\n"
+"                007FF00001FFE003FF003FF800\n"
+"                007FE00007FFE01FFFC01FF800\n"
+"                00FFE0380FFFF03FFFE01FFC00\n"
+"                00FFC07FBFFFF07FFFF00FFC00\n"
+"                01FFC01FFFFFF8FFCFF80FFE00\n"
+"                03FF8001FFFFF9FE01F807FF00\n"
+"                03FF00007FFFF3F800FC03FF00\n"
+"                07FF00007FFFF3F0007C03FF80\n"
+"                07FE00003FFFE7E0007C01FF80\n"
+"                0FFE00003FFFC7C0003E01FFC0\n"
+"                0FFC00001FFFCFC0003E00FFC0\n"
+"                1FF800000FFF8F80003E00FFE0\n"
+"                3FF800000FFF9F80003E007FF0\n"
+"                3FF0000007FF1F00003E003FF0\n"
+"                7FF0000000001F00007E003FF8\n"
+"                7FE0000000003F00007C001FF8\n"
+"                FFE000001FFC3E0000FC001FFC\n"
+"                FFC00000FFFFFE0001FC000FFC\n"
+"                FF800003FFFFFE0003F80007FC\n"
+"                FF800007FFFFFFC00FF00007FC\n"
+"                FF80000FFFFFFFFFFFE00007FC\n"
+"                FF80001FE007FFFFFFC0000FFC\n"
+"                FFC0003F8000FFFFFF80000FFC\n"
+"                FFE0007F0000FFFFFE00001FF8\n"
+"                7FE0007E0000F87FF800001FF8\n"
+"                7FF0007C0001F8000000003FF8\n"
+"                3FF000FC0001F8000000003FF0\n"
+"                3FF800F80001F003FE00007FF0\n"
+"                1FFC00F80003F00FFF0000FFE0\n"
+"                0FFC00F80003E07FFF0000FFC0\n"
+"                0FFE00F80007E0FFFF0001FFC0\n"
+"                07FE00FC0007C3FE000001FF80\n"
+"                07FF007C000FC7F0000003FF80\n"
+"                03FF007E001F8FC1FF0003FF00\n"
+"                03FF807E003F9F87FE0007FF00\n"
+"                01FFC03F80FF3F1FFE000FFE00\n"
+"                01FFC01FE7FE7E3FFE000FFC00\n"
+"                00FFE01FFFFC7CFF00001FFC00\n"
+"                007FE00FFFF8F8FC00001FF800\n"
+"                007FF003FFF1F1F0FE003FF800\n"
+"                003FF001FFC1F3E3FE003FF000\n"
+"                003FF8003C00E7C7FE007FF000\n"
+"                001FFC000000478FFE00FFE000\n"
+"                000FFC0000000F9F8000FFC000\n"
+"                000FFE000000073F0C01FFC000\n"
+"                0007FE000000013C7C01FF8000\n"
+"                0007FF000000007CFC03FF8000\n"
+"                0003FF0000000009FC07FF0000\n"
+"                0003FF8000000001FC07FE0000\n"
+"                0001FFC000000000780FFE0000\n"
+"                0000FFC000000000080FFC0000\n"
+"                0000FFE000000000001FFC0000\n"
+"                00007FE000000000001FF80000\n"
+"                00007FF000000000003FF80000\n"
+"                00003FF800000000007FF00000\n"
+"                00003FF800000000007FF00000\n"
+"                00001FFE0000000001FFE00000\n"
+"                00000FFFFFFFFFFFFFFFC00000\n"
+"                00000FFFFFFFFFFFFFFFC00000\n"
+"                000007FFFFFFFFFFFFFF800000\n"
+"                000007FFFFFFFFFFFFFF800000\n"
+"                000003FFFFFFFFFFFFFF000000\n"
+"                000001FFFFFFFFFFFFFE000000\n"
+"                000000FFFFFFFFFFFFFC000000\n"
+"                0000003FFFFFFFFFFFF0000000\n"
+"                0000000FFFFFFFFFFFC0000000\n"
+"\n"
+"\n"
+"                ~DGR:IMG1675332878859,192,6,000000000000\n"
+"                0003C00001E0\n"
+"                003FC0000FE0\n"
+"                007FC0003FE0\n"
+"                01FFC000FFE0\n"
+"                03FFC001FFE0\n"
+"                07F00003FC00\n"
+"                0FE00003F000\n"
+"                0F800007E000\n"
+"                1F00000FC000\n"
+"                1F00000F8000\n"
+"                3E00000F0000\n"
+"                3E00001F0000\n"
+"                3C00001F0000\n"
+"                3C00001FFF00\n"
+"                3C00001FFF00\n"
+"                3C00001FFF00\n"
+"                3C00001FFF00\n"
+"                3C00001F0000\n"
+"                3E00001F0000\n"
+"                3E00000F0000\n"
+"                1F00000F8000\n"
+"                1F000007C000\n"
+"                0F800007E000\n"
+"                0FE00003F000\n"
+"                07F00003FC00\n"
+"                03FFC001FFE0\n"
+"                01FFC000FFE0\n"
+"                007FC0003FE0\n"
+"                003FC0000FE0\n"
+"                0003C00001E0\n"
+"                000000000000\n"
+"\n"
+"\n"
+"                ~DGR:IMG1675333303253,205,5,0000000000\n"
+"                8000000004\n"
+"                4000000008\n"
+"                20007E0010\n"
+"                100E43C020\n"
+"                083C003460\n"
+"                0C0C000EC0\n"
+"                06FFFFFF80\n"
+"                0320001700\n"
+"                01A0001600\n"
+"                00E0001E00\n"
+"                0060001200\n"
+"                0030003200\n"
+"                0010002000\n"
+"                00087F4000\n"
+"                00147FA000\n"
+"                0012012000\n"
+"                0013022000\n"
+"                0011842000\n"
+"                0010C82000\n"
+"                0010702000\n"
+"                0010302000\n"
+"                0010582000\n"
+"                00108C2000\n"
+"                0011862000\n"
+"                0003022000\n"
+"                0006010000\n"
+"                000C008000\n"
+"                0018004000\n"
+"                0038006000\n"
+"                0068007000\n"
+"                00C801F800\n"
+"                0188001C00\n"
+"                030802C600\n"
+"                060FFEE300\n"
+"                0402020180\n"
+"                08060110C0\n"
+"                1000000040\n"
+"                2000000020\n"
+"                4000000010\n"
+"                0000000010\n"
+"\n"
+"\n"
+"                ^XA\n"
+"                ^FO17,152.4\n"
+"                ^FB341,4,7,L,0\n"
+"                ^A0N,24\n"
+"                ^FH`\n"
+"                ^FD"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model_terms:ir.ui.view,arch_db:efarmer_sale_workflow.device_label_70x35
+msgid ""
+"~DGR:IMG1675332444807,1196,13,0000000FFFFFFFFFFFC0000000\n"
+"                0000003FFFFFFFFFFFF0000000\n"
+"                000000FFFFFFFFFFFFFC000000\n"
+"                000001FFFFFFFFFFFFFE000000\n"
+"                000003FFFFFFFFFFFFFF000000\n"
+"                000007FFFFFFFFFFFFFF800000\n"
+"                000007FFFFFFFFFFFFFF800000\n"
+"                00000FFFFFFFFFFFFFFFC00000\n"
+"                00000FFFFFFFFFFFFFFFC00000\n"
+"                00001FFE0000000001FFE00000\n"
+"                00003FF800000000007FF00000\n"
+"                00003FF800000000007FF00000\n"
+"                00007FF000000000003FF80000\n"
+"                00007FE000000000001FF80000\n"
+"                0000FFE000000000001FFC0000\n"
+"                0000FFC00000C000000FFC0000\n"
+"                0001FFC00000C000000FFE0000\n"
+"                0001FF800001C0000007FE0000\n"
+"                0003FF000001C0000003FF0000\n"
+"                0007FF00000180000003FF8000\n"
+"                0007FE00000180000001FF8000\n"
+"                000FFE00000380000001FFC000\n"
+"                000FFC00000380000000FFC000\n"
+"                001FFC00000F80000000FFE000\n"
+"                003FF800001F800000007FF000\n"
+"                003FF000007FC00078003FF000\n"
+"                007FF00001FFE003FF003FF800\n"
+"                007FE00007FFE01FFFC01FF800\n"
+"                00FFE0380FFFF03FFFE01FFC00\n"
+"                00FFC07FBFFFF07FFFF00FFC00\n"
+"                01FFC01FFFFFF8FFCFF80FFE00\n"
+"                03FF8001FFFFF9FE01F807FF00\n"
+"                03FF00007FFFF3F800FC03FF00\n"
+"                07FF00007FFFF3F0007C03FF80\n"
+"                07FE00003FFFE7E0007C01FF80\n"
+"                0FFE00003FFFC7C0003E01FFC0\n"
+"                0FFC00001FFFCFC0003E00FFC0\n"
+"                1FF800000FFF8F80003E00FFE0\n"
+"                3FF800000FFF9F80003E007FF0\n"
+"                3FF0000007FF1F00003E003FF0\n"
+"                7FF0000000001F00007E003FF8\n"
+"                7FE0000000003F00007C001FF8\n"
+"                FFE000001FFC3E0000FC001FFC\n"
+"                FFC00000FFFFFE0001FC000FFC\n"
+"                FF800003FFFFFE0003F80007FC\n"
+"                FF800007FFFFFFC00FF00007FC\n"
+"                FF80000FFFFFFFFFFFE00007FC\n"
+"                FF80001FE007FFFFFFC0000FFC\n"
+"                FFC0003F8000FFFFFF80000FFC\n"
+"                FFE0007F0000FFFFFE00001FF8\n"
+"                7FE0007E0000F87FF800001FF8\n"
+"                7FF0007C0001F8000000003FF8\n"
+"                3FF000FC0001F8000000003FF0\n"
+"                3FF800F80001F003FE00007FF0\n"
+"                1FFC00F80003F00FFF0000FFE0\n"
+"                0FFC00F80003E07FFF0000FFC0\n"
+"                0FFE00F80007E0FFFF0001FFC0\n"
+"                07FE00FC0007C3FE000001FF80\n"
+"                07FF007C000FC7F0000003FF80\n"
+"                03FF007E001F8FC1FF0003FF00\n"
+"                03FF807E003F9F87FE0007FF00\n"
+"                01FFC03F80FF3F1FFE000FFE00\n"
+"                01FFC01FE7FE7E3FFE000FFC00\n"
+"                00FFE01FFFFC7CFF00001FFC00\n"
+"                007FE00FFFF8F8FC00001FF800\n"
+"                007FF003FFF1F1F0FE003FF800\n"
+"                003FF001FFC1F3E3FE003FF000\n"
+"                003FF8003C00E7C7FE007FF000\n"
+"                001FFC000000478FFE00FFE000\n"
+"                000FFC0000000F9F8000FFC000\n"
+"                000FFE000000073F0C01FFC000\n"
+"                0007FE000000013C7C01FF8000\n"
+"                0007FF000000007CFC03FF8000\n"
+"                0003FF0000000009FC07FF0000\n"
+"                0003FF8000000001FC07FE0000\n"
+"                0001FFC000000000780FFE0000\n"
+"                0000FFC000000000080FFC0000\n"
+"                0000FFE000000000001FFC0000\n"
+"                00007FE000000000001FF80000\n"
+"                00007FF000000000003FF80000\n"
+"                00003FF800000000007FF00000\n"
+"                00003FF800000000007FF00000\n"
+"                00001FFE0000000001FFE00000\n"
+"                00000FFFFFFFFFFFFFFFC00000\n"
+"                00000FFFFFFFFFFFFFFFC00000\n"
+"                000007FFFFFFFFFFFFFF800000\n"
+"                000007FFFFFFFFFFFFFF800000\n"
+"                000003FFFFFFFFFFFFFF000000\n"
+"                000001FFFFFFFFFFFFFE000000\n"
+"                000000FFFFFFFFFFFFFC000000\n"
+"                0000003FFFFFFFFFFFF0000000\n"
+"                0000000FFFFFFFFFFFC0000000\n"
+"\n"
+"\n"
+"                ~DGR:IMG1675332878859,192,6,000000000000\n"
+"                0003C00001E0\n"
+"                003FC0000FE0\n"
+"                007FC0003FE0\n"
+"                01FFC000FFE0\n"
+"                03FFC001FFE0\n"
+"                07F00003FC00\n"
+"                0FE00003F000\n"
+"                0F800007E000\n"
+"                1F00000FC000\n"
+"                1F00000F8000\n"
+"                3E00000F0000\n"
+"                3E00001F0000\n"
+"                3C00001F0000\n"
+"                3C00001FFF00\n"
+"                3C00001FFF00\n"
+"                3C00001FFF00\n"
+"                3C00001FFF00\n"
+"                3C00001F0000\n"
+"                3E00001F0000\n"
+"                3E00000F0000\n"
+"                1F00000F8000\n"
+"                1F000007C000\n"
+"                0F800007E000\n"
+"                0FE00003F000\n"
+"                07F00003FC00\n"
+"                03FFC001FFE0\n"
+"                01FFC000FFE0\n"
+"                007FC0003FE0\n"
+"                003FC0000FE0\n"
+"                0003C00001E0\n"
+"                000000000000\n"
+"\n"
+"\n"
+"                ~DGR:IMG1679070841280,512,8,0000000000000000\n"
+"                0000000000000000\n"
+"                0000000000000000\n"
+"                0800000000000200\n"
+"                1C00000000000300\n"
+"                3E00000000000780\n"
+"                1F00003FE0001F00\n"
+"                0F801F3FE0001E00\n"
+"                07801FFFFE003C00\n"
+"                03E07FFFFFF8F800\n"
+"                01E07FFFFFFCF800\n"
+"                00F0FF0001FFE000\n"
+"                007FFFFFFFFFC000\n"
+"                007FFFFFFFFFC000\n"
+"                001FFFFFFFFF0000\n"
+"                001FFFFFFFFF0000\n"
+"                000FE00001FE0000\n"
+"                0003E00001FC0000\n"
+"                0003E00001FC0000\n"
+"                0001F00001FC0000\n"
+"                0000F80003FC0000\n"
+"                0000780007FC0000\n"
+"                00007C3FFFFC0000\n"
+"                00007E3FFFE00000\n"
+"                00007F3FFEE00000\n"
+"                000077BFFDC00000\n"
+"                000077FFF9C00000\n"
+"                000071E0F1C00000\n"
+"                000071F3E1C00000\n"
+"                000070FBE1C00000\n"
+"                0000707F81C00000\n"
+"                0000383F01C00000\n"
+"                0000381F01C00000\n"
+"                0000383F01C00000\n"
+"                0000387F81C00000\n"
+"                000038FBC1C00000\n"
+"                000039E1E1C00000\n"
+"                00003BC0F1C00000\n"
+"                00003FC0F9C00000\n"
+"                00003F807DC00000\n"
+"                00003F003F800000\n"
+"                00003E001F800000\n"
+"                00007C000F800000\n"
+"                00007C0007800000\n"
+"                0001FC000FC00000\n"
+"                0003FC003FF00000\n"
+"                0003DC007FF00000\n"
+"                000F9C00FFF80000\n"
+"                001F1C00F9FC0000\n"
+"                001E1C00F1FE0000\n"
+"                003C1FFFF1FF0000\n"
+"                007C0FFFF9FF8000\n"
+"                00F00FFFFFE7C000\n"
+"                01E00F807FC3E000\n"
+"                03E00F803FC1E000\n"
+"                07800F800F00F800\n"
+"                0F00000000007800\n"
+"                1F00000000003C00\n"
+"                0E00000000001800\n"
+"                0000000000000000\n"
+"                0000000000000000\n"
+"                0000000000000000\n"
+"                0000000000000000\n"
+"                0000000000000000\n"
+"\n"
+"                ^XA\n"
+"                ^FO25,167\n"
+"                ^FB540,4,7,L,0\n"
+"                ^A0N,29\n"
+"                ^FH`\n"
+"                ^FD"
+msgstr ""
+
+#. module: efarmer_sale_workflow
+#: model:ir.actions.report,name:efarmer_sale_workflow.action_picking_report_commercial_invoice
+#: model:ir.actions.report,name:efarmer_sale_workflow.action_report_account_commercial_invoice
+msgid "Сommercial Invoice"
+msgstr ""

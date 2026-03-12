@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<menuitem id="menu_efarmer_client_type"
+    action="efarmer_client_type_action"
+    sequence="3"
+    parent="contacts.res_partner_menu_config"/>
+
+</odoo>

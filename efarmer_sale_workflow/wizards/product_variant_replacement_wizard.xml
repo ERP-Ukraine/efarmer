@@ -1,0 +1,43 @@
+<odoo>
+    <data>
+
+    <record id="order_line_product_replacement_wizard_view_form" model="ir.ui.view">
+        <field name="name">order_line_product_replacement.wizard.form</field>
+        <field name="model">order.line.product.replacement.wizard</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="sale_line_id" invisible='1' />
+                    <field name="product_tmpl_id" />
+                    <field name="product_uom_qty" />
+                </group>
+
+                <notebook>
+                    <page string="Replacements">
+                        <field name="replacement_line_ids" context="{'product_tmpl_id': product_tmpl_id}">
+                            <list string="Replacements" editable="bottom" >
+                                <field name="product_id" domain="[('product_tmpl_id','=', context.get('product_tmpl_id'))]"/>
+                                <field name="product_uom_qty" />
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
+
+                <footer>
+                    <button string="Apply" name="apply_replacement" type="object" class="oe_highlight" />
+                    <button string="Cancel" class="btn btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="launch_order_line_product_replacement_wizard" model="ir.actions.act_window">
+        <field name="name">Order Line Product Replacement</field>
+        <field name="res_model">order.line.product.replacement.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    </data>
+</odoo>

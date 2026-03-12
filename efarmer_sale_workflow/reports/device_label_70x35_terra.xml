@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <template id="device_label_70x35_terra">
+
+        <t t-foreach="docs" t-as="doc">
+            <t t-set="lots" t-value="doc.lot_producing_ids if doc._name == 'mrp.production' else doc.lot_id"/>
+            <t t-set="upper_amendment"
+               t-value="lambda s,n,t: int(t and sum(1 for c in s[:n] if c.isupper() or c == '-')//5 + bool(sum(1 for c in s[:n] if c.isupper())%5)*1)"/>
+            <t t-set="cutter"
+               t-value="lambda s,n,t: s[:n-upper_amendment(s,n,t)] + bool(s[n-upper_amendment(s,n,t):]) * '..'"/>
+
+            ~DGR:IMG_TERRA,3630,33,,
+            gYF8K01C00FFCP01FF,
+            :gYF8K018007FCP01FF,
+            :gYF8K01I03FCK08J01FF,
+            hGFC03FE0301FC07IF80LF,
+            hGFC03FE0301FCJ038J07FF,
+            hGFC03FC0780FCJ018J03FF,
+            hGFC03F8J0FCJ018J03FF,
+            hGFC03F8J07CJ018J03FF,
+            hGFC03FK03CJ038J0IF,
+            hGFC03EK03C0JF80LF,
+            hGFC03EK01C0JF8J01FF,
+            hGFC03C07FF01C0JF8J01FF,
+            hGFC03C07FF80C0JF8J01FF,
+            hGFC0380IFC040JF8J01FF,
+            gF801XFE0781IFC040JF8J01FF,
+            YF8I03hGF,
+            XFCJ01hGF,
+            XFL07hF,
+            WFCL03hF,
+            WF007FC001hF,
+            VFE03IF801hF,
+            VF81JFE00hF,
+            VF07KF00hF,
+            UFC1LF807gYF,
+            UF83LFC07gYF,
+            UF0MFC07gYF,
+            TFE1MFE03gYF,
+            TFC7MFE03gYF,
+            TF87NF03gYF,
+            FF8M03FP03F038P07F8P07IFCM01FF,
+            FCN01FP01F03Q07F8P03IFN01FF,
+            F8N01FP01F03Q07F8P03FFCN01FF,
+            EO01FP01F03Q07F8P03FF8N01FF,
+            CO01FP01F03Q07F8P03FFO01FF,
+            CO01FP01F07Q07F8P03FEO01FF,
+            8O01FP01F07Q07F8P03FCO01FF,
+            8O03FP03F07Q07F8P03F8O01FF,
+            P07FP07F07Q07F8M01003F8O01FF,
+            003FC01KF007OF0F007LF007F803LF007F800KFC01FF,
+            007FC01KF007NFE0F007KFE007F803LF007F003KFC01FF,
+            00FFC01JFE007NFE0F007KFC007F803KFE007F003KFC01FF,
+            00FFC01JFCP07E1F0078M0FF803CM07F003KFC01FF,
+            83FFC01JFCP03E1F007N0FF8038M0FFP01FF,
+            JFC01JF8P03C1F007M01FF803N0FFP01FF,
+            JFC01JF8P03C3F007M01FF803M01FEP01FF,
+            JFC01JFQ0383F007M03FF803M03FEP01FF,
+            JFC01JFQ0387F007M07FF803M07FEP01FF,
+            JFC01IFE1P0307F007M0IF803M0FFEP01FF,
+            JFC01IFE1P030FF007L07IF803L03FFEP01FF,
+            JFC01IFE1P061FF0078J03JF8038J01IFEP01FF,
+            JFC01IFC3003MFC1FF007FFE001JF803IF001IFE007KFC01FF,
+            JFC01IFC3803MFC3FF007IFI0JF803IF800IFE00LFC01FF,
+            JFC01IFC3800MF87FF007IF8007IF803IFC007FFE00LFC01FF,
+            JFC01IFC38003LF07FF007IFC003IF803IFE003FFE00LFC01FF,
+            JFC01IF83CP0IF007IFE003IF803JF001FFE00LFC01FF,
+            JFC01IF83CO01IF007JF001IF803JF800FFE00LFC01FF,
+            JFC01IF83EO01IF007JF800IF803JFC007FE00LFC01FF,
+            JFC01IF83FO01IF007JFC007FF803JFE003FE00LFC01FF,
+            JFC01IF83F8N01IF007JFE003FF803KF001FE00LFC01FF,
+            JFC01IF83FCN01IF007KF001FF803KF800FE00LFC01FF,
+            JFC01IF83FFN01IF007KF800FF803KFC007E00LFC01FF,
+            JFC01IF81FFCM01IF807KFC007F803KFE007F00LFC01FF,
+            KF7JF81JFL07SFEQFBEUF,
+            PF80MFC0hJF,
+            PF80MF03hJF,
+            PFC07KFE07hJF,
+            PFC03KF80hKF,
+            PFC01JFE03hKF,
+            PFE007IF007hKF,
+            PFEI0FF801hLF,
+            QFM03hLF,
+            QF8L0hMF,
+            QFCK03hMF,
+            RFJ01hNF,
+            RFCI0hOF,
+            SFC1hPF,
+            gNFEgQ0KF,
+            gNF8gQ01JF,
+            gMFEgS07IF,
+            gMFCgS03IF,
+            gMF8gS01IF,
+            gMFgT01IF,
+            gMFgU0IF,
+            gLFEgU07FF,
+            :gLFCI01J0601FF8107FE040201FI0FFJ03FF,
+            gLFCI018I0F01FFC307FF0C0303FF00FFJ03FF,
+            gLF8I018001F803C0300F00C03030780EK01FF,
+            gLF8I018001980180300600C030301C0CK01FF,
+            gLFJ018001980180300600C030301C0CL0FF,
+            gLFJ0180031C0180300600C030300E0CL0FF,
+            gKFEJ0180030C0180300600C030300E0FFK07F,
+            :gKFCJ0180079E0180300600C030300E0CL03F,
+            gKFCJ018007FE0180300600E070300C0CL03F,
+            gKF8J0180060E0180300600E070301C0CL01F,
+            gKF8J01800E07018030060070E030380CL01F,
+            gKFK01FE0C07018030060079E039F00FFL0F,
+            gKFK01FE0C0301803006001F803FC00FF8K0F,
+            gJFEgY07,
+            :gJFCgY03,
+            :gJF8gY01,
+            :gJF,
+            :^FS
+
+
+
+            ~DGR:IMG_CE,2640,22,,::::::::::::
+            S0FFEU07FE,R0IFET0JF,Q0JFES07JF,
+            P03JFER03KF,O01KFER0LF,O03KFEQ03LF,
+            O0LFEQ07LF,N03LFEP01MF,N07LFEP03MF,
+            N0MFEP07MF,M01MFEO01NF,M07MFEO03NF,
+            M0NFEO07MFE,L01LFR0LF8,L01KF8Q01KFC,
+            L03JFCR03JFE,L07JFS03JF8,L0JFES07IFE,
+            K01JF8S0JFC,K01JFT0JF8,K03IFES01IFE,
+            K03IFCS03IFC,K07IF8S03IF8,K0JFT07IF,
+            K0IFET07IF,J01IFCT0IFE,J01IF8T0IFC,
+            J01IF8S01IFC,J03IFT01IF8,:J03FFET03IF,
+            J07FFET03IF,J07FFET03FFE,J07FFCT03FFE,
+            J07FFCT07FFE,J0IFCT07FFC,J0IF8T07NFC,
+            J0IF8T07NFE,:::::::::::J0IF8T07FFE,
+            J07FFCT07FFC,J07FFCT07FFE,J07FFCT03FFE,
+            J07FFET03FFE,J07FFET03IF,J03FFET03IF,
+            J03IFT01IF8,:J01IF8S01IFC,J01IFCT0IFC,
+            K0IFCT0IFE,K0IFET07IF,K07IFT07IF8,
+            K07IF8S03IFC,K03IFCS03IFE,K03IFES01JF,
+            K01JFT0JF8,L0JFCS0JFC,L0JFES07JF,
+            L07JF8R03JFC,L03JFER01KF,L01KFCR0KFC,
+            M0LFCQ0LFC,M07MFEO07NF,M03MFEO01NF,
+            M01MFEP0NF,N0MFEP07MF,N07LFEP03MF,
+            N01LFEQ0MF,O0LFEQ07LF,O03KFEQ01LF,
+            P0KFER07KF,P03JFER01KF,Q07IFES03JF,
+            R07FFET07IF,S01FCV0FC,,
+            ::::::::::::::::::::^FS
+
+            ~DGR:IMG_WHEE,1300,13,,
+            8gI04,CgI0C,EgH01C,7gH038,38gG07,
+            1CgG0E,0Eg01C,07g038,038N0IFCM07,
+            03CL03KFM0E,01EK0NFK01C,00FJ01JF03FFEJ038,
+            007J03FC0IFC7F8I07,0038I0FF80IFC07FF00E,
+            001CI0FF807FF801FF81C,I0E001FF8M0FF838,
+            I07003CF8M0FF87,I0380SF8E,I01C1SF1C,
+            J0E0RFE38,J0703CO0707,J0381CO070E,
+            J01C1CO071C,K0E1CO0738,K071CO0FF8,
+            K039CO0FF8,K01DCO0FF8,L0FCO0FF8,
+            L0FCO0F18,L07CN01F18,L03CN01E38,
+            L01EN03FF8,L01EN07FF8,M0FN0IF8,
+            M0F800JF9FE,M0FC00JFBCE,M0EE00KF8C,
+            M0E700KF1C,M0E380JFE1C,M0E1CJ0FC1C,
+            M0E0EJ0781C,M0E07J0F01C,M0E038001E01C,
+            M0E01C003C01C,M0601E003801C,M0700F007001C,
+            M0700780E001C,M07003C1C0018,M07001C380038,
+            M07I0FFI038,M07I07EI038,M07I03CI038,
+            :M07I07EI038,M07I0E7I038,M03001C380038,
+            M0300381C0038,M0380700E0038,M0380E007003,
+            M0381C003807,M03838001C07,M0387J0E07,
+            M038EJ0707,M039CJ0787,M03F8J03C7,
+            M03FK01E7,M01EL0F7,M03CL07F,
+            M03CL03E,M07CL01E,M0FCM0F,
+            L01FCM0F,L039CM0F8,L071CL01FC,
+            L0E1CL07FE,K01C1CL0IF,K03C1CK01IF8,
+            K0781CK03F3FC,K0F00CK03C0FE,J01E00CK07DE7F,
+            J03C00CK079F7F8,J07800EK07BF7BC,J0FI0MF9E79E,
+            I01EI0MFCE78F,I03CI0MFE0F87,I078I07EJ03IF038,
+            I0FJ07CJ01FFE01C,001EJ07CK0FFC00E,003CJ07CK07F8007,
+            0038V038,007W01C,00EX0E,
+            01CX07,038X038,07Y01C,
+            0Eg0E,1Cg07,38g03,1,^FS
+
+            ^XA
+            ^FO25,167
+            ^FB540,4,7,L,0
+            ^A0N,29
+            ^FH`
+            ^FD
+            <t
+                    t-esc="cutter((doc.product_id.description_label if doc.product_id.description_label else ''), 130, True)"/>
+            ^FS
+
+            <t t-if="lots">
+                ^FO782,30
+                ^FB370,1,1,L,0
+                ^A0B,33
+                ^FH`
+                ^FD<t t-esc="lots.mapped('display_name')"/>\&amp;^FS
+
+                ^FO620,254
+                ^BQN,2,7
+                ^FDMA,<t t-esc="lots.mapped('display_name')"/>^FS
+
+                ^FO590,270
+                ^FB120,2,7,L,0
+                ^A0B,25
+                ^FH`
+                ^FDSerial No:^FS
+            </t>
+
+            ^FO300,49
+            ^FB465,1,6,R,0
+            ^A0N,30,22
+            ^FH`
+            ^FD<t t-esc="doc.product_id.default_code"/>^FS
+            ^FO620,80
+            ^BXN,8,200
+            ^FD<t t-esc="doc.product_id.default_code"/>^FS
+
+            ^FO590,72
+            ^FB120,2,8,L,0
+            ^A0B,25
+            ^FH`
+            ^FDPart No:^FS
+
+
+            ^FO25,350
+            ^FB350,2,10,L,0
+            ^A0N,25
+            ^FH`
+            ^FDDESIGNED IN UKRAINE \&amp;MANUFACTURED IN POLAND^FS
+
+            ^FO25,50
+            ^XGR:IMG_TERRA,1,1^FS
+            ^FO430,305
+            ^XGR:IMG_CE,1,1^FS
+            ^FO345,310
+            ^XGR:IMG_WHEE,1,1^FS
+            ^XZ
+
+        </t>
+
+    </template>
+
+
+    <template id="device_label_70x35_terra_mrp_production">
+        <t t-call="efarmer_sale_workflow.device_label_70x35_terra"/>
+    </template>
+
+    <template id="device_label_70x35_terra_stock_quant">
+        <t t-call="efarmer_sale_workflow.device_label_70x35_terra"/>
+    </template>
+
+
+    <record id="action_device_label_terra_mrp_production" model="ir.actions.report">
+        <field name="name">Product Device Label (70x35) Terra</field>
+        <field name="model">mrp.production</field>
+        <field name="report_type">qweb-text</field>
+        <field name="report_name">efarmer_sale_workflow.device_label_70x35_terra_mrp_production</field>
+        <field name="report_file">efarmer_sale_workflow.device_label_70x35_terra_mrp_production</field>
+        <field name="print_report_name">'Product Device Label 70x35 Terra - %s' % (object.product_id.default_code)
+        </field>
+        <field name="binding_model_id" ref="mrp.model_mrp_production"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="action_stock_device_label_terra_quant" model="ir.actions.report">
+        <field name="name">Product Device Label (70x35) Terra</field>
+        <field name="model">stock.quant</field>
+        <field name="report_type">qweb-text</field>
+        <field name="report_name">efarmer_sale_workflow.device_label_70x35_terra_stock_quant</field>
+        <field name="report_file">efarmer_sale_workflow.device_label_70x35_terra_stock_quant</field>
+        <field name="print_report_name">'Product Device Label 70x35 Terra - %s' % (object.product_id.default_code)
+        </field>
+        <field name="binding_model_id" ref="stock.model_stock_quant"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

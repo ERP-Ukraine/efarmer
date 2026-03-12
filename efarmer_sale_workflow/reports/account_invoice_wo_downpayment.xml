@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+
+<template id="report_account_invoice_wo_downpayment_document" inherit_id="account.report_invoice_document" primary="True">
+    <!-- Here we should filter out 'line_section' lines. -->
+    <xpath expr="//t[@t-set='lines']" position="attributes">
+        <attribute name="t-value">o.invoice_line_ids.filtered(lambda l: l.display_type != 'line_section').sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)</attribute>
+    </xpath>
+    <xpath expr="//tbody[hasclass('invoice_tbody')]/t[@t-foreach='lines_to_report']//tr" position="attributes">
+        <attribute name="t-if">not line.has_deposit_deducted()</attribute>
+    </xpath>
+    <xpath expr="//div[@id='total']//t[@t-set='tax_totals']" position="attributes">
+        <attribute name="t-value">o.with_context(without_deposit=True).tax_totals</attribute>
+    </xpath>
+</template>
+
+<template id="report_account_invoice_wo_downpayment">
+    <t t-call="web.html_container">
+        <t t-set="efarmer_address_placement" t-value="True"/>
+        <t t-set="print_with_payments" t-value="True"/>
+        <t t-foreach="docs" t-as="doc">
+            <t t-set="o" t-value="doc"/>
+            <t t-set="lang" t-value="o.invoice_user_id.sudo().lang if o.move_type in ('in_invoice', 'in_refund') else o.partner_id.lang"/>
+            <t t-call="efarmer_sale_workflow.report_account_invoice_wo_downpayment_document" t-lang="lang"/>
+        </t>
+    </t>
+</template>
+
+<record id="action_report_account_invoice_wo_downpayment" model="ir.actions.report">
+    <field name="name">Invoices without Downpayment</field>
+    <field name="model">account.move</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">efarmer_sale_workflow.report_account_invoice_wo_downpayment</field>
+    <field name="report_file">efarmer_sale_workflow.report_account_invoice_wo_downpayment</field>
+    <field name="print_report_name">'Invoice - %s' % (object.name)</field>
+    <field name="binding_model_id" ref="account.model_account_move"/>
+    <field name="binding_type">report</field>
+</record>
+
+</odoo>
