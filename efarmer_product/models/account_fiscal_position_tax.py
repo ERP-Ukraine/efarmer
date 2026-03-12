@@ -31,10 +31,10 @@ class AccountFiscalPositionTax(models.Model):
     # THIS OVERRIDE CONSTRAIN
     # odoo/addons/account/models/partner.py
     # Task EF-182
-    _sql_constraints = [
-        (
-            "tax_src_dest_uniq",
-            "Check(1=1)",
-            "A tax fiscal position could be defined only one time on same taxes.",
-        )
-    ]
+    # _sql_constraints = [
+    #     (
+    #         "tax_src_dest_uniq",
+    #         "Check(1=1)",
+    #         "A tax fiscal position could be defined only one time on same taxes.",
+    #     )
+    # ]

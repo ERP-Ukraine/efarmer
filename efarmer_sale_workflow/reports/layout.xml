@@ -21,8 +21,8 @@
     <xpath expr="//t[@t-if='information_block']" position="replace">
         <t t-set="colclass" t-value="'col-5 offset-1'"/>
         <div name="proforma_payment_term" class="col-6">
-            <div t-if="o._name == 'sale.order'" t-field="o.payment_term_id.note"/>
-            <div t-if="o._name == 'account.move'">
+            <div t-if="o and o._name == 'sale.order'" t-field="o.payment_term_id.note"/>
+            <div t-if="o and o._name == 'account.move'">
             <!-- Head the company address with a title. The company is a "Sender" of invoices and a "Consignee" of vendor bills. -->
 <!--                <div class="address_title mb-2" t-if="o.invoice_payment_term_id.note">-->
 <!--                    <strong t-if="o.move_type.startswith('out_')">Sender:</strong>-->
@@ -32,6 +32,7 @@
             </div>
         </div>
     </xpath>
+
 </template>
 
 </odoo>

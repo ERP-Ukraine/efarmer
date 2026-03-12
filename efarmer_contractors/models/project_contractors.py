@@ -28,31 +28,10 @@ class ProjectContractors(models.Model):
         required=True,
         default=fields.Date.context_today,
         tracking=True,
-        states={
-            "new": [("readonly", False)],
-            "in_progress": [("readonly", True)],
-            "done": [("readonly", True)],
-        },
     )
-    end_date = fields.Date(
-        string="End Date",
-        required=True,
-        tracking=True,
-        states={
-            "new": [("readonly", False)],
-            "in_progress": [("readonly", True)],
-            "done": [("readonly", True)],
-        },
-    )
+    end_date = fields.Date(string="End Date", required=True, tracking=True)
     company_id = fields.Many2one(
-        "res.company",
-        "Company",
-        default=lambda self: self.env.company,
-        states={
-            "new": [("readonly", False)],
-            "in_progress": [("readonly", True)],
-            "done": [("readonly", True)],
-        },
+        "res.company", "Company", default=lambda self: self.env.company
     )
     employee_id = fields.Many2one(comodel_name="hr.employee")
     employee_type = fields.Selection(
@@ -64,14 +43,7 @@ class ProjectContractors(models.Model):
     product_id = fields.Many2one("product.product", "Product")
 
     contractors_line_ids = fields.One2many(
-        "project.contractors.line",
-        "contractors_id",
-        string="Contractors To",
-        states={
-            "new": [("readonly", False)],
-            "in_progress": [("readonly", True)],
-            "done": [("readonly", True)],
-        },
+        "project.contractors.line", "contractors_id", string="Contractors To"
     )
     analytic_line_ids = fields.Many2many(
         "account.analytic.line",

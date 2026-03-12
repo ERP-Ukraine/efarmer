@@ -36,11 +36,11 @@
                         </h1>
                     </div>
                     <group>
-                        <field name="company_id"/>
+                        <field name="company_id" readonly="state in ('in_progress', 'done')"/>
                     </group>
                     <group>
-                        <field name="start_date"/>
-                        <field name="end_date"/>
+                        <field name="start_date" readonly="state in ('in_progress', 'done')"/>
+                        <field name="end_date" readonly="state in ('in_progress', 'done')"/>
                     </group>
                     <group>
                         <field name="employee_type"/>
@@ -48,7 +48,7 @@
                     </group>
                     <notebook>
                         <page string="Invoice to">
-                            <field name="contractors_line_ids" nolabel="1">
+                            <field name="contractors_line_ids" nolabel="1" readonly="state in ('in_progress', 'done')">
                                 <list editable="top">
                                     <field name="employee_id"/>
                                     <field name="description"/>
