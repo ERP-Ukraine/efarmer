@@ -47,6 +47,7 @@
                     <table class="table table-sm">
                         <!-- Tax totals -->
                         <t t-set="tax_totals" t-value="doc.tax_totals"/>
+                        <t t-set="currency" t-value="doc.currency_id"/>
                         <t t-call="account.document_tax_totals"/>
                     </table>
               </div>

@@ -9,9 +9,7 @@
     "author": "VentorTech",
     "website": "https://ventor.tech",
     "license": "LGPL-3",
-    "depends": [
-        "base"
-    ],
+    "depends": ["base"],
     "data": [
         # Security
         # "security/ir.model.access.csv",

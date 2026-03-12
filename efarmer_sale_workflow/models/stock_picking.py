@@ -2,11 +2,11 @@ from odoo import fields, models, api
 
 
 class StockPicking(models.Model):
-    _inherit = 'stock.picking'
+    _inherit = "stock.picking"
 
     sale_state = fields.Selection(
-        related='sale_id.state',
-        string='Sale Status',
+        related="sale_id.state",
+        string="Sale Status",
         readonly=False,
     )
     # product_vat_id = fields.Many2one(
@@ -14,14 +14,14 @@ class StockPicking(models.Model):
     #     string='VAT ID',
     # )
     opportunity_stage_id = fields.Many2one(
-        comodel_name='crm.stage',
-        string='Opportunity Stage',
-        related='sale_id.opportunity_id.stage_id',
+        comodel_name="crm.stage",
+        string="Opportunity Stage",
+        related="sale_id.opportunity_id.stage_id",
         readonly=False,
     )
     sale_priority = fields.Selection(
-        related='sale_id.priority',
-        string='Sale Priority',
+        related="sale_id.priority",
+        string="Sale Priority",
     )
 
     def button_validate(self):
@@ -29,10 +29,10 @@ class StockPicking(models.Model):
         if res is True:
             for pick in self:
                 active_picks = pick.sale_id.picking_ids.filtered(
-                    lambda p: p.state not in ('done', 'cancel')
+                    lambda p: p.state not in ("done", "cancel")
                 )
                 if not active_picks:
-                    pick.sale_id.write({'priority': '0'})
+                    pick.sale_id.write({"priority": "0"})
         return res
 
     def action_cancel(self):
@@ -40,8 +40,8 @@ class StockPicking(models.Model):
         if res is True:
             for pick in self:
                 active_picks = pick.sale_id.picking_ids.filtered(
-                    lambda p: p.state not in ('done', 'cancel')
+                    lambda p: p.state not in ("done", "cancel")
                 )
                 if not active_picks:
-                    pick.sale_id.write({'priority': '0'})
+                    pick.sale_id.write({"priority": "0"})
         return res

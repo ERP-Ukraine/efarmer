@@ -4,7 +4,8 @@
 <template id="account_commercial_report_invoice_document" inherit_id="account.report_invoice_document" name="account_commercial_report_invoice_document">
     <xpath expr="//table[@name='invoice_snln_table']" position="replace">
     </xpath>
-    <xpath expr="//span[@t-field='o.invoice_payment_term_id.note']" position="replace">
+    <xpath expr="//span[@t-field='o.invoice_payment_term_id.note']" position="attributes">
+        <attribute name="class">d-none</attribute>
     </xpath>
 </template>
 

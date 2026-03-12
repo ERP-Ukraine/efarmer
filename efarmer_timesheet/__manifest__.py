@@ -15,6 +15,7 @@
         "project",
         "hr",
         "hr_timesheet",
+        "sale_timesheet",
         "hr_expense",
         "hr_payroll",
         "timesheet_grid",

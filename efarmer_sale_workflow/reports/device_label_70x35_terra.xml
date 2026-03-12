@@ -193,11 +193,11 @@
                 ^FB370,1,1,L,0
                 ^A0B,33
                 ^FH`
-                ^FD<t t-esc="lots.mapped('display_name')"/>\&amp;^FS
+                ^FD<t t-esc="', '.join(lots.mapped('display_name'))"/>\&amp;^FS 
 
                 ^FO620,254
                 ^BQN,2,7
-                ^FDMA,<t t-esc="lots.mapped('display_name')"/>^FS
+                ^FDMA,<t t-esc="', '.join(lots.mapped('display_name'))"/>^FS
 
                 ^FO590,270
                 ^FB120,2,7,L,0

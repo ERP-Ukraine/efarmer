@@ -19,13 +19,16 @@ class ProductFunction(models.Model):
         "product.function", "Parent Function", index=True, ondelete="cascade"
     )
 
-    _sql_constraints = [
-        (
-            "unique_product_function_name",
-            "unique (name)",
-            "This Product Function name already exists",
-        )
-    ]
+    # _sql_constraints = [
+    #     (
+    #         "unique_product_function_name",
+    #         "unique (name)",
+    #         "This Product Function name already exists",
+    #     )
+    # ]
+    _unique_product_function_name = models.Constraint(
+        "unique (name)", "This Product Function name already exists"
+    )
 
     @api.depends("name", "parent_id.complete_name")
     def _compute_complete_name(self):

@@ -19,6 +19,7 @@ class SaleOrderLine(models.Model):
 
         return super()._create(data_list)
 
+    # TODO: add logic to compute tax_id and vat_id
     # OVERRIDE METHOD
     # def _compute_tax_id(self):
     #     for line in self:
