@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="helpdesk_team_view_form_inherit" model="ir.ui.view">
+        <field name="name">helpdesk.team.view.form</field>
+        <field name="model">helpdesk.team</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_team_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='use_product_repairs']/.." position="after">
+                <setting help="Use short form" invisible="not (use_product_repairs or use_product_returns or use_credit_notes)">
+                    <field name="use_short_form"/>
+                </setting>
+            </xpath>
+
+            <xpath expr="//div[@id='after-sales']" position="after">
+                <group>
+                    <group>
+                        <field name="allowed_tag_ids" widget="many2many_tags"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

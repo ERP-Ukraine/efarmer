@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="helpdesk_ticket_view_form" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.form</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_sale.helpdesk_ticket_view_form_inherit_helpdesk_invoicing"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='email_cc']" position="after">
+                <field name="efarmer_client_type"/>
+                <field name="use_fsm" invisible="1"/>
+                <field name="use_coupons" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='sale_order_id']" position="replace">
+                <field name="sale_order_id"
+                       invisible="not (use_credit_notes or use_product_returns or use_product_repairs or use_fsm or use_coupons or use_product_replacements or use_giftcards)"
+                      />
+            </xpath>
+        </field>
+    </record>
+
+<record id="helpdesk_ticket_view_kanban" model="ir.ui.view">
+    <field name="name">helpdesk.ticket.kanban</field>
+    <field name="model">helpdesk.ticket</field>
+    <field name="inherit_id" ref="helpdesk.helpdesk_ticket_view_kanban"/>
+    <field name="arch" type="xml">
+        <xpath expr="//field[@name='commercial_partner_id']/.." position="after">
+            <div><field name="efarmer_client_type"/></div>
+        </xpath>
+    </field>
+</record>
+
+</odoo>
