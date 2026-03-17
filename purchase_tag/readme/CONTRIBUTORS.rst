@@ -1,0 +1,2 @@
+- Jasmin Solanki \<<jasmin.solanki@forgeflow.com>\>
+- Hudson Amadeus Leonardy \<<https://solusiaglis.co.id>\>
