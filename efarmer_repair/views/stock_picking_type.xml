@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <record id="view_stock_picking_type_form_inherit_repair" model="ir.ui.view">
+        <field name="name">stock.picking.type.form.inherit.repair</field>
+        <field name="model">stock.picking.type</field>
+        <field name="inherit_id" ref="stock.view_picking_type_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='default_location_dest_id_div']" position="after">
+                <label for="repair_location_dest_id" name="repair_location_dest_id_label"/>
+                <div class="o_row" name="repair_location_dest_id">
+                    <field name="repair_location_dest_id"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
