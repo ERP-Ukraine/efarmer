@@ -1,6 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 trilab_ksef.access_ksef_settings,access_ksef_settings,trilab_ksef.model_ksef_settings,base.group_user,1,0,0,0
 trilab_ksef.access_ksef_settings_manager,access_ksef_settings,trilab_ksef.model_ksef_settings,account.group_account_manager,1,1,1,1
-trilab_ksef.access_ksef_tax_tag,access_ksef_tax_tag,trilab_ksef.model_ksef_tax_tag,base.group_user,1,0,0,0
 trilab_ksef.access_ksef_report,access_ksef_report,trilab_ksef.model_report_trilab_ksef_report_invoice,base.group_user,1,0,0,0
 trilab_ksef.access_ksef_batch_import_wizard,access_ksef_batch_import_wizard,trilab_ksef.model_ksef_batch_import_wizard,account.group_account_manager,1,1,1,1

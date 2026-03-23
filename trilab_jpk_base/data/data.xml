@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <odoo noupdate="0">
     <record id="jpk_vat_doc_att" model="ir.attachment">
         <field name="datas" type="base64" file="trilab_jpk_base/data/Schemat_JPK_VAT(3)_v1-1.xsd"/>

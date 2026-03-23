@@ -7,13 +7,7 @@ from odoo.modules import get_resource_path
 class JPKTaxOffice(models.Model):
     _name = 'jpk.taxoffice'
     _description = 'JPK Tax Offices'
-    _sql_constraints = [
-        (
-            '_jpk_tax_office_code_unique_constraint',
-            'unique(code)',
-            'Tax Office code must me unique',
-        )
-    ]
+    _sql_constraints = [('_jpk_tax_office_code_unique_constraint', 'UNIQUE(code)', 'Tax Office code must me unique')]
 
     name = fields.Char(required=1, size=200, index=True)
     code = fields.Char(required=1, size=10, index=True)

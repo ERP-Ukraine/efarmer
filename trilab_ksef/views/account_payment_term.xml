@@ -7,8 +7,10 @@
         <field name="inherit_id" ref="account.view_payment_term_form"/>
         <field name="arch" type="xml">
             <xpath expr="//group[1]" position="inside">
-                <field name="x_ksef_payment_term_type"/>
-                <field name="x_ksef_payment_state_mapping"/>
+                <group>
+                    <field name="x_ksef_payment_term_type"/>
+                    <field name="x_ksef_payment_state_mapping"/>
+                </group>
             </xpath>
         </field>
     </record>

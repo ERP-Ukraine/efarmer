@@ -3,10 +3,10 @@ import logging
 from datetime import datetime, timedelta
 
 from cryptography.fernet import Fernet
-
-from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.modules.registry import Registry
+
+from odoo import _, api, fields, models
 
 from .ksef_client import KsefAuthenticationStatusError, KsefClient, KsefClientError
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
     <record id="jpk_document_type_tree" model="ir.ui.view">
         <field name="name">jpk_document_type_tree</field>
@@ -33,7 +33,7 @@
                             <field name="xsd_id" invisible="1"/>
                             <field name="xsd_id_datas" widget="binary" filename="xsd_id_name" readonly="0"/>
                             <field name="xsd_id_name" readonly="0" invisible="1"/>
-                             <field name="gate_type" widget="radio"/>
+                            <field name="gate_type" widget="radio"/>
                         </group>
                         <group/>
                     </group>
@@ -43,5 +43,4 @@
             </form>
         </field>
     </record>
-
 </odoo>

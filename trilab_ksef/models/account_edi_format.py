@@ -1,12 +1,13 @@
 import json
 import logging
+import math
 from datetime import datetime, timezone
 
 import pytz
 from lxml import etree
+from odoo.tools import float_is_zero, float_repr
 
 from odoo import _, api, fields, models, tools
-from odoo.tools import float_is_zero, float_repr
 
 from .ksef_client import InvoiceBatchExportPendingError, KsefClientError, KsefInvoiceBatchExportError
 
@@ -32,6 +33,14 @@ class AccountEdiFormat(models.Model):
             return super()._is_compatible_with_journal(journal)
 
         return journal.country_code == 'PL' and journal.type == 'sale'
+
+    def _is_enabled_by_default_on_journal(self, journal):
+        self.ensure_one()
+
+        if self.code == KSEF_CODE:
+            return False
+
+        return super()._is_enabled_by_default_on_journal(journal)
 
     def _check_move_configuration(self, move):
         self.ensure_one()
@@ -180,6 +189,23 @@ class AccountEdiFormat(models.Model):
 
             if len(move_id.original_invoice_line_ids) != len(move_id.corrected_invoice_line_ids):
                 errors.append(_('- Number of corrected invoice lines does not match number of original invoice lines'))
+
+        if (
+            sum(
+                [
+                    move_id.x_pl_vat_wsto_ee,
+                    move_id.x_pl_vat_ied,
+                    move_id.x_pl_vat_tt_d,
+                    move_id.x_pl_vat_i42,
+                    move_id.x_pl_vat_i63,
+                    move_id.x_pl_vat_b_spv,
+                    move_id.x_pl_vat_b_spv_dostawa,
+                    move_id.x_pl_vat_b_mpv_prowizja,
+                ]
+            )
+            > 1
+        ):
+            errors.append(_('- Too many procedures selected. Please select only one or none.'))
 
         return errors
 
@@ -336,14 +362,30 @@ class AccountEdiFormat(models.Model):
                 'address_line_2': invoice_id.partner_id.street2 or None,
             },
             'nip': invoice_id.partner_id.x_get_pl_vat(raise_exception=True),
-            'vat_eu': (vat_eu := invoice_id.partner_id.x_get_eu_vat()),
+            'vat_eu': (vat_eu := invoice_id.partner_id.x_get_eu_vat()) and vat_eu[2:],
             'vat_eu_code': invoice_id.partner_id.x_get_eu_vat_country(),
             'tin': not vat_eu and invoice_id.partner_id.company_registry,
         }
 
     @api.model
-    def _x_ksef_get_default_uom_id(self):
-        return self.env.ref('uom.product_uom_unit')
+    def _x_ksef_get_invoice_procedure(self, invoice_id):
+        if invoice_id.x_pl_vat_wsto_ee:
+            return 'WSTO_EE'
+        if invoice_id.x_pl_vat_ied:
+            return 'IED'
+        if invoice_id.x_pl_vat_tt_d:
+            return 'TT_D'
+        if invoice_id.x_pl_vat_i42:
+            return 'I_42'
+        if invoice_id.x_pl_vat_i63:
+            return 'I_63'
+        if invoice_id.x_pl_vat_b_spv:
+            return 'B_SPV'
+        if invoice_id.x_pl_vat_b_spv_dostawa:
+            return 'B_SPV_DOSTAWA'
+        if invoice_id.x_pl_vat_b_mpv_prowizja:
+            return 'B_MPV_PROWIZJA'
+        return None
 
     @api.model
     def _x_ksef_amount_repr(self, value):
@@ -357,19 +399,13 @@ class AccountEdiFormat(models.Model):
 
         invoice_line_ids = invoice_id.x_ksef_get_invoice_line_ids()
 
-        default_uom_id = None
-        itemized_invoice_date = invoice_id.x_ksef_invoice_date_applicability == 'itemized'
-
         for index, line_id in enumerate(invoice_line_ids, start=1):
-            if not default_uom_id and not line_id.product_uom_id:
-                default_uom_id = self._x_ksef_get_default_uom_id()
-
             is_corrected_line = line_id.corrected_line
             quantity = line_id.quantity if not is_corrected_line else line_id.x_quantity_reverse
 
             taxes_res = line_id.tax_ids.compute_all(
                 line_id.price_unit,
-                quantity=quantity,
+                quantity=math.copysign(1.0, quantity),
                 currency=line_id.currency_id,
                 product=line_id.product_id,
                 partner=line_id.partner_id,
@@ -378,11 +414,21 @@ class AccountEdiFormat(models.Model):
             price_unit_untaxed = taxes_res['total_excluded']
             price_unit = taxes_res['total_included']
 
+            if invoice_id.x_ksef_invoice_date_applicability == 'itemized':
+                # field in account_accountant - enterprise version
+                line_date = (
+                    getattr(line_id, 'deferred_end_date', None) or line_id.move_id.x_invoice_sale_date
+                ).isoformat()
+            else:
+                line_date = None
+
             res.append(
                 {
                     'index': str(index),
                     'uom_name': (
-                        (line_id.product_uom_id or default_uom_id).with_context(lang=invoice_id.partner_id.lang).name
+                        line_id.product_uom_id.with_context(lang=invoice_id.partner_id.lang).name
+                        if line_id.product_uom_id
+                        else None
                     ),
                     'name': line_id.name,
                     'quantity': float_repr(
@@ -402,11 +448,8 @@ class AccountEdiFormat(models.Model):
                     'barcode': line_id.product_id.barcode if enable_barcodes else None,
                     'gtu': line_id.x_pl_vat_gtu.name,
                     'is_corrected': is_corrected_line,
-                    'date': (
-                        (line_id.deferred_end_date or line_id.move_id.x_invoice_sale_date).isoformat()
-                        if itemized_invoice_date
-                        else None
-                    ),
+                    'date': line_date,
+                    'procedure': self._x_ksef_get_invoice_procedure(invoice_id),
                 }
             )
 
@@ -433,22 +476,19 @@ class AccountEdiFormat(models.Model):
 
         if invoice_id.company_id.x_ksef_enable_ignore_zero_amount_lines:
             order_line_ids = order_line_ids.filtered(
-                lambda _l_id: not float_is_zero(
-                    _l_id.price_unit, self.env['decimal.precision'].precision_get('Product Price')
+                lambda _l_id: (
+                    not float_is_zero(_l_id.price_unit, self.env['decimal.precision'].precision_get('Product Price'))
                 )
             )
 
-        default_uom_id = None
-
         for index, line_id in enumerate(order_line_ids, start=1):
-            if not default_uom_id and not line_id.product_uom:
-                default_uom_id = self._x_ksef_get_default_uom_id()
-
             res.append(
                 {
                     'index': str(index),
                     'uom_name': (
-                        (line_id.product_uom or default_uom_id).with_context(lang=invoice_id.partner_id.lang).name
+                        line_id.product_uom.with_context(lang=invoice_id.partner_id.lang).name
+                        if line_id.product_uom
+                        else None
                     ),
                     'name': line_id.name,
                     'quantity': float_repr(
@@ -539,9 +579,9 @@ class AccountEdiFormat(models.Model):
         return self._x_ksef_amount_repr(
             sum(
                 group[field]
-                for group in filter(
-                    lambda _g: _g['tax_group_id'] in tax_groups, *tax_totals['groups_by_subtotal'].values()
-                )
+                for groups in tax_totals['groups_by_subtotal'].values()
+                for group in groups
+                if group['tax_group_id'] in tax_groups
             ),
         )
 
@@ -550,13 +590,15 @@ class AccountEdiFormat(models.Model):
         return self._x_ksef_get_tax_base_amount(invoice_id, tax_amounts, field=field)
 
     @api.model
-    def _x_ksef_get_zero_tax_base_amount(self, invoice_id, tag_name):
+    def _x_ksef_get_zero_tax_base_amount(self, invoice_id, ksef_tax_amount):
         return self._x_ksef_amount_repr(
             abs(
                 sum(
-                    invoice_id.line_ids.filtered(lambda _l: _l.tax_tag_ids.x_ksef_tax_tag_id.name == tag_name).mapped(
-                        'balance'
-                    )
+                    invoice_id.line_ids.filtered(
+                        lambda _l_id: (
+                            (tax_id := fields.first(_l_id.tax_ids)) and tax_id.x_ksef_amount == ksef_tax_amount
+                        )
+                    ).mapped('amount_currency')
                 )
             ),
         )
@@ -591,10 +633,13 @@ class AccountEdiFormat(models.Model):
                 if invoice_id.currency_id != invoice_id.company_currency_id
                 else None
             ),
-            'p_13_6_1': self._x_ksef_get_zero_tax_base_amount(invoice_id, tag_name='P_13_6_1'),
-            'p_13_6_2': self._x_ksef_get_zero_tax_base_amount(invoice_id, tag_name='P_13_6_2'),
-            'p_13_6_3': self._x_ksef_get_zero_tax_base_amount(invoice_id, tag_name='P_13_6_3'),
-            'p_13_7': self._x_ksef_get_zero_tax_base_amount(invoice_id, tag_name='P_13_7'),
+            'p_13_6_1': self._x_ksef_get_zero_tax_base_amount(invoice_id, ksef_tax_amount='0 KR'),
+            'p_13_6_2': self._x_ksef_get_zero_tax_base_amount(invoice_id, ksef_tax_amount='0 WDT'),
+            'p_13_6_3': self._x_ksef_get_zero_tax_base_amount(invoice_id, ksef_tax_amount='0 EX'),
+            'p_13_7': self._x_ksef_get_zero_tax_base_amount(invoice_id, ksef_tax_amount='zw'),
+            'p_13_8': self._x_ksef_get_zero_tax_base_amount(invoice_id, ksef_tax_amount='np I'),
+            'p_13_9': self._x_ksef_get_zero_tax_base_amount(invoice_id, ksef_tax_amount='np II'),
+            'p_13_10': self._x_ksef_get_zero_tax_base_amount(invoice_id, ksef_tax_amount='oo'),
             'p_15': self._x_ksef_amount_repr(json.loads(invoice_id.tax_totals_json)['amount_total']),
             'currency_rate': self._x_ksef_get_invoice_currency_rate(invoice_id),
             'p_16': invoice_id.x_ksef_p_16,
@@ -617,7 +662,7 @@ class AccountEdiFormat(models.Model):
             'order_amount_total': self._x_ksef_get_order_amount_total(invoice_id),
             'order_lines': self._x_ksef_get_order_lines(invoice_id),
             'orders_data': self._x_ksef_get_orders_data(invoice_id),
-            'invoice_ref': invoice_id.ref,
+            'invoice_ref': invoice_id.ref or invoice_id.invoice_origin,
             'price_include_tax': fields.first(invoice_id.invoice_line_ids.tax_ids).price_include,
             'invoice_id': invoice_id,
             'invoice_date_due': invoice_id.invoice_date_due and invoice_id.invoice_date_due.isoformat(),
@@ -650,6 +695,7 @@ class AccountEdiFormat(models.Model):
                 else None
             ),
             'fp': invoice_id.x_pl_vat_typ_dokumentu == 'FP',
+            'tp': invoice_id.x_pl_vat_tp,
             'payments_data': self._x_ksef_get_invoice_payments_data(invoice_id),
         }
 
@@ -659,6 +705,17 @@ class AccountEdiFormat(models.Model):
 
         if text is not None:
             element.text = str(text)
+
+        return element
+
+    @api.model
+    def _x_ksef_prepend_element(self, parent, tns, name, text=None, **attrs):
+        element = etree.Element(etree.QName(tns, name), attrib=attrs)
+
+        if text is not None:
+            element.text = str(text)
+
+        parent.insert(0, element)
 
         return element
 
@@ -755,12 +812,10 @@ class AccountEdiFormat(models.Model):
 
             self._x_ksef_create_conditional_element(fa_el, tns, f'P_14_{tax_i}W', value=invoice_data[f'p_14_{tax_i}w'])
 
-        for zero_tax in ('P_13_6_1', 'P_13_6_2', 'P_13_6_3', 'P_13_7'):
+        for zero_tax in ('P_13_6_1', 'P_13_6_2', 'P_13_6_3', 'P_13_7', 'P_13_8', 'P_13_9', 'P_13_10'):
             self._x_ksef_create_element(fa_el, tns, zero_tax, text=invoice_data[zero_tax.lower()])
 
         self._x_ksef_create_element(fa_el, tns, 'P_15', text=invoice_data['p_15'])
-
-        self._x_ksef_create_conditional_element(fa_el, tns, 'KursWalutyZ', value=invoice_data['currency_rate'])
 
     @api.model
     def _x_ksef_build_annotations(self, invoice_data, fa_el, tns):
@@ -813,6 +868,11 @@ class AccountEdiFormat(models.Model):
     def _x_ksef_build_fp(self, invoice_data, fa_el, tns):
         if invoice_data['fp']:
             self._x_ksef_create_element(fa_el, tns, 'FP', text='1')
+
+    @api.model
+    def _x_ksef_build_tp(self, invoice_data, fa_el, tns):
+        if invoice_data['tp']:
+            self._x_ksef_create_element(fa_el, tns, 'TP', text='1')
 
     @api.model
     def _x_ksef_build_correction(self, invoice_data, fa_el, tns):
@@ -873,7 +933,7 @@ class AccountEdiFormat(models.Model):
 
             self._x_ksef_create_conditional_element(line_el, tns, 'GTIN', value=line['barcode'])
 
-            self._x_ksef_create_element(line_el, tns, 'P_8A', text=line['uom_name'])
+            self._x_ksef_create_conditional_element(line_el, tns, 'P_8A', value=line['uom_name'])
             self._x_ksef_create_element(line_el, tns, 'P_8B', text=line['quantity'])
 
             if invoice_data['price_include_tax']:
@@ -893,6 +953,9 @@ class AccountEdiFormat(models.Model):
             self._x_ksef_create_element(line_el, tns, 'P_12', text=line['tax_rate'])
 
             self._x_ksef_create_conditional_element(line_el, tns, 'GTU', value=line['gtu'])
+
+            self._x_ksef_create_conditional_element(fa_el, tns, 'KursWaluty', value=invoice_data['currency_rate'])
+            self._x_ksef_create_conditional_element(line_el, tns, 'Procedura', value=line['procedure'])
 
             if invoice_data['invoice_type'].startswith('KOR') and not line['is_corrected']:
                 self._x_ksef_create_element(line_el, tns, 'StanPrzed', text='1')
@@ -949,19 +1012,23 @@ class AccountEdiFormat(models.Model):
 
     @api.model
     def _x_ksef_build_transaction_conditions(self, invoice_data, fa_el, tns):
-        if not (invoice_data['orders_data'] or invoice_data['invoice_ref']):
+        if not (invoice_data['invoice_ref'] or invoice_data['orders_data']):
             return
 
         transaction_conditions_el = self._x_ksef_create_element(fa_el, tns, 'WarunkiTransakcji')
 
-        for order_data in invoice_data['orders_data']:
-            order_el = self._x_ksef_create_element(transaction_conditions_el, tns, 'Zamowienia')
-            self._x_ksef_create_element(order_el, tns, 'DataZamowienia', text=order_data['order_date'])
-            self._x_ksef_create_element(order_el, tns, 'NrZamowienia', text=order_data['order_name'])
+        invoice_ref_order_el = None
+        if invoice_data['invoice_ref']:
+            invoice_ref_order_el = self._x_ksef_create_element(transaction_conditions_el, tns, 'Zamowienia')
+            self._x_ksef_create_element(invoice_ref_order_el, tns, 'NrZamowienia', text=invoice_data['invoice_ref'])
 
-        if not invoice_data['orders_data']:
-            order_el = self._x_ksef_create_element(transaction_conditions_el, tns, 'Zamowienia')
-            self._x_ksef_create_element(order_el, tns, 'NrZamowienia', text=invoice_data['invoice_ref'])
+        for order_data in invoice_data['orders_data']:
+            if invoice_ref_order_el and order_data['order_name'] == invoice_data['invoice_ref']:
+                self._x_ksef_prepend_element(invoice_ref_order_el, tns, 'DataZamowienia', text=order_data['order_date'])
+            else:
+                order_el = self._x_ksef_create_element(transaction_conditions_el, tns, 'Zamowienia')
+                self._x_ksef_create_element(order_el, tns, 'DataZamowienia', text=order_data['order_date'])
+                self._x_ksef_create_element(order_el, tns, 'NrZamowienia', text=order_data['order_name'])
 
     @api.model
     def _x_ksef_build_order(self, invoice_data, fa_el, tns):
@@ -980,7 +1047,7 @@ class AccountEdiFormat(models.Model):
 
             self._x_ksef_create_conditional_element(order_line_el, tns, 'GTINZ', value=order_line['barcode'])
 
-            self._x_ksef_create_element(order_line_el, tns, 'P_8AZ', text=order_line['uom_name'])
+            self._x_ksef_create_conditional_element(order_line_el, tns, 'P_8AZ', value=order_line['uom_name'])
             self._x_ksef_create_element(order_line_el, tns, 'P_8BZ', text=order_line['quantity'])
             self._x_ksef_create_element(order_line_el, tns, 'P_9AZ', text=order_line['price_unit_untaxed'])
 
@@ -1024,6 +1091,7 @@ class AccountEdiFormat(models.Model):
         self._x_ksef_build_correction(invoice_data, fa_el, tns)
 
         self._x_ksef_build_fp(invoice_data, fa_el, tns)
+        self._x_ksef_build_tp(invoice_data, fa_el, tns)
 
         self._x_ksef_build_advance_invoice(invoice_data, fa_el, tns)
 
@@ -1068,10 +1136,15 @@ class AccountEdiFormat(models.Model):
 
         for company_id in company_ids:
             client = company_id.x_ksef_get_authenticated_client()
-            batch_ref = client.start_invoice_batch_export(
-                date_from=(date_from or company_id.x_ksef_purchase_invoice_sync_date or default_date_from),
-                date_to=date_to,
-            )
+
+            try:
+                batch_ref = client.start_invoice_batch_export(
+                    date_from=(date_from or company_id.x_ksef_purchase_invoice_sync_date or default_date_from),
+                    date_to=date_to,
+                )
+            except KsefClientError as error:
+                _logger.exception('KSeF batch import error for company %s: %s', company_id.id, str(error))
+                continue
 
             _logger.info(
                 'KSeF cron started batch import for company %s with batch reference %s.',
@@ -1146,8 +1219,15 @@ class AccountEdiFormat(models.Model):
                         company_id.id,
                     )
                     continue
+                except KsefClientError as error:
+                    _logger.exception(
+                        'KSeF batch %s import error for company %s: %s', batch_ref, company_id.id, str(error)
+                    )
+                    icp_id.set_param(state_key, None)
+                    continue
 
                 if export_result is None:
+                    icp_id.set_param(state_key, None)
                     continue
 
                 try:
@@ -1207,11 +1287,10 @@ class AccountEdiFormat(models.Model):
                             attachment_ids=attachment_id.ids,
                         )
 
+                        self.with_company(company_id).with_context(
+                            account_predictive_bills_disable_prediction=True
+                        )._update_invoice_from_attachment(move_id.x_ksef_attachment_id, move_id)
                         move_id._x_ksef_create_report_attachment(report_id)
-
-                        self.with_company(company_id)._update_invoice_from_attachment(
-                            move_id.x_ksef_attachment_id, move_id
-                        )
                         _logger.debug('Created %s from %s', move_id.name, filename)
 
                 except KsefInvoiceBatchExportError:
@@ -1221,8 +1300,8 @@ class AccountEdiFormat(models.Model):
                         company_id.id,
                     )
                     continue
-
-                icp_id.set_param(state_key, None)
+                finally:
+                    icp_id.set_param(state_key, None)
 
                 company_id.x_ksef_purchase_invoice_sync_date = max(
                     company_id.x_ksef_purchase_invoice_sync_date or datetime.min,
@@ -1257,7 +1336,7 @@ class AccountEdiFormat(models.Model):
 
     # noinspection PyMethodMayBeStatic
     def _x_ksef_is_vendor_bill_xml(self, file_xml_tree):
-        if form_code := next(iter(file_xml_tree.xpath('.//tns:KodFormularza', namespaces=NS)), None):
+        if (form_code := next(iter(file_xml_tree.xpath('.//tns:KodFormularza', namespaces=NS)), None)) is not None:
             return form_code.attrib.get('kodSystemowy') == 'FA (3)' and form_code.attrib.get('wersjaSchemy') == '1-0E'
         return False
 

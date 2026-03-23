@@ -1,13 +1,14 @@
 import base64
 
 from lxml import etree
-
-from odoo import _, api, fields, models
+from markupsafe import Markup
 from odoo.exceptions import ValidationError
 from odoo.tools import file_path
 
-from ..models.account_move import KSEF_CODE, NS
-from ..models.utils import find_xml_value
+from odoo import _, api, fields, models
+
+from ..models.account_edi_format import KSEF_CODE
+from ..models.ksef_xml_utils import parse_ksef_xml
 
 INVOICE_TYPES = {
     'VAT': 'Faktura podstawowa',
@@ -43,14 +44,13 @@ class ReportTrilabKsefInvoice(models.Model):
                 ).attachment_id.datas
             ):
                 try:
+                    ksef_faktura = parse_ksef_xml(base64.b64decode(file_data))
                     tree = etree.fromstring(base64.b64decode(file_data))
 
-                    data[move_id.id]['number'] = find_xml_value('tns:Fa/tns:P_2', tree, namespaces=NS)
-                    data[move_id.id]['type'] = INVOICE_TYPES.get(
-                        find_xml_value('tns:Fa/tns:RodzajFaktury', tree, namespaces=NS)
-                    )
-                    data[move_id.id]['system_info'] = find_xml_value('tns:Naglowek/tns:SystemInfo', tree, namespaces=NS)
-                    data[move_id.id]['html'] = xslt(tree)
+                    data[move_id.id]['number'] = ksef_faktura.Fa.P_2.text
+                    data[move_id.id]['type'] = INVOICE_TYPES.get(ksef_faktura.Fa.RodzajFaktury.text)
+                    data[move_id.id]['system_info'] = ksef_faktura.Naglowek.SystemInfo.text
+                    data[move_id.id]['html'] = Markup(xslt(tree))
 
                 except (etree.XMLSyntaxError, etree.XSLTParseError) as error:
                     raise ValidationError(

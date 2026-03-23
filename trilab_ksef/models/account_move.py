@@ -2,16 +2,22 @@ import base64
 import logging
 from typing import Optional, Tuple
 
+from lxml import etree
 from markupsafe import Markup
-
-from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import Form
 from odoo.tools import float_is_zero, image_data_uri
 from odoo.tools.safe_eval import dateutil, safe_eval, time
 
+from odoo import _, api, fields, models
+
 from .account_edi_format import KSEF_CODE, NS
-from .ksef_client import KsefClient, KsefClientError, KsefStatusCode
+from .ksef_client import (
+    KsefClient,
+    KsefClientError,
+    KsefStatusCode,
+)
+from .ksef_xml_utils import parse_ksef_xml
 from .utils import find_xml_value
 
 _logger = logging.getLogger(__name__)
@@ -369,11 +375,11 @@ class AccountMove(models.Model):
             )
         )
 
-    def _x_ksef_search_product_for_import(self, invoice_line_node):
+    def _x_ksef_search_product_for_import(self, ksef_fa_wiersz):
         return self.env['product.product']._x_ksef_retrieve_product(
-            name=find_xml_value('.//tns:P_7', invoice_line_node, namespaces=NS),
-            barcode=find_xml_value('.//tns:GTIN', invoice_line_node, namespaces=NS),
-            default_code=find_xml_value('.//tns:Indeks', invoice_line_node, namespaces=NS),
+            name=ksef_fa_wiersz.P_7.text,
+            barcode=ksef_fa_wiersz.GTIN.text,
+            default_code=ksef_fa_wiersz.Indeks.text,
         )
 
     def _x_ksef_search_tax_for_import(self, amount_code, price_included):
@@ -390,110 +396,101 @@ class AccountMove(models.Model):
         )
 
     # noinspection PyMethodMayBeStatic
-    def _x_ksef_parse_annotations(self, xml_tree):
+    def _x_ksef_parse_annotations(self, ksef_fa):
         annotations_data = {}
 
-        if not (annotations_el := xml_tree.xpath('.//tns:Adnotacje', namespaces=NS)):
+        if (annotations_el := ksef_fa.Adnotacje) is None:
             return annotations_data
 
-        annotations_el = annotations_el[0]
-
         for annotation_field in ('P_16', 'P_17', 'P_18', 'P_18A'):
-            if annotation_value := find_xml_value(f'.//tns:{annotation_field}', annotations_el, namespaces=NS):
+            if (annotation_value := getattr(annotations_el, annotation_field, None)) is not None:
                 field_name = f'x_ksef_{annotation_field.lower()}'
-                annotations_data[field_name] = annotation_value == '1'
+                annotations_data[field_name] = annotation_value == 1
 
-        if zwolnienie_nodes := annotations_el.xpath('.//tns:Zwolnienie', namespaces=NS):
-            zwolnienie_el = zwolnienie_nodes[0]
-            if p19_value := find_xml_value('.//tns:P_19', zwolnienie_el, namespaces=NS):
-                annotations_data['x_ksef_p_19'] = p19_value == '1'
+        if (zwolnienie_el := annotations_el.Zwolnienie) is not None:
+            if (p19_value := zwolnienie_el.P_19) is not None:
+                annotations_data['x_ksef_p_19'] = p19_value == 1
 
                 if annotations_data['x_ksef_p_19']:
                     for p19_subfield in ('P_19A', 'P_19B', 'P_19C'):
-                        if p19_sub_value := find_xml_value(f'.//tns:{p19_subfield}', zwolnienie_el, namespaces=NS):
+                        if (p19_sub_value := getattr(zwolnienie_el, p19_subfield, None)) is not None:
                             field_name = f'x_ksef_{p19_subfield.lower()}'
-                            annotations_data[field_name] = p19_sub_value
+                            annotations_data[field_name] = p19_sub_value.text
                             break
 
-        if p23_value := find_xml_value('.//tns:P_23', annotations_el, namespaces=NS):
-            annotations_data['x_ksef_p_23'] = p23_value == '1'
+        if (p23_value := annotations_el.P_23) is not None:
+            annotations_data['x_ksef_p_23'] = p23_value == 1
 
-        if pmarzy_nodes := annotations_el.xpath('.//tns:PMarzy', namespaces=NS):
-            pmarzy_el = pmarzy_nodes[0]
-            if p_pmarzy_value := find_xml_value('.//tns:P_PMarzy', pmarzy_el, namespaces=NS):
-                annotations_data['x_ksef_p_pmarzy'] = p_pmarzy_value == '1'
+        if (pmarzy_el := annotations_el.PMarzy) is not None:
+            if p_pmarzy_value := pmarzy_el.P_PMarzy.text:
+                annotations_data['x_ksef_p_pmarzy'] = p_pmarzy_value == 1
 
                 if annotations_data['x_ksef_p_pmarzy']:
-                    for pmarzy_subfield in ('P_PMarzy_2', 'P_PMarzy_3_1', 'P_PMarzy_3_2', 'P_PMarzy_3_3'):
-                        if pmarzy_sub_value := find_xml_value(f'.//tns:{pmarzy_subfield}', pmarzy_el, namespaces=NS):
+                    for pmarzy_subfield in ['P_PMarzy_2', 'P_PMarzy_3_1', 'P_PMarzy_3_2', 'P_PMarzy_3_3']:
+                        if (pmarzy_sub_value := getattr(pmarzy_el, pmarzy_subfield, None)) is not None:
                             field_name = f'x_ksef_{pmarzy_subfield.lower()}'
-                            annotations_data[field_name] = pmarzy_sub_value == '1'
+                            annotations_data[field_name] = pmarzy_sub_value == 1
                             break
 
         return annotations_data
 
-    def _x_ksef_parse_invoice_lines(self, xml_tree, move_type, message_to_log):
-        invoice_lines_vals = []
+    def _x_ksef_add_invoice_lines(self, ksef_fa, invoice_form, message_to_log):
+        if invoice_form.move_type != 'in_invoice':
+            return
 
-        if move_type != 'in_invoice':
-            return invoice_lines_vals
+        for ksef_fawiersz in ksef_fa.FaWiersz:
+            with invoice_form.invoice_line_ids.new() as line_id:
+                if description := ksef_fawiersz.P_7.text:
+                    line_id.name = description
 
-        for invoice_line in xml_tree.xpath('.//tns:FaWiersz', namespaces=NS):
-            line_vals = {}
-            if description := find_xml_value('.//tns:P_7', invoice_line, namespaces=NS):
-                line_vals['name'] = description
-
-            if product_id := self._x_ksef_search_product_for_import(invoice_line):
-                line_vals['product_id'] = product_id.id
-
-            else:
-                message_to_log.append(_("The product '%s' could not be found.", line_vals.get('name')))
-
-            line_vals['quantity'] = float(find_xml_value('.//tns:P_8B', invoice_line, namespaces=NS) or 1)
-
-            if price_unit_untaxed := find_xml_value('.//tns:P_9A', invoice_line, namespaces=NS):
-                line_vals['price_unit'] = float(price_unit_untaxed)
-                tax_price_included = False
-
-            elif price_unit := find_xml_value('.//tns:P_9B', invoice_line, namespaces=NS):
-                tax_price_included = True
-                line_vals['price_unit'] = float(price_unit)
-
-            else:
-                tax_price_included = False
-                message_to_log.append(
-                    _("The price unit for the product '%s' could not be found.", line_vals.get('name'))
-                )
-
-            if (tax_amount := find_xml_value('.//tns:P_12', invoice_line, namespaces=NS)) and (
-                tax_id := self._x_ksef_search_tax_for_import(
-                    amount_code=tax_amount,
-                    price_included=tax_price_included,
-                )
-            ):
-                line_vals['tax_ids'] = [fields.Command.set(tax_id.ids)]
-
-            else:
-                if tax_price_included:
-                    message_to_log.append(
-                        _(
-                            'Could not retrieve the tax: %s %% "Included in Price" for line \'%s\'.',
-                            tax_amount,
-                            line_vals.get('name', ''),
-                        )
-                    )
+                if product_id := self._x_ksef_search_product_for_import(ksef_fawiersz):
+                    line_id.product_id = product_id
 
                 else:
-                    message_to_log.append(
-                        _(
-                            'Could not retrieve the tax: %s %% not "Included in Price" for line \'%s\'.',
-                            tax_amount,
-                        )
+                    message_to_log.append(_("The product '%s' could not be found.", line_id.name))
+
+                line_id.quantity = float(ksef_fawiersz.P_8B or 0)
+
+                if price_unit_untaxed := ksef_fawiersz.P_9A.text:
+                    price_unit = float(price_unit_untaxed)
+                    tax_price_included = False
+
+                elif price_unit := ksef_fawiersz.P_9B.text:
+                    tax_price_included = True
+                    price_unit = float(price_unit)
+
+                else:
+                    tax_price_included = False
+                    price_unit = 0.0
+                    message_to_log.append(_("The price unit for the product '%s' could not be found.", line_id.name))
+
+                line_id.tax_ids.clear()
+
+                if (tax_amount := ksef_fawiersz.P_12.text) and (
+                    tax_id := self._x_ksef_search_tax_for_import(
+                        amount_code=tax_amount, price_included=tax_price_included
                     )
+                ):
+                    line_id.tax_ids.add(tax_id)
+                elif tax_amount:
+                    if tax_price_included:
+                        message_to_log.append(
+                            _(
+                                'Could not retrieve the tax: %s %% "Included in Price" for line "%s"".',
+                                tax_amount,
+                                line_id.name or '',
+                            )
+                        )
+                    else:
+                        message_to_log.append(
+                            _(
+                                'Could not retrieve the tax: %s %% not "Included in Price" for line "%s".',
+                                tax_amount,
+                                line_id.name or '',
+                            )
+                        )
 
-            invoice_lines_vals.append(line_vals)
-
-        return invoice_lines_vals
+                line_id.price_unit = price_unit
 
     @staticmethod
     def _x_ksef_get_vendor_move_type(xml_tree):
@@ -503,70 +500,63 @@ class AccountMove(models.Model):
 
     @api.model
     def _x_ksef_import_vendor_invoice(self, xml_tree):
-        with Form(self) as self:
-            message_to_log = []
+        ksef_faktura = parse_ksef_xml(etree.tostring(xml_tree))  # `Faktura` XML tag
 
-            self.move_type = self._x_ksef_get_vendor_move_type(xml_tree)
+        move_type = self._x_ksef_get_vendor_move_type(xml_tree)
 
-            if partner_vat := find_xml_value(
-                './/tns:Podmiot1//tns:DaneIdentyfikacyjne//tns:NIP', xml_tree, namespaces=NS
-            ):
-                if partner_id := self.env['res.partner'].search(
-                    [
-                        ('vat', '=ilike', '%' + partner_vat),
-                    ],
-                    limit=1,
-                ):
-                    self.partner_id = partner_id
+        with Form(self.with_company(self.company_id).with_context(default_move_type=move_type)) as invoice_form:
+            messages = []
 
+            if partner_vat := ksef_faktura.Podmiot1.DaneIdentyfikacyjne.NIP.text:
+                if partner_id := self.env['res.partner'].search([('vat', '=ilike', f'%{partner_vat}')], limit=1):
+                    invoice_form.partner_id = partner_id
                 else:
-                    partner_name = find_xml_value(
-                        './/tns:Podmiot1//tns:DaneIdentyfikacyjne//tns:Nazwa', xml_tree, namespaces=NS
-                    )
-
-                    self.partner_id = self.env['res.partner'].create(
+                    invoice_form.partner_id = self.env['res.partner'].create(
                         {
-                            'name': partner_name,
+                            'name': ksef_faktura.Podmiot1.DaneIdentyfikacyjne.Nazwa.text,
                             'vat': partner_vat,
+                            'is_company': True,
                         }
                     )
 
-                    message_to_log.extend(
-                        (
-                            _(
-                                'A vendor with a matching Tax ID was not found. '
-                                'One with the corresponding details was created.'
-                            ),
-                            '',
+                    messages.append(
+                        _(
+                            'A vendor with a matching Tax ID was not found. '
+                            'One with the corresponding details was created.'
                         )
                     )
+            else:
+                raise UserError(_('Could not find a partner data in KSeF XML.'))
 
-            self.journal_id = self.partner_id.x_ksef_purchase_journal_id or self.company_id.x_ksef_purchase_journal_id
+            invoice_form.journal_id = (
+                invoice_form.partner_id.x_ksef_purchase_journal_id or invoice_form.company_id.x_ksef_purchase_journal_id
+            )
 
-            if invoice_date := find_xml_value('.//tns:P_1', xml_tree, namespaces=NS):
-                self.pl_vat_date = self.invoice_date = dateutil.parser.parse(invoice_date, ignoretz=True).date()
+            ksef_fa = ksef_faktura.Fa
 
-            if invoice_sale_date := find_xml_value('.//tns:P_6', xml_tree, namespaces=NS):
-                self.x_invoice_sale_date = dateutil.parser.parse(invoice_sale_date, ignoretz=True).date()
+            if invoice_date := ksef_fa.P_1.text:
+                invoice_form.invoice_date = dateutil.parser.parse(invoice_date, ignoretz=True).date()
 
-            if invoice_number := find_xml_value('.//tns:P_2', xml_tree, namespaces=NS):
-                self.ref = invoice_number
+            if vat_date := ksef_fa.DataWytworzeniaFa.text:
+                invoice_form.pl_vat_date = dateutil.parser.parse(vat_date, ignoretz=True).date()
 
-            if currency_code := find_xml_value('.//tns:KodWaluty', xml_tree, namespaces=NS):
-                self.currency_id = self.env['res.currency'].search([('name', '=', currency_code)], limit=1)
+            if invoice_sale_date := ksef_fa.P_6.text:
+                invoice_form.x_invoice_sale_date = dateutil.parser.parse(invoice_sale_date, ignoretz=True).date()
 
-            for field_name, field_value in self._x_ksef_parse_annotations(xml_tree).items():
-                self[field_name] = field_value
+            if invoice_number := ksef_fa.P_2.text:
+                invoice_form.ref = invoice_number
 
-            self.invoice_line_ids = [
-                fields.Command.create(vals)
-                for vals in self._x_ksef_parse_invoice_lines(xml_tree, self.move_type, message_to_log)
-            ]
+            if currency_code := ksef_fa.KodWaluty.text:
+                invoice_form.currency_id = self.env['res.currency'].search([('name', '=', currency_code)], limit=1)
 
-            message = Markup('<br/>').join(message_to_log)
-            self.sudo().message_post(body=message)
+            for field_name, field_value in self._x_ksef_parse_annotations(ksef_fa).items():
+                setattr(self, field_name, field_value)
 
-        return self
+            self._x_ksef_add_invoice_lines(ksef_fa, invoice_form, messages)
+
+        new_invoice_id = invoice_form.save()
+        new_invoice_id.sudo().message_post(body=Markup('<br/>').join(messages))
+        return new_invoice_id
 
     def x_ksef_is_online(self) -> bool:
         self.ensure_one()
@@ -590,18 +580,25 @@ class AccountMove(models.Model):
         return image_data_uri(base64.b64encode(barcode)), qr_url
 
     def x_ksef_generate_qr_code_url_pair(self) -> Optional[Tuple[Tuple[str, str], ...]]:
-        ksef_edi_document_id = self.edi_document_ids.filtered(lambda doc_id: doc_id.edi_format_id.code == KSEF_CODE)
+        ksef_edi_document_id = self.edi_document_ids.sudo().filtered(
+            lambda doc_id: doc_id.edi_format_id.code == KSEF_CODE
+        )
 
-        if not ksef_edi_document_id.attachment_id:
+        partner_id = self.company_id.partner_id
+
+        if self.x_ksef_attachment_id:
+            partner_id = self.partner_id
+
+        if not (ksef_edi_document_id.attachment_id or self.x_ksef_attachment_id) or not partner_id.vat:
             return None
 
-        nip = self.company_id.partner_id.x_get_pl_vat(raise_exception=True)
+        nip = partner_id.x_get_pl_vat(raise_exception=True)
 
         ksef_url = KsefClient.build_invoice_verification_url(
             base_qr_url=self.company_id.x_ksef_settings_id.qr_code_url,
             nip=nip,
             issue_date=self.invoice_date,
-            invoice_xml=ksef_edi_document_id.attachment_id.raw,
+            invoice_xml=(ksef_edi_document_id.attachment_id or self.x_ksef_attachment_id).raw,
         )
 
         if self.x_ksef_is_online():
@@ -695,8 +692,8 @@ class AccountMove(models.Model):
 
         if self.company_id.x_ksef_enable_ignore_zero_amount_lines:
             invoice_line_ids = invoice_line_ids.filtered(
-                lambda l_id: not float_is_zero(
-                    l_id.price_unit, self.env['decimal.precision'].precision_get('Product Price')
+                lambda l_id: (
+                    not float_is_zero(l_id.price_unit, self.env['decimal.precision'].precision_get('Product Price'))
                 )
             )
 
