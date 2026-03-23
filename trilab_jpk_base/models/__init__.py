@@ -1,12 +1,14 @@
-from . import account_journal
-from . import account_move
-from . import account_tag
-from . import ir_attachment
-from . import jpk_account_tag
-from . import jpk_document_type
-from . import jpk_gtu
-from . import jpk_tax_office
-from . import product
-from . import res_company
-from . import res_partner
-from . import xlsx_helper
+from . import (
+    account_journal,
+    account_move,
+    account_tag,
+    ir_attachment,
+    jpk_account_tag,
+    jpk_document_type,
+    jpk_gtu,
+    jpk_tax_office,
+    product,
+    res_company,
+    res_partner,
+    xlsx_helper,
+)

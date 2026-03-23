@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-29 18:19+0000\n"
-"PO-Revision-Date: 2026-01-29 18:19+0000\n"
+"POT-Creation-Date: 2026-02-20 10:42+0000\n"
+"PO-Revision-Date: 2026-02-20 10:42+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -60,7 +60,7 @@ msgstr ""
 #. module: trilab_jpk_base
 #: model:ir.model.fields.selection,name:trilab_jpk_base.selection__account_move__x_pl_ksef_invoice_proof__bfk
 msgid "BFK"
-msgstr "BFK"
+msgstr ""
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_change_jpk_proof
@@ -113,7 +113,7 @@ msgstr "Utworzone"
 #. module: trilab_jpk_base
 #: model:ir.model.fields.selection,name:trilab_jpk_base.selection__account_move__x_pl_ksef_invoice_proof__di
 msgid "DI"
-msgstr "DI"
+msgstr ""
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_ksef_invoice_proof
@@ -250,8 +250,8 @@ msgstr "Ten e-mail będzie używany do raportu JPK VAT zamiast e-maila firmy."
 #. module: trilab_jpk_base
 #: code:addons/trilab_jpk_base/models/res_partner.py:0
 #, python-format
-msgid "Invalid VIES state"
-msgstr "Nieaktywny VIES"
+msgid "Invalid VAT number (missing country code)"
+msgstr "Nieprawidłowy nr VAT (brakuje kodu kraju)"
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_tp
@@ -360,9 +360,15 @@ msgid "Jpk V7 Group"
 msgstr ""
 
 #. module: trilab_jpk_base
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_base.view_account_invoice_filter
+msgid "KSeF Invoice"
+msgstr "Faktury KSeF"
+
+#. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_ksef_invoice_number
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_ksef_invoice_number
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_ksef_invoice_number
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_base.view_account_invoice_filter
 msgid "KSeF Invoice Number"
 msgstr "Numer Faktury KSeF"
 
@@ -440,6 +446,12 @@ msgid "Manager"
 msgstr "Menedżer"
 
 #. module: trilab_jpk_base
+#: code:addons/trilab_jpk_base/models/res_partner.py:0
+#, python-format
+msgid "Missing VAT number"
+msgstr "Brakuje NIP"
+
+#. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_type__name
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_gtu__name
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_taxoffice__name
@@ -455,7 +467,7 @@ msgstr "Nazwa musi być unikalna"
 #. module: trilab_jpk_base
 #: model:ir.model.fields.selection,name:trilab_jpk_base.selection__account_move__x_pl_ksef_invoice_proof__off
 msgid "OFF"
-msgstr "OFF"
+msgstr ""
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_typ_dokumentu
@@ -663,6 +675,7 @@ msgstr ""
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_ir_attachment__x_full_path
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_mrp_document__x_full_path
 msgid "X Full Path"
 msgstr "Pełna ścieżka"
 
@@ -675,6 +688,7 @@ msgstr "GTU"
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_ir_attachment__x_size
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_mrp_document__x_size
 msgid "X Size"
 msgstr "Rozmiar"
 

@@ -9,7 +9,7 @@
                     Krajowy System <b><font class="text-danger">e</font>-Faktur</b>
                 </div>
 
-                <div t-if="o and o.id and data" class="col-6 text-end">
+                <div t-if="o and o.id and data" class="col-6 text-right">
                     <p class="mb-0">Numer faktury:</p>
                     <h3 class="mb-0" t-out="data[o.id].get('number')"/>
                     <p class="mb-0" t-out="data[o.id].get('type')"/>
@@ -21,25 +21,27 @@
             <hr/>
         </div>
 
-        <div class="article smaller ksef" t-att-data-oe-model="o and o._name"
+        <div class="article small ksef" t-att-data-oe-model="o and o._name"
              t-att-data-oe-id="o and o.id" t-att-data-oe-lang="o and o.env.context.get('lang')">
 
             <div class="page mb-4 clearfix">
-                <t t-if="data" t-out="data[o.id].get('html')" t-options="{'widget': 'html'}"/>
-
-                <h5>Sprawdź, czy Twoja faktura znajduje się w KSeF!</h5>
+                <t t-if="data" t-out="data[o.id].get('html')"/>
+                <hr />
+                <h6 class="font-weight-bold">Sprawdź, czy Twoja faktura znajduje się w KSeF!</h6>
                 <t t-call="trilab_ksef.ksef_qrcode" t-lang="lang"/>
             </div>
+
+            <p t-if="o and o.id and data and data[o.id].get('system_info')">
+                <hr/>
+                <strong>Wytworzona w:</strong>
+                <t t-if="o and o.id and data" t-out="data[o.id]['system_info']"/>
+            </p>
         </div>
 
-        <div class="footer mt-5 smaller ksef">
+        <div t-if="report_type == 'pdf'" class="footer mt-5 small ksef">
             <hr/>
             <div class="row">
-                <div class="col-6">
-                    <strong>Wytworzona w:</strong> <t t-if="o and o.id and data" t-out="data[o.id].get('system_info')"/>
-                </div>
-
-                <div t-if="report_type == 'pdf'" class="col-6 text-end">
+                <div class="offset-6 col-6 text-right">
                     <strong>Strona:</strong> <span class="page"/> / <span class="topage"/>
                 </div>
             </div>

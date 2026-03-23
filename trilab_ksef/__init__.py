@@ -25,6 +25,7 @@ ADD COLUMN x_ksef_amount VARCHAR(255);
 
 def post_init(cr, _registry):
     env = api.Environment(cr, SUPERUSER_ID, {})
+
     env['ir.config_parameter'].set_param(models.res_company.ENC_KEY, Fernet.generate_key().decode())
 
     step = 200

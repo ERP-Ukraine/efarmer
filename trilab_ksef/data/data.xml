@@ -58,36 +58,4 @@
         <field name="name">KSeF (PL)</field>
         <field name="code">ksef</field>
     </record>
-
-    <record id="ksef_tax_tag_p_13_6_1" model="ksef.tax.tag">
-        <field name="name">P_13_6_1</field>
-        <field name="description">Suma wartości sprzedaży objętej stawką 0% z wyłączeniem wewnątrzwspólnotowej dostawy
-            towarów i eksportu. W przypadku faktur zaliczkowych, kwota zaliczki. W przypadku faktur korygujących, kwota
-            różnicy, o której mowa w art. 106j ust. 2 pkt 5 ustawy
-        </field>
-    </record>
-
-
-    <record id="ksef_tax_tag_p_13_6_2" model="ksef.tax.tag">
-        <field name="name">P_13_6_2</field>
-        <field name="description">Suma wartości sprzedaży objętej stawką 0% w przypadku wewnątrzwspólnotowej dostawy
-            towarów. W przypadku faktur korygujących, kwota różnicy, o której mowa w art. 106j ust. 2 pkt 5 ustawy
-        </field>
-    </record>
-
-    <record id="ksef_tax_tag_p_13_6_3" model="ksef.tax.tag">
-        <field name="name">P_13_6_3</field>
-        <field name="description">Suma wartości sprzedaży objętej stawką 0% w przypadku eksportu. W przypadku faktur
-            zaliczkowych, kwota zaliczki. W przypadku faktur korygujących, kwota różnicy, o której mowa w art. 106j ust.
-            2 pkt
-            5 ustawy
-        </field>
-    </record>
-
-    <record id="ksef_tax_tag_p_13_7" model="ksef.tax.tag">
-        <field name="name">P_13_7</field>
-        <field name="description">Suma wartości sprzedaży zwolnionej od podatku. W przypadku faktur zaliczkowych, kwota
-            zaliczki. W przypadku faktur korygujących, kwota różnicy wartości sprzedaży
-        </field>
-    </record>
 </odoo>

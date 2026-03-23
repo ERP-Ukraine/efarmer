@@ -4,6 +4,7 @@ import io
 import json
 import logging
 import secrets
+import time
 import zipfile
 import sys
 if sys.version_info >= (3, 9):
@@ -36,6 +37,9 @@ _logger = logging.getLogger(__name__)
 
 TIMEOUT_SECS = 5
 AUTH_STATUS_CHECK_ATTEMPTS = 5
+AUTH_STATUS_CHECK_DELAY_SECS = 1
+MAX_TRIES = 3
+FALLBACK_RETRY_AFTER_SECS = 5
 
 
 class KsefClientError(Exception):
@@ -88,6 +92,16 @@ class KsefHttpStatusError(KsefNetworkError):
         super().__init__(
             f'Unexpected status {status_code} (expected {expected_status}) from {endpoint!r}: {response_text}'
         )
+
+
+class KsefRateLimitError(KsefNetworkError):
+    endpoint: str
+    attempts: int
+
+    def __init__(self, endpoint: str, attempts: int) -> None:
+        self.endpoint = endpoint
+        self.attempts = attempts
+        super().__init__(f'Rate limit exceeded for endpoint {endpoint!r} after {attempts} attempts')
 
 
 class KsefAuthenticationError(KsefClientError):
@@ -505,23 +519,43 @@ class KsefClient:
     def _call_api(
         self, endpoint: str, *, method: str, expected_status: int = requests.codes.ok, **kwargs: Any
     ) -> requests.Response:
-        try:
-            if self.access_token is not None:
-                kwargs['headers'] = {
-                    **kwargs.get('headers', {}),
-                    'Authorization': f'Bearer {self.access_token}',
-                }
+        _logger.debug(f'Calling API: {method.upper()} {endpoint}')
 
-            response: requests.Response = getattr(self._session, method.lower())(
-                url=urljoin(self.base_url, endpoint), timeout=TIMEOUT_SECS, **kwargs
-            )
-        except requests.RequestException as err:
-            raise KsefRequestError(endpoint, err) from err
+        counter = 0
+        while counter < MAX_TRIES:
+            try:
+                if self.access_token is not None:
+                    kwargs['headers'] = {
+                        **kwargs.get('headers', {}),
+                        'Authorization': f'Bearer {self.access_token}',
+                    }
 
-        if response.status_code != expected_status:
-            raise KsefHttpStatusError(endpoint, response.status_code, response.text, expected_status)
+                response: requests.Response = getattr(self._session, method.lower())(
+                    url=urljoin(self.base_url, endpoint), timeout=TIMEOUT_SECS, **kwargs
+                )
+            except requests.RequestException as err:
+                raise KsefRequestError(endpoint, err) from err
 
-        return response
+            _logger.debug(f'Response status: {response.status_code} for {endpoint}')
+
+            if response.status_code == requests.codes.too_many_requests:
+                retry_after = int(response.headers.get('Retry-After', FALLBACK_RETRY_AFTER_SECS))
+
+                _logger.info(
+                    f'Rate limit hit on {endpoint} (attempt {counter + 1}/{MAX_TRIES}), retrying after {retry_after}s'
+                )
+
+                time.sleep(retry_after)
+                counter += 1
+                continue
+
+            if response.status_code != expected_status:
+                raise KsefHttpStatusError(endpoint, response.status_code, response.text, expected_status)
+
+            return response
+
+        _logger.error(f'Rate limit exceeded for {endpoint} after {MAX_TRIES} attempts')
+        raise KsefRateLimitError(endpoint, MAX_TRIES)
 
     @staticmethod
     def _decode_certificate(certificate: str) -> str:
@@ -707,7 +741,9 @@ class KsefClient:
             if status_code == KsefStatusCode.OK:
                 break
             elif status_code == KsefStatusCode.PENDING:
-                _logger.debug('Waiting for KSeF authentication...')
+                if attempt < AUTH_STATUS_CHECK_ATTEMPTS - 1:
+                    _logger.debug('Waiting for KSeF authentication...')
+                    time.sleep(AUTH_STATUS_CHECK_DELAY_SECS)
             else:
                 raise KsefAuthenticationStatusError(status_code, status_description)
         else:
