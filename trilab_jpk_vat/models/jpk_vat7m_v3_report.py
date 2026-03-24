@@ -373,6 +373,13 @@ class JpkReportV3(models.AbstractModel):
                     'datawplywu'
                 ].isoformat()
 
+            if line['data']['nrksef']:
+                etree.SubElement(sale_row, etree.QName(tns, 'NrKSeF')).text = line['data']['nrksef']
+            elif not (line['data']['ksefdowod'] or line['data']['ksefdowod']):
+                etree.SubElement(sale_row, etree.QName(tns, 'OFF')).text = '1'
+            else:
+                etree.SubElement(sale_row, etree.QName(tns, line['data']['ksefdowod'])).text = '1'
+
             if line['data']['typdokumentu']:
                 etree.SubElement(purchase_row, etree.QName(tns, 'DokumentZakupu')).text = line['data']['typdokumentu']
 
