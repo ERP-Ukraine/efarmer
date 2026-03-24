@@ -3,4 +3,4 @@
 
 
 from . import models
-from .tests import patch_sale_timesheet
+# from .tests import patch_sale_timesheet
