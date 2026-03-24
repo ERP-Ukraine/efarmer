@@ -29,21 +29,11 @@ class ProjectCapitalization(models.Model):
         required=True,
         default=fields.Date.context_today,
         tracking=True,
-        states={
-            "new": [("readonly", False)],
-            "in_progress": [("readonly", False)],
-            "done": [("readonly", True)],
-        },
     )
     end_date = fields.Date(
         string="End Date",
         required=True,
         tracking=True,
-        states={
-            "new": [("readonly", False)],
-            "in_progress": [("readonly", False)],
-            "done": [("readonly", True)],
-        },
     )
     company_id = fields.Many2one(
         "res.company",
@@ -51,21 +41,11 @@ class ProjectCapitalization(models.Model):
         required=True,
         index=True,
         default=lambda self: self.env.company,
-        states={
-            "new": [("readonly", False)],
-            "in_progress": [("readonly", False)],
-            "done": [("readonly", True)],
-        },
     )
     work_type_ids = fields.Many2many(
         comodel_name="youtrack.work.type",
         string="Work Types",
         required=True,
-        states={
-            "new": [("readonly", False)],
-            "in_progress": [("readonly", False)],
-            "done": [("readonly", True)],
-        },
     )
     account_asset_counterpart_id = fields.Many2one(
         "account.account",
@@ -73,21 +53,11 @@ class ProjectCapitalization(models.Model):
         check_company=True,
         help="Account used as counterpart for entries related to this asset.",
         tracking=True,
-        states={
-            "new": [("readonly", False)],
-            "in_progress": [("readonly", False)],
-            "done": [("readonly", True)],
-        },
     )
     capitalization_line_ids = fields.One2many(
         "project.capitalization.line",
         "capitalization_id",
         string="Capitalize To",
-        states={
-            "new": [("readonly", False)],
-            "in_progress": [("readonly", False)],
-            "done": [("readonly", True)],
-        },
     )
     analytic_line_ids = fields.Many2many(
         "account.analytic.line",
@@ -97,11 +67,6 @@ class ProjectCapitalization(models.Model):
         string="Capitalization Date",
         required=True,
         tracking=True,
-        states={
-            "new": [("readonly", False)],
-            "in_progress": [("readonly", False)],
-            "done": [("readonly", True)],
-        },
     )
 
     def generate_report(self):
