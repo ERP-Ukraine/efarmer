@@ -15,7 +15,12 @@
         ERP Printing Solution | Odoo Print Automation | PrintNode Alternative |
         Seamless Printing in Odoo | Direct Printing in Odoo | Print Custom Labels Odoo |
         Print Without Downloading | Automatic Printing Odoo | Fast Printing from Odoo |
-        Thermal Printer Odoo | ZPL Printer Support
+        Thermal Printer Odoo | ZPL Printer Support | Print Label | Print Document | Print Order |
+        Print Transfer | Print PDF | Print ZPL | Print Invoice | Print Price | Print Purchase |
+        Print Barcode | Print Picking | Print Package | Print Lot | Print Serial | Auto Print |
+        Auto Printing | Print Scenario | Warehouse Printing | Remote Printing | Network Printing |
+        Print Agent | Print Assistant | Advanced Printing | POS | Multi Printing | Print Attachment |
+        POS Print | Print Serial Number
     ''',
     'version': '15.0.2.6.5',
     'category': 'Tools',
