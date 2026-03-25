@@ -80,7 +80,6 @@ class ShortTicketFormWizard(models.TransientModel):
         self.sale_id = False
         self.lot_id = False
         self.partner_id = False
-        self.type_id = False
         self.delivery_move_id = False
         self.delivery_transfer_id = False
         lot_domain = []
@@ -179,7 +178,7 @@ class ShortTicketFormWizard(models.TransientModel):
         move_domain = []
         if self.choose_product_by == "other" and self.delivery_transfer_id:
             self.sale_id = self.delivery_transfer_id.sale_id
-            move_ids = self.delivery_transfer_id.move_ids_without_package
+            move_ids = self.delivery_transfer_id.move_ids
             if self.product_id:
                 move_ids = move_ids.filtered(lambda m: m.product_id == self.product_id)
             move_domain.append(("id", "in", move_ids.ids))
