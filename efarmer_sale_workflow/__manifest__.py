@@ -45,6 +45,7 @@
         'reports/device_label_50x30.xml',
         'reports/device_label_70x35.xml',
         'reports/device_label_70x35_terra.xml',
+        'reports/device_label_70x35_isobus.xml',
         'reports/device_label_70x35_US.xml',
         'views/res_config_settings_views.xml',
         'views/res_partner_views.xml',
