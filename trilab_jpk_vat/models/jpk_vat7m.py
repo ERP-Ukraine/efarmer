@@ -36,6 +36,14 @@ class JPKV7M(models.Model):
     _description = 'JPK V7M/V7K'
 
     version = fields.Char(string='JPK Version')
+    technical_version = fields.Selection(
+        selection=[
+            ('v1', 'v1'),
+            ('v2', 'v2'),
+            ('v3', 'v3'),
+        ],
+        required=True,
+    )
 
     year = fields.Integer(string='Year')
     month = fields.Integer(string='Month')
@@ -386,13 +394,21 @@ class JPKV7M(models.Model):
         'zwrotowi na rachunek bankowy podatnika oraz do '
         'zaliczenia na poczet przyszłych zobowiązań podatkowych.',
     )
-
     p_55_58 = fields.Selection(
         selection=[
             ('P_55', 'Zwrot na rachunek VAT, o którym mowa w art. 87 ust. 6a ustawy'),
             ('P_56', 'Zwrot w terminie 25 dni od dnia złożenia rozliczenia (art. 87 ust. 6 ustawy)'),
             ('P_57', 'Zwrot w terminie 60 dni od dnia złożenia rozliczenia (art. 87 ust. 2 ustawy)'),
             ('P_58', 'Zwrot w terminie 180 dni od dnia złożenia rozliczenia (art. 87 ust. 5a zdanie pierwsze ustawy)'),
+        ],
+        default='P_55',
+    )
+    p_55_58_v3 = fields.Selection(
+        selection=[
+            ('P_55', 'Zwrot na rachunek VAT podatnika w terminie 25 dni'),
+            ('P_56', 'Zwrot na rachunek rozliczeniowy podatnika w terminie 25 dni (art. 87 ust. 6 ustawy'),
+            ('P_560', 'Zwrot na rachunek rozliczeniowy podatnika w terminie 40 dni'),
+            ('P_58', 'Zwrot na rachunek rozliczeniowy podatnika w terminie 180 dni'),
         ],
         default='P_55',
     )
@@ -609,7 +625,7 @@ class JPKV7M(models.Model):
             for field in filter(lambda x: x.startswith('p_'), self.fields_get_keys()):
                 # exceptions
                 # skip p_54 to p_58 if p_54 is 0
-                if field in ('p_54', 'p_55_58') and self.p_54 == 0:
+                if field in ('p_54', "p_55_58_v3" if self.technical_version == 'v3' else "p_55_58") and self.p_54 == 0:
                     continue
 
                 # skip p_59 to p_61 if p_59 is not set

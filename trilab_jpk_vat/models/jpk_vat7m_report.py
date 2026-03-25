@@ -654,6 +654,7 @@ ORDER BY JPKsection, DataWystawienia, am.id, DowodSprzedazyZakupu, JPKMarkup, JP
         v7m_report = self.env['jpk.vat.7m'].create(
             {
                 'version': '1-2E',
+                'technical_version': 'v1',
                 'year': report_date.year,
                 'month': report_date.month,
                 'cel_zlozenia': options.get('cel_zlozenia', 1),

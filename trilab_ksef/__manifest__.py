@@ -3,7 +3,7 @@
     'name': 'Trilab KSeF',
     'author': 'Trilab',
     'website': 'https://trilab.pl',
-    'version': '15.0.3.0.6',
+    'version': '15.0.3.0.7',
     'category': 'Accounting',
     'summary': 'Invoice Integration with Polish Government',
     'description': 'Invoice Integration with Polish Government using KSeF API.',
