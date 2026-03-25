@@ -47,7 +47,7 @@ class ShortTicketFormWizard(models.TransientModel):
     )
 
     def get_lot_domain(self):
-        if self._context.get("choose_product_by") == "serial":
+        if self.env.context.get("choose_product_by") == "serial":
             lot_ids = (
                 self.env["stock.lot"]
                 .search([])
@@ -63,7 +63,7 @@ class ShortTicketFormWizard(models.TransientModel):
             return [("id", "in", lot_ids.ids)]
 
     def get_product_domain(self):
-        if self._context.get("choose_product_by") == "serial":
+        if self.env.context.get("choose_product_by") == "serial":
             product_ids = self.env["product.product"].search(
                 [("tracking", "=", "serial")]
             )
