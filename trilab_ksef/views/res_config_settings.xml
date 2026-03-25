@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="ksef_res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">ksef.res.config.settings.view.form.inherit.account</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="trilab_invoice.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@data-key='account']/div[@name='main_currency_setting_container']" position="after">
+                <h2>KSeF</h2>
+                <div class="row mt16 o_settings_container" id="trilab_ksef_settings">
+                    <div class="col-12 col-md-6 o_setting_box">
+                        <div class="o_setting_left_pane"></div>
+                        <div class="o_setting_right_pane">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <span>
+                                        <label for="x_ksef_settings_id" class="col-lg-3"/>
+                                        <field name="x_ksef_settings_id" class="oe_inline"/>
+                                    </span>
+                                </div>
+                                <div class="mt8">
+                                    <button name="%(trilab_ksef.action_ksef_settings)d"
+                                            icon="fa-arrow-right"
+                                            type="action"
+                                            string="View KSeF Settings"
+                                            class="btn-link"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 o_setting_box"
+                         attrs="{'invisible': [('x_ksef_settings_id', '=', False)]}">
+                        <div class="o_setting_left_pane"></div>
+                        <div class="o_setting_right_pane">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="x_ksef_purchase_journal_id" class="col-lg-4"/>
+                                    <field name="x_ksef_purchase_journal_id" domain="[('type', '=', 'purchase')]"/>
+                                </div>
+                                <div class="row mt16">
+                                    <label for="x_ksef_purchase_invoice_sync_date"
+                                           class="col-lg-4"
+                                           string="Purchase Invoice Sync Date"/>
+                                    <field name="x_ksef_purchase_invoice_sync_date"/>
+                                </div>
+                                <div class="row mt16">
+                                    <label for="default_x_ksef_invoice_date_applicability"
+                                           class="col-lg-4"
+                                           string="Default Invoice date or billing period"/>
+                                    <field name="default_x_ksef_invoice_date_applicability"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 o_setting_box"
+                         attrs="{'invisible': [('x_ksef_settings_id', '=', False)]}">
+                        <field name="x_ksef_verification_link_private_key_name" invisible="1"/>
+                        <field name="x_ksef_verification_link_certificate_name" invisible="1"/>
+                        <div class="o_setting_left_pane"></div>
+                        <div class="o_setting_right_pane">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="x_ksef_plain_token"
+                                           class="col-lg-4"/>
+                                    <field name="x_ksef_plain_token"
+                                           attrs="{'required': [('x_ksef_settings_id', '!=', False)]}"
+                                           password="True"
+                                           class="oe_inline"/>
+                                </div>
+                                <div class="row mt16">
+                                    <label for="x_ksef_plain_verification_link_certificate_datas"
+                                           class="col-lg-4"
+                                           string="Verification Link Certificate"/>
+                                    <field name="x_ksef_plain_verification_link_certificate_datas"
+                                           widget="binary"
+                                           attrs="{'required': [('x_ksef_settings_id', '!=', False)]}"
+                                           filename="x_ksef_verification_link_certificate_name"/>
+                                </div>
+                                <div class="row mt16">
+                                    <label for="x_ksef_plain_verification_link_private_key_datas"
+                                           class="col-lg-4"
+                                           string="Verification Link Private Key"/>
+                                    <field name="x_ksef_plain_verification_link_private_key_datas"
+                                           widget="binary"
+                                           attrs="{'required': [('x_ksef_settings_id', '!=', False)]}"
+                                           filename="x_ksef_verification_link_private_key_name"/>
+                                </div>
+                                <div class="row mt16">
+                                    <label for="x_ksef_plain_verification_link_private_key_password"
+                                           class="col-lg-4"
+                                           string="Verification Link Private Key Password"/>
+                                    <field name="x_ksef_plain_verification_link_private_key_password"
+                                           password="True"
+                                           attrs="{'required': [('x_ksef_settings_id', '!=', False)]}"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 o_setting_box"
+                         attrs="{'invisible': [('x_ksef_settings_id', '=', False)]}">
+                        <div class="o_setting_left_pane"></div>
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Additional Settings</span>
+                            <div class="mt16">
+                                <div class="content-group">
+                                    <div>
+                                        <field name="x_ksef_enable_barcodes"/>
+                                        <label for="x_ksef_enable_barcodes"/>
+                                    </div>
+                                    <div>
+                                        <field name="x_ksef_enable_ignore_zero_amount_lines"/>
+                                        <label for="x_ksef_enable_ignore_zero_amount_lines"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

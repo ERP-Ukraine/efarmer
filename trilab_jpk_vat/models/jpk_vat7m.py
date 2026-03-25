@@ -36,6 +36,14 @@ class JPKV7M(models.Model):
     _description = 'JPK V7M/V7K'
 
     version = fields.Char(string='JPK Version')
+    technical_version = fields.Selection(
+        selection=[
+            ('v1', 'v1'),
+            ('v2', 'v2'),
+            ('v3', 'v3'),
+        ],
+        required=True,
+    )
 
     year = fields.Integer(string='Year')
     month = fields.Integer(string='Month')
@@ -386,13 +394,21 @@ class JPKV7M(models.Model):
         'zwrotowi na rachunek bankowy podatnika oraz do '
         'zaliczenia na poczet przyszłych zobowiązań podatkowych.',
     )
-
     p_55_58 = fields.Selection(
         selection=[
             ('P_55', 'Zwrot na rachunek VAT, o którym mowa w art. 87 ust. 6a ustawy'),
             ('P_56', 'Zwrot w terminie 25 dni od dnia złożenia rozliczenia (art. 87 ust. 6 ustawy)'),
             ('P_57', 'Zwrot w terminie 60 dni od dnia złożenia rozliczenia (art. 87 ust. 2 ustawy)'),
             ('P_58', 'Zwrot w terminie 180 dni od dnia złożenia rozliczenia (art. 87 ust. 5a zdanie pierwsze ustawy)'),
+        ],
+        default='P_55',
+    )
+    p_55_58_v3 = fields.Selection(
+        selection=[
+            ('P_55', 'Zwrot na rachunek VAT podatnika w terminie 25 dni'),
+            ('P_56', 'Zwrot na rachunek rozliczeniowy podatnika w terminie 25 dni (art. 87 ust. 6 ustawy'),
+            ('P_560', 'Zwrot na rachunek rozliczeniowy podatnika w terminie 40 dni'),
+            ('P_58', 'Zwrot na rachunek rozliczeniowy podatnika w terminie 180 dni'),
         ],
         default='P_55',
     )
@@ -513,8 +529,13 @@ class JPKV7M(models.Model):
     )
 
     source_xml = fields.Binary()
+    document_type_id = fields.Many2one('jpk.document.type')
+    is_jpk_transfer_installed = fields.Boolean(compute='_compute_jpk_transfer')
 
-    is_jpk_transfer_installed = fields.Boolean(compute='_is_jpk_transfer_installed', store=False, readonly=True)
+    @api.depends_context('company')
+    def _compute_jpk_transfer(self):
+        for rec in self:
+            rec.is_jpk_transfer_installed = self.env.company.x_is_jpk_transfer_installed()
 
     @api.depends(*P_37_SUM_FIELDS)
     def _compute_p37(self):
@@ -570,12 +591,17 @@ class JPKV7M(models.Model):
     def get_report_filename(self, options=None):
         return f'v7m_{self.month}_{self.year}{self.cel_zlozenia > 1 and "_korekta" or ""}'
 
+    @api.model
+    def get_xml_tns_map(self):
+        return {
+            self.env.ref('trilab_jpk_base.jpk_v7m_3_1_0e_doc_type').id: 'http://crd.gov.pl/wzor/2025/12/19/14090/',
+            self.env.ref('trilab_jpk_base.jpk_v7m_1_0_doc_type').id: 'http://crd.gov.pl/wzor/2021/12/27/11148/',
+        }
+
     # noinspection HttpUrlsUsage
     # noinspection PyUnusedLocal
     def get_xml(self, options=None):
-        tns = 'http://crd.gov.pl/wzor/2020/05/08/9393/'
-        if self.version == '1-0E':
-            tns = 'http://crd.gov.pl/wzor/2021/12/27/11148/'
+        tns = self.get_xml_tns_map().get(self.document_type_id.id, 'http://crd.gov.pl/wzor/2020/05/08/9393/')
 
         root = etree.fromstring(base64.b64decode(self.source_xml))
 
@@ -599,7 +625,7 @@ class JPKV7M(models.Model):
             for field in filter(lambda x: x.startswith('p_'), self.fields_get_keys()):
                 # exceptions
                 # skip p_54 to p_58 if p_54 is 0
-                if field in ('p_54', 'p_55_58') and self.p_54 == 0:
+                if field in ('p_54', "p_55_58_v3" if self.technical_version == 'v3' else "p_55_58") and self.p_54 == 0:
                     continue
 
                 # skip p_59 to p_61 if p_59 is not set
@@ -641,10 +667,6 @@ class JPKV7M(models.Model):
 
         return etree.tostring(root, encoding='UTF-8', xml_declaration=True, pretty_print=True)
 
-    def _is_jpk_transfer_installed(self):
-        module = self.env['ir.module.module'].sudo().search([['name', '=', 'trilab_jpk_transfer']])
-        self.is_jpk_transfer_installed = module and module.state == 'installed'
-
     def action_generate_xml(self):
         return {
             'type': 'ir_actions_account_report_download',
@@ -655,6 +677,8 @@ class JPKV7M(models.Model):
         document_type = 'trilab_jpk_base.jpk_v7m_1_2_doc_type'
         if self.version == '1-0E':
             document_type = 'trilab_jpk_base.jpk_v7m_1_0_doc_type'
+            if self.document_type_id.system_code == 'JPK_V7M (3)':
+                document_type = 'trilab_jpk_base.jpk_v7m_3_1_0e_doc_type'
 
         # noinspection PyUnresolvedReferences
         transfer_id = self.env['jpk.transfer'].create_with_document(

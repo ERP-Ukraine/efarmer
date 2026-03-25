@@ -91,7 +91,7 @@ class JpkReportV2(models.AbstractModel):
            am.pl_vat_date                              AS DataWplywu,
            (CASE
                 WHEN aml.tax_line_id IS NOT NULL
-                    then TRUE
+                    THEN TRUE
                 ELSE FALSE
             END)                                       AS isTax,
            jat.jpk_markup                              AS JPKMarkup,
@@ -101,9 +101,9 @@ class JpkReportV2(models.AbstractModel):
                     THEN am.x_pl_vat_typ_dokumentu
                 ELSE am.x_pl_vat_dokument_zakupu
             END)                                       AS TypDokumentu,
-           STRING_AGG(distinct (jpk_gtu.name), ',')               AS GTU,
-           CONCAT_WS(',', CASE WHEN am.x_pl_vat_tp and jat.jpk_section='SprzedazWiersz' THEN 'TP' END,
-                          CASE WHEN am.x_pl_vat_tt_wnt THEN 'TT_WNT' END,
+           STRING_AGG(DISTINCT (jpk_gtu.name), ',')               AS GTU,
+           CONCAT_WS(',', CASE WHEN am.x_pl_vat_tp AND jat.jpk_section='SprzedazWiersz' THEN 'TP' END,
+                          CASE WHEN am.x_pl_vat_tt_wnt AND jat.jpk_section = 'SprzedazWiersz' THEN 'TT_WNT' END,
                           CASE WHEN am.x_pl_vat_tt_d THEN 'TT_D' END,
                           CASE WHEN am.x_pl_vat_mr_t THEN 'MR_T' END,
                           CASE WHEN am.x_pl_vat_mr_uz THEN 'MR_UZ' END,
@@ -112,19 +112,19 @@ class JpkReportV2(models.AbstractModel):
                           CASE WHEN am.x_pl_vat_b_spv THEN 'B_SPV' END,
                           CASE WHEN am.x_pl_vat_b_spv_dostawa THEN 'B_SPV_DOSTAWA' END,
                           CASE WHEN am.x_pl_vat_b_mpv_prowizja THEN 'B_MPV_PROWIZJA' END,
-                          CASE WHEN am.x_pl_vat_korekta_podstawy_opodt  and jat.jpk_section='SprzedazWiersz'
+                          CASE WHEN am.x_pl_vat_korekta_podstawy_opodt AND jat.jpk_section='SprzedazWiersz'
                                THEN 'KorektaPodstawyOpodt' END,
-                          CASE WHEN am.x_pl_vat_imp and jat.jpk_section='ZakupWiersz' THEN 'IMP' END,
+                          CASE WHEN am.x_pl_vat_imp AND jat.jpk_section='ZakupWiersz' THEN 'IMP' END,
                           CASE WHEN am.x_pl_vat_wsto_ee THEN 'WSTO_EE' END,
                           CASE WHEN am.x_pl_vat_ied THEN 'IED' END
                         )                              AS Flags,
            SUM(CASE
-                WHEN aml.tax_line_id IS NOT NULL and jat.jpk_section='ZakupWiersz'
-                    then aml.balance
-                WHEN aml.tax_line_id IS NOT NULL and jat.jpk_section='SprzedazWiersz'
-                    then - aml.balance
-                WHEN jat.jpk_section='SprzedazWiersz' and am.move_type in ('out_invoice', 'out_refund', 'entry')
-                    then  - aml.balance
+                WHEN aml.tax_line_id IS NOT NULL AND jat.jpk_section='ZakupWiersz'
+                    THEN aml.balance
+                WHEN aml.tax_line_id IS NOT NULL AND jat.jpk_section='SprzedazWiersz'
+                    THEN - aml.balance
+                WHEN jat.jpk_section='SprzedazWiersz' AND am.move_type IN ('out_invoice', 'out_refund', 'entry')
+                    THEN - aml.balance
                ELSE (aml.balance)
                END)                                    AS kwota,
                am.invoice_date_due AS TerminPlatnosci
@@ -381,9 +381,11 @@ class JpkReportV2(models.AbstractModel):
         v7m_report = self.env['jpk.vat.7m'].create(
             {
                 'version': '1-0E',
+                'technical_version': 'v2',
                 'year': report_date.year,
                 'month': report_date.month,
                 'cel_zlozenia': options.get('cel_zlozenia', 1),
+                'document_type_id': self.env.ref('trilab_jpk_base.jpk_v7m_1_0_doc_type').id,
                 'source_xml': base64.b64encode(xml),
                 **sums,
             }

@@ -51,14 +51,14 @@ class AccountMove(models.Model):
         default=False,
         readonly=True,
         states={'draft': [('readonly', False)]},
-        help='Dostawa w ramach sprzedaży wysyłkowej z terytorium kraju, ' 'o której mowa w art. 23 ustawy',
+        help='Dostawa w ramach sprzedaży wysyłkowej z terytorium kraju, o której mowa w art. 23 ustawy',
     )
     x_pl_vat_ee = fields.Boolean(
         string='EE',
         default=False,
         readonly=True,
         states={'draft': [('readonly', False)]},
-        help='Świadczenie usług telekomunikacyjnych, nadawczych i elektronicznych, ' 'o których mowa w art. 28k ustawy',
+        help='Świadczenie usług telekomunikacyjnych, nadawczych i elektronicznych, o których mowa w art. 28k ustawy',
     )
     x_pl_vat_tp = fields.Boolean(
         string='TP',
@@ -91,7 +91,7 @@ class AccountMove(models.Model):
         default=False,
         readonly=True,
         states={'draft': [('readonly', False)]},
-        help='Świadczenie usług turystyki opodatkowane na zasadach marży ' 'zgodnie z art. 119 ustawy.',
+        help='Świadczenie usług turystyki opodatkowane na zasadach marży zgodnie z art. 119 ustawy.',
     )
     x_pl_vat_mr_uz = fields.Boolean(
         string='MR-UZ',
@@ -148,7 +148,7 @@ class AccountMove(models.Model):
         default=False,
         readonly=True,
         states={'draft': [('readonly', False)]},
-        help='Korekta podstawy opodatkowania oraz podatku należnego, ' 'o której mowa w art. 89a ust. 1 i 4 ustawy',
+        help='Korekta podstawy opodatkowania oraz podatku należnego, o której mowa w art. 89a ust. 1 i 4 ustawy',
     )
     x_pl_vat_reverse_charge = fields.Boolean(
         string='Reverse charge', default=False, readonly=True, states={'draft': [('readonly', False)]}
@@ -168,6 +168,22 @@ class AccountMove(models.Model):
         states={'draft': [('readonly', False)]},
         help='Oznaczenie dotyczące podatku naliczonego z tytułu importu towarów, '
         'w tym importu towarów rozliczanego zgodnie z art. 33a ustawy.',
+    )
+
+    x_pl_ksef_invoice_number = fields.Char(string='KSeF Invoice Number', readonly=True, copy=False, index=True)
+    x_pl_ksef_invoice_proof = fields.Selection(
+        [
+            ('OFF', 'OFF'),
+            ('BFK', 'BFK'),
+            ('DI', 'DI'),
+        ],
+        default='BFK',
+        string='KSeF Invoice Proof',
+        help='Dane z faktur lub oznaczenia dotyczące występowania faktur w Krajowym Systemie e-Faktur\n'
+        'OFF - Faktura, o której mowa w art. 106nf ust. 1 ustawy, która na dzień złożenia ewidencji nie posiada '
+        'numeru identyfikującego tę fakturę w Krajowym Systemie e-Faktur\n'
+        'BFK - Faktura elektroniczna lub faktura w postaci papierowej\n'
+        'DI - Dowód inny niż faktura',
     )
 
     def action_post(self):

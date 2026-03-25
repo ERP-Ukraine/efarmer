@@ -616,7 +616,12 @@
                                 <td width="50%">
                                     <span class="pl-4">
                                         <span class="text-muted">55-58.</span>
-                                        <p t-field="doc.p_55_58" class="text-right"/>
+                                        <t t-if="doc.technical_vesion == 'v3'">
+                                            <p t-field="doc.p_55_58_v3" class="text-right"/>
+                                        </t>
+                                        <t t-else="">
+                                            <p t-field="doc.p_55_58" class="text-right"/>
+                                        </t>
                                     </span>
                                 </td>
                             </tr>

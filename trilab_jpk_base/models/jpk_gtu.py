@@ -2,7 +2,6 @@ from odoo import fields, models
 
 
 class JPKGTU(models.Model):
-
     _name = 'jpk.gtu'
     _description = 'JPK GTU'
 

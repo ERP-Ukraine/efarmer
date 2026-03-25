@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="report_invoice_document">
+        <t t-set="o" t-value="o.with_context(lang=lang)"/>
+
+        <div class="header small ksef">
+            <div class="row">
+                <div class="col-6 h2">
+                    Krajowy System <b><font class="text-danger">e</font>-Faktur</b>
+                </div>
+
+                <div t-if="o and o.id and data" class="col-6 text-right">
+                    <p class="mb-0">Numer faktury:</p>
+                    <h3 class="mb-0" t-out="data[o.id].get('number')"/>
+                    <p class="mb-0" t-out="data[o.id].get('type')"/>
+                    <p t-if="o.x_pl_ksef_invoice_number" class="mb-0">
+                        <strong>Numer KSeF:</strong> <t t-out="o.x_pl_ksef_invoice_number"/>
+                    </p>
+                </div>
+            </div>
+            <hr/>
+        </div>
+
+        <div class="article small ksef" t-att-data-oe-model="o and o._name"
+             t-att-data-oe-id="o and o.id" t-att-data-oe-lang="o and o.env.context.get('lang')">
+
+            <div class="page mb-4 clearfix">
+                <t t-if="data" t-out="data[o.id].get('html')"/>
+                <hr />
+                <h6 class="font-weight-bold">Sprawdź, czy Twoja faktura znajduje się w KSeF!</h6>
+                <t t-call="trilab_ksef.ksef_qrcode" t-lang="lang"/>
+            </div>
+
+            <p t-if="o and o.id and data and data[o.id].get('system_info')">
+                <hr/>
+                <strong>Wytworzona w:</strong>
+                <t t-if="o and o.id and data" t-out="data[o.id]['system_info']"/>
+            </p>
+        </div>
+
+        <div t-if="report_type == 'pdf'" class="footer mt-5 small ksef">
+            <hr/>
+            <div class="row">
+                <div class="offset-6 col-6 text-right">
+                    <strong>Strona:</strong> <span class="page"/> / <span class="topage"/>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="report_invoice">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="lang" t-value="o.company_id.partner_id.lang"/>
+                <t t-call="trilab_ksef.report_invoice_document" t-lang="lang"/>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_invoice" model="ir.actions.report">
+        <field name="name">Invoices KSeF</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">trilab_ksef.report_invoice</field>
+        <field name="report_file">trilab_ksef.report_invoice</field>
+        <field name="print_report_name">object.x_pl_ksef_invoice_number or object.name</field>
+        <field name="binding_model_id" ref="model_account_move"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>
