@@ -147,7 +147,7 @@ class ExternalOrderFieldMapping(models.Model):
                     '- segment is either a field name (letters/digits/underscore) or an index (digits)'
                 ))
 
-    def calculate_order_import_value(self, external_order_data, raise_error: bool = True) -> str:
+    def calculate_order_import_value(self, external_order_data: dict, raise_error: bool = True) -> str:
         """Calculate the value to import into Odoo for this mapping field."""
         self.ensure_one()
 

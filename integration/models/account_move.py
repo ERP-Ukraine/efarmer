@@ -83,4 +83,4 @@ class AccountMove(models.Model):
 
             # Apply external payments
             for order in invoice.invoice_line_ids.mapped('sale_line_ids.order_id'):
-                order._integration_apply_external_payments()
+                order._integration_apply_external_payments(from_invoice_post=True)

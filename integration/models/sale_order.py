@@ -3,7 +3,6 @@
 import base64
 import logging
 import math
-import json
 from collections import defaultdict
 from datetime import datetime, timedelta
 
@@ -437,7 +436,7 @@ class SaleOrder(models.Model):
 
     def _integration_shipped_order_hook(self):
         self.ensure_one()
-        if not self.integration_id.run_action_on_shipping_so:
+        if not self.integration_id.export_tracking_job_enabled:
             return None
 
         return self._perform_method_by_name(f'_{self.type_api}_shipped_order')
@@ -586,7 +585,9 @@ class SaleOrder(models.Model):
             self._integration_apply_external_fulfillments()
 
             # 4.2 Apply payments
-            if self.is_order_invoices_posted and not self.order_is_fully_paid:
+            if self.integration_id.create_advance_payments or (
+                self.is_order_invoices_posted and not self.order_is_fully_paid
+            ):
                 self._integration_apply_external_payments()
 
         return external_data
@@ -1707,12 +1708,14 @@ class SaleOrder(models.Model):
         Post-processing after order confirmation.
         """
         if not self.integration_id or not self.related_input_files:
-            return None
+            return False
 
-        order_data = json.loads(self.related_input_files.raw_data)
+        if not self.order_is_confirmed:
+            return False
 
-        # Processing external field mapping for a picking (only active mappings)
+        # Process external field mapping for a picking (only active mappings)
         values = {}
+        order_data = self.related_input_files.to_dict()
 
         mappings = self.integration_id.external_order_field_mapping_ids.filtered(
             lambda m: m.active and m.odoo_picking_field_id
@@ -1731,6 +1734,10 @@ class SaleOrder(models.Model):
         # Validate external fulfillments if the integration supports it
         self._integration_apply_external_fulfillments()
 
+        # Create advance payments if the integration supports it (_validate_as_advance_payment)
+        if self.integration_id.create_advance_payments:
+            self._integration_apply_external_payments()
+
         return True
 
     def _integration_apply_external_fulfillments(self):
@@ -1748,7 +1755,7 @@ class SaleOrder(models.Model):
             for record in self.external_fulfillment_ids.filtered(lambda x: x.is_ecommerce_ok and not x.is_done):
                 record.validate()
 
-    def _integration_apply_external_payments(self):
+    def _integration_apply_external_payments(self, from_invoice_post: bool = False):
         self.ensure_one()
 
         integration = self.integration_id
@@ -1759,7 +1766,10 @@ class SaleOrder(models.Model):
                 self.external_payment_ids._raise_if_refund_found()
 
                 for payment in payments:
-                    payment.validate()
+                    # force_standard_validation is set during invoice posting to skip
+                    payment \
+                        .with_context(integration_skip_advance_payment=from_invoice_post) \
+                        .validate()
 
     def action_open_order_in_external_system(self):
         """

@@ -13,6 +13,8 @@
                     <field name="event_type" readonly="1" />
                     <field name="event_name" readonly="1" />
                     <field name="message" readonly="1" />
+                    <field name="res_model" readonly="1" invisible="not res_model" />
+                    <field name="res_id" readonly="1" invisible="not res_id" />
                 </group>
             </sheet>
             </form>

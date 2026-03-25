@@ -27,7 +27,7 @@
                         />
                         <button name="process_no_job"
                                 type="object"
-                                string="Process No Job"
+                                string="Process Now"
                                 class="btn-primary"
                                 groups="base.group_no_one"
                         />
@@ -99,12 +99,23 @@
                                 <p class="alert alert-info" role="alert">
                                     <i class="fa fa-info-circle" title="Information"></i>
                                     Click the button to view the data parsed by the connector.
-                                    <button
-                                        type="object"
-                                        name="print_parsed_data"
-                                        string="View Parsed Data"
-                                        class="btn-outline-primary d-block mt-3"
-                                    />
+
+                                    <div class="mt-3">
+                                        <button
+                                            type="object"
+                                            name="print_parsed_data"
+                                            string="View Parsed Data"
+                                            class="btn-outline-primary"
+                                        />
+                                        <button
+                                            type="object"
+                                            name="action_view_contact_trace"
+                                            string="View Contact Trace"
+                                            class="btn-outline-secondary ms-3"
+                                            invisible="not order_id"
+                                            groups="base.group_no_one"
+                                        />
+                                    </div>
                                 </p>
                             </div>
                             <field name="display_data" nolabel="1" colspan="2" widget="json_editor" options="{'maxLines': 1000}"/>

@@ -64,24 +64,25 @@ def validate_integration(func):
 
         if not integration.is_active:
             message = f'{integration.name}: Integration is inactive.'
-            _logger.error(message)
+            request.env['integration.logging'].write_log(
+                integration, 'webhook', 'Webhook Validation Failed', message,
+                log_level='error',
+            )
             return BadRequest(message)
 
         is_verified, message = self.verify_webhook(integration)
         if not is_verified:
-            _logger.error(message)
+            request.env['integration.logging'].write_log(
+                integration, 'webhook', 'Webhook Verification Failed', message,
+                log_level='error',
+            )
             return BadRequest(message)
 
-        _logger.info(
-            'Integration webhook: %s, type-api="%s", controller-integration-type="%s". %s',
-            str(integration),
-            integration.type_api,
-            self.integration_type,
-            message,
+        event_name, log_message = self._prepare_webhook_log_data(*args, **kw)
+        request.env['integration.logging'].write_log(
+            integration, 'webhook', event_name, log_message,
+            log_level='info',
         )
-        if integration.save_webhook_log:
-            vals = self._prepare_log_vals(integration, *args, **kw)
-            integration._save_log(vals)
 
         return func(self, *args, **kw)
 

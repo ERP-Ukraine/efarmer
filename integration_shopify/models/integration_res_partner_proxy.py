@@ -1,6 +1,7 @@
 # See LICENSE file for full copyright and licensing details.
 
 import logging
+import re
 
 from typing import Dict, List
 
@@ -54,27 +55,29 @@ class IntegrationResPartnerProxy(models.TransientModel):
         Get the Odoo language based on the customer locale.
         If the customer locale is not found in Odoo, log a message.
         """
-        language = self.env['res.lang']
-        customer_locale = self.customer_locale
+        Lang = self.env['res.lang']
+        locale = self.customer_locale
 
-        if not customer_locale:
-            return language
+        if not locale:
+            return Lang
 
-        # Normalize the customer locale to match Odoo's language codes
-        if '-' in customer_locale:
-            customer_locale = customer_locale.replace('-', '_')
-
-        language = language.from_external(self.integration_id, customer_locale, False)
+        # 1. Try external mapping (e.g. "en-US" -> "en")
+        short_code = re.split(r'[_-]', locale)[0]
+        language = Lang.from_external(self.integration_id, short_code, False)
         if language:
             return language
 
-        language = language.search([('code', '=', customer_locale)], limit=1)
+        # 2. Normalize to Odoo format (en-US -> en_US)
+        normalized_locale = locale.replace('-', '_')
+
+        language = Lang.search([('code', '=', normalized_locale)], limit=1)
         if language:
             return language
 
         _logger.info(
-            'Can\'t find customer language (%s) in Odoo. Default customer language from store settings will be used.',
-            customer_locale,
+            "Can't find customer language (%s) in Odoo. "
+            "Default customer language from store settings will be used.",
+            locale,
         )
 
         return language

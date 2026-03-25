@@ -9,19 +9,27 @@ class ExternalOrderRisk(models.Model):
 
     message = fields.Char(
         string='Risk Description',
-        help='Detailed description of the identified risk or fraud indicator',
+        help='Detailed description of the identified risk factor',
     )
-    score = fields.Char(
-        string='Risk Score',
-        help='Risk assessment score between 0 and 1. Higher scores indicate greater fraud risk.',
+    sentiment = fields.Selection(
+        selection=[
+            ('positive', 'Positive'),
+            ('neutral', 'Neutral'),
+            ('negative', 'Negative'),
+        ],
+        string='Sentiment',
+        help='Sentiment of this individual risk factor as assessed by Shopify',
     )
-    source = fields.Char(
-        string='Risk Source',
-        help='Origin or system that identified this risk (e.g., Shopify Fraud Analysis, third-party service)',
-    )
-    external_str_id = fields.Char(
-        string='External Risk ID',
-        help='Unique identifier for this risk assessment in the external system',
+    risk_level = fields.Selection(
+        selection=[
+            ('low', 'Low'),
+            ('medium', 'Medium'),
+            ('high', 'High'),
+            ('pending', 'Pending'),
+            ('none', 'None'),
+        ],
+        string='Risk Level',
+        help='Overall risk level of the assessment this factor belongs to',
     )
     external_order_str_id = fields.Char(
         string='External Order ID',
@@ -49,60 +57,14 @@ class ExternalOrderRisk(models.Model):
             ('accept', 'Accept Order (Low Risk)'),
             ('investigate', 'Investigate Further (Medium Risk)'),
             ('cancel', 'Cancel Order (High Risk)'),
+            ('none', 'No Recommendation (Pending or No Risk)'),
         ]
 
-    def _create_or_update_risk_from_external(self, data):
-        """
-        Create or update a risk assessment record based on external data.
-
-        Args:
-            data (dict): External risk data from e-commerce platform
-
-        Returns:
-            record: Created or updated risk assessment record
-
-        Note:
-            Supports both legacy and current API formats for backward compatibility
-        """
-        if data.get('id'):
-            # Legacy API format - search by external ID and order ID
-            record = self.search([
-                ('external_str_id', '=', str(data['id'])),
-                ('external_order_str_id', '=', str(data['order_id'])),
-            ], limit=1)
-        else:
-            # Current API format - search by order ID, score, and recommendation
-            record = self.search([
-                ('external_order_str_id', '=', str(data['order_id'])),
-                ('score', '=', data['sentiment']),
-                ('recommendation', '=', data['recommendation']),
-            ], limit=1)
-
-        vals = self._prepare_vals_from_external(data)
-
-        if not record:
-            record = self.create(vals)
-        else:
-            record.write(vals)
-
-        return record
-
     def _prepare_vals_from_external(self, data) -> dict:
-        """
-        Prepare values for creating/updating risk assessment records
-
-        Args:
-            data (dict): Raw external risk data
-
-        Returns:
-            dict: Prepared values for Odoo record
-        """
-        vals = dict(
-            score=data.get('score') or data.get('sentiment'),
-            source=data.get('source') or '',
-            message=data.get('message') or data.get('description'),
-            external_str_id=str(data.get('id')) or '',
-            recommendation=data['recommendation'],
+        return dict(
+            sentiment=(data.get('sentiment') or '').lower() or False,
+            risk_level=(data.get('riskLevel') or '').lower() or False,
+            message=data.get('description'),
+            recommendation=data.get('recommendation', ''),
             external_order_str_id=str(data['order_id']),
         )
-        return vals

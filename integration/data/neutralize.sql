@@ -5,7 +5,6 @@ SET     export_inventory_job_enabled = FALSE,
         export_tracking_job_enabled = FALSE,
         export_sale_order_status_job_enabled = FALSE,
         run_action_on_cancel_so = FALSE,
-        run_action_on_shipping_so = FALSE,
         run_action_on_so_invoice_status = FALSE;
 
 -- removing webhooks on integrations

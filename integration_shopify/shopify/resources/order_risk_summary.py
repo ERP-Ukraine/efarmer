@@ -23,17 +23,22 @@ class OrderRiskSummary(GqlDict):
         self.ensure_one()
         return (self['recommendation'] or '').lower()
 
-    def parse(self, risklevel: str = 'HIGH'):
+    def parse(self):
         self.ensure_one()
 
         result = []
-        for record in self.assessments:
-            if record['riskLevel'] == risklevel:
 
-                for fact in record.get('facts', []):
-                    result.append({
-                        **fact,
-                        'recommendation': self.recommendation,
-                    })
+        for record in self.assessments:
+            if 'riskLevel' not in record:
+                raise ValueError('Shopify risk assessment missing riskLevel')
+
+            risk_level = record['riskLevel']
+
+            for fact in record.get('facts', []):
+                result.append({
+                    **fact,
+                    'riskLevel': risk_level,
+                    'recommendation': self.recommendation,
+                })
 
         return result

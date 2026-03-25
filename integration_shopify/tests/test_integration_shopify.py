@@ -486,7 +486,10 @@ class TestIntegrationShopify(IntegrationShopifyBase):
         self.assertEqual(order.external_payment_ids.amount, '147.58')
         self.assertEqual(order.external_payment_ids.currency, 'PLN')
 
-        self.assertEqual(len(order.order_risk_ids), 0)
+        self.assertEqual(len(order.order_risk_ids), 8)
+        self.assertEqual(order.shopify_risk_level, 'none')
+        self.assertEqual(order.shopify_risk_recommendation, 'none')
+        self.assertFalse(order.is_risky_sale)
 
         # 2.3 Check pipeline
         pipeline = order.integration_pipeline

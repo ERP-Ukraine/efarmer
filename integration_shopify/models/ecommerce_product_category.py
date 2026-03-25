@@ -12,7 +12,7 @@ class ECommerceProductCategory(models.Model):
 
         if integration.is_integration_shopify:
             return {
-                'name': self.convert_field_translations_to_external(integration.id, 'name'),
+                'name': self.name,
             }
 
         return super(ECommerceProductCategory, self).to_export_format(integration)

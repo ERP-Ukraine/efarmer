@@ -501,13 +501,17 @@ class ShopifyAPIClient(AbsApiClient):
             )
 
             # 2.2 Wait for the media-file to be ready
-            for __ in range(3):
-                if media_file.is_not_ready:
-                    sleep(1.6)
-                    media_file._read()
-                else:
+            _delay = 2
+            for __ in range(10):
+                if media_file.is_ready:
                     break
-            else:
+
+                sleep(_delay)
+                _delay = 1
+
+                media_file._read()
+
+            if not media_file.is_ready:
                 raise ShopifyApiError(_('Media file may not be created: %s') % media_file.to_dict())
 
             # 2.3 Attach image to product
@@ -1069,7 +1073,7 @@ class ShopifyAPIClient(AbsApiClient):
     def get_sale_channels(self):
         _logger.info('Shopify: get_sale_channels()')
         publications = self.gql.Publication.get_batch()
-        return [x.to_odoo_format() for x in publications if x.catalog]
+        return [x.to_odoo_format() for x in publications]
 
     def get_pricelists(self):
         _logger.info('Shopify "%s": get_pricelists(). Not implemented.', self._integration_name)
@@ -1114,6 +1118,7 @@ class ShopifyAPIClient(AbsApiClient):
 
         collections = self.gql.Collection.get_batch(
             filter_params='collection_type:custom',
+            limit=math.inf,
         )
         return [x.to_odoo_format() for x in collections]
 
@@ -1464,6 +1469,7 @@ class ShopifyAPIClient(AbsApiClient):
     def get_metafields(self, entity_name: str) -> list:
         metafields = self.gql.MetafieldDefinition.get_batch(
             arguments=f'ownerType: {entity_name.upper()}',
+            limit=math.inf,
         )
         return [x.to_odoo_format() for x in metafields]
 

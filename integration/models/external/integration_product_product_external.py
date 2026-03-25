@@ -1,9 +1,14 @@
 # See LICENSE file for full copyright and licensing details.
 
+import logging
+
 from odoo import models, fields, _
 from odoo.exceptions import UserError
 
 from ...api.abstract_apiclient import AbsApiClient
+
+
+_logger = logging.getLogger(__name__)
 
 
 class IntegrationProductProductExternal(models.Model):
@@ -37,6 +42,15 @@ class IntegrationProductProductExternal(models.Model):
             integration=self.integration_id,
             code=self.code,
         )
+
+        if variant.product_tmpl_id.bom_ids.filtered(lambda b: b.type == 'phantom'):
+            _logger.info(
+                '[%s] Skip stock update for kit product: %s (code=%s)',
+                self.integration_id.name,
+                variant.display_name,
+                self.code,
+            )
+            return variant, location, False
 
         if not variant.is_consumable_storable or variant.tracking != 'none':
             return variant, location, False

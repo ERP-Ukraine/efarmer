@@ -216,6 +216,27 @@ class SaleIntegrationInputFile(models.Model):
 
         return self.env['message.wizard'].create_json_and_run(data)
 
+    def action_view_contact_trace(self):
+        self.ensure_one()
+        if not self.si_id._is_log_type_enabled('customer'):
+            raise UserError(_(
+                'Contact trace logging is not enabled for this integration.\n\n'
+                'To enable it, go to E-Commerce Integrations → Stores → %s → Testing tab and turn on "Save Logs" '
+                'and select "Customers Sync" in the Log Types field.'
+            ) % self.si_id.name)
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Contact Handling Trace',
+            'res_model': 'integration.logging',
+            'view_mode': 'list,form',
+            'domain': [
+                ('res_model', '=', 'sale.integration.input.file'),
+                ('res_id', '=', self.id),
+                ('event_type', '=', 'customer'),
+            ],
+            'context': {'create': False},
+        }
+
     def parse(self):
         self.ensure_one()
 

@@ -695,8 +695,9 @@ class TestIntegrationResPartnerProxy(OdooIntegrationInit):
             'street': 'Old St',
         })
 
-        has_changes = proxy._has_address_changes(contact, new_vals)
+        has_changes, changed_fields = proxy._has_address_changes(contact, new_vals)
         self.assertFalse(has_changes)
+        self.assertEqual(changed_fields, [])
 
     def test_multi_company_isolation(self):
         """Test that integration respects company boundaries."""

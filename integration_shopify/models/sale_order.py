@@ -2,10 +2,12 @@
 
 import logging
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 
 
 _logger = logging.getLogger(__name__)
+
+_RISK_PRIORITY = {'high': 3, 'medium': 2, 'low': 1, 'pending': 0, 'none': -1}
 
 
 class SaleOrder(models.Model):
@@ -29,6 +31,29 @@ class SaleOrder(models.Model):
         ondelete='set null',
         tracking=True,
         copy=False,
+    )
+    shopify_risk_level = fields.Selection(
+        selection=[
+            ('low', 'Low'),
+            ('medium', 'Medium'),
+            ('high', 'High'),
+            ('pending', 'Pending'),
+            ('none', 'None')
+        ],
+        string='Shopify Risk Level',
+        compute='_compute_shopify_risk',
+        store=True,
+    )
+    shopify_risk_recommendation = fields.Selection(
+        selection=[
+            ('accept', 'Accept'),
+            ('investigate', 'Investigate'),
+            ('cancel', 'Cancel'),
+            ('none', 'No Recommendation'),
+        ],
+        string='Shopify Risk',
+        compute='_compute_shopify_risk',
+        store=True,
     )
 
     integration_sale_channel_id = fields.Many2one(
@@ -83,21 +108,42 @@ class SaleOrder(models.Model):
         status = self.env['sale.order.sub.status'].from_external(self.integration_id, 'paid')
         self.sub_status_id = status.id
 
+    def action_view_order_risks(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Order Risk Details'),
+            'res_model': 'external.order.risk',
+            'view_mode': 'list,form',
+            'views': [
+                (self.env.ref('integration_shopify.external_order_risk_view_list_readonly').id, 'list'),
+                (self.env.ref('integration_shopify.external_order_risk_view_form').id, 'form'),
+            ],
+            'domain': [('erp_order_id', '=', self.id)],
+            'target': 'new',
+            'context': {'create': False, 'edit': False, 'delete': False},
+        }
+
+    @api.depends('order_risk_ids.risk_level', 'order_risk_ids.recommendation')
+    def _compute_shopify_risk(self):
+        for rec in self:
+            risks = rec.order_risk_ids
+            if not risks:
+                rec.shopify_risk_level = False
+                rec.shopify_risk_recommendation = False
+            else:
+                highest = max(risks, key=lambda r: _RISK_PRIORITY.get(r.risk_level, 0))
+                rec.shopify_risk_level = highest.risk_level
+                rec.shopify_risk_recommendation = highest.recommendation
+
     @api.depends('order_risk_ids')
     def _compute_is_risky_sale(self):
-        threshold = self._get_order_fraud_threshold()
-
         for rec in self:
-            order_risk_ids = rec.order_risk_ids
-
-            if order_risk_ids.filtered(lambda x: x.recommendation == 'cancel'):
-                value = True
-            elif order_risk_ids.filtered(lambda x: float(x.score) > threshold):
-                value = True
-            else:
-                value = False
-
-            rec.is_risky_sale = value
+            rec.is_risky_sale = bool(
+                rec.order_risk_ids.filtered(
+                    lambda x: x.recommendation in ('cancel', 'investigate')
+                )
+            )
 
     def _adjust_integration_external_data(self, external_data: dict) -> dict:
         # Perform the common logic in the super() method
@@ -168,14 +214,13 @@ class SaleOrder(models.Model):
                 vals['external_tag_ids'] = tags
 
             # 2. Risks
-            if external_data.get('order_risks'):
-                # 3. Update Risks
+            if 'order_risks' in external_data:
+                # 3. Update Risks: clear existing and replace with latest data from Shopify
                 ExternalOrderRisk = self.env['external.order.risk']
-
-                risks = list()
+                risks = [(5, 0, 0)]
                 for risk_data in external_data['order_risks']:
-                    risk = ExternalOrderRisk._create_or_update_risk_from_external(risk_data)
-                    risks.append((4, risk.id, 0))
+                    vals_risk = ExternalOrderRisk._prepare_vals_from_external(risk_data)
+                    risks.append((0, 0, vals_risk))
 
                 vals['order_risk_ids'] = risks
 
@@ -195,9 +240,3 @@ class SaleOrder(models.Model):
                 self.with_context(skip_dispatch_to_external=True).write(vals)
 
         return super(SaleOrder, self)._apply_values_from_external(external_data)
-
-    def _get_order_fraud_threshold(self):
-        threshold = self.env['ir.config_parameter'].sudo().get_param(
-            'integration.fraud_threshold',
-        )
-        return float(threshold)

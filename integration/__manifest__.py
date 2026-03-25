@@ -2,7 +2,7 @@
 
 {
     'name': 'Odoo E-Commerce Connector Core',
-    'version': '19.0.2.1.1',
+    'version': '19.0.2.1.2',
     'category': 'Sales',
     'author': 'VentorTech',
     'website': 'https://ventor.tech',
@@ -30,6 +30,7 @@ inventory, customers & more.''',
         'security/ir.model.access.csv',
 
         # Data
+        'data/integration_log_type_data.xml',
         'data/queue_job_channel_data.xml',
         'data/queue_job_function_data.xml',
         'data/ir_config_parameter_data.xml',

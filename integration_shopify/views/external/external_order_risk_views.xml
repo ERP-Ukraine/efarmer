@@ -6,15 +6,17 @@
             <field name="name">external.order.risk.view.list</field>
             <field name="model">external.order.risk</field>
             <field name="arch" type="xml">
-                <list editable="bottom" create="0">
+                <list editable="bottom" create="0"
+                      decoration-danger="sentiment == 'negative'"
+                      decoration-success="sentiment == 'positive'"
+                      decoration-muted="sentiment == 'neutral'">
                     <field name="id" groups="base.group_no_one"/>
-                    <field name="erp_order_id"/>
-                    <field name="external_str_id" optional="hide"/>
-                    <field name="external_order_str_id" optional="hide"/>
-                    <field name="score"/>
-                    <field name="message"/>
-                    <field name="recommendation"/>
-                    <field name="source"/>
+                    <field name="erp_order_id" readonly="1"/>
+                    <field name="external_order_str_id" optional="hide" readonly="1"/>
+                    <field name="risk_level" readonly="1"/>
+                    <field name="sentiment" widget="badge" readonly="1"/>
+                    <field name="recommendation" widget="badge" readonly="1"/>
+                    <field name="message" readonly="1"/>
                 </list>
             </field>
         </record>
@@ -26,13 +28,54 @@
                 <search>
                     <field name="message"/>
                     <field name="erp_order_id"/>
-                    <field name="external_str_id"/>
                     <field name="external_order_str_id"/>
+                    <filter string="Negative" name="filter_negative" domain="[('sentiment', '=', 'negative')]"/>
+                    <filter string="High Risk" name="filter_high" domain="[('risk_level', '=', 'high')]"/>
+                    <filter string="Medium Risk" name="filter_medium" domain="[('risk_level', '=', 'medium')]"/>
                     <group>
-                        <filter string="ERP Order" name="group_by_erp_order_id" context="{'group_by': 'erp_order_id'}"/>
-                        <filter string="Source" name="group_by_source" context="{'group_by': 'source'}"/>
+                        <filter string="Sales Order" name="group_by_erp_order_id" context="{'group_by': 'erp_order_id'}"/>
+                        <filter string="Risk Level" name="group_by_risk_level" context="{'group_by': 'risk_level'}"/>
+                        <filter string="Recommendation" name="group_by_recommendation" context="{'group_by': 'recommendation'}"/>
                     </group>
                 </search>
+            </field>
+        </record>
+
+        <record id="external_order_risk_view_list_readonly" model="ir.ui.view">
+            <field name="name">external.order.risk.view.list.readonly</field>
+            <field name="model">external.order.risk</field>
+            <field name="arch" type="xml">
+                <list create="0" edit="0" delete="0"
+                      decoration-danger="sentiment == 'negative'"
+                      decoration-success="sentiment == 'positive'"
+                      decoration-muted="sentiment == 'neutral'">
+                    <field name="risk_level"/>
+                    <field name="sentiment" widget="badge"/>
+                    <field name="recommendation" widget="badge"/>
+                    <field name="message"/>
+                    <field name="external_order_str_id" optional="hide"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="external_order_risk_view_form" model="ir.ui.view">
+            <field name="name">external.order.risk.view.form</field>
+            <field name="model">external.order.risk</field>
+            <field name="arch" type="xml">
+                <form create="0" edit="0" delete="0">
+                    <sheet>
+                        <group>
+                            <field name="erp_order_id" readonly="1"/>
+                            <field name="risk_level" readonly="1"/>
+                            <field name="recommendation" readonly="1"/>
+                            <field name="external_order_str_id" readonly="1"/>
+                        </group>
+                        <group string="Risk Factor">
+                            <field name="sentiment" readonly="1"/>
+                            <field name="message" readonly="1"/>
+                        </group>
+                    </sheet>
+                </form>
             </field>
         </record>
 

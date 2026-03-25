@@ -226,6 +226,12 @@
                             </list>
                         </field>
                     </group>
+                    <div class="alert alert-warning" role="alert"
+                        invisible="is_valid_access_scopes">
+                        Please ensure all permissions listed in the table above are granted
+                        before continuing to configuration. Otherwise, you may encounter
+                        errors during the connector's operation.
+                    </div>
                 </sheet>
                 <footer>
                     <button name="open_form_authentication"
@@ -238,6 +244,10 @@
                         type="object"
                         class="btn-primary"
                         invisible="not is_valid_access_scopes"
+                    />
+                    <button string="Continue to Configuration →"
+                        class="btn-primary disabled opacity-50"
+                        invisible="is_valid_access_scopes"
                     />
                     <button name="check_access_permissions"
                         string="Recheck Access Permissions"

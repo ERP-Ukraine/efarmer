@@ -62,7 +62,7 @@
                     <field name="erp_order_id"/>
                     <field name="external_str_id"/>
                     <group>
-                        <filter string="ERP Order" name="group_by_erp_order_id" context="{'group_by': 'erp_order_id'}"/>
+                        <filter string="Sales Order" name="group_by_erp_order_id" context="{'group_by': 'erp_order_id'}"/>
                     </group>
                 </search>
             </field>

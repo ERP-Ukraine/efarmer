@@ -286,8 +286,8 @@ class StockPicking(models.Model):
 
             # Option 1: Order is fully shipped; perform full delivery validation
             if order.check_is_order_shipped():
-                order._integration_shipped_order_hook()
                 order.order_export_tracking()
+                order._integration_shipped_order_hook()
                 continue
 
             # Option 2: Order is not fully shipped; perform partial delivery validation for

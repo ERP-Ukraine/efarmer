@@ -6,6 +6,14 @@ Change Log
 
 |
 
+* 2.1.2 (2026-03-20)
+    - [NEW] Added detailed contact handling trace logs during order import to help diagnose how customers, delivery addresses, and invoice addresses are resolved. To enable, activate the "Save Logs" checkbox on the Testing tab and add "Customers Sync" to the Log Types. A "View Contact Trace" button on the external order form provides quick access to the saved trace for each imported order.
+    - [NEW] Added support for "Create Advance Payments (Before Invoice)" — a new option in the Sales Orders tab (requires "Auto-Apply Payments from E-Commerce System" to be enabled). When active, the connector registers payments directly on the Sales Order at import time, before any invoice is created, using the OCA sale_advance_payment module. The auto-workflow payment step is fully compatible — it will skip payment creation if the advance payment already covers the invoice, or register only the remaining balance if partially covered.
+    - [IMP] Added partial Spanish language translation for the connector interface (65% complete). We welcome community contributions to help translate the connector into other languages - if you'd like to help, please reach out to us at support@ventor.tech.
+    - [FIX] Fixed an issue where customer matching during order import incorrectly fell back to name-based search when the configured search fields (e.g. email) had no value in the incoming order. This could cause orders without an email address to be incorrectly linked to an existing contact with the same name, leading to wrong order assignments and data privacy issues. The connector now respects the configured search fields strictly and creates a new contact instead of falling back to default matching criteria.
+    - [FIX] Fixed an issue where real-time inventory synchronization was not triggered after completing a manufacturing order when "Forecasted Quantity" was selected as the Inventory Quantity Source Field, causing the produced product's stock level to remain outdated in the e-commerce store.
+    - [FIX] Other improvements and fixes implemented to boost overall performance, stability, and reliability.
+
 * 2.1.1 (2026-03-01)
     - [NEW] Added "Export Inventory Now" button to the Inventory tab, allowing users to manually trigger a full inventory export for all products at any time — regardless of the Scheduled Inventory Sync setting. The export runs in batches as background jobs, the same way the scheduled action does.
     - [NEW] Added "Run Now" button on background jobs (available in debug mode), allowing jobs to be executed in real time instead of being queued. This is primarily intended to simplify debugging and issue investigation.

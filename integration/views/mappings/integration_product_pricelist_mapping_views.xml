@@ -10,7 +10,7 @@
                 <list editable="bottom">
                     <field name="integration_id"/>
                     <field name="external_pricelist_id" domain="[('integration_id', '=', integration_id)]"/>
-                    <field name="pricelist_id"/>
+                    <field name="pricelist_id" domain="[('company_id', 'in', [company_id, False])]"/>
                     <button name="import_special_prices_mapping"
                             type="object"
                             string="Synchronize"
@@ -26,7 +26,7 @@
             <field name="model">integration.product.pricelist.mapping</field>
             <field name="arch" type="xml">
                 <search>
-                    <field name="pricelist_id"/>
+                    <field name="pricelist_id" domain="[('company_id', 'id', [company_id, False])]"/>
                     <field name="external_pricelist_id"/>
                     <field name="integration_id"/>
                     <filter string="Not Mapped" name="not_mapped" domain="[('pricelist_id', '=', False)]" />

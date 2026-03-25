@@ -5,6 +5,7 @@ from odoo.exceptions import UserError, ValidationError
 
 from inspect import stack
 from logging import getLogger
+from psycopg2 import IntegrityError, OperationalError
 from requests.exceptions import HTTPError, SSLError, ConnectionError as RequestsConnectionError
 from typing import Type, NamedTuple, Optional, List
 
@@ -226,6 +227,7 @@ class ErrorStore:
 
     SERVER_ERROR_CODES = list(range(500, 600))
 
+    AssertionError = AssertionError
     UserError = UserError
     ValidationError = ValidationError
 
@@ -236,6 +238,7 @@ class ErrorStore:
     JsonMissedKey = JsonMissedKey
 
     NoExternal = NoExternal
+    MultipleExternalRecordsFound = MultipleExternalRecordsFound
     NotMappedToExternal = NotMappedToExternal
     NotMappedFromExternal = NotMappedFromExternal
 
@@ -253,6 +256,9 @@ class ErrorStore:
     HTTPError = HTTPError
 
     NoReferenceFieldDefined = NoReferenceFieldDefined
+
+    IntegrityError = IntegrityError
+    OperationalError = OperationalError
 
     _error_codes = {
         'E000': ErrorInfo(),  # Common error code for raise non-standart integration errors
@@ -346,7 +352,13 @@ class ErrorStore:
                 'product_name',
                 'product_reference',
             ],
-        )
+        ),
+        'E111': ErrorInfo(
+            format_method='format_related_product_not_imported',
+            format_method_params=[
+                'unmapped_codes',
+            ],
+        ),
     }
 
     def __new__(cls):
@@ -607,3 +619,12 @@ class ErrorStore:
             'It may have been deleted, archived, or is no longer available. '
             'Please verify that the product and its variants still exist in your store.'
         ) % (integration_name, product_name, product_reference, product_id, variant_id)
+
+    @staticmethod
+    def format_related_product_not_imported(unmapped_codes):
+        return _(
+            'Some optional products are not mapped to Odoo products yet. \nPlease run initial import of products '
+            'or import products by IDs using import wizard: \n\tE-Commerce Integrations → Stores → <your store> '
+            '→ Data Import → Open Import Wizard button.\n\n'
+            'Unmapped optional product IDs:\n%s'
+        ) % '\n'.join(f'\t- {code}' for code in unmapped_codes)

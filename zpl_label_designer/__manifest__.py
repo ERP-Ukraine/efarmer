@@ -14,7 +14,9 @@
         Print from Odoo | Odoo Label Creator |Odoo Zebra Printer | ZPL Template Odoo |
         Odoo Manufacturing Labels | Inventory Labeling Odoo | No-Code Label Design |
         Dynamic ZPL Labels | Custom Labels in Odoo | Direct Print Integration | ZPL Print Odoo |
-        Label Generator for Odoo | Odoo Warehouse Labels
+        Label Generator for Odoo | Odoo Warehouse Labels | ZPL Designer | Create Label | Stock Label |
+        Lot Label | Serial Label | Odoo ZPL | Designer Label | Creating Label | Create ZPL |
+        Document Label | Package Label | Packaging Label | Price Label
     """,
     'version': '19.0.1.3.5',
     'category': 'Tools',

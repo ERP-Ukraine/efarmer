@@ -209,10 +209,10 @@ class OrderParseMixin:
             'discount': discount,
         }
 
-    def parse_order_risks(self, risklevel: str = 'HIGH'):
+    def parse_order_risks(self):
         self.ensure_one()
 
-        result = self.risk_summary.parse(risklevel=risklevel)
+        result = self.risk_summary.parse()
 
         for risk in result:
             risk['order_id'] = self.id_str
@@ -533,6 +533,11 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
     def billing_matches_shipping(self):
         self.ensure_one()
         return self.billingAddressMatchesShippingAddress
+
+    @property
+    def business_entity(self):
+        self.ensure_one()
+        return self._env.BusinessEntity.set(**(self['merchantBusinessEntity'] or {}))
 
     def get_batch_body_minimal(self, filter_params: str = ''):
         return self.get_batch(

@@ -1,9 +1,13 @@
 # See LICENSE file for full copyright and licensing details.
 
-from odoo import models, fields, _
-from odoo.exceptions import UserError, ValidationError
+import logging
 
-from ...exceptions import ApiImportError
+from odoo import models, fields, _
+
+from ...exceptions import ErrorStore as es
+
+
+_logger = logging.getLogger(__name__)
 
 
 REFUND_FOUND_ERROR = """\n\n
@@ -112,6 +116,23 @@ class ExternalOrderTransaction(models.Model):
         """Check if this is a refund transaction"""
         return self.kind == 'refund'
 
+    def validate(self):
+        """
+        Advance payment flow and fall back to standard validation
+        """
+        if (
+            self.env.context.get('integration_skip_advance_payment')
+            or not self.integration_id.create_advance_payments
+        ):
+            return super().validate()
+
+        result, ids = self._validate_as_advance_payment()
+
+        if not result:
+            self._log_processing_failed()
+
+        return result, ids
+
     def _validate(self):
         """
         Process the external payment transaction in Odoo.
@@ -156,7 +177,7 @@ class ExternalOrderTransaction(models.Model):
 
         try:
             payments = wizard._create_payments()
-        except (UserError, ValidationError) as ex:
+        except (es.UserError, es.ValidationError) as ex:
             self.internal_info = f'Payment creation failed: {ex.args[0]}'
             self.mark_failed()
             return False, []
@@ -165,6 +186,52 @@ class ExternalOrderTransaction(models.Model):
         self.mark_done()
 
         return True, payments.ids
+
+    def _validate_as_advance_payment(self):
+        """
+        Validate the external payment transaction as an advance payment
+        using the sale_advance_payment OCA module wizard.
+
+        Returns:
+            tuple: (success, payment_ids)
+        """
+        self.internal_info = False
+
+        if self.is_done:
+            return True, []
+
+        if not self.is_ecommerce_ok:
+            self.internal_info = _('Transaction skipped - external status does not allow processing')
+            self.mark_skipped()
+            return False, []
+
+        order = self.erp_order_id
+        old_payments = order.account_payment_ids
+
+        try:
+            wizard = self.env['account.voucher.wizard'] \
+                .with_context(
+                    active_ids=order.ids,
+                    default_integration_id=self.integration_id.id,
+                ).create({
+                    'order_id': order.id,
+                    'amount_total': order.amount_residual,
+                    'amount_advance': self.get_amount(no_writeoff=True),
+                    'currency_id': order.pricelist_id.currency_id.id,
+                    'journal_id': self.get_journal(),
+                })
+
+            wizard.make_advance_payment()
+        except (es.UserError, es.ValidationError) as ex:
+            self.internal_info = f'Advance payment creation failed: {ex.args[0]}'
+            self.mark_failed()
+            return False, []
+
+        new_payments = order.account_payment_ids - old_payments
+        self._add_payment_ids(new_payments.ids)
+        self.mark_done()
+
+        return True, new_payments.ids
 
     def get_journal(self):
         """Get the appropriate payment journal for this transaction"""
@@ -179,30 +246,33 @@ class ExternalOrderTransaction(models.Model):
 
         return journal.id
 
-    def get_amount(self):
+    def get_amount(self, no_writeoff: bool = False):
         """Convert external amount to Odoo invoice currency"""
         external_currency = self.env['res.currency'].search([
             ('name', '=ilike', self.currency.lower()),
         ], limit=1)
 
         if not external_currency:
-            raise ApiImportError(
+            raise es.ApiImportError(
                 _('Currency "%s" is not configured in Odoo. Please add this currency to continue.') % self.currency
             )
 
-        currency = self.erp_order_id.invoice_ids\
-            .filtered(lambda x: x.invoice_is_posted)[0] \
-            .currency_id
+        order = self.erp_order_id
+        order_currency = order.pricelist_id.currency_id
 
-        if currency.id != external_currency.id:
-            amount = currency._convert(
+        if order_currency.id != external_currency.id:
+            amount = order_currency._convert(
                 from_amount=self.float_amount,
-                to_currency=currency,
-                company=self.erp_order_id.company_id,
+                to_currency=order_currency,
+                company=order.company_id,
                 date=self.external_process_date,
             )
         else:
             amount = self.float_amount
+
+        if no_writeoff:
+            if amount < order.amount_residual:
+                amount = order.amount_residual
 
         return amount
 
@@ -211,7 +281,7 @@ class ExternalOrderTransaction(models.Model):
         writeoff_account = self.integration_id.integration_writeoff_account_id
 
         if not writeoff_account:
-            raise ValidationError(
+            raise es.ValidationError(
                 _(
                     'Integration "%s": Write-off account is not configured. '
                     'Please set up a write-off account in the integration settings.'
@@ -227,4 +297,4 @@ class ExternalOrderTransaction(models.Model):
     def _raise_if_refund_found(self):
         """Check for unprocessed refund transactions and raise user-friendly error"""
         if any(x.is_refund for x in self if not x.is_done):
-            raise ValidationError(REFUND_FOUND_ERROR)
+            raise es.ValidationError(REFUND_FOUND_ERROR)

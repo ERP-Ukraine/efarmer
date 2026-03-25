@@ -394,7 +394,7 @@ else:
 pricelist = integration.integration_pricelist_id
 sale_pricelist = integration.integration_sale_pricelist_id
 
-base_price = variant.lst_price
+regular_price = variant.lst_price
 api_name = field.get_api_field_name()
 
 # Override with pricelist price if configured
@@ -408,10 +408,10 @@ if sale_pricelist:
     if rule_id and sale_price != regular_price:
         # Variant is in sale pricelist with active discount - swap prices
         final_price = sale_price
-        compare_at_price = base_price
+        compare_at_price = regular_price
     else:
         # Variant not in sale pricelist or no discount - explicitly clear compare_at_price
-        final_price = base_price
+        final_price = regular_price
         compare_at_price = None
 
     # Apply tax adjustments
@@ -425,7 +425,7 @@ if sale_pricelist:
     }
 else:
     # No sale pricelist - only send regular price, don't touch compareAtPrice
-    final_price = variant.get_price_by_send_tax_incl(integration.id, base_price)
+    final_price = variant.get_price_by_send_tax_incl(integration.id, regular_price)
 
     value = {
         api_name: final_price,

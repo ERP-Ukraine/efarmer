@@ -11,9 +11,19 @@
                     <field name="use_customer_currency" invisible="not is_integration_shopify" widget="boolean_toggle"/>
                 </group>
                 <group name="advanced_sales_order_settings" position="inside">
-                    <field name="integration_channel_ids" widget="many2many_tags" invisible="not is_integration_shopify" options="{'no_create': True, 'no_edit': True}"/>
-                    <div colspan="2">
-                        <button name="import_sale_channels" string="Import Sale Channels" type="object" class="btn btn-primary" invisible="not is_integration_shopify"/>
+                    <label for="integration_channel_ids" string="Sale Channels" />
+                    <div class="o_row" colspan="1">
+                        <div class="flex-grow-1" style="max-width: 250px;">
+                            <field name="integration_channel_ids" widget="many2many_tags" invisible="not is_integration_shopify" options="{'no_create': True, 'no_edit': True}"/>
+                        </div>
+                        <button name="import_sale_channels" string="Import Sale Channels" type="object" class="btn btn-outline-primary" invisible="not is_integration_shopify"/>
+                    </div>
+                    <label for="integration_business_entity_ids" string="Merchant Business Entities" />
+                    <div class="o_row" colspan="1">
+                        <div class="flex-grow-1" style="max-width: 250px;">
+                            <field name="integration_business_entity_ids" widget="many2many_tags" options="{'no_create': True, 'no_edit': True}" />
+                        </div>
+                        <button name="import_business_entities" string="Import Merchant Business Entities" type="object" class="btn btn-outline-primary"/>
                     </div>
                 </group>
                 <page name="sale_order_page" position="inside">
@@ -99,13 +109,13 @@
                                                options="{'no_create': True}"
                                         />
                                         <field name="pricelist_id"
-                                            domain="[('company_id', '=', parent.company_id), ('currency_code', '=', currency_code)]"
+                                            domain="[('company_id', 'in', [parent.company_id, False]), ('currency_code', '=', currency_code)]"
                                             required="catalog_id"
                                             readonly="not catalog_id"
                                             options="{'no_create': True}"
                                         />
                                         <field name="pricelist_compare_at_id"
-                                            domain="[('company_id', '=', parent.company_id), ('currency_code', '=', currency_code)]"
+                                            domain="[('company_id', 'in', [parent.company_id, False]), ('currency_code', '=', currency_code)]"
                                             readonly="not pricelist_id"
                                             options="{'no_create': True}"
                                         />
@@ -198,7 +208,7 @@
                 </group>
 
                 <!-- Webhook Security (Advanced) section - only visible in debug mode for Shopify -->
-                <xpath expr="//page[@name='webhooks_defaults']/group[@name='webhooks_logging']" position="after">
+                <group name="webhook_management" position="after">
                     <group name="webhook_security_advanced" string="Webhook Security (Advanced)" groups="base.group_no_one" invisible="not is_integration_shopify">
                         <div class="alert alert-info" role="alert" colspan="2">
                             <p class="mb-2">
@@ -233,7 +243,7 @@
                         </div>
                         <field name="enable_webhook_hmac_validation" widget="boolean_toggle"/>
                     </group>
-                </xpath>
+                </group>
             </field>
         </record>
 

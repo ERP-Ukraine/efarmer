@@ -21,6 +21,7 @@ from . import product_template_attribute_value
 from . import product_attribute
 from . import product_attribute_value
 from . import product_pricelist
+from . import integration_log_type
 from . import integration_logging
 from . import integration_webhook_line
 from . import sale_integration

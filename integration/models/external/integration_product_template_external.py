@@ -256,6 +256,31 @@ class IntegrationProductTemplateExternal(models.Model):
 
         return template
 
+    def action_reimport_products(self):
+        external_ids = []
+        integration = self.mapped('integration_id')
+        if len(integration) > 1:
+            raise UserError(_(
+                'Selected products have different integrations.\n'
+                'Please select products from the same integration.'
+            ))
+
+        records = self.filtered(lambda x: not x.odoo_record)
+        external_ids = records.mapped('code')
+
+        integration.import_products_in_background(external_ids)
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Reimport Product'),
+                'message': _('Products import jobs are created'),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+
     def _process_images_in(self, external_images: List[ExternalImage], receive_binaries=False):
         self._mark_image_mappings_as_pending()
 

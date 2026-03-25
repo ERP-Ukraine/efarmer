@@ -34,9 +34,9 @@ class File(GqlDict, CreateMixin, UpdateMixin):
         return self['fileErrors']
 
     @property
-    def is_not_ready(self):
+    def is_ready(self):
         self.ensure_one()
-        return not self.file_status.is_ready
+        return self.file_status.is_ready
 
     @property
     def media_image_gid(self):

@@ -1081,6 +1081,15 @@ class TemplateHub:
         products = [x for x in self if x.barcode]
         return self._group_by(products, 'barcode', level=2)
 
+    def get_products_with_no_barcodes_on_variants(self):
+        """Return dictionary of products grouped by parent record where variants have no barcodes."""
+        variants_no_barcode = [x for x in self.get_variants() if not x.barcode]
+        record_dict = defaultdict(list)
+        for variant in variants_no_barcode:
+            parent = self.find_record_by_id(variant.parent_id)
+            record_dict[parent].append(variant)
+        return dict(record_dict)
+
     def get_products_with_repeated_configurations(self):
         """Return dictionary of repeated configurations grouped by parent record."""
         variants = self.get_variants()
@@ -1416,6 +1425,16 @@ class HtmlWrapper:
 
     def add_subtitle(self, title):
         self._extend_html_list(self._wrap_subtitle(title))
+
+    def add_alert_info(self, title, points):
+        items = ''.join(f'<br/><br/>{point}' for point in points if point)
+        html = (
+            f'<div class="alert alert-info" role="alert">'
+            f'<strong>{title}</strong>'
+            f'<span>{items}</span>'
+            f'</div>'
+        )
+        self._extend_html_list(html)
 
     def add_sub_block_for_external_product_list(self, title, id_list):
         title = self._wrap_string(title)

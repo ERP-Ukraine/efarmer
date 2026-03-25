@@ -55,25 +55,23 @@ PROXY_TYPES = [
     'other_address',
 ]
 
-PARTNER_SEARCH_CRITERIA = [
+MANDATORY_PARTNER_SEARCH_CRITERIA = [
     ('parent_id', '='),
     ('is_company', '='),
     ('type', '='),
     ('company_id', 'in'),
-    ('phone_sanitized', '=ilike'),
 ]
 
-COMPANY_SEARCH_CRITERIA = [
+MANDATORY_COMPANY_SEARCH_CRITERIA = [
     ('name', '=ilike'),
     ('is_company', '='),
     ('company_id', 'in'),
 ]
 
-ADDRESS_SEARCH_CRITERIA = [
+MANDATORY_ADDRESS_SEARCH_CRITERIA = [
     ('name', '=ilike'),
     ('parent_id', '='),
     ('company_id', 'in'),
-    ('phone_sanitized', '=ilike'),
 ]
 
 
@@ -342,32 +340,36 @@ class IntegrationResPartnerProxy(models.TransientModel):
         Build a search domain based on the provided search criteria and values.
         """
         domain = []
-        phone_search_criteria = []
 
         for key, op in search_criteria:
             value = values.get(key, '')
 
-            # Special case: email → search in both email and normalized_email
-            if key == 'email':
-                if value:
-                    if isinstance(value, str) and op == '=ilike':
-                        escaped_value = escape_psql(value)
-                        if not escaped_value:
-                            continue
-                    else:
-                        escaped_value = value
-
-                    domain.extend([
-                        '|',
-                        (key, op, escaped_value),
-                        ('email_normalized', '=', escaped_value)
-                    ])
+            if not value:
+                domain.append((key, 'in', ['', False]))
                 continue
 
-            # Special case: phone / phone_sanitized → collect for combined OR search
-            if key in ('phone', 'phone_sanitized'):
-                if value:
-                    phone_search_criteria.append((key, op))
+            # Escape ilike values
+            if isinstance(value, str) and op == '=ilike':
+                value = escape_psql(value)
+                if not value:
+                    continue
+
+            # Special case: email → search in both email and email_normalized
+            if key == 'email':
+                domain.extend([
+                    '|',
+                    (key, op, value),
+                    ('email_normalized', '=', value),
+                ])
+                continue
+
+            # Special case: phone → search in both phone and phone_sanitized
+            if key == 'phone':
+                domain.extend([
+                    '|',
+                    (key, op, value),
+                    ('phone_sanitized', '=ilike', value),
+                ])
                 continue
 
             # Special case: company_id → add False value
@@ -376,30 +378,7 @@ class IntegrationResPartnerProxy(models.TransientModel):
                     domain.extend([(key, op, [value, False])])
                 continue
 
-            if value:
-                # Escape the value if the operator is 'ilike'
-                if isinstance(value, str) and op == '=ilike':
-                    value = escape_psql(value)
-                    if not value:
-                        continue
-
-                domain.append((key, op, value))
-            else:
-                # If there is no value, use the 'in' operator and an empty list for filtering
-                domain.append((key, 'in', ['', False]))
-
-        # Handle phone search criteria separately to combine conditions
-        if phone_search_criteria:
-            phone_search_domain = []
-            for key, op in phone_search_criteria:
-                phone_search_domain.append((key, op, values.get(key, '')))
-
-            if len(phone_search_domain) == 1:
-                domain.append(phone_search_domain[0])
-            else:
-                # Combine phone search criteria with OR operator
-                combined_phone_domain = ['|'] * (len(phone_search_domain) - 1) + phone_search_domain
-                domain.extend(combined_phone_domain)
+            domain.append((key, op, value))
 
         return domain
 
@@ -470,6 +449,11 @@ class IntegrationResPartnerProxy(models.TransientModel):
 
         # Return for company-only mode
         if self.integration_id.skip_individual_contacts and self.company_name:
+            self._log_partner_trace(
+                'Company-only mode',
+                f'skip_individual_contacts=True with company "{self.company_name}" '
+                f'→ using company partner directly',
+            )
             return self._get_or_create_company_partner()
 
         # If no mapped partner, search or create new one
@@ -494,14 +478,21 @@ class IntegrationResPartnerProxy(models.TransientModel):
 
         # Do not use inactive (archived) partners from mapping.
         if not mapped_partner.active:
-            _logger.debug('Mapped partner is archived, skipping mapping: %s', mapped_partner.display_name)
+            self._log_partner_trace(
+                'Mapped partner archived',
+                f'Mapped partner "{mapped_partner.display_name}" (ID: {mapped_partner.id}) '
+                f'is archived → skipping mapping',
+            )
             return self.env['res.partner']
 
         if self._is_mapping_compatible(mapped_partner):
-            _logger.debug('Using mapped partner: %s', mapped_partner.display_name)
+            self._log_partner_trace(
+                'Mapped partner found',
+                f'Using mapped partner "{mapped_partner.display_name}" (ID: {mapped_partner.id}) '
+                f'for external_id="{self.external_id}"',
+            )
             return mapped_partner
 
-        _logger.debug('Mapped partner incompatible, skipping mapping.')
         return self.env['res.partner']
 
     def _is_mapping_compatible(self, mapped_partner: models.Model) -> bool:
@@ -520,38 +511,75 @@ class IntegrationResPartnerProxy(models.TransientModel):
 
         # Check company context
         if mapped_partner.company_id and mapped_partner.company_id != self.company_id:
-            _logger.debug(
-                'Mapped partner %s belongs to company %s, but integration uses %s',
-                mapped_partner.display_name,
-                mapped_partner.company_id.name,
-                self.company_id.name
+            self._log_partner_trace(
+                'Mapped partner incompatible',
+                f'Partner "{mapped_partner.display_name}" belongs to Odoo company '
+                f'"{mapped_partner.company_id.name}" but integration uses '
+                f'"{self.company_id.name}"',
             )
             return False
 
         # Mapped partner is company, but we're creating individual contact
         if mapped_partner.is_company and not skip_individual:
+            self._log_partner_trace(
+                'Mapped partner incompatible',
+                f'Mapped partner "{mapped_partner.display_name}" is a company record '
+                f'but integration is in individual contact mode '
+                f'(skip_individual_contacts=False)',
+            )
             return False
 
         # Mapped partner is contact, but we're in company-only mode
         if not mapped_partner.is_company and skip_individual:
+            self._log_partner_trace(
+                'Mapped partner incompatible',
+                f'Mapped partner "{mapped_partner.display_name}" is an individual contact '
+                f'but integration is in company-only mode '
+                f'(skip_individual_contacts=True)',
+            )
             return False
 
         # Mapped partner has different parent company
         if mapped_partner.parent_id and company:
             if mapped_partner.parent_id != company:
+                self._log_partner_trace(
+                    'Mapped partner incompatible',
+                    f'Mapped partner "{mapped_partner.display_name}" parent company is '
+                    f'"{mapped_partner.parent_id.display_name}" but expected '
+                    f'"{company.display_name}"',
+                )
                 return False
 
             # Mapped partner has parent company, but integration uses different company
             if mapped_partner.parent_id.company_id and mapped_partner.parent_id.company_id != self.company_id:
+                self._log_partner_trace(
+                    'Mapped partner incompatible',
+                    f'Mapped partner "{mapped_partner.display_name}" parent company '
+                    f'"{mapped_partner.parent_id.display_name}" belongs to Odoo company '
+                    f'"{mapped_partner.parent_id.company_id.name}" but integration uses '
+                    f'"{self.company_id.name}"',
+                )
                 return False
 
         # Mapped partner is different company than expected
         if skip_individual and mapped_partner.is_company and company:
             if mapped_partner != company:
+                self._log_partner_trace(
+                    'Mapped partner incompatible',
+                    f'In company-only mode: mapped company is '
+                    f'"{mapped_partner.display_name}" (ID: {mapped_partner.id}) '
+                    f'but expected "{company.display_name}" (ID: {company.id})',
+                )
                 return False
 
             # Mapped partner has company, but integration uses different company
             if mapped_partner.company_id and mapped_partner.company_id != self.company_id:
+                self._log_partner_trace(
+                    'Mapped partner incompatible',
+                    f'In company-only mode: mapped company "{mapped_partner.display_name}" '
+                    f'belongs to Odoo company "{mapped_partner.company_id.name}" '
+                    f'but integration uses "{self.company_id.name}"',
+                )
                 return False
 
         return True
@@ -578,10 +606,18 @@ class IntegrationResPartnerProxy(models.TransientModel):
 
         if partner:
             self._write_address_fields_if_empty(partner)
-            _logger.debug('Found existing partner: %s', partner.display_name)
+            self._log_partner_trace(
+                'Contact found',
+                f'Search domain: {domain}\n'
+                f'→ Found: "{partner.display_name}" (ID: {partner.id})',
+            )
         else:
             partner = self._create_partner(partner_vals)
-            _logger.debug('Created new partner: %s', partner.display_name)
+            self._log_partner_trace(
+                'Contact created',
+                f'Search domain: {domain}\n'
+                f'→ No match found, created: "{partner.display_name}" (ID: {partner.id})',
+            )
 
         return partner
 
@@ -752,6 +788,18 @@ class IntegrationResPartnerProxy(models.TransientModel):
                 # Write the VAT number to the company
                 company.write({vat_field.name: vat_value})
 
+            self._log_partner_trace(
+                'Company created',
+                f'Search domain: {domain}\n'
+                f'→ No match found, created: "{company.display_name}" (ID: {company.id})',
+            )
+        else:
+            self._log_partner_trace(
+                'Company found',
+                f'Search domain: {domain}\n'
+                f'→ Found: "{company.display_name}" (ID: {company.id})',
+            )
+
         # Check if address fields are empty and if so, write the address fields to the company
         self._write_address_fields_if_empty(company)
 
@@ -761,33 +809,74 @@ class IntegrationResPartnerProxy(models.TransientModel):
 
     def _collect_partner_search_domain(self, partner_vals: Dict) -> List[Tuple[str, str, str]]:
         """
-        Collects the search domain based on partner values.
-        Args:
-            partner_vals : A dictionary containing partner values.
-        Returns:
-            list: A list of tuples representing the search domain criteria.
+        Build partner search domain based on integration configuration.
+
+        Logic:
+        - If integration restricts search to specific fields and those fields
+        have values → search strictly by them (+ mandatory criteria).
+        - Otherwise fallback to SEARCH_CUSTOMER_FIELDS.
+        - Personal ID is appended only when search is not restricted.
         """
 
-        def _get_operator(field: str) -> str:
+        def _operator(field: str) -> str:
             return '=ilike' if field in ['name', 'email'] else '='
 
-        search_criteria = PARTNER_SEARCH_CRITERIA.copy()
+        search_criteria = MANDATORY_PARTNER_SEARCH_CRITERIA.copy()
 
-        customer_field_names = self.integration_id.sudo().search_customer_fields_ids.mapped('name')
-        for field_name in customer_field_names:
-            if partner_vals.get(field_name):
-                search_criteria.append((field_name, _get_operator(field_name),))
+        # Get configured fields from integration settings
+        configured_fields = set(
+            self.integration_id
+            .sudo()
+            .search_customer_fields_ids
+            .mapped('name')
+        )
 
-        # If the user has selected to search partners by specific fields, but there are no values
-        # in partner_vals for those fields, the search will be performed using all possible fields.
-        if len(PARTNER_SEARCH_CRITERIA) == len(search_criteria) and SEARCH_CUSTOMER_FIELDS != customer_field_names:
-            for field_name in SEARCH_CUSTOMER_FIELDS:
-                if partner_vals.get(field_name):
-                    search_criteria.append((field_name, _get_operator(field_name),))
+        # Fields that actually have values
+        available_configured = {
+            field for field in configured_fields
+            if partner_vals.get(field)
+        }
+
+        # Whether the user explicitly restricted search to a subset of all defaults
+        is_restricted = configured_fields and configured_fields != set(SEARCH_CUSTOMER_FIELDS)
+
+        if available_configured:
+            fields_to_use = available_configured
+            self._log_partner_trace(
+                'Contact search fields',
+                f'Using configured search fields: {sorted(fields_to_use)}',
+            )
+        elif is_restricted:
+            # User explicitly restricted search fields but the incoming customer has no value
+            # for any of them (e.g. email-only config, order without email).
+            # We cannot identify the customer — force new contact creation instead of
+            # falling back to name-based matching which would produce false positives.
+            self._log_partner_trace(
+                'New contact forced (no search field values)',
+                f'Configured search fields: {", ".join(sorted(configured_fields))}.\n'
+                f'None of them had a value for the incoming customer. '
+                f'A new contact will be created instead of falling back to name-based matching.',
+            )
+            return [('id', '=', False)]
+        else:
+            fields_to_use = {
+                field for field in SEARCH_CUSTOMER_FIELDS
+                if partner_vals.get(field)
+            }
+            self._log_partner_trace(
+                'Contact search fields',
+                f'No configured search fields → using defaults: {sorted(fields_to_use)}',
+            )
+
+        for field_name in fields_to_use:
+            search_criteria.append((field_name, _operator(field_name)))
 
         domain = self._build_search_domain(search_criteria, partner_vals)
 
-        # Add personal ID field to the domain if specified
+        if is_restricted and available_configured:
+            return domain
+
+        # Add personal ID if defined
         person_id_field = self.integration_id.customer_personal_id_field
         if person_id_field and self.person_id_number:
             domain.append((person_id_field.name, '=', self.person_id_number))
@@ -802,7 +891,7 @@ class IntegrationResPartnerProxy(models.TransientModel):
         Returns:
             The search domain criteria.
         """
-        search_criteria = COMPANY_SEARCH_CRITERIA.copy()
+        search_criteria = MANDATORY_COMPANY_SEARCH_CRITERIA.copy()
 
         # Check if there is a company VAT field defined in the integration settings
         company_vat_field = self.integration_id.customer_company_vat_field
@@ -810,6 +899,11 @@ class IntegrationResPartnerProxy(models.TransientModel):
             if self.integration_id.use_vat_only_company_search:
                 # If configured to use VAT only for company search, update search criteria
                 # accordingly
+                self._log_partner_trace(
+                    'Company search mode',
+                    f'use_vat_only_company_search=True → searching by VAT field '
+                    f'"{company_vat_field.name}" only',
+                )
                 search_criteria = [(company_vat_field.name, '='), ('is_company', '='), ('company_id', 'in')]
                 # After this line, no new search criteria should be added to 'search_criteria'.
                 return self._build_search_domain(search_criteria, company_vals)
@@ -877,7 +971,9 @@ class IntegrationResPartnerProxy(models.TransientModel):
     # III. ADDRESS HANDLING
     # ================================
 
-    def _has_address_changes(self, partner: models.Model, new_address_vals: Dict) -> bool:
+    def _has_address_changes(
+            self, partner: models.Model, new_address_vals: Dict,
+    ) -> Tuple[bool, List[str]]:
         """
         Compare existing partner's address fields with new address values to determine
         if a new address record is needed.
@@ -892,9 +988,11 @@ class IntegrationResPartnerProxy(models.TransientModel):
             new_address_vals: Dictionary containing new address values to compare with
 
         Returns:
-            bool: True if there are significant differences that require a new address record,
-                 False if the existing address can be reused
+            Tuple[bool, List[str]]: (True, [changed fields]) if there are significant differences
+                 that require a new address record, (False, []) if the existing address can be reused
         """
+        changed_fields = []
+
         for field, new_value in new_address_vals.items():
             # Skip fields that don't affect address uniqueness
             if field in self.ADDRESS_UNIQUENESS_IGNORED_FIELDS:
@@ -906,7 +1004,7 @@ class IntegrationResPartnerProxy(models.TransientModel):
                 continue
             if isinstance(partner[field], models.Model):
                 if partner[field].id != new_value:
-                    return True
+                    changed_fields.append(field)
                 continue
 
             # Skip if both values are empty
@@ -915,18 +1013,18 @@ class IntegrationResPartnerProxy(models.TransientModel):
 
             # Convert values to strings for comparison
             partner_value = str(partner[field]) if partner[field] else ''
-            new_value = str(new_value) if new_value else ''
+            new_val_str = str(new_value) if new_value else ''
 
             # Fields that require case-insensitive comparison
             case_insensitive_fields = ['name', 'street', 'street2', 'city', 'zip', 'email']
             if field in case_insensitive_fields:
-                if partner_value.strip().lower() != new_value.strip().lower():
-                    return True
+                if partner_value.strip().lower() != new_val_str.strip().lower():
+                    changed_fields.append(field)
             else:
-                if partner_value.strip() != new_value.strip():
-                    return True
+                if partner_value.strip() != new_val_str.strip():
+                    changed_fields.append(field)
 
-        return False
+        return bool(changed_fields), changed_fields
 
     @api.model
     def _get_or_create_address(self) -> models.Model:
@@ -950,6 +1048,8 @@ class IntegrationResPartnerProxy(models.TransientModel):
         vals.pop('type', None)
         vals.pop('parent_id', None)
 
+        address_type = self.type  # e.g. 'billing_address' / 'shipping_address'
+
         # If address_vals is written on the partner, return the partner
         if (
             # If the option to skip individual contacts is enabled, we should use the
@@ -957,15 +1057,37 @@ class IntegrationResPartnerProxy(models.TransientModel):
             not self.integration_id.skip_individual_contacts
             or not self.company_name
         ):
-            if not self._has_address_changes(partner, address_vals):
+            has_changes, changed_fields = self._has_address_changes(partner, address_vals)
+            if not has_changes:
+                self._log_partner_trace(
+                    f'[{address_type}] Address unchanged',
+                    f'No differences found vs "{partner.display_name}" (ID: {partner.id}) '
+                    f'→ reusing existing contact as address',
+                )
                 return partner
+            self._log_partner_trace(
+                f'[{address_type}] Address changed',
+                f'Differs in fields: {changed_fields} vs "{partner.display_name}" '
+                f'(ID: {partner.id}) → searching for separate address record',
+            )
         elif self.company_name:
             company = self._get_or_create_company_contact()
 
             # In most cases it makes no sense to do this check because name in company contact
             # and name in address are not the same (address will have person name)
-            if not self._has_address_changes(company, address_vals):
+            has_changes, changed_fields = self._has_address_changes(company, address_vals)
+            if not has_changes:
+                self._log_partner_trace(
+                    f'[{address_type}] Address unchanged',
+                    f'No differences found vs company "{company.display_name}" (ID: {company.id}) '
+                    f'→ reusing company as address',
+                )
                 return company
+            self._log_partner_trace(
+                f'[{address_type}] Address changed',
+                f'Differs in fields: {changed_fields} vs company "{company.display_name}" '
+                f'(ID: {company.id}) → searching for separate address record',
+            )
 
         domain = self._collect_address_search_domain(address_vals)
         address = ResPartner.search(domain)
@@ -980,10 +1102,20 @@ class IntegrationResPartnerProxy(models.TransientModel):
                 ctx.update({'no_vat_validation': True})
 
             address = ResPartner.with_context(**ctx).create(address_vals)
-
-        # If 'type' is provided in address_vals, filter the results
-        elif 'type' in address_vals:
-            address = address.filtered(lambda x: x.type == address_vals['type']) or address
+            self._log_partner_trace(
+                f'[{address_type}] Address created',
+                f'Search domain: {domain}\n'
+                f'→ No match found, created: "{address.display_name}" (ID: {address.id})',
+            )
+        else:
+            # If 'type' is provided in address_vals, filter the results
+            if 'type' in address_vals:
+                address = address.filtered(lambda x: x.type == address_vals['type']) or address
+            self._log_partner_trace(
+                f'[{address_type}] Address found',
+                f'Search domain: {domain}\n'
+                f'→ Found: "{address[0].display_name}" (ID: {address[0].id})',
+            )
 
         return address[0] if address else ResPartner
 
@@ -991,7 +1123,7 @@ class IntegrationResPartnerProxy(models.TransientModel):
         """
         Build a search domain for finding addresses based on the provided address values.
         """
-        search_criteria = ADDRESS_SEARCH_CRITERIA.copy()
+        search_criteria = MANDATORY_ADDRESS_SEARCH_CRITERIA.copy()
 
         for field in ['email', 'phone']:
             if address_vals.get(field):
@@ -1079,6 +1211,18 @@ class IntegrationResPartnerProxy(models.TransientModel):
     # ================================
     # IV. MAPPINGS, VAT, LOGGING, ETC.
     # ================================
+
+    def _log_partner_trace(self, event_name, message):
+        """Write a customer-type log linked to the source input file if available."""
+        input_file = self.factory_id.input_file_id
+        self.env['integration.logging'].write_log(
+            integration=self.integration_id,
+            event_type='customer',
+            event_name=event_name,
+            message=message,
+            res_model='sale.integration.input.file' if input_file else None,
+            res_id=input_file.id if input_file else None,
+        )
 
     @api.model
     def _create_or_update_mapping(self, with_new_cursor=False) -> models.Model:

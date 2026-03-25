@@ -3,9 +3,6 @@
 import logging
 
 from odoo import fields, models
-from odoo.exceptions import UserError
-from odoo.tools.translate import _
-
 
 _logger = logging.getLogger(__name__)
 
@@ -88,31 +85,6 @@ class IntegrationProductTemplateMapping(models.Model):
         ])
 
         return product_product_mapping_id
-
-    def action_reimport_products(self):
-        external_ids = []
-        integration = self.mapped('integration_id')
-        if len(integration) > 1:
-            raise UserError(_(
-                'Selected products have different integrations.\n'
-                'Please select products from the same integration.'
-            ))
-
-        records = self.filtered(lambda x: not x.template_id)
-        external_ids = records.mapped('external_template_id.code')
-
-        integration.import_products_in_background(external_ids)
-
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Reimport Product'),
-                'message': _('Products import jobs are created'),
-                'type': 'success',
-                'sticky': False,
-            }
-        }
 
     def _check_product_identity(self, product_product_mapping):
         """

@@ -11,6 +11,8 @@ from ..shopify_api import ShopifyAPIClient, SHOPIFY
 from ..shopify.connection import _SHOPIFY_BATCH_LIMIT
 
 
+SHOPIFY_DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+
 _logger = logging.getLogger(__name__)
 
 
@@ -73,6 +75,13 @@ class SaleIntegration(models.Model):
         ),
     )
 
+    integration_business_entity_ids = fields.Many2many(
+        comodel_name='external.business.entity',
+        string='Merchant Business Entities',
+        domain='[("integration_id", "=", id)]',
+        help='Select the merchant business entities you want to import orders from in this e-commerce store.',
+    )
+
     shopify_customer_language = fields.Selection(
         selection=lambda self: self.env['res.lang'].get_installed(),
         string='Default Customer Language',
@@ -127,6 +136,26 @@ class SaleIntegration(models.Model):
         self.ensure_one()
         return self.type_api == SHOPIFY
 
+    @api.depends('last_receive_orders_datetime')
+    def _compute_last_receive_orders_datetime_str(self):
+        for integration in self:
+            if integration.is_integration_shopify and integration.last_receive_orders_datetime:
+                integration.last_receive_orders_datetime_str = \
+                    integration.last_receive_orders_datetime.strftime(SHOPIFY_DATETIME_FORMAT)
+                continue
+
+            super(SaleIntegration, integration)._compute_last_receive_orders_datetime_str()
+
+    @api.depends('orders_cut_off_datetime')
+    def _compute_orders_cut_off_datetime_str(self):
+        for integration in self:
+            if integration.is_integration_shopify and integration.orders_cut_off_datetime:
+                integration.orders_cut_off_datetime_str = \
+                    integration.orders_cut_off_datetime.strftime(SHOPIFY_DATETIME_FORMAT)
+                continue
+
+            super(SaleIntegration, integration)._compute_orders_cut_off_datetime_str()
+
     @api.depends('location_line_ids')
     def _compute_invalid_location_mapping(self):
         for rec in self:
@@ -138,7 +167,7 @@ class SaleIntegration(models.Model):
             rec.invalid_location_mapping = value
 
     @expose_for_testing('Import Tags')
-    def integration_api_import_tags(self, *args, **kw):
+    def integrationApiImportTagsShopify(self, *args, **kw):
         if not self.is_integration_shopify:
             raise NotImplementedError
 
@@ -148,7 +177,7 @@ class SaleIntegration(models.Model):
         tags = Tag.browse()
 
         for name in tag_list:
-            tags |= Tag._get_or_create_external_tag(name, 'product')
+            tags |= Tag._get_or_create_external_tag(name, 'product', self.id)
 
         return tags
 
@@ -353,8 +382,9 @@ class SaleIntegration(models.Model):
         vals = order._prepare_vals_for_sale_order_status()
 
         if vals['status'] == 'paid':
-            res['internal_status'] = 'done'
-            order._apply_values_from_external({'payment_transactions': [res]})
+            for rec in res:
+                rec['internal_status'] = 'done'
+            order._apply_values_from_external({'payment_transactions': res})
 
         return res
 
@@ -541,7 +571,7 @@ class SaleIntegration(models.Model):
             _('%ss metafields were successfully updated') % meta_type.title(),
         )
 
-    def import_sale_channels(self):
+    def import_sale_channels(self, remove_existing_records=False):
         """SaleChannel |=
         Import sales channels from Shopify.
         """
@@ -550,17 +580,44 @@ class SaleIntegration(models.Model):
         if not self.is_integration_shopify:
             return SaleChannel
 
-        # 1. Fetch sales channels from Shopify
+        # 1. Optionally remove existing channels except "No Channel"
+        if remove_existing_records:
+            SaleChannel.search([('integration_id', '=', self.id)]).unlink()
+
+        # 2. Fetch sales channels from Shopify
         data_list = self.adapter.get_sale_channels()
 
-        # 2. Ensure 'No Channel' exists
+        # 3. Ensure 'No Channel' exists
         channels = SaleChannel._ensure_no_channel_exists(self.id)
 
-        # 3. Create or update sales channels
+        # 4. Create or update sales channels
         for data in data_list:
             channels |= SaleChannel.create_or_update(self.id, data['channel_id'], data['channel_name'])
 
         return channels
+
+    def import_business_entities(self, remove_existing_records=False):
+        """BusinessEntity |=
+        Import business entities from Shopify.
+        """
+        BusinessEntity = self.env['external.business.entity']
+
+        if not self.is_integration_shopify:
+            return BusinessEntity
+
+        # 1. Optionally remove existing business entities
+        if remove_existing_records:
+            BusinessEntity.search([('integration_id', '=', self.id)]).unlink()
+
+        # 2. Fetch business entities from Shopify
+        entities = self.adapter.gql.BusinessEntity.get_batch()
+
+        # 3. Create or update business entities
+        records = BusinessEntity.browse()
+        for entity in entities:
+            records |= BusinessEntity.create_or_update(self.id, entity.id_str, entity.name)
+
+        return records
 
     def _filter_orders_shopify(self, external_orders_data_list: list):
         """
@@ -571,53 +628,73 @@ class SaleIntegration(models.Model):
             external_orders_data_list (list): List of orders data.
 
         Returns:
-            recordset: Recordset of filtered orders data.
+            list: List of filtered external orders data.
         """
 
-        filtered_orders = self._filter_orders_by_channels(external_orders_data_list)
+        filtered = []
 
-        return filtered_orders
+        for raw in external_orders_data_list:
+            data = raw['data']
 
-    def _filter_orders_by_channels(self, external_orders_data_list: list):
+            if not self._filter_orders_by_channels(data):
+                continue
+
+            if not self._filter_orders_by_business_entities(data):
+                continue
+
+            filtered.append(raw)
+
+        return filtered
+
+    def _filter_orders_by_channels(self, data: dict):
         """
-        Filter orders by channel ID (publication ID).
-
-        This method filters orders based on the integration channels configured.
-        It handles the 'No Channel' case for orders without a specific channel.
+        Check whether an order matches the configured integration channels.
 
         Args:
-            external_orders_data_list (list): List of orders data.
+            data (dict): Raw order data (Shopify JSON under 'data').
 
         Returns:
-            recordset: Recordset of filtered orders data.
+            bool: True if the order passes the channel filter, False otherwise.
         """
+
+        def _extract_channel_id(data: dict):
+            publication = data.get('publication') or {}
+            return publication.get('id').split('/')[-1] if publication.get('id') else None
 
         channels = self.integration_channel_ids
         if not channels:
-            return external_orders_data_list
+            return True
 
         external_channel_ids = channels.mapped('external_id')
-
-        # Include orders without a channel if 'No Channel' is selected
         include_no_channel = any(x.is_no_channel for x in channels)
 
-        filtered_orders_data = []
-        order = self.adapter.gql.Order
+        channel_id = _extract_channel_id(data)
 
-        for data in external_orders_data_list:
-            order.set(**data['data'])
-            channel_data = order.parse_sale_channel()
+        if channel_id:
+            return channel_id in external_channel_ids
 
-            if channel_data:
-                if channel_data['channel_id'] in external_channel_ids:
-                    filtered_orders_data.append(data)
-            elif include_no_channel:
-                filtered_orders_data.append(data)
+        return include_no_channel
 
-            order.reset()
+    def _filter_orders_by_business_entities(self, data: dict):
+        """
+        Check whether an order matches the configured business entities.
 
-        filtered_count = len(external_orders_data_list) - len(filtered_orders_data)
-        if filtered_count:
-            _logger.info('%s: %s orders skipped by sales-channels.', self.name, filtered_count)
+        Args:
+            data (dict): Raw order data (Shopify JSON under 'data').
 
-        return filtered_orders_data
+        Returns:
+            bool: True if the order passes the business entity filter, False otherwise.
+        """
+
+        def _extract_entity_id(data: dict):
+            entity = data.get('merchantBusinessEntity') or {}
+            return entity.get('id').split('/')[-1] if entity.get('id') else None
+
+        entities = self.integration_business_entity_ids
+        if not entities:
+            return True
+
+        entity_ids = set(entities.mapped('external_id'))
+        entity_id = _extract_entity_id(data)
+
+        return entity_id in entity_ids

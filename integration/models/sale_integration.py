@@ -11,7 +11,6 @@ from datetime import datetime, timedelta
 from dateutil import parser
 from collections import defaultdict
 from io import StringIO
-from psycopg2 import OperationalError, IntegrityError
 from time import time
 from typing import List, Dict
 
@@ -22,7 +21,6 @@ from odoo.tools import config, ormcache, float_is_zero
 from odoo.tools.safe_eval import safe_eval
 from odoo.tools.misc import clean_context
 
-from odoo.addons.integration.exceptions import NoExternal
 from odoo.addons.integration_queue_job.job import Job
 
 from ..api.no_api import NoAPIClient
@@ -52,6 +50,12 @@ INTEGRATION_MODULES = [
     'integration_queue_job',
     'queue_job'
 ]
+SUPPORTED_ECOMMERCE_SYSTEMS = {
+    'magento2': 'Magento 2',
+    'prestashop': 'PrestaShop',
+    'shopify': 'Shopify',
+    'woocommerce': 'WooCommerce',
+}
 
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 EXCLUDED_MAPPING_MODELS = [
@@ -335,15 +339,6 @@ class SaleIntegration(models.Model):
         ),
     )
 
-    run_action_on_shipping_so = fields.Boolean(
-        string='Sync Shipped SO Status',
-        copy=False,
-        help=(
-            'Activate this option to update the order status in the e-commerce system '
-            'automatically when a sales order is marked as shipped in Odoo.'
-        ),
-    )
-
     sub_status_shipped_id = fields.Many2one(
         comodel_name='sale.order.sub.status',
         string='Store Order Status for Shipped SO',
@@ -442,6 +437,15 @@ class SaleIntegration(models.Model):
         ),
     )
 
+    create_advance_payments = fields.Boolean(
+        string='Create Advance Payments (Before Invoice)',
+        help=(
+            'When enabled, the connector will register payments directly on the Sales Order '
+            'using the OCA module "sale_advance_payment", instead of waiting for invoices.'
+        ),
+        copy=False,
+    )
+
     integration_writeoff_account_id = fields.Many2one(
         comodel_name='account.account',
         string='Default Write-off Account',
@@ -473,15 +477,6 @@ class SaleIntegration(models.Model):
             - Red: inactive webhook.
             - Yellow: webhook need to be recreated, click button "Create Webhooks" above.
         """,
-    )
-
-    save_webhook_log = fields.Boolean(
-        string='Enable Webhook Event Logging',
-        help=(
-            'Turn this on to log all webhook events related to order status changes in the '
-            'e-commerce system. This can aid in monitoring and troubleshooting '
-            'the order status update process.'
-        ),
     )
 
     allow_import_images = fields.Boolean(
@@ -1150,9 +1145,20 @@ class SaleIntegration(models.Model):
         ),
     )
 
+    save_log = fields.Boolean(
+        string='Save Logs',
+        help='Enable storing integration logs in database.',
+    )
+
+    log_type_ids = fields.Many2many(
+        comodel_name='integration.log.type',
+        string='Log Types',
+        help='Select which event types to save in the database. Only relevant when Save Logs is enabled.',
+    )
+
     def _compute_display_name(self):
         for rec in self:
-            rec.display_name = f'[{rec.type_api}] {rec.name}'
+            rec.display_name = f'[{SUPPORTED_ECOMMERCE_SYSTEMS.get(rec.type_api, rec.type_api)}] {rec.name}'
 
     @api.depends('field_ids')
     def _compute_api_access_granted(self):
@@ -1219,6 +1225,19 @@ class SaleIntegration(models.Model):
         self.product_barcode_id = self.env.ref(
             'integration.integration_product_barcode_no_api_private').id
         return bool(self.product_barcode_id)
+
+    @api.constrains('create_advance_payments')
+    def _check_sale_advance_payment_module_installed(self):
+        sap = self.env.ref('base.module_sale_advance_payment', raise_if_not_found=False)
+        is_installed_sap = (sap.state == 'installed') if sap else False
+
+        for record in self.filtered('create_advance_payments'):
+            if not is_installed_sap:
+                raise ValidationError(_(
+                    '%(integration_name)s: to enable "Create Advance Payments (Before Invoice)" you must first install '
+                    'the free OCA module "Sale Advance Payment".\n\n'
+                    'You can find it on the OCA GitHub repository under "sale-workflow".'
+                ) % {'integration_name': record.name})
 
     @api.onchange('search_customer_fields_ids')
     def _onchange_search_customer_fields_ids(self):
@@ -1563,21 +1582,9 @@ class SaleIntegration(models.Model):
             }
         )
 
-    def open_webhooks_logs(self):
-
-        integration_log = self.env['integration.logging'].search([
-            ('integration_id', '=', self.id),
-            ('event_type', '=', 'webhook'),
-        ])
-
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Integration Webhook Logs',
-            'res_model': integration_log._name,
-            'view_mode': 'list,form',
-            'domain': [('id', 'in', integration_log.ids)],
-            'target': 'current',
-        }
+    def open_logs(self):
+        self.ensure_one()
+        return self.env.ref('integration.integration_logging_action').read()[0]
 
     def _get_error_webhook_message(self, error):
         return _('Not Implemented!')
@@ -2025,7 +2032,8 @@ class SaleIntegration(models.Model):
 
             # 1.3 Modify values if needed
             if vals['type_api'] not in ('prestashop', 'shopify'):
-                vals['validate_barcode'] = False
+                self.with_context(skip_write_actions=True) \
+                    .write({'validate_barcode': False})
 
         # 2. Write settings fields
         self.write_settings_fields()
@@ -2048,6 +2056,13 @@ class SaleIntegration(models.Model):
         # 6. Normalize dependency fields
         if INVENTORY_DEPENDENT_FIELDS & set(vals):
             self._update_inventory_field_values()
+
+        # 7. Disable advance payments if auto-apply payments is turned off
+        # (it doesn't work with boolean_toggle widget in the onchange method)
+        if 'apply_external_payments' in vals:
+            if not self.apply_external_payments:
+                self.with_context(skip_write_actions=True) \
+                    .write({'create_advance_payments': False})
 
         return result
 
@@ -3490,7 +3505,7 @@ class SaleIntegration(models.Model):
 
     def _import_external_product_separate_job(
         self,
-        failed_external_template_ids: list[str] = None,
+        failed_external_template_ids: list = None,
     ):
         """
         Moving failed imports in separate job to isolate them and make retry only for failed imports possible.
@@ -3544,10 +3559,21 @@ class SaleIntegration(models.Model):
         external_templates = ExternalTemplate.browse()
         external_variants = ExternalVariant.browse()
 
-        ext_templates_data, failed_external_template_ids, errors = self.adapter.get_product_templates(
-            template_ids,
-            raise_error=False,
-        )
+        # Catch all possible adapter call errors to provide common error formating
+        try:
+            ext_templates_data, failed_external_template_ids, errors = self.adapter.get_product_templates(
+                template_ids,
+                raise_error=False,
+            )
+        except (
+            es.SSLError,
+            es.RequestsConnectionError,
+            es.ResourceConflict,
+            es.TooManyRequestsError,
+        ) as ex:
+            errors = [str(ex)]
+            failed_external_template_ids = template_ids
+            return external_templates, external_variants, errors, failed_external_template_ids
 
         if not ext_templates_data:
             return external_templates, external_variants, errors, failed_external_template_ids
@@ -3566,7 +3592,7 @@ class SaleIntegration(models.Model):
                 with self.env.cr.savepoint():
                     external_template = self._import_external_record(ExternalTemplate, template_data)
 
-                    if not external_template:
+                    if not external_template or not external_template.exists():
                         failed_external_template_ids.append(template_id)
                         errors.append(_('Failed to import external template: %s') % template_id)
                         continue
@@ -3591,17 +3617,28 @@ class SaleIntegration(models.Model):
                         # Try auto-mapping (non-critical, errors are collected)
                         try:
                             external_template.try_map_template_and_variants(template_data)
-                        except (es.ApiImportError, es.NotMappedToExternal, es.NotMappedFromExternal, es.NoExternal) as e:  # NOQA
+                        except (
+                            es.ApiImportError,
+                            es.NotMappedToExternal,
+                            es.NotMappedFromExternal,
+                            es.NoExternal
+                        ) as e:
                             error_message = _('Errors when trying to auto-match products:\n%s') % str(e)
                             errors.append(error_message)
                             failed_external_template_ids.append(template_id)
 
                 # After successful savepoint: add to results
-                if external_template and external_template.exists():
-                    external_templates |= external_template
-                    external_variants |= template_variants
+                external_templates |= external_template
+                external_variants |= template_variants
 
-            except (IntegrityError, AssertionError, UserError, ValidationError, NoExternal) as e:
+            except (
+                es.IntegrityError,
+                es.AssertionError,
+                es.UserError,
+                es.ValidationError,
+                es.NoExternal,
+                es.MultipleExternalRecordsFound
+            ) as e:
                 errors.append(str(e))
                 failed_external_template_ids.append(template_id)
 
@@ -5462,8 +5499,9 @@ class SaleIntegration(models.Model):
         if check_barcodes:
             part_fill_bar = tmpl_hub.get_products_with_partial_barcodes()
             duplicated_bar = tmpl_hub.get_products_with_duplicate_barcodes()
+            no_barcode_variants = tmpl_hub.get_products_with_no_barcodes_on_variants()
         else:
-            part_fill_bar = duplicated_bar = False
+            part_fill_bar = duplicated_bar = no_barcode_variants = False
 
         # Build validation results structure
         validation_results = {
@@ -5480,13 +5518,6 @@ class SaleIntegration(models.Model):
             ecommerce_errors['missing_references'] = {
                 'title': _('Products without "%s" in the e-Commerce system:') % ref_field_name,
                 'items': template_ids,
-            }
-
-        # Partially filled barcodes
-        if part_fill_bar:
-            ecommerce_errors['partial_barcodes'] = {
-                'title': _('Products with partially filled barcodes on variants in the e-Commerce system:'),
-                'items': part_fill_bar,
             }
 
         # Missing reference fields in product variants
@@ -5522,12 +5553,27 @@ class SaleIntegration(models.Model):
                 'is_dict': True,
             }
 
+        # Partially filled barcodes
+        if part_fill_bar:
+            ecommerce_errors['partial_barcodes'] = {
+                'title': _('Products with partially filled barcodes on variants in the e-Commerce system:'),
+                'items': part_fill_bar,
+            }
+
         # Duplicated barcodes in the e-commerce system
         if duplicated_bar:
             ecommerce_errors['duplicated_barcodes'] = {
                 'title': _('Duplicated barcodes in e-Commerce System:'),
                 'items': duplicated_bar,
                 'is_dict': True,
+            }
+
+        if no_barcode_variants:
+            ecommerce_errors['no_barcode_variants'] = {
+                'title': _('Product variants without barcodes in the e-Commerce system:'),
+                'items': no_barcode_variants,
+                'is_dict': True,
+                'wrap_key': True,
             }
 
         if ecommerce_errors:
@@ -5593,6 +5639,28 @@ class SaleIntegration(models.Model):
             return ''
 
         formatter = HtmlWrapper(self)
+
+        formatter.add_alert_info(
+            _('Why are these checks important?'),
+            [
+                _(
+                    "Unique, non-empty Internal References (SKUs) and barcodes are required for the connector to "
+                    "correctly match and sync products between your e-commerce store and Odoo. Without them, you "
+                    "may experience duplicate products, incorrect stock levels, or products that can't be "
+                    "identified during warehouse scanning."
+                ),
+                _(
+                    "<strong>Barcode validation is optional.</strong> If you don't use barcodes or don't need them "
+                    "synced, you can disable this check in: E-Commerce Integrations → Stores → [your store] → "
+                    "Products → Variant Barcode Validation"
+                ) if self.validate_barcode else None,
+                _(
+                    'For full product catalog requirements, see our '
+                    '<a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1'
+                    '/article/523796486" target="_blank">documentation</a>'
+                ),
+            ],
+        )
 
         # Format E-commerce system errors
         if validation_results['ecommerce_system']:
@@ -5665,7 +5733,7 @@ class SaleIntegration(models.Model):
             template = external_template\
                 .with_context(integration_import_images=import_images) \
                 ._import_one_product(template_data, variants_data, bom_data, external_images)
-        except OperationalError:
+        except es.OperationalError:
             raise
         except Exception as ex:
             raise ValidationError(_(
@@ -5675,7 +5743,7 @@ class SaleIntegration(models.Model):
                 'Template Data:\n\t%s\n\n'
                 'Variants Data:\n\t%s\n\n'
                 'BOM Data:\n\t%s\n\n'
-            ) % (ex.args[0], external_template.code, template_data, variants_data, bom_data))
+            ) % (ex.args[0], external_template.code, template_data, variants_data, bom_data)) from None
 
         template = template.with_context(skip_product_export=False)
 
@@ -6479,10 +6547,8 @@ class SaleIntegration(models.Model):
         return sub_status
 
     def _get_order_sub_status_tuple(self, status_code):
-        _name = 'sale.order.sub.status'
-
-        sub_status_id = self.env[_name].from_external(self, status_code, False)
-        external_sub_status = self.env[f'integration.{_name}.external'] \
+        sub_status_id = self.env['sale.order.sub.status'].from_external(self, status_code, False)
+        external_sub_status = self.env[f'integration.sale.order.sub.status.external'] \
             .get_external_by_code(self, status_code, False)
 
         if not sub_status_id:
@@ -6530,16 +6596,8 @@ class SaleIntegration(models.Model):
 
         return record
 
-    def _save_log(self, vals):
-        try:
-            with Registry(self.env.cr.dbname).cursor() as cr:
-                env = api.Environment(cr, SUPERUSER_ID, {})
-                log = env['integration.logging'].create(vals)
-        except Exception:
-            _logger.error('Failed to save log')
-            log = self.env['integration.logging']
-
-        return log
+    def _is_log_type_enabled(self, event_type):
+        return self.save_log and event_type in self.log_type_ids.mapped('code')
 
     def action_open_price_preview(self):
         raise NotImplementedError

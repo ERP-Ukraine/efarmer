@@ -121,15 +121,7 @@ class ExternalOrderResource(models.AbstractModel):
         result, ids = self._validate()
 
         if not result:
-            _logger.warning(
-                'Integration %s: %s (order=%s; external_id=%s; status=%s) processing failed: %s',
-                self.integration_id.name,
-                self._description,
-                self.erp_order_id.name,
-                self.external_str_id,
-                self.internal_status,
-                self.internal_info,
-            )
+            self._log_processing_failed()
 
         return result, ids
 
@@ -153,3 +145,14 @@ class ExternalOrderResource(models.AbstractModel):
             dict: Prepared values for Odoo record
         """
         return data
+
+    def _log_processing_failed(self):
+        _logger.warning(
+            'Integration %s: %s (order=%s; external_id=%s; status=%s) processing failed: %s',
+            self.integration_id.name,
+            self._description,
+            self.erp_order_id.name,
+            self.external_str_id,
+            self.internal_status,
+            self.internal_info,
+        )

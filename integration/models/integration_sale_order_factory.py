@@ -117,8 +117,9 @@ class IntegrationSaleOrderFactory(models.TransientModel):
             'partner_shipping_id': order_vals['partner_shipping_id'],
         }
 
-        if integration.default_sales_team_id:
-            values['team_id'] = integration.default_sales_team_id.id
+        team_id = self._get_sales_team_id(order_data)
+        if team_id:
+            values['team_id'] = team_id
 
         if integration.default_sales_person_id:
             values['user_id'] = integration.default_sales_person_id.id
@@ -159,6 +160,15 @@ class IntegrationSaleOrderFactory(models.TransientModel):
                 order.show_update_fpos = True
 
         return order
+
+    def _get_sales_team_id(self, order_data):
+        """Return the sales team id to set on the order, or False.
+
+        Override in connector-specific factories to apply more granular
+        logic (e.g. per-customer-group mapping).
+        """
+        team = self.integration_id.default_sales_team_id
+        return team.id if team else False
 
     def _create_order_lines(self, order, order_data):
         """
@@ -255,6 +265,7 @@ class IntegrationSaleOrderFactory(models.TransientModel):
             customer_data=order_data.get('customer', {}),
             billing_data=order_data.get('billing', {}),
             shipping_data=order_data.get('shipping', {}),
+            input_file_id=self.input_file_id.id,
         )
 
         # Get partner and addresses from the partner factory
@@ -345,7 +356,7 @@ class IntegrationSaleOrderFactory(models.TransientModel):
             product = product.with_context(lang=lang)
             discount_product = discount_product.with_context(lang=lang)
 
-        discount_description = self._get_translated_string('Discount for %s', product.display_name, lang=lang)
+        discount_description = self._get_translated_string('Discount for %s', line_name, lang=lang)
         discount_name = self._update_order_description(discount_product, [discount_description])
 
         vals = {

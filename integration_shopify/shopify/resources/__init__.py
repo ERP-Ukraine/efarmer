@@ -36,6 +36,7 @@ from .catalog import Catalog
 # 3. Classes without GQL Client (inheritance from GqlDict)
 from .address import Address
 from .shop_locale import ShopLocale
+from .business_entity import BusinessEntity
 from .delivery_province import DeliveryProvince
 from .delivery_country import DeliveryCountry
 from .delivery_profile_location_group import DeliveryProfileLocationGroup

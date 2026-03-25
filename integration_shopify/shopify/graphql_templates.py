@@ -867,6 +867,13 @@ class GraphQLTemplate:
         value
     """
 
+    BUSINESS_ENTITY_BODY = """
+        id
+        primary
+        displayName
+        companyName
+    """
+
     ORDER_BODY = """
         id
         name
@@ -942,6 +949,9 @@ class GraphQLTemplate:
         customAttributes {
             %s
         }
+        merchantBusinessEntity {
+            %s
+        }
     """ % (
         PUBLICATION_BODY,
         ORDER_RISK_SUMMARY_BODY,
@@ -955,6 +965,7 @@ class GraphQLTemplate:
         SHIPPING_LINE_BODY,
         ORDER_TRANSACTION_BODY,
         ORDER_CUSTOM_ATTRIBUTE_BODY,
+        BUSINESS_ENTITY_BODY,
     )
 
     ORDER_GET_TAXES_BODY = """
@@ -998,6 +1009,9 @@ class GraphQLTemplate:
         publication {
             %s
         }
+        merchantBusinessEntity {
+            %s
+        }
         displayFulfillmentStatus
         displayFinancialStatus
         returnStatus
@@ -1006,7 +1020,7 @@ class GraphQLTemplate:
         closedAt
         createdAt
         updatedAt
-    """ % PUBLICATION_BODY
+    """ % (PUBLICATION_BODY, BUSINESS_ENTITY_BODY)
 
     WEBHOOK_SUBSCRIPTION_BODY = """
         id

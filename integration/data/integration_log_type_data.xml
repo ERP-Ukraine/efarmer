@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="integration_log_type_webhook" model="integration.log.type">
+        <field name="code">webhook</field>
+        <field name="name">Webhook</field>
+    </record>
+
+    <record id="integration_log_type_customer" model="integration.log.type">
+        <field name="code">customer</field>
+        <field name="name">Customers Sync</field>
+    </record>
+</odoo>

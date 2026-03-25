@@ -48,6 +48,62 @@ class QuickConfiguration(models.AbstractModel):
         string='Default Odoo Language for E-Commerce Store'
     )
 
+    run_action_on_cancel_so = fields.Boolean(
+        string='Sync Cancelled SO Status',
+        help=(
+            'Enable this option to automatically update the order status in the e-commerce '
+            'system when a sales order is cancelled in Odoo.'
+        ),
+    )
+    sub_status_cancel_id = fields.Many2one(
+        comodel_name='sale.order.sub.status',
+        string='Store Order Status for Cancelled SO',
+        domain='[("integration_id", "=", integration_id)]',
+        copy=False,
+        help=(
+            'Specify the store order status that will be send to the e-commerce system when '
+            'a sales order is cancelled in Odoo.'
+        ),
+    )
+    export_tracking_job_enabled = fields.Boolean(
+        string='Enable Order Tracking Export Job',
+        help=(
+            'Activate this option to update the order status in the e-commerce system '
+            'automatically when a sales order is marked as shipped in Odoo.'
+        ),
+    )
+    sub_status_shipped_id = fields.Many2one(
+        comodel_name='sale.order.sub.status',
+        string='Store Order Status for Shipped SO',
+        domain='[("integration_id", "=", integration_id)]',
+        copy=False,
+        help=(
+            'Specify the store order status that will be sent to the e-commerce system for '
+            'orders marked as shipped in Odoo.'
+        ),
+    )
+    run_action_on_so_invoice_status = fields.Boolean(
+        string='Sync Invoiced/Paid SO Status',
+        help=(
+            'Enable this option to update the order status in the e-commerce system for '
+            'sales orders that are invoiced or marked as paid in Odoo. Specific behaviors '
+            'based on the payment method can be configured under '
+            '"Auto-Workflow → Payment Methods", where you can adjust when the payment status '
+            'is sent. By default, the action occurs when an order is fully invoiced, '
+            'and all related invoices are "Paid" or "In Payment".'
+        ),
+    )
+    sub_status_paid_id = fields.Many2one(
+        comodel_name='sale.order.sub.status',
+        string='Store Order Status for Invoiced/Paid SO',
+        domain='[("integration_id", "=", integration_id)]',
+        copy=False,
+        help=(
+            'Choose the store order status to be applied to orders in the e-commerce system once '
+            'the corresponding sales order in Odoo is fully paid.'
+        ),
+    )
+
     def get_steps(self):
         return self._steps
 
@@ -214,10 +270,9 @@ class QuickConfiguration(models.AbstractModel):
 
     def action_eraze(self):
         self.ensure_one()
-        wizards_to_unlink = self.search([
-            ('integration_id', '=', self.integration_id.id),
-        ])
-        wizards_to_unlink.unlink()
+
+        self.integration_id \
+            .invalidate_integration_cache(erase_config_wizard=True)
 
     def open_integration_view(self):
         return {

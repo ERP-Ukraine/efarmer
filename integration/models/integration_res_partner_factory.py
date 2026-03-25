@@ -39,6 +39,11 @@ class IntegrationResPartnerFactory(models.TransientModel):
         help='Flag indicating whether this is the initial import.',
     )
 
+    input_file_id = fields.Many2one(
+        comodel_name='sale.integration.input.file',
+        string='Input File',
+    )
+
     @property
     def customer_proxy(self):
         return self.proxy_ids.filtered(lambda r: r.type == 'customer')
@@ -55,12 +60,24 @@ class IntegrationResPartnerFactory(models.TransientModel):
     def customer_id(self):
         return self.customer_proxy.partner_id
 
+    def _log_factory_trace(self, event_name, message):
+        """Write a customer-type log linked to the source input file if available."""
+        input_file = self.input_file_id
+        self.env['integration.logging'].write_log(
+            integration=self.integration_id,
+            event_type='customer',
+            event_name=event_name,
+            message=message,
+            res_model='sale.integration.input.file' if input_file else None,
+            res_id=input_file.id if input_file else None,
+        )
+
     @api.model
     @freeze_arguments('customer_data', 'billing_data', 'shipping_data')
     def create_factory(
             self, integration_id: int, customer_data: Optional[Dict], *,
             billing_data: Optional[Dict] = None, shipping_data: Optional[Dict] = None,
-            is_initial_import: bool = False,
+            is_initial_import: bool = False, input_file_id: Optional[int] = None,
     ) -> models.Model:
         """
         Creates a new factory and associated proxies.
@@ -78,6 +95,7 @@ class IntegrationResPartnerFactory(models.TransientModel):
         factory = self.create({
             'integration_id': integration_id,
             'is_initial_import': is_initial_import,
+            'input_file_id': input_file_id,
         })
 
         # Helper function to create proxy
@@ -167,6 +185,15 @@ class IntegrationResPartnerFactory(models.TransientModel):
         """
         self.validate_data()
 
+        self._log_factory_trace(
+            'Contact handling started',
+            f'Customer external_id: {self.customer_proxy.external_id or "N/A"}\n'
+            f'Customer name: {self.customer_proxy.person_name or "N/A"}\n'
+            f'Company name: {self.customer_proxy.company_name or "N/A"}\n'
+            f'Has billing proxy: {bool(self.billing_proxy)}\n'
+            f'Has shipping proxy: {bool(self.shipping_proxy)}',
+        )
+
         customer = self.integration_id.default_customer
 
         if self.customer_proxy:
@@ -186,6 +213,14 @@ class IntegrationResPartnerFactory(models.TransientModel):
             shipping = self.shipping_proxy._get_or_create_address()
         else:
             shipping = customer
+
+        self._log_factory_trace(
+            'Contact handling complete',
+            f'Customer: {customer.display_name} (ID: {customer.id}) '
+            f'{"[default]" if customer == self.integration_id.default_customer else ""}\n'
+            f'Billing:  {billing.display_name} (ID: {billing.id})\n'
+            f'Shipping: {shipping.display_name} (ID: {shipping.id})',
+        )
 
         return customer, {'shipping': shipping, 'billing': billing}
 

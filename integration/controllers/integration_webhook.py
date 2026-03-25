@@ -29,9 +29,12 @@ class IntegrationWebhook:
         return headers.get(self.TOPIC_NAME, False)
 
     def check_essential_headers(self):
+        return not self._get_missing_headers()
+
+    def _get_missing_headers(self):
         headers = self._get_headers()
         essential_headers = self._get_essential_headers()
-        return all(headers.get(x) for x in essential_headers)
+        return [h for h in essential_headers if not headers.get(h)]
 
     def get_shop_domain(self, integration):
         headers = self._get_headers()
@@ -44,9 +47,9 @@ class IntegrationWebhook:
             return False, '%s integration is inactive.' % name
 
         # 2. Verify headers
-        headers_ok = self.check_essential_headers()
-        if not headers_ok:
-            return False, '%s webhook invalid headers.' % name
+        missing_headers = self._get_missing_headers()
+        if missing_headers:
+            return False, '%s webhook missing required headers: %s.' % (name, ', '.join(missing_headers))
 
         # 3. Verify forwarded host
         shop_domain = self.get_shop_domain(integration)
@@ -90,22 +93,26 @@ class IntegrationWebhook:
     def _prepare_pipeline_data(self, *args, **kwargs):
         raise NotImplementedError
 
-    def _prepare_log_vals(self, integration, *args, **kw):
+    def _prepare_webhook_log_data(self, *args, **kw):
+        try:
+            post_data = self._get_post_data()
+        except Exception as e:
+            post_data = '<failed to parse POST data: %s>' % e
+
         message_dict = {
             'ARGS: ': args,
             'KWARGS: ': kw,
             'HEADERS: ': dict(self._get_headers()),
-            'POST-DATA: ': self._get_post_data(),
+            'POST-DATA: ': post_data,
         }
-        message_data = json.dumps(message_dict, indent=4)
-        method_name = self._get_hook_name_method()
-        vals = {
-            'integration_id': integration.id,
-            'event_type': 'webhook',
-            'event_name': method_name,
-            'message': message_data,
-        }
-        return vals
+        message = json.dumps(message_dict, indent=4, default=str)
+
+        try:
+            event_name = self._get_hook_name_method()
+        except Exception as e:
+            event_name = '<unknown topic: %s>' % e
+
+        return event_name, message
 
     def _process_event(self, integration, external_id):
         """

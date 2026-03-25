@@ -11,3 +11,4 @@ access_integration_catalog_external_line,integration.catalog.external.line,model
 access_integration_product_pricelist_batch,integration.product.pricelist.batch,model_integration_product_pricelist_batch,base.group_user,1,1,1,1
 access_integration_auth_shopify,integration.auth.shopify,model_integration_auth_shopify,base.group_user,1,1,1,1
 access_shopify_access_scope_line,shopify.access.scope.line,model_shopify_access_scope_line,base.group_user,1,1,1,1
+access_external_business_entity,access_external_business_entity,model_external_business_entity,base.group_user,1,1,1,1
