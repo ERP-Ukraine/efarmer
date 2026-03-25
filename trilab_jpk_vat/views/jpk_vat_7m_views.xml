@@ -12,6 +12,7 @@
                     <group col="12">
                         <group colspan="4">
                             <field name="version" readonly="1"/>
+                            <field name="technical_version" invisible="1"/>
                             <field name="month" readonly="1"/>
                             <field name="year" readonly="1"/>
                         </group>
@@ -375,10 +376,15 @@
                         </group>
                         <newline/>
 
-                        <label for="p_55_58" string="deklaracja zwrotu" colspan="5"/>
-                        <group colspan="2">
+                        <label for="p_55_58" string="deklaracja zwrotu" colspan="5" attrs="{'invisible': [('technical_version','=', 'v3')]}"/>
+                        <group colspan="2" attrs="{'invisible': [('technical_version','=', 'v3')]}">
                             <div class="text-muted mr-1">55-58.</div>
                             <field name="p_55_58" nolabel="1" class="oe_right text-right"/>
+                        </group>
+                        <label for="p_55_58_v3" string="deklaracja zwrotu" colspan="5" attrs="{'invisible': [('technical_version','!=', 'v3')]}"/>
+                        <group colspan="2" attrs="{'invisible': [('technical_version','!=', 'v3')]}">
+                            <div class="text-muted mr-1">55-58.</div>
+                            <field name="p_55_58_v3" nolabel="1" class="oe_right text-right" />
                         </group>
                         <newline/>
 

@@ -70,6 +70,67 @@ class JpkReportV3(models.AbstractModel):
     _inherit = 'account.report.jpk_vat7m'
     _description = 'JPK VAT 7M (3) 1.0E Report'
 
+    grouping_columns = [
+        'nrkontrahenta',
+        'nazwakontrahenta',
+        'dowodsprzedazyzakupu',
+        'datawystawienia',
+        'datasprzedazy',
+        'datazakupu',
+        'datawplywu',
+        'terminplatnosci',
+        'typdokumentu',
+        'flags',
+        'ksefdowod',
+    ]
+    detail_columns = ['nrksef', 'gtu', 'jpkmarkup', 'jpkgroup', 'kwota']
+    all_columns = grouping_columns + detail_columns
+
+    _column_class = [
+        'text',
+        'text',
+        'text',
+        'date',
+        'date',
+        'date',
+        'date',
+        'date',
+        'text',
+        'text',
+        'text',
+        'text',
+        'text',
+        'text',
+        'text',
+        'text',
+    ]
+
+    column_class = dict(zip(all_columns, _column_class))
+
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
+    def _get_columns_name(self, options):
+        columns_header = [
+            {'name': 'Sekcja JPK'},
+            {'name': '#'},
+            {'name': 'NrKontrahenta'},
+            {'name': 'NazwaKontrahenta'},
+            {'name': 'DowodSprzedazyZakupu'},
+            {'name': 'DataWystawienia'},
+            {'name': 'DataSprzedazy'},
+            {'name': 'DataZakupu'},
+            {'name': 'DataWplywu'},
+            {'name': 'TerminPlatnosci'},
+            {'name': 'TypDokumentu'},
+            {'name': 'Procedury'},
+            {'name': 'DowodKSeF'},
+            {'name': 'NrKSeF'},
+            {'name': 'GTU'},
+            {'name': 'JPKMarkup'},
+            {'name': 'JPKGroup'},
+            {'name': 'kwota', 'class': 'number'},
+        ]
+        return columns_header
+
     @staticmethod
     def _get_query():
         return """SELECT am.id                                    AS gid,
@@ -425,6 +486,7 @@ class JpkReportV3(models.AbstractModel):
         v7m_report = self.env['jpk.vat.7m'].create(
             {
                 'version': '1-0E',
+                'technical_version': 'v3',
                 'year': report_date.year,
                 'month': report_date.month,
                 'cel_zlozenia': options.get('cel_zlozenia', 1),

@@ -11,6 +11,7 @@ v15.0.3.0.0 (2026-03-16)
 * improve error handling by resetting state key on failure cases, ref #17440
 * fix zero tax base amount logic, ref #17318-43
 * refactor `_x_ksef_get_tax_base_amount` to use Generator expression instead of `filter`, ref #17440
+* fix currency rate field on invoice lines, ref #17630
 
 v15.0.2.0.0 (2026-03-02)
 ------------------------

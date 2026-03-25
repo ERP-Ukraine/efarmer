@@ -954,7 +954,7 @@ class AccountEdiFormat(models.Model):
 
             self._x_ksef_create_conditional_element(line_el, tns, 'GTU', value=line['gtu'])
 
-            self._x_ksef_create_conditional_element(fa_el, tns, 'KursWaluty', value=invoice_data['currency_rate'])
+            self._x_ksef_create_conditional_element(line_el, tns, 'KursWaluty', value=invoice_data['currency_rate'])
             self._x_ksef_create_conditional_element(line_el, tns, 'Procedura', value=line['procedure'])
 
             if invoice_data['invoice_type'].startswith('KOR') and not line['is_corrected']:
