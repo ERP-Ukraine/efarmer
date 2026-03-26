@@ -313,8 +313,8 @@ class JpkReportV3(models.AbstractModel):
             if eu_vat := _partner and _partner.x_get_eu_vat():
                 _country_code, _vat = eu_vat[:2], eu_vat[2:]
             elif not eu_vat and _partner:
-                _vat = _partner.vat and self._sanitize_vat(_partner.vat) or None
-                # _vat = _partner.vat and self.env['res.partner']._fix_vat_number(_partner.vat, _partner.country_id.id) or None
+                # _vat = _partner.vat and self._sanitize_vat(_partner.vat) or None
+                _vat = _partner.vat and self.env['res.partner']._fix_vat_number(_partner.vat, _partner.country_id.id) or None
                 _country_code = _partner.country_id.code
             else:
                 _vat = _country_code = None
@@ -403,8 +403,8 @@ class JpkReportV3(models.AbstractModel):
             if eu_vat := _partner and _partner.x_get_eu_vat():
                 _country_code, _vat = eu_vat[:2], eu_vat[2:]
             elif not eu_vat and _partner:
-                _vat = _partner.vat and self._sanitize_vat(_partner.vat) or None
-                # _vat = _partner.vat and self.env['res.partner']._fix_vat_number(_partner.vat, _partner.country_id.id) or None
+                # _vat = _partner.vat and self._sanitize_vat(_partner.vat) or None
+                _vat = _partner.vat and self.env['res.partner']._fix_vat_number(_partner.vat, _partner.country_id.id) or None
                 _country_code = _partner.country_id.code
             else:
                 _vat = _country_code = None
