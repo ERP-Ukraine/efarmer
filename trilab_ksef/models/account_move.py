@@ -247,6 +247,7 @@ class AccountMove(models.Model):
 
             if invoice_id.x_ksef_last_invoice_status == KsefStatusCode.OK:
                 invoice_id.x_pl_ksef_invoice_number = invoice_status.ksef_number
+                invoice_id.x_pl_ksef_invoice_proof = False
 
             if upo_download_url := invoice_status.upo_download_url:
                 invoice_id.message_post(
