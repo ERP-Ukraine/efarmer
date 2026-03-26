@@ -643,7 +643,7 @@ class JPKV7M(models.Model):
                 elif field_type == 'float':
                     value = float_repr(value, 2)
                 elif field_type == 'selection':
-                    if self.technical_version == 'v3' and field == "p_55_58_v3":
+                    if self.technical_version == 'v3' and field in ("p_55_58_v3", "p_55_58"):
                         continue
                     if not value and value != '':
                         continue
