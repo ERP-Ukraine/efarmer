@@ -625,7 +625,7 @@ class JPKV7M(models.Model):
             for field in filter(lambda x: x.startswith('p_'), self.fields_get_keys()):
                 # exceptions
                 # skip p_54 to p_58 if p_54 is 0
-                if field in ('p_54', "p_55_58_v3" if self.technical_version == 'v3' else "p_55_58") and self.p_54 == 0:
+                if field in ('p_54', "p_55_58_v3", "p_55_58") and self.p_54 == 0:
                     continue
 
                 # skip p_59 to p_61 if p_59 is not set
@@ -643,8 +643,6 @@ class JPKV7M(models.Model):
                 elif field_type == 'float':
                     value = float_repr(value, 2)
                 elif field_type == 'selection':
-                    if self.technical_version == 'v3' and field in ("p_55_58_v3", "p_55_58"):
-                        continue
                     if not value and value != '':
                         continue
 
