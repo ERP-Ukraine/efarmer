@@ -623,6 +623,11 @@ class JPKV7M(models.Model):
             elements = {}
 
             for field in filter(lambda x: x.startswith('p_'), self.fields_get_keys()):
+                if self.technical_version == 'v3' and field == "p_55_58":
+                    continue
+                elif field == "p_55_58_v3":
+                    continue
+
                 # exceptions
                 # skip p_54 to p_58 if p_54 is 0
                 if field in ('p_54', "p_55_58_v3", "p_55_58") and self.p_54 == 0:
