@@ -173,7 +173,7 @@
                 ^A0N,23
                 ^FH`
                 ^FD<t
-                    t-esc="cutter((doc.product_id.description_label if doc.product_id.description_label else ''), 300, True)"/>
+                    t-esc="cutter((doc.product_id.description_label if doc.product_id.description_label else ''), 380, True)"/>
                 ^FS
 
                 <t t-if="lot">
