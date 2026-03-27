@@ -180,7 +180,7 @@
 
             ^XA
 
-            ^FO25,50^GFA,2848,2848,32,,::S01FF8,S01FFCQ01FF8,S01FFCQ01FFC,S01FFCQ01FFCI03gH04,S01FFCQ01FFCI0FgG03C,
+            ~DGR:IMG_LOGO,2848,32,,::S01FF8,S01FFCQ01FF8,S01FFCQ01FFC,S01FFCQ01FFCI03gH04,S01FFCQ01FFCI0FgG03C,
             :::::S01FF8Q01FFCI0FgG03C,gN01FFCI0FgG03C,:K0CU01FCJ01FFCI0FL01FER03C,I01FFEL01FF8I01IFEI01FFC0KF8I0IF8J07FFC01JFE,
             I0JF8K01FFCI0KF8001FFC0KF8003IFEI01JF03JFE,001JFEK01FFC003KFC001FFC0KF8007JFI03JF03JFE,
             007KFK01FFC007KFE001FFC07JFI0FE03F8007F81F01JFE,00LF8J01FFC00MF001FFCI0FJ01F800FC00FC003I03C,
@@ -209,12 +209,12 @@
 
 
             ^FO25,167
-            ^FB540,4,7,L,0
+            ^FB540,6,7,L,0
             ^A0N,29
             ^FH`
             ^FD
             <t
-                    t-esc="cutter((doc.product_id.description_label if doc.product_id.description_label else ''), 130, True)"/>
+                    t-esc="cutter((doc.product_id.description_label if doc.product_id.description_label else ''), 380, True)"/>
             ^FS
 
             <t t-if="lot">
@@ -255,10 +255,10 @@
             ^FB350,2,10,L,0
             ^A0N,25
             ^FH`
-            ^FDDESIGNED IN UKRAINE \&amp;MANUFACTURED IN POLAND^FS
+            ^FDMANUFACTURED IN POLAND^FS
 
-            <!-- ^FO25,50
-            ^XGR:IMG_TERRA,1,1^FS -->
+            ^FO25,50
+            ^XGR:IMG_LOGO,1,1^FS
             ^FO430,305
             ^XGR:IMG_CE,1,1^FS
             ^FO345,310
