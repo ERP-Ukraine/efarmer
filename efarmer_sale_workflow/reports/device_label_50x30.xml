@@ -184,11 +184,11 @@
 
                 ^XA
                 ^FO17,152.4
-                ^FB341,4,7,L,0
+                ^FB341,6,7,L,0
                 ^A0N,24
                 ^FH`
                 ^FD<t
-                    t-esc="cutter((doc.product_id.description_label if doc.product_id.description_label else ''), 130, True)"/>
+                    t-esc="cutter((doc.product_id.description_label if doc.product_id.description_label else ''), 380, True)"/>
                 ^FS
 
                 <t t-if="lots">
@@ -245,7 +245,7 @@
                 ^FB300,2,10,L,0
                 ^A0N,22
                 ^FH`
-                ^FDDESIGNED IN UKRAINE \&amp;MANUFACTURED IN POLAND^FS
+                ^FDMANUFACTURED IN POLAND^FS
 
                 ^FO17,40
                 ^XGR:IMG1675332444807,1,1^FS
