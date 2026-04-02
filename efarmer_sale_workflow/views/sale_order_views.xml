@@ -79,10 +79,10 @@
                     <attribute name="readonly">state in ('done', 'cancel')</attribute>
                 </field>
                 <xpath expr="//field[@name='order_line']/list/field[@name='price_unit']" position="after">
-                    <field name="product_type" invisible="1"/>
+                    <field name="is_storable" invisible="1"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']/list/field[@name='price_unit']" position="attributes">
-                    <attribute name="readonly">product_type == 'product'</attribute>
+                    <attribute name="readonly">is_storable</attribute>
                 </xpath>
             </field>
         </record>

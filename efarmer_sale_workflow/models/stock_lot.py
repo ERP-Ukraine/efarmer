@@ -32,8 +32,8 @@ class StockLot(models.Model):
 
     @api.model
     def _search_is_unused(self, operator, value):
-        if operator not in ("=", "!=") or not isinstance(value, bool):
-            return []
+        if operator != 'in':
+            return NotImplemented
         used_lot_ids = self._check_unused_lots()
         if value:
             # Return lots NOT in the used list
