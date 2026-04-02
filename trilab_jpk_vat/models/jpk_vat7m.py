@@ -405,6 +405,7 @@ class JPKV7M(models.Model):
     )
     p_55_58_v3 = fields.Selection(
         selection=[
+            ('P_540', 'Zwrot na rachunek rozliczeniowy podatnika w terminie 15 dni'),
             ('P_55', 'Zwrot na rachunek VAT podatnika w terminie 25 dni'),
             ('P_56', 'Zwrot na rachunek rozliczeniowy podatnika w terminie 25 dni (art. 87 ust. 6 ustawy'),
             ('P_560', 'Zwrot na rachunek rozliczeniowy podatnika w terminie 40 dni'),
@@ -625,7 +626,7 @@ class JPKV7M(models.Model):
             for field in filter(lambda x: x.startswith('p_'), self.fields_get_keys()):
                 if self.technical_version == 'v3' and field == "p_55_58":
                     continue
-                elif field == "p_55_58_v3":
+                elif self.technical_version != 'v3' and field == "p_55_58_v3":
                     continue
 
                 # exceptions
