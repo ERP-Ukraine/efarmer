@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<odoo>
+    <data noupdate="0">
+
+        <record id="efarmer_purchase_allow_add_pay_purchase_advance" model="res.groups">
+            <!-- <field name="category_id" ref="efarmer_purchase.module_category_purchase_other"/> -->
+            <field name="name">Allow to add "Pay Purchase Advanced"</field>
+        </record>
+
+    </data>
+</odoo>
