@@ -2,20 +2,28 @@
 
 from odoo.tests import tagged
 
-from .config.integration_init import OdooIntegrationInit
+from .config.integration_init import OdooIntegrationInit, load_xml
 
 
 @tagged('post_install', '-at_install')
 class TestIntegrationEnabledProperties(OdooIntegrationInit):
     """Test enabled properties for integration features."""
 
-    def setUp(self):
-        super().setUp()
-        # Create a base integration for testing
-        self.integration = self.env['sale.integration'].create({
+    @classmethod
+    def setUpClass(cls):
+        super(TestIntegrationEnabledProperties, cls).setUpClass()
+        # Load base integration XML data first (needed for refs)
+        load_xml(
+            cls.env,
+            module='integration',
+            path_file='tests/data',
+            filename='init_sale_integration.xml',
+        )
+        company_id_1 = cls.env.ref('integration.test_integration_company_1')
+        cls.integration = cls.env['sale.integration'].create({
             'name': 'Test Integration',
             'type_api': 'no_api',
-            'company_id': self.company_id_1.id,
+            'company_id': company_id_1.id,
             'state': 'active',
             'export_inventory_job_enabled': True,
             'export_template_job_enabled': True,

@@ -4,8 +4,7 @@ import logging
 
 from typing import Any, Dict, List, Tuple
 
-from odoo import api, fields, models, tools
-from odoo.modules.registry import Registry
+from odoo import api, fields, models, registry, tools
 from odoo.tools import escape_psql
 
 from .sale_integration import SEARCH_CUSTOMER_FIELDS
@@ -30,6 +29,7 @@ PROXY_FIELDS = [
     'state_code',
     'phone',
     'phone_sanitized',
+    'mobile',
     'other',
     'zip',
 ]
@@ -41,6 +41,7 @@ ADDRESS_MATCH_SIMPLE_FIELDS = [
     'zip',
     'email',
     'phone',
+    'mobile',
 ]
 
 ADDRESS_MATCH_COMPLEX_FIELDS = [
@@ -153,6 +154,7 @@ class IntegrationResPartnerProxy(models.TransientModel):
     email = fields.Char(string='Email', default='')
     phone = fields.Char(string='Phone', default='')
     phone_sanitized = fields.Char(string='Phone Sanitized', default='')
+    mobile = fields.Char(string='Mobile', default='')
     language = fields.Char(string='Language')
 
     # Fields for address
@@ -492,6 +494,11 @@ class IntegrationResPartnerProxy(models.TransientModel):
         if not mapped_partner:
             return self.env['res.partner']
 
+        # Do not use inactive (archived) partners from mapping.
+        if not mapped_partner.active:
+            _logger.debug('Mapped partner is archived, skipping mapping: %s', mapped_partner.display_name)
+            return self.env['res.partner']
+
         if self._is_mapping_compatible(mapped_partner):
             _logger.debug('Using mapped partner: %s', mapped_partner.display_name)
             return mapped_partner
@@ -503,6 +510,10 @@ class IntegrationResPartnerProxy(models.TransientModel):
         """
         Check if mapped partner is compatible with current context.
         """
+        # Do not use inactive (archived) partners from mapping.
+        if mapped_partner and not mapped_partner.active:
+            return False
+
         skip_individual = self.integration_id.skip_individual_contacts
 
         company = self.env['res.partner']
@@ -633,6 +644,9 @@ class IntegrationResPartnerProxy(models.TransientModel):
 
         if self.phone_sanitized:
             partner_vals['phone_sanitized'] = self.phone_sanitized
+
+        if self.mobile:
+            partner_vals['mobile'] = self.mobile
 
         # Link this address to the company by setting its parent ID.
         # This step is important for maintaining data integrity and reducing duplicates,
@@ -1092,7 +1106,7 @@ class IntegrationResPartnerProxy(models.TransientModel):
         else:
             # Use Odoo's transaction mechanism for isolation
             if with_new_cursor:
-                db_registry = Registry(self.env.cr.dbname)
+                db_registry = registry(self.env.cr.dbname)
                 with db_registry.cursor() as new_cr:
                     new_env = api.Environment(new_cr, self.env.uid, {})
                     integration_id = new_env['sale.integration'].browse(self.integration_id.id)

@@ -3,6 +3,7 @@
 import { Component, onWillRender, useState } from "@odoo/owl";
 
 import { Dropdown } from "@web/core/dropdown/dropdown";
+import { useDropdownState } from "@web/core/dropdown/dropdown_hooks";
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
@@ -33,12 +34,12 @@ export class IntegrationStatusMenu extends Component {
 
     setup() {
         this.integrationStatusMenuSystray = useIntegrationStatusMenuSystray();
+        this.dropdown = useDropdownState();
         this.ui = useState(useService("ui"));
         this.state = useState({
             integrations: [],
             activityCounterFailed: 0,
-            activityCounterMissing: 0,
-            activityCounter: '',
+            activityCounterUnprocessed: 0,
             activityVisible: false,
             isOpen: false,
             isLoaded: false,
@@ -47,6 +48,7 @@ export class IntegrationStatusMenu extends Component {
 
         this.orm = useService("orm");
         this.user = user;
+        this.action = useService("action");
 
         onWillRender(async () => {
             if (window.QUnit) {
@@ -59,55 +61,129 @@ export class IntegrationStatusMenu extends Component {
             if (!this.state.isLoaded) {
                 const data = await this.orm.call(
                     "sale.integration",
-                    "systray_get_integrations",
+                    "get_status_menu_data",
                     [],
                     {});
 
                 this.state.integrations = data;
                 this.state.activityCounterFailed = data.reduce((acc, value) => { return acc + value.failed_jobs_count || 0; }, 0);
-                this.state.activityCounterMissing = data.reduce((acc, value) => { return acc + value.missing_mappings_count || 0; }, 0);
-                this.state.activityCounter = this.state.activityCounterFailed + ' / ' + this.state.activityCounterMissing;
-                this.state.activityVisible = this.state.activityCounterFailed > 0 || this.state.activityCounterMissing > 0;
+                this.state.activityCounterUnprocessed = data.reduce((acc, value) => { return acc + value.unprocessed_orders_count || 0; }, 0);
+                this.state.activityVisible = this.state.activityCounterFailed > 0 || this.state.activityCounterUnprocessed > 0;
                 this.state.isLoaded = true;
-                this.state.typeApis = [...new Set(data.map(i => i.type_api))];
             }
         });
+    }
+
+    formatCount(count) {
+        return count > 99 ? '99+' : count.toString();
     }
 
     async beforeOpen() {
         const data = await this.orm.call(
             "sale.integration",
-            "systray_get_integrations",
+            "get_status_menu_data",
             [],
             {});
 
         this.state.integrations = data;
         this.state.activityCounterFailed = data.reduce((acc, value) => { return acc + value.failed_jobs_count || 0; }, 0);
-        this.state.activityCounterMissing = data.reduce((acc, value) => { return acc + value.missing_mappings_count || 0; }, 0);
-        this.state.activityCounter = this.state.activityCounterFailed + ' / ' + this.state.activityCounterMissing;
-        this.state.activityVisible = this.state.activityCounterFailed > 0 || this.state.activityCounterMissing > 0;
-        this.state.typeApis = [...new Set(data.map(i => i.type_api))];
+        this.state.activityCounterUnprocessed = data.reduce((acc, value) => { return acc + value.unprocessed_orders_count || 0; }, 0);
+        this.state.activityVisible = this.state.activityCounterFailed > 0 || this.state.activityCounterUnprocessed > 0;
     }
 
-    getRateUsURL(typeApi) {
-        // Rate Us URL
-        let odooVersion = odoo.info.server_version;
-        // This attribute can include some additional symbols we do not need here (like 12.0e+)
-        odooVersion = odooVersion.substring(0, 4);
-
-        const url = `https://apps.odoo.com/apps/modules/${odooVersion}/integration_${typeApi}/#ratings`;
-
-        return url;
+    async openIntegration(integrationId) {
+        this.close();
+        await this.action.doAction({
+            type: 'ir.actions.act_window',
+            name: _t('Integration'),
+            res_model: 'sale.integration',
+            res_id: integrationId,
+            views: [[false, 'form']],
+        });
     }
 
-    getModuleIcon(typeApi) {
-        return `/integration_${typeApi}/static/description/icon.png`;
+    async openOrders(integrationId) {
+        this.close();
+        await this.action.doAction({
+            type: 'ir.actions.act_window',
+            name: _t('Orders'),
+            res_model: 'sale.integration.input.file',
+            views: [[false, 'list'], [false, 'form']],
+            domain: [
+                ['si_id', '=', integrationId],
+            ],
+        });
+    }
+
+    async openProducts(integrationId) {
+        this.close();
+        await this.action.doAction({
+            type: 'ir.actions.act_window',
+            name: _t('Products'),
+            res_model: 'integration.product.template.mapping',
+            views: [[false, 'list'], [false, 'form']],
+            domain: [
+                ['integration_id', '=', integrationId],
+            ],
+            context: {
+                default_integration_id: integrationId,
+            },
+        });
+    }
+
+    async openFailedJobs(integrationId) {
+        this.close();
+        await this.action.doAction({
+            type: 'ir.actions.act_window',
+            name: _t('Failed Jobs'),
+            res_model: 'queue.job',
+            views: [[false, 'list'], [false, 'form']],
+            domain: [
+                ['state', '=', 'failed'],
+                ['integration_id', '=', integrationId]
+            ],
+            context: {
+                search_default_state: 1,
+            },
+        });
+    }
+
+    async openUnprocessedOrders(integrationId) {
+        this.close();
+        await this.action.doAction({
+            type: 'ir.actions.act_window',
+            name: _t('Unprocessed Orders'),
+            res_model: 'sale.integration.input.file',
+            views: [[false, 'list'], [false, 'form']],
+            domain: [
+                ['si_id', '=', integrationId],
+            ],
+            context: {
+                search_default_without_sales_order: true,
+            },
+        });
+    }
+
+    async openMissingMappings(integrationId, modelName) {
+        this.close();
+        const mappingModel = this.orm.call(modelName, 'fields_get', [['_mapping_fields']]);
+
+        await this.action.doAction({
+            type: 'ir.actions.act_window',
+            name: _t('Missing Mappings'),
+            res_model: modelName,
+            views: [[false, 'list'], [false, 'form']],
+            domain: [
+                ['integration_id', '=', integrationId],
+            ],
+            context: {
+                default_integration_id: integrationId,
+            },
+        });
     }
 
     close() {
-        // hack: click on window to close dropdown, because we use a dropdown
-        // without dropdownitem...
-        document.body.click();
+        this.dropdown.close();
     }
 }
 

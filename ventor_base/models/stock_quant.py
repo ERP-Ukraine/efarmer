@@ -40,6 +40,6 @@ class StockQuant(models.Model):
         res = super(StockQuant, self).user_has_groups(groups)
         return res
 
-    def _apply_inventory(self, date=None):
-        res = super(StockQuant, self.with_context(validate_inventory=True))._apply_inventory(date)
+    def _apply_inventory(self):
+        res = super(StockQuant, self.with_context(validate_inventory=True))._apply_inventory()
         return res

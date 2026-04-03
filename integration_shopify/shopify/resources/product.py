@@ -50,7 +50,14 @@ class Product(ShopifyResourceUpdate, ProductMixin):
 
     @property
     def has_only_default_variant(self):
+        # The template with options which are not used for variants creation.
+        # This is a special case for Shopify, when the product has only one variant and no options.
         return self['hasOnlyDefaultVariant']
+
+    @property
+    def has_only_one_variant(self):
+        # Template with only one variant no matter if it has options or not.
+        return len(self.variants) == 1
 
     @property
     def is_gift_card(self):
@@ -58,6 +65,7 @@ class Product(ShopifyResourceUpdate, ProductMixin):
 
     @property
     def featured_media_gid(self):
+        self.ensure_one()
         return self.featuredMedia and self['featuredMedia']['id']
 
     @property
@@ -366,11 +374,11 @@ class Product(ShopifyResourceUpdate, ProductMixin):
         """
         self.ensure_one()
 
-        if not self.has_only_default_variant:
-            action1 = self._run_options_delete_if_needed(attribute_values)
-            action2 = self._run_options_update_if_needed(attribute_values)
-        else:
+        if self.has_only_default_variant:
             action1 = action2 = False
+        else:
+            action1 = self._run_options_delete_if_needed(attribute_values)
+            action2 = self._run_option_values_delete_if_needed(attribute_values)
 
         action3 = self._run_options_create_if_needed(attribute_values)
 
@@ -395,6 +403,9 @@ class Product(ShopifyResourceUpdate, ProductMixin):
                 variables={
                     'productId': self.gid,
                     'options': payload,
+                    # Existing variants are updated with the first option value of each added option  New variants
+                    # are created for each combination of existing variant option values and new option values.
+                    'variantStrategy': 'CREATE',
                 },
                 user_errors_path='data.productOptionsCreate.userErrors',
             )
@@ -405,7 +416,7 @@ class Product(ShopifyResourceUpdate, ProductMixin):
 
         return False
 
-    def _run_options_update_if_needed(self, attribute_values: list):
+    def _run_option_values_delete_if_needed(self, attribute_values: list):
         """Currently we are only deleting unnecessary option values"""
         self.ensure_one()
 
@@ -413,17 +424,19 @@ class Product(ShopifyResourceUpdate, ProductMixin):
         attributes_by_name = {x['name']: x['values'] for x in attribute_values}
 
         for option in self.options:
-            option_values_delete_ids = []
+            option_values_to_add, option_values_delete_ids = [], []
 
-            name = option.name
-            if name in attributes_by_name:
-                input_values = [x['name'] for x in attributes_by_name[name]]
+            option_name = option.name
+            if option_name in attributes_by_name:
+                input_option_values = [x['name'] for x in attributes_by_name[option_name]]
 
-                for value in option.option_values:
-                    if value.name not in input_values:
-                        option_values_delete_ids.append(value.gid)
+                # 1. Delete unnecessary option values
+                for option_value in option.option_values:
+                    if option_value.name not in input_option_values:
+                        option_values_delete_ids.append(option_value.gid)
 
-            if option_values_delete_ids:
+            # 3. Update option
+            if option_values_delete_ids or option_values_to_add:
                 self.execute(
                     self.MUTATION_UPDATE_PRODUCT_OPTIONS,
                     variables={
@@ -432,8 +445,8 @@ class Product(ShopifyResourceUpdate, ProductMixin):
                             'id': option.gid,
                         },
                         'optionValuesToDelete': option_values_delete_ids,
-                        'variantStrategy': 'MANAGE',  # Variants are created and deleted
-                        # according to the option values to add and to delete.
+                        # Variants are created and deleted according to the option values to add and to delete.
+                        'variantStrategy': 'MANAGE',
                     },
                     user_errors_path='data.productOptionUpdate.userErrors',
                 )
@@ -460,6 +473,9 @@ class Product(ShopifyResourceUpdate, ProductMixin):
                 variables={
                     'productId': self.gid,
                     'options': list(names_by_name.values()),
+                    # An Option with multiple values can be deleted. Remaining variants will be deleted,
+                    # highest position first, in the event of duplicates being detected.
+                    'strategy': 'POSITION',
                 },
                 user_errors_path='data.productOptionsDelete.userErrors',
             )
@@ -526,6 +542,6 @@ class Product(ShopifyResourceUpdate, ProductMixin):
         for variant in self.variants:
             variant_options = [(x.name, x.value) for x in variant.selected_options]
             if set(variant_options) == set(options):
-                return variant.gid
+                return variant
 
         return None

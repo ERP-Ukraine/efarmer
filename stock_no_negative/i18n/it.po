@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Odoo Server 17.0+e\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-11-21 14:50+0000\n"
-"PO-Revision-Date: 2026-01-22 09:50+0000\n"
+"PO-Revision-Date: 2025-02-12 16:06+0000\n"
 "Last-Translator: mymage <stefano.consolaro@mymage.it>\n"
 "Language-Team: \n"
 "Language: it\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.15.2\n"
+"X-Generator: Weblate 5.6.2\n"
 
 #. module: stock_no_negative
 #. odoo-python
@@ -50,22 +50,6 @@ msgid ""
 msgstr ""
 "Consente giacenze negative per prodottistoccabili associati a questa "
 "ubicazione."
-
-#. module: stock_no_negative
-#: model:ir.model.fields,field_description:stock_no_negative.field_product_category__display_name
-#: model:ir.model.fields,field_description:stock_no_negative.field_product_template__display_name
-#: model:ir.model.fields,field_description:stock_no_negative.field_stock_location__display_name
-#: model:ir.model.fields,field_description:stock_no_negative.field_stock_quant__display_name
-msgid "Display Name"
-msgstr "Nome visualizzato"
-
-#. module: stock_no_negative
-#: model:ir.model.fields,field_description:stock_no_negative.field_product_category__id
-#: model:ir.model.fields,field_description:stock_no_negative.field_product_template__id
-#: model:ir.model.fields,field_description:stock_no_negative.field_stock_location__id
-#: model:ir.model.fields,field_description:stock_no_negative.field_stock_quant__id
-msgid "ID"
-msgstr "ID"
 
 #. module: stock_no_negative
 #: model:ir.model.fields,help:stock_no_negative.field_product_product__allow_negative_stock
@@ -105,25 +89,14 @@ msgstr "Quanti"
 #: code:addons/stock_no_negative/models/stock_quant.py:0
 msgid ""
 "You cannot validate this stock operation because the stock level of the "
-"product '%(name)s' %(name_lot)s would become negative (%(q_quantity)s) on "
-"the stock location '%(complete_name)s' and negative stock is not allowed for "
-"this product and/or location."
+"product '{name}'{name_lot} would become negative ({q_quantity}) on the stock "
+"location '{complete_name}' and negative stock is not allowed for this "
+"product and/or location."
 msgstr ""
 "Questa operazione di magazzino non può essere validata perché la giacenza "
-"del prodotto '%(name)s' %(name_lot)s diventerebbe negativa (%(q_quantity)s) "
-"nell'ubicazione '%(complete_name)s' e per questo prodotto e/o ubicazione non "
-"è consentita la giacenza negativa."
-
-#~ msgid ""
-#~ "You cannot validate this stock operation because the stock level of the "
-#~ "product '{name}'{name_lot} would become negative ({q_quantity}) on the "
-#~ "stock location '{complete_name}' and negative stock is not allowed for "
-#~ "this product and/or location."
-#~ msgstr ""
-#~ "Questa operazione di magazzino non può essere validata perché la giacenza "
-#~ "del prodotto '{name}'{name_lot} diventerebbe negativa ({q_quantity}) "
-#~ "nell'ubicazione '{complete_name}' e per questo prodotto e/o ubicazione "
-#~ "non è consentata la giacenza negativa."
+"del prodotto '{name}'{name_lot} diventerebbe negativa ({q_quantity}) "
+"nell'ubicazione '{complete_name}' e per questo prodotto e/o ubicazione non è "
+"consentata la giacenza negativa."
 
 #~ msgid " lot {}"
 #~ msgstr " lotto {}"

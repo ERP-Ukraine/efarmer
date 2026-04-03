@@ -21,10 +21,9 @@ class PurchaseTag(models.Model):
     child_ids = fields.One2many("purchase.tag", "parent_id")
     parent_path = fields.Char(index=True)
 
-    _name_uniq = models.Constraint(
-        "unique (name)",
-        message="Tag name already exists !",
-    )
+    _sql_constraints = [
+        ("tag_name_uniq", "unique (name)", "Tag name already exists !"),
+    ]
 
     def _compute_display_name(self):
         for tag in self:

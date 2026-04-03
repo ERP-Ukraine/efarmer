@@ -23,7 +23,7 @@
                     <field name="name"/>
                     <field name="code"/>
                     <field name="integration_id"/>
-                    <group>
+                    <group expand="0" string="Group By">
                         <filter string="E-Commerce Store" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
                     </group>
                 </search>

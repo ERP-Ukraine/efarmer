@@ -6,7 +6,7 @@
             <field name="name">sale.integration.form</field>
             <field name="model">sale.integration</field>
             <field name="arch" type="xml">
-                <form string="E-Commerce Stores" js_class="sale_integration_form_view">
+                <form string="E-Commerce Stores" js_class="sale_integration_form_view" duplicate="0">
                     <header>
                         <button name="action_active"
                                 type="object"
@@ -45,7 +45,13 @@
                                     class="w-100"
                                     src="/integration/static/description/icon.png"
                                     alt="Connector Logo"
-                                    invisible="type_api and type_api != 'no_api'"
+                                    invisible="type_api"
+                                />
+                                <img
+                                    class="w-100"
+                                    src="/integration/static/description/icon.png"
+                                    alt="Connector Logo"
+                                    invisible="type_api != 'no_api'"
                                 />
                                 <img
                                     class="w-100"
@@ -182,6 +188,8 @@
                                         <field name="auto_create_products_on_so" widget="boolean_toggle"/>
                                         <field name="auto_create_taxes_on_so" widget="boolean_toggle"/>
                                         <field name="auto_create_delivery_carrier_on_so" widget="boolean_toggle"/>
+                                    </group>
+                                    <group name="order_import_settings" string="Order Import Settings">
                                         <field name="last_receive_orders_datetime"/>
                                         <field name="last_receive_orders_datetime_str" groups="base.group_no_one"/>
                                         <field name="orders_cut_off_datetime"/>
@@ -218,6 +226,7 @@
                                         <field name="use_order_total_difference_correction" widget="boolean_toggle"/>
                                         <field name="discount_product_id" context="{'default_type': 'service', 'default_exclude_from_synchronization': True, 'default_integration_ids': {}, }"/>
                                         <field name="separate_discount_line" widget="boolean_toggle" invisible="is_integration_prestashop"/>
+                                        <field name="multiple_discount_lines" widget="boolean_toggle" invisible="not is_integration_prestashop and not ((is_integration_shopify or is_integration_woocommerce) and separate_discount_line)"/>
                                         <field name="positive_price_difference_product_id" context="{'default_type': 'service', 'default_exclude_from_synchronization': True, 'default_integration_ids': {}, }"/>
                                         <field name="negative_price_difference_product_id" context="{'default_type': 'service', 'default_exclude_from_synchronization': True, 'default_integration_ids': {}, }"/>
                                         <field name="gift_wrapping_product_id" invisible="not is_integration_prestashop" context="{'default_type': 'service', 'default_exclude_from_synchronization': True, 'default_integration_ids': {}, }"/>
@@ -282,7 +291,7 @@
                                             If an order includes refunds, payments won't be auto-applied. This allows users to follow their Odoo workflow,
                                             as handling refunds may require different approaches. Manual actions will be needed to validate invoices and register payments in Odoo.
                                         </div>
-                                        <field name="integration_writeoff_account_id" required="apply_external_payments"/>
+                                        <field name="integration_writeoff_account_id" required="apply_external_payments" domain="[('deprecated', '=', False)]"/>
                                     </group>
                                     <group name="other" string="Other">
                                         <field name="update_fiscal_position" widget="boolean_toggle"/>
@@ -309,23 +318,22 @@
 
                             <page string="Customers" name="customer_default_page">
                                 <group>
-                                    <group string="Customer Sync Settings" name="customer_sync_settings">
-                                        <field name="use_manual_customer_mapping" widget="boolean_toggle"/>
-                                        <field name="emails_for_failed_mapping_notifications"
-                                               required="use_manual_customer_mapping == True"
-                                               invisible="use_manual_customer_mapping == False"/>
-                                        <field name="use_vat_only_company_search"
-                                               invisible="customer_company_vat_field == False"
-                                               widget="boolean_toggle"
-                                               groups="base.group_no_one"/>
-                                    </group>
-
                                     <group string="E-Commerce Fields Mappings" name="ecommerce_fields_mappings">
-                                        <field name="customer_personal_id_field" options="{'no_create': True, 'no_edit': True}" invisible="is_integration_magento_two or is_integration_shopify"/>
-                                        <field name="customer_company_vat_field" options="{'no_create': True, 'no_edit': True}" invisible="is_integration_shopify"/>
-                                        <field name="ignore_vat_validation" widget="boolean_toggle" invisible="is_integration_shopify"/>
+                                        <div class="alert alert-info" role="status" colspan="2">
+                                            Depending on the localization package used in Odoo, the VAT number and Personal 
+                                            ID number may  be stored in different fields.  Pease select specific field from the 
+                                            Contact model that should be used for this information
+                                        </div>  
+                                        <field name="customer_company_vat_field" options="{'no_create': True, 'no_edit': True}"/>
+                                        <field name="customer_personal_id_field" options="{'no_create': True, 'no_edit': True}" invisible="is_integration_magento_two"/>
+                                        <div class="alert alert-warning" role="alert" colspan="2" invisible="customer_company_vat_field == False or customer_company_vat_field != customer_personal_id_field">
+                                            Warning: VAT/Reg. Number and Personal ID are mapped to the same Odoo field. 
+                                            For B2B orders, the connector creates both a company contact (with VAT/Reg. Number) 
+                                            and a person contact (with Personal ID). Due to Odoo's contact inheritance, one value will 
+                                            overwrite the other. Map these fields to different Odoo fields to preserve both values.
+                                        </div>                      
+                                        <field name="ignore_vat_validation" widget="boolean_toggle"/>
                                         <field name="customer_company_vat_field_name" invisible="1" /> <!-- Required because it is used in the invisible condition below -->
-
                                         <div class="alert alert-warning" role="alert" colspan="2" invisible="ignore_vat_validation == True or customer_company_vat_field_name != 'vat'">
                                             You have selected the VAT field for Company Registration Number synchronization.
                                             If you have the module "VAT Number Validation" installed, then Odoo will accept
@@ -336,6 +344,14 @@
                                     </group>
 
                                     <group string="Advanced Parameters" name="advanced_customer_parameters">
+                                        <field name="use_manual_customer_mapping" widget="boolean_toggle" />
+                                        <field name="emails_for_failed_mapping_notifications"
+                                               required="use_manual_customer_mapping == True"
+                                               invisible="use_manual_customer_mapping == False"/>
+                                        <field name="use_vat_only_company_search"
+                                               invisible="customer_company_vat_field == False"
+                                               widget="boolean_toggle"
+                                               groups="base.group_no_one"/>
                                         <field name="skip_individual_contacts" widget="boolean_toggle" />
                                         <div class="alert alert-info" role="alert" colspan="2">
                                             When enabled, the connector will use the company as the contact instead of creating
@@ -345,11 +361,11 @@
                                         </div>
                                         <field name="use_search_customer_fields_ids" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
                                         <field name="search_customer_fields_ids" options="{'no_create': True, 'no_edit': True}" widget="many2many_tags"/>
-                                        <div class="alert alert-info" role="alert" colspan="2">
+                                        <div class="alert alert-info" role="alert">
                                             This setting defines which Odoo Contact fields (from <code>res.partner</code>) the connector will use to identify existing customers when importing orders.
                                             <p>
                                                 If the selected fields are empty in the incoming customer data, the connector will fall back to a default search set:
-                                                <strong>Name</strong>, <strong>Email</strong>, <strong>Phone</strong>.
+                                                <strong>Name</strong>, <strong>Email</strong>, <strong>Phone</strong> and <strong>Mobile</strong>.
                                             </p>
                                             <p>
                                                 In addition to your selected fields, the connector always includes these three fields by default to ensure data consistency:
@@ -372,8 +388,6 @@
                             <page string="Products" name="product_default_page">
                                 <group>
                                     <group string="Pricing and Pricelist Settings" name="pricing_and_pricelist_settings">
-                                        <field name="pricelist_integration" invisible="not is_integration_prestashop" widget="boolean_toggle"/>
-                                        <field name="last_update_pricelist_items" invisible="not is_integration_prestashop"/>
                                         <div colspan="2">
                                             <group>
                                                 <field name="integration_pricelist_id"/>
@@ -409,6 +423,16 @@
                                         <field name="is_import_dynamic_attribute" groups="base.group_no_one" widget="boolean_toggle"/>
                                         <field name="ignore_boms_for_product_export" widget="boolean_toggle" invisible="is_integration_shopify or is_integration_woocommerce"/>
                                     </group>
+                                    <group string="Product Creation Settings" name="product_creation_settings">
+                                        <div class="alert alert-info" role="alert" colspan="2">
+                                            When enabled, products created automatically by this connector
+                                            (for example during order import or product synchronization)
+                                            will be assigned to the integration company:
+                                            <strong><field name="company_id" readonly="1" class="oe_inline"/></strong>.
+                                            This prevents products from being created without a company or under the wrong company.
+                                        </div>
+                                        <field name="apply_company_on_product" widget="boolean_toggle"/>
+                                    </group>
                                 </group>
                             </page>
 
@@ -429,6 +453,19 @@
                                         <field name="export_inventory_job_enabled" widget="boolean_toggle"/>
                                         <field name="inventory_synchronization_cron_id_active" widget="boolean_toggle"/>
                                         <field name="next_inventory_synchronization_date" invisible="inventory_synchronization_cron_id_active != True"/>
+                                        <div class="o_form_label"/>
+                                        <div class="mt-1">
+                                            <div class="mb-2">
+                                                <button name="integrationApiExportInventory"
+                                                        string="Export Inventory Now"
+                                                        type="object"
+                                                        class="btn-primary"/>
+                                            </div>
+                                            <span class="text-muted">
+                                                Exports current inventory levels for all mapped products to e-commerce store. 
+                                                Runs in the background - check the job queue to monitor progress.
+                                            </span>
+                                        </div>
                                     </group>
                                     <group string="Advanced Inventory Settings" name="advanced_inventory_settings">
                                         <field name="update_stock_for_manufacture_boms"
@@ -572,7 +609,16 @@
                                         <field name="export_template_job_enabled" widget="boolean_toggle"/>
                                     </group>
                                     <group string="Order Processing Jobs" name="order_processing_jobs">
+                                        <div class="alert alert-info mb-1" role="alert" colspan="2">
+                                            <strong>Enable Order Import</strong> activates automatic
+                                            order import from your e-commerce platform via a scheduled job.
+                                            It also controls whether webhook events (fulfillments, payments,
+                                            cancellations) are applied to orders already imported into Odoo.
+                                            Disabling this option stops both scheduled imports and
+                                            webhook-driven updates for existing orders.
+                                        </div>
                                         <field name="receive_orders_cron_id_active" widget="boolean_toggle"/>
+
                                         <field name="export_tracking_job_enabled" widget="boolean_toggle"/>
                                         <div class="alert alert-warning mb-1" role="alert" colspan="2" invisible="not is_integration_shopify">
                                              Ensure you have correctly configured the Inventory Location Mapping table on the Inventory tab before enabling this option. Incorrect mappings may lead to fulfillment errors in Shopify.
@@ -690,52 +736,6 @@
                                     </div>
                                 </group>
 
-                                <group string="[Optional] Import Pricelists" name="initial_import_pricelists" invisible="not pricelist_integration">
-                                    <div class="row" colspan="2">
-                                        <div class="col-md-10">
-                                            <p>
-                                                Use this feature to integrate 'Product Special Prices' from your e-commerce platform into Odoo.
-                                                By clicking this button, you'll launch a wizard that guides you through linking
-                                                external pricelists with their corresponding Odoo pricelists. After establishing the links,
-                                                you can proceed to synchronize the pricelists. This process is a one-way synchronization
-                                                that pulls special pricing data from your e-commerce system to update the pricelists in Odoo,
-                                                ensuring your Odoo system reflects the most current pricing strategies.
-                                            </p>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <button name="%(integration_pricelist_wizard_action)d"
-                                                    string="Synchronize Pricelists"
-                                                    type="action"
-                                                    class="btn btn-outline-primary w-100"
-                                            />
-                                        </div>
-                                    </div>
-                                </group>
-
-                                <group string="[Optional] Synchronize Related Products" name="initial_import_related_products" invisible="not is_integration_prestashop">
-                                    <div class="row" colspan="2">
-                                        <div class="col-md-10">
-                                            <p>
-                                                This step is specifically added for users of the PrestaShop connector.
-                                                It ensures that your 'Related Products' from PrestaShop are synchronized
-                                                with Odoo's 'Optional Products'. Once you have completed the product linking
-                                                and mapping process in Step 2, you can use this function to synchronize
-                                                the optional products in Odoo with the related products defined in your
-                                                PrestaShop system. It scans through the related products information in PrestaShop
-                                                and updates the 'Optional Products' field in Odoo accordingly,
-                                                maintaining consistency across both platforms.
-                                            </p>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <button name="action_import_related_products"
-                                                    type="object"
-                                                    string="Synchronize Related Products"
-                                                    class="btn btn-outline-primary w-100"
-                                            />
-                                        </div>
-                                    </div>
-                                </group>
-
                             </page>
 
                             <page string="Testing" name="testing" groups="base.group_no_one">
@@ -845,111 +845,148 @@
             </field>
         </record>
 
-        <record id="view_sale_integration_list" model="ir.ui.view">
-            <field name="name">sale.integration.list</field>
-            <field name="model">sale.integration</field>
-            <field name="arch" type="xml">
-                <list string="Stores" decoration-muted="state=='draft'" js_class="sale_integration_list_view" default_order="state,name">
-                    <field name="name"/>
-                    <field name="type_api"/>
-                    <field name="state"/>
-                    <button name="action_active"
-                                type="object"
-                                string="Activate"
-                                invisible="not api_access_granted or state not in ['draft']"/>
-                    <button name="action_draft"
-                            type="object"
-                            string="Deactivate"
-                            invisible="state not in ['active']"/>
-                </list>
-            </field>
-        </record>
-
         <record id="view_sale_integration_kanban" model="ir.ui.view">
             <field name="name">sale.integration.kanban</field>
             <field name="model">sale.integration</field>
             <field name="arch" type="xml">
                 <kanban class="o_integration_kanban" js_class="sale_integration_kanban_view" default_order="state,name">
-                    <field name="display_name"/>
+                    <field name="name"/>
                     <field name="type_api"/>
                     <field name="state"/>
-                    <field name="last_receive_orders_datetime"/>
+                    <field name="last_order_sync_datetime"/>
                     <field name="orders_count"/>
                     <field name="orders_today_count"/>
                     <field name="queued_or_failed_orders_count"/>
+                    <field name="orders_last_7_days_chart_data"/>
+                    <field name="failed_jobs_count"/>
+                    <field name="products_count"/>
                     <templates>
                         <t t-name="card">
-                            <t t-set="styles" t-if="record.state.raw_value == 'draft'" t-value="'opacity: 0.5;'"/>
-                            <t t-set="styles" t-if="record.state.raw_value == 'active'" t-value="''"/>
+                            <t t-set="card_opacity" t-if="record.state.raw_value == 'draft'" t-value="'opacity: 0.5;'"/>
+                            <t t-set="card_opacity" t-else="" t-value="''"/>
 
-                            <div class="d-flex align-items-center" t-att-style="styles">
-                                <t t-set="module_name" t-if="record.type_api.raw_value == 'prestashop'" t-value="'integration_prestashop'"/>
-                                <t t-set="module_name" t-if="record.type_api.raw_value == 'shopify'" t-value="'integration_shopify'"/>
-                                <t t-set="module_name" t-if="record.type_api.raw_value == 'magento2'" t-value="'integration_magento2'"/>
-                                <t t-set="module_name" t-if="record.type_api.raw_value == 'woocommerce'" t-value="'integration_woocommerce'"/>
-                                <t t-set="module_name" t-if="record.type_api.raw_value == 'no_api'" t-value="'integration'"/>
+                            <t t-set="module_name" t-if="record.type_api.raw_value == 'prestashop'" t-value="'integration_prestashop'"/>
+                            <t t-set="module_name" t-if="record.type_api.raw_value == 'shopify'" t-value="'integration_shopify'"/>
+                            <t t-set="module_name" t-if="record.type_api.raw_value == 'magento2'" t-value="'integration_magento2'"/>
+                            <t t-set="module_name" t-if="record.type_api.raw_value == 'woocommerce'" t-value="'integration_woocommerce'"/>
+                            <t t-set="module_name" t-if="record.type_api.raw_value == 'no_api'" t-value="'integration'"/>
 
-                                <div class="kanban-card-logo" t-att-style="'background-image:url(/'+ module_name + '/static/description/icon.png);'"/>
+                            <div class="p-0 h-100" t-att-style="card_opacity">
+                                <div class="d-flex flex-column h-100 p-3">
+                                    <!-- Header: Logo + Name -->
+                                    <div class="d-flex align-items-center gap-2 mb-3">
+                                        <img t-att-src="'/' + module_name + '/static/description/icon.png'"
+                                             t-att-alt="record.type_api.value"
+                                             class="rounded" style="width: 40px; height: 40px; object-fit: contain;"/>
+                                        <h3 class="mb-0 fw-bold flex-grow-1"><field name="name"/></h3>
+                                        <a class="btn btn-outline-secondary btn-sm px-2"
+                                           type="open"
+                                           role="button"
+                                           title="Open Configuration">
+                                            <i class="fa fa-cog me-1" title="Configure"/> Configure
+                                        </a>
+                                    </div>
 
-                                <div class="kanban-card-content ps-3">
-                                    <h2 class=""><field name="display_name"/></h2>
-                                    <p class="lead"><field name="type_api"/></p>
-
-                                    <div class="row mb-3">
-                                        <div class="col text-center">
-                                            <a class="hoverable-card d-block pt-2 pb-2 text-black" name="action_view_all_external_orders_data" href="#" type="object">
-                                                <span class="h2 d-block">
-                                                    <field name="orders_today_count"/> / <field name="orders_count"/>
-                                                </span>
-                                                last 24h / total orders
-                                            </a>
+                                    <!-- Two column layout: Chart + Action Buttons -->
+                                    <div class="row flex-grow-1 mb-3">
+                                        <!-- Left column: Chart -->
+                                        <div class="col-6 pe-2">
+                                            <field name="orders_last_7_days_chart_data" widget="orders_mini_chart" class="w-100"/>
                                         </div>
-                                        <div class="col text-center text-warning">
-                                            <a class="hoverable-card d-block pt-2 pb-2 text-warning" name="action_view_queued_or_failed_external_orders_data" href="#" type="object">
-                                                <span class="h2 d-block text-warning">
-                                                    <field name="queued_or_failed_orders_count"/>
-                                                </span>
-                                                queued or failed orders
-                                            </a>
+
+                                        <!-- Right column: Action buttons (2x2 grid) -->
+                                        <div class="col-6 ps-2 d-flex align-items-center">
+                                            <div class="row g-1 w-100">
+                                                <!-- Row 1 -->
+                                                <div class="col-6">
+                                                    <a class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-between px-3 py-2"
+                                                       name="action_view_all_external_orders_data" href="#" type="object" role="button"
+                                                       style="min-height: 52px;">
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="fa fa-shopping-cart me-2" title="Orders"/>
+                                                            <span class="small">Orders</span>
+                                                        </div>
+                                                        <span class="fw-bold"><field name="orders_count"/></span>
+                                                    </a>
+                                                </div>
+                                                <div class="col-6">
+                                                    <a t-attf-class="btn btn-sm w-100 d-flex align-items-center justify-content-between px-3 py-2 #{record.queued_or_failed_orders_count.raw_value > 0 ? 'btn-warning' : 'btn-outline-secondary'}"
+                                                       name="action_view_queued_or_failed_external_orders_data" href="#" type="object" role="button"
+                                                       style="min-height: 52px;">
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="fa fa-hourglass-half me-2" title="Unprocessed"/>
+                                                            <span class="small">Unprocessed</span>
+                                                        </div>
+                                                        <span class="fw-bold"><field name="queued_or_failed_orders_count"/></span>
+                                                    </a>
+                                                </div>
+                                                <!-- Row 2 -->
+                                                <div class="col-6">
+                                                    <a class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-between px-3 py-2"
+                                                       name="action_view_products" href="#" type="object" role="button"
+                                                       style="min-height: 52px;">
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="fa fa-cube me-2" title="Products"/>
+                                                            <span class="small">Products</span>
+                                                        </div>
+                                                        <span class="fw-bold"><field name="products_count"/></span>
+                                                    </a>
+                                                </div>
+                                                <div class="col-6">
+                                                    <a t-attf-class="btn btn-sm w-100 d-flex align-items-center justify-content-between px-3 py-2 #{record.failed_jobs_count.raw_value > 0 ? 'btn-danger' : 'btn-outline-secondary'}"
+                                                       name="action_view_failed_jobs" href="#" type="object" role="button"
+                                                       style="min-height: 52px;">
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="fa fa-exclamation-triangle me-2" title="Failed Jobs"/>
+                                                            <span class="small">Failed Jobs</span>
+                                                        </div>
+                                                        <span t-attf-class="fw-bold #{record.failed_jobs_count.raw_value > 0 ? 'text-white' : ''}"><field name="failed_jobs_count"/></span>
+                                                    </a>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <ul class="mb-3">
-                                        <li>
-                                            <strong>Last Receive Orders Time: </strong>
-                                            <field name="last_receive_orders_datetime"/>
-                                        </li>
-                                    </ul>
-
-                                    <div class="btn-group w-100" role="group" aria-label="Integration Actions">
-                                        <button string="Activate"
-                                                name="action_active"
-                                                type="object"
-                                                invisible="state == 'active'"
-                                                class="btn btn-outline-primary d-inline-block"
-                                        />
-                                        <button string="Deactivate"
-                                                name="action_draft"
-                                                type="object"
-                                                invisible="state == 'draft'"
-                                                class="btn btn-outline-danger d-inline-block"
-                                        />
-                                        <button name="action_run_configuration_wizard"
-                                                type="object"
-                                                class="btn btn-outline-info d-inline-block"
-                                        >
-                                           <i class="fa fa-gear" title="Settings"></i>
-                                        </button>
-                                        <button name="action_open_shop"
-                                                type="object"
-                                                invisible="state == 'draft'"
-                                                class="btn btn-outline-info d-inline-block"
-                                        >
-                                            <i class="fa fa-external-link" title="Open Shop"></i>
-                                        </button>
+                                    <!-- Footer: Last sync time + action buttons -->
+                                    <div class="d-flex align-items-center justify-content-between mt-auto pt-3 border-top">
+                                        <div class="text-muted small" t-if="record.last_order_sync_datetime.raw_value" title="Last time orders were synchronized from the store">
+                                            <i class="fa fa-clock-o me-1" title="Last Order Sync"/>
+                                            <span class="d-none d-lg-inline">Last order sync: </span>
+                                            <field name="last_order_sync_datetime"/>
+                                        </div>
+                                        <div class="text-muted small" t-else="" title="Orders have not been imported yet">
+                                            <i class="fa fa-info-circle me-1" title="No Order Sync"/>
+                                            <span>Order import has not been run yet</span>
+                                        </div>
+                                        <field name="api_access_granted" invisible="1"/>
+                                        <div class="d-flex gap-1">
+                                            <button string="Activate"
+                                                    name="action_active"
+                                                    type="object"
+                                                    invisible="state == 'active'"
+                                                    class="btn btn-primary btn-sm px-3"/>
+                                            <button name="action_import_orders"
+                                                    type="object"
+                                                    invisible="state == 'draft'"
+                                                    class="btn btn-outline-success btn-sm px-2"
+                                                    title="Sync Orders">
+                                                <i class="fa fa-refresh me-1" title="Sync Orders"/> Sync Orders
+                                            </button>
+                                            <button string="Deactivate"
+                                                    name="action_draft"
+                                                    type="object"
+                                                    invisible="state == 'draft'"
+                                                    class="btn btn-outline-danger btn-sm px-2"/>
+                                            <button name="action_open_shop"
+                                                    type="object"
+                                                    invisible="state == 'draft'"
+                                                    class="btn btn-outline-info btn-sm px-2"
+                                                    title="Open Shop">
+                                                <i class="fa fa-external-link" title="Open Shop"/> Open Shop
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-
                             </div>
                         </t>
                     </templates>
@@ -959,9 +996,9 @@
 
         <record model="ir.actions.act_window" id="integrations_list_action">
             <field name="name">Stores</field>
-            <field name="path">eci-stores</field>
+            <field name="path">eci</field>
             <field name="res_model">sale.integration</field>
-            <field name="view_mode">kanban,list,form</field>
+            <field name="view_mode">kanban,form</field>
             <field name="view_id" ref="view_sale_integration_kanban"/>
             <field name="help" type="html">
                 <div>

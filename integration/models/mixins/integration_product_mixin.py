@@ -79,7 +79,7 @@ class IntegrationProductMixin(models.AbstractModel):
         self.ensure_one()
 
         domain_ext = []
-        if not self.env.context.get('integration_force_product_export'):
+        if not self.env.context.get('integration_first_time_export'):
             domain_ext.append(('export_enabled', '=', True))
 
         domain_ext.extend(add_domain or [])

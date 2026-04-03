@@ -10,6 +10,7 @@ class IntegrationResLangMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'Integration Res Lang Mapping'
     _mapping_fields = ('language_id', 'external_language_id')
+    _mapping_label = 'Language'
 
     language_id = fields.Many2one(
         string='Odoo Language',
@@ -24,10 +25,13 @@ class IntegrationResLangMapping(models.Model):
         ondelete='cascade',
     )
 
-    _uniq_mapping = models.Constraint(
-        'unique(integration_id, external_language_id)',
-        'Language mapping should be unique per integration',
-    )
+    _sql_constraints = [
+        (
+            'uniq_mapping',
+            'unique(integration_id, external_language_id)',
+            'Language mapping should be unique per integration'
+        ),
+    ]
 
     @api.model
     def convert_external_translations(self, integration_id: int, value: str):

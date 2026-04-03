@@ -24,7 +24,7 @@ class ShippingLabelDocument(models.Model):
 
     package_id = fields.Many2one(
         string='Package',
-        comodel_name='stock.package',
+        comodel_name='stock.quant.package',
         ondelete='set null',
     )
 

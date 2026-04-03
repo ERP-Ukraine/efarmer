@@ -44,7 +44,17 @@ msgstr "Criado em"
 #. module: purchase_tag
 #: model:ir.model.fields,field_description:purchase_tag.field_purchase_tag__display_name
 msgid "Display Name"
-msgstr "Nome Exibi????o"
+msgstr "Nome Exibição"
+
+#. module: purchase_tag
+#: model_terms:ir.ui.view,arch_db:purchase_tag.view_purchase_order_filter
+msgid "Don't have a tag"
+msgstr ""
+
+#. module: purchase_tag
+#: model_terms:ir.ui.view,arch_db:purchase_tag.view_purchase_order_filter
+msgid "Have a tag"
+msgstr ""
 
 #. module: purchase_tag
 #: model:ir.model.fields,field_description:purchase_tag.field_purchase_tag__id
@@ -54,12 +64,12 @@ msgstr "ID"
 #. module: purchase_tag
 #: model:ir.model.fields,field_description:purchase_tag.field_purchase_tag__write_uid
 msgid "Last Updated by"
-msgstr "??ltima Atualiza????o por"
+msgstr "Última Atualização por"
 
 #. module: purchase_tag
 #: model:ir.model.fields,field_description:purchase_tag.field_purchase_tag__write_date
 msgid "Last Updated on"
-msgstr "??ltima Atualiza????o em"
+msgstr "Última Atualização em"
 
 #. module: purchase_tag
 #: model:ir.model.fields,field_description:purchase_tag.field_purchase_tag__parent_id
@@ -82,6 +92,11 @@ msgid "Purchase Tag"
 msgstr "Marcador Compra"
 
 #. module: purchase_tag
+#: model_terms:ir.ui.view,arch_db:purchase_tag.view_purchase_order_filter
+msgid "Tag"
+msgstr ""
+
+#. module: purchase_tag
 #: model:ir.model.fields,field_description:purchase_tag.field_purchase_tag__name
 msgid "Tag Name"
 msgstr "Nome do Marcador"
@@ -89,7 +104,7 @@ msgstr "Nome do Marcador"
 #. module: purchase_tag
 #: model:ir.model.constraint,message:purchase_tag.constraint_purchase_tag_tag_name_uniq
 msgid "Tag name already exists !"
-msgstr "Marcador j?? Existe!"
+msgstr "Marcador já Existe!"
 
 #. module: purchase_tag
 #: model:ir.actions.act_window,name:purchase_tag.purchase_tag_action
@@ -99,12 +114,5 @@ msgstr "Marcador j?? Existe!"
 msgid "Tags"
 msgstr "Marcadores"
 
-#. module: purchase_tag
-#. odoo-python
-#: code:addons/purchase_tag/models/purchase_tag.py:0
-#, python-format
-msgid "Tags cannot be recursive."
-msgstr ""
-
 #~ msgid "Last Modified on"
-#~ msgstr "??ltima Modifica????o em"
+#~ msgstr "Última Modificação em"

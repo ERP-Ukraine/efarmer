@@ -90,7 +90,7 @@ class OrderLineItem(LineItem):
     @property
     def price_tax_incl(self):
         self.ensure_one()
-        return self.price if self.order.is_taxable else 0
+        return self.price if self.order.taxes_included_in_price else 0
 
     @property
     def current_quantity_tmp(self):
@@ -106,6 +106,15 @@ class OrderLineItem(LineItem):
 
         variant = self.variant
 
+        if self.order.tax_exempt:
+            taxes = []
+        else:
+            taxes = [
+                x.to_odoo_format(self.order.taxes_included_in_price)
+                for x in self.tax_lines
+                if not x.is_zero_amount_tax
+            ]
+
         result = {
             'id': self.id_str,
             'name': self.name,
@@ -114,7 +123,7 @@ class OrderLineItem(LineItem):
             'product_uom_qty': requested_quantity,
             'product_id': variant and variant.external_id or None,
             'price_unit_tax_incl': self.price_tax_incl,
-            'taxes': [x.to_odoo_format(self.order.is_taxable) for x in self.tax_lines],
+            'taxes': taxes,
             'discount': {},
         }
 
@@ -122,15 +131,35 @@ class OrderLineItem(LineItem):
 
         if discount_allocations:
             use_customer_currency = self.props.use_customer_currency
+            current_quantity = self.current_quantity
+
+            if not current_quantity:
+                return result
+
             amount = sum(x.amount_set.get_amount(use_customer_currency) for x in discount_allocations)
 
             if amount:
-                amount_ = round(amount * requested_quantity / self.current_quantity, 4)
+                amount_ = round(amount * requested_quantity / current_quantity, 4)
 
                 result['discount'].update(
                     discount_amount=amount_,
                     discount_percent=100 * amount_ / (self.price or 1) / (requested_quantity or 1),
                     discount_amount_tax_incl=0,
                 )
+
+            # Always populate per-code breakdown so the factory can create
+            # separate discount lines when `multiple_discount_lines` is enabled.
+            # The factory uses the aggregate `discount` dict when the feature is off.
+            discount_allocations_data = []
+            for allocation in discount_allocations:
+                alloc_amount = allocation.amount_set.get_amount(use_customer_currency)
+                if not alloc_amount:
+                    continue
+                discount_allocations_data.append({
+                    'code': allocation.discount_application,
+                    'discount_amount': round(alloc_amount * requested_quantity / current_quantity, 4),
+                    'discount_amount_tax_incl': 0,
+                })
+            result['discount']['discount_allocations'] = discount_allocations_data
 
         return result

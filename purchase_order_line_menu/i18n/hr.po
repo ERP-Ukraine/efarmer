@@ -59,7 +59,7 @@ msgstr ""
 #. module: purchase_order_line_menu
 #: model_terms:ir.ui.view,arch_db:purchase_order_line_menu.view_purchase_order_line_pivot
 msgid "Order Lines"
-msgstr "Stavke narud??bi"
+msgstr "Stavke narudžbi"
 
 #. module: purchase_order_line_menu
 #: model_terms:ir.ui.view,arch_db:purchase_order_line_menu.purchase_order_line_search
@@ -100,7 +100,7 @@ msgstr ""
 #: model:ir.actions.act_window,name:purchase_order_line_menu.action_purchase_orders_lines
 #: model:ir.ui.menu,name:purchase_order_line_menu.purchase_order_line_menu
 msgid "Purchase Order Lines"
-msgstr "Stavke narud??bi"
+msgstr "Stavke narudžbi"
 
 #. module: purchase_order_line_menu
 #: model_terms:ir.ui.view,arch_db:purchase_order_line_menu.purchase_order_line_search

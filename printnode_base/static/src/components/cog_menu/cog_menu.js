@@ -8,6 +8,7 @@ import { FormController } from "@web/views/form/form_controller";
 class DownloadCogMenu extends CogMenu {
   static props = {
         ...CogMenu.props,
+        slots: { type: Object},
   };
 
   async setup() {

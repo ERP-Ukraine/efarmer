@@ -51,7 +51,7 @@
         <field name="inherit_id" ref="helpdesk_stock.helpdesk_ticket_view_form_inherit_helpdesk_stock"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='sale_order_id']" position="after">
-                <field name="product_id" readonly="use_short_form" invisible="not (use_credit_notes or use_product_returns or use_product_repairs)" force_save="1"/>
+                <field name="product_id" groups="stock.group_stock_user" readonly="use_short_form" invisible="not (use_credit_notes or use_product_returns or use_product_repairs)" force_save="1"/>
                 <field name="lot_id" groups="stock.group_stock_user" readonly="use_short_form" invisible="(tracking in ['none', False]) or (not use_credit_notes and not use_product_returns and not use_product_repairs)" force_save="1"/>
             </xpath>
             

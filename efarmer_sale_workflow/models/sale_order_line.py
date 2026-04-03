@@ -9,7 +9,8 @@ class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
     is_storable = fields.Boolean(related="product_id.is_storable")
-    qty_to_deliver = fields.Float(store=True)
+    qty_to_deliver = fields.Float(store=True, compute_sudo=False)
+    display_qty_widget = fields.Boolean(store=True, compute_sudo=False)
     planned_shipping_date = fields.Date(
         string="Planned Shipping Date",
         related="order_id.planned_shipping_date",

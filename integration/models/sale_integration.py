@@ -4,31 +4,34 @@ import binascii
 import os
 import json
 import logging
+import pytz
 import traceback
 
-from time import time
-from io import StringIO
-from collections import defaultdict
 from datetime import datetime, timedelta
+from dateutil import parser
+from collections import defaultdict
+from io import StringIO
+from psycopg2 import OperationalError, IntegrityError
+from time import time
 from typing import List, Dict
 
-import pytz
-from dateutil import parser
-from psycopg2 import OperationalError
-
 from odoo import api, fields, models, SUPERUSER_ID, _
+from odoo.exceptions import UserError, ValidationError
 from odoo.modules.registry import Registry
+
 from odoo.tools import config, ormcache, float_is_zero
 from odoo.tools.safe_eval import safe_eval
 from odoo.tools.misc import clean_context
-from odoo.exceptions import UserError, ValidationError
 
-from odoo.addons.integration_queue_job.job import Job
+from odoo.addons.integration.exceptions import NoExternal
+from odoo.addons.queue_job.job import Job
 
 from ..api.no_api import NoAPIClient
+from ..exceptions import ErrorStore as es
 from ..tools import (
     expose_for_testing,
     normalize_uom_name,
+    pluralize,
     raise_requeue_job_on_concurrent_update,
     track_changes,
     _is_valid_email,
@@ -38,7 +41,6 @@ from ..tools import (
     PriceList,
     TemplateHub,
 )
-from ..exceptions import ErrorStore as es
 
 
 API_KEY_SIZE = 20  # in bytes
@@ -56,16 +58,16 @@ DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 EXCLUDED_MAPPING_MODELS = [
     'integration.account.tax.group.mapping',
     'integration.metafield.mapping',
-    'integration.ecommerce.product.image.mapping',
+    'integration.product.image.mapping',
 ]
 LOG_SEPARATOR = '================================'
 IMPORT_EXTERNAL_BLOCK = 150  # Don't make more, because of 414 Request-URI Too Large error
 EXPORT_EXTERNAL_BLOCK = 500
 
-IMAGE_FIELDS = ['image_1920', 'integration_template_image_ids', 'integration_variant_image_ids']
+IMAGE_FIELDS = ['image_1920', 'product_template_image_ids', 'product_variant_image_ids']
 PRODUCT_QTY_FIELDS = ['free_qty', 'qty_available', 'virtual_available']
 TRACKED_FIELDS_INITIAL_PRODUCT_EXPORT = ['integration_ids']
-SEARCH_CUSTOMER_FIELDS = ['email', 'name', 'phone']
+SEARCH_CUSTOMER_FIELDS = ['email', 'name', 'mobile', 'phone']
 INVENTORY_DEPENDENT_FIELDS = {
     'update_stock_for_manufacture_boms',
     'export_inventory_job_enabled',
@@ -80,14 +82,10 @@ class SaleIntegration(models.Model):
     _description = 'E-Commerce Store'
     _inherit = ['mail.thread']
 
-    _unique_name = models.Constraint(
-        'unique(name)',
-        'A record with the same name already exists.',
-    )
-    _order_name_ref_unique = models.Constraint(
-        'unique(order_name_ref)',
-        'Sale Order prefix name should be unique.',
-    )
+    _sql_constraints = [
+        ('unique_name', 'unique(name)', 'A record with the same name already exists.'),
+        ('order_name_ref_unique', 'unique(order_name_ref)', 'Sale Order prefix name should be unique.'),
+    ]
 
     _adapter_hub_ = AdapterHub()
 
@@ -184,6 +182,10 @@ class SaleIntegration(models.Model):
         compute='_compute_last_receive_orders_datetime_str',
         string='Last Receive Orders Time String',
     )
+    last_order_sync_datetime = fields.Datetime(
+        string='Last Order Sync Time',
+        help='The actual time when the last order synchronization was performed.',
+    )
     last_update_pricelist_items = fields.Datetime(
         string='Pricelist Last Sync Date',
         default=fields.Datetime.now,
@@ -201,8 +203,12 @@ class SaleIntegration(models.Model):
         related='receive_orders_cron_id.active',
         readonly=False,
         help=(
-            'Enable this option to import orders from the connected E-Commerce System. '
-            'Orders will only be imported when this option is enabled AND the integration is active.'
+            'Enable this option to automatically import new orders from the connected '
+            'E-Commerce System via a scheduled job. '
+            'Orders are only imported when this option is enabled AND the integration is active.\n\n'
+            'Note: This setting also controls webhook processing for already-imported orders. '
+            'When disabled, incoming webhook events (e.g. order fulfillments, payments, '
+            'cancellations) will not be applied — even for orders that already exist in Odoo.'
         ),
     )
     export_template_job_enabled = fields.Boolean(
@@ -708,6 +714,26 @@ class SaleIntegration(models.Model):
         store=False,
     )
 
+    orders_last_7_days_chart_data = fields.Json(
+        string='Orders Last 7 Days Chart Data',
+        compute='_compute_orders_last_7_days_chart_data',
+        store=False,
+    )
+    orders_last_7_days_chart_data_cache = fields.Json(
+        string='Orders Chart Cache',
+    )
+
+    failed_jobs_count = fields.Integer(
+        string='Failed Jobs Count',
+        compute='_compute_failed_jobs_count',
+        store=False,
+    )
+    products_count = fields.Integer(
+        string='Products Count',
+        compute='_compute_products_count',
+        store=False,
+    )
+
     product_bundle_policy = fields.Selection(
         selection=[
             ('create_bundle', 'Create as Bundle'),
@@ -732,6 +758,16 @@ class SaleIntegration(models.Model):
             'discount is added as a separate line item for every product that requires a discount. '
             'If disabled, the connector calculates the discount percentage and applies it directly '
             'to the corresponding product\'s order line by utilizing the Discount field.'
+        ),
+    )
+
+    multiple_discount_lines = fields.Boolean(
+        string='Add Multiple Discount Lines (per Discount/Coupon)',
+        default=False,
+        help=(
+            'When enabled, each discount coupon or promotion is added as a separate discount '
+            'line on the order, with the coupon code shown in the line description. '
+            'Requires "Add Discounts as a Separate Order Lines" to be enabled.'
         ),
     )
 
@@ -1103,6 +1139,14 @@ class SaleIntegration(models.Model):
         compute='_compute_api_access_granted',
     )
 
+    apply_company_on_product = fields.Boolean(
+        string='Apply Company on Product',
+        help=(
+            'Enable this option to automatically set the company_id for products during their creation. '
+            'This ensures that the products are associated with the same company as the integration.'
+        ),
+    )
+
     def _compute_display_name(self):
         for rec in self:
             rec.display_name = f'[{rec.type_api}] {rec.name}'
@@ -1370,6 +1414,85 @@ class SaleIntegration(models.Model):
                 ('order_id', '=', False),
             ])
 
+    def _compute_orders_last_7_days_chart_data(self):
+        """Compute order counts for the last 7 days. Uses cache (1 hour TTL)."""
+        for integration in self:
+            cache = integration.orders_last_7_days_chart_data_cache or {}
+
+            # Use cache if valid
+            if cache.get('cached_at') and time() - cache['cached_at'] < 3600:  # TODO: Move to constant?
+                integration.orders_last_7_days_chart_data = cache
+                continue
+
+            # Recompute
+            data = integration._get_orders_last_7_days_data()
+            data['cached_at'] = time()
+
+            # Update cache and field
+            integration.orders_last_7_days_chart_data_cache = data
+            integration.orders_last_7_days_chart_data = data
+
+    def _get_orders_last_7_days_data(self):
+        """Fetch order counts for the last 7 days from database."""
+        self.ensure_one()
+        InputFile = self.env['sale.integration.input.file']
+        today = fields.Date.today()
+        labels, values = [], []
+
+        for i in range(6, -1, -1):
+            day = today - timedelta(days=i)
+            count = InputFile.search_count([
+                ('si_id', '=', self.id),
+                ('create_date', '>=', datetime.combine(day, datetime.min.time())),
+                ('create_date', '<=', datetime.combine(day, datetime.max.time())),
+            ])
+            labels.append(day.strftime('%a'))
+            values.append(count)
+
+        return {'labels': labels, 'values': values}
+
+    def _compute_failed_jobs_count(self):
+        """Compute number of failed jobs for this integration."""
+        for integration in self:
+            integration.failed_jobs_count = integration._get_integration_failed_jobs_count()
+
+    def _compute_products_count(self):
+        """Compute number of product mappings for this integration."""
+        ProductMapping = self.env['integration.product.template.mapping']
+        for integration in self:
+            integration.products_count = ProductMapping.search_count([
+                ('integration_id', '=', integration.id),
+            ])
+
+    def action_view_products(self):
+        """Open product mappings for this integration."""
+        self.ensure_one()
+        return {
+            'name': _('Products'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'integration.product.template.mapping',
+            'view_mode': 'list,form',
+            'domain': [('integration_id', '=', self.id)],
+            'context': {'default_integration_id': self.id},
+        }
+
+    def action_view_failed_jobs(self):
+        """Open failed jobs for this integration."""
+        self.ensure_one()
+        return {
+            'name': _('Failed Jobs'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'job.log',
+            'view_mode': 'list,form',
+            'domain': [
+                ('integration_id', '=', self.id),
+                ('state', 'in', ['pending', 'enqueued', 'started', 'failed']),
+            ],
+            'context': {
+                'search_default_failed': 1,
+            },
+        }
+
     @api.model
     def _calc_qty_fields_selections(self):
         return [
@@ -1631,6 +1754,12 @@ class SaleIntegration(models.Model):
                 'If the problem persists, please contact support.'
             ))
 
+    def action_import_orders(self):
+        self.ensure_one()
+        self._raise_if_not_access_granted()
+
+        self.import_orders()
+
     def _raise_if_not_access_granted(self):
         if not self.api_access_granted:
             raise UserError(_(
@@ -1683,6 +1812,10 @@ class SaleIntegration(models.Model):
     @property
     def is_active(self):
         return self.state == 'active'
+
+    @property
+    def is_installed_website_sale(self):
+        return self.is_module_installed('website_sale')
 
     @property
     def is_order_import_enabled(self):
@@ -1874,12 +2007,25 @@ class SaleIntegration(models.Model):
             'external_order_field_mapping_ids',
         ],
         sensitive_fields=['key', 'consumer_key', 'consumer_secret', 'wp_app_password'],
-        exclude_fields=['last_receive_orders_datetime', 'last_update_pricelist_items'],
+        exclude_fields=[
+            'last_receive_orders_datetime',
+            'last_order_sync_datetime',
+            'last_update_pricelist_items',
+            'orders_last_7_days_chart_data_cache',
+        ],
     )
     def write(self, vals):
         result = super().write(vals)
 
-        if not self or self.env.context.get('skip_write_actions'):
+        if not self:
+            return result
+
+        # Invalidate integration cache if any essential field was changed
+        if any(getattr(self._fields[f], 'invalidate_integration_cache', False) for f in vals.keys()):
+            self.increment_sync_token()
+
+        # Skip rest of the logic if skip_write_actions is set
+        if self.env.context.get('skip_write_actions'):
             return result
 
         # 1. Unlink/create/modify the essential fields if `type_api` was changed
@@ -1925,14 +2071,24 @@ class SaleIntegration(models.Model):
 
     def _pre_unlink(self):
         for rec in self.sudo():
+            rec.drop_webhooks()
+
             rec.field_ids.unlink()
 
-            rec.receive_orders_cron_id.unlink()
-            rec.inventory_synchronization_cron_id.unlink()
-            rec.export_prices_cron_id.unlink()
+            crons = (
+                rec.receive_orders_cron_id
+                | rec.inventory_synchronization_cron_id
+                | rec.export_prices_cron_id
+            ).exists()
+            if crons:
+                crons.unlink()
 
             rec.env['product.ecommerce.field.mapping'] \
                 .search([('integration_id', '=', rec.id)]).unlink()
+
+    def _valid_field_parameter(self, field, name):
+        # Allow the `invalidate_integration_cache` parameter to avoid Odoo warnings
+        return name == 'invalidate_integration_cache' or super()._valid_field_parameter(field, name)
 
     def _update_inventory_field_values(self):
         """
@@ -2073,15 +2229,16 @@ class SaleIntegration(models.Model):
         field.value = str(time())
         return field.value
 
-    def invalidate_integration_cache(self):
-        for rec in self:
+    def invalidate_integration_cache(self, erase_config_wizard: bool = True):
+        for rec in self.with_context(skip_write_actions=True):
             rec.increment_sync_token()
 
-        integration_postfix = self._get_configuration_postfix()
+            if erase_config_wizard:
+                integration_postfix = rec._get_configuration_postfix()
 
-        self.env['configuration.wizard.' + integration_postfix].search([
-            ('integration_id', '=', self.id)
-        ]).unlink()
+                rec.env['configuration.wizard.' + integration_postfix].search([
+                    ('integration_id', '=', rec.id),
+                ]).unlink()
 
     def _truncate_settings_url(self):
         self.ensure_one()
@@ -2139,12 +2296,6 @@ class SaleIntegration(models.Model):
 
         return external_attributes
 
-    def initial_import_features(self, remove_existing_records=False):
-        external_features = self.integrationApiImportFeatures(remove_existing_records=remove_existing_records)
-        self.integrationApiImportFeatureValues(remove_existing_records=remove_existing_records)
-
-        return external_features
-
     def initial_import_countries(self, remove_existing_records=False):
         external_countries = self.integrationApiImportCountries(remove_existing_records=remove_existing_records)
 
@@ -2169,10 +2320,6 @@ class SaleIntegration(models.Model):
         self = self.with_context(company_id=self.company_id.id)
 
         jobs = self.env['queue.job']
-        context = {
-            'job_integration_id': self.id,
-            'job_integration_job_type': 'initial_import',
-        }
 
         # Get entities to import
         if entities is None:
@@ -2198,13 +2345,14 @@ class SaleIntegration(models.Model):
                 )
                 continue
 
-            delayed = self.with_context(**context).with_delay(
+            delayed = self.with_delay(
                 description=f'{name}: Initial Import. {entity.name}',
                 priority=2,
             )
             delayed_method = getattr(delayed, entity.method_name)
             job = delayed_method(remove_existing_records=remove_existing_records)
-            jobs |= job.db_record() if isinstance(job, Job) else job
+            jobs |= job.db_record()
+            self.job_log(job)
 
         return jobs
 
@@ -2321,20 +2469,17 @@ class SaleIntegration(models.Model):
         limit = self.get_external_block_limit()
         description_ = (
             f'{name}: Products Import: Import Products Batch '
-            '(create external records + auto-matching) [block %s]'
+            '(create external records + auto-matching) [Block %s]'
         )
-        context = {
-            'job_integration_id': self.id,
-            'job_integration_job_type': 'product',
-        }
 
         while template_ids:
-            job = self.with_context(**context).with_delay(
+            job = self.with_delay(
                 priority=2,
                 description=(description_ % block),
             ).import_external_product(template_ids[:limit])
 
-            jobs |= job.db_record() if isinstance(job, Job) else job
+            jobs |= job.db_record()
+            self.job_log(job)
 
             block += 1
             template_ids = template_ids[limit:]
@@ -2421,7 +2566,7 @@ class SaleIntegration(models.Model):
 
                 try:
                     # Use the internal import method directly
-                    external_templates, external_variants, error_list = new_integration._import_external_product(
+                    external_templates, external_variants, error_list, __ = new_integration._import_external_product(
                         block_template_ids,
                     )
 
@@ -2488,106 +2633,6 @@ class SaleIntegration(models.Model):
     def action_import_master_data(self):
         return self.integrationApiImportData()
 
-    def action_import_related_products(self):
-        adapter = self.adapter
-        # Fetch data.
-        adapter_products, template_router = adapter.get_products_for_accessories()
-
-        model_name = 'product.template'
-        ProductTemplateExternal = self.env[f'integration.{model_name}.external']
-        ProductTemplateMapping = self.env[f'integration.{model_name}.mapping']
-        mappings = self.env[f'integration.{model_name}.mapping']
-        internal_field_name, external_field_name = ProductTemplateMapping._mapping_fields
-        MessageWizard = self.env['message.wizard']
-
-        # Create / update external and mappings.
-        for product in adapter_products:
-            name = product['name']
-            # Get translation if name contains different languages
-            if isinstance(name, dict) and name.get('language'):
-                original, __ = ProductTemplateExternal.get_original_and_translation(name, self)
-
-                if original:
-                    name = original
-
-            external_record = ProductTemplateExternal.create_or_update({
-                'integration_id': self.id,
-                'code': product['id'],
-                'name': name,
-                'external_reference': product.get('external_reference'),
-            })
-            external_record._post_import_external_one(product)
-
-            mapping = ProductTemplateMapping.search([
-                ('integration_id', '=', self.id),
-                (external_field_name, '=', external_record.id),
-            ])
-            if not mapping:
-                mapping = ProductTemplateMapping.create({
-                    'integration_id': self.id,
-                    external_field_name: external_record.id,
-                })
-
-            mappings |= mapping
-
-        if not mappings:
-            return MessageWizard.create_and_run(_('No related products to synchronize.'))
-
-        mappings_to_fix = mappings.filtered(lambda x: not getattr(x, internal_field_name))
-
-        # Fix unmapped records if necessary. Format message.
-        if mappings_to_fix:
-            message = _(
-                'Some of the related products are not yet synchronised to Odoo or not yet mapped '
-                'to corresponding Odoo Products so it is not possible to import them. '
-                'Please, make sure to launch products synchronisation again and make sure '
-                'to map products in menu "Mappings → Products" '
-                '(or create them in Odoo by clicking "Import Products" button in the same menu):'
-            )
-            mapping_names = mappings_to_fix.mapped(f'{external_field_name}.display_name')
-
-            html_message = f'<div>{message}</div>'
-            html_names = f'<ul>{"".join([f"<li>{x}</li>" for x in mapping_names])}</ul>'
-
-            message_wizard = MessageWizard.create({
-                'message': str(mappings_to_fix.ids),
-                'export_html': html_message + '<br/>' + html_names,
-            })
-            return message_wizard.run_wizard('integration_message_wizard_form_mapping_product')
-
-        # Assign related products to the parent product.
-        templates = self.env[model_name]
-        for template_external_id, related_products_ids in template_router.items():
-            template = templates.from_external(self, template_external_id, False)
-
-            optional_product_ids = self.env[model_name]
-            for product_id in related_products_ids:
-                optional_product_ids |= templates.from_external(self, product_id, False)
-
-            template.optional_product_ids = [(6, 0, optional_product_ids.ids)]
-            templates |= template
-
-        # Summary. Format message.
-        mapping_names = list()
-        base_url = self.get_base_url_config()
-        pattern = (
-            '<a href="%s/web#id=%s&model=%s&view_type=form" target="_blank">%s</a>'
-        )
-
-        def _format_optional_products(template):
-            names = template.optional_product_ids.mapped('name')
-            html_names = f'<ul>{"".join([f"<li>{x}</li>" for x in names])}</ul>'
-            template_name = pattern % (base_url, template.id, model_name, template.name)
-            return f'<li>{template_name + html_names}</li>'
-
-        for template in templates:
-            mapping_names.append(
-                _format_optional_products(template)
-            )
-
-        message = _('The Products were synchronized:\n%s') % (f'<ul>{"".join(mapping_names)}</ul>')
-        return MessageWizard.create_html_and_run(message)
-
     @expose_for_testing('Import Delivery (Shipping) Methods')
     def integrationApiImportDeliveryMethods(self, remove_existing_records=False):
         external_records, adapter_external_data = self._import_external(
@@ -2648,26 +2693,6 @@ class SaleIntegration(models.Model):
         external_records._map_external(adapter_external_data)
         return external_records
 
-    @expose_for_testing('Import Features')
-    def integrationApiImportFeatures(self, remove_existing_records=False):
-        external_records, adapter_external_data = self._import_external(
-            'integration.product.feature.external',
-            'get_features',
-            remove_existing_records=remove_existing_records,
-        )
-        external_records._map_external(adapter_external_data)
-        return external_records
-
-    @expose_for_testing('Import Feature Values')
-    def integrationApiImportFeatureValues(self, remove_existing_records=False):
-        external_records, adapter_external_data = self._import_external(
-            'integration.product.feature.value.external',
-            'get_feature_values',
-            remove_existing_records=remove_existing_records,
-        )
-        external_records._map_external(adapter_external_data)
-        return external_records
-
     @expose_for_testing('Import Locations')
     def integrationApiImportLocations(self, remove_existing_records=False):
         external_records, __ = self._import_external(
@@ -2700,7 +2725,7 @@ class SaleIntegration(models.Model):
     @expose_for_testing('Import Categories')
     def integrationApiImportCategories(self, remove_existing_records=False):
         external_records, adapter_external_data = self._import_external(
-            'integration.ecommerce.product.category.external',
+            'integration.product.public.category.external',
             'get_categories',
             remove_existing_records=remove_existing_records,
         )
@@ -2722,23 +2747,21 @@ class SaleIntegration(models.Model):
         block = 1
         limit = self.get_external_block_limit()
         template_ids = external_ids or self.adapter.get_product_template_ids()
-
-        context = {
-            'company_id': self.company_id.id,
-            'job_integration_id': self.id,
-            'job_integration_job_type': 'product',
-        }
-        self = self.with_context(**context)
+        self = self.with_context(company_id=self.company_id.id)
 
         description_ = (
             f'{self.name}: Initial Products Import: Import Products Batch '
             '(create external records + auto-matching) [block %s]'
         )
         while template_ids:
-            self.with_delay(
-                priority=2,
-                description=(description_ % block),
-            ).import_external_product(template_ids[:limit])
+            job = self\
+                .with_delay(
+                    priority=2,
+                    description=(description_ % block),
+                ) \
+                .import_external_product(template_ids[:limit])
+
+            self.job_log(job)
 
             block += 1
             template_ids = template_ids[limit:]
@@ -2847,6 +2870,8 @@ class SaleIntegration(models.Model):
             adapter.order_fetch_kwargs(),
         )
 
+        self.last_order_sync_datetime = fields.Datetime.now()
+
         new_input_files = self.env['sale.integration.input.file']
         filtered_external_orders_count = 0
         last_receive_dt = self.last_receive_orders_datetime
@@ -2947,18 +2972,20 @@ class SaleIntegration(models.Model):
 
         product = self.env['product.product'].browse(product_id)
         if not product:
-            raise UserError(_(f'No product found with ID {product_id}.'))
+            raise UserError(_('No product found with ID %s.') % product_id)
 
         # Prepare basic info
         qty_field = self.synchronise_qty_field
 
         report = []
+        line_text = '═' * 50
+
         report.append(_(
-            f'{"─" * 50}\n'
-            f'Calculating producible quantity for product variant:\n'
-            f'  • Product Name: {product.display_name} (ID: {product.id})\n'
-            f'  • Product UOM: {product.uom_id.display_name}'
-        ))
+            '%s\n'
+            'Calculating producible quantity for product variant:\n'
+            '  • Product Name: %s (ID: %s)\n'
+            '  • Product UOM: %s'
+        ) % (line_text, product.display_name, product.id, product.uom_id.display_name))
 
         total_producible_qty = 0
         location_results = []
@@ -2995,21 +3022,23 @@ class SaleIntegration(models.Model):
                     'sendable_qty': available_product_qty,
                 })
                 report.append(_(
-                    f'Product "{product_company.display_name}" (ID: {product_company.id}) has no manufacturing BOM '
-                    f'in company {company.name}.\n'
-                    f'Quantity for this product: {available_product_qty}'
-                ))
+                    'Product "%s" (ID: %s) has no manufacturing BOM '
+                    'in company %s.\n'
+                    'Quantity for this product: %s'
+                ) % (product_company.display_name, product_company.id, company.name, available_product_qty))
                 continue
 
             # Switch to the company context if multi-company mode is enabled
             bom = bom.with_company(company)
-            report.append(
-                f'  • Using BOM: {bom.display_name} (ID: {bom.id})\n'
-                f'  • BOM Qty: {bom.product_qty}\n'
-                f'  • BOM UOM: {bom.product_uom_id.display_name}\n'
-            )
+            report.append(_(
+                '  • Using BOM: %s (ID: %s)\n'
+                '  • BOM Qty: %s\n'
+                '  • BOM UOM: %s\n'
+            ) % (bom.display_name, bom.id, bom.product_qty, bom.product_uom_id.display_name))
 
-            report.append(f'📍 Processing Location: {location.display_name} (ID: {location.id})')
+            report.append(_(
+                '📍 Processing Location: %s (ID: %s)'
+            ) % (location.display_name, location.id))
 
             # We'll keep track of each component's “maximum possible batches”
             # and then find the minimum of these across all BOM lines.
@@ -3027,12 +3056,19 @@ class SaleIntegration(models.Model):
 
                 bom_line_uom_name = bom_line.product_uom_id.display_name
                 report.append(_(
-                    f'\t  • BOM Line:\n'
-                    f'\t  • Component Name: {component.display_name} (ID: {component.id})\n'
-                    f'\t  • Component Qty: {available_component_qty}\n'
-                    f'\t  • Component UOM: {component_uom_name}\n'
-                    f'\t  • BOM Line Qty: {required_qty}\n'
-                    f'\t  • BOM Line UOM: {bom_line_uom_name}'
+                    '\t  • BOM Line:\n'
+                    '\t  • Component Name: %s (ID: %s)\n'
+                    '\t  • Component Qty: %s\n'
+                    '\t  • Component UOM: %s\n'
+                    '\t  • BOM Line Qty: %s\n'
+                    '\t  • BOM Line UOM: %s'
+                ) % (
+                    component.display_name,
+                    component.id,
+                    available_component_qty,
+                    component_uom_name,
+                    required_qty,
+                    bom_line_uom_name,
                 ))
 
                 # 1) Skip services and consu without BOM
@@ -3052,13 +3088,13 @@ class SaleIntegration(models.Model):
                     # Add producible quantity from BOM to available quantity
                     available_component_qty += producible_from_bom
                     report.append(_(
-                        f'\t\tComponent has its own BOM.\n'
-                        f'\t  • Recursively computing producible qty for this component: {available_component_qty}'
-                    ))
+                        '\t\tComponent has its own BOM.\n'
+                        '\t  • Recursively computing producible qty for this component: %s'
+                    ) % available_component_qty)
                 else:
                     report.append(_(
-                        f'\t\tComponent has no BOM, using its own quantity: {available_component_qty}'
-                    ))
+                        '\t\tComponent has no BOM, using its own quantity: %s'
+                    ) % available_component_qty)
 
                 # 3) If required qty == 0 → does not constrain production (continue)
                 if float_is_zero(required_qty, precision_digits=6):
@@ -3069,9 +3105,9 @@ class SaleIntegration(models.Model):
                 is_available_zero = float_is_zero(available_component_qty, precision_rounding=component_uom.rounding)
                 if is_available_zero or available_component_qty <= 0:
                     report.append(_(
-                        f'\t  • CRITICAL: {component.display_name} has no available quantity.\n'
-                        f'\t  • Production is IMPOSSIBLE due to missing component.\n'
-                    ))
+                        '\t  • CRITICAL: %s has no available quantity.\n'
+                        '\t  • Production is IMPOSSIBLE due to missing component.\n'
+                    ) % component.display_name)
                     min_possible_batches_for_location = 0
                     break
 
@@ -3082,9 +3118,14 @@ class SaleIntegration(models.Model):
                         available_component_qty, bom_line.product_uom_id,
                     )
                     report.append(_(
-                        f'\tComponent has a different UOM than the BOM line.\n'
-                        f'\t  • Converted UOM: {component_uom_name} → {bom_line_uom_name}\n'
-                        f'\t  • Converted value: {original_available_component_qty} → {available_component_qty}'
+                        '\tComponent has a different UOM than the BOM line.\n'
+                        '\t  • Converted UOM: %s → %s\n'
+                        '\t  • Converted value: %s → %s'
+                    ) % (
+                        component_uom_name,
+                        bom_line_uom_name,
+                        original_available_component_qty,
+                        available_component_qty
                     ))
 
                 # 6) Integer batches, like in the base method
@@ -3097,8 +3138,8 @@ class SaleIntegration(models.Model):
                     min_possible_batches_for_location = min(min_possible_batches_for_location, possible_batches)
 
                 report.append(_(
-                    f'\t  • Possible Batches for this component: {possible_batches}\n'
-                ))
+                    '\t  • Possible Batches for this component: %s\n'
+                ) % possible_batches)
 
             # Turn min batches into produced quantity (mirror base)
             if min_possible_batches_for_location is None:
@@ -3107,10 +3148,15 @@ class SaleIntegration(models.Model):
             else:
                 produced_qty = min_possible_batches_for_location * bom.product_qty
                 report.append(_(
-                    f'Minimum possible batches across all components: {min_possible_batches_for_location}\n'
-                    f'Minimum possible batches {min_possible_batches_for_location} * BOM Qty {bom.product_qty} = '
-                    f'{produced_qty}\n'
-                    f'Produced quantity for current location: {produced_qty}\n'
+                    'Minimum possible batches across all components: %s\n'
+                    'Minimum possible batches %s * BOM Qty %s = %s\n'
+                    'Produced quantity for current location: %s\n'
+                ) % (
+                    min_possible_batches_for_location,
+                    min_possible_batches_for_location,
+                    bom.product_qty,
+                    produced_qty,
+                    produced_qty,
                 ))
 
             # Adjust UOM if necessary
@@ -3120,10 +3166,16 @@ class SaleIntegration(models.Model):
                     produced_qty, product.uom_id
                 )
                 report.append(_(
-                    f'Product "{product_company.display_name}" (ID: {product_company.id})'
-                    f' has a different UOM than the BOM line.\n'
-                    f'  • Converted UOM: {bom.product_uom_id.display_name} → {product_company.uom_id.display_name}\n'
-                    f'  • Converted value: {original_produced_qty} → {produced_qty}'
+                    'Product "%s" (ID: %s)'
+                    ' has a different UOM than the BOM line.\n'
+                    '  • Converted UOM: %s → %s\n'
+                    '  • Converted value: %s → %s'
+                ) % (
+                    product_company.display_name,
+                    product_company.id,
+                    bom.product_uom_id.display_name,
+                    product_company.uom_id.display_name,
+                    original_produced_qty, produced_qty,
                 ))
 
             available_product_qty = float(getattr(product_company.with_context(location=loc.id), qty_field) or 0.0)
@@ -3144,11 +3196,13 @@ class SaleIntegration(models.Model):
         # Header with totals
         report.insert(
             0,
-            f'📦 FINAL CALCULATION RESULT\n'
-            f'{"─" * 50}\n'
-            f' • Total Producible Quantity: {total_producible_qty:.2f} {product.uom_id.display_name}\n'
-            f' • Multi-company mode: {"Enabled" if self.allow_multi_company_inventory_calculation else "Disabled"}\n'
-            f' Result across all configured locations\n'
+            _(
+                '📦 FINAL CALCULATION RESULT\n'
+                '%s\n'
+                ' • Total Producible Quantity: %.2f %s\n'
+                ' • Multi-company mode: {"Enabled" if self.allow_multi_company_inventory_calculation else "Disabled"}\n'
+                ' Result across all configured locations\n'
+            ) % (line_text, total_producible_qty, product.uom_id.display_name)
         )
 
         # Add detailed location results to the report
@@ -3156,19 +3210,30 @@ class SaleIntegration(models.Model):
             report.insert(
                 1,
                 _(
-                    f'📍 Location: {result["location_name"]} (ID: {result["location_id"]})\n'
-                    f'\t• Available Quantity: {result["available_qty"]:.2f} {product.uom_id.display_name}\n'
-                    f'\t• Producible Quantity: {result["producible_qty"]:.2f} {product.uom_id.display_name}\n'
-                    f'\t• Sendable Quantity: {result["sendable_qty"]:.2f} {product.uom_id.display_name}\n'
-                    f'\t• Company: {result["company_name"]} (ID: {result["company_id"]})\n'
+                    '📍 Location: %s (ID: %s)\n'
+                    '\t• Available Quantity: %.2f %s\n'
+                    '\t• Producible Quantity: %.2f %s\n'
+                    '\t• Sendable Quantity: %.2f %s\n'
+                    '\t• Company: %s (ID: %s)\n'
+                ) % (
+                    result['location_name'],
+                    result['location_id'],
+                    result['available_qty'],
+                    product.uom_id.display_name,
+                    result['producible_qty'],
+                    product.uom_id.display_name,
+                    result['sendable_qty'],
+                    product.uom_id.display_name,
+                    result['company_name'],
+                    result['company_id'],
                 )
             )
 
         if skipped_locations:
             names = ', '.join(f'{location.display_name} (ID: {location.id})' for location in skipped_locations)
             report.append(_(
-                f'\n Skipped locations without company or inaccessible: {names}'
-            ))
+                '\n Skipped locations without company or inaccessible: %s'
+            ) % names)
 
         return '\n'.join(report)
 
@@ -3183,21 +3248,18 @@ class SaleIntegration(models.Model):
             ('integration_id', '=', self.id),
         ])
 
-        context = {
-            'company_id': self.company_id.id,
-            'job_integration_id': self.id,
-            'job_integration_job_type': 'product',
-        }
-        self = self.with_context(**context)
-        description_ = f'{self.name}: Create Products In Odoo. Prepare Products For Creating [block %s]'
+        self = self.with_context(company_id=self.company_id.id)
+        description_ = _('%s: Create Products In Odoo. Prepare Products For Creating [block %s]') % self.name
 
         while external_templates:
             _external_ids = external_templates[:limit]
 
-            self.with_delay(
+            job = self.with_delay(
                 priority=5,
                 description=(description_ % block),
             ).run_create_products_in_odoo_by_blocks(_external_ids)
+
+            _external_ids.job_log(job)
 
             block += 1
             external_templates = external_templates[limit:]
@@ -3227,20 +3289,15 @@ class SaleIntegration(models.Model):
             }
         }
 
-    def run_import_customers_by_blocks(self, external_customer_ids):
-        self.ensure_one()
-
-        context = {
-            'company_id': self.company_id.id,
-            'job_integration_id': self.id,
-            'job_integration_job_type': 'customer',
-        }
+    def run_import_customers_by_blocks(self, exeternal_customer_ids):
+        self = self.with_context(company_id=self.company_id.id)
 
         result = []
-        for customer_id in external_customer_ids:
+        for customer_id in exeternal_customer_ids:
             job_kwargs = self._job_kwargs_import_single_customer(customer_id)
-            job = self.with_context(**context).with_delay(**job_kwargs).import_single_customer(customer_id)
+            job = self.with_delay(**job_kwargs).import_single_customer(customer_id)
 
+            self.job_log(job)
             result.append(job)
 
         return result
@@ -3335,14 +3392,16 @@ class SaleIntegration(models.Model):
             str: Formatted message string with detailed import results
         """
 
-        external_templates, external_variants, error_list = self._import_external_product(template_ids)
+        external_templates, external_variants, \
+            error_list, failed_external_template_ids = self._import_external_product(template_ids)
 
         message = ''
         total_processed = len(template_ids) if isinstance(template_ids, list) else 1
         successful_imports = len(external_templates) + len(external_variants)
 
+        is_all_imports_failed = total_processed == len(failed_external_template_ids)
+
         # Header with summary
-        message += _('=== PRODUCT IMPORT RESULTS ===\n\n')
         message += _('Summary:\n')
         message += _('• Total templates processed: %s\n') % total_processed
         message += _('• Successful imports: %s\n') % successful_imports
@@ -3353,16 +3412,21 @@ class SaleIntegration(models.Model):
             if error_list:
                 message += _('\nErrors encountered:\n')
                 for error in error_list:
-                    message += _('• %s\n') % error
-            return message
+                    message += _('\t• %s\n\n') % error
+            raise UserError(_('\n\n%s') % message)
 
         # Success section
-        if external_templates or external_variants:
-            message += _('✅ Import completed successfully!\n\n')
+        # Prevent display if there are only problematic products
+        if not is_all_imports_failed:
+            message += _('✅ Import%s completed successfully!\n\n') % (
+                ' (partial)' if failed_external_template_ids else ''
+            )
 
             if external_templates:
-                total_templates = len(external_templates)
-                shown_templates = external_templates[:20]
+                # Filter out deleted records before accessing fields
+                existing_templates = external_templates.exists()
+                total_templates = len(existing_templates)
+                shown_templates = existing_templates[:20]
                 remaining_templates = total_templates - 20
 
                 message += _('📦 Imported Templates (%s total):\n') % total_templates
@@ -3378,8 +3442,10 @@ class SaleIntegration(models.Model):
                 message += '\n'
 
             if external_variants:
-                total_variants = len(external_variants)
-                shown_variants = external_variants[:20]
+                # Filter out deleted records before accessing fields
+                existing_variants = external_variants.exists()
+                total_variants = len(existing_variants)
+                shown_variants = existing_variants[:20]
                 remaining_variants = total_variants - 20
 
                 message += _('🔧 Imported Variants (%s total):\n') % total_variants
@@ -3394,25 +3460,76 @@ class SaleIntegration(models.Model):
                     message += _('  ... and %s more variants\n') % remaining_variants
                 message += '\n'
 
-        # Errors section (also limit to first 20)
-        if error_list:
+        if is_all_imports_failed:
             total_errors = len(error_list)
+            # Errors section (also limit to first 20)
             shown_errors = error_list[:20]
             remaining_errors = total_errors - 20
 
-            message += _('⚠️ Errors (%s total):\n') % total_errors
+            message = '\n\n'
+            message += _('⚠️ ERRORS (%s total):\n\n') % total_errors
             for error in shown_errors:
-                message += _('  • %s\n') % error
+                message += _('\t• %s\n\n') % (error)
 
             if remaining_errors > 0:
                 message += _('  ... and %s more errors\n') % remaining_errors
             message += '\n'
 
-        # Footer
-        message += _('=== END IMPORT RESULTS ===\n')
+            raise UserError(_('\n\n%s') % message)
+
+        elif failed_external_template_ids:
+            message += _(
+                '⚠️ Errors when importing products:\n%s.\n'
+            ) % ',\n'.join(failed_external_template_ids)
+            message += self._import_external_product_separate_job(failed_external_template_ids) or ''
+
         return message
 
-    def _import_external_product(self, template_ids, try_to_map: bool = True):
+    def _import_external_product_separate_job(
+        self,
+        failed_external_template_ids: list[str] = None,
+    ):
+        """
+        Moving failed imports in separate job to isolate them and make retry only for failed imports possible.
+        It works only if current method is called from a job, if not -- it will be ignored.
+        :param failed_external_template_ids: List of failed external template IDs.
+        """
+        job_uuid = self.env.context.get('job_uuid')
+        if not job_uuid:
+            return
+
+        job_record = self.env['queue.job'].sudo().search([('uuid', '=', job_uuid)], limit=1)
+        if not job_record:
+            return
+
+        job = self.with_context(
+            company_id=job_record.company_id.id,
+            default_integration_id=self.id,
+        ).with_delay(
+            priority=2,
+            description=job_record.name + ' [Retry]',
+        ).import_external_product(failed_external_template_ids)
+
+        new_job = job.db_record() if isinstance(job, Job) else job
+        new_job.parent_id = job_record
+        self.job_log(job)
+
+        return _(
+            '\nAll failed imports are moved in separate job to isolate.\n'
+            'See next failed job logs to see the details.'
+        )
+
+    def _import_external_product(self, template_ids, try_to_map=True):
+        """
+        Import external product templates and their variants.
+
+        :param template_ids: List or single external template ID(s). Will be converted to strings.
+        :return: Tuple of (external_templates, external_variants, errors, failed_external_template_ids):
+            - external_templates: recordset of imported template records
+            - external_variants: recordset of imported variant records
+            - errors: list of error messages (empty if no errors)
+            - failed_external_template_ids: list of failed external template IDs (empty if none failed)
+        """
         if not isinstance(template_ids, list):
             template_ids = [template_ids]
 
@@ -3423,42 +3540,69 @@ class SaleIntegration(models.Model):
 
         external_templates = ExternalTemplate.browse()
         external_variants = ExternalVariant.browse()
-        errors = []
 
-        ext_templates_data = self.adapter.get_product_templates(template_ids)
+        ext_templates_data, failed_external_template_ids, errors = self.adapter.get_product_templates(
+            template_ids,
+            raise_error=False,
+        )
+
         if not ext_templates_data:
-            return external_templates, external_variants, errors
+            return external_templates, external_variants, errors, failed_external_template_ids
 
         for template_data in ext_templates_data.values():
-            external_template = self._import_external_record(ExternalTemplate, template_data)
-            external_template.create_or_update_mapping()
-            external_templates |= external_template
+            template_id = template_data.get('id', 'unknown')
+            external_template = None
+            template_variants = ExternalVariant.browse()
 
-            for variant_data in template_data['variants']:
-                external_variant = self._import_external_record(ExternalVariant, variant_data)
-                external_variant.create_or_update_mapping()
-                external_variants |= external_variant
+            # - Savepoint isolates each template: failure of one doesn't rollback others.
+            # - Outer try/except catches fatal errors (IntegrityError, ValidationError, etc.)
+            #   and allows the loop to continue. Savepoint auto-rollbacks on exception exit.
+            # - Inner try/except handles non-critical auto-mapping errors.
+            #   Without inner try, mapping errors would bubble up and rollback the savepoint.
+            try:
+                with self.env.cr.savepoint():
+                    external_template = self._import_external_record(ExternalTemplate, template_data)
 
-            if not template_data['variants']:
-                # Create default external variant with "complex-zero" code like `100-0`
-                default_external_variant = external_template._create_default_external_variant()
-                default_external_variant.create_or_update_mapping()
-                external_variants |= default_external_variant
+                    if not external_template:
+                        failed_external_template_ids.append(template_id)
+                        errors.append(_('Failed to import external template: %s') % template_id)
+                        continue
 
-            if try_to_map:
-                try:
-                    external_template.try_map_template_and_variants(template_data)
-                except (es.ApiImportError, es.NotMappedToExternal, es.NotMappedFromExternal, AssertionError) as e:
-                    # Combine the header and error message into a single error entry
-                    error_message = _('Errors when trying to auto-match products: %s') % str(e)
-                    errors.append(error_message)
+                    external_template.create_or_update_mapping()
 
-        if errors:
-            _logger.error(
-                '%s: Errors when trying to import external products %s: %s', self.name, template_ids, errors,
-            )
+                    # Import variants
+                    variants_data = template_data.get('variants', [])
+                    for variant_data in variants_data:
+                        external_variant = self._import_external_record(ExternalVariant, variant_data)
+                        if external_variant:
+                            external_variant.create_or_update_mapping()
+                            template_variants |= external_variant
 
-        return external_templates, external_variants, errors
+                    # Create default variant if no variants exist
+                    if not variants_data:
+                        default_external_variant = external_template._create_default_external_variant()
+                        default_external_variant.create_or_update_mapping()
+                        template_variants |= default_external_variant
+
+                    if try_to_map:
+                        # Try auto-mapping (non-critical, errors are collected)
+                        try:
+                            external_template.try_map_template_and_variants(template_data)
+                        except (es.ApiImportError, es.NotMappedToExternal, es.NotMappedFromExternal, es.NoExternal) as e:  # NOQA
+                            error_message = _('Errors when trying to auto-match products:\n%s') % str(e)
+                            errors.append(error_message)
+                            failed_external_template_ids.append(template_id)
+
+                # After successful savepoint: add to results
+                if external_template and external_template.exists():
+                    external_templates |= external_template
+                    external_variants |= template_variants
+
+            except (IntegrityError, AssertionError, UserError, ValidationError, NoExternal) as e:
+                errors.append(str(e))
+                failed_external_template_ids.append(template_id)
+
+        return external_templates, external_variants, errors, list(set(failed_external_template_ids))
 
     def _import_external_record(self, external_model, external_data):
         name = external_data.get('name')
@@ -3524,22 +3668,21 @@ class SaleIntegration(models.Model):
             f'force={force}',
         )
 
-        # Determine the `force_export` flag
-        force_export = force or not template.get_external_code(self.id)
+        # Determine the `force_export` and `first_time_export` flags
+        # - first_time_export: product has no external code yet (never exported before)
+        #   Controls field mapping filtering: all mappings are included on first export
+        # - force_export: manual trigger or first-time export
+        #   Controls auxiliary exports (prices, images, inventory) and FORCE_PRODUCT_EXPORT script var
+        first_time_export = not template.get_external_code(self.id)
+        force_export = force or first_time_export
 
-        context = {
-            'company_id': self.company_id.id,
-            'job_integration_id': self.id,
-            'job_integration_job_type': 'product',
-            'job_template_id': template.id,
-        }
-
-        self = self.with_context(**context)
+        self = self.with_context(company_id=self.company_id.id)
 
         template = template.with_context(
             lang=self.get_integration_lang_code(),
             default_integration_id=self.id,
             integration_force_product_export=force_export,
+            integration_first_time_export=first_time_export,
         )
 
         if make_validation:
@@ -3566,12 +3709,13 @@ class SaleIntegration(models.Model):
             # Trigger export again and finish current task
             job_kwargs = self._job_kwargs_export_template(template, export_images, force=force)
 
-            self.with_delay(**job_kwargs).export_template(
+            job = self.with_delay(**job_kwargs).export_template(
                 template,
                 export_images=export_images,
                 make_validation=make_validation,
                 force=force,
             )
+            template.job_log(job)
 
             return _('Some products didn\'t exists in external system. '
                      'External records where cleaned up and export was triggered again ')
@@ -3589,7 +3733,9 @@ class SaleIntegration(models.Model):
                 external_record.create_or_update_mapping(odoo_id=template.id)
 
                 job_kwargs = self._job_kwargs_import_product(external_record.code, external_record.name)
-                self.with_delay(**job_kwargs).import_product(external_record.id)
+                job = self.with_delay(**job_kwargs).import_product(external_record.id)
+
+                template.job_log(job)
 
                 return _(
                     'Existing Product found in external system with id %s. Triggering job to '
@@ -3612,7 +3758,8 @@ class SaleIntegration(models.Model):
         if self.pricelist_integration and force_export:
             # Do it in separate job in order to avoid rollback.
             job_kwargs = self._job_kwargs_export_specific_prices_template(template)
-            self.with_delay(**job_kwargs).export_pricelists_one(template)
+            job = self.with_delay(**job_kwargs).export_pricelists_one(template)
+            template.job_log(job)
 
             results_list.append(LOG_SEPARATOR)
             results_list.append(_('Export Pricelists job was created.'))
@@ -3622,7 +3769,8 @@ class SaleIntegration(models.Model):
         if self.allow_export_images and (export_images or force_export):
             # Do it in separate job in order to avoid rollback.
             job_kwargs = self._job_kwargs_export_images(template)
-            self.with_delay(**job_kwargs).export_template_images_verbose(template.id)
+            job = self.with_delay(**job_kwargs).export_template_images_verbose(template.id)
+            template.job_log(job)
 
             results_list.append(LOG_SEPARATOR)
             results_list.append(_('Export Images job was created.'))
@@ -3756,17 +3904,13 @@ class SaleIntegration(models.Model):
 
         result = list()
         for integration in integration_ids:
-            context = {
-                'company_id': integration.company_id.id,
-                'job_integration_id': integration.id,
-                'job_integration_job_type': 'pricelist',
-            }
             job = integration \
-                .with_context(**context) \
+                .with_context(company_id=self.company_id.id) \
                 .with_delay(
                     description=f'{integration.name}: Export Pricelist Items Cron',
                 ).export_pricelist_items_to_external()
 
+            integration.job_log(job)
             result.append(job)
 
         return result
@@ -3792,9 +3936,53 @@ class SaleIntegration(models.Model):
         raise NotImplementedError
 
     def search_templates_for_specific_prices(self, pricelist_ids=None, item_ids=None):
-        # TODO: use `pricelist_ids`` or 'item_ids' to do search more accurately
+        mapping_domain = [
+            ('integration_id', '=', self.id),
+            ('template_id.active', '=', True),
+        ]
+
+        # No filters — return all mapped templates (e.g. full-catalogue force export or
+        # to_force_sync_pricelist path where item_ids is deliberately cleared).
+        if not item_ids and not pricelist_ids:
+            mapping_ids = self.env['integration.product.template.mapping'].search(mapping_domain)
+            return mapping_ids.mapped('template_id')
+
+        # Resolve the pricelist items we are working with.
+        PricelistItem = self.env['product.pricelist.item']
+        if item_ids:
+            items = PricelistItem.browse(item_ids)
+        else:
+            items = PricelistItem.search([('pricelist_id', 'in', pricelist_ids)])
+
+        if not items:
+            mapping_ids = self.env['integration.product.template.mapping'].search(mapping_domain)
+            return mapping_ids.mapped('template_id')
+
+        # Category-based (2_product_category) and global (3_global) items potentially affect
+        # every product, so fall back to the full template list for safety.
+        applied_on_values = set(items.mapped('applied_on'))
+        if applied_on_values & {'2_product_category', '3_global'}:
+            mapping_ids = self.env['integration.product.template.mapping'].search(mapping_domain)
+            return mapping_ids.mapped('template_id')
+
+        # All items are product/variant-specific — resolve affected templates directly.
+        template_ids = self.env['product.template']
+
+        product_items = items.filtered(lambda x: x.applied_on == '1_product')
+        if product_items:
+            template_ids |= product_items.mapped('product_tmpl_id')
+
+        variant_items = items.filtered(lambda x: x.applied_on == '0_product_variant')
+        if variant_items:
+            template_ids |= variant_items.mapped('product_id.product_tmpl_id')
+
+        if not template_ids:
+            return template_ids
+
+        # Intersect with mapped, active templates only.
         mapping_ids = self.env['integration.product.template.mapping'].search([
             ('integration_id', '=', self.id),
+            ('template_id', 'in', template_ids.ids),
             ('template_id.active', '=', True),
         ])
         return mapping_ids.mapped('template_id')
@@ -3804,12 +3992,7 @@ class SaleIntegration(models.Model):
         block_list = list()
         message_list = list()
 
-        context = {
-            'company_id': self.company_id.id,
-            'job_integration_id': self.id,
-            'job_integration_job_type': 'pricelist',
-        }
-        self = self.with_context(**context)
+        self = self.with_context(company_id=self.company_id.id)
 
         template_ids = self.search_templates_for_specific_prices(
             pricelist_ids=pricelist_ids,
@@ -3846,6 +4029,7 @@ class SaleIntegration(models.Model):
             if len(block_list) >= (EXPORT_EXTERNAL_BLOCK / 10):
                 job_kwargs = self._job_kwargs_export_specific_prices_data(block_number)
                 job = self.with_delay(**job_kwargs)._export_pricelist_data(block_list, updating)
+                self.job_log(job)
                 message_list.append(
                     _('Pricelists Batch (%s) was created: %s') % (block_number, job)
                 )
@@ -3857,6 +4041,7 @@ class SaleIntegration(models.Model):
         if block_list:
             job_kwargs = self._job_kwargs_export_specific_prices_data(block_number)
             job = self.with_delay(**job_kwargs)._export_pricelist_data(block_list, updating)
+            self.job_log(job)
             message_list.append(
                 _('Pricelists Batch (%s) was created: %s') % (block_number, job)
             )
@@ -3864,6 +4049,7 @@ class SaleIntegration(models.Model):
         for i_tmpl in _invalid_template_ids:
             job_kwargs = self._job_kwargs_export_specific_prices_template(i_tmpl)
             job = self.with_delay(**job_kwargs).export_pricelists_one(i_tmpl)
+            i_tmpl.job_log(job)
             message_list.append(
                 _('Pricelist items for %s have errors. Separate job was released.') % i_tmpl
             )
@@ -4086,45 +4272,23 @@ class SaleIntegration(models.Model):
 
         return attribute_value_code
 
-    def export_feature(self, feature: 'models.Model'):
-        self.ensure_one()
-        adapter = self.adapter
-
-        feature_data = feature.to_export_format(self)
-        code = adapter.export_feature(feature_data)
-
-        feature.create_mapping(self, code, extra_vals={'name': feature.name})
-
-        return code
-
-    def export_feature_value(self, feature_value: 'models.Model'):
-        self.ensure_one()
-        adapter = self.adapter
-
-        feature_value_data = feature_value.to_export_format(self)
-        feature_value_code = adapter.export_feature_value(feature_value_data)
-
-        feature_value_mapping = feature_value.create_mapping(
-            self,
-            feature_value_code,
-            extra_vals={'name': feature_value.name},
-        )
-        external_feature = self.env['integration.product.feature.external'].search([
-            ('code', '=', feature_value_data['feature_id']),
-            ('integration_id', '=', self.id),
-        ])
-
-        external_feature_value = feature_value_mapping.external_feature_value_id
-        external_feature_value.external_feature_id = external_feature.id
-
-        return feature_value_code
-
     def export_category(self, category: 'models.Model'):
         self.ensure_one()
         adapter = self.adapter
 
-        code = adapter.export_category(category.to_export_format(self))
-        category.create_mapping(self, code, extra_vals={'name': category.name})
+        data = category.to_export_format(self)
+        code = adapter.export_category(data)
+
+        extra_vals = {'name': category.name}
+        if data.get('parent_id'):
+            parent_external = self.env['integration.product.public.category.external'].search([
+                ('integration_id', '=', self.id),
+                ('code', '=', str(data['parent_id'])),
+            ], limit=1)
+            if parent_external:
+                extra_vals['parent_id'] = parent_external.id
+
+        category.create_mapping(self, code, extra_vals=extra_vals)
 
         return code
 
@@ -4295,12 +4459,7 @@ class SaleIntegration(models.Model):
         # Create separate export jobs (isolated transactions) which will be highly likely
         # failed in order to notify user for existing troubles
         result = []
-        context = {
-            'company_id': self.company_id.id,
-            'job_integration_id': self.id,
-            'job_integration_job_type': 'inventory',
-        }
-        self = self.with_context(**context)
+        self = self.with_context(company_id=self.company_id.id)
         variant_ids = variant_ids.with_context(default_integration_id=self.id)
 
         for variant in variant_ids:
@@ -4309,6 +4468,7 @@ class SaleIntegration(models.Model):
                 .with_delay(**job_kwargs) \
                 .export_inventory_for_variant_with_delay(variant)
 
+            variant.job_log(job)
             result.append(job)
 
         return result
@@ -4408,6 +4568,10 @@ class SaleIntegration(models.Model):
             self.name,
             adapter.order_fetch_kwargs(),
         )
+
+        # Update the actual sync timestamp
+        self.last_order_sync_datetime = fields.Datetime.now()
+
         # 1. receive orders
         orders_data_list = adapter.receive_orders()
 
@@ -4458,20 +4622,6 @@ class SaleIntegration(models.Model):
                     value.attribute_value_id = False
         return True
 
-    @expose_for_testing('Clear Incorrect Feature Value Mappings')
-    def integrationApiClearIncorrectFeatureValueMappings(self):
-        """Clear incorrect mappings for integration"""
-        self.ensure_one()
-        feature_value_mappings = self.env['integration.product.feature.value.mapping'].search([
-            ('integration_id', '=', self.id),
-            ('feature_value_id', '!=', False),
-        ])
-        for value in feature_value_mappings:
-            if value.feature_value_id:
-                if value.feature_value_id.feature_id != value.get_feature_id():
-                    value.feature_value_id = False
-        return True
-
     def integration_receive_orders_cron(self, cron_operation=True):
         """
         Method called by the scheduled action to receive orders.
@@ -4489,15 +4639,12 @@ class SaleIntegration(models.Model):
 
         job_kwargs = self._job_kwargs_receive_orders(cron=cron_operation)
 
-        context = {
-            'company_id': self.company_id.id,
-            'job_integration_id': self.id,
-            'job_integration_job_type': 'order',
-        }
         job = self \
-            .with_context(**context) \
+            .with_context(company_id=self.company_id.id) \
             .with_delay(**job_kwargs) \
             .integrationApiReceiveOrders(update_dt=cron_operation)
+
+        self.job_log(job)
 
         return job
 
@@ -4574,15 +4721,12 @@ class SaleIntegration(models.Model):
         self.ensure_one()
         job_kwargs = self._job_kwargs_receive_order(external_order_id)
 
-        context = {
-            'company_id': self.company_id.id,
-            'job_integration_id': self.id,
-            'job_integration_job_type': 'order',
-        }
         job = self \
-            .with_context(**context) \
+            .with_context(company_id=self.company_id.id) \
             .with_delay(**job_kwargs) \
             .fetch_order_by_id(external_order_id, raise_error=True)
+
+        self.job_log(job)
 
         return job
 
@@ -4594,15 +4738,12 @@ class SaleIntegration(models.Model):
         self.ensure_one()
         job_kwargs = self._job_kwargs_update_status_order(external_order_id, pipeline_data)
 
-        context = {
-            'company_id': self.company_id.id,
-            'job_integration_id': self.id,
-            'job_integration_job_type': 'order',
-        }
         job = self \
-            .with_context(**context) \
+            .with_context(company_id=self.company_id.id) \
             .with_delay(**job_kwargs) \
             .integration_update_status_order(external_order_id, pipeline_data)
+
+        self.job_log(job)
 
         return job
 
@@ -4614,19 +4755,16 @@ class SaleIntegration(models.Model):
         self.ensure_one()
         job_kwargs = self._job_kwargs_cancel_order(external_order_id)
 
-        context = {
-            'company_id': self.company_id.id,
-            'job_integration_id': self.id,
-            'job_integration_job_type': 'order',
-        }
         job = self \
-            .with_context(**context) \
+            .with_context(company_id=self.company_id.id) \
             .with_delay(**job_kwargs) \
             .integration_update_status_order(
                 external_order_id,
                 pipeline_data,
                 cancel_order=True,
             )
+
+        self.job_log(job)
 
         return job
 
@@ -4702,14 +4840,11 @@ class SaleIntegration(models.Model):
         )
         job_kwargs['eta'] = 8
 
-        context = {
-            'company_id': self.company_id.id,
-            'job_integration_id': self.id,
-            'job_integration_job_type': 'product',
-        }
-        job = self.with_context(**context) \
+        job = self.with_context(company_id=self.company_id.id) \
             .with_delay(**job_kwargs) \
             .import_product_flow(external_product_id)
+
+        self.job_log(job)
 
         return job
 
@@ -4745,16 +4880,12 @@ class SaleIntegration(models.Model):
             self.env.context.get('external_product_name') or '',
         )
 
-        context = {
-            'company_id': self.company_id.id,
-            'job_integration_id': self.id,
-            'job_integration_job_type': 'product',
-            'job_external_template_id': external_product.id,
-        }
         job = external_product \
-            .with_context(**context) \
+            .with_context(company_id=self.company_id.id) \
             .with_delay(**job_kwargs) \
             .import_one_product_by_hook(check_hook_gap)
+
+        external_product.job_log(job)
 
         return job
 
@@ -4771,14 +4902,11 @@ class SaleIntegration(models.Model):
 
         job_kwargs = self._job_kwargs_delete_product(external_product.code, external_product.name)
 
-        context = {
-            'company_id': self.company_id.id,
-            'job_integration_id': self.id,
-            'job_integration_job_type': 'product',
-        }
-        job = self.with_context(**context) \
+        job = self.with_context(company_id=self.company_id.id) \
             .with_delay(**job_kwargs) \
             .drop_external_record(external_product.id)
+
+        self.job_log(job)
 
         return job
 
@@ -4790,14 +4918,11 @@ class SaleIntegration(models.Model):
 
         job_kwargs = self._job_kwargs_process_pipeline(external_order_id)
 
-        context = {
-            'company_id': self.company_id.id,
-            'job_integration_id': self.id,
-            'job_integration_job_type': 'order',
-        }
-        job = self.with_context(**context) \
+        job = self.with_context(company_id=self.company_id.id) \
             .with_delay(**job_kwargs) \
             .integration_process_pipeline(external_order_id, data, build_and_run=build_and_run)
+
+        self.job_log(job)
 
         return job
 
@@ -4882,29 +5007,28 @@ class SaleIntegration(models.Model):
     def create_order_from_input(self, input_file_id: int) -> 'models.Model':
         self.ensure_one()
 
-        # 1. Parse the input file (eCommerce order json)
-        input_file = self.env['sale.integration.input.file'].browse(input_file_id)
-        order_data = input_file.parse()
-
-        # 2.Check if the order has been canceled
-        is_order_cancelled = order_data.pop('is_cancelled', False)
-
-        # 3.Create the sale order from parsed data
-        order = self.env['integration.sale.order.factory'] \
+        # 1. Create factory and build the sale order (parsing happens inside)
+        factory = self.env['integration.sale.order.factory'] \
             .with_company(self.company_id) \
-            .create_order(self, order_data)
+            .create({'input_file_id': input_file_id})
+        order = factory.create_order()
 
-        # 4. If the order is canceled on the store side, cancel it in Odoo
-        if is_order_cancelled:
+        input_file = factory.input_file_id
+
+        # 2. If the order is canceled on the store side, cancel it in Odoo
+        if factory.is_cancelled:
             _logger.info(f'Order "{order.name}" has been canceled on the store side. Canceling it in Odoo.')
 
             order._integration_action_cancel_no_dispatch()
             input_file.action_done()
             return order
 
-        # 5. Process the order automatic workflow
+        # 3. Process the order automatic workflow
         input_file.action_process()
-        order._build_and_run_integration_workflow(order_data)
+        order._build_and_run_integration_workflow(
+            workflow_states=factory.workflow_states,
+            payment_method_code=factory.payment_method_code,
+        )
 
         return order
 
@@ -4923,8 +5047,21 @@ class SaleIntegration(models.Model):
 
         return orders
 
+    def _get_mapping_friendly_name(self, model_name):
+        """Get user-friendly plural label from mapping model's _mapping_label attribute."""
+        mapping_model = self.env[model_name]
+
+        # Check if the model has a _mapping_label attribute
+        if hasattr(mapping_model, '_mapping_label') and mapping_model._mapping_label:
+            return pluralize(mapping_model._mapping_label)
+
+        # Fallback: generate from model name
+        # e.g., 'integration.product.mapping' -> 'Products'
+        name = model_name.replace('integration.', '').replace('.mapping', '').replace('.', ' ').title()
+        return pluralize(name)
+
     @api.model
-    def systray_get_integrations(self):
+    def get_status_menu_data(self):
         integrations = self.sudo().search([
             ('state', '=', 'active'),
         ])
@@ -4934,8 +5071,20 @@ class SaleIntegration(models.Model):
 
         for integration in integrations:
             failed_jobs_count = integration._get_integration_failed_jobs_count()
+            orders_count = self.env['sale.integration.input.file'].search_count([
+                ('si_id', '=', integration.id),
+            ])
+            unprocessed_orders_count = self.env['sale.integration.input.file'].search_count([
+                ('si_id', '=', integration.id),
+                ('order_id', '=', False),
+            ])
+            products_count = self.env['integration.product.template.mapping'].search_count([
+                ('integration_id', '=', integration.id),
+            ])
 
             missing_mappings_count = 0
+            missing_mappings_by_type = []
+
             for model_name in mapping_models:
                 mapping_model = self.env[model_name]
                 internal_field_name, external_field_name = mapping_model._mapping_fields
@@ -4945,13 +5094,29 @@ class SaleIntegration(models.Model):
                     (external_field_name, '!=', False),
                 ])
 
+                if missing_mappings > 0:
+                    type_name = self._get_mapping_friendly_name(model_name)
+                    missing_mappings_by_type.append({
+                        'type': type_name,
+                        'count': missing_mappings,
+                        'model': model_name,
+                    })
+
                 missing_mappings_count += missing_mappings
 
+            # Sort missing mappings alphabetically by type name
+            missing_mappings_by_type.sort(key=lambda x: x['type'])
+
             integration_stats = {
+                'id': integration.id,
                 'name': integration.name,
                 'type_api': integration.type_api,
+                'orders_count': orders_count,
+                'unprocessed_orders_count': unprocessed_orders_count,
+                'products_count': products_count,
                 'failed_jobs_count': failed_jobs_count,
                 'missing_mappings_count': missing_mappings_count,
+                'missing_mappings_by_type': missing_mappings_by_type,
             }
             result.append(integration_stats)
 
@@ -4976,6 +5141,9 @@ class SaleIntegration(models.Model):
             ('company_id', '=', self.company_id.id)
         ])
         return failed_jobs_count
+
+    def _get_integration_id_for_job(self):
+        return self.id
 
     @api.model
     def _get_test_method(self):
@@ -5474,7 +5642,7 @@ class SaleIntegration(models.Model):
         if self._get_external_product(external_template_id):
             return False
 
-        external_template, __, errors = self._import_external_product(external_template_id)
+        external_template, __, errors, __ = self._import_external_product(external_template_id)
 
         if errors:
             _logger.warning(f'Errors during template import {external_template_id}:\n' + '\n'.join(errors))
@@ -5819,10 +5987,10 @@ class SaleIntegration(models.Model):
 
         if not lang:
             raise UserError(_(
-                f'%s: Integration language is not defined.\n\n'
-                f'Please go to "E-Commerce Integrations → Stores → {self.name} → Quick Configuration wizard" '
-                f'and set the "Default Odoo Language".'
-            ) % self.name)
+                '%s: Integration language is not defined.\n\n'
+                'Please go to "E-Commerce Integrations → Stores → %s → Quick Configuration wizard" '
+                'and set the "Integration Language".'
+            ) % (self.name, self.name))
 
         code = lang.code
 
@@ -5876,22 +6044,17 @@ class SaleIntegration(models.Model):
 
         stock_levels_data = adapter.get_stock_levels(external_location_code)
         stock_levels = [(key, value) for key, value in stock_levels_data.items()]
-
-        context = {
-            'company_id': self.company_id.id,
-            'job_integration_id': self.id,
-            'job_integration_job_type': 'inventory',
-        }
-        self = self.with_context(**context)
+        self = self.with_context(company_id=self.company_id.id)
 
         while stock_levels:
             idx += 1
             job_kwargs = self._job_kwargs_apply_stock_multi(location_line, block=idx)
 
-            self \
+            job = self \
                 .with_delay(**job_kwargs) \
                 .run_apply_stock_levels_by_blocks(stock_levels[:limit], location)
 
+            self.job_log(job)
             stock_levels = stock_levels[limit:]
 
         return True
@@ -5920,21 +6083,17 @@ class SaleIntegration(models.Model):
 
         if delay:
             job_kwargs = self._job_kwargs_apply_stock_single(external_code, location)
-            context = {
-                'company_id': self.company_id.id,
-                'job_integration_id': self.id,
-                'job_integration_job_type': 'inventory',
-            }
             job = external_id\
-                .with_context(**context) \
                 .with_delay(**job_kwargs) \
                 .apply_stock_levels(qty, location)
 
-            external_id.mapping_model.to_odoo(
+            erp_product = external_id.mapping_model.to_odoo(
                 self,
                 external_code,
                 raise_error=False,
             )
+            record = erp_product or external_id
+            record.with_context(default_integration_id=self.id).job_log(job)
         else:
             job = external_id.apply_stock_levels(qty, location)
 
@@ -6011,7 +6170,11 @@ class SaleIntegration(models.Model):
         if not self.allow_multi_company_inventory_calculation:
             locations = locations.filtered(lambda loc: loc.company_id == self.company_id)
 
-        if self.update_stock_for_manufacture_boms and product.bom_ids:
+        # Detect KIT (phantom BOM) products
+        is_kit = bool(product.bom_ids.filtered(lambda b: b.type == 'phantom'))
+
+        if self.update_stock_for_manufacture_boms and product.bom_ids and not is_kit:
+            # For products with manufacturing BOMs (not kits)
             for loc in locations:
                 if self.allow_multi_company_inventory_calculation:
                     company_id = loc.company_id
@@ -6024,9 +6187,9 @@ class SaleIntegration(models.Model):
             total_qty = getattr(product, qty_field)
         else:
             raise ValidationError(_(
-                f'There is no {qty_field} field in product.product module to get quantity of '
+                'There is no %s field in product.product module to get quantity of '
                 'product for inventory export'
-            ))
+            ) % qty_field)
 
         return {
             'qty': total_qty,
@@ -6147,6 +6310,111 @@ class SaleIntegration(models.Model):
 
         return input_file
 
+    def _get_odoo_product(self, variant_code, raise_error=False):
+        product = self.env['product.product'].from_external(
+            self,
+            variant_code,
+            raise_error=False,
+        )
+
+        if not product and raise_error:
+            raise es.NotMappedFromExternal(
+                _(
+                    'Failed to find the external product variant with code "%s".\n\n'
+                    'To resolve this issue, please run "Link Products" using the button '
+                    'on the "Initial Import" tab in your "%s" integration settings.\n'
+                    'After that, verify that all products are correctly mapped in the following menus:\n'
+                    '1. "Mappings → Products"\n'
+                    '2. "Mappings → Product Variants"'
+                ) % (variant_code, self.name),
+                model_name='integration.product.product.external',
+                code=variant_code,
+                integration=self,
+            )
+
+        return product
+
+    def _try_get_odoo_product(self, product_data, force_create=False):
+        """
+        Try to find an Odoo product (product.product) by external product code.
+        If not found, attempt to re-import from the external system and optionally
+        auto-create the product in Odoo.
+
+        :param product_data: dict with product identification data. Expected keys:
+            - product_id (str, required): external complex variant code
+            - odoo_variant_id (int, optional): known Odoo product.product ID,
+              used as shortcut to skip lookup (e.g. for bundle/kit products)
+            - name (str, optional): product name, used in error messages
+            - reference (str, optional): product reference, used in error messages
+        :param force_create: if True, auto-create product even if
+            ``auto_create_products_on_so`` is disabled
+        :return: product.product recordset
+        """
+        # If odoo_variant_id is already known, use it directly. This happens during order import
+        # with bundle/kit products, where the connector resolves (or creates) the Kit product
+        # during bundle parsing and stores the resulting product ID in the line data.
+        if 'odoo_variant_id' in product_data:
+            return self.env['product.product'].browse(product_data['odoo_variant_id'])
+
+        complex_variant_code = product_data['product_id']
+
+        if not complex_variant_code:
+            es.raise_error(
+                err_code='E109',
+                integration_name=self.name,
+                product_name=product_data.get('name', 'null'),
+                product_reference=product_data.get('reference', 'null'),
+            )
+
+        product = self._get_odoo_product(complex_variant_code)
+        if product:
+            return product
+
+        # If the product is not found, attempt to re-import it from the external system
+        template_code, variant_code = self.adapter._parse_product_external_code(complex_variant_code)
+        external_template, external_variants, __, __ = self._import_external_product(template_code)
+
+        # Use fallback product if no external templates found or variant code doesn't match.
+        if not external_template or complex_variant_code not in external_variants.mapped('code'):
+            es.raise_error(
+                err_code='E110',
+                integration_name=self.name,
+                product_id=template_code,
+                variant_id=variant_code,
+                product_name=product_data.get('name', 'null'),
+                product_reference=product_data.get('reference', 'null'),
+            )
+
+        auto_create_product = force_create or self.auto_create_products_on_so
+        product = self._get_odoo_product(
+            complex_variant_code,
+            raise_error=(not auto_create_product),
+        )
+
+        if auto_create_product and not product:
+            # Try to create ERP product on the fly
+            external_record = self.env['integration.product.template.external'] \
+                .get_external_by_code(self, template_code)
+
+            self.import_product(
+                external_record.id,
+                import_images=self.allow_import_images,
+            )
+            product = self._get_odoo_product(complex_variant_code, raise_error=True)
+
+        return product
+
+    def _get_order_sub_status(self, ext_current_state):
+        SubStatus = self.env['sale.order.sub.status']
+
+        sub_status = SubStatus.from_external(self, ext_current_state, raise_error=False)
+
+        if not sub_status:
+            self.integrationApiImportSaleOrderStatuses()
+            sub_status = SubStatus.from_external(self, ext_current_state)
+
+        return sub_status
+
     def _get_order_sub_status_tuple(self, status_code):
         _name = 'sale.order.sub.status'
 
@@ -6230,7 +6498,7 @@ class SaleIntegration(models.Model):
         return attr_values_ids_by_attr_id
 
     def convert_external_categories(self, ext_category_ids: list) -> list:
-        ProductPublicCategory = self.env['ecommerce.product.category']
+        ProductPublicCategory = self.env['product.public.category']
         odoo_categories = ProductPublicCategory
 
         for external_category_id in ext_category_ids:
@@ -6300,3 +6568,38 @@ class SaleIntegration(models.Model):
             return True, f'Order import job created for order with code={external_order_id}'
 
         return None, None  # Order exists, continue with normal processing
+
+    def build_external_language_translations(self, record: models.Model, field_name: str):
+        """
+        Gets translations of the specified field from the record and maps them to external integration language codes.
+        :param record: Odoo record (e.g., product.template) from which we read the field.
+        :param field_name: Name of the field to translate.
+        :return: Dictionary in format {'language': {'ext_lang_code': 'Value'}}
+        """
+        self.ensure_one()
+
+        # 1. If translations are not needed, return the field value in the store language
+        if not self.is_translations_needed():
+            lang_code = self.get_adapter_lang_code()
+            language = self.env['res.lang'].from_external(self, lang_code)
+            return getattr(record.with_context(lang=language.code), field_name)
+
+        # 2. If translations are needed, convert field into the dict with translations
+        language_mappings = self.env['integration.res.lang.mapping'].search([
+            ('integration_id', '=', self.id),
+        ])
+
+        translations = {}
+        for mapping in language_mappings:
+            odoo_code = mapping.language_id.code
+            external_code = mapping.external_language_id.code
+
+            if field_name:
+                value = getattr(record.with_context(lang=odoo_code), field_name)
+            else:
+                # If field_name is empty, we just want to get the list of languages without actual translations
+                value = ''
+
+            translations[external_code] = value
+
+        return {'language': translations}

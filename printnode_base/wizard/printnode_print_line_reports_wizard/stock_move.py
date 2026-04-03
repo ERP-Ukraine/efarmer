@@ -154,12 +154,12 @@ class PrintnodePrintStockMoveLineReportsWizardLine(models.TransientModel):
     )
 
     package_id = fields.Many2one(
-        comodel_name='stock.package',
+        comodel_name='stock.quant.package',
         related='record_id.package_id',
     )
 
     result_package_id = fields.Many2one(
-        comodel_name='stock.package',
+        comodel_name='stock.quant.package',
         related='record_id.result_package_id',
     )
 

@@ -34,16 +34,9 @@ from odoo.tools.image import IMAGE_MAX_RESOLUTION
 from odoo.tools.safe_eval import safe_eval
 from odoo.tools.mimetypes import guess_mimetype
 from odoo.tools.misc import groupby as odoo_groupby
+from odoo.addons.queue_job.exception import RetryableJobError
 
-
-try:
-    # Prefer import from integration_queue_job if available
-    from odoo.addons.integration_queue_job.exception import RetryableJobError
-except ImportError:
-    # Fallback if queue_job is not installed
-    from odoo.addons.queue_job.exception import RetryableJobError
-
-from .exceptions import ErrorStore
+from .exceptions import ErrorStore as es
 
 
 _logger = logging.getLogger(__name__)
@@ -226,6 +219,51 @@ def normalize_uom_name(uom_name):
         uom_name = uom_name[:-1]
 
     return uom_name
+
+
+def pluralize(word):
+    """
+    Convert a singular English word to its plural form.
+
+    Handles common English pluralization rules:
+    - Words ending in 'y' preceded by a consonant -> 'ies' (Category -> Categories)
+    - Words ending in 's', 'x', 'z', 'ch', 'sh' -> add 'es' (Tax -> Taxes)
+    - Words ending in 'f' -> 'ves' (Leaf -> Leaves)
+    - Words ending in 'fe' -> 'ves' (Life -> Lives)
+    - Default: add 's'
+
+    :param word: Singular word to pluralize
+    :return: Pluralized word
+    """
+    if not word:
+        return word
+
+    word = word.strip()
+    if not word:
+        return word
+
+    # Already plural (basic check)
+    if word.endswith('s') and not word.endswith('ss'):
+        return word
+
+    # Words ending in consonant + y -> ies
+    if word.endswith('y') and len(word) > 1 and word[-2].lower() not in 'aeiou':
+        return word[:-1] + 'ies'
+
+    # Words ending in s, x, z, ch, sh -> add es
+    if word.endswith(('s', 'x', 'z')) or word.endswith(('ch', 'sh')):
+        return word + 'es'
+
+    # Words ending in f -> ves (e.g., leaf -> leaves)
+    if word.endswith('f'):
+        return word[:-1] + 'ves'
+
+    # Words ending in fe -> ves (e.g., life -> lives)
+    if word.endswith('fe'):
+        return word[:-2] + 'ves'
+
+    # Default: add s
+    return word + 's'
 
 
 def xml_to_dict_recursive(root):
@@ -1608,7 +1646,7 @@ class ExtractNode:
 
             if isinstance(data, ExtractNode.MissedValue):
                 if self._raise_error:
-                    raise ErrorStore.JsonMissedKey(
+                    raise es.JsonMissedKey(
                         'ExtractNode parse error: Key "%s" not found' % ('.'.join(self.keys))
                     )
 
@@ -1678,7 +1716,7 @@ def run_preprocessing_script(script: str, context: dict, raise_error: bool = Fal
     Executes the preprocessing script in a controlled environment.
     """
     try:
-        safe_eval(script.strip(), context=context, mode='exec')
+        safe_eval(script.strip(), globals_dict=context, mode='exec', nocopy=True)
     except Exception as e:
         if raise_error:
             raise
@@ -1687,6 +1725,12 @@ def run_preprocessing_script(script: str, context: dict, raise_error: bool = Fal
 
     try:
         return context['value']
+    except KeyError:
+        msg = 'Preprocess script must define a "value" variable with the result'
+        if raise_error:
+            raise ValueError(msg)
+        _logger.warning(msg)
+        return ''
     except (TypeError, ValueError) as e:
         if raise_error:
             raise
@@ -1745,10 +1789,10 @@ def catch_exception(method):
         try:
             result = method(*args, **kwargs)
         except (
-            ErrorStore.SSLError,
-            ErrorStore.RequestsConnectionError,
-            ErrorStore.ResourceConflict,
-            ErrorStore.TooManyRequestsError,
+            es.SSLError,
+            es.RequestsConnectionError,
+            es.ResourceConflict,
+            es.TooManyRequestsError,
         ) as ex:
             if _client_attempt <= CLIENT_LIMIT:
                 wait = _get_retry_timeout(ex, _client_attempt)
@@ -1757,7 +1801,13 @@ def catch_exception(method):
                 return retry(_client_attempt=_client_attempt + 1)
             raise ex
 
-        except ErrorStore.ServerError as ex:
+        except es.ThrottledError as ex:
+            wait = ex.timeout
+            _logger.warning(_format_retry_exception(ex, _client_attempt, wait, method.__name__, is_client=True))
+            sleep(wait)
+            return retry(_client_attempt=_client_attempt)  # Retry without incrementing the attempt number
+
+        except es.ServerError as ex:
             if _server_attempt <= SERVER_LIMIT:
                 wait = _get_retry_timeout(ex, _server_attempt, is_client=False)
                 _logger.warning(_format_retry_exception(ex, _server_attempt, wait, method.__name__, is_client=False))

@@ -2,7 +2,7 @@
 # Part of Ventor modules. See LICENSE file for full copyright and licensing details.
 {
     "name": "Efarmer Account",
-    "version": "19.0.1.0.0",
+    "version": "18.0.1.0.0",
     "author": "VentorTech",
     "website": "https://ventor.tech/",
     "license": "LGPL-3",

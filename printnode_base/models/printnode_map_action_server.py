@@ -22,6 +22,8 @@ ACTION_TYPES = {
 
 
 class PrintnodeMapActionServer(models.Model):
+    """ Direct Print Action Server
+    """
     _name = 'printnode.map.action.server'
     _description = 'Proxy model for ir.actions.server'
 

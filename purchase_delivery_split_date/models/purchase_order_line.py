@@ -3,9 +3,11 @@
 # Copyright 2021 Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
+from itertools import groupby
+
 import pytz
 
-from odoo import models
+from odoo import fields, models
 
 
 class PurchaseOrderLine(models.Model):
@@ -20,11 +22,11 @@ class PurchaseOrderLine(models.Model):
         can add additional keys or replace them by others.
         """
         tz = self.order_id.picking_type_id.warehouse_id.partner_id.tz
-        wh_tz = pytz.timezone(tz) if tz else self.env.tz
+        wh_tz = pytz.timezone(tz or self.env.user.tz or "UTC")
         date_planned_tz = self.date_planned.astimezone(pytz.utc).astimezone(wh_tz)
         date = date_planned_tz.date()
         # Split date value to obtain only the attributes year, month and day
-        key = (("date_planned", date),)
+        key = ({"date_planned": fields.Date.to_string(date)},)
         return key
 
     def _purchase_split_date_get_sorted_keys(self):
@@ -41,15 +43,20 @@ class PurchaseOrderLine(models.Model):
             # A picking should be provided
             return super()._create_stock_moves(picking)
         moves = self.env["stock.move"]
-        tz = picking.picking_type_id.warehouse_id.partner_id.tz
+        tz = picking.picking_type_id.warehouse_id.partner_id.tz or self.env.user.tz
         # Group the order lines by group key
-        order_lines = self.filtered(
-            lambda line: not line.display_type and line.product_id.type == "consu"
+        order_lines = sorted(
+            self.filtered(
+                lambda line: not line.display_type and line.product_id.type == "consu"
+            ),
+            key=lambda line: line._purchase_split_date_get_sorted_keys(),
         )
-        date_groups = order_lines.grouped(
+        date_groups = groupby(
+            order_lines,
             lambda line: line._purchase_split_date_get_group_keys(picking),
         )
-        for key, po_lines in date_groups.items():
+        for key, lines in date_groups:
+            po_lines = self.browse().concat(*lines)
             if (
                 not picking.move_ids
                 or picking.move_ids == po_lines

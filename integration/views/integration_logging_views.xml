@@ -38,7 +38,7 @@
                 <field name="event_type" />
                 <field name="event_name" />
                 <field name="message" />
-                <group>
+                <group expand="0" string="Group By">
                     <filter string="E-Commerce Store" name="group_by_integration_id" domain="[]" context="{'group_by': 'integration_id'}" />
                     <filter string="Event Type" name="group_by_event_type" domain="[]" context="{'group_by': 'event_type'}" />
                     <filter string="Event Name" name="group_by_event_name" domain="[]" context="{'group_by': 'event_name'}" />

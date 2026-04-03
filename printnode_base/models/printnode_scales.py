@@ -10,12 +10,12 @@ _logger = logging.getLogger(__name__)
 
 
 class PrintNodePrinter(models.Model):
-    """ PrintNode Scales entity
+    """ Direct Print Scales entity
     """
     _name = 'printnode.scales'
-    _description = 'PrintNode Scales'
+    _description = 'Direct Print Scales'
 
-    printnode_id = fields.Integer('Printnode ID')
+    printnode_id = fields.Integer('Scale ID')
 
     active = fields.Boolean(
         'Active',
@@ -41,7 +41,7 @@ class PrintNodePrinter(models.Model):
     )
 
     status = fields.Char(
-        'PrintNode Status',
+        'Status',
         size=64,
     )
 
@@ -59,10 +59,13 @@ class PrintNodePrinter(models.Model):
         related='computer_id.account_id',
     )
 
-    _unique_scales = models.Constraint(
-        'UNIQUE(computer_id, printnode_id)',
-        'Scales ID should be unique.',
-    )
+    _sql_constraints = [
+        (
+            'printnode_id',
+            'unique(computer_id, printnode_id)',
+            'Scales ID should be unique.'
+        ),
+    ]
 
     @api.depends('name', 'device_num', 'computer_id.name')
     def _compute_display_name(self):
@@ -78,7 +81,7 @@ class PrintNodePrinter(models.Model):
             rec.online = rec.status in ['online'] and rec.computer_id.status in ['connected']
 
     def get_scales_measure_kg(self, show_error_on_zero=True):
-        """ Gets scales measure (kg) using PrintNode service.
+        """ Gets scales measure (kg) using Direct Print PRO service.
             Returns mass in kg.
         """
         scales_results = '/computer/{}/scale/{}/{}'.format(

@@ -6,13 +6,13 @@
         <field name="inherit_id" ref="base.view_users_form" />
         <field name="arch" type="xml">
             <xpath expr="/form/sheet/notebook" position="inside">
-                <page string="E-Commerce Integration" name="connector">
+                <page string="E-Commerce Integrations" name="connector">
                     <group string="Notifications">
                         <field name="notify_failed_jobs" />
-                        <div class="alert alert-info" role="alert" colspan="2">
-                            <strong>Note:</strong> Enabling this checkbox alone is not enough to receive notifications.
-                            You must also have <strong>Job Queue Manager</strong> access rights to be enabled in the user permissions.
-                        </div>
+                            <div class="alert alert-info" role="alert">
+                                <strong>Note:</strong> Enabling this checkbox alone is not enough to receive notifications.
+                                You must also have <strong>Job Queue Manager</strong> access rights to be enabled in the user permissions.
+                            </div>
                     </group>
                 </page>
             </xpath>

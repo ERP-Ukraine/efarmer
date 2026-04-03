@@ -3,7 +3,7 @@
 from odoo.tests import tagged
 from odoo.tests.common import mute_logger
 
-from .config.integration_init import OdooIntegrationInit
+from .config.integration_init import OdooIntegrationInit, load_xml
 from ..exceptions import IntegrationNotImplementedError
 
 
@@ -11,13 +11,22 @@ from ..exceptions import IntegrationNotImplementedError
 class TestIsImportableOrderStatus(OdooIntegrationInit):
     """Test is_importable_order_status method for base integration."""
 
-    def setUp(self):
-        super().setUp()
-        # Create a base integration for testing
-        self.base_integration = self.env['sale.integration'].create({
+    @classmethod
+    def setUpClass(cls):
+        super(TestIsImportableOrderStatus, cls).setUpClass()
+        # Load base integration XML data first (needed for refs)
+        load_xml(
+            cls.env,
+            module='integration',
+            path_file='tests/data',
+            filename='init_sale_integration.xml',
+        )
+        # Create a base integration for testing once per class
+        company_id_1 = cls.env.ref('integration.test_integration_company_1')
+        cls.base_integration = cls.env['sale.integration'].create({
             'name': 'Test Base Integration',
             'type_api': 'no_api',
-            'company_id': self.company_id_1.id,
+            'company_id': company_id_1.id,
         })
 
     def test_base_integration_raises_not_implemented_error(self):

@@ -10,20 +10,16 @@ from . import auto_workflow
 
 from . import ir_module
 
-from . import ecommerce_product_category
-from . import ecommerce_product_image
-
 from . import uom_uom
+from . import product_image
 from . import product_template
 from . import product_product
 from . import product_template_external_tag_group
 from . import product_template_attribute_value
 from . import product_attribute
 from . import product_attribute_value
-from . import product_feature
-from . import product_feature_value
 from . import product_pricelist
-from . import product_template_feature_line
+from . import product_public_category
 from . import integration_logging
 from . import integration_webhook_line
 from . import sale_integration
@@ -50,8 +46,13 @@ from . import sale_order_payment_method
 from . import mrp_bom
 from . import mrp_bom_line
 from . import queue_job
+from . import job_log
 from . import res_currency
 
 from . import integration_sale_order_factory
 from . import integration_res_partner_factory
 from . import integration_res_partner_proxy
+
+# Models required for Odoo 19.0 migration
+from . import ecommerce_product_category
+from . import ecommerce_product_image

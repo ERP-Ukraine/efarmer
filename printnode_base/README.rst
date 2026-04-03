@@ -7,6 +7,19 @@ Change Log
 
 |
 
+* 2.8.0 (2026-03-02)
+    - [NEW] Redesigned the module configuration wizard to provide a step-by-step guided setup with detailed explanations and a built-in video guide. The new flow simplifies activation, reduces setup errors, and significantly improves onboarding for new customers.
+    - [NEW] Moved company-related Direct Print settings to Odoo Company settings. This structural improvement enhances multi-company behavior, ensures more logical configuration management, and improves overall performance.
+    - [IMP] Extended shipping label printing logic by adding keyword-based detection. Labels can now be identified and printed using configurable keywords, providing greater flexibility for carrier-specific implementations.
+    - [IMP] Refactored the printing engine to prevent duplicate report printing during concurrent system operations. This significantly improves stability in high-load environments.
+    - [IMP] Improved print job titles and enriched print job details with clearer metadata, including report name, printing source, and number of copies.
+    - [IMP] Increased API limits for bulk report printing to improve stability during mass printing operations.
+    - [IMP] Improved attachment visibility logic to allow printing attachments regardless of the company they belong to.
+    - [IMP] Removed unnecessary restrictions on ZPL label printing for users with appropriate access rights.
+    - [FIX] Fixed access rights inconsistencies affecting restricted users.
+    - [FIX] Fixed an issue with the Shop Floor action button.
+    - [FIX] Implemented background improvements to enhance overall stability and reliability.
+
 * 2.7.1 (2025-04-18)
     - Improved functionality for printing multiple shipping labels related to a single transfer
     - Fixed issue with disabling modules for different users within the same company
@@ -122,13 +135,13 @@ Change Log
 
 * 2.1.7 (2022-02-23)
     - Added possibility to link printers to workstations
-    - Replaced print job ID from int to text (to provide compatibility with 64 bits PrintNode IDs)
+    - Replaced print job ID from int to text (to provide compatibility with 64 bits Direct Print PRO IDs)
     - Improved layout of Direct Print Settings page
     - Improved tests to mute catched errors in logs when running tests
     - Improved Print Labels wizard: take printer from "User Rules" (if exists)
 
 * 2.1.6 (2022-01-20)
-    - Improved module logic to work with PrintNode subaccounts functionality
+    - Improved module logic to work with Direct Print PRO subaccounts functionality
     - Added new scenario: Print Package on Put in Pack
     - Fixed issue with connecting multiple scales of the same model to account
     - Fixed issues with printing product labels through Print Labels wizard
@@ -138,7 +151,7 @@ Change Log
     - Added new scenario: Print Document on Picking Status Change
     - Improved scenario "Print Picking Document after Sales Order Confirmation" to print only Ready Picking
     - Added "Printed/Not Printed" filters to supported models
-    - Fixed synchronization with DPC/PrintNode: update computer or printer names when they changed
+    - Fixed synchronization with DPC/Direct Print PRO: update computer or printer names when they changed
     - Fixed printing multiple ZPL labels: it only printed the first label from all labels
     - Added Rate Us link to status menu
 
@@ -193,7 +206,7 @@ Change Log
     - When deleting account - delete all related objects (Computers, Printers, Print Jobs, User Rules, Printer Bins)
 
 * 1.8.1 (2021-07-20)
-    - Switching off "Print via Printnode" on user or company also should switch off auto-printing of shipping label on DO Validation
+    - Switching off "Print via Direct Print PRO" on user or company also should switch off auto-printing of shipping label on DO Validation
 
 * 1.8.0 (2021-07-14)
     - Added possibility to print Package Document together with the Shipping Label
@@ -207,7 +220,7 @@ Change Log
 
 * 1.7.1 (2021-06-30)
     - Fixed issue with automatic Shipping Label printing from attachments via "Print Last Shipping Label" button on Delivery Order
-    - Added possibility to enable debug logging on the account to log requests that are sent to PrintNode (needed to communicate with support)
+    - Added possibility to enable debug logging on the account to log requests that are sent to Direct Print PRO (needed to communicate with support)
 
 * 1.7 (2021-06-14)
     - When automatic printing is enabled in User Preferences, display near "Print" menu new dropdown "Download" that will allow to Download reports as in Odoo standard
@@ -216,7 +229,7 @@ Change Log
     - Method _create_backorder() must return a recordset like the original method does, so that other modules could extend it as well
 
 * 1.6.2 (2021-06-05)
-    - Fixed issue with download of printers when there is big amount of printers in Printnode account
+    - Fixed issue with download of printers when there is big amount of printers in Direct Print PRO account
     - When deleting account also delete inactive computers and printers
 
 * 1.6.1 (2021-05-31)
@@ -225,7 +238,7 @@ Change Log
 * 1.6 (2021-04-16)
     - Added possibility to define Universal Print Attachments Wizard for any model in the Odoo
     - (Experimental) Added settings to allow auto-printing of shipping labels from attachments. To support shipping carriers implemented not according to Odoo standards
-    - Fixed printing error when sending to PrintNode many documents at the same time
+    - Fixed printing error when sending to Direct Print PRO many documents at the same time
 
 * 1.5.2 (2021-03-26)
     - Added print scenarios to print "Lot labels" or "Product Labels" in real time when receiving items
@@ -278,6 +291,6 @@ Change Log
        Also Supporting all custom carrier integration modules that are written according to Odoo Standards
 
 * 1.0 (2020-07-20)
-    - Initial version providing robust integration of Odoo with PrintNode for automatic printing
+    - Initial version providing robust integration of Odoo with Direct Print PRO for automatic printing
 
 |

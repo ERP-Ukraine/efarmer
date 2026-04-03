@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="product_product_view_form_easy_inherit_shopify" model="ir.ui.view">
+        <field name="name">product.product.form.easy.integration.shopify</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="integration.product_product_view_form_easy_inherit_integration"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='store_specific_settings_variant']" position="inside">
+                <group name="shopify_settings" string="Shopify Specific Settings">
+                    <field name="continue_selling_without_stock"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_normal_form_view_integration" model="ir.ui.view">
+        <field name="name">product.product.form.normal.integration.shopify</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="integration.product_normal_form_view_integration"/>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <group name="integrations" position="after">
+                <group name="shopify_settings" string="Shopify Specific Settings">
+                    <field name="continue_selling_without_stock"/>
+                </group>
+            </group>
+        </field>
+    </record>
+
+</odoo>

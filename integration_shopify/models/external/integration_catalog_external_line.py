@@ -82,7 +82,8 @@ class IntegrationCatalogExternalLine(models.Model):
 
         items = self.create_price_batches(run_export=False)
 
-        action = self.env.ref('integration_shopify.integration_product_pricelist_batch_action').read()[0]
+        action = self.sudo().env.ref(
+            'integration_shopify.integration_product_pricelist_batch_action').read()[0]
         action['domain'] = [('id', 'in', items.ids)]
 
         return action
@@ -91,12 +92,9 @@ class IntegrationCatalogExternalLine(models.Model):
         self.ensure_one()
 
         job_kwargs = self._job_kwargs_create_price_batches()
+        job = self.with_delay(**job_kwargs).create_price_batches()
 
-        job = self.with_context(
-            company_id=self.integration_id.company_id.id,
-            job_integration_id=self.integration_id.id,
-        ).with_delay(**job_kwargs) \
-            .create_price_batches()
+        self.job_log(job)
 
         return job
 
@@ -184,6 +182,9 @@ class IntegrationCatalogExternalLine(models.Model):
             value=price,
             precision_digits=self.env['decimal.precision'].precision_get('Product Price'),
         )
+
+    def _get_integration_id_for_job(self):
+        return self.integration_id.id
 
     def _job_kwargs_create_price_batches(self):
         i_name = self.integration_id.name

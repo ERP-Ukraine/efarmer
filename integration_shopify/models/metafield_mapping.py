@@ -52,14 +52,16 @@ class Metafield(models.Model):
     _description = 'Represents the metafields in an external system that can be synced with Odoo'
     _rec_name = 'metafield_name'
 
-    _unique_metafield = models.Constraint(
-        'UNIQUE(integration_id, type, metafield_key, metafield_namespace)',
-        'A metafield already exists.',
-    )
+    _sql_constraints = [
+        (
+            'unique_metafield', 'UNIQUE(integration_id, type, metafield_key, metafield_namespace)',
+            'A metafield already exists.',
+        )
+    ]
 
     integration_id = fields.Many2one(
-        comodel_name='sale.integration',
         string='E-Commerce Store',
+        comodel_name='sale.integration',
         ondelete='cascade',
     )
 
@@ -106,10 +108,12 @@ class MetafieldMapping(models.Model):
     _inherits = {'external.metafield': 'metafield_id'}
     _description = 'Mapping between metafields in an external system and fields in Odoo'
 
-    _unique_metafield_mapping = models.Constraint(
-        'UNIQUE(metafield_id, odoo_field_id)',
-        'A mapping for this metafield already exists with the selected Odoo field.',
-    )
+    _sql_constraints = [
+        (
+            'unique_metafield_mapping', 'UNIQUE(metafield_id, odoo_field_id)',
+            'A mapping for this metafield already exists with the selected Odoo field.',
+        )
+    ]
 
     metafield_id = fields.Many2one(
         comodel_name='external.metafield',

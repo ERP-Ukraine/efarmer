@@ -106,20 +106,16 @@ class IntegrationProductTemplateExternal(models.Model):
             job_kwargs = integration._job_kwargs_import_product(record.code, record.name)
             job_kwargs['priority'] = 2
 
-            context = {
-                'company_id': record.company_id.id,
-                'job_integration_id': integration.id,
-                'job_integration_job_type': 'product',
-                'job_external_template_id': record.id,
-            }
-            integration \
-                .with_context(**context) \
+            job = integration \
+                .with_context(company_id=record.company_id.id) \
                 .with_delay(**job_kwargs) \
                 .import_product(
                     record.id,
                     import_images=integration.allow_import_images,
                     trigger_export_other=trigger_export_other,
                 )
+
+            record.job_log(job)
 
         plural = ('', 'is') if len(self) == 1 else ('s', 'are')
 
@@ -281,16 +277,12 @@ class IntegrationProductTemplateExternal(models.Model):
 
                 job_kwargs = self.integration_id._job_kwargs_import_images(template)
 
-                context = {
-                    'company_id': self.company_id.id,
-                    'job_integration_id': self.integration_id.id,
-                    'job_integration_job_type': 'product',
-                    'job_template_id': template.id,
-                }
-                self \
-                    .with_context(**context) \
+                job = self \
+                    .with_context(company_id=self.company_id.id) \
                     .with_delay(**job_kwargs) \
                     .receive_images_data()
+
+                template.job_log(job)
             else:
                 self._drop_abandoned_images()
 
@@ -339,7 +331,7 @@ class IntegrationProductTemplateExternal(models.Model):
         )
 
         for datacls in datacls_list_updated:
-            mapping = self.env['integration.ecommerce.product.image.mapping'] \
+            mapping = self.env['integration.product.image.mapping'] \
                 .browse(datacls.product_image_mapping_id)
 
             mapping.write(datacls._to_mapping_dict())
@@ -353,7 +345,7 @@ class IntegrationProductTemplateExternal(models.Model):
         template = self.odoo_record
 
         # 1.Clear template
-        to_unlink_images = template.integration_template_image_ids
+        to_unlink_images = template.product_template_image_ids
 
         if not self.all_image_mapping_ids.filtered(lambda x: x.is_template and x.is_cover):
             # Drop the main image if it is not in the external system and not belongs to any variant
@@ -369,7 +361,7 @@ class IntegrationProductTemplateExternal(models.Model):
 
         # 2. Clear variants
         for rec in template.product_variant_ids:
-            to_unlink_images |= rec.integration_variant_image_ids
+            to_unlink_images |= rec.product_variant_image_ids
 
             if not self.all_image_mapping_ids.filtered(
                 lambda x: x.is_variant and x.res_id == rec.id and x.is_cover
@@ -410,6 +402,9 @@ class IntegrationProductTemplateExternal(models.Model):
 
         values = self.env['product.template'] \
             .calculate_import_fields_data(integration.id, template_data)
+
+        if integration.apply_company_on_product and not values.get('company_id'):
+            values['company_id'] = integration.company_id.id
 
         attr_values_ids_by_attr_id = integration.convert_external_attributes(
             template_data['_attributes']
@@ -645,7 +640,13 @@ class IntegrationProductTemplateExternal(models.Model):
             - product.template
         """
         klass = self.env[model_name]
-        product = klass.search([(field_name, '=ilike', escape_psql(value))])
+
+        domain = [
+            ('company_id', 'in', [self.integration_id.company_id.id, False]),
+            (field_name, '=ilike', escape_psql(value)),
+        ]
+
+        product = klass.search(domain, limit=2)
 
         if len(product) > 1:
             raise ApiImportError(_(
@@ -699,11 +700,11 @@ class IntegrationProductTemplateExternal(models.Model):
         existing_kit_lines, incoming_kit_lines = [], []
 
         # 1. Serialize incoming boms
+        integration = self.integration_id
         for component in component_list:
             assert ('product_id' in component), _('Product complex-ID missed.')
 
-            odoo_variant = self.env['integration.sale.order.factory'] \
-                ._try_get_odoo_product(self.integration_id, component, force_create=True)
+            odoo_variant = integration._try_get_odoo_product(component, force_create=True)
 
             incoming_kit_lines.append(
                 (

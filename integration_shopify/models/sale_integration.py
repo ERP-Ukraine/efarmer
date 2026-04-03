@@ -82,8 +82,25 @@ class SaleIntegration(models.Model):
         ),
     )
 
+    shopify_personal_id_additional_field_name = fields.Char(
+        string='Additional Details Key for Personal ID',
+        invalidate_integration_cache=True,
+        help=(
+            'Specify the name of the additional info field that contains the personal ID number for customers.'
+        ),
+    )
+
+    shopify_vat_number_additional_field_name = fields.Char(
+        string='Additional Details Key for VAT Number',
+        invalidate_integration_cache=True,
+        help=(
+            'Specify the name of the additional info field that contains the VAT number for customers.'
+        ),
+    )
+
     translations_sync = fields.Boolean(  # Use the "is_translations_needed()" method instead
         string='Translations Synchronization',
+        default=True,
         help=(
             'Select this option to enable the synchronization of translations '
         ),
@@ -125,7 +142,7 @@ class SaleIntegration(models.Model):
         if not self.is_integration_shopify:
             raise NotImplementedError
 
-        tag_list = self.adapter.get_tags()
+        tag_list = self.adapter.get_product_tags()
 
         Tag = self.env['external.integration.tag']
         tags = Tag.browse()
@@ -200,7 +217,8 @@ class SaleIntegration(models.Model):
 
     def _get_integration_auth_action(self, add_default_context: bool = True) -> dict:
         if self.is_integration_shopify:
-            action = self.env.ref('integration_shopify.action_view_shopify_integration_authentication').read()[0]
+            action = self.sudo().env.ref(
+                'integration_shopify.action_view_shopify_integration_authentication').read()[0]
 
             if add_default_context:
                 action['context'] = {
@@ -298,6 +316,8 @@ class SaleIntegration(models.Model):
                 debug_mode=bool(self.get_settings_value('debug_mode')),
                 graphql_version=self._get_graphql_version(),
                 use_customer_currency=self.use_customer_currency,
+                vat_number_additional_field_name=self.shopify_vat_number_additional_field_name,
+                personal_id_additional_field_name=self.shopify_personal_id_additional_field_name,
             )
 
         return result

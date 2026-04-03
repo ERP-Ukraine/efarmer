@@ -9,15 +9,10 @@
             <field name="categ_id" position="after">
                 <field name="product_func_id" string="Product Function" filter_domain="[('product_func_id.name', 'ilike', self)]"/>
             </field>
-            <filter name="group_by_categ_id" position="after">
-                <field string="Product Function" name="product_func_id"  context="{'group_by':'product_func_id'}"/>
-
-                <field name="bom_type" string="BoM Type" context="{'group_by':'bom_type'}"/>
-            </filter>
-            <!-- <xpath expr="//filter[@name='categ_id']" position="after">
+            <xpath expr="//filter[@name='categ_id']" position="after">
                 <field name="product_func_id" string="Product Function" context="{'group_by':'product_func_id'}"/>
                 <field name="bom_type" string="BoM Type" context="{'group_by':'bom_type'}"/>
-            </xpath> -->
+            </xpath>
             <!-- Make BoM Type available in Add Custom Filter -->
             <xpath expr="//search" position="inside">
                 <field name="bom_type"/>

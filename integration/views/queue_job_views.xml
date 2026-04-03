@@ -1,320 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
 
-        <record id="view_integration_queue_job_form" model="ir.ui.view">
-            <field name="name">queue.job.form.view</field>
-            <field name="model">queue.job</field>
-            <field name="priority">20</field>
-            <field name="arch" type="xml">
-                <form string="Jobs" create="false" delete="false">
-                    <header>
-                        <!-- TODO: Provide compatibility with Job Queue module -->
-                        <button
-                            name="requeue"
-                            invisible="state != 'failed'"
-                            class="oe_highlight"
-                            string="Requeue Job"
-                            type="object"
-                            groups="integration_queue_job.group_queue_job_manager"
-                        />
-                        <button
-                            name="button_done"
-                            invisible="state not in ('wait_dependencies', 'pending', 'enqueued', 'failed')"
-                            class="oe_highlight"
-                            string="Set to 'Done'"
-                            type="object"
-                            groups="integration_queue_job.group_queue_job_manager"
-                        />
-                        <button
-                            name="button_cancelled"
-                            invisible="state not in ('pending', 'enqueued', 'failed')"
-                            class="oe_highlight"
-                            string="Cancel job"
-                            type="object"
-                            groups="integration_queue_job.group_queue_job_manager"
-                        />
-                        <field
-                            name="state"
-                            widget="statusbar"
-                            statusbar_visible="wait_dependencies,pending,enqueued,started,done"
-                            statusbar_colors='{"failed":"red","done":"green","cancelled":"yellow"}'
-                        />
-                    </header>
-                    <sheet>
-                        <h1>
-                            <field name="name" class="oe_inline" />
-                        </h1>
-                        <group>
-                            <field name="func_string" groups="base.group_no_one" />
-                        </group>
-                        <group>
-                            <group string="Job Information">
-                                <field name="integration_id" readonly="1"/>
-                                <field name="integration_job_type" readonly="1"/>
+    <record id="view_queue_job_list" model="ir.ui.view">
+        <field name="name">queue.job.list</field>
+        <field name="model">queue.job</field>
+        <field name="inherit_id" ref="queue_job.view_queue_job_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="width">400</attribute>
+            </xpath>
+        </field>
+    </record>
 
-                                <field name="template_id" invisible="not template_id" readonly="1"/>
-                                <field name="input_file_id" invisible="not input_file_id" readonly="1"/>
-                                <field name="order_id" invisible="not order_id" readonly="1"/>
-                                <field name="related_record_model" invisible="not related_record_model" readonly="1" groups="base.group_no_one"/>
-                                <field name="related_record_ids" invisible="not related_record_ids" readonly="1" groups="base.group_no_one"/>
-
-                                <div></div> <!-- Do not delete this div - it will break the layout :) -->
-                                <button name="action_open_related_records"
-                                    type="object"
-                                    string="Open Related Records"
-                                    class="btn btn-primary btn-sm"
-                                    icon="fa-external-link"
-                                    invisible="not related_record_model or not related_record_ids"
-                                />
-                            </group>
-                            <group string="Timestamps">
-                                <field name="date_created" />
-                                <field name="date_enqueued" groups="base.group_no_one" />
-                                <field name="date_started" />
-                                <field name="date_done" />
-                                <field name="exec_time" string="Time (s)" readonly="1" />
-                            </group>
-                        </group>
-
-                        <notebook>
-                            <page name="results" string="Results" invisible="result == False and exc_info == False">
-                                <group
-                                    name="result"
-                                    string="Result"
-                                    invisible="result == False"
-                                >
-                                    <field nolabel="1" name="result" colspan="2" />
-                                </group>
-
-                                <group
-                                    name="integration_exception"
-                                    string="Integration Exception"
-                                    invisible="not integration_model_view_name or state != 'failed'">
-                                    <group>
-                                        <field name="integration_exception_name" readonly="1"/>
-                                        <field name="integration_model_view_name" readonly="1"/>
-                                        <field name="is_import_from_external_available" invisible="1"/> <!-- Required because it is used in invisible condition below -->
-                                        <field name="integration_external_id" invisible="integration_exception_name == 'NotMappedToExternal'"/>
-                                        <field name="integration_odoo_id" invisible="integration_exception_name != 'NotMappedToExternal'"/>
-                                        <field name="integration_external_name" invisible="integration_exception_name == 'NotMappedToExternal'"/>
-                                        <field name="integration_odoo_name" invisible="integration_exception_name != 'NotMappedToExternal'"/>
-                                    </group>
-                                    <group>
-                                        <button name="action_open_external_view"
-                                                type="object"
-                                                string="Open External"
-                                                colspan="12"/>
-                                        <button name="action_open_mapping_view"
-                                                type="object"
-                                                string="Open Mappings"
-                                                colspan="12"/>
-                                        <button name="action_import_from_external_system"
-                                                type="object"
-                                                string="Import External Records From E-Commerce System"
-                                                colspan="12"
-                                                invisible="is_import_from_external_available == False"/>
-                                    </group>
-                                </group>
-
-                                <group
-                                    name="exc_info"
-                                    string="Exception Information"
-                                    invisible="exc_info == False"
-                                    colspan="4"
-                                >
-                                    <div id="exc_name" colspan="2">
-                                        <label for="exc_name" string="Exception:" />
-                                        <field name="exc_name" class="oe_inline" colspan="2" />
-                                    </div>
-
-                                     <div id="exc_info" colspan="2">
-                                        <label for="exc_info" string="Message:" />
-                                        <field name="exc_info" colspan="2" nolabel="1" />
-                                    </div>
-                                </group>
-                            </page>
-                            <page name="parameters" string="Parameters" groups="base.group_no_one">
-                                <group>
-                                    <group string="General Information">
-                                        <field name="uuid" />
-                                        <field name="priority"/>
-                                        <field name="company_id" groups="base.group_multi_company" readonly="1" />
-                                        <field name="user_id" readonly="1"/>
-                                    </group>
-
-                                    <group string="Technical Information">
-                                        <field name="channel" readonly="1"/>
-                                        <field name="worker_pid" groups="base.group_no_one" />
-                                        <div colspan="2">
-                                            <label for="retry" string="Current try / max. retries" />
-                                            <field name="retry" class="oe_inline" /> /
-                                            <field name="max_retries" class="oe_inline" />
-                                            <br />
-                                            <span
-                                            class="oe_grey oe_inline"
-                                        > If the max. retries is 0, the number of retries is infinite.</span>
-                                        </div>
-                                    </group>
-                                </group>
-                            </page>
-                        </notebook>
-                    </sheet>
-                    <!-- Chatter -->
-                    <chatter />
-                </form>
-            </field>
-        </record>
-
-        <record id="view_integration_queue_job_list" model="ir.ui.view">
-            <field name="name">queue.job.list.view</field>
-            <field name="model">queue.job</field>
-            <field name="priority">20</field>
-            <field name="arch" type="xml">
-                <list
-                    create="false"
-                    delete="false"
-                    decoration-danger="state == 'failed'"
-                    decoration-muted="state == 'done'"
-                >
-                    <field name="uuid" optional="hide"/>
-                    <field name="integration_id"/>
-                    <field name="integration_job_type"/>
-                    <field name="name" />
-                    <field name="model_name" optional="hide" />
-                    <field name="state" />
-                    <field name="template_id" optional="hide" />
-                    <field name="input_file_id" optional="hide" />
-                    <field name="order_id" optional="hide" />
-                    <field name="related_record_model" optional="hide" />
-                    <field name="related_record_ids" optional="hide" />
-                    <field name="date_created" />
-                    <field name="date_done" />
-                    <field name="exec_time" optional="hide" />
-                    <field name="exc_name" optional="hide"/>
-                    <field name="exc_message" optional="hide"/>
-                    <field name="channel" optional="hide" />
-                    <field name="company_id" groups="base.group_multi_company" optional="hide" />
-
-                    <button name="requeue"
-                        invisible="state not in ['failed']"
-                        string="Requeue"
+    <record id="view_queue_job_form" model="ir.ui.view">
+        <field name="name">queue.job.form</field>
+        <field name="model">queue.job</field>
+        <field name="priority">99</field>
+        <field name="inherit_id" ref="queue_job.view_queue_job_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='requeue']" position="after">
+                <button name="action_run_now"
                         type="object"
-                    />
-                    <button name="button_done"
-                            invisible="state not in ['pending','enqueued','failed']"
-                            string="Done"
-                            type="object"
-                    />
-                </list>
-            </field>
-        </record>
-
-        <record id="view_integration_queue_job_search" model="ir.ui.view">
-            <field name="name">queue.job.search.view</field>
-            <field name="model">queue.job</field>
-            <field name="arch" type="xml">
-                <search string="Jobs">
-                    <field name="name" />
-                    <field name="template_id" />
-                    <field name="input_file_id" />
-                    <field name="order_id" />
-                    <field name="integration_job_type" />
-                    <field name="uuid" />
-                    <field name="func_string" />
-                    <field name="exc_info" />
-                    <field name="result" />
-
-                    <filter
-                        name="wait_dependencies"
-                        string="Wait Dependencies"
-                        domain="[('state', '=', 'wait_dependencies')]"
-                    />
-                    <filter
-                        name="pending"
-                        string="Pending"
-                        domain="[('state', '=', 'pending')]"
-                    />
-                    <filter
-                        name="enqueued"
-                        string="Enqueued"
-                        domain="[('state', '=', 'enqueued')]"
-                    />
-                    <filter
-                        name="started"
-                        string="Started"
-                        domain="[('state', '=', 'started')]"
-                    />
-                    <filter name="done" string="Done" domain="[('state', '=', 'done')]" />
-                    <filter
-                        name="failed"
-                        string="Failed"
-                        domain="[('state', '=', 'failed')]"
-                    />
-                    <filter
-                        name="cancelled"
-                        string="Cancelled"
-                        domain="[('state', '=', 'cancelled')]"
-                    />
-                    <separator />
+                        string="Run Now"
+                        groups="base.group_no_one"
+                        invisible="state not in ('pending', 'enqueued', 'failed')"
+                        confirm="This will run the job synchronously in the current process. Proceed?"
+                        class="btn-outline-secondary"/>
+            </xpath>
+            <xpath expr="//group[@name='result']" position="before">
+                <group name="integration">
+                    <field name="integration_id" readonly="1"/>
+                    <field name="parent_id" readonly="1"/>
+                </group>
+            </xpath>
+            <xpath expr="//group[@name='exc_info']" position="before">
+                <group
+                    name="integration_exception"
+                    string="Integration Exception"
+                    invisible="not integration_model_view_name or state != 'failed'">
                     <group>
-                        <filter
-                            name="group_by_integration"
-                            string="E-Commerce Store"
-                            context="{'group_by': 'integration_id'}"
-                        />
-                        <filter
-                            name="group_by_integration_job_type"
-                            string="Job Type"
-                            context="{'group_by': 'integration_job_type'}"
-                        />
-                        <filter
-                            name="group_by_state"
-                            string="State"
-                            context="{'group_by': 'state'}"
-                        />
-                        <filter
-                            name="group_by_name"
-                            string="Model"
-                            context="{'group_by': 'name'}"
-                        />
-                        <filter
-                            name="group_by_exc_name"
-                            string="Exception"
-                            context="{'group_by': 'exc_name'}"
-                        />
-                        <filter
-                            name="group_by_exc_message"
-                            string="Exception message"
-                            context="{'group_by': 'exc_message'}"
-                        />
-                        <filter
-                            name="group_by_date_created"
-                            string="Created date"
-                            context="{'group_by': 'date_created'}"
-                        />
+                        <field name="integration_exception_name" readonly="1"/>
+                        <field name="integration_model_view_name" readonly="1"/>
+                        <field name="is_import_from_external_available" invisible="1"/> <!-- Required because it is used in invisible condition below -->
+                        <field name="integration_external_id" invisible="integration_exception_name == 'NotMappedToExternal'"/>
+                        <field name="integration_odoo_id" invisible="integration_exception_name != 'NotMappedToExternal'"/>
+                        <field name="integration_external_name" invisible="integration_exception_name == 'NotMappedToExternal'"/>
+                        <field name="integration_odoo_name" invisible="integration_exception_name != 'NotMappedToExternal'"/>
                     </group>
-                </search>
-            </field>
-        </record>
+                    <group>
+                        <button name="action_open_external_view"
+                                type="object"
+                                string="Open External"
+                                colspan="12"/>
+                        <button name="action_open_mapping_view"
+                                type="object"
+                                string="Open Mappings"
+                                colspan="12"/>
+                        <button name="action_import_from_external_system"
+                                type="object"
+                                string="Import External Records From E-Commerce System"
+                                colspan="12"
+                                invisible="is_import_from_external_available == False"/>
+                    </group>
+                </group>
+            </xpath>
+            <xpath expr="//field[@name='exc_info']" position="replace">
+                <field name="exc_info"/>
+            </xpath>
+        </field>
+    </record>
 
-        <record id="integration_jobs_action" model="ir.actions.act_window">
-            <field name="name">Jobs</field>
-            <field name="res_model">queue.job</field>
-            <field name="view_mode">list,form</field>
-            <field name="view_ids" eval="[(5, 0, 0),
-                (0, 0, {'view_mode': 'list', 'view_id': ref('view_integration_queue_job_list')}),
-                (0, 0, {'view_mode': 'form', 'view_id': ref('view_integration_queue_job_form')})]"/>
-            <field name="search_view_id" ref="view_integration_queue_job_search"/>
-            <field name="context">
-                {
-                    'search_default_pending': 1,
-                    'search_default_enqueued': 1,
-                    'search_default_started': 1,
-                    'search_default_failed': 1,
-                }
-            </field>
-        </record>
+    <record id="view_queue_job_lite_info_form" model="ir.ui.view">
+        <field name="name">queue.job.lite.info.form</field>
+        <field name="model">queue.job</field>
+        <field name="arch" type="xml">
+            <form string="Integration Workflow Pipeline Form" create="0" edit="0" delete="0">
+                <group name="job_info">
+                    <field name="integration_id" readonly="1"/>
+                    <field name="model_name"/>
+                    <field name="method_name"/>
+                    <field name="state" readonly="1"/>
+                </group>
 
-    </data>
+                <div class="alert alert-warning" role="alert" invisible="state != 'failed'">
+                    <h5 style="color: inherit">Error!</h5>
+                    <p>
+                        <field name="exc_info_lite" width="100px"/>
+                    </p>
+                </div>
+                <button name="action_toggle_exc"
+                        type="object"
+                        string="Full Traceback"
+                        colspan="12"
+                        invisible="exc_info in ('', False)"/>
+                <field name="toggle_exc" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                <field name="exc_info" readonly="1" invisible="not toggle_exc"/>
+                <field name="result" readonly="1"/>
+
+                <group
+                    name="integration_exception"
+                    string="Integration Exception"
+                    invisible="integration_model_view_name == False or state != 'failed'">
+                    <group>
+                        <field name="integration_exception_name" readonly="1"/>
+                        <field name="integration_model_view_name" readonly="1"/>
+                        <field name="is_import_from_external_available" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="integration_external_id" invisible="integration_exception_name == 'NotMappedToExternal'"/>
+                        <field name="integration_odoo_id" invisible="integration_exception_name != 'NotMappedToExternal'"/>
+                        <field name="integration_external_name" invisible="integration_exception_name == 'NotMappedToExternal'"/>
+                        <field name="integration_odoo_name" invisible="integration_exception_name != 'NotMappedToExternal'"/>
+                    </group>
+                    <group>
+                        <button name="action_open_external_view"
+                                type="object"
+                                string="Open External"
+                                colspan="12"/>
+                        <button name="action_open_mapping_view"
+                                type="object"
+                                string="Open Mappings"
+                                colspan="12"/>
+                        <button name="action_import_from_external_system"
+                                type="object"
+                                string="Import External Records From E-Commerce System"
+                                colspan="12"
+                                invisible="is_import_from_external_available == False"/>
+                    </group>
+                </group>
+
+            </form>
+        </field>
+    </record>
+
 </odoo>

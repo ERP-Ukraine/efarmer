@@ -3,7 +3,7 @@
 from odoo.tests import tagged
 from odoo.exceptions import UserError
 
-from .config.integration_init import OdooIntegrationInit
+from .config.integration_init import OdooIntegrationInit, load_xml
 
 
 class TestErrorCreate(UserError):
@@ -25,18 +25,24 @@ class TestErrorExportImage(UserError):
 @tagged('post_install', '-at_install', 'test_integration_core')
 class TestProductCreateWriteExport(OdooIntegrationInit):
 
-    def setUp(self):
-        super(TestProductCreateWriteExport, self).setUp()
-
-        self.assertTrue(self.integration_no_api_1.is_active)
-        self.assertTrue(self.integration_no_api_2.is_active)
-
-        self.assertTrue(
-            self.get_all_integrations() == (self.integration_no_api_1 + self.integration_no_api_2)
+    @classmethod
+    def setUpClass(cls):
+        super(TestProductCreateWriteExport, cls).setUpClass()
+        # Load base integration XML data first (needed for refs)
+        load_xml(
+            cls.env,
+            module='integration',
+            path_file='tests/data',
+            filename='init_sale_integration.xml',
         )
 
-        self.assertTrue(self.integration_no_api_1.export_template_job_enabled)
-        self.assertTrue(self.integration_no_api_2.export_template_job_enabled)
+        integration_no_api_1 = cls.env.ref('integration.integration_no_api_1')
+        integration_no_api_2 = cls.env.ref('integration.integration_no_api_2')
+
+        assert integration_no_api_1.is_active
+        assert integration_no_api_2.is_active
+        assert integration_no_api_1.export_template_job_enabled
+        assert integration_no_api_2.export_template_job_enabled
 
     @property
     def skip_ctx(self):
@@ -77,10 +83,7 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
             name='product-1',
             integration=self.integration_no_api_1,
         )
-        record = self.template.with_context(
-            **self.skip_ctx,
-            user=self.integration_user,
-        ).create(vals)
+        record = self.template.with_context(**self.skip_ctx).create(vals)
 
         self.assertTrue(record.integration_ids == self.integration_no_api_1)
         self.assertTrue(len(record.product_variant_ids) == 1)
@@ -93,10 +96,7 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
             name='product-2',
             integration=integrations,
         )
-        record = self.template.with_context(
-            **self.skip_ctx,
-            user=self.integration_administrator,
-        ).create(vals)
+        record = self.template.with_context(**self.skip_ctx).create(vals)
 
         self.assertTrue(record.integration_ids == integrations)
         self.assertTrue(len(record.product_variant_ids) == 1)
@@ -112,10 +112,7 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
         )
         vals['attribute_line_ids'] = self._generate_attribute_lines()
 
-        record = self.template.with_context(
-            **self.skip_ctx,
-            user=self.integration_user,
-        ).create(vals)
+        record = self.template.with_context(**self.skip_ctx).create(vals)
 
         self.assertFalse(record.integration_ids)
         self.assertTrue(len(record.product_variant_ids) == 2)
@@ -131,10 +128,7 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
         )
         vals['attribute_line_ids'] = self._generate_attribute_lines()
 
-        record = self.template.with_context(
-            **self.skip_ctx,
-            user=self.integration_user,
-        ).create(vals)
+        record = self.template.with_context(**self.skip_ctx).create(vals)
 
         self.assertFalse(record.integration_ids)
         self.assertTrue(len(record.product_variant_ids) == 2)
@@ -149,10 +143,7 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
             name='product-1',
             integration=self.integration_no_api_1,
         )
-        record = self.variant.with_context(
-            **self.skip_ctx,
-            user=self.integration_user,
-        ).create(vals)
+        record = self.variant.with_context(**self.skip_ctx).create(vals)
 
         self.assertTrue(record.integration_ids == self.integration_no_api_1)
         self.assertTrue(len(record.product_tmpl_id.product_variant_ids) == 1)
@@ -165,10 +156,7 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
             name='product-2',
             integration=integrations,
         )
-        record = self.variant.with_context(
-            **self.skip_ctx,
-            user=self.integration_user,
-        ).create(vals)
+        record = self.variant.with_context(**self.skip_ctx).create(vals)
 
         self.assertTrue(record.integration_ids == integrations)
         self.assertTrue(len(record.product_tmpl_id.product_variant_ids) == 1)
@@ -185,7 +173,7 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
 
         # 1. Create with one integration
         with self.assertRaises(TestErrorCreate):
-            record = self.template.with_user(self.integration_administrator).create(vals)
+            record = self.template.create(vals)
 
             self.assertTrue(record.integration_ids == self.integration_no_api_1)
             self.assertTrue(len(record.product_variant_ids) == 1)
@@ -201,7 +189,7 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
             integration=integrations,
         )
         with self.assertRaises(TestErrorCreate):
-            record = self.template.with_user(self.integration_user).create(vals)
+            record = self.template.create(vals)
 
             self.assertTrue(record.integration_ids == integrations)
             self.assertTrue(len(record.product_variant_ids) == 1)
@@ -252,10 +240,7 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
             name='product-1',
             integration=integrations,
         )
-        record = self.template.with_context(
-            **self.skip_ctx,
-            user=self.integration_user,
-        ).create(vals)
+        record = self.template.with_context(**self.skip_ctx).create(vals)
 
         self.assertTrue(record.integration_ids == integrations)
         self.assertTrue(len(record.product_variant_ids) == 1)
@@ -301,10 +286,10 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
             integration._is_need_export_images({'image_1920': ''})
         )
         self.assertTrue(
-            integration._is_need_export_images({'integration_template_image_ids': ''})
+            integration._is_need_export_images({'product_template_image_ids': ''})
         )
         self.assertTrue(
-            integration._is_need_export_images({'integration_variant_image_ids': ''})
+            integration._is_need_export_images({'product_variant_image_ids': ''})
         )
 
         self.assertFalse(
@@ -321,10 +306,10 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
             integration._is_need_export_images({'image_1920': ''})
         )
         self.assertFalse(
-            integration._is_need_export_images({'integration_template_image_ids': ''})
+            integration._is_need_export_images({'product_template_image_ids': ''})
         )
         self.assertFalse(
-            integration._is_need_export_images({'integration_variant_image_ids': ''})
+            integration._is_need_export_images({'product_variant_image_ids': ''})
         )
 
         # 3. export_template_job_enabled = True, allow_export_images = False
@@ -335,10 +320,10 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
             integration._is_need_export_images({'image_1920': ''})
         )
         self.assertFalse(
-            integration._is_need_export_images({'integration_template_image_ids': ''})
+            integration._is_need_export_images({'product_template_image_ids': ''})
         )
         self.assertFalse(
-            integration._is_need_export_images({'integration_variant_image_ids': ''})
+            integration._is_need_export_images({'product_variant_image_ids': ''})
         )
 
         # 4. export_template_job_enabled = allow_export_images = False
@@ -348,10 +333,10 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
             integration._is_need_export_images({'image_1920': ''})
         )
         self.assertFalse(
-            integration._is_need_export_images({'integration_template_image_ids': ''})
+            integration._is_need_export_images({'product_template_image_ids': ''})
         )
         self.assertFalse(
-            integration._is_need_export_images({'integration_variant_image_ids': ''})
+            integration._is_need_export_images({'product_variant_image_ids': ''})
         )
 
     def test_is_need_export_product(self):
@@ -410,10 +395,7 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
             name='product-1',
             integration=integration,
         )
-        record = self.template.with_context(
-            **self.skip_ctx,
-            user=self.integration_user,
-        ).create(vals)
+        record = self.template.with_context(**self.skip_ctx).create(vals)
 
         # 1. Expected `export_template` method
         with self.assertRaises(TestErrorExportTemplate):
@@ -427,3 +409,29 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
 
         with self.assertRaises(TestErrorExportImage):
             record._trigger_export_single_template({})
+
+    def test_integration_company_mismatch_compute(self):
+        integration1 = self.integration_no_api_1  # company A
+        integration2 = self.integration_no_api_2  # company B
+        self.assertNotEqual(integration1.company_id, integration2.company_id)
+
+        tmpl = self.template.with_context(**self.skip_ctx).create(
+            self.generate_product_data(name='p', integration=integration1)
+        )
+
+        # A
+        tmpl.company_id = integration1.company_id
+        tmpl.integration_ids = [(6, 0, integration1.ids)]
+        tmpl._compute_integration_company_mismatch()
+        self.assertFalse(tmpl.integration_company_mismatch)
+
+        # B
+        tmpl.integration_ids = [(6, 0, integration2.ids)]
+        tmpl._compute_integration_company_mismatch()
+        self.assertTrue(tmpl.integration_company_mismatch)
+
+        # C
+        tmpl.company_id = False
+        tmpl.integration_ids = [(6, 0, (integration1 | integration2).ids)]
+        tmpl._compute_integration_company_mismatch()
+        self.assertFalse(tmpl.integration_company_mismatch)

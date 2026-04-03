@@ -6,7 +6,7 @@
     "support": "support@erp.co.ua",
     "license": "LGPL-3",
     "category": "Hidden",
-    "version": "19.0.1.0.0",
+    "version": "18.0.1.0.0",
     "depends": ["stock_account"],
     "data": ["security/stock_account_security.xml"],
     "installable": True,

@@ -2,8 +2,7 @@
 
 from typing import Dict, Optional, Tuple
 
-from odoo import api, fields, models, _
-from odoo.modules.registry import Registry
+from odoo import api, fields, models, registry, _
 
 from ..exceptions import ApiImportError, NotMappedFromExternal
 from ..tools import freeze_arguments
@@ -11,7 +10,7 @@ from ..tools import freeze_arguments
 
 FIELDS_TO_COPY = [
     'person_name', 'company_name', 'company_reg_number', 'street', 'street2',
-    'country', 'state', 'city', 'country_code', 'state_code', 'zip', 'phone',
+    'country', 'state', 'city', 'country_code', 'state_code', 'zip', 'phone', 'mobile',
 ]
 
 
@@ -303,7 +302,7 @@ class IntegrationResPartnerFactory(models.TransientModel):
         Sends notification emails about failed customer mapping using a separate database cursor.
         This ensures that the email is sent reliably, even if the main transaction is rolled back.
         """
-        db_registry = Registry(self.env.cr.dbname)
+        db_registry = registry(self.env.cr.dbname)
         with db_registry.cursor() as new_cr:
             new_env = api.Environment(new_cr, self.env.uid, {})
             mail_template = new_env.ref('integration.mail_template_notify_failed_mapping')

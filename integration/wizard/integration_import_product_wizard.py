@@ -31,10 +31,11 @@ def catch_exception(func):
         except Exception as ex:
             if self.env.context.get('integration_catch_exception'):
                 traceback_details = traceback.format_exc()
+                msg_error = ex.args[0] if getattr(ex, 'args', None) and len(ex.args) else str(ex)
                 raise ValidationError(_(
                     'An error occurred during the operation: %s\n\n'
                     'Traceback details:\n%s'
-                ) % (ex.args[0], traceback_details))
+                ) % (msg_error, traceback_details))
 
             raise ex
     return _catch_exception
@@ -81,6 +82,7 @@ class IntegrationImportProductWizard(models.TransientModel):
     )
 
     integration_id = fields.Many2one(
+        string='E-Commerce Store',
         comodel_name='sale.integration',
         related='external_template_id.integration_id',
     )
@@ -156,7 +158,7 @@ class IntegrationImportProductWizard(models.TransientModel):
         # Case 1: Try to map
         if self.operation_try_map:
             if not external_data:
-                data = self.adapter.get_product_templates([code])
+                data, __, __ = self.adapter.get_product_templates([code])
 
                 if not data:
                     raise ApiImportError(_('Product with code "%s" not found in the e-commerce system!') % code)
@@ -522,6 +524,7 @@ class ImportProductLine(models.TransientModel):
     )
 
     integration_id = fields.Many2one(
+        string='E-Commerce Store',
         comodel_name='sale.integration',
         related='wizard_id.integration_id',
     )

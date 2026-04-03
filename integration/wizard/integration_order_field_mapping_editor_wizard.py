@@ -9,8 +9,8 @@ class IntegrationOrderFieldMappingEditorWizard(models.TransientModel):
     _description = 'Integration Order Field Mapping Editor Wizard'
 
     integration_id = fields.Many2one(
+        string='E-Commerce Store',
         related='mapping_field_id.integration_id',
-        string='Integration',
     )
 
     mapping_field_id = fields.Many2one(

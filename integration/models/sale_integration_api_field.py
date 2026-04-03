@@ -6,7 +6,7 @@ from odoo.tools.safe_eval import safe_eval
 
 class SaleIntegrationAPIFields(models.Model):
     _name = 'sale.integration.api.field'
-    _description = 'E-Commerce Store API Fields'
+    _description = 'Sale Integration API Fields'
 
     name = fields.Char(
         string='Name',

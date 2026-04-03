@@ -2,19 +2,21 @@
 <templates xml:space="preserve">
 
 <t t-name="printnode_base.DirectPrintStatusMenu">
-    <div t-att-class="directPrintStatusMenuSystray.class">
-        <Dropdown state="dropdown" beforeOpen.bind="beforeOpen" position="'bottom-end'" menuClass="directPrintStatusMenuSystray.menuClass">
-            <button>
-                <i class="fa fa-lg fa-print" role="img" aria-label="Direct Print Status Menu"></i>
-                <span t-if="state.releases.length and state.isManager">
-                    <span class="DirectPrintStatusMenu_badge badge rounded-pill">!</span>
-                </span>
-            </button>
-            <t t-set-slot="content">
-                <t t-call="printnode_base.DirectPrintStatusMenu.content"/>
-            </t>
-        </Dropdown>
-    </div>
+    <span t-if="state.isUser">
+        <div t-att-class="directPrintStatusMenuSystray.class">
+            <Dropdown state="dropdown" beforeOpen.bind="beforeOpen" position="'bottom-end'" menuClass="directPrintStatusMenuSystray.menuClass">
+                <button>
+                    <i class="fa fa-lg fa-print" role="img" aria-label="Direct Print Status Menu"></i>
+                    <span t-if="state.isManager and (!state.isAdvertisingDisabled or state.releases.length)">
+                        <span class="DirectPrintStatusMenu_badge badge rounded-pill">!</span>
+                    </span>
+                </button>
+                <t t-set-slot="content">
+                    <t t-call="printnode_base.DirectPrintStatusMenu.content"/>
+                </t>
+            </Dropdown>
+        </div>
+    </span>
 </t>
 
 <t t-name="printnode_base.DirectPrintStatusMenu.content">
@@ -84,7 +86,7 @@
                                 </t>
                                 <t t-else="">
                                     <b><t t-esc="limit.account"/></b>: Not Available
-                                    <i class="fa fa-info-circle" title="Number of printed documents and plan limits are unavailable (most likely because this account is a child PrintNode account)" data-toggle="tooltip"></i>
+                                    <i class="fa fa-info-circle" title="Number of printed documents and plan limits are unavailable (most likely because this account is a child Direct Print PRO account)" data-toggle="tooltip"></i>
                                 </t>
                             </div>
                         </t>
@@ -119,6 +121,33 @@
                             <a href="https://print.ventor.tech/faq#i-have-purchased-a-module-where-can-i-download-the-latest-odoo-direct-print-module-version" target="_blank">How to update the app?</a>
                         </t>
                     </div>
+
+                    <!-- Review credit block -->
+                    <t t-if="!state.isAdvertisingDisabled">
+                        <div class="DirectPrintStatusMenu_review_credit">
+                            <div class="alert alert-info d-flex flex-column rounded py-1 mb-1" role="alert">
+                                <p class="fw-bold mb-1">
+                                    🎁 <span class="text-danger">€30 Credit for Your Review</span>
+                                </p>
+                                <div>
+                                    Leave a review on the <a href="https://apps.odoo.com/apps/modules/18.0/printnode_base/#ratings" target="_blank">
+                                        <span class="text-info"><strong class="text-info">Odoo App Store</strong></span>
+                                    </a> and get €30 as credits for your printing subscription.
+                                </div>
+                                <div>
+                                    <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/article/522453101" target="_blank">
+                                        <small class="text-info">How to leave your review? Check the FAQ</small>
+                                    </a>
+                                </div>
+                                <div class="mt-1">
+                                    Just <a href="https://support.ventor.tech/" target="_blank"><strong class="text-info">contact us</strong></a> after posting - it's that simple!
+                                </div>
+                                <div class="fst-italic mb-0">
+                                    Promo runs until 1 June 2026
+                                </div>
+                            </div>
+                        </div>
+                    </t>
 
                     <!-- Rate Us block -->
                     <div class="DirectPrintStatusMenu_rate_us">

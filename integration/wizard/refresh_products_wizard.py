@@ -22,8 +22,8 @@ class RefreshProductsWizard(models.TransientModel):
         string='Allowed E-Commerce Stores Count',
     )
     integration_id = fields.Many2one(
-        comodel_name='sale.integration',
         string='Refresh from E-Commerce Store',
+        comodel_name='sale.integration',
         domain="[('id', 'in', allowed_integration_ids)]",
         required=True,
     )

@@ -31,12 +31,11 @@
                                 (4, ref('integration.test_integration_company_2')),
                                 (4, ref('integration.test_integration_company_3'))]"/>
             <field name="company_id" ref="integration.test_integration_company_1"/>
-            <field name="group_ids"
+            <field name="groups_id"
                    eval="[
-                       (4, ref('product.group_product_manager')),
                        (4, ref('sales_team.group_sale_manager')),
                        (4, ref('stock.group_stock_manager')),
-                       (4, ref('integration_queue_job.group_queue_job_manager')),
+                       (4, ref('queue_job.group_queue_job_manager')),
                        (4, ref('account.group_account_manager')),
                        (4, ref('integration.group_integration_manager')),
                        (4, ref('base.group_system')),
@@ -53,14 +52,10 @@
                                 (4, ref('integration.test_integration_company_2')),
                                 (4, ref('integration.test_integration_company_3'))]"/>
             <field name="company_id" ref="integration.test_integration_company_1"/>
-            <field name="group_ids"
-                   eval="[
-                        (4, ref('product.group_product_manager')),
-                        (4, ref('sales_team.group_sale_manager')),
+            <field name="groups_id"
+                eval="[(4, ref('sales_team.group_sale_manager')),
                         (4, ref('stock.group_stock_manager')),
-                        (4, ref('account.group_account_manager'))
-                    ]"
-            />
+                        (4, ref('account.group_account_manager'))]"/>
         </record>
 
         <record id="test_main_partner" model="res.partner">
@@ -134,32 +129,22 @@
             <field name="attribute_id" ref="product_attribute_color"/>
         </record>
 
-        <!-- Creating product future -->
-        <record id="feature_id" model="product.feature">
-            <field name="name">Test Feature</field>
-        </record>
-
-        <record id="feature_value_id" model="product.feature.value">
-            <field name="name">Test Feature Value</field>
-            <field name="feature_id" ref="feature_id"/>
-        </record>
-
         <!-- Creating category -->
-        <record id="product_public_category" model="ecommerce.product.category">
+        <record id="product_public_category" model="product.public.category">
             <field name="name">Test Category</field>
         </record>
 
-        <record id="integration_product_public_category_external" model="integration.ecommerce.product.category.external">
+        <record id="integration_product_public_category_external" model="integration.product.public.category.external">
             <field name="name">External Category</field>
             <field name="integration_id" ref="integration_no_api_1"/>
             <field name="code">40414243</field>
             <field name="complete_name">External Category</field>
         </record>
 
-        <record id="integration_product_public_category_mapping" model="integration.ecommerce.product.category.mapping">
+        <record id="integration_product_public_category_mapping" model="integration.product.public.category.mapping">
             <field name="integration_id" ref="integration_no_api_1"/>
-            <field name="category_id" ref="product_public_category"/>
-            <field name="external_category_id" ref="integration_product_public_category_external"/>
+            <field name="public_category_id" ref="product_public_category"/>
+            <field name="external_public_category_id" ref="integration_product_public_category_external"/>
         </record>
 
         <!-- Creating pricelists -->

@@ -11,7 +11,7 @@ class User(models.Model):
     _inherit = 'res.users'
 
     printnode_enabled = fields.Boolean(
-        string='Auto-print via Direct Print',
+        string='Enable Direct Printing for user',
         default=False,
     )
 
@@ -21,7 +21,7 @@ class User(models.Model):
     )
 
     scales_enabled = fields.Boolean(
-        string='Auto-measure with Scales',
+        string='Auto-measure Weight with Scales',
         default=False,
     )
 

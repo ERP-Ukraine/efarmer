@@ -152,8 +152,7 @@ class SaleOrder(models.Model):
                 # 1. Update Statuses
                 fulfillment_code = external_data['integration_workflow_states'][1]
 
-                sub_status_fulfillment = self.env['integration.sale.order.factory'] \
-                    ._get_order_sub_status(integration, fulfillment_code)
+                sub_status_fulfillment = integration._get_order_sub_status(fulfillment_code)
 
                 vals['shopify_fulfilment_status'] = sub_status_fulfillment.id
 

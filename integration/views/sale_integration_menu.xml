@@ -6,13 +6,28 @@
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">res.config.settings</field>
             <field name="view_mode">form</field>
+            <field name="target">inline</field>
             <field name="context">{'module' : 'integration'}</field>
         </record>
 
         <record id="action_integration_dashboard" model="ir.actions.client">
-            <field name="name">Dashboard</field>
-            <field name="path">eci</field>
+            <field name="name">Analytics</field>
+            <field name="path">eci-analytics</field>
             <field name="tag">integration_dashboard.client_action</field>
+        </record>
+
+        <record id="action_queue_job" model="ir.actions.act_window">
+            <field name="name">Jobs</field>
+            <field name="path">eci-job-queue</field>
+            <field name="res_model">queue.job</field>
+            <field name="view_mode">list,form,pivot,graph</field>
+            <field name="context">{'search_default_wait_dependencies': 1,
+                                'search_default_pending': 1,
+                                'search_default_enqueued': 1,
+                                'search_default_started': 1,
+                                'search_default_failed': 1}</field>
+            <field name="view_id" ref="queue_job.view_queue_job_tree" />
+            <field name="search_view_id" ref="queue_job.view_queue_job_search" />
         </record>
 
         <menuitem id="menu_sale_integration"
@@ -20,17 +35,17 @@
                   web_icon="integration,static/description/icon.png"
                   name="E-Commerce Integrations"/>
 
-        <menuitem id="menu_dashboard"
-                name="Dashboard"
-                action="action_integration_dashboard"
-                parent="menu_sale_integration"
-                sequence="10"/>
-
         <menuitem id="stores_menu"
                   name="Stores"
                   parent="menu_sale_integration"
                   action="integrations_list_action"
-                  sequence="20"/>
+                  sequence="10"/>
+
+        <menuitem id="menu_dashboard"
+                name="Analytics"
+                action="action_integration_dashboard"
+                parent="menu_sale_integration"
+                sequence="20"/>
 
         <menuitem id="input_file_menu"
                   name="External Orders"
@@ -38,10 +53,10 @@
                   action="input_files_list_action"
                   sequence="30"/>
 
-        <menuitem id="jobs_menu"
-                  name="Jobs"
+        <menuitem id="job_log_menu"
+                  name="Job Logs"
                   parent="menu_sale_integration"
-                  action="integration_jobs_action"
+                  action="integration_job_log_action"
                   groups="integration.group_integration_manager"
                   sequence="60"/>
 

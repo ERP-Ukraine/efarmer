@@ -19,7 +19,7 @@
 ######################################################################################################
 {
     "name": "Download Multiple Attachments",
-    "version": "19.0.1.0.0",
+    "version": "18.0.1.0.0",
     "depends": ["base"],
     "author": "BHC, VentorTech",
     "website": "www.bhc.be",

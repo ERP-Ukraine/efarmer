@@ -5,17 +5,10 @@ from odoo.exceptions import UserError
 
 
 class SaleOrderCancel(models.TransientModel):
-    _name = 'sale.order.cancel'
-    _description = 'Cancel Sale Order In E-Commerce Store'
-
-    order_id = fields.Many2one(
-        string="Sale Order",
-        comodel_name='sale.order',
-        required=True,
-        ondelete='cascade'
-    )
+    _inherit = 'sale.order.cancel'
 
     integration_id = fields.Many2one(
+        string='E-Commerce Store',
         comodel_name='sale.integration',
         related='order_id.integration_id'
     )

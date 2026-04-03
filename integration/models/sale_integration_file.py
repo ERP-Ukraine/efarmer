@@ -12,10 +12,12 @@ class SaleIntegrationFile(models.Model):
     _description = 'External Order File'
     _order = 'create_date desc'
 
-    _name_uniq = models.Constraint(
-        'unique(si_id, name)',
-        'Order name must be unique by partner!',
-    )
+    _sql_constraints = [
+        (
+            'name_uniq', 'unique(si_id, name)',
+            'Order name must be unique by partner!'
+        )
+    ]
 
     name = fields.Char(
         string='Name',
@@ -36,8 +38,8 @@ class SaleIntegrationFile(models.Model):
         copy=False,
     )
     si_id = fields.Many2one(
-        comodel_name='sale.integration',
         string='E-Commerce Store',
+        comodel_name='sale.integration',
         required=True,
         ondelete='cascade',
         readonly=True,
@@ -142,6 +144,9 @@ class SaleIntegrationInputFile(models.Model):
 
         return records
 
+    def _get_integration_id_for_job(self):
+        return self.si_id.id
+
     def _get_external_reference(self):
         return self._get_external_reference_root('')
 
@@ -245,28 +250,20 @@ class SaleIntegrationInputFile(models.Model):
             self.action_process()
 
             job_kwargs = self._job_kwargs_process_input_file()
-            context = {
-                'company_id': self.si_id.company_id.id,
-                'job_integration_id': self.si_id.id,
-                'job_integration_job_type': 'order',
-                'job_input_file_id': self.id,
-            }
             job = self \
-                .with_context(**context) \
+                .with_context(company_id=self.si_id.company_id.id) \
                 .with_delay(**job_kwargs).run_current_pipeline()
+
+            self.order_id.job_log(job)
         else:
             self.action_create_order()
 
-            context = {
-                'company_id': self.si_id.company_id.id,
-                'job_integration_id': self.si_id.id,
-                'job_integration_job_type': 'order',
-                'job_input_file_id': self.id,
-            }
-            si = self.si_id.with_context(**context)
+            si = self.si_id.with_context(company_id=self.si_id.company_id.id)
             job_kwargs = si._job_kwargs_create_order_from_input(self)
 
             job = si.with_delay(**job_kwargs).create_order_from_input(self.id)
+
+            self.job_log(job)
 
         return job
 
@@ -277,16 +274,11 @@ class SaleIntegrationInputFile(models.Model):
             self.action_process()
             job_kwargs = self._job_kwargs_process_input_file()
 
-            context = {
-                'company_id': self.si_id.company_id.id,
-                'job_integration_id': self.si_id.id,
-                'job_integration_job_type': 'order',
-                'job_input_file_id': self.id,
-            }
             job = self \
-                .with_context(**context) \
+                .with_context(company_id=self.si_id.company_id.id) \
                 .with_delay(**job_kwargs).run_current_pipeline()
 
+            self.order_id.job_log(job)
             return job
 
         self.action_create_order()
@@ -332,10 +324,14 @@ class SaleIntegrationInputFile(models.Model):
 
         pipiline = self.order_id.integration_pipeline
         if not pipiline:
-            return {}, {}
+            return {}
 
         data = self.parse()
-        return pipiline._update_pipeline(data)
+        pipiline._update_pipeline(
+            workflow_states=data.get('integration_workflow_states', []),
+            payment_method_code=data.get('payment_method'),
+        )
+        return data
 
     def open_pipeline_form(self):
         pipeline = self.order_id.integration_pipeline
@@ -345,27 +341,12 @@ class SaleIntegrationInputFile(models.Model):
 
         return self.order_id.action_integration_pipeline_form()
 
-    def action_open_related_jobs(self):
+    def open_job_logs(self):
         self.ensure_one()
-
-        jobs = self.env['queue.job'].search([
+        job_log_ids = self.env['job.log'].search([
             ('input_file_id', '=', self.id),
         ])
-
-        view_ids = [
-            (0, 0, {'view_mode': 'list', 'view_id': self.env.ref('integration.view_integration_queue_job_list').id}),
-            (0, 0, {'view_mode': 'form', 'view_id': self.env.ref('integration.view_integration_queue_job_form').id}),
-        ]
-
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Jobs History',
-            'res_model': 'queue.job',
-            'view_mode': 'list,form',
-            'view_ids': view_ids,
-            'domain': [('id', 'in', jobs.ids)],
-            'target': 'current',
-        }
+        return job_log_ids.open_tree_view()
 
     def action_update_current_pipeline(self):
         for rec in self:
@@ -404,15 +385,11 @@ class SaleIntegrationInputFile(models.Model):
         job_kwargs = order._job_kwargs_run_integration_workflow(task='cancel', priority=5)
         job_kwargs['description'] = f'{self.si_id.name}: Order № "{order.display_name}" >> Cancel Order (by webhook)'
 
-        context = {
-            'company_id': self.si_id.company_id.id,
-            'job_integration_id': self.si_id.id,
-            'job_integration_job_type': 'order',
-            'job_input_file_id': self.id,
-        }
-        job = self.with_context(**context) \
+        job = self.with_context(company_id=self.si_id.company_id.id) \
             .with_delay(**job_kwargs) \
             ._run_cancel_order(data)
+
+        order.job_log(job)
 
         return job
 
@@ -453,7 +430,10 @@ class SaleIntegrationInputFile(models.Model):
         order._apply_values_from_external(updated_data)
 
         # Build and run workflow
-        return order._build_and_run_integration_workflow(updated_data)
+        return order._build_and_run_integration_workflow(
+            workflow_states=updated_data.get('integration_workflow_states', []),
+            payment_method_code=updated_data.get('payment_method'),
+        )
 
     def _get_file_id_for_log(self):
         return self.id

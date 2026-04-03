@@ -87,7 +87,7 @@
                     <separator/>
 
                     <!-- Group by -->
-                    <group>
+                    <group expand="0" string="Group By">
                         <filter string="Store" name="group_integration_id"
                                 context="{'group_by': 'integration_id'}"/>
                         <filter string="Field Definition" name="group_ecommerce_field_id"

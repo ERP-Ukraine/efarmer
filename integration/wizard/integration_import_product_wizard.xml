@@ -5,7 +5,7 @@
         <field name="name">Import Integration Product Form</field>
         <field name="model">integration.import.product.wizard</field>
         <field name="arch" type="xml">
-            <form string="Advanced Integration Product Import">
+            <form string="Advanced E-Commerce Store Product Import">
                 <header>
                     <field name="state" widget="statusbar"/>
                 </header>

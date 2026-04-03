@@ -1,17 +1,16 @@
 # Copyright 2014-2016 Numérigraphe SARL
 # Copyright 2017 ForgeFlow, S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
-
 from freezegun import freeze_time
 
 from odoo import Command
 from odoo.fields import Datetime
 from odoo.tests import Form
 
-from odoo.addons.purchase_stock.tests.common import PurchaseTestCommon
+from odoo.addons.base.tests.common import BaseCommon
 
 
-class TestDeliverySingle(PurchaseTestCommon):
+class TestDeliverySingle(BaseCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -58,12 +57,12 @@ class TestDeliverySingle(PurchaseTestCommon):
 
         cls.po = cls.env["purchase.order"].create(
             {
-                "partner_id": cls.partner_1.id,
+                "partner_id": cls.env.ref("base.res_partner_3").id,
                 "order_line": [
                     Command.create(
                         {
                             "product_id": cls.p1.id,
-                            "product_uom_id": cls.p1.uom_id.id,
+                            "product_uom": cls.p1.uom_id.id,
                             "name": cls.p1.name,
                             "price_unit": cls.p1.standard_price,
                             "date_planned": cls.date_sooner,
@@ -73,7 +72,7 @@ class TestDeliverySingle(PurchaseTestCommon):
                     Command.create(
                         {
                             "product_id": cls.p2.id,
-                            "product_uom_id": cls.p2.uom_id.id,
+                            "product_uom": cls.p2.uom_id.id,
                             "name": cls.p2.name,
                             "price_unit": cls.p2.standard_price,
                             "date_planned": cls.date_sooner,
@@ -83,7 +82,7 @@ class TestDeliverySingle(PurchaseTestCommon):
                     Command.create(
                         {
                             "product_id": cls.p1.id,
-                            "product_uom_id": cls.p1.uom_id.id,
+                            "product_uom": cls.p1.uom_id.id,
                             "name": cls.p1.name,
                             "price_unit": cls.p1.standard_price,
                             "date_planned": cls.date_sooner,
@@ -121,7 +120,7 @@ class TestDeliverySingle(PurchaseTestCommon):
         # We first add a seller to the product
         self.env["product.supplierinfo"].create(
             {
-                "partner_id": self.partner_1.id,
+                "partner_id": self.env.ref("base.res_partner_3").id,
                 "product_tmpl_id": self.p1.product_tmpl_id.id,
             }
         )
@@ -280,7 +279,7 @@ class TestDeliverySingle(PurchaseTestCommon):
             Command.create(
                 {
                     "product_id": self.p3.id,
-                    "product_uom_id": self.p3.uom_id.id,
+                    "product_uom": self.p3.uom_id.id,
                     "name": self.p3.name,
                     "price_unit": self.p3.standard_price,
                     "date_planned": new_date,
@@ -303,27 +302,19 @@ class TestDeliverySingle(PurchaseTestCommon):
         self.po.button_confirm()
         line1 = self.po.order_line[0]
         line2 = self.po.order_line[1]
-        brussels_context = {
-            "tz": "Europe/Brussels",
-        }
+        self.env.user.tz = "Europe/Brussels"
         self.assertEqual(len(self.po.picking_ids), 1)
-        line1.with_context(**brussels_context).write(
-            {"date_planned": "2021-05-05 03:00:00"}
-        )
+        line1.write({"date_planned": "2021-05-05 03:00:00"})
         self.assertEqual(len(self.po.picking_ids), 2)
         # Time difference of at least +1 so  should be same day (1 picking)
-        line2.with_context(**brussels_context).write(
-            {"date_planned": "2021-05-04 23:00:00"}
-        )
+        line2.write({"date_planned": "2021-05-04 23:00:00"})
         self.assertEqual(len(self.po.picking_ids), 1)
 
-        utc_context = {
-            "tz": "Etc/UTC",
-        }
+        self.env.user.tz = "Etc/UTC"
         # No time difference so will be another day (2 pickings)
-        line1.with_context(**utc_context).write({"date_planned": "2021-05-05 03:00:00"})
+        line1.write({"date_planned": "2021-05-05 03:00:00"})
         self.assertEqual(len(self.po.picking_ids), 2)
-        line2.with_context(**utc_context).write({"date_planned": "2021-05-04 23:00:00"})
+        line2.write({"date_planned": "2021-05-04 23:00:00"})
         self.assertEqual(len(self.po.picking_ids), 2)
 
     def test_09_create_from_form(self):
@@ -341,7 +332,7 @@ class TestDeliverySingle(PurchaseTestCommon):
             {
                 "order_id": self.po.id,
                 "product_id": self.service_1.id,
-                "product_uom_id": self.service_1.uom_id.id,
+                "product_uom": self.service_1.uom_id.id,
                 "name": self.service_1.name,
                 "price_unit": self.service_1.standard_price,
                 "date_planned": self.date_later,
@@ -433,7 +424,7 @@ class TestDeliverySingle(PurchaseTestCommon):
                 0,
                 {
                     "product_id": self.p3.id,
-                    "product_uom_id": self.p3.uom_id.id,
+                    "product_uom": self.p3.uom_id.id,
                     "name": self.p3.name,
                     "price_unit": self.p3.standard_price,
                     "date_planned": new_date,
@@ -478,7 +469,7 @@ class TestDeliverySingle(PurchaseTestCommon):
                 0,
                 {
                     "product_id": self.p3.id,
-                    "product_uom_id": self.p3.uom_id.id,
+                    "product_uom": self.p3.uom_id.id,
                     "name": self.p3.name,
                     "price_unit": self.p3.standard_price,
                     "date_planned": new_date,

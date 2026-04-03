@@ -12,8 +12,8 @@
                     <field name="integration_id"/>
                     <field name="code"/>
                     <field name="name"/>
-                    <field name="default_external_tax_id"  domain="[('id', 'in', external_tax_ids)]"/>
                     <field name="external_tax_ids" widget="many2many_tags"/>
+                    <field name="default_external_tax_id"  domain="[('id', 'in', external_tax_ids)]"/>
                 </list>
             </field>
         </record>
@@ -25,10 +25,10 @@
                 <search>
                     <field name="name"/>
                     <field name="code"/>
-                    <field name="default_external_tax_id"/>
                     <field name="external_tax_ids"/>
+                    <field name="default_external_tax_id"/>
                     <field name="integration_id"/>
-                    <group>
+                    <group expand="0" string="Group By">
                         <filter string="E-Commerce Store" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
                     </group>
                 </search>

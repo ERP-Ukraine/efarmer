@@ -41,9 +41,15 @@ class CheckScope:
             for scope in self.scope_list:
                 if scope not in instance.access_scopes:
                     raise ValidationError(_(
-                        'The scope "%s" is not permitted in the private app of your store. '
-                        'Change it in the "Admin API" settings.' % scope
-                    ))
+                        'The Shopify API scope "%s" is not permitted for your app.\n\n'
+                        'Please update your app permissions in the Shopify Admin panel to include this scope.\n'
+                        'To do this, go to: Settings → Apps and sales channels → Develop apps → [Your App] → '
+                        'Configuration → Admin API integration → Edit, enable the missing permission, and save changes.\n\n'  # noqa: E501
+                        'After that, return to Odoo and click the "Refresh" button in the Quick Configuration wizard.\n\n'  # noqa: E501
+                        'For a detailed step-by-step guide, see our article:\n'
+                        'https://ecosystem.ventor.tech/faq/e-commerce-connectors/shopify/placeholder-for-how-to-fix-missing-permissions-for-the-shopify-connector/'  # noqa: E501
+                    ) % scope)
+
             return method(instance, *args, **kw)
         return scope_checker
 

@@ -8,6 +8,7 @@ class IntegrationSaleOrderMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'Integration Sale Order Mapping'
     _mapping_fields = ('odoo_id', 'external_id')
+    _mapping_label = 'Sale Order'
 
     odoo_id = fields.Many2one(
         string='Odoo Sale Order',

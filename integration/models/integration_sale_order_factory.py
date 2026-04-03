@@ -2,39 +2,95 @@
 
 import json
 import logging
-import warnings
 from typing import Dict
 
-from odoo import models, api, _
+from odoo import fields, models, _
 from odoo.exceptions import UserError
-from odoo.tools.float_utils import float_is_zero, float_round
+from odoo.tools.float_utils import float_compare, float_round
+from odoo.tools.translate import LazyTranslate
 
 from ..exceptions import ErrorStore, ApiImportError, NotMappedFromExternal
 
+
+_lt = LazyTranslate(__name__)
 _logger = logging.getLogger(__name__)
 
 
-class IntegrationSaleOrderFactory(models.AbstractModel):
+# Mark strings for extraction (never executed, just for translation tools)
+_lt('Discount for %s')
+_lt('Coupon: %s')
+
+
+class IntegrationSaleOrderFactory(models.TransientModel):
     _name = 'integration.sale.order.factory'
     _description = 'Integration Sale Order Factory'
 
-    @api.model
-    def create_order(self, integration, order_data):
+    input_file_id = fields.Many2one(
+        comodel_name='sale.integration.input.file',
+        string='Input File',
+        required=True,
+        ondelete='cascade',
+    )
+
+    integration_id = fields.Many2one(
+        comodel_name='sale.integration',
+        string='E-Commerce Store',
+        related='input_file_id.si_id',
+        store=True,
+    )
+
+    raw_data = fields.Text(
+        related='input_file_id.raw_data',
+    )
+
+    external_order_status = fields.Char(
+        string='External Order Status',
+    )
+
+    payment_method_code = fields.Char(
+        string='Payment Method Code',
+    )
+
+    is_cancelled = fields.Boolean(
+        string='Is Cancelled',
+    )
+
+    @property
+    def workflow_states(self):
+        return [x for x in [self.external_order_status] if x]
+
+    def create_order(self):
+        self.ensure_one()
+        order_data = self.input_file_id.parse()
+        self.is_cancelled = order_data.pop('is_cancelled', False)
+        self._extract_workflow_data(order_data)
+
+        integration = self.integration_id
         order = self.env['integration.sale.order.mapping'].search([
             ('integration_id', '=', integration.id),
             ('external_id.code', '=', order_data['id']),
         ]).odoo_id
 
         if not order:
-            order = self._create_order(integration, order_data)
+            order = self._create_order(order_data)
             order.create_mapping(integration, order_data['id'], extra_vals={'name': order.name})
-            self._post_create_order(integration, order, order_data)
+            self._post_create_order(order, order_data)
 
         return order
 
-    @api.model
-    def _create_order(self, integration, order_data):
-        order_vals = self._prepare_order_vals(integration, order_data)
+    def _extract_workflow_data(self, order_data):
+        """
+        Extract workflow-related data from parsed order and store on factory fields.
+        Override in connector-specific factories to handle additional workflow states
+        (e.g. Shopify's separate financial and fulfillment statuses).
+        """
+        states = order_data.get('integration_workflow_states', [])
+        self.external_order_status = states[0] if states else False
+        self.payment_method_code = order_data.get('payment_method')
+
+    def _create_order(self, order_data):
+        integration = self.integration_id
+        order_vals = self._prepare_order_vals(order_data)
 
         order_name = self.env['sale.order'] \
             .get_integration_order_name(integration, order_data['ref'])
@@ -48,6 +104,10 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
                 skip_integration_order_post_action=True,
             ) \
             .create(order_vals)
+
+        # Create order lines
+        self._create_order_lines(order, order_data)
+
         # Additional Order adjustments
         order._apply_values_from_external(order_data)
 
@@ -77,18 +137,15 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
         # onchange/depends functions are called. And they are changing payment terms
         # and as result they are taken from res.partner. And we have functionality to force set
         # Payment Terms from the payment method
-        payment_method = self._get_payment_method(
-            integration,
-            order_data['payment_method'],
-        )
+        payment_method = self._get_payment_method(order_data['payment_method'])
         values['payment_method_id'] = payment_method.id
         payment_method_external = payment_method.to_external_record(integration)
         if payment_method_external.payment_term_id:
             values['payment_term_id'] = payment_method_external.payment_term_id.id
 
         # Processing external order field mapping for an order
-        raw_data = json.loads(order.related_input_files.raw_data)
-        values.update(self._map_external_order_fields(integration, raw_data))
+        raw_data = json.loads(self.raw_data)
+        values.update(self._map_external_order_fields(raw_data))
 
         order.write(values)
 
@@ -103,29 +160,67 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
 
         return order
 
+    def _create_order_lines(self, order, order_data):
+        """
+        Create order lines after order is created.
+        """
+        integration = self.integration_id
+        lines_to_create = []
+
+        for line in order_data['lines']:
+            # Main line
+            line_vals = self._prepare_order_line_vals(order, line)
+            if line_vals:
+                lines_to_create.append((0, 0, line_vals))
+
+            # Separate discount line (if enabled)
+            if integration.separate_discount_line:
+                for discount_line_vals in self._prepare_order_discount_line_vals(order, line):
+                    lines_to_create.append((0, 0, discount_line_vals))
+
+        # Hook for customizations
+        lines_to_create = self._post_create_order_lines(order, order_data, lines_to_create)
+
+        if lines_to_create:
+            order.write({'order_line': lines_to_create})
+
+    def _post_create_order_lines(self, order, order_data, lines_to_create):
+        """
+        Hook called before creating order lines.
+        Override this method to modify lines_to_create list before writing.
+
+        :param order: sale.order recordset
+        :param order_data: dict with raw order data from e-commerce platform
+        :param lines_to_create: list of tuples [(0, 0, vals), ...]
+        :return: modified lines_to_create list
+        """
+        return lines_to_create
+
     def _create_order_additional_lines(self, order, order_data):
+        integration = self.integration_id
         # 1. Creating Delivery Line
         self._create_delivery_line(order, order_data['delivery_data'])
 
-        # 2. Creating Discount Line.
-        # !!! It should be after Creating Delivery Line
-        self._create_discount_line(order, order_data['discount_data'])  # Prestashop only
-
-        # 3. Creating Gift Wrapping Line
+        # 2. Creating Gift Wrapping Line
         self._create_gift_line(order, order_data['gift_data'])
+
+        # 3. Creating Order-Level Discount Lines.
+        # !!! It should be after Creating Delivery Line !!!
+        self._create_discount_line(order, order_data['discount_data'])
 
         # 4. Check difference of total order amount and correct it
         #    !!! This block must be the last !!!
-        if order.integration_id.use_order_total_difference_correction:
+        if integration.use_order_total_difference_correction:
             if order_data.get('amount_total', False):
                 self._create_line_with_price_difference_product(order, order_data['amount_total'])
 
-    def _map_external_order_fields(self, integration, external_order_data) -> Dict:
+    def _map_external_order_fields(self, external_order_data) -> Dict:
         """
         Map external order fields to Odoo fields (only active mappings).
         Returns:
             dict: Values for the order.
         """
+        integration = self.integration_id
         values = {}
 
         mappings = integration.external_order_field_mapping_ids.filtered(
@@ -141,22 +236,20 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
 
         return values
 
-    @api.model
-    def _prepare_order_vals_hook(self, integration, original_order_data, create_order_vals):
+    def _prepare_order_vals_hook(self, original_order_data, create_order_vals):
         # Use this method to override in subclasses to define different behavior
         # of preparation of order values
         pass
 
-    @api.model
-    def _prepare_order_vals(self, integration, order_data):
+    def _prepare_order_vals(self, order_data):
         """
         Prepare order values for creating a sale order.
         Args:
-            integration: Sale integration record.
             order_data: Dictionary containing order data.
         Returns:
             dict: Prepared order values.
         """
+        integration = self.integration_id
         PartnerFactory = self.env['integration.res.partner.factory'].create_factory(
             integration.id,
             customer_data=order_data.get('customer', {}),
@@ -170,25 +263,13 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
         shipping = addresses['shipping']
         billing = addresses['billing']
 
-        lines_to_create = []
-        for line in order_data['lines']:
-            line_vals = self._prepare_order_line_vals(integration, line)
-            lines_to_create.append((0, 0, line_vals))
-
-            # Create separate discount line
-            if integration.separate_discount_line:
-                discount_line_vals = self._prepare_order_discount_line_vals(integration, line)
-                if discount_line_vals:
-                    lines_to_create.append((0, 0, discount_line_vals))
-
         order_vals = {
             'integration_id': integration.id,
             'integration_amount_total': order_data.get('amount_total', False),
             'partner_id': partner.id if partner else False,
             'partner_shipping_id': shipping.id if shipping else False,
             'partner_invoice_id': billing.id if billing else False,
-            'order_line': lines_to_create,
-            'related_input_files': order_data['related_input_files'],
+            'related_input_files': [(6, 0, self.input_file_id.ids)],
         }
 
         if integration.so_external_reference_field:
@@ -203,49 +284,44 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
 
         current_state = order_data.get('current_order_state')
         if current_state:
-            sub_status = self._get_order_sub_status(integration, current_state)
+            sub_status = integration._get_order_sub_status(current_state)
             order_vals['sub_status_id'] = sub_status.id
 
-        pricelist = self._get_order_pricelist(integration, order_data.get('currency'), partner=partner)
+        pricelist = self._get_order_pricelist(order_data.get('currency'), partner=partner)
         if pricelist:
             order_vals['pricelist_id'] = pricelist.id
 
-        self._prepare_order_vals_hook(integration, order_data, order_vals)
+        self._prepare_order_vals_hook(order_data, order_vals)
 
         return order_vals
 
-    @api.model
-    def _prepare_order_discount_line_vals(self, integration, line_data, odoo_product=None):
+    def _prepare_order_discount_line_vals(self, order, line_data, product=None):
+        """
+        Prepare order line values for a discount line.
+
+        :param order: sale.order recordset
+        :param line_data: dict with raw line data from e-commerce platform
+        :param product: product.product recordset (optional)
+        :return: list of dicts with prepared order line values for discount line(s)
+        """
         discount = line_data['discount']
-        assert isinstance(discount, dict), _('Expected the dict object')
+        if not isinstance(discount, dict):
+            raise ValueError(_('Expected the dict object for discount data'))
 
         if not discount or not discount.get('discount_amount'):
-            return dict()
+            return []
 
-        discount_product = integration.discount_product_id
-        if not discount_product:
-            raise ApiImportError(
-                _(
-                    'Discount Product is not configured for the "%s" integration.\n'
-                    'To resolve this issue, please configure the "Discount Product" setting in '
-                    'the "Sales Orders" tab of the integration settings:\n'
-                    '1. Go to "E-Commerce Integrations → Stores → %s → Sales Orders" tab.\n'
-                    '2. Set the "Discount Product" field.\n\n'
-                    'Once this is done, requeue the job to continue processing.'
-                ) % (integration.name, integration.name)
-            )
-
-        if not odoo_product:
-            try:
-                odoo_product = self._try_get_odoo_product(integration, line_data)
-            except (ErrorStore.UndefinedExternalProduct, ErrorStore.NotFoundExternalProduct):
-                odoo_product = self.env['product.product']
+        discount_product = self._get_discount_product()
 
         discount_price = discount['discount_amount']
 
-        taxes = self.env['account.tax']
-        if not discount.get('discount_skip_taxes', False):
-            taxes = self.get_taxes_from_external_list(odoo_product, integration, line_data['taxes'])
+        if not product:
+            try:
+                product = self._try_get_odoo_product(line_data)
+            except (ErrorStore.UndefinedExternalProduct, ErrorStore.NotFoundExternalProduct):
+                product = self.env['product.product']
+
+        taxes = self.get_taxes_from_external_list(product, line_data['taxes'])
 
         if discount.get('discount_amount_tax_incl'):
             if taxes and self._get_tax_price_included(taxes):
@@ -256,35 +332,34 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
         discount_price = discount_price * -1
 
         # create discount line values dictionary
-        if odoo_product:
-            line_name = odoo_product.display_name
+        if product:
+            line_name = product.display_name
         else:
             line_name, line_reference = line_data.get('name'), line_data.get('reference')
             if line_reference:
                 line_name = f'[{line_reference}] {line_name}'
 
-        return {
+        # Prepare discount order line Description in customer language (if available)
+        lang = order.partner_id.lang
+        if lang:
+            product = product.with_context(lang=lang)
+            discount_product = discount_product.with_context(lang=lang)
+
+        discount_description = self._get_translated_string('Discount for %s', product.display_name, lang=lang)
+        discount_name = self._update_order_description(discount_product, [discount_description])
+
+        vals = {
             'product_id': discount_product.id,
-            'name': f'Discount for {line_name}',
+            'name': discount_name,
             'price_unit': discount_price,
             'product_uom_qty': 1,
-            'tax_ids': [(6, 0, taxes.ids)],
+            'tax_id': [(6, 0, taxes.ids)],
         }
 
-    @api.model
-    def _get_order_sub_status(self, integration, ext_current_state):
-        SubStatus = self.env['sale.order.sub.status']
+        return [vals]
 
-        sub_status = SubStatus.from_external(
-            integration, ext_current_state, raise_error=False)
-
-        if not sub_status:
-            integration.integrationApiImportSaleOrderStatuses()
-            sub_status = SubStatus.from_external(integration, ext_current_state)
-
-        return sub_status
-
-    def _get_order_pricelist(self, integration, order_currency_iso, partner):
+    def _get_order_pricelist(self, order_currency_iso, partner):
+        integration = self.integration_id
         company = integration.company_id
         company_currency_iso = company.currency_id.name
 
@@ -331,108 +406,50 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
 
         return pricelist
 
-    @api.model
-    def _get_odoo_product(self, integration, variant_code, raise_error=False):
-        product = self.env['product.product'].from_external(
-            integration,
-            variant_code,
-            raise_error=False,
-        )
+    def _try_get_odoo_product(self, line, force_create=False):
+        """
+        This method can be used when we need to customize logic of product search/creation for order lines.
+        """
+        return self.integration_id._try_get_odoo_product(line, force_create=force_create)
 
-        if not product and raise_error:
-            raise NotMappedFromExternal(
-                _(
-                    'Failed to find the external product variant with code "%s".\n\n'
-                    'To resolve this issue, please run "Link Products" using the button '
-                    'on the "Initial Import" tab in your "%s" integration settings.\n'
-                    'After that, verify that all products are correctly mapped in the following menus:\n'
-                    '1. "Mappings → Products"\n'
-                    '2. "Mappings → Product Variants"'
-                ) % (variant_code, integration.name),
-                model_name='integration.product.product.external',
-                code=variant_code,
-                integration=integration,
-            )
-
-        return product
-
-    @api.model
-    def _try_get_odoo_product(self, integration, line, force_create=False):
-        complex_variant_code = line['product_id']
-
-        if not complex_variant_code:
-            ErrorStore.raise_error(
-                err_code='E109',
-                integration_name=integration.name,
-                product_name=line.get('name', 'null'),
-                product_reference=line.get('reference', 'null'),
-            )
-
-        product = self._get_odoo_product(integration, complex_variant_code)
-        if product:
-            return product
-
-        # If the product is not found, attempt to re-import it from the external system
-        template_code, variant_code = integration.adapter._parse_product_external_code(complex_variant_code)
-        external_template, external_variants, __ = integration._import_external_product(template_code)
-
-        # Use fallback product if no external templates found or variant code doesn't match.
-        if not external_template or complex_variant_code not in external_variants.mapped('code'):
-            ErrorStore.raise_error(
-                err_code='E110',
-                integration_name=integration.name,
-                product_id=template_code,
-                variant_id=variant_code,
-                product_name=line.get('name', 'null'),
-                product_reference=line.get('reference', 'null'),
-            )
-
-        auto_create_product = force_create or integration.auto_create_products_on_so
-        product = self._get_odoo_product(
-            integration,
-            complex_variant_code,
-            raise_error=(not auto_create_product),
-        )
-
-        if auto_create_product and not product:
-            # Try to create ERP product on the fly
-            external_record = self.env['integration.product.template.external'] \
-                .get_external_by_code(integration, template_code)
-
-            integration.import_product(
-                external_record.id,
-                import_images=integration.allow_import_images,
-            )
-            product = self._get_odoo_product(integration, complex_variant_code, raise_error=True)
-
-        return product
-
-    @api.model
-    def _prepare_order_line_vals(self, integration, line):
+    def _prepare_order_line_vals(self, order, line_data):
         """
         Set forcibly discount to zero to avoid affection of the price list
         with policy "Show public price & discount to the customer".
-        If necessary, the discount will be created as a sepatare line.
+        If necessary, the discount will be created as a separate line.
+
+        :param order: sale.order recordset
+        :param line_data: dict with raw line data from e-commerce platform
+        :return: dict with prepared order line values
         """
+        integration = self.integration_id
         vals = {
             'discount': 0,
-            'integration_external_id': line['id'],
-            'external_location_id': line.get('external_location_id', False),
+            'integration_external_id': line_data['id'],
+            'external_location_id': line_data.get('external_location_id', False),
         }
 
+        # If there is coupons or any other additional information from e-commerce system (e.g. add_description_list),
+        # we should handle translations by ourselves. Otherwise,
+        # we should follow default Odoo implementation (and keep name field empty)
+        lang = order.partner_id.lang
+
+        additional_description_data = list(line_data.get('add_description_list') or [])
+        coupon = line_data.get('coupon')
+
+        if coupon:
+            coupon_description = self._get_translated_string('Coupon: %s', coupon, lang=lang)
+            additional_description_data.append(coupon_description)
+
         try:
-            product = self._try_get_odoo_product(integration, line)
+            product = self._try_get_odoo_product(line_data)
             vals['product_id'] = product.id
-
-            if line.get('add_description_list'):
-                vals['name'] = self._update_order_description(product, line['add_description_list'])
-
         except (ErrorStore.UndefinedExternalProduct, ErrorStore.NotFoundExternalProduct):
-            line_name, line_reference = line['name'], line['reference']
+            line_name, line_reference = line_data['name'], line_data['reference']
 
             # Try to get fallback product if the product is not found or not defined
             product = integration.get_fallback_product_or_raise(
-                line['product_id'],
+                line_data['product_id'],
                 line_name,
                 line_reference,
             )
@@ -440,41 +457,48 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
 
             # Add product name to the description list takin into account that
             # the add_description_list variable also may contains some text
-            description_list = line.get('add_description_list') or []
-
             if line_reference:
                 line_name = f'[{line_reference}] {line_name}'
 
-            description_list.insert(0, line_name)
-            vals['name'] = '\n'.join(description_list)
+            additional_description_data.insert(0, line_name)
+            vals['name'] = '\n'.join(additional_description_data)
 
-        if 'product_uom_qty' in line:
-            vals['product_uom_qty'] = line['product_uom_qty']
+        if 'product_uom_qty' in line_data:
+            vals['product_uom_qty'] = line_data['product_uom_qty']
 
-        taxes = self.get_taxes_from_external_list(product, integration, line['taxes'])
-        vals['tax_ids'] = [(6, 0, taxes.ids)]
+        taxes = self.get_taxes_from_external_list(product, line_data['taxes'])
+        vals['tax_id'] = [(6, 0, taxes.ids)]
 
-        vals['price_unit'] = line['price_unit']
+        vals['price_unit'] = line_data['price_unit']
         if taxes and self._get_tax_price_included(taxes):
-            if line.get('price_unit_tax_incl'):
-                vals['price_unit'] = line['price_unit_tax_incl']
+            if line_data.get('price_unit_tax_incl'):
+                vals['price_unit'] = line_data['price_unit_tax_incl']
 
         # Create discount included in the line
-        if not integration.separate_discount_line and line.get('discount'):
-            vals['discount'] = line['discount']['discount_percent']
+        if not integration.separate_discount_line and line_data.get('discount'):
+            vals['discount'] = line_data['discount']['discount_percent']
+
+        # Don't override 'name' if it was already set for a fallback product
+        if not vals.get('name') and additional_description_data:
+            if lang:
+                product = product.with_context(lang=lang)
+            vals['name'] = self._update_order_description(product, additional_description_data)
 
         return vals
 
-    def _update_order_description(self, product, data_list):
+    def _update_order_description(self, product, additional_data):
         description = product.get_product_multiline_description_sale()
-        return description + '\n' + '\n'.join(data_list)
+        if not additional_data:
+            return description
+        return description + '\n' + '\n'.join(additional_data)
 
-    def get_taxes_from_external_list(self, product, integration, external_tax_ids):
+    def get_taxes_from_external_list(self, product, external_tax_ids):
+        integration = self.integration_id
         taxes = self.env['account.tax']
 
         if external_tax_ids:
             for external_tax_id in external_tax_ids:
-                taxes |= self.try_get_odoo_tax(integration, external_tax_id)
+                taxes |= self.try_get_odoo_tax(external_tax_id)
             return taxes
 
         policy = integration.behavior_on_empty_tax
@@ -509,7 +533,8 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
 
         return taxes
 
-    def try_get_odoo_tax(self, integration, tax_id):
+    def try_get_odoo_tax(self, tax_id):
+        integration = self.integration_id
         tax = self.env['account.tax'].from_external(
             integration,
             tax_id,
@@ -536,7 +561,6 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
 
         return tax
 
-    @api.model
     def _get_tax_price_included(self, taxes):
         price_include = all(tax.price_include for tax in taxes)
 
@@ -554,7 +578,8 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
         # If True - the price includes taxes
         return price_include
 
-    def try_get_odoo_delivery_carrier(self, integration, carrier_data):
+    def try_get_odoo_delivery_carrier(self, carrier_data):
+        integration = self.integration_id
         code = carrier_data['id']
         carrier = self.env['delivery.carrier'].from_external(
             integration,
@@ -588,8 +613,8 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
             return self.env['sale.order.line']
 
         # 1. Set delivery line
-        integration = order.integration_id
-        carrier = self.try_get_odoo_delivery_carrier(integration, carrier)
+        integration = self.integration_id
+        carrier = self.try_get_odoo_delivery_carrier(carrier)
         order.set_delivery_line(carrier, delivery_data['shipping_cost'])
 
         delivery_line = order.order_line.filtered(lambda line: line.is_delivery)
@@ -597,9 +622,9 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
             return delivery_line
 
         # 2. Apply taxes
+        delivery_product = delivery_line.product_id
         taxes = self.get_taxes_from_external_list(
-            delivery_line.product_id,
-            integration,
+            delivery_product,
             delivery_data.get('taxes', []),
         )
 
@@ -608,22 +633,21 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
             if not all(x.amount == 0 for x in taxes):
                 tax_ids = list()
 
-        delivery_line.tax_ids = [(6, 0, tax_ids)]
+        delivery_line.tax_id = [(6, 0, tax_ids)]
 
         # 3. Handle `tax-exclude` property
         if 'shipping_cost_tax_excl' in delivery_data:
-            if not delivery_line.tax_ids or not self._get_tax_price_included(delivery_line.tax_ids):
+            if not delivery_line.tax_id or not self._get_tax_price_included(delivery_line.tax_id):
                 delivery_line.price_unit = delivery_data['shipping_cost_tax_excl']
 
         # 4. Apply discount
         if delivery_data.get('discount'):
             if integration.separate_discount_line:
-                discount_line_vals = self._prepare_order_discount_line_vals(
-                    integration,
+                for discount_line_vals in self._prepare_order_discount_line_vals(
+                    order,
                     delivery_data,
-                    odoo_product=delivery_line.product_id,
-                )
-                if discount_line_vals:
+                    product=delivery_product,
+                ):
                     order.order_line = [(0, 0, discount_line_vals)]
             else:
                 delivery_line.discount = delivery_data['discount']['discount_percent']
@@ -642,7 +666,7 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
         if not gift_data.get('do_gift_wrapping'):
             return self.env['sale.order.line']
 
-        integration = order.integration_id
+        integration = self.integration_id
         product = integration.gift_wrapping_product_id
         if not product:
             raise ApiImportError(
@@ -655,7 +679,6 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
 
         taxes = self.get_taxes_from_external_list(
             product,
-            integration,
             gift_data.get('wrapping_tax_ids', []),
         )
 
@@ -667,7 +690,7 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
         line = self.env['sale.order.line'].create({
             'product_id': product.id,
             'order_id': order.id,
-            'tax_ids': taxes.ids,
+            'tax_id': taxes.ids,
             'price_unit': gift_price,
         })
 
@@ -678,7 +701,7 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
         return line
 
     def _create_line_with_price_difference_product(self, order, amount_total):
-        integration = order.integration_id
+        integration = self.integration_id
 
         price_difference = float_round(
             value=amount_total - order.amount_total,
@@ -720,163 +743,90 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
                 'product_id': difference_product_id.id,
                 'order_id': order.id,
                 'price_unit': price_difference,
-                'tax_ids': False,
+                'tax_id': False,
             })
 
         return False
 
-    def _insert_line_in_order(self, order, price_unit, tax_ids):
-        discount_product = order.integration_id.discount_product_id
-
-        line = self.env['sale.order.line'].create({
-            'name': discount_product.name,
-            'product_id': discount_product.id,
-            'order_id': order.id,
-            'price_unit': price_unit,
-            'tax_ids': tax_ids and tax_ids.ids or False,
-        })
-        return line
-
-    def _create_discount_line(self, order, discount_data):
-        discount_tax_incl = discount_data.get('total_discounts_tax_incl')
-        discount_tax_excl = discount_data.get('total_discounts_tax_excl')
-        if not discount_tax_incl or not discount_tax_excl:
-            return self.env['sale.order.line']
-
-        discount_tax_incl = abs(discount_tax_incl)
-        discount_tax_excl = abs(discount_tax_excl)
-
-        integration = order.integration_id
+    def _get_discount_product(self):
+        integration = self.integration_id
         if not integration.discount_product_id:
             raise ApiImportError(
                 _(
                     'Discount Product is not configured for the "%s" integration.\n'
                     'To resolve this issue, please configure the "Discount Product" setting in '
                     'the "Sales Orders" tab of the integration settings:\n'
-                    '1. Go to "E-Commerce Integrations -> %s -> Sales Orders" tab.\n'
+                    '1. Go to "E-Commerce Integrations → Stores → %s → Sales Orders" tab.\n'
                     '2. Set the "Discount Product" field.\n\n'
                     'Once this is done, requeue the job to continue processing.'
                 ) % (integration.name, integration.name)
             )
+        return integration.discount_product_id
 
-        precision = self.env['decimal.precision'].precision_get('Product Price')
+    def _insert_line_in_order(self, order, price_unit, tax_id):
+        discount_product = self._get_discount_product()
+        lang = order.partner_id.lang
+        if lang:
+            discount_product = discount_product.with_context(lang=lang)
 
-        product_lines = order.order_line.filtered(lambda x: not x.is_delivery)
+        line = self.env['sale.order.line'].create({
+            'product_id': discount_product.id,
+            'order_id': order.id,
+            'name': discount_product.get_product_multiline_description_sale(),
+            'price_unit': price_unit,
+            'tax_id': tax_id and tax_id.ids or False,
+        })
+        return line
 
-        # Taxes must be with '-'
-        discount_taxes = discount_tax_excl - discount_tax_incl
+    def _find_order_tax_by_amounts(self, order, tax_incl, tax_excl):
+        """
+        Identify the tax that was applied to a discount amount by working
+        backwards from the tax-included and tax-excluded monetary values.
 
-        if self._get_tax_price_included(product_lines.mapped('tax_ids')):
-            discount_price = discount_tax_incl * -1
-        else:
-            discount_price = discount_tax_excl * -1
+        For each percent tax already on the order's product lines, compute
+        the tax-excluded price that tax would produce from ``tax_incl``, then
+        compare to ``tax_excl`` using the company currency's rounding precision.
+        This avoids computing an explicit rate percentage and sidesteps the
+        rounding noise inherent in monetary amounts.
 
-        discount_line = self._insert_line_in_order(order, discount_price, False)
+        Returns the matching tax recordset, or an empty recordset when:
+          - tax_incl == tax_excl (zero-tax discount), or
+          - no order tax produces a match.
+        """
+        if not tax_excl or tax_incl == tax_excl:
+            return self.env['account.tax']
 
-        # 1. Discount without taxes
-        if float_is_zero(discount_taxes, precision_digits=precision):
-            return discount_line
+        currency_rounding = self.integration_id.company_id.currency_id.rounding
 
-        # 2. Try to find the most suitable tax.
-        #  Basically it's made for PrestaShop because it gives only discount with/without taxes
-        #  We try to understand whether discount applied to all lines, one line
-        #  or lines with identical taxes by the minimal calculated tax difference.
-        #  Otherwise we apply discount to all lines
-        #  TODO For Other shops we should make with taxes from discount in order data
+        product_lines = order.order_line.filtered(lambda line: not line.is_delivery)
+        order_taxes = product_lines.mapped('tax_id')
 
-        # 2.1 Group lines by taxes
-        all_grouped_taxes = {}
-        grouped_taxes = {}
-        line_taxes = {}
-        all_lines_sum = 0
-        delivery_line = order.order_line.filtered(lambda line: line.is_delivery)
-        carrier_tax_id = delivery_line.tax_ids
+        for tax in order_taxes:
+            if tax.amount_type != 'percent':
+                continue
+            expected_excl = tax_incl / (1 + tax.amount / 100)
+            if float_compare(expected_excl, tax_excl, precision_rounding=currency_rounding) == 0:
+                return tax
 
-        for line in product_lines:
-            tax_key = str(line.tax_ids)
-            line_key = str(line.id)
-            all_lines_sum += line.price_subtotal
+        _logger.warning(
+            '"%s": no order tax matches the discount amounts '
+            '(tax_incl=%.2f, tax_excl=%.2f). Discount line will have no tax.',
+            self.integration_id.name, tax_incl, tax_excl,
+        )
+        return self.env['account.tax']
 
-            grouped_taxes.update({tax_key: {
-                'tax_ids': line.tax_ids if line.price_unit and not all_lines_sum else carrier_tax_id,
-                'discount': discount_price,
-            }})
-            line_taxes.update({line_key: {
-                'tax_ids': line.tax_ids,
-                'discount': discount_price,
-            }})
-            all_grouped_taxes.update({tax_key: {
-                'price_subtotal': (
-                    line.price_subtotal
-                    + all_grouped_taxes.get(tax_key, {}).get('price_subtotal', 0)
-                ),
-                'tax_ids': line.tax_ids,
-            }})
+    def _create_discount_line(self, order, discount_data):
+        """
+        Hook for connector-specific order-level discount lines.
 
-        # 2.2 Distribution of the amount to different tax groups
-        all_grouped_taxes = [grouped_tax for grouped_tax in all_grouped_taxes.values()]
-        residual_amount = discount_price
-        line_num = len(all_grouped_taxes)
+        The base implementation does nothing. PrestaShop overrides this with its
+        own tax-inference logic. All other connectors pass an empty discount_data
+        dict and rely on line-level discounts instead.
+        """
+        return self.env['sale.order.line']
 
-        for tax_value in all_grouped_taxes:
-            if line_num == 1 or not all_lines_sum:
-                tax_value['discount'] = residual_amount
-            else:
-                tax_value['discount'] = float_round(
-                    value=discount_price * tax_value['price_subtotal'] / all_lines_sum,
-                    precision_digits=precision
-                )
-
-            residual_amount -= tax_value['discount']
-            line_num -= 1
-
-        # 2.3 Calculate tax difference for different combinations
-        def calc_tax_summa(tax_values):
-            tax_amount = 0
-
-            for tax_value in tax_values:
-                discount_line.tax_ids = tax_value['tax_ids']
-                discount_line.price_unit = tax_value['discount']
-                tax_amount += discount_line.price_tax
-
-            return {
-                'grouped_taxes': tax_values,
-                'tax_diff': abs(tax_amount - discount_taxes),
-            }
-
-        # discount taxes for all
-        calc_taxes = [calc_tax_summa(all_grouped_taxes)]
-        # discount taxes one by one for tax groups
-        calc_taxes += [calc_tax_summa([grouped_tax]) for grouped_tax in grouped_taxes.values()]
-        # discount taxes one by one for line
-        calc_taxes += [calc_tax_summa([line_tax]) for line_tax in line_taxes.values()]
-
-        # 2.4 Get tax with MINIMAL difference
-        # If price difference > 1% then apply discount to all taxes
-        calc_taxes.sort(key=lambda calc_tax: calc_tax['tax_diff'])
-
-        if abs(calc_taxes[0]['tax_diff'] / discount_taxes) < 0.01:
-            the_most_suitable_discount = calc_taxes[0]['grouped_taxes']
-        else:
-            the_most_suitable_discount = all_grouped_taxes
-
-        # Delete old delivery line
-        discount_line.unlink()
-
-        discount_lines = self.env['sale.order.line']
-
-        # 2.5 Create discount lines for discount
-        for tax_value in the_most_suitable_discount:
-            discount_lines += self._insert_line_in_order(
-                order,
-                tax_value['discount'],
-                tax_value['tax_ids']
-            )
-
-        return discount_lines
-
-    @api.model
-    def _get_payment_method(self, integration, external_code):
+    def _get_payment_method(self, external_code):
+        integration = self.integration_id
         _name = 'sale.order.payment.method'
         PaymentMethod = self.env[_name]
 
@@ -907,8 +857,31 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
 
         return payment_method
 
-    def _post_create_order(self, integration: models.Model, order: models.Model, order_data: Dict):
-        if hasattr(self, '_post_create'):
-            warnings.warn('Deprecated method used: _post_create', DeprecationWarning, stacklevel=2)
-            self._post_create(integration, order)
+    def _post_create_order(self, order: models.Model, order_data: Dict):
         return order
+
+    def _get_translated_string(self, source: str, *args, lang: str = None) -> str:
+        """
+        Get a translated string in the specified language.
+
+        :param lang: Language code (e.g., 'pl_PL', 'en_US')
+        :param source: string to be translated
+        :param args: Arguments for string formatting
+        :return: Translated and formatted string
+        """
+        if not source:
+            return ''
+
+        # Prepare a `context` local variable so Odoo's GettextAlias (_()) can detect `lang`
+        # by inspecting the caller's locals and translate `source` in that language
+        context = dict(self.env.context, lang=lang) if lang else self.env.context  # noqa: F841
+
+        # Translate using Odoo's global alias; language is taken from the local `context` above
+        translated = _(source)
+
+        if not args:
+            return translated
+
+        translated = translated % args
+
+        return translated

@@ -38,7 +38,7 @@
                     <field name="external_barcode" string="Barcode"/>
                     <field name="integration_id" string="E-Commerce Store"/>
                     <field name="external_product_template_id" string="Parent Product"/>
-                    <group>
+                    <group expand="0" string="Group By">
                         <filter string="E-Commerce Store" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
                     </group>
                 </search>

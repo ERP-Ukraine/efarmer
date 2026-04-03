@@ -8,9 +8,10 @@ class IntegrationSaleOrderSubStatusMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'External Order Status Mapping'
     _mapping_fields = ('odoo_id', 'external_id')
+    _mapping_label = 'Order Status'
 
     odoo_id = fields.Many2one(
-        string='Odoo E-Commerce Order Status',
+        string='Odoo E-Commerce OrderStatus',
         comodel_name='sale.order.sub.status',
         ondelete='cascade',
     )
@@ -22,10 +23,13 @@ class IntegrationSaleOrderSubStatusMapping(models.Model):
         ondelete='cascade',
     )
 
-    _uniq_mapping = models.Constraint(
-        'unique(integration_id, external_id)',
-        'External order statuses should be unique per store',
-    )
+    _sql_constraints = [
+        (
+            'uniq_mapping',
+            'unique(integration_id, external_id)',
+            'External order statuses should be unique per store'
+        ),
+    ]
 
     def import_statuses(self):
         status_external = self.mapped('external_id')

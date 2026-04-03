@@ -6,7 +6,7 @@
     <xpath expr="//t[@t-set='lines']" position="attributes">
         <attribute name="t-value">o.invoice_line_ids.filtered(lambda l: l.display_type != 'line_section').sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)</attribute>
     </xpath>
-    <xpath expr="//tbody[hasclass('invoice_tbody')]/t[@t-foreach='lines_to_report']//tr" position="attributes">
+    <xpath expr="//tbody[hasclass('invoice_tbody')]/t[@t-foreach='lines']//tr[1]" position="attributes">
         <attribute name="t-if">not line.has_deposit_deducted()</attribute>
     </xpath>
     <xpath expr="//div[@id='total']//t[@t-set='tax_totals']" position="attributes">

@@ -22,7 +22,7 @@
                 <search>
                     <field name="name"/>
                     <field name="external_name"/>
-                    <group>
+                    <group expand="0" string="Group By">
                         <filter string="E-Commerce Store" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
                     </group>
                 </search>
@@ -34,7 +34,7 @@
             <field name="path">eci-external-order-sources</field>
             <field name="res_model">external.order.source.name</field>
             <field name="view_mode">list</field>
-            <field name="group_ids" eval="[(4, ref('base.group_no_one'))]"/>
+            <field name="groups_id" eval="[(4, ref('base.group_no_one'))]"/>
         </record>
 
     </data>

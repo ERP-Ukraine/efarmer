@@ -26,7 +26,7 @@
             <field name="res_model">refresh.products.wizard</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>
-            <field name="group_ids" eval="[(4,ref('integration.group_integration_manager'))]"/>
+            <field name="groups_id" eval="[(4,ref('integration.group_integration_manager'))]"/>
         </record>
 
 </odoo>

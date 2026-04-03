@@ -4,7 +4,11 @@ import re
 
 from odoo import api, models, fields, _
 from odoo.exceptions import UserError
+from odoo.addons.queue_job import job as job_class
+from odoo.addons.queue_job.job import Job
 
+
+job_class.DEFAULT_PRIORITY = 20
 
 MODELS_WITH_IMPORT_AVAILABLE = [
     'product.attribute.value',
@@ -13,90 +17,26 @@ MODELS_WITH_IMPORT_AVAILABLE = [
     'res.lang',
     'sale.order.payment.method',
     'product.product',
-    'ecommerce.product.category',
+    'product.public.category',
     'product.template',
     'delivery.carrier',
     'res.country.state',
     'account.tax.group',
     'sale.order.sub.status',
     'product.attribute',
-    'product.feature',
 ]
-JOB_STATE_FAILED = 'failed'
-
-# Mapping from job context keys to corresponding field names
-JOB_CONTEXT_TO_FIELD_MAPPING = {
-    'job_integration_id': 'integration_id',
-    'job_integration_job_type': 'integration_job_type',
-    'job_external_template_id': 'external_template_id',
-    'job_template_id': 'template_id',
-    'job_input_file_id': 'input_file_id',
-    'job_order_id': 'order_id',
-    'job_related_record_model': 'related_record_model',
-    'job_related_record_ids': 'related_record_ids',
-}
 
 
 class QueueJob(models.Model):
     _inherit = 'queue.job'
     _removal_interval = 15
 
-    # Custom fields for integration jobs
-    integration_id = fields.Many2one(
-        comodel_name='sale.integration',
-        string='E-Commerce Store',
-    )
-
-    integration_job_type = fields.Selection(
-        selection=[
-            ('initial_import', 'Initial Import'),
-            ('product', 'Product Sync'),
-            ('customer', 'Customer Sync'),
-            ('order', 'Orders Sync'),
-            ('inventory', 'Inventory Sync'),
-            ('pricelist', 'Pricelist Sync'),
-            ('other', 'Other'),
-        ],
-        string='Job Type',
-        default='other',
-    )
-
-    # Links to different types of records to make it easier to track jobs
-    external_template_id = fields.Many2one(
-        comodel_name='integration.product.template.external',
-        string='External Product',
+    parent_id = fields.Many2one(
+        comodel_name='queue.job',
+        string='Parent Job',
         ondelete='cascade',
     )
 
-    template_id = fields.Many2one(
-        comodel_name='product.template',
-        string='Product',
-        ondelete='cascade',
-    )
-
-    input_file_id = fields.Many2one(
-        comodel_name='sale.integration.input.file',
-        string='Order Data',
-        ondelete='cascade',
-    )
-
-    order_id = fields.Many2one(
-        comodel_name='sale.order',
-        related='input_file_id.order_id',
-        string='Order',
-        store=True,
-    )
-
-    # Mass actions on multiple records. We store model and IDs of related records for better performance
-    related_record_model = fields.Char(
-        string='Entity',
-    )
-
-    related_record_ids = fields.Json(
-        string='Entity IDs',
-    )
-
-    # TODO: Review fields below - are they needed?
     integration_exception_name = fields.Selection(
         selection=[
             (
@@ -117,49 +57,43 @@ class QueueJob(models.Model):
         ],
         string='Exception Name',
     )
-
     integration_model_name = fields.Text(
         string='Integration Model Name',
     )
-
     integration_key = fields.Text(
         string='External or Internal Key',
     )
-
     integration_model_view_name = fields.Text(
         string='Model Name',
         compute='_compute_view_name',
     )
-
+    integration_id = fields.Many2one(
+        comodel_name='sale.integration',
+        string='E-Commerce Store',
+    )
     integration_external_id = fields.Text(
         string='External ID',
         compute='_compute_ids',
     )
-
     integration_odoo_id = fields.Integer(
         string='Odoo ID',
         compute='_compute_ids',
     )
-
     integration_external_name = fields.Text(
         string='External Name',
         compute='_compute_names',
     )
-
     integration_odoo_name = fields.Text(
         string='Odoo Name',
         compute='_compute_names',
     )
-
     exc_info_lite = fields.Char(
         string='Exception Info Lite',
         compute='_compute_exc_info_lite',
     )
-
     toggle_exc = fields.Boolean(
         string='Full Traceback',
     )
-
     is_import_from_external_available = fields.Boolean(
         string='Import from External Available',
         compute='_compute_is_import_from_external_available',
@@ -188,20 +122,23 @@ class QueueJob(models.Model):
         exc = info_split.split('\n', maxsplit=1)[-1]
         return exc
 
+    def _set_integration(self):
+        for rec in self:
+            odoo_model = rec.records[:1]
+            value = False
+            if odoo_model and hasattr(odoo_model, '_get_integration_id_for_job'):
+                value = odoo_model.exists()._get_integration_id_for_job()
+
+            rec.integration_id = value
+
     @api.model_create_multi
     def create(self, vals_list):
         if not vals_list:
             # Fix for badly written parent method - it will raise an error
             return self.browse()
 
-        # Fill integration fields from context (if any)
-        # Map context payload into job fields (only if not already set)
-        for vals in vals_list:
-            for ctx_key, field in JOB_CONTEXT_TO_FIELD_MAPPING.items():
-                if self.env.context.get(ctx_key) and not vals.get(field):
-                    vals[field] = self.env.context[ctx_key]
-
         records = super(QueueJob, self).create(vals_list)
+        records._set_integration()
 
         return records
 
@@ -244,7 +181,7 @@ class QueueJob(models.Model):
     @api.model
     def requeue_integration_jobs(self, exception_name, model_name, key):
         jobs = self.sudo().search([
-            ('state', '=', JOB_STATE_FAILED),
+            ('state', '=', job_class.FAILED),
             ('integration_exception_name', '=', exception_name),
             ('integration_model_name', '=', model_name),
             ('integration_key', '=', key),
@@ -317,34 +254,6 @@ class QueueJob(models.Model):
         domain.append(('notify_failed_jobs', '=', True))
         return domain
 
-    def action_open_related_records(self):
-        self.ensure_one()
-
-        if not self.related_record_model or not self.related_record_ids:
-            return
-
-        try:
-            model = self.env[self.related_record_model]
-        except KeyError:
-            raise UserError(_(
-                'The model "%s" does not exist in the system anymore. '
-                'Please contact support: https://support.ventor.tech/'
-            ) % self.related_record_model)
-
-        records = model.browse(self.related_record_ids)
-
-        if not records:
-            return
-
-        return {
-            'name': _('Related Records'),
-            'type': 'ir.actions.act_window',
-            'view_mode': 'list,form',
-            'res_model': self.related_record_model,
-            'domain': [('id', 'in', records.ids)],
-            'target': 'current',
-        }
-
     def action_open_mapping_view(self):
         model = self.get_model_from_integration_model_name()
 
@@ -382,13 +291,12 @@ class QueueJob(models.Model):
             'res.lang': self.integration_id.integrationApiImportLanguages,
             'sale.order.payment.method': self.integration_id.integrationApiImportPaymentMethods,
             'product.product': self.integration_id.integrationApiImportProducts,
-            'ecommerce.product.category': self.integration_id.integrationApiImportCategories,
+            'product.public.category': self.integration_id.integrationApiImportCategories,
             'product.template': self.integration_id.integrationApiImportProducts,
             'delivery.carrier': self.integration_id.integrationApiImportDeliveryMethods,
             'res.country.state': self.integration_id.integrationApiImportStates,
             'sale.order.sub.status': self.integration_id.integrationApiImportSaleOrderStatuses,
             'product.attribute': self.integration_id.integrationApiImportAttributes,
-            'product.feature': self.integration_id.integrationApiImportFeatures,
         }
 
         # Run the corresponding import method based on the model
@@ -437,6 +345,20 @@ class QueueJob(models.Model):
             'target': 'new'
         }
 
+    def action_run_now(self):
+        """Run the job synchronously in real time (debug tool)."""
+        self.ensure_one()
+        job = Job.load(self.env, self.uuid)
+        job.set_started()
+        job.store()
+        try:
+            result = job.perform()
+            job.set_done(result=result)
+            job.enqueue_waiting()
+            job.store()
+        except Exception as e:
+            raise UserError(_('Job failed:\n\n%s') % str(e))
+
     def action_toggle_exc(self):
         self.toggle_exc = not self.toggle_exc
         return self.action_open_lite_info()
@@ -451,3 +373,15 @@ class QueueJob(models.Model):
             'res_id': self.id,
             'target': 'new',
         }
+
+
+class QueueRequeueJob(models.TransientModel):
+    _inherit = 'queue.requeue.job'
+
+    def _default_job_ids(self):
+        context = self.env.context
+        if context.get('run_from_job_log'):
+            job_log_ids = self.env['job.log'].browse(context.get('active_ids'))
+            return job_log_ids.mapped('job_id').ids
+
+        return super(QueueRequeueJob, self)._default_job_ids()

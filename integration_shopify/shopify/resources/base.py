@@ -9,12 +9,11 @@ from random import randint
 from copy import deepcopy
 
 from odoo import _
-from odoo.exceptions import UserError
 from odoo.addons.integration.tools import flatten_recursive
 
 from ..graphql_templates import GraphQLTemplate
 from ..exceptions import ShopifyResourceNotFoundError
-from ..connection import GraphQLClient, ExtractNode, _SHOPIFY_BATCH_LIMIT
+from ..connection import es, GraphQLClient, ExtractNode, _SHOPIFY_BATCH_LIMIT
 from ...tools import parse_int, parse_gql_json
 
 
@@ -28,6 +27,8 @@ class GqlDict:
     _body = 'id'
     _gid_name = None
     _api_callable = False
+
+    _es = es
     _tmpl = GraphQLTemplate
     _extract = ExtractNode.extract_raw
 
@@ -152,7 +153,7 @@ class GqlDict:
 
     def raise_if_no_key(self, key, not_nullable=False):
         if not self.key_exist(key, not_nullable=not_nullable):
-            raise UserError(f'Key "{key}" not found in {self} object')
+            raise self._es.UserError(f'Key "{key}" not found in {self} object')
 
     def context(self, key):
         return self._ctx.get(key)

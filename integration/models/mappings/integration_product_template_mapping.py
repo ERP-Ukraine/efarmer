@@ -1,7 +1,6 @@
 # See LICENSE file for full copyright and licensing details.
 
 import logging
-import traceback
 
 from odoo import fields, models
 from odoo.exceptions import UserError
@@ -16,6 +15,7 @@ class IntegrationProductTemplateMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'Integration Product Template Mapping'
     _mapping_fields = ('template_id', 'external_template_id')
+    _mapping_label = 'Product Template'
 
     template_id = fields.Many2one(
         string='Odoo Product',
@@ -30,10 +30,9 @@ class IntegrationProductTemplateMapping(models.Model):
         ondelete='cascade',
     )
 
-    _uniq = models.Constraint(
-        'unique(integration_id, template_id, external_template_id)',
-        '',
-    )
+    _sql_constraints = [
+        ('uniq', 'unique(integration_id, template_id, external_template_id)', '')
+    ]
 
     def run_map_product(self):
         self.ensure_one()
@@ -101,14 +100,14 @@ class IntegrationProductTemplateMapping(models.Model):
         records = self.filtered(lambda x: not x.template_id)
         external_ids = records.mapped('external_template_id.code')
 
-        integration._import_external_product(external_ids)
+        integration.import_products_in_background(external_ids)
 
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'title': _('Reimport Product'),
-                'message': _('Product%s reimported successfully') % ('s were' if len(self) > 1 else ' was'),
+                'message': _('Products import jobs are created'),
                 'type': 'success',
                 'sticky': False,
             }
@@ -134,19 +133,13 @@ class IntegrationProductTemplateMapping(models.Model):
         if not external_template:
             return {}
 
-        try:
-            data = external_template.calculate_import_fields_data()
+        data = external_template.calculate_import_fields_data()
 
-            data['products'] = []
-            for variant in external_template.external_product_variant_ids:
-                data['products'].append(
-                    variant.calculate_import_fields_data()
-                )
-        except Exception as e:
-            data = {
-                'error_message': str(e),
-                'error_traceback': traceback.format_exc().splitlines(),
-            }
+        data['products'] = []
+        for variant in external_template.external_product_variant_ids:
+            data['products'].append(
+                variant.calculate_import_fields_data()
+            )
 
         if self.env.context.get('integration_return_action'):
             return self.env['message.wizard'].create_json_and_run(data)
@@ -160,13 +153,7 @@ class IntegrationProductTemplateMapping(models.Model):
         if not template:
             return {}
 
-        try:
-            data = template.to_export_format(self.integration_id)
-        except Exception as e:
-            data = {
-                'error_message': str(e),
-                'error_traceback': traceback.format_exc().splitlines(),
-            }
+        data = template.to_export_format(self.integration_id)
 
         if self.env.context.get('integration_return_action'):
             return self.env['message.wizard'].create_json_and_run(data)

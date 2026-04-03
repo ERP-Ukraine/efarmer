@@ -55,6 +55,9 @@ class IntegrationMappingMixin(models.AbstractModel):
         result.requeue_jobs_if_needed()
         return result
 
+    def _get_integration_id_for_job(self):
+        return self.integration_id.id
+
     def requeue_jobs_if_needed(self):
         QueueJob = self.env['queue.job']
 

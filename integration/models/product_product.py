@@ -19,11 +19,11 @@ class ProductProduct(models.Model):
         'integration.image.mixin',
     ]
     _image_name = 'image_variant_1920'
-    _image_names = 'integration_variant_image_ids'
+    _image_names = 'product_variant_image_ids'
     _internal_reference_field = 'default_code'
 
-    integration_variant_image_ids = fields.One2many(
-        comodel_name='ecommerce.product.image',
+    product_variant_image_ids = fields.One2many(
+        comodel_name='product.image',
         inverse_name='product_variant_id',
         string='Extra Variant Images',
     )
@@ -59,6 +59,41 @@ class ProductProduct(models.Model):
         help='The number of mappings associated with this variant.',
     )
 
+    integration_company_mismatch = fields.Boolean(
+        compute='_compute_integration_company_mismatch',
+        help='Technical field used to detect multi-company mismatch.'
+             'It is True when this product belongs to a company, but at least one of the selected '
+             'e-commerce integrations belongs to a different company.'
+             'Make sure the product company matches the integration company, or remove mismatching integrations.'
+    )
+
+    # Migration fields
+    integration_variant_image_ids = fields.One2many(
+        comodel_name='ecommerce.product.image',
+        inverse_name='product_variant_id',
+        string='E-Commerce Variant Images',
+    )
+
+    @property
+    def is_consumable_storable(self):
+        return self.type == 'consu' and self.is_storable
+
+    @api.depends('company_id', 'integration_ids', 'integration_ids.company_id')
+    def _compute_integration_company_mismatch(self):
+        """
+        Flag variants whose company differs from at least one linked integration's company.
+
+        If the variant is company-less (company_id is False), mismatch is always False.
+        """
+        for rec in self:
+            if not rec.company_id:
+                rec.integration_company_mismatch = False
+                continue
+            mismatched = rec.integration_ids.filtered(
+                lambda i: i.company_id and i.company_id != rec.company_id
+            )
+            rec.integration_company_mismatch = bool(mismatched)
+
     def _get_view_postprocessed(self, view, arch, **options):
         # Redefined the standard method to update a form-view architecture
         arch, models_ = super()._get_view_postprocessed(view, arch, **options)
@@ -87,9 +122,9 @@ class ProductProduct(models.Model):
     def _get_tmpl_id_for_log(self):
         return self.product_tmpl_id.id
 
-    def open_related_jobs(self):
+    def open_job_logs(self):
         self.ensure_one()
-        return self.product_tmpl_id.open_related_jobs()
+        return self.product_tmpl_id.open_job_logs()
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -290,18 +325,12 @@ class ProductProduct(models.Model):
 
         for product_batch in product_batches:
 
-            context = {
-                'company_id': integration.company_id.id,
-                'job_integration_id': integration.id,
-                'job_integration_job_type': 'inventory',
-                'job_related_record_model': self._name,
-                'job_related_record_ids': [p.id for p in product_batch],
-            }
-            job = integration.with_context(**context).with_delay(
+            job = integration.with_delay(
                 priority=13,
                 description=f'{integration.name}: Export Stock to Stores ({block})',
             ).export_inventory(product_batch, cron_operation=cron_operation)
 
+            integration.job_log(job)
             result.append(job)
 
             block += 1
@@ -445,6 +474,7 @@ class ProductProduct(models.Model):
                 if (
                     min_possible_qty
                     and self.uom_id != bom.product_uom_id
+                    and self.uom_id.category_id == bom.product_uom_id.category_id
                 ):
                     min_possible_qty = bom.product_uom_id._compute_quantity(
                         min_possible_qty, self.uom_id

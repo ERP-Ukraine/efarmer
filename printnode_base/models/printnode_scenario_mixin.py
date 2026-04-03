@@ -10,6 +10,8 @@ SECURITY_GROUP = 'printnode_base.printnode_security_group_user'
 
 
 class PrintNodeScenarioMixin(models.AbstractModel):
+    """ Direct Print Abstract Scenario Printing mixin
+    """
     _name = 'printnode.scenario.mixin'
     _inherit = 'printnode.logger.mixin'
     _description = 'Abstract scenario printing mixin'

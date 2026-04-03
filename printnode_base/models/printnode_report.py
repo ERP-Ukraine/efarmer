@@ -8,7 +8,7 @@ class PrintNodeReportPolicy(models.Model):
     """ Call Button
     """
     _name = 'printnode.report.policy'
-    _description = 'PrintNode Report Policy'
+    _description = 'Direct Print Report Policy'
 
     _rec_name = 'report_id'
 
@@ -61,10 +61,13 @@ class PrintNodeReportPolicy(models.Model):
         compute='_compute_print_rules',
     )
 
-    _unique_report_id = models.Constraint(
-        'UNIQUE(report_id)',
-        'Report policy is unique for report.',
-    )
+    _sql_constraints = [
+        (
+            'report_id',
+            'unique(report_id)',
+            'Report policy is unique for report.'
+        ),
+    ]
 
     @api.depends('report_paper_id', 'exclude_from_auto_printing')
     def _compute_print_rules(self):

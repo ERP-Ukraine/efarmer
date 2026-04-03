@@ -12,7 +12,7 @@
                 <field name="integration_line_ids" nolabel="1">
                     <list editable="bottom" create="0" delete="0">
                         <field name="integration_id" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
-                        <field name="name" string="External Integration"/>
+                        <field name="name" string="E-Commerce Store"/>
                         <field name="integration_action" required="1"/>
                     </list>
                 </field>

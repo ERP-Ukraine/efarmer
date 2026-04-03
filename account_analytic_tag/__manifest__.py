@@ -3,11 +3,11 @@
 
 {
     "name": "Account Analytic Tag",
-    "version": "19.0.1.0.0",
+    "version": "18.0.1.1.0",
     "author": "Tecnativa, Odoo Community Association (OCA)",
     "category": "Account",
     "website": "https://github.com/OCA/account-analytic",
-    "depends": ["accountant", "analytic"],
+    "depends": ["account", "analytic"],
     "data": [
         "security/analytic_security.xml",
         "security/ir.model.access.csv",

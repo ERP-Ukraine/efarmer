@@ -95,6 +95,7 @@
             <field name="export_template_job_enabled">False</field>
             <field name="allow_export_images">False</field>
             <field name="apply_to_products">False</field>
+            <field name="translations_sync">False</field>
             <field name="mandatory_fields_initial_product_export" eval="[(6, 0, (ref('product.field_product_product__default_code'),))]"/>
         </record>
 
@@ -134,7 +135,6 @@
             <field name="amount_type">percent</field>
             <field name="type_tax_use">sale</field>
             <field name="price_include" eval="False"/>
-            <field name="original_tax_ids" eval="[(6, 0, (ref('integration_shopify_account_tax_23'),))]"/>
             <field name="tax_group_id" ref="integration_shopify_account_tax_group_21"/>
             <field name="company_id" ref="test_integration_company_shopify_pl"/>
             <field name="integration_id" ref="integration_shopify_test_1"/>

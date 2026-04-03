@@ -9,13 +9,13 @@
                 <form delete="0">
                     <sheet>
                         <!-- Hidden technical fields -->
-                        <field name="is_template_field" invisible="1"/>
-                        <field name="is_variant_field" invisible="1"/>
-                        <field name="is_default" invisible="1"/>
-                        <field name="is_private" invisible="1"/>
-                        <field name="is_scriptable_field" invisible="1"/>
-                        <field name="is_translatable_field" invisible="1"/>
-                        <field name="odoo_model_name" invisible="1"/>
+                        <field name="is_template_field" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                        <field name="is_variant_field" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                        <field name="is_default" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="is_private" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                        <field name="is_scriptable_field" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="is_translatable_field" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="odoo_model_name" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
 
                         <!-- Status badges -->
                         <div class="oe_button_box" name="button_box">
@@ -78,7 +78,7 @@
                                 <field name="default_for_import" string="Import (Shop → Odoo) Enabled" widget="boolean_toggle" readonly="is_default"/>
                             </group>
                             <group>
-                                <field name="auto_create_mapping" string="Auto-Add to New Stores" widget="boolean_toggle" readonly="is_default"/>
+                                <field name="mapping_active_by_default" string="Active by Default" widget="boolean_toggle" readonly="is_default"/>
                                 <field name="is_translatable_field" string="Multi-Language" widget="boolean_toggle" readonly="is_default" force_save="1"/>
                             </group>
                         </group>
@@ -230,7 +230,7 @@
                     <field name="technical_name" string="E-Commerce Field"/>
                     <field name="odoo_field_id" string="Odoo Field"/>
                     <field name="trackable_fields_ids" string="Tracked Fields"/>
-                    <field name="is_private" invisible="1"/>
+                    <field name="is_private" invisible="1"/> <!-- Required because it is used in the search filters below -->
 
                     <separator/>
 
@@ -249,8 +249,8 @@
                             domain="[('default_for_update', '=', True)]"/>
                     <filter string="Shop → Odoo by Default" name="filter_default_import"
                             domain="[('default_for_import', '=', True)]"/>
-                    <filter string="Auto-Add to New Stores" name="filter_auto_create"
-                            domain="[('auto_create_mapping', '=', True)]"/>
+                    <filter string="Active by Default" name="filter_active_by_default"
+                            domain="[('mapping_active_by_default', '=', True)]"/>
 
                     <separator/>
 
@@ -271,7 +271,7 @@
                     <separator/>
 
                     <!-- Group by -->
-                    <group>
+                    <group expand="0" string="Group By">
                         <filter string="Connector Type" name="group_type_api"
                                 context="{'group_by': 'type_api'}"/>
                         <filter string="Odoo Model" name="group_odoo_model_id"

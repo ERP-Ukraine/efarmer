@@ -82,7 +82,9 @@ class EcommerceProductCategory(models.Model):
         if self.parent_id:
             parent_id = self.parent_id.to_external_or_export(integration)
 
+        name = self.convert_field_translations_to_external(integration.id, 'name')
+
         return {
+            'name': name,
             'parent_id': parent_id,
-            'name': self.convert_field_translations_to_external(integration.id, 'name'),
         }

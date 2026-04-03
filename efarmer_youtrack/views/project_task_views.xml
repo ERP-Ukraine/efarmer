@@ -20,7 +20,7 @@
                 <field name="asset_id" readonly="1" />
             </xpath>
 
-            <xpath expr="//form[1]/sheet[1]/group[1]/group[1]/field[@name='project_id']" position="before">
+            <xpath expr="//form[1]/sheet[1]/group[1]/group[1]/label[@for='project_id']" position="before">
                 <field name="task_code" />
             </xpath>
 
@@ -28,7 +28,7 @@
                 <field name="task_code" optional="show"/>
             </xpath>
 
-             <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='sub_tasks_page']/field[@name='child_ids']/list[1]/field[@name='name']" position="after">
+            <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='sub_tasks_page']/field[@name='child_ids']/list[1]/field[@name='name']" position="after">
                 <field name="issue_type_id" optional="show"/>
             </xpath>
 

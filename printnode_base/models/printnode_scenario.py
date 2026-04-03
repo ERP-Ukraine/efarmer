@@ -2,7 +2,7 @@
 # See LICENSE file for full copyright and licensing details.
 
 from odoo import models, fields, api, _
-from odoo.fields import Domain
+from odoo.osv import expression
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools.safe_eval import safe_eval
 
@@ -18,7 +18,7 @@ class PrintNodeScenario(models.Model):
     """
     _name = 'printnode.scenario'
     _inherit = 'printnode.logger.mixin'
-    _description = 'PrintNode Scenarios'
+    _description = 'Direct Print Scenarios'
 
     _rec_name = 'report_id'
 
@@ -181,10 +181,6 @@ class PrintNodeScenario(models.Model):
                 if scenario.model_id != scenario.reports_model_id:
                     # When we want to print reports for different model
                     # We should call a special method to print
-                    scenario.printnode_logger(
-                        Constants.SCENARIOS_LOG_TYPE,
-                        'Model and report model do not match'
-                    )
                     if hasattr(objects, scenario_method_name):
                         scenario.printnode_logger(
                             Constants.SCENARIOS_LOG_TYPE,
@@ -203,10 +199,6 @@ class PrintNodeScenario(models.Model):
                     # When model and reports model are the same
                     # We call a special method to print or
                     # pass the objects to default printnode_print method
-                    scenario.printnode_logger(
-                        Constants.SCENARIOS_LOG_TYPE,
-                        f"Model and report model are the same - {scenario.reports_model_id.model}"
-                    )
                     if hasattr(self.env[scenario.model_id.model], scenario_method_name):
                         scenario.printnode_logger(
                             Constants.SCENARIOS_LOG_TYPE,
@@ -226,17 +218,13 @@ class PrintNodeScenario(models.Model):
                             Constants.SCENARIOS_LOG_TYPE,
                             'Printing will be done via the default printnode_print method'
                         )
-                        res = printer.printnode_print(
+                        printed = printer.printnode_print(
                             scenario.report_id,
                             objects,
                             copies=scenario.number_of_copies,
                             options=print_options,
+                            data={'source_document': objects.mapped('name')},
                         )
-
-                        printed = bool(res)
-
-                if printed:
-                    scenario.printnode_logger(Constants.SCENARIOS_LOG_TYPE, 'Printing successful')
 
         return printed
 
@@ -249,7 +237,7 @@ class PrintNodeScenario(models.Model):
         if self.domain == '[]':
             return self.env[self.model_id.model].browse(ids_list)
         return self.env[self.model_id.model].search(
-            Domain.AND([[('id', 'in', ids_list)], safe_eval(self.domain)])
+            expression.AND([[('id', 'in', ids_list)], safe_eval(self.domain)])
         )
 
     def _get_printer(self):

@@ -65,10 +65,9 @@ class ExternalOrderFieldMapping(models.Model):
     )
 
     integration_id = fields.Many2one(
-        string='E-Commerce Store',
         comodel_name='sale.integration',
+        string='E-Commerce Store',
         required=True,
-        ondelete='cascade',
     )
 
     external_order_field = fields.Char(
@@ -78,14 +77,14 @@ class ExternalOrderFieldMapping(models.Model):
     )
 
     odoo_order_field_id = fields.Many2one(
-        comodel_name='ir.model.fields',
         string='Odoo Sales Order Field',
+        comodel_name='ir.model.fields',
         domain="[('model_id.model', '=', 'sale.order')]",
     )
 
     odoo_picking_field_id = fields.Many2one(
-        comodel_name='ir.model.fields',
         string='Odoo Transfer Field',
+        comodel_name='ir.model.fields',
         domain="[('model_id.model', '=', 'stock.picking')]",
     )
 
@@ -97,7 +96,7 @@ class ExternalOrderFieldMapping(models.Model):
     )
 
     def get_script(self):
-        lines = self.script.splitlines()
+        lines = (self.script or '').splitlines()
         return '\n'.join(line for line in lines if not line.strip().startswith('#')).strip()
 
     @api.constrains('odoo_order_field_id')

@@ -9,10 +9,10 @@ from odoo import fields, models
 class Employee(models.Model):
     _inherit = "hr.employee"
 
-    # employee_type = fields.Selection(
-    #     selection_add=[('outstaff', 'Outstaff')],
-    #     ondelete={'outstaff': 'set default'}
-    # )
+    employee_type = fields.Selection(
+        selection_add=[('outstaff', 'Outstaff')],
+        ondelete={'outstaff': 'set default'}
+    )
 
     salary_type = fields.Selection(
         selection=[

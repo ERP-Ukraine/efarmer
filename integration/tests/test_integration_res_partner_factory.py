@@ -22,20 +22,25 @@ PATCH_PROXY_GET_CUSTOMER = (
 )
 
 
-@tagged('post_install', '-at_install', 'test_integration_partner_factory')
-class TestIntegrationResPartnerFactory(OdooIntegrationInit):
+class TestIntegrationResPartnerFactoryCommon(OdooIntegrationInit):
 
-    def setUp(self):
-        super().setUp()
+    @classmethod
+    def setUpClass(cls):
+        super(TestIntegrationResPartnerFactoryCommon, cls).setUpClass()
 
-        self._orig_create_mapping = _Proxy._create_or_update_mapping
+        cls._orig_create_mapping = _Proxy._create_or_update_mapping
 
         def _no_new_cursor(proxy_self, **kw):
-            return self._orig_create_mapping(proxy_self, with_new_cursor=False)
+            return cls._orig_create_mapping(proxy_self, with_new_cursor=False)
 
-        self._patcher_no_new_cursor = patch(PATCH_PROXY_CREATE_MAPPING, new=_no_new_cursor)
-        self._patcher_no_new_cursor.start()
-        self.addCleanup(self._patcher_no_new_cursor.stop)
+        cls._patcher_no_new_cursor = patch(PATCH_PROXY_CREATE_MAPPING, new=_no_new_cursor)
+        cls._patcher_no_new_cursor.start()
+
+    @classmethod
+    def tearDownClass(cls):
+        # Stop patch after all tests completed
+        cls._patcher_no_new_cursor.stop()
+        super(TestIntegrationResPartnerFactoryCommon, cls).tearDownClass()
 
     def _create_factory(self, customer_data=None, billing_data=None, shipping_data=None, **kwargs):
         return self.env['integration.res.partner.factory'].create_factory(
@@ -45,6 +50,10 @@ class TestIntegrationResPartnerFactory(OdooIntegrationInit):
             shipping_data=shipping_data,
             **kwargs
         )
+
+
+@tagged('post_install', '-at_install', 'test_integration_partner_factory')
+class TestIntegrationResPartnerFactory(TestIntegrationResPartnerFactoryCommon):
 
     def test_create_factory_creates_proxies(self):
         """Test basic factory creation with all data types."""

@@ -10,8 +10,8 @@
                     <field name="id" groups="base.group_no_one"/>
                     <field name="integration_id"/>
                     <field name="company_id" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
-                    <field name="tax_id"/>
                     <field name="external_tax_id" domain="[('integration_id', '=', integration_id)]"/>
+                    <field name="tax_id"/>
                     <button name="action_import_taxes_from_mapping"
                             type="object"
                             string="Import Taxes"
@@ -31,7 +31,7 @@
                     <field name="external_tax_id"/>
                     <field name="integration_id"/>
                     <filter string="Not Mapped" name="not_mapped" domain="[('tax_id', '=', False)]"/>
-                    <group>
+                    <group expand="0" string="Group By">
                         <filter string="E-Commerce Store" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
                     </group>
                 </search>
@@ -60,7 +60,7 @@
             <field name="model_id" ref="integration.model_integration_account_tax_mapping"/>
             <field name="binding_model_id" ref="integration.model_integration_account_tax_mapping"/>
             <field name="binding_view_types">list</field>
-            <field name="group_ids" eval="[(4, ref('base.group_no_one'))]"/>
+            <field name="groups_id" eval="[(4, ref('base.group_no_one'))]"/>
             <field name="state">code</field>
             <field name="code">action = records.show_unmapped_object()</field>
         </record>

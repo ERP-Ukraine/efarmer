@@ -8,6 +8,7 @@ class IntegrationDeliveryCarrierMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'Integration Delivery Carrier Mapping'
     _mapping_fields = ('carrier_id', 'external_carrier_id')
+    _mapping_label = 'Delivery Carrier'
 
     carrier_id = fields.Many2one(
         string='Odoo Delivery Carrier',
@@ -22,10 +23,13 @@ class IntegrationDeliveryCarrierMapping(models.Model):
         ondelete='cascade',
     )
 
-    _uniq_mapping = models.Constraint(
-        'unique(integration_id, external_carrier_id)',
-        'Delivery Carrier mapping should be unique per integration',
-    )
+    _sql_constraints = [
+        (
+            'uniq_mapping',
+            'unique(integration_id, external_carrier_id)',
+            'Delivery Carrier mapping should be unique per integration'
+        ),
+    ]
 
     def _fix_unmapped_shipping_multi(self):
         results = list()

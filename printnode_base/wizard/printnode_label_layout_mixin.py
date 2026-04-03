@@ -6,7 +6,7 @@ from odoo import api, fields, models
 
 class ProductLabelLayoutMixin(models.AbstractModel):
     _name = 'printnode.label.layout.mixin'
-    _description = 'Printnode Label Layout Mixin'
+    _description = 'Direct Print Label Layout Mixin'
 
     printer_id = fields.Many2one(
         comodel_name='printnode.printer',

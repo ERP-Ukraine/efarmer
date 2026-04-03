@@ -20,6 +20,21 @@ class TaxLine(GqlDict):
         self.ensure_one()
         return self.ratePercentage
 
+    @property
+    def is_zero_amount_tax(self):
+        """Return True if this tax has a non-zero rate but zero amount.
+
+        Shopify occasionally keeps tax lines on order lines or shipping with a
+        positive rate (e.g. 6%) but a zero amount.  Applying such a tax in Odoo
+        would produce a non-zero tax amount and cause an order total mismatch.
+        """
+        self.ensure_one()
+        if not float(self['rate'] or 0):
+            return False
+        price_set = self['priceSet'] or {}
+        shop_money = price_set.get('shopMoney') or {}
+        return float(shop_money.get('amount') or 0) == 0.0
+
     def to_odoo_format(self, taxes_included: bool):
         self.ensure_one()
         # Format tax as 'Sales Tax (LX799/XL) 20.3% [excluded]'

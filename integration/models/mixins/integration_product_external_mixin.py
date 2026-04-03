@@ -37,7 +37,7 @@ class IntegrationProductExternalMixin(models.AbstractModel):
 
     @property
     def all_image_external_ids(self):
-        return self.env['integration.ecommerce.product.image.external'].search([
+        return self.env['integration.product.image.external'].search([
             ('integration_id', '=', self.integration_id.id),
             ('template_code', '=', self.template_code),
         ])
@@ -82,7 +82,7 @@ class IntegrationProductExternalMixin(models.AbstractModel):
             )
 
         if image_id:
-            checksum = self.env['ecommerce.product.image'].browse(image_id).image_checksum
+            checksum = self.env['product.image'].browse(image_id).image_checksum
         else:
             checksum = product.image_checksum
 
@@ -173,7 +173,7 @@ class IntegrationProductExternalMixin(models.AbstractModel):
             'res_id': product.id,
             'variant_code': self.variant_code,
         }
-        mappings = self.env['integration.ecommerce.product.image.mapping']
+        mappings = self.env['integration.product.image.mapping']
 
         for datacls in datacls_list:
             values['is_cover'] = datacls.is_cover
@@ -193,7 +193,7 @@ class IntegrationProductExternalMixin(models.AbstractModel):
         return mappings
 
     def _init_empty_external_image(self):
-        return self.env['integration.ecommerce.product.image.external'].create({
+        return self.env['integration.product.image.external'].create({
             'src': False,  # Update it after export finished
             'code': False,  # Update it after export finished
             'template_code': self.template_code,

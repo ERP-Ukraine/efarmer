@@ -7,7 +7,7 @@
     "summary": """
         Integration between Odoo and YouTrack system
     """,
-    "version": "19.0.1.0.0",
+    "version": "18.0.1.0.0",
     "category": "Other",
     "author": "VentorTech",
     "website": "https://ventor.tech",
@@ -17,7 +17,7 @@
         "hr_timesheet",
         "project",
         "account_asset",
-        "integration_queue_job",
+        "queue_job",
     ],
     "data": [
         # Initial Data

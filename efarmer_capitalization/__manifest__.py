@@ -3,7 +3,7 @@
 
 {
     "name": "eFarmer Capitalization",
-    "version": "19.0.1.0.0",
+    "version": "18.0.1.0.0",
     "author": "VentorTech",
     "website": "https://ventor.tech/",
     "license": "LGPL-3",

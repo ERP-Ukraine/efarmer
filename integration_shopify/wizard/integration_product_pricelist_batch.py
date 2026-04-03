@@ -133,19 +133,15 @@ class IntegrationProductPricelistBatch(models.TransientModel):
         job_kwargs = self._job_kwargs_export_pricelist_batch()
 
         job = self \
-            .with_context(
-                queue_job__no_delay=False,
-                company_id=self.company_id.id,
-                job_integration_id=self.integration_id.id,
-            ) \
+            .with_context(company_id=self.company_id.id) \
             .with_delay(**job_kwargs) \
             .export_prices()
 
-        record = job.db_record()
+        job_log = self.job_log(job)
 
-        self.job_id = record.id
+        self.job_id = job_log.job_id.id
 
-        return record
+        return job_log
 
     def action_open_job(self):
         self.ensure_one()
@@ -227,6 +223,9 @@ class IntegrationProductPricelistBatch(models.TransientModel):
             )
 
         return list_
+
+    def _get_integration_id_for_job(self):
+        return self.integration_id.id
 
     def _job_kwargs_export_pricelist_batch(self):
         i_name = self.integration_id.name
