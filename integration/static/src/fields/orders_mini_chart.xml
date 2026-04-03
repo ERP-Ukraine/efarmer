@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="integration.OrdersMiniChartField" owl="1">
+        <div class="o_orders_mini_chart d-flex flex-column h-100">
+            <div class="d-flex align-items-center mb-1">
+                <i class="fa fa-shopping-cart text-muted me-1" style="font-size: 12px;"/>
+                <span class="small text-muted">Orders (7 days)</span>
+                <span class="ms-auto small fw-bold"><t t-esc="totalOrders"/> total</span>
+            </div>
+            <div class="flex-grow-1 position-relative" style="min-height: 100px;">
+                <t t-if="hasData">
+                    <canvas t-ref="canvas" style="width: 100%; height: 100%;"/>
+                </t>
+                <t t-else="">
+                    <div class="position-absolute top-0 bottom-0 start-0 end-0 d-flex align-items-center justify-content-center text-muted small">
+                        No orders yet
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

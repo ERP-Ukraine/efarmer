@@ -8,7 +8,7 @@ class PrintNodeRule(models.Model):
     """ Rule
     """
     _name = 'printnode.rule'
-    _description = 'PrintNode Rule'
+    _description = 'Direct Print Rule'
 
     active = fields.Boolean(
         'Active', default=True,
@@ -58,10 +58,9 @@ class PrintNodeRule(models.Model):
         compute='_compute_print_rules',
     )
 
-    _unique_user_report = models.Constraint(
-        'UNIQUE(user_id, report_id)',
-        'Rule should be unique.',
-    )
+    _sql_constraints = [
+        ('rule_id', 'unique(user_id,report_id)', 'Rule should be unique.'),
+    ]
 
     @api.depends('report_id', 'printer_id')
     def _compute_print_rules(self):

@@ -4,21 +4,29 @@ from datetime import datetime
 from odoo.tests import tagged
 from odoo.tests.common import mute_logger
 
-
-from .config.integration_init import OdooIntegrationInit
+from .config.integration_init import OdooIntegrationInit, load_xml
 
 
 @tagged('post_install', '-at_install')
 class TestIsImportableOrderDate(OdooIntegrationInit):
     """Test is_importable_order_date method for base integration."""
 
-    def setUp(self):
-        super().setUp()
-        # Create a base integration for testing
-        self.base_integration = self.env['sale.integration'].create({
+    @classmethod
+    def setUpClass(cls):
+        super(TestIsImportableOrderDate, cls).setUpClass()
+        # Load base integration XML data first (needed for refs)
+        load_xml(
+            cls.env,
+            module='integration',
+            path_file='tests/data',
+            filename='init_sale_integration.xml',
+        )
+        # Create a base integration for testing once per class
+        company_id_1 = cls.env.ref('integration.test_integration_company_1')
+        cls.base_integration = cls.env['sale.integration'].create({
             'name': 'Test Base Integration',
             'type_api': 'no_api',
-            'company_id': self.company_id_1.id,
+            'company_id': company_id_1.id,
         })
 
     def test_empty_date_returns_true(self):

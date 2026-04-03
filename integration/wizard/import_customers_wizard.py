@@ -50,16 +50,11 @@ class ImportCustomersWizard(models.TransientModel):
 
         result = []
         while customer_ids:
-            context = {
-                'company_id': integration.company_id.id,
-                'job_integration_id': integration.id,
-                'job_integration_job_type': 'customer',
-            }
             job = integration \
-                .with_context(**context) \
                 .with_delay(**job_kwargs) \
                 .run_import_customers_by_blocks(customer_ids[:limit])
 
+            integration.job_log(job)
             result.append(job)
             customer_ids = customer_ids[limit:]
 

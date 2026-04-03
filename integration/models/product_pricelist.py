@@ -37,15 +37,12 @@ class ProductPricelist(models.Model):
 
             job_kwargs = integration._job_kwargs_prepare_specific_prices(pricelist_ids)
 
-            context = {
-                'company_id': integration.company_id.id,
-                'job_integration_id': integration.id,
-                'job_integration_job_type': 'pricelist',
-            }
-            integration \
-                .with_context(**context) \
+            job = integration \
+                .with_context(company_id=integration.company_id.id) \
                 .with_delay(**job_kwargs) \
                 .export_pricelists_multi(pricelist_ids=pricelist_ids.ids)
+
+            integration.job_log(job)
 
         return self._return_display_notification()
 
@@ -79,22 +76,29 @@ class ProductPricelist(models.Model):
                 ('pricelist_id', 'in', active_pricelist_ids),
             ])
 
-            # Skip previously imported items
-            item_ids = all_item_ids.browse()
+            # Skip previously imported items.
+            # Newly created items (create_date == write_date) that already have an external
+            # mapping record were imported from the external system, not created locally, so
+            # we must not re-export them.
             integration_id = integration.id
-            cursor = self.env.cr
+            newly_created_ids = [
+                rec.id for rec in all_item_ids if rec.create_date == rec.write_date
+            ]
 
-            check_query = """
-                SELECT id from integration_product_pricelist_item_external
-                WHERE integration_id = %s AND item_id = %s
-                LIMIT 1
-            """
-            for rec in all_item_ids:
-                if rec.create_date == rec.write_date:
-                    cursor.execute(check_query, (integration_id, rec.id))
-                    if cursor.fetchone():
-                        continue
-                item_ids |= rec
+            already_mapped_ids = set()
+            if newly_created_ids:
+                self.env.cr.execute("""
+                    SELECT item_id
+                    FROM integration_product_pricelist_item_external
+                    WHERE integration_id = %s
+                      AND item_id = ANY(%s)
+                """, (integration_id, newly_created_ids))
+                already_mapped_ids = {row[0] for row in self.env.cr.fetchall()}
+
+            item_ids = all_item_ids.filtered(
+                lambda rec: rec.id not in already_mapped_ids
+                or rec.create_date != rec.write_date
+            )
 
             if not item_ids:
                 # If not any changed items, try to find at least one product template
@@ -122,16 +126,12 @@ class ProductPricelist(models.Model):
             pricelist_ids = item_ids.mapped('pricelist_id')
             job_kwargs = integration._job_kwargs_prepare_specific_prices(pricelist_ids)
 
-            context = {
-                'company_id': integration.company_id.id,
-                'job_integration_id': integration.id,
-                'job_integration_job_type': 'pricelist',
-            }
             job = integration \
-                .with_context(**context) \
+                .with_context(company_id=integration.company_id.id) \
                 .with_delay(**job_kwargs) \
                 .export_pricelists_multi(item_ids=item_ids.ids, updating=True)
 
+            integration.job_log(job)
             message_list.append(
                 _('%s: Find Products for Specific Prices job created: %s') % (integration.name, job)
             )
@@ -366,19 +366,18 @@ class ProductPricelistItem(models.Model):
                 if rec.pricelist_id.id in pricelist_ids:
                     data[integration].add(template)
 
+        job_logs = self.env['job.log']
         # 2. Process data dictionary (trigger template export)
         for integration, template_set in data.items():
             integration = integration.with_context(company_id=integration.company_id.id)
 
             for template in template_set:
                 job_kwargs = integration._job_kwargs_export_template(template, False)
-                context = {
-                    'company_id': integration.company_id.id,
-                    'job_integration_id': integration.id,
-                    'job_integration_job_type': 'product',
-                    'job_template_id': template.id,
-                }
-                integration.with_context(**context).with_delay(**job_kwargs).export_template(template)
+                job = integration.with_delay(**job_kwargs).export_template(template)
+
+                job_logs |= template.with_context(default_integration_id=integration.id).job_log(job)
+
+        return job_logs
 
     def to_export_format(self, integration, res_model, raise_error=False):
         is_valid, error = self._validate_for_integration_export()

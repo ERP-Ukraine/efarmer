@@ -11,6 +11,8 @@ class OrderParseMixin:
     def __init__(self, *args, **kwargs):
         self._props = SimpleNamespace(
             use_customer_currency=False,
+            personal_id_additional_field_name='',
+            vat_number_additional_field_name='',
         )
         self._order_line_items = []
 
@@ -77,6 +79,7 @@ class OrderParseMixin:
             'order_fulfillments': order_fulfillments,
             'sale_channel_data': sale_channel_data,
             'order_source_name': self.source_name,
+            'custom_attributes': self.custom_attributes,
             **customer_data,
         }
 
@@ -133,20 +136,55 @@ class OrderParseMixin:
         delivery_method = self.delivery_method
 
         carrier, shipping_cost, taxes, note = {}, 0, [], ''
+        discount = {}
 
-        if (shipping_line and delivery_method and delivery_method.is_valid):
+        if shipping_line and delivery_method and delivery_method.is_valid:
             carrier = delivery_method.to_odoo_format()
-            shipping_cost = shipping_line.get_price(self.props.use_customer_currency)
-            taxes = [x.to_odoo_format(self.is_taxable) for x in shipping_line.tax_lines]
+            use_customer_currency = self.props.use_customer_currency
+
+            # Use the original (non-discounted) price so that the factory can create
+            # proper discount lines for the full discount amount.  Fall back to the
+            # current discounted price if originalPriceSet is not available.
+            original_price = shipping_line.get_original_price(use_customer_currency)
+            shipping_cost = original_price or shipping_line.get_price(use_customer_currency)
+
+            if self.tax_exempt:
+                taxes = []
+            else:
+                taxes = [
+                    x.to_odoo_format(self.taxes_included_in_price)
+                    for x in shipping_line.tax_lines
+                    if not x.is_zero_amount_tax
+                ]
             note = self.note or ''
+
+            discount_allocations = shipping_line.discount_allocations
+            if discount_allocations:
+                parsed_allocations = []
+                for allocation in discount_allocations:
+                    alloc_amount = allocation.amount_set.get_amount(use_customer_currency)
+                    if not alloc_amount:
+                        continue
+                    parsed_allocations.append({
+                        'code': allocation.discount_application,
+                        'discount_amount': round(alloc_amount, 4),
+                        'discount_amount_tax_incl': 0,
+                    })
+                if parsed_allocations:
+                    total_discount = sum(a['discount_amount'] for a in parsed_allocations)
+                    discount_percent = (total_discount / shipping_cost * 100) if shipping_cost else 0
+                    discount = {
+                        'discount_allocations': parsed_allocations,
+                        'discount_amount': total_discount,
+                        'discount_percent': discount_percent,
+                    }
 
         return {
             'carrier': carrier,
             'shipping_cost': shipping_cost,
             'taxes': taxes,
             'delivery_notes': note,
-            'discount': {},  # Discount already included in the shipping cost
-            # TODO: add discount data if it's essential to see the discount value right in the delivery-order-line
+            'discount': discount,
         }
 
     def parse_order_risks(self, risklevel: str = 'HIGH'):
@@ -214,6 +252,21 @@ class OrderParseMixin:
                 else:
                     shipping_data_ = customer.parse_default_address()
 
+            vat_number_field_name = self.props.vat_number_additional_field_name
+            personal_id_field_name = self.props.personal_id_additional_field_name
+
+            if billing_data_:
+                if vat_number_field_name:
+                    billing_data_['company_reg_number'] = self.custom_attributes.get(vat_number_field_name, '')
+                if personal_id_field_name:
+                    billing_data_['person_id_number'] = self.custom_attributes.get(personal_id_field_name, '')
+
+            if shipping_data_ and not self.billing_matches_shipping:
+                if vat_number_field_name:
+                    shipping_data_['company_reg_number'] = self.custom_attributes.get(vat_number_field_name, '')
+                if personal_id_field_name:
+                    shipping_data_['person_id_number'] = self.custom_attributes.get(personal_id_field_name, '')
+
             customer_data = customer.to_odoo_format()
             billing_data = customer._update_with_defaults(billing_data_, type='invoice')
             shipping_data = customer._update_with_defaults(shipping_data_)
@@ -261,9 +314,14 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
         return bool(self.cancelledAt)
 
     @property
-    def is_taxable(self):
+    def tax_exempt(self):
         self.ensure_one()
-        return self['taxesIncluded'] and not self['taxExempt']
+        return bool(self['taxExempt'])
+
+    @property
+    def taxes_included_in_price(self):
+        self.ensure_one()
+        return bool(self['taxesIncluded'])
 
     @property
     def requires_shipping(self):
@@ -370,28 +428,74 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
         fulfillment_orders = self.fulfillment_orders
         default_delivery_method = self._env.DeliveryMethod
 
+        # If there is no fulfillment orders, return the default delivery method.
         if not fulfillment_orders:
             return default_delivery_method
 
-        shipping_code = self.shipping_line['code']
+        # Parse available delivery methods.
+        delivery_methods = [x.delivery_method for x in fulfillment_orders]
 
-        if not shipping_code:
+        # Sort delivery methods by validity (it means the valid ones are first).
+        delivery_methods.sort(key=lambda x: x.is_valid, reverse=True)
+
+        # If the delivery_methods variable is an empty or all the delivery methods are Falsy or invalid,
+        # return the default delivery method.
+        if all(not x for x in delivery_methods) or all(not x.is_valid for x in delivery_methods):
             return default_delivery_method
 
-        fulfillment_order = next(
-            filter(lambda x: x.delivery_method.code == shipping_code, fulfillment_orders),
+        # If there is only one delivery method, return it.
+        delivery_method_first = delivery_methods[0]
+        if len(delivery_methods) == 1:
+            return delivery_method_first
+        # If all the delivery methods have the same code, return the first delivery method.
+        elif len(set([x.code for x in delivery_methods])) == 1:
+            return delivery_method_first
+        # If all the delivery methods have the same name, return the first delivery method.
+        elif len(set([x.name for x in delivery_methods])) == 1:
+            return delivery_method_first
+
+        # If there are multiple fulfillment orders, return the delivery method
+        # of the fulfillment order with the appropriate shipping code.
+        shipping_line = self.shipping_line
+
+        shipping_code = shipping_line['code']
+        shipping_name = shipping_line['title']
+
+        # If the shipping code is not set, return the first valid delivery method.
+        if not shipping_code and not shipping_name:
+            return delivery_method_first
+
+        # Return the delivery method with the appropriate shipping code.
+        delivery_method = next(
+            filter(lambda x: x.code == shipping_code, delivery_methods),
             None,
         )
 
-        if not fulfillment_order:
-            return default_delivery_method
+        # If the delivery method is not found by shipping code, try to find it by the shipping line title.
+        if not delivery_method and shipping_name:
+            delivery_method = next(
+                filter(lambda x: x.name == shipping_name, delivery_methods),
+                None,
+            )
 
-        return fulfillment_order.delivery_method
+        # If the delivery method is not found by shipping code, return the first valid delivery method.
+        if not delivery_method:
+            raise self._es.ValidationError(
+                'Delivery method may not be parsed. Please contact VentorTech support '
+                'at support@ventor.tech to report this issue.',
+            )
+
+        return delivery_method
 
     @property
     def publication(self):
         self.ensure_one()
         return self._env.Publication.set(**(self['publication'] or {}))
+
+    @property
+    def custom_attributes(self):
+        self.ensure_one()
+        return {x['key']: x['value'] for x in (self['customAttributes'] or [])}
 
     @property
     def location_id(self):

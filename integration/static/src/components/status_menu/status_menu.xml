@@ -6,12 +6,12 @@
         <div t-att-class="integrationStatusMenuSystray.class">
             <Dropdown state="dropdown" beforeOpen.bind="beforeOpen" position="'bottom-end'" menuClass="integrationStatusMenuSystray.menuClass">
                 <button>
-                    <i class="fa fa-lg fa-rocket" role="img" aria-label="Integration Status"></i>
-                    <span t-if="state.activityVisible">
+                    <i class="fa fa-lg fa-plug" role="img" aria-label="Integration Status"></i>
+                    <t t-if="state.activityVisible">
                         <span class="IntegrationStatusMenu_badge badge rounded-pill">
-                            <t t-esc="state.activityCounter"/>
+                            <t t-esc="formatCount(state.activityCounterFailed)"/> / <t t-esc="formatCount(state.activityCounterUnprocessed)"/>
                         </span>
-                    </span>
+                    </t>
                 </button>
                 <t t-set-slot="content">
                     <t t-call="integration.IntegrationStatusMenu.content"/>
@@ -31,32 +31,103 @@
 
             <t t-if="state.isLoaded">
                 <t t-if="state.integrations">
-                    <t t-foreach="state.integrations" t-as="integration" t-key="integration.name">
-                        <div class="o_IntegrationStatusMenu_item">
-                            <h4><t t-esc="integration.name"/></h4>
-                            <p class="mb-1">
-                                <span>Failed Jobs: </span>
-                                <span class="badge rounded-pill bg-danger text-white float-end px-3"><t t-esc="integration.failed_jobs_count"/></span>
-                            </p>
-                            <p class="mb-0">
-                                <span>Missing Mappings: </span>
-                                <span class="badge rounded-pill bg-warning text-white float-end px-3"><t t-esc="integration.missing_mappings_count"/></span>
-                            </p>
+                    <t t-foreach="state.integrations" t-as="integration" t-key="integration.id">
+                        <div t-att-class="`o_IntegrationStatusMenu_item p-3 ${!integration_last ? 'mb-3' : ''}`">
+                            <h5 class="mb-2 fw-bold pb-2">
+                                <a href="#"
+                                   class="text-decoration-none integration-name-link"
+                                   t-on-click.prevent="() => this.openIntegration(integration.id)">
+                                    <t t-esc="integration.name"/>
+                                    <i class="fa fa-external-link ms-2"/>
+                                </a>
+                            </h5>
+
+                            <!-- Action Buttons Grid (2x2) -->
+                            <div class="row g-1 mb-2">
+                                <!-- Row 1 -->
+                                <div class="col-6">
+                                    <a href="#"
+                                       class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-between px-3 py-2 status-menu-btn"
+                                       t-on-click.prevent="() => this.openOrders(integration.id)">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fa fa-shopping-cart me-2" title="Orders"/>
+                                            <span class="small">Orders</span>
+                                        </div>
+                                        <span class="status-menu-counter fw-bold">
+                                            <t t-if="integration.orders_count > 99">99+</t>
+                                            <t t-else=""><t t-esc="integration.orders_count"/></t>
+                                        </span>
+                                    </a>
+                                </div>
+                                <div class="col-6">
+                                    <a href="#"
+                                       t-att-class="`btn btn-sm w-100 d-flex align-items-center justify-content-between px-3 py-2 status-menu-btn ${integration.unprocessed_orders_count > 0 ? 'btn-warning' : 'btn-outline-secondary'}`"
+                                       t-on-click.prevent="() => this.openUnprocessedOrders(integration.id)">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fa fa-hourglass-half me-2" title="Unprocessed"/>
+                                            <span class="small">Unprocessed</span>
+                                        </div>
+                                        <span t-att-class="`status-menu-counter fw-bold ${integration.unprocessed_orders_count > 0 ? 'text-warning-emphasis' : ''}`">
+                                            <t t-if="integration.unprocessed_orders_count > 99">99+</t>
+                                            <t t-else=""><t t-esc="integration.unprocessed_orders_count"/></t>
+                                        </span>
+                                    </a>
+                                </div>
+                                <!-- Row 2 -->
+                                <div class="col-6">
+                                    <a href="#"
+                                       class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-between px-3 py-2 status-menu-btn"
+                                       t-on-click.prevent="() => this.openProducts(integration.id)">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fa fa-cube me-2" title="Products"/>
+                                            <span class="small">Products</span>
+                                        </div>
+                                        <span class="status-menu-counter fw-bold">
+                                            <t t-if="integration.products_count > 99">99+</t>
+                                            <t t-else=""><t t-esc="integration.products_count"/></t>
+                                        </span>
+                                    </a>
+                                </div>
+                                <div class="col-6">
+                                    <a href="#"
+                                       t-att-class="`btn btn-sm w-100 d-flex align-items-center justify-content-between px-3 py-2 status-menu-btn ${integration.failed_jobs_count > 0 ? 'btn-danger' : 'btn-outline-secondary'}`"
+                                       t-on-click.prevent="() => this.openFailedJobs(integration.id)">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fa fa-exclamation-triangle me-2" title="Failed Jobs"/>
+                                            <span class="small">Failed Jobs</span>
+                                        </div>
+                                        <span t-att-class="`status-menu-counter fw-bold ${integration.failed_jobs_count > 0 ? 'text-white' : ''}`">
+                                            <t t-if="integration.failed_jobs_count > 99">99+</t>
+                                            <t t-else=""><t t-esc="integration.failed_jobs_count"/></t>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Mappings Section - De-emphasized -->
+                            <t t-if="integration.missing_mappings_by_type and integration.missing_mappings_by_type.length > 0">
+                                <div class="mappings-section pt-2 mt-1 border-top">
+                                    <div class="text-muted small mb-1">
+                                        <i class="fa fa-link me-1"/>Unmapped Records
+                                    </div>
+                                    <t t-foreach="integration.missing_mappings_by_type" t-as="mapping" t-key="mapping.type">
+                                        <div class="d-flex justify-content-between align-items-center mb-1 ps-3">
+                                            <a
+                                                href="#"
+                                                class="text-decoration-none integration-status-link-muted small"
+                                                t-on-click.prevent="() => this.openMissingMappings(integration.id, mapping.model)">
+                                                <t t-esc="mapping.type"/>
+                                            </a>
+                                            <span class="badge rounded-pill bg-secondary px-2 small text-dark">
+                                                <t t-if="mapping.count > 99">99+</t>
+                                                <t t-else=""><t t-esc="mapping.count"/></t>
+                                            </span>
+                                        </div>
+                                    </t>
+                                </div>
+                            </t>
                         </div>
-
-                        <hr class="mb-3 mt-3"/>
                     </t>
-
-                    <!-- Rate Us block -->
-                    <div class="IntegrationStatusMenu_rate_us">
-                        <h4>Rate Us</h4>
-                        <t t-foreach="state.typeApis" t-as="typeApi" t-key="typeApi">
-                            <a t-att-href="getRateUsURL(typeApi)" target="_blank">
-                                <img t-att-src="getModuleIcon(typeApi)" alt="Integration Icon"/>
-                            </a>
-                        </t>
-                    </div>
-
                 </t>
             </t>
         </div>

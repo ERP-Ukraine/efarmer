@@ -100,7 +100,7 @@ class ResUsers(models.Model):
 
     def _get_ventor_option_settings(self):
         ventor_option_settings = self.env['ventor.option.setting'].sudo().get_general_settings()
-        if self.env.ref('ventor_base.merp_wave_picking_menu') not in self.all_group_ids:
+        if self.env.ref('ventor_base.merp_wave_picking_menu') not in self.groups_id:
             ventor_option_settings.pop('wave_picking')
         return ventor_option_settings
 

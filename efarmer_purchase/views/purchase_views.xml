@@ -132,7 +132,7 @@
         </record>
 
         <record id="purchase_order_line_menu.purchase_order_line_menu" model="ir.ui.menu">
-            <field name="group_ids" eval="[(4, ref('efarmer_purchase.group_allow_purchase_order_lines'))]"/>
+            <field name="groups_id" eval="[(4, ref('efarmer_purchase.group_allow_purchase_order_lines'))]"/>
         </record>
 
 

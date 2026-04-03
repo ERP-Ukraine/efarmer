@@ -1,4 +1,5 @@
 # See LICENSE file for full copyright and licensing details.
+import logging
 
 from typing import List, Dict
 
@@ -6,7 +7,6 @@ from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 from odoo.tools.sql import escape_psql
 
-import logging
 
 _logger = logging.getLogger(__name__)
 
@@ -77,7 +77,7 @@ class IntegrationEcommerceProductCategoryExternal(models.Model):
 
         for integration in integrations:
             # Import categories from E-Commerce System
-            external_categories_data = integration.adapter.get_categories()
+            external_categories_data = integration._build_adapter().get_categories()
 
             for category in self.filtered(lambda x: x.integration_id == integration):
                 category.import_category(external_categories_data)
@@ -106,13 +106,13 @@ class IntegrationEcommerceProductCategoryExternal(models.Model):
                 ) % (self.code, self.name))
 
             external_category_data = external_category_data[0]
-            name = self.env['integration.res.lang.mapping'] \
-                .convert_external_translations(self.integration_id.id, external_category_data['name'])
+            name = self.integration_id.convert_translated_field_to_odoo_format(
+                external_category_data['name'])
 
-            odoo_category = self.create_or_update_with_translations(
-                self.integration_id.id,
-                odoo_category,
-                {'name': name},
+            odoo_category = self.create_or_update_with_translation(
+                integration=self.integration_id,
+                odoo_object=odoo_category,
+                vals={'name': name},
             )
 
             # There is nothing else to do
@@ -152,13 +152,13 @@ class IntegrationEcommerceProductCategoryExternal(models.Model):
                 ) % (self.code, self.name))
 
             external_category_data = external_category_data[0]
-            name = self.env['integration.res.lang.mapping'] \
-                .convert_external_translations(self.integration_id.id, external_category_data['name'])
+            name = self.integration_id.convert_translated_field_to_odoo_format(
+                external_category_data['name'])
 
-            odoo_category = self.create_or_update_with_translations(
-                self.integration_id.id,
-                odoo_category,
-                {'name': name},
+            odoo_category = self.create_or_update_with_translation(
+                integration=self.integration_id,
+                odoo_object=odoo_category,
+                vals={'name': name},
             )
 
             category.create_or_update_mapping(odoo_id=odoo_category.id)
@@ -199,9 +199,9 @@ class IntegrationEcommerceProductCategoryExternal(models.Model):
 
         if len(odoo_category) > 1:
             raise UserError(_(
-                f'Multiple e-commerce categories with the name "{self.name}" were found. Please ensure that category '
+                'Multiple e-commerce categories with the name "%s" were found. Please ensure that category '
                 'names are unique to avoid conflicts.'
-            ))
+            ) % self.name)
 
         return odoo_category
 

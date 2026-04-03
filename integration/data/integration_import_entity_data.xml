@@ -16,8 +16,8 @@
         <record model="integration.import.entity" id="integration_import_entity_categories">
             <field name="name">Categories</field>
             <field name="method_name">integrationApiImportCategories</field>
-            <field name="external_model">integration.ecommerce.product.category.external</field>
-            <field name="mapping_model">integration.ecommerce.product.category.mapping</field>
+            <field name="external_model">integration.product.public.category.external</field>
+            <field name="mapping_model">integration.product.public.category.mapping</field>
             <field name="integration_type"></field>
             <field name="is_master_data">True</field>
             <field name="supports_import_by_id">False</field>
@@ -28,16 +28,6 @@
             <field name="method_name">initial_import_countries</field>
             <field name="external_model">integration.res.country.external</field>
             <field name="mapping_model">integration.res.country.mapping</field>
-            <field name="integration_type"></field>
-            <field name="is_master_data">True</field>
-            <field name="supports_import_by_id">False</field>
-        </record>
-
-        <record model="integration.import.entity" id="integration_import_entity_features">
-            <field name="name">Features</field>
-            <field name="method_name">initial_import_features</field>
-            <field name="external_model">integration.product.feature.external</field>
-            <field name="mapping_model">integration.product.feature.mapping</field>
             <field name="integration_type"></field>
             <field name="is_master_data">True</field>
             <field name="supports_import_by_id">False</field>

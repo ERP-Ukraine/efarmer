@@ -18,10 +18,13 @@ class DeliveryTerms(models.Model):
     tag_ids = fields.Many2many("crm.tag", string="Tags")
     delivery_days = fields.Integer(string="Delivery Days")
 
-    _unique_name_company = models.Constraint(
-        "UNIQUE(name, company_id)",
-        "A delivery term with the same name for the same company already exists.",
-    )
+    _sql_constraints = [
+        (
+            "unique_name_company",
+            "UNIQUE(name, company_id)",
+            "A delivery term with the same name for the same company already exists.",
+        )
+    ]
 
     @api.constrains("default_for_company", "company_id")
     def _check_default_for_company(self):

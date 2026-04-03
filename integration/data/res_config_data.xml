@@ -6,9 +6,4 @@
         <field name="implied_ids" eval="[(4, ref('account.group_delivery_invoice_address'))]"/>
     </record>
 
-    <!-- By default, enable pricelists -->
-    <record id="base.group_user" model="res.groups">
-        <field name="implied_ids" eval="[(4, ref('product.group_product_pricelist'))]"/>
-    </record>
-
 </odoo>

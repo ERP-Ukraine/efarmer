@@ -2,16 +2,6 @@
 <odoo>
     <data noupdate="1">
         <!-- Package management -->
-        <record id="group_lines" model="ventor.option.setting">
-            <field name="name">Group lines</field>
-            <field name="technical_name">group_lines</field>
-            <field name="value" ref="ventor_base.bool_true"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">package_management</field>
-            <field name="description">Groups lines of the same products</field>
-        </record>
-
         <record id="enable_over_flow" model="ventor.option.setting">
             <field name="name">Pack extra items</field>
             <field name="technical_name">enable_over_flow</field>
@@ -93,16 +83,6 @@
             <field name="description">User can change default source location to pick item from another location. Works only if "Confirm source location" setting is active</field>
         </record>
 
-        <record id="scan_source_location_once_batch_picking" model="ventor.option.setting">
-            <field name="name">Scan source location once</field>
-            <field name="technical_name">scan_source_location_once</field>
-            <field name="value" ref="ventor_base.bool_false"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">batch_picking</field>
-            <field name="description">Scan source location once for all lines in one location</field>
-        </record>
-
         <record id="confirm_product" model="ventor.option.setting">
             <field name="name">Confirm product</field>
             <field name="technical_name">confirm_product</field>
@@ -163,16 +143,6 @@
             <field name="description">Scan source (destination) packages right after scanning source (destination) location. Use it if you move from one package to another or pick items from packages or pallets. Works only if package management settings is active on Odoo side</field>
         </record>
 
-        <record id="ventor_entire_package_batch_picking" model="ventor.option.setting">
-            <field name="name">Ventor entire package</field>
-            <field name="technical_name">ventor_entire_package</field>
-            <field name="value" ref="ventor_base.bool_false"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">batch_picking</field>
-            <field name="description">When ON, the operation requires verification of the package only, not its contents</field>
-        </record>
-
         <record id="allow_creating_new_packages" model="ventor.option.setting">
             <field name="name">Allow creating new packages</field>
             <field name="technical_name">allow_creating_new_packages</field>
@@ -216,11 +186,11 @@
         <record id="validate_picking_batch" model="ventor.option.setting">
             <field name="name">Validate Picking</field>
             <field name="technical_name">validate_picking_batch</field>
-            <field name="value" ref="ventor_base.bool_false"/>
+            <field name="value" ref="ventor_base.bool_true"/>
             <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
             <field name="value_type">bool</field>
             <field name="action_type">batch_picking</field>
-            <field name="description">Validate Stock Picking automatically if it completely processed. Note: When ON transfers with all skipped items will be validated with initial quantity</field>
+            <field name="description">Validate Stock Picking automatically if it completely processed</field>
         </record>
 
         <record id="apply_default_lots_batch_picking" model="ventor.option.setting">
@@ -231,16 +201,6 @@
             <field name="value_type">bool</field>
             <field name="action_type">batch_picking</field>
             <field name="description">If it's on. you don't need to scan lot number to confirm it. On receipts the app will create default Odoo lots and apply them to the product. On delivery zone you don't need to confirm lots and they will be taken Odoo by default</field>
-        </record>
-
-        <record id="show_only_lots_from_source_location_batch_picking" model="ventor.option.setting">
-            <field name="name">Show only lots from source location</field>
-            <field name="technical_name">show_only_lots_from_source_location</field>
-            <field name="value" ref="ventor_base.bool_false"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">batch_picking</field>
-            <field name="description">If it is active you can see only Lots and SN from the source location</field>
         </record>
 
         <record id="transfer_more_items" model="ventor.option.setting">
@@ -295,16 +255,6 @@
             <field name="description">Choose how to to process less product qty than initial. You can always split the line, always move less items or choose it all the time (default)</field>
         </record>
 
-        <record id="show_product_information_batch" model="ventor.option.setting">
-            <field name="name">Show description from product</field>
-            <field name="technical_name">show_product_information</field>
-            <field name="value" ref="ventor_base.bool_true"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">batch_picking</field>
-            <field name="description">Show the description for the operation from Product -> Inventory</field>
-        </record>
-
         <record id="show_print_attachment_button" model="ventor.option.setting">
             <field name="name">Show Print attachments button</field>
             <field name="technical_name">show_print_attachment_button</field>
@@ -323,26 +273,6 @@
             <field name="value_type">bool</field>
             <field name="action_type">batch_picking</field>
             <field name="description">Showing the Put in pack button in the toolbar instead of keeping it in the hidden menu</field>
-        </record>
-
-        <record id="quality_check_per_product_line_batch" model="ventor.option.setting">
-            <field name="name">Quality check per product line</field>
-            <field name="technical_name">quality_check_per_product_line</field>
-            <field name="value" ref="ventor_base.bool_false"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">batch_picking</field>
-            <field name="description">If the setting is active the Quality check wizard will be shown automatically while processing each product line. Disable if you want to do the Quality check manually after all product lines are confirmed</field>
-        </record>
-
-        <record id="group_lines_batch" model="ventor.option.setting">
-            <field name="name">Group lines</field>
-            <field name="technical_name">group_lines</field>
-            <field name="value" ref="ventor_base.bool_false"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">batch_picking</field>
-            <field name="description">Groups lines of the same product between orders</field>
         </record>
 
         <!--Wave picking-->
@@ -364,16 +294,6 @@
             <field name="value_type">bool</field>
             <field name="action_type">wave_picking</field>
             <field name="description">User can change default source location to pick item from another location. Works only if "Confirm source location" setting is active</field>
-        </record>
-
-        <record id="scan_source_location_once_wave_picking" model="ventor.option.setting">
-            <field name="name">Scan source location once</field>
-            <field name="technical_name">scan_source_location_once</field>
-            <field name="value" ref="ventor_base.bool_false"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">wave_picking</field>
-            <field name="description">Scan source location once for all lines in one location</field>
         </record>
 
         <record id="confirm_product_wave_picking" model="ventor.option.setting">
@@ -436,16 +356,6 @@
             <field name="description">Scan source (destination) packages right after scanning source (destination) location. Use it if you move from one package to another or pick items from packages or pallets. Works only if package management settings is active on Odoo side</field>
         </record>
 
-        <record id="ventor_entire_wave_picking" model="ventor.option.setting">
-            <field name="name">Ventor Entire Package</field>
-            <field name="technical_name">ventor_entire_package</field>
-            <field name="value" ref="ventor_base.bool_false"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">wave_picking</field>
-            <field name="description">When ON, the operation requires verification of the package only, not its contents</field>
-        </record>
-
         <record id="allow_creating_new_packages_wave_picking" model="ventor.option.setting">
             <field name="name">Allow creating new packages</field>
             <field name="technical_name">allow_creating_new_packages</field>
@@ -489,11 +399,11 @@
         <record id="validate_wave_picking" model="ventor.option.setting">
             <field name="name">Validate Picking</field>
             <field name="technical_name">validate_picking_batch</field>
-            <field name="value" ref="ventor_base.bool_false"/>
+            <field name="value" ref="ventor_base.bool_true"/>
             <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
             <field name="value_type">bool</field>
             <field name="action_type">wave_picking</field>
-            <field name="description">Validate Stock Picking automatically if it completely processed. Note: When ON transfers with all skipped items will be validated with initial quantity</field>
+            <field name="description">Validate Stock Picking automatically if it completely processed</field>
         </record>
 
         <record id="apply_default_lots_wave_picking" model="ventor.option.setting">
@@ -504,16 +414,6 @@
             <field name="value_type">bool</field>
             <field name="action_type">wave_picking</field>
             <field name="description">If it's on. you don't need to scan lot number to confirm it. On receipts the app will create default Odoo lots and apply them to the product. On delivery zone you don't need to confirm lots and they will be taken Odoo by default</field>
-        </record>
-
-        <record id="show_only_lots_from_source_location_wave_picking" model="ventor.option.setting">
-            <field name="name">Show only lots from source location</field>
-            <field name="technical_name">show_only_lots_from_source_location</field>
-            <field name="value" ref="ventor_base.bool_false"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">wave_picking</field>
-            <field name="description">If it is active you can see only Lots and SN from the source location</field>
         </record>
 
         <record id="transfer_more_items_wave_picking" model="ventor.option.setting">
@@ -568,16 +468,6 @@
             <field name="description">Choose how to to process less product qty than initial. You can always split the line, always move less items or choose it all the time (default)</field>
         </record>
 
-        <record id="show_product_information_wave_picking" model="ventor.option.setting">
-            <field name="name">Show description from product</field>
-            <field name="technical_name">show_product_information</field>
-            <field name="value" ref="ventor_base.bool_true"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">wave_picking</field>
-            <field name="description">Show the description for the operation from Product -> Inventory</field>
-        </record>
-
         <record id="show_print_attachment_button_wave_picking" model="ventor.option.setting">
             <field name="name">Show Print attachments button</field>
             <field name="technical_name">show_print_attachment_button</field>
@@ -596,16 +486,6 @@
             <field name="value_type">bool</field>
             <field name="action_type">wave_picking</field>
             <field name="description">Showing the Put in pack button in the toolbar instead of keeping it in the hidden menu</field>
-        </record>
-
-        <record id="quality_check_per_product_line_wave_picking" model="ventor.option.setting">
-            <field name="name">Quality check per product line</field>
-            <field name="technical_name">quality_check_per_product_line</field>
-            <field name="value" ref="ventor_base.bool_false"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">wave_picking</field>
-            <field name="description">If the setting is active the Quality check wizard will be shown automatically while processing each product line. Disable if you want to do the Quality check manually after all product lines are confirmed</field>
         </record>
 
         <!-- Cluster picking -->
@@ -627,16 +507,6 @@
             <field name="value_type">bool</field>
             <field name="action_type">cluster_picking</field>
             <field name="description">User can change default source location to pick item from another location. Works only if "Confirm source location" setting is active</field>
-        </record>
-
-        <record id="scan_source_location_once_cluster_picking" model="ventor.option.setting">
-            <field name="name">Scan source location once</field>
-            <field name="technical_name">scan_source_location_once</field>
-            <field name="value" ref="ventor_base.bool_false"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">cluster_picking</field>
-            <field name="description">Scan source location once for all lines in one location</field>
         </record>
 
         <record id="confirm_product_cluster_picking" model="ventor.option.setting">
@@ -699,16 +569,6 @@
             <field name="description">Scan source (destination) packages right after scanning source (destination) location. Use it if you move from one package to another or pick items from packages or pallets. Works only if package management settings is active on Odoo side</field>
         </record>
 
-        <record id="ventor_entire_cluster_picking" model="ventor.option.setting">
-            <field name="name">Ventor Entire Package</field>
-            <field name="technical_name">ventor_entire_package</field>
-            <field name="value" ref="ventor_base.bool_false"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">cluster_picking</field>
-            <field name="description">When ON, the operation requires verification of the package only, not its contents</field>
-        </record>
-
         <record id="allow_creating_new_packages_cluster_picking" model="ventor.option.setting">
             <field name="name">Allow creating new packages</field>
             <field name="technical_name">allow_creating_new_packages</field>
@@ -752,11 +612,11 @@
         <record id="validate_cluster_picking" model="ventor.option.setting">
             <field name="name">Validate Picking</field>
             <field name="technical_name">validate_picking_batch</field>
-            <field name="value" ref="ventor_base.bool_false"/>
+            <field name="value" ref="ventor_base.bool_true"/>
             <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
             <field name="value_type">bool</field>
             <field name="action_type">cluster_picking</field>
-            <field name="description">Validate Stock Picking automatically if it completely processed. Note: When ON transfers with all skipped items will be validated with initial quantity</field>
+            <field name="description">Validate Stock Picking automatically if it completely processed</field>
         </record>
 
         <record id="apply_default_lots_cluster_picking" model="ventor.option.setting">
@@ -767,16 +627,6 @@
             <field name="value_type">bool</field>
             <field name="action_type">cluster_picking</field>
             <field name="description">If it's on. you don't need to scan lot number to confirm it. On receipts the app will create default Odoo lots and apply them to the product. On delivery zone you don't need to confirm lots and they will be taken Odoo by default</field>
-        </record>
-
-        <record id="show_only_lots_from_source_cluster_picking" model="ventor.option.setting">
-            <field name="name">Show only lots from source location</field>
-            <field name="technical_name">show_only_lots_from_source_location</field>
-            <field name="value" ref="ventor_base.bool_false"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">cluster_picking</field>
-            <field name="description">If it is active you can see only Lots and SN from the source location</field>
         </record>
 
         <record id="transfer_more_items_cluster_picking" model="ventor.option.setting">
@@ -829,16 +679,6 @@
             <field name="value_type">select</field>
             <field name="action_type">cluster_picking</field>
             <field name="description">Choose how to to process less product qty than initial. You can always split the line, always move less items or choose it all the time (default)</field>
-        </record>
-
-        <record id="show_product_information_cluster_picking" model="ventor.option.setting">
-            <field name="name">Show description from product</field>
-            <field name="technical_name">show_product_information</field>
-            <field name="value" ref="ventor_base.bool_true"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">cluster_picking</field>
-            <field name="description">Show the description for the operation from Product -> Inventory</field>
         </record>
 
         <record id="show_print_attachment_button_cluster_picking" model="ventor.option.setting">
@@ -899,16 +739,6 @@
             <field name="value_type">bool</field>
             <field name="action_type">cluster_picking</field>
             <field name="description">Apply reusable packages as cluster boxes (same as Odoo does) instead of locations (default in Ventor)</field>
-        </record>
-
-        <record id="quality_check_per_product_line_cluster_picking" model="ventor.option.setting">
-            <field name="name">Quality check per product line</field>
-            <field name="technical_name">quality_check_per_product_line</field>
-            <field name="value" ref="ventor_base.bool_false"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">cluster_picking</field>
-            <field name="description">If the setting is active the Quality check wizard will be shown automatically while processing each product line. Disable if you want to do the Quality check manually after all product lines are confirmed</field>
         </record>
 
         <!-- Internal transfers -->
@@ -1018,16 +848,6 @@
             <field name="description">Choose the action on the transfer after exit the menu. You can save it or cancel without dialog screen</field>
         </record>
 
-        <record id="autofill_item_quantity_int_transfers" model="ventor.option.setting">
-            <field name="name">Autofill item quantity</field>
-            <field name="technical_name">autofill_item_quantity</field>
-            <field name="value" ref="ventor_base.bool_false"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">internal_transfers</field>
-            <field name="description">Automatically insert available quantity of the selected product</field>
-        </record>
-
         <!-- Putaway -->
         <record id="set_auto_validate" model="ventor.option.setting">
             <field name="name">Move all items automatically</field>
@@ -1068,26 +888,6 @@
             <field name="value_type">bool</field>
             <field name="action_type">inventory_adjustments</field>
             <field name="description">Products quantity will be saved but not applied</field>
-        </record>
-
-        <record id="start_count_from_zero" model="ventor.option.setting">
-            <field name="name">Start count from zero</field>
-            <field name="technical_name">start_count_from_zero</field>
-            <field name="value" ref="ventor_base.bool_false"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">inventory_adjustments</field>
-            <field name="description">When a line is set it shows zero</field>
-        </record>
-
-        <record id="fast_count" model="ventor.option.setting">
-            <field name="name">Fast count</field>
-            <field name="technical_name">fast_count</field>
-            <field name="value" ref="ventor_base.bool_false"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">inventory_adjustments</field>
-            <field name="description">The first scan makes an increment if the quant is unique; if not, it focuses on related quants (supposed for flows with unique product quants in location and scanning one location at a time)</field>
         </record>
 
         <!-- Instant inventory -->
@@ -1212,26 +1012,6 @@
             <field name="description">Prevent users from seeing on-hand quantity</field>
         </record>
 
-        <record id="fast_printing_quick_info" model="ventor.option.setting">
-            <field name="name">Fast printing</field>
-            <field name="technical_name">fast_printing</field>
-            <field name="value" ref="ventor_base.bool_false"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">quick_info</field>
-            <field name="description">When the printing icon is clicked the default label is printed. The default label can be set in the Direct Print by Ventor Tech app if you have it installed. Otherwise, the default Odoo label (2х7 with price) is printed</field>
-        </record>
-
-        <record id="show_relocate_button_quick_info" model="ventor.option.setting">
-            <field name="name">Show Relocate button</field>
-            <field name="technical_name">show_relocate_button</field>
-            <field name="value" ref="ventor_base.bool_true"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">quick_info</field>
-            <field name="description">Showing the Relocate button on the location card and each product line</field>
-        </record>
-
         <!-- Scrap Management -->
         <record id="manage_packages_scrap_management" model="ventor.option.setting">
             <field name="name">Show packages fields</field>
@@ -1304,17 +1084,6 @@
             <field name="value_type">bool</field>
             <field name="action_type">rfid</field>
             <field name="description">Products quantity will be saved but not applied</field>
-        </record>
-
-        <!-- Order Recheck -->
-        <record id="order_recheck" model="ventor.option.setting">
-            <field name="name">Blinde recheck</field>
-            <field name="technical_name">blind_recheck</field>
-            <field name="value" ref="ventor_base.bool_false"/>
-            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
-            <field name="value_type">bool</field>
-            <field name="action_type">order_recheck</field>
-            <field name="description">Hides the expected quantity and report text</field>
         </record>
     </data>
 </odoo>

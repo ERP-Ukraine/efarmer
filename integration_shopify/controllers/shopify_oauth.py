@@ -1,6 +1,8 @@
 # Copyright 2020 VentorTech OU
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
 
+import traceback
+
 import requests
 from werkzeug.exceptions import BadRequest
 
@@ -41,7 +43,6 @@ class ShopifyOAuth(Controller):
             response = requests.post(f'https://{shop}/admin/oauth/access_token', json=payload, timeout=15)
             response.raise_for_status()
         except Exception as e:
-            import traceback
             # Store error information in standard error fields
             wizard.write({
                 'error_message': str(e),

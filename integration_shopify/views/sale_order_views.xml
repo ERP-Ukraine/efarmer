@@ -38,12 +38,11 @@
                 </xpath>
 
                 <field name="payment_method_id" position="replace">
-                    <field name="payment_method_id" string="E-Commerce Payment Methods" invisible="type_api == 'shopify'"/>
-                    <field name="payment_method_id" string="Primary E-Commerce Payment Method" invisible="type_api != 'shopify'"/>
-                </field>
-
-                <field name="payment_method_id" position="before">
-                    <field name="payment_method_ids" readonly="1" invisible="type_api != 'shopify'" widget="many2many_tags"/>
+                    <!-- Non-Shopify: single payment method -->
+                    <field name="payment_method_id" string="E-Commerce Payment Methods" options="{'no_create': True}" invisible="type_api == 'shopify'"/>
+                    <!-- Shopify: multiple payment methods + primary -->
+                    <field name="payment_method_ids" readonly="1" options="{'no_create': True}" invisible="type_api != 'shopify'" widget="many2many_tags"/>
+                    <field name="payment_method_id" string="Primary E-Commerce Payment Method" options="{'no_create': True}" invisible="type_api != 'shopify'"/>
                 </field>
             </field>
         </record>
@@ -54,7 +53,7 @@
             <field name="arch" type="xml">
                 <search>
                     <field name="integration_sale_channel_id"/>
-                    <group>
+                    <group expand="0" string="Group By">
                         <filter string="Sale Channel" name="group_by_integration_sale_channel_id" context="{'group_by': 'integration_sale_channel_id'}"/>
                     </group>
                 </search>

@@ -41,6 +41,7 @@
                 </xpath>
                 <xpath expr="//field[@name='order_line']//list//field[@name='name']" position="before">
                     <button name="open_replacement_wizard"
+                            title="Open Replacement Wizard"
                             type="object"
                             icon="fa-edit"
                             invisible="state != 'to_confirm'"

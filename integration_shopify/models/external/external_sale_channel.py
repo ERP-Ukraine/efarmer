@@ -12,10 +12,13 @@ class ExternalSaleChannel(models.Model):
     _name = 'external.sale.channel'
     _description = 'Sale Channel'
 
-    _external_id_uniq = models.Constraint(
-        'unique (integration_id, external_id)',
-        'External ID must be unique per integration',
-    )
+    _sql_constraints = [
+        (
+            'external_id_uniq',
+            'unique (integration_id, external_id)',
+            'External ID must be unique per integration',
+        )
+    ]
 
     integration_id = fields.Many2one(
         comodel_name='sale.integration',

@@ -5,7 +5,7 @@ from odoo.exceptions import UserError, ValidationError
 
 from inspect import stack
 from logging import getLogger
-from requests.exceptions import SSLError, ConnectionError as RequestsConnectionError
+from requests.exceptions import HTTPError, SSLError, ConnectionError as RequestsConnectionError
 from typing import Type, NamedTuple, Optional, List
 
 
@@ -160,25 +160,36 @@ class JsonMissedKey(Exception):
     pass
 
 
-class ResourceConflict(Exception):  # HTTP error 409
-    CODE = 409
+class ResourceConflict(HTTPError):
 
-    def __init__(self, message: str):
-        super().__init__(f'{self.CODE}: {message}')
+    code = 409
 
-
-class TooManyRequestsError(Exception):  # HTTP error 429
-    CODE = 429
-
-    def __init__(self, message: str):
-        super().__init__(f'{self.CODE}: {message}')
+    def __init__(self, message: str, *args, **kwargs):
+        super().__init__(f'{self.code}: {message}', *args, **kwargs)
 
 
-class ServerError(Exception):  # HTTP error 500-599
+class TooManyRequestsError(HTTPError):
 
-    def __init__(self, code: int, message: str):
+    code = 429
+
+    def __init__(self, message: str, *args, **kwargs):
+        super().__init__(f'{self.code}: {message}', *args, **kwargs)
+
+
+class ServerError(HTTPError):  # HTTP error 500-599
+
+    def __init__(self, code: int, message: str, *args, **kwargs):
         self.code = code
-        super().__init__(f'{code}: {message}')
+
+        super().__init__(f'{code}: {message}', *args, **kwargs)
+
+
+class ThrottledError(Exception):
+
+    def __init__(self, timeout: int, message: str):
+        super().__init__(message)
+
+        self.timeout = timeout
 
 
 class ErrorInfo(NamedTuple):
@@ -203,6 +214,18 @@ class ErrorStore:
     .
     E9xx: Technical errors"""
 
+    RESOURCE_CONFLICT = 409
+    TOO_MANY_REQUESTS = 429
+
+    INTERNAL_SERVER_ERROR = 500
+    BAD_GATEWAY = 502
+    SERVICE_UNAVAILABLE = 503
+    CONNECTION_TIMED_OUT = 522
+    TIMEOUT_OCCURRED = 524
+    UNABLE_RESOLVE_ORIGIN_HOSTNAME = 530
+
+    SERVER_ERROR_CODES = list(range(500, 600))
+
     UserError = UserError
     ValidationError = ValidationError
 
@@ -212,17 +235,22 @@ class ErrorStore:
     IntegrationNotImplementedError = IntegrationNotImplementedError
     JsonMissedKey = JsonMissedKey
 
+    NoExternal = NoExternal
     NotMappedToExternal = NotMappedToExternal
     NotMappedFromExternal = NotMappedFromExternal
 
     UndefinedExternalProduct = UndefinedExternalProduct
     NotFoundExternalProduct = NotFoundExternalProduct
 
+    ThrottledError = ThrottledError
+
+    HTTPError = HTTPError
     SSLError = SSLError
     RequestsConnectionError = RequestsConnectionError
     ResourceConflict = ResourceConflict
     ServerError = ServerError
     TooManyRequestsError = TooManyRequestsError
+    HTTPError = HTTPError
 
     NoReferenceFieldDefined = NoReferenceFieldDefined
 

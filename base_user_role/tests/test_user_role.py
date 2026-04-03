@@ -4,6 +4,7 @@ import datetime
 
 from odoo import fields
 from odoo.exceptions import AccessError
+from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
 
@@ -20,7 +21,7 @@ class TestUserRole(TransactionCase):
 
         cls.company1 = cls.env.ref("base.main_company")
         cls.company2 = cls.env["res.company"].create({"name": "company2"})
-        cls.default_user = cls.env.ref("base.template_portal_user_id")
+        cls.default_user = cls.env.ref("base.default_user")
         cls.user_id = cls.user_model.create(
             {"name": "USER TEST (ROLES)", "login": "user_test_roles"}
         )
@@ -30,9 +31,7 @@ class TestUserRole(TransactionCase):
         cls.group_no_one_id = cls.env.ref("base.group_no_one")
         vals = {
             "name": "ROLE_1",
-            "implied_ids": [
-                fields.Command.set([cls.group_user_id.id, cls.group_no_one_id.id])
-            ],
+            "implied_ids": [(6, 0, [cls.group_user_id.id, cls.group_no_one_id.id])],
         }
         cls.role1_id = cls.role_model.create(vals)
 
@@ -44,12 +43,14 @@ class TestUserRole(TransactionCase):
         vals = {
             "name": "ROLE_2",
             "implied_ids": [
-                fields.Command.set(
+                (
+                    6,
+                    0,
                     [
                         cls.group_user_id.id,
                         cls.group_multi_currency_id.id,
                         cls.group_settings_id.id,
-                    ]
+                    ],
                 )
             ],
         }
@@ -60,10 +61,8 @@ class TestUserRole(TransactionCase):
             {
                 "name": "User 2",
                 "company_id": cls.company1.id,
-                "company_ids": [fields.Command.set([cls.company1.id, cls.company2.id])],
-                "group_ids": [
-                    fields.Command.set(cls.env.ref("base.group_erp_manager").ids)
-                ],
+                "company_ids": [(6, 0, [cls.company1.id, cls.company2.id])],
+                "groups_id": [(6, 0, cls.env.ref("base.group_erp_manager").ids)],
                 "login": "multicompany_user_1",
             }
         )
@@ -71,49 +70,49 @@ class TestUserRole(TransactionCase):
             {
                 "name": "User 2",
                 "company_id": cls.company2.id,
-                "company_ids": [fields.Command.set([cls.company2.id])],
-                "group_ids": [fields.Command.set(cls.env.ref("base.group_user").ids)],
+                "company_ids": [(6, 0, [cls.company2.id])],
+                "groups_id": [(6, 0, cls.env.ref("base.group_user").ids)],
                 "login": "multicompany_user_2",
             }
         )
         cls.multicompany_role = cls.role_model.create(
             {
                 "name": "MULTICOMPANY_ROLE",
-                "implied_ids": [fields.Command.set([cls.group_user_id.id])],
-                "line_ids": [
-                    fields.Command.create({"user_id": cls.multicompany_user_2.id})
-                ],
+                "implied_ids": [(6, 0, [cls.group_user_id.id])],
+                "line_ids": [(0, 0, {"user_id": cls.multicompany_user_2.id})],
             }
         )
 
     def test_role_1(self):
-        self.user_id.write(
-            {"role_line_ids": [fields.Command.create({"role_id": self.role1_id.id})]}
-        )
-        user_group_ids = sorted({group.id for group in self.user_id.group_ids})
-        role_group_ids = sorted(set(self.role1_id.all_implied_ids.ids))
+        self.user_id.write({"role_line_ids": [(0, 0, {"role_id": self.role1_id.id})]})
+        user_group_ids = sorted({group.id for group in self.user_id.groups_id})
+        role_group_ids = self.role1_id.trans_implied_ids.ids
+        role_group_ids.append(self.role1_id.group_id.id)
+        role_group_ids = sorted(set(role_group_ids))
         self.assertEqual(user_group_ids, role_group_ids)
 
     def test_role_2(self):
-        self.user_id.write(
-            {"role_line_ids": [fields.Command.create({"role_id": self.role2_id.id})]}
-        )
-        user_group_ids = sorted({group.id for group in self.user_id.group_ids})
-        role_group_ids = sorted(set(self.role2_id.all_implied_ids.ids))
+        self.user_id.write({"role_line_ids": [(0, 0, {"role_id": self.role2_id.id})]})
+        user_group_ids = sorted({group.id for group in self.user_id.groups_id})
+        role_group_ids = self.role2_id.trans_implied_ids.ids
+        role_group_ids.append(self.role2_id.group_id.id)
+        role_group_ids = sorted(set(role_group_ids))
         self.assertEqual(user_group_ids, role_group_ids)
 
     def test_role_1_2(self):
         self.user_id.write(
             {
                 "role_line_ids": [
-                    fields.Command.create({"role_id": self.role1_id.id}),
-                    fields.Command.create({"role_id": self.role2_id.id}),
+                    (0, 0, {"role_id": self.role1_id.id}),
+                    (0, 0, {"role_id": self.role2_id.id}),
                 ]
             }
         )
-        user_group_ids = sorted({group.id for group in self.user_id.group_ids})
-        role1_group_ids = self.role1_id.all_implied_ids.ids
-        role2_group_ids = self.role2_id.all_implied_ids.ids
+        user_group_ids = sorted({group.id for group in self.user_id.groups_id})
+        role1_group_ids = self.role1_id.trans_implied_ids.ids
+        role1_group_ids.append(self.role1_id.group_id.id)
+        role2_group_ids = self.role2_id.trans_implied_ids.ids
+        role2_group_ids.append(self.role2_id.group_id.id)
         role_group_ids = sorted(set(role1_group_ids + role2_group_ids))
         self.assertEqual(user_group_ids, role_group_ids)
 
@@ -126,84 +125,87 @@ class TestUserRole(TransactionCase):
             {
                 "role_line_ids": [
                     # Role 1 should be enabled
-                    fields.Command.create(
-                        {"role_id": self.role1_id.id, "date_from": today_str}
-                    ),
+                    (0, 0, {"role_id": self.role1_id.id, "date_from": today_str}),
                     # Role 2 should be disabled
-                    fields.Command.create(
-                        {"role_id": self.role2_id.id, "date_to": yesterday_str}
-                    ),
+                    (0, 0, {"role_id": self.role2_id.id, "date_to": yesterday_str}),
                 ]
             }
         )
-        user_group_ids = sorted({group.id for group in self.user_id.group_ids})
-        role_group_ids = sorted(set(self.role1_id.all_implied_ids.ids))
+        user_group_ids = sorted({group.id for group in self.user_id.groups_id})
+        role1_group_ids = self.role1_id.trans_implied_ids.ids
+        role1_group_ids.append(self.role1_id.group_id.id)
+        role_group_ids = sorted(set(role1_group_ids))
         self.assertEqual(user_group_ids, role_group_ids)
 
     def test_role_unlink(self):
         # Get role1 and role2 groups
-        role1_groups = self.role1_id.all_implied_ids
-        role2_groups = self.role2_id.all_implied_ids
+        role1_groups = self.role1_id.trans_implied_ids | self.role1_id.group_id
+        role2_groups = self.role2_id.trans_implied_ids | self.role2_id.group_id
 
         # Configure the user with role1 and role2
         self.user_id.write(
             {
                 "role_line_ids": [
-                    fields.Command.create({"role_id": self.role1_id.id}),
-                    fields.Command.create({"role_id": self.role2_id.id}),
+                    (0, 0, {"role_id": self.role1_id.id}),
+                    (0, 0, {"role_id": self.role2_id.id}),
                 ]
             }
         )
         # Check user has groups from role1 and role2
-        self.assertLessEqual(role1_groups, self.user_id.group_ids)
-        self.assertLessEqual(role2_groups, self.user_id.group_ids)
+        self.assertLessEqual(role1_groups, self.user_id.groups_id)
+        self.assertLessEqual(role2_groups, self.user_id.groups_id)
         # Remove role2
         self.role2_id.unlink()
         # Check user has groups from only role1
-        self.assertLessEqual(role1_groups, self.user_id.group_ids)
-        self.assertFalse(role2_groups <= self.user_id.group_ids)
+        self.assertLessEqual(role1_groups, self.user_id.groups_id)
+        self.assertFalse(role2_groups <= self.user_id.groups_id)
         # Remove role1
         self.role1_id.unlink()
         # Check user has no groups from role1 and role2
-        self.assertFalse(role1_groups <= self.user_id.group_ids)
-        self.assertFalse(role2_groups <= self.user_id.group_ids)
+        self.assertFalse(role1_groups <= self.user_id.groups_id)
+        self.assertFalse(role2_groups <= self.user_id.groups_id)
 
     def test_role_line_unlink(self):
         # Get role1 and role2 groups
-        role1_groups = self.role1_id.all_implied_ids
-        role2_groups = self.role2_id.all_implied_ids
+        role1_groups = self.role1_id.trans_implied_ids | self.role1_id.group_id
+        role2_groups = self.role2_id.trans_implied_ids | self.role2_id.group_id
 
         # Configure the user with role1 and role2
         self.user_id.write(
             {
                 "role_line_ids": [
-                    fields.Command.create({"role_id": self.role1_id.id}),
-                    fields.Command.create({"role_id": self.role2_id.id}),
+                    (0, 0, {"role_id": self.role1_id.id}),
+                    (0, 0, {"role_id": self.role2_id.id}),
                 ]
             }
         )
         # Check user has groups from role1 and role2
-        self.assertLessEqual(role1_groups, self.user_id.group_ids)
-        self.assertLessEqual(role2_groups, self.user_id.group_ids)
+        self.assertLessEqual(role1_groups, self.user_id.groups_id)
+        self.assertLessEqual(role2_groups, self.user_id.groups_id)
         # Remove role2 from the user
         self.user_id.role_line_ids.filtered(
             lambda rl: rl.role_id.id == self.role2_id.id
         ).unlink()
         # Check user has groups from only role1
-        self.assertLessEqual(role1_groups, self.user_id.group_ids)
-        self.assertFalse(role2_groups <= self.user_id.group_ids)
+        self.assertLessEqual(role1_groups, self.user_id.groups_id)
+        self.assertFalse(role2_groups <= self.user_id.groups_id)
         # Remove role1 from the user
         self.user_id.role_line_ids.filtered(
             lambda rl: rl.role_id.id == self.role1_id.id
         ).unlink()
         # Check user has no groups from role1 and role2
-        self.assertFalse(role1_groups <= self.user_id.group_ids)
-        self.assertFalse(role2_groups <= self.user_id.group_ids)
+        self.assertFalse(role1_groups <= self.user_id.groups_id)
+        self.assertFalse(role2_groups <= self.user_id.groups_id)
 
     def test_default_user_roles(self):
-        # Mark roles as default on new users
-        self.role1_id.is_default = True
-        self.role2_id.is_default = True
+        self.default_user.write(
+            {
+                "role_line_ids": [
+                    (0, 0, {"role_id": self.role1_id.id}),
+                    (0, 0, {"role_id": self.role2_id.id}),
+                ]
+            }
+        )
         user = self.user_model.create(
             {"name": "USER TEST (DEFAULT ROLES)", "login": "user_test_default_roles"}
         )
@@ -221,7 +223,7 @@ class TestUserRole(TransactionCase):
         role.with_context(allowed_company_ids=self.company1.ids).read()
         # Downgrade multicompany user 1 to common user
         self.multicompany_user_1.write(
-            {"group_ids": [fields.Command.set(self.env.ref("base.group_user").ids)]}
+            {"groups_id": [(6, 0, self.env.ref("base.group_user").ids)]}
         )
         # Check that the user cannot read multicompany data again since it lost
         # its admin privileges
@@ -229,6 +231,18 @@ class TestUserRole(TransactionCase):
             AccessError, "You are not allowed to access 'User Role'"
         ):
             role.read()
+
+    @tagged("-at_install", "post_install")
+    def test_notification_type_not_reset(self):
+        """Test that roles don't reset notification settings."""
+        if self.env["ir.module.module"]._get("mail").state != "installed":
+            self.skipTest("Mail module is not installed.")
+        notification_group = self.env.ref("mail.group_mail_notification_type_inbox")
+        self.assertNotIn(notification_group, self.user_id.groups_id)
+        self.user_id.notification_type = "inbox"
+        self.assertIn(notification_group, self.user_id.groups_id)
+        self.user_id.write({"role_line_ids": [(0, 0, {"role_id": self.role1_id.id})]})
+        self.assertIn(notification_group, self.user_id.groups_id)
 
     def test_create_role_from_user(self):
         # Use a wizard instance to create a new role based on the user.
@@ -246,15 +260,13 @@ class TestUserRole(TransactionCase):
         # Check that the role has the same groups as the user
         role_id = result["res_id"]
         role = self.role_model.browse([role_id])
-        user_group_ids = sorted(set(self.user_id.group_ids.ids))
-        role_group_ids = sorted(set(role.implied_ids.ids))
+        user_group_ids = sorted(set(self.user_id.groups_id.ids))
+        role_group_ids = sorted(set(role.trans_implied_ids.ids))
         self.assertEqual(user_group_ids, role_group_ids)
 
     def test_show_alert_computation(self):
         """Test the computation of the `show_alert` field."""
-        self.user_id.write(
-            {"role_line_ids": [fields.Command.create({"role_id": self.role1_id.id})]}
-        )
+        self.user_id.write({"role_line_ids": [(0, 0, {"role_id": self.role1_id.id})]})
         self.assertTrue(self.user_id.show_alert)
 
         # disable role
@@ -262,7 +274,7 @@ class TestUserRole(TransactionCase):
         self.assertFalse(self.user_id.show_alert)
 
     def test_group_groups_into_role(self):
-        user_group_ids = self.user_id.group_ids.ids
+        user_group_ids = self.user_id.groups_id.ids
         # Check that there is not a role with name: Test Role
         self.assertFalse(self.role_model.search([("name", "=", "Test Role")]))
         # Call create_role function to group groups into a role

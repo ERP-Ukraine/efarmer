@@ -3,7 +3,6 @@
 import logging
 
 import requests
-from requests.exceptions import HTTPError
 
 from odoo.addons.integration.tools import ExtractNode, catch_exception
 from odoo.addons.integration.exceptions import ErrorStore as es
@@ -13,22 +12,6 @@ from ..tools import loggify_request_payload, prepare_shopify_url
 
 
 _logger = logging.getLogger(__name__)
-
-
-RESOURCE_CONFLICT = 409
-TOO_MANY_REQUESTS = 429
-
-INTERNAL_SERVER_ERROR = 500
-BAD_GATEWAY = 502
-SERVICE_UNAVAILABLE = 503
-CONNECTION_TIMED_OUT = 522
-TIMEOUT_OCCURRED = 524
-UNABLE_RESOLVE_ORIGIN_HOSTNAME = 530
-
-SERVER_ERROR_CODES = [
-    INTERNAL_SERVER_ERROR, BAD_GATEWAY, SERVICE_UNAVAILABLE,
-    CONNECTION_TIMED_OUT, TIMEOUT_OCCURRED, UNABLE_RESOLVE_ORIGIN_HOSTNAME,
-]
 
 _SHOPIFY_BATCH_LIMIT = 250
 
@@ -100,10 +83,11 @@ class GraphQLClient:
 
         # Extract response
         data = response.json()
-        if 'errors' in data:
-            raise ShopifyApiError(str(data['errors']))
 
-        # Check shopify user errors
+        # Handle shopify graphql errors. It's possible even if the response status-code is 200
+        self._handle_graphql_errors(data)
+
+        # Hande shopify user errors
         if user_errors_path:
             error = ExtractNode.extract_raw(data, user_errors_path, list)
             if error:
@@ -114,17 +98,34 @@ class GraphQLClient:
     def _handle_http_error(self, response):
         try:
             response.raise_for_status()
-        except HTTPError as ex:
+        except es.HTTPError as ex:
             message = ex.args[0] + '\n\n' + response.text
             code = response.status_code
 
-            if code == es.ResourceConflict.CODE:
-                raise es.ResourceConflict(message)
+            if code == es.RESOURCE_CONFLICT:
+                raise es.ResourceConflict(message, response=response)
 
-            if code == es.TooManyRequestsError.CODE:
-                raise es.TooManyRequestsError(message)
+            if code == es.TOO_MANY_REQUESTS:
+                raise es.TooManyRequestsError(message, response=response)
 
-            if code in SERVER_ERROR_CODES:
-                raise es.ServerError(code, message)
+            if code in es.SERVER_ERROR_CODES:
+                raise es.ServerError(code, message, response=response)
 
             raise ex
+
+    def _handle_graphql_errors(self, data: dict):
+        if 'errors' in data:
+            if any((e.get('message') or '').lower() == 'throttled' for e in data['errors']):
+                try:
+                    cost = data['extensions']['cost']
+                    ts = cost['throttleStatus']
+
+                    timeout = ((cost['requestedQueryCost'] - ts['currentlyAvailable']) / ts['restoreRate']) + 1
+                    info = str(cost)
+                except (KeyError, ZeroDivisionError):
+                    timeout = 4
+                    info = ''
+
+                raise es.ThrottledError(timeout, info)
+
+            raise ShopifyApiError(str(data['errors']))

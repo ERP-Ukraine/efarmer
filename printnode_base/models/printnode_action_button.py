@@ -2,7 +2,7 @@
 # See LICENSE file for full copyright and licensing details.
 
 from odoo import models, fields, api, _
-from odoo.fields import Domain
+from odoo.osv import expression
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools.safe_eval import safe_eval
 
@@ -14,7 +14,7 @@ class PrintNodeActionButton(models.Model):
     """
     _name = 'printnode.action.button'
     _inherit = 'printnode.logger.mixin'
-    _description = 'PrintNode Action Button'
+    _description = 'Direct Print Action Button'
 
     _rec_name = 'report_id'
 
@@ -122,7 +122,7 @@ class PrintNodeActionButton(models.Model):
         if self.domain == '[]':
             return related_model.browse(ids_list)
         return related_model.search(
-            Domain.AND([
+            expression.AND([
                 [
                     ('id', 'in', ids_list),
                     # TODO: Perhaps we need to add this ('printnode_printed', '=', False),
@@ -204,9 +204,11 @@ class PrintNodeActionButton(models.Model):
                                     f'Printer defined: {printer}')
 
             options = {'bin': printer_bin.name} if printer_bin else {}
+
             printer.printnode_print(
                 action.report_id,
                 objects,
                 copies=action.number_of_copies,
                 options=options,
+                data={'source_document': objects.mapped('name')},
             )

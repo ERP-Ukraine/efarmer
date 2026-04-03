@@ -8,7 +8,7 @@ class SaleOrderLine(models.Model):
     _inherit = ['sale.order.line', 'integration.model.mixin']
 
     integration_external_id = fields.Char(
-        string='Integration External ID',
+        string='E-Commerce Store External ID',
     )
 
     external_location_id = fields.Char(

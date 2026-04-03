@@ -24,7 +24,7 @@
         <field name="model_id" ref="product.model_product_template"/>
         <field name="binding_model_id" ref="product.model_product_template"/>
         <field name="binding_view_types">form,list</field>
-        <field name="group_ids" eval="[(6, 0, (ref('integration.group_integration_manager'),))]"/>
+        <field name="groups_id" eval="[(6, 0, (ref('integration.group_integration_manager'),))]"/>
         <field name="state">code</field>
         <field name="code">
 if records:
@@ -41,14 +41,14 @@ if records:
         <field name="code">action = records.action_run_refresh_product_info_from_external()</field>
     </record>
 
-    <record id="product_template_action_open_related_jobs" model="ir.actions.server">
-        <field name="name">View Synchronization History</field>
+    <record id="product_template_action_open_job_logs" model="ir.actions.server">
+        <field name="name">View Sync Logs</field>
         <field name="model_id" ref="product.model_product_template"/>
         <field name="binding_model_id" ref="product.model_product_template"/>
         <field name="binding_view_types">form</field>
         <field name="state">code</field>
-        <field name="group_ids" eval="[(4, ref('integration.group_integration_manager'))]"/>
-        <field name="code">action = records.open_related_jobs()</field>
+        <field name="groups_id" eval="[(4, ref('integration.group_integration_manager'))]"/>
+        <field name="code">action = records.open_job_logs()</field>
     </record>
 
     <record model="ir.ui.view" id="product_template_search_view">
@@ -60,12 +60,15 @@ if records:
                 <separator/>
                 <filter string="With Bill of Materials" name="with_bom" domain="[('bom_ids', '!=', False)]"/>
                 <separator/>
-                <filter string="E-Commerce Store(s) set (on all variants)" name="all_integrations_set" domain="[('integration_ids', '!=', False)]"/>
-                <filter string="No E-Commerce Store(s) set (on any variant)" name="no_integrations_set" domain="[('integration_ids', '=', False)]"/>
-                <filter string="E-Commerce Store(s) set (on some variants)" name="partial_integrations_set" domain="[('integration_ids', '=', -1)]"/>
+                <filter string="Store(s) set (on all variants)" name="all_integrations_set" domain="[('integration_ids', '!=', False)]"/>
+                <filter string="No Store(s) set (on any variant)" name="no_integrations_set" domain="[('integration_ids', '=', False)]"/>
+                <filter string="Store(s) set (on some variants)" name="partial_integrations_set" domain="[('integration_ids', '=', -1)]"/>
                 <separator/>
-                <filter string="Do not sync with E-Commerce Stores" name="exclude_from_synchronization" domain="[('exclude_from_synchronization', '=', True)]"/>
-                <filter string="Do not sync stock with E-Commerce Stores" name="exclude_from_synchronization_stock" domain="[('exclude_from_synchronization_stock', '=', True)]"/>
+                <filter string="Mapped to Store(s)" name="has_mapping" domain="[('integration_mapping_ids', '!=', False)]"/>
+                <filter string="Not Mapped to any Store" name="no_mapping" domain="[('integration_mapping_ids', '=', False)]"/>
+                <separator/>
+                <filter string="Do not sync with Stores" name="exclude_from_synchronization" domain="[('exclude_from_synchronization', '=', True)]"/>
+                <filter string="Do not sync stock with Stores" name="exclude_from_synchronization_stock" domain="[('exclude_from_synchronization_stock', '=', True)]"/>
             </xpath>
         </field>
     </record>
@@ -110,7 +113,7 @@ if records:
                                 <ul class="mb-0">
                                     <li>Select which stores to sync with</li>
                                     <li>Customize product information for stores</li>
-                                    <li>Set up categories and features</li>
+                                    <li>Set up categories</li>
                                     <li>Add product images and media</li>
                                 </ul>
                             </div>
@@ -119,6 +122,13 @@ if records:
                         <!-- Store Selection -->
                         <group name="integrations" string="E-Commerce Stores">
                             <div colspan="2">
+                                <div class="alert alert-warning" role="alert"
+                                    invisible="not integration_company_mismatch">
+                                    <i class="fa fa-warning" title="Warning"/>
+                                    <strong>Company mismatch:</strong>
+                                    this product belongs to another company than the selected e-commerce store(s).
+                                    This may affect mapping and synchronization.
+                                </div>
                                 <div class="alert alert-info" role="alert" invisible="not id or product_variant_count &lt;= 1 or is_product_variant">
                                     <i class="fa fa-info-circle" title="Information"/>
                                     This product has multiple variants. Store synchronization must be configured at the Product Variant level.
@@ -152,27 +162,15 @@ if records:
                         </group>
                     </group>
 
-                    <!-- Categories and Features Section -->
-                    <group name="categorization">
-                        <group string="Categories">
-                            <field name="integration_default_category_id" domain="[('id', 'in', available_category_ids)]" options="{'no_create': True, 'no_edit': True}" help="Primary category for this product in e-commerce stores"/>
-                            <field name="integration_category_ids" widget="many2many">
-                                <list string="Additional Categories">
-                                    <field name="display_name" nolabel="1"/>
-                                </list>
-                            </field>
-                            <field name="available_category_ids" widget="many2many_tags" invisible="1"/>
-                        </group>
-
-                        <group string="Product Features">
-                            <field name="feature_line_ids" widget="one2many" nolabel="1" colspan="2">
-                                <list editable="bottom" string="Product Features">
-                                    <field name="feature_id" help="Select a feature (e.g., Color, Size, Material)"/>
-                                    <field name="feature_value_id" context="{'default_feature_id': feature_id}" help="Select the specific value for this feature"/>
-                                </list>
-                            </field>
-                        </group>
-
+                    <!-- Categories Section -->
+                    <group string="Categories" colspan="2">
+                        <field name="default_public_categ_id" domain="[('id', 'in', public_filter_categ_ids)]" options="{'no_create': True, 'no_edit': True}" help="Primary category for this product in e-commerce stores"/>
+                        <field name="public_categ_ids" widget="many2many">
+                            <list string="Additional Categories">
+                                <field name="display_name" nolabel="1"/>
+                            </list>
+                        </field>
+                        <field name="public_filter_categ_ids" widget="many2many_tags" invisible="1"/>  <!-- Required because it is used in the fields domains in the model -->
                     </group>
 
                     <!-- SEO Section -->
@@ -192,7 +190,7 @@ if records:
 
                         <field name="external_tag_group_ids" colspan="2" context="{'default_product_tmpl_id': id}">
                             <list editable="bottom" string="Tags by Store" create="1">
-                                <field name="integration_type_api" column_invisible="1"/>
+                                <field name="integration_type_api" column_invisible="1"/> <!-- Required because it is used in the invisible condition in inherited views -->
                                 <field name="integration_id" options="{'no_create': True}" domain="[('type_api', 'in', ('shopify', 'prestashop'))]"/>
                                 <field name="tag_ids"
                                        widget="many2many_tags"
@@ -221,16 +219,24 @@ if records:
                         </div>
 
                         <group name="product_template_images" colspan="2">
-                            <field name="integration_template_image_ids"
+                            <field name="product_template_image_ids"
                                    colspan="2"
+                                   class="o_website_sale_image_list"
                                    context="{'default_name': name}"
                                    mode="kanban"
-                                   options="{'create_text':'Add Image'}"
+                                   add-label="Add Image"
                                    nolabel="1"
                                    widget="x2_many_media_viewer"
                             />
 
-                            <button type="object" name="export_images_to_integration" context="{'integration_erase_mappings': True}" string="Export Images Only" groups="base.group_no_one" colspan="2" help="Export only the product images to e-commerce stores without updating other product data"/>
+                            <button type="object"
+                                    name="export_images_to_integration"
+                                    context="{'integration_erase_mappings': True}"
+                                    string="Export Images Only"
+                                    groups="base.group_no_one"
+                                    colspan="2"
+                                    help="Export only the product images to e-commerce stores without updating other product data"
+                            />
                         </group>
                     </group>
                 </page>

@@ -20,7 +20,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:purchase_order_line_menu.field_purchase_order_line__invoice_status
 #: model_terms:ir.ui.view,arch_db:purchase_order_line_menu.purchase_order_line_search
 msgid "Billing Status"
-msgstr "Estado de facturaci??n"
+msgstr "Estado de facturación"
 
 #. module: purchase_order_line_menu
 #: model_terms:ir.ui.view,arch_db:purchase_order_line_menu.purchase_order_line_search
@@ -60,7 +60,7 @@ msgstr "Fecha del Pedido"
 #. module: purchase_order_line_menu
 #: model_terms:ir.ui.view,arch_db:purchase_order_line_menu.view_purchase_order_line_pivot
 msgid "Order Lines"
-msgstr "L??neas de pedido"
+msgstr "Líneas de pedido"
 
 #. module: purchase_order_line_menu
 #: model_terms:ir.ui.view,arch_db:purchase_order_line_menu.purchase_order_line_search
@@ -95,13 +95,13 @@ msgstr "Orden de Compra"
 #. module: purchase_order_line_menu
 #: model:ir.model,name:purchase_order_line_menu.model_purchase_order_line
 msgid "Purchase Order Line"
-msgstr "L??nea de Orden de Compra"
+msgstr "Línea de Orden de Compra"
 
 #. module: purchase_order_line_menu
 #: model:ir.actions.act_window,name:purchase_order_line_menu.action_purchase_orders_lines
 #: model:ir.ui.menu,name:purchase_order_line_menu.purchase_order_line_menu
 msgid "Purchase Order Lines"
-msgstr "L??neas de pedido de compra"
+msgstr "Líneas de pedido de compra"
 
 #. module: purchase_order_line_menu
 #: model_terms:ir.ui.view,arch_db:purchase_order_line_menu.purchase_order_line_search

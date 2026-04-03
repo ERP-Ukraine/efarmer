@@ -13,7 +13,7 @@
             </xpath>
             <xpath expr="//field[@name='sale_order_id']" position="replace">
                 <field name="sale_order_id"
-                       invisible="not (use_credit_notes or use_product_returns or use_product_repairs or use_fsm or use_coupons or use_product_replacements or use_giftcards)"
+                       invisible="not (use_credit_notes or use_product_returns or use_product_repairs or use_fsm or use_coupons)"
                       />
             </xpath>
         </field>

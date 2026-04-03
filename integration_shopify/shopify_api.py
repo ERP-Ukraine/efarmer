@@ -4,7 +4,6 @@ import base64
 import itertools
 import logging
 import math
-
 from time import sleep
 from copy import deepcopy
 from collections import defaultdict
@@ -66,7 +65,6 @@ REQUIRED_SCOPES = (
     'write_translations',
     'read_files',
     'write_files',
-    'read_shopify_payments_payouts',
 )
 
 _logger = logging.getLogger(__name__)
@@ -390,54 +388,55 @@ class ShopifyAPIClient(AbsApiClient):
 
         product = self.gql.Product.get_by_pk(external_id)
 
-        if not product.has_only_default_variant:
-            # 1. Delete deprecated variants
-            variant_ids = [x['gid'] for x in data['products'] if x['gid']]
-            variant_ids_to_delete = [x.id for x in product.variants if (x.gid not in variant_ids)]
-
-            if variant_ids_to_delete:
-                product.bulk_delete_variants(variant_ids_to_delete)
-                product.read()
-
-        # 2. Update product options
-        # 2.1 Delete deprecated options; 2.2 Delete deprecated values; 2.3 Create new options and values
+        # 1. Update product options:
+        #     - Delete deprecated options
+        #     - Delete deprecated option-values
+        #     - Create the brand new options and values
+        # Options updating triggers deleting and creating variants according to mutations strategies.
         product._update_options(data['attribute_values'])
 
-        # 3. Update existing variants, productVariantsBulkUpdate
-        variants_data_to_update = []
-        for variant_data in data['products']:
-            variant_id = variant_data['gid']
+        # 2. Try to map serialized products to existing product variants by an attributes set.
+        if product.has_only_one_variant:
+            if data['variants_count'] == 1:
+                variant = product.variants[0]
+                data['products'][0]['gid'] = variant.gid
+                data['products'][0]['external_id'] = variant.external_id
+        else:
+            for variant_data in data['products']:
+                attribute_values = variant_data['attribute_values']
 
-            if not variant_id:
-                if data['variants_count'] == 1:
-                    variant_id = product.variants[0].gid
-                else:
+                if attribute_values:
                     options = [(x['optionName'], x['name']) for x in variant_data['attribute_values']]
-                    variant_id = product._find_suitable_variant_by_options(options)
+                    variant = product._find_suitable_variant_by_options(options)
 
-            if variant_id:
-                variant_data['gid'] = variant_id
+                    if variant:
+                        variant_data.update(
+                            gid=variant.gid,
+                            external_id=variant.external_id,
+                        )
 
-                values = {
-                    'id': variant_id,
-                    **self._prepare_converted_fields(variant_data['fields']),
-                }
-                variants_data_to_update.append(values)
+        # 3. Update existing variants by the actual values (productVariantsBulkUpdate).
+        variants_data_to_update = []
+        for variant_data in filter(lambda x: x['gid'], data['products']):
+            values = {
+                'id': variant_data['gid'],
+                **self._prepare_converted_fields(variant_data['fields']),
+            }
+            variants_data_to_update.append(values)
 
         if variants_data_to_update:
             product.bulk_update_variants(variants_data_to_update)
             product.read()
 
-        # 4. Create new variants, productVariantsBulkCreate
-        # Assign an optionId instead of optionName for the productVariantsBulkCreate mutation
+        # 4. Create new variants (productVariantsBulkCreate).
         variants_data_to_create = []
-        for variant_data in data['products']:
-            if variant_data['gid']:
-                continue
-
-            values = {**self._prepare_converted_fields(variant_data['fields']), 'optionValues': []}
-
+        for variant_data in filter(lambda x: not x['gid'], data['products']):
+            values = {
+                **self._prepare_converted_fields(variant_data['fields']),
+                'optionValues': [],
+            }
             for a_values in variant_data['attribute_values']:
+                # Assign an optionId instead of optionName for the productVariantsBulkCreate mutation.
                 values['optionValues'].append({
                     'name': a_values['name'],
                     'optionId': product._get_option_id_by_name(a_values['optionName']) ,
@@ -449,7 +448,7 @@ class ShopifyAPIClient(AbsApiClient):
             product.bulk_create_variants(variants_data_to_create)
             product.read()
 
-        # 5. Update product, productUpdate
+        # 5. Update product by actual values (productUpdate).
         values = self._prepare_converted_fields(data['fields'])
         product.update(values)
 
@@ -590,14 +589,6 @@ class ShopifyAPIClient(AbsApiClient):
         """
         pass
 
-    def export_feature(self, feature: dict) -> str:
-        _logger.info('Shopify "%s": export_feature().', self._integration_name)
-        return self.parse_translated_value(feature['name'])
-
-    def export_feature_value(self, feature_value: dict) -> str:
-        _logger.info('Shopify "%s": export_feature_value().', self._integration_name)
-        return self.parse_translated_value(feature_value['name'])
-
     @check_scope('write_products')
     def export_category(self, category):
         _logger.info('Shopify "%s": export_category()', self._integration_name)
@@ -613,10 +604,10 @@ class ShopifyAPIClient(AbsApiClient):
         result, items_activate_tracked = [], []
         inventory_items = list(inventory.items())
 
-        for i in range(0, len(inventory_items), 100):
+        for i in range(0, len(inventory_items), 250):
             payload_data = list()
             prices_data = defaultdict(list)
-            batch = inventory_items[i:i + 100]
+            batch = inventory_items[i:i + 250]
 
             for complex_id, item_data_list in batch:
                 __, variant_id = self._parse_product_external_code(complex_id)
@@ -625,17 +616,14 @@ class ShopifyAPIClient(AbsApiClient):
             if prices_data:
                 ProductVariant = self.gql.ProductVariant
 
-                variants = ProductVariant.get_by_ids(
-                    list(prices_data.keys()),
-                    body=ProductVariant._tmpl.PRODUCT_VARIANT_MINIMAL_BODY_WITH_INVENTORY,
-                )
+                variants = ProductVariant.get_by_ids_for_inventory_items(list(prices_data.keys()))
 
                 for variant in variants:
                     item = variant.inventory_item
-                    item_data_list = prices_data[variant.id_str]
+                    data_list = prices_data[variant.id_str]
 
                     item_result = []
-                    for item_data in item_data_list:
+                    for item_data in data_list:
                         location_id = item_data['external_location_id']
                         args = (item.id, location_id, item_data['qty'])
 
@@ -874,18 +862,19 @@ class ShopifyAPIClient(AbsApiClient):
 
         return order.to_odoo_format()
 
-    @add_dynamic_kwargs
     @check_scope(
         'read_orders',
         'read_merchant_managed_fulfillment_orders',
     )
-    def parse_order(self, input_file: dict, **kw) -> dict:
+    def parse_order(self, input_file: dict) -> dict:
         _logger.info('Shopify "%s": parse_order() from input file.', self._integration_name)
 
         order = self.gql.Order.set(**input_file)
 
         result = order.parse(
             use_customer_currency=self._settings['use_customer_currency'],
+            personal_id_additional_field_name=self._settings.get('personal_id_additional_field_name', ''),
+            vat_number_additional_field_name=self._settings.get('vat_number_additional_field_name', ''),
         )
 
         return result
@@ -897,6 +886,7 @@ class ShopifyAPIClient(AbsApiClient):
         fetched_qty = control_qty = 0
         max_limit = self.batch_size
 
+        # 1. Get delivery methods from fulfillment orders (DeliveryMethodType == shipping)
         FulfillmentOrder = self.gql.FulfillmentOrder
 
         while True:
@@ -929,6 +919,12 @@ class ShopifyAPIClient(AbsApiClient):
 
             control_qty = len(result)
 
+        # 2. Get the standard delivery methods (DeliveryMethodType in [local, pick_up, pickup_point, retail])
+        standard_method_types = self.gql.DeliveryMethodType.to_list(exclude=['none', 'shipping'])
+        for method_type in standard_method_types:
+            delivery = self.gql.DeliveryMethod._to_odoo_format_from_type(method_type['value'], to_tuple=True)
+            result.add(delivery)
+
         return [dict(x) for x in result]
 
     def get_single_tax(self, tax_id: str) -> dict:
@@ -958,7 +954,7 @@ class ShopifyAPIClient(AbsApiClient):
 
                 for tax in taxes:
                     result.add(
-                        tax.to_odoo_format(taxes_included=record.is_taxable)
+                        tax.to_odoo_format(taxes_included=record.taxes_included_in_price)
                     )
 
             if (len(orders) < Order._request_limit) or not Order.cursor:
@@ -1064,17 +1060,9 @@ class ShopifyAPIClient(AbsApiClient):
 
         return result
 
-    def get_tags(self):
-        _logger.info('Shopify "%s": get_tags()', self._integration_name)
+    def get_product_tags(self):
+        _logger.info('Shopify "%s": get_product_tags()', self._integration_name)
         return self.shop.product_tags  # TODO: what if tags more than 250?
-
-    def get_features(self):
-        _logger.info('Shopify "%s": get_features()', self._integration_name)
-        return []
-
-    def get_feature_values(self):
-        _logger.info('Shopify "%s": get_feature_values()', self._integration_name)
-        return []
 
     @check_scope('read_publications')
     def get_sale_channels(self):
@@ -1142,7 +1130,7 @@ class ShopifyAPIClient(AbsApiClient):
     def get_sale_order_statuses(self):
         _logger.info('Shopify "%s": get_sale_order_statuses()', self._integration_name)
 
-        status_list = OrderDisplayFulfillmentStatus.to_list(
+        status_list = self.gql.OrderDisplayFulfillmentStatus.to_list(
             exclude=[
                 'open',
                 'pending_fulfillment',
@@ -1151,7 +1139,7 @@ class ShopifyAPIClient(AbsApiClient):
                 'unshipped',
                 'partial',
             ],
-        ) + OrderDisplayFinancialStatus.to_list()
+        ) + self.gql.OrderDisplayFinancialStatus.to_list()
 
         result, tmp = [], []
         for data in status_list:
@@ -1186,7 +1174,7 @@ class ShopifyAPIClient(AbsApiClient):
         _logger.info('Shopify "%s": get_product_templates()', self._integration_name)
 
         if not template_ids:
-            return dict()
+            return dict(), list(), list()
 
         integration = self._get_integration(kw)
         variant_reference = integration.variant_reference_api_name
@@ -1221,7 +1209,11 @@ class ShopifyAPIClient(AbsApiClient):
                 'variants': [parse_variant(template, x) for x in variants],
             })
 
-        return {x['id']: x for x in result}
+        # TODO: Implement errors handling
+        errors = list()
+        failed_external_template_ids = list()
+
+        return {x['id']: x for x in result}, failed_external_template_ids, errors
 
     @check_scope('read_customers')
     def get_customer_ids(self, datetime_since: 'datetime' = None):
@@ -1263,9 +1255,10 @@ class ShopifyAPIClient(AbsApiClient):
 
         product = self.gql.Product.get_by_pk(external_template_id, raise_if_not_found=False)
         if not product:
-            raise UserError(_(
-                'Product with id "%s" does not exist in Shopify. Please verify the product ID '
-                'and ensure it is available in your Shopify store.'
+            raise UserError(
+                _(
+                    'Product with id "%s" does not exist in Shopify. Please verify the product ID '
+                    'and ensure it is available in your Shopify store.'
                 ) % external_template_id
             )
 
@@ -1330,11 +1323,7 @@ class ShopifyAPIClient(AbsApiClient):
 
         raise ShopifyApiError(response.text)
 
-    @not_implemented
-    def get_products_for_accessories(self):
-        return [], {}
-
-    @check_scope('read_inventory')
+    @check_scope('read_products', 'read_inventory')
     def get_stock_levels(self, external_location_id: str) -> dict:
         _logger.info('Shopify "%s": get_stock_levels(%s)', self._integration_name, external_location_id)
 

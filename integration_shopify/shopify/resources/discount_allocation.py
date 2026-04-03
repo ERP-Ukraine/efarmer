@@ -14,8 +14,16 @@ class DiscountAllocation(GqlDict):
         self._set_pseudo_id()
 
     @property
-    def discount_application(self):  # TODO: implement it (allocationMethod + targetSelection + targetType)
-        raise NotImplementedError('The discountApplication is not implemented')
+    def discount_application(self):
+        """
+        Return the human-readable identifier of the discount application:
+          - coupon code for DiscountCodeApplication
+          - title for automatic / manual / script discounts
+          - empty string when the field is absent (old API responses)
+        """
+        self.ensure_one()
+        application = self['discountApplication'] or {}
+        return application.get('code') or application.get('title') or ''
 
     @property
     def amount_set(self):

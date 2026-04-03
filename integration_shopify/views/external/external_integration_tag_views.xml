@@ -8,7 +8,7 @@
             <field name="arch" type="xml">
                 <list editable="bottom" create="1">
                     <field name="integration_id" options="{'no_create': True}" domain="[('type_api', '=', 'shopify')]"/>
-                    <field name="ttype" column_invisible="1" force_save="1"/>
+                    <field name="ttype" column_invisible="1" force_save="1"/> <!-- Required because it has a default value set via context and needs force_save -->
                     <field name="name" readonly="not integration_id"/>
                 </list>
             </field>

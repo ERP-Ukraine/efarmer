@@ -12,7 +12,7 @@ def load_xml(env, module, path_file, filename):
     pth = file_path(f'{module}/{path_file}/{filename}', ('xml',), env)
     convert_file(
         env, module, f'{path_file}/{filename}',
-        idref={}, mode='init', pathname=pth,
+        {}, 'init', False, 'test', pth,
     )
 
 
@@ -71,10 +71,6 @@ class OdooIntegrationBase(TransactionCase):
             'company_id': self.company_id_1.id,
             'tax_group_id': tax_group_id.id,
         })
-
-        # Creating product future
-        self.feature_id = self.env.ref('integration.feature_id')
-        self.feature_value_id = self.env.ref('integration.feature_value_id')
 
         # Creating product category
         self.product_public_category = self.env.ref('integration.product_public_category')

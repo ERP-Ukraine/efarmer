@@ -7,7 +7,7 @@
             <field name="model">res.users</field>
             <field name="inherit_id" ref="base.view_users_form" />
             <field name="arch" type="xml">
-                <xpath expr="//page[@name='preferences']/group" position="after">
+                <xpath expr="//group[@name='messaging']" position="before">
                     <group string="Printers" name="printing" col="2" groups="printnode_base.printnode_security_group_user">
                         <field name="printnode_enabled" />
                         <field name="printnode_printer" />
@@ -32,7 +32,7 @@
                                     <small>
                                         NOTE: Automatic weighing will be done only on Delivery Orders.
                                         Make sure that either you specify scales here
-                                        or they are specified in PrintNode -> Settings (check with your Administrator)
+                                        or they are specified in Direct Print PRO -> Settings (check with your Administrator)
                                     </small>
                                 </div>
                             </div>
@@ -73,7 +73,7 @@
                                         <small>
                                             NOTE: Automatic weighing will be done only on Delivery Orders.
                                             Make sure that either you specify scales here
-                                            or they are specified in PrintNode -> Settings (check with your Administrator)
+                                            or they are specified in Direct Print PRO -> Settings (check with your Administrator)
                                         </small>
                                     </div>
                                 </div>

@@ -24,7 +24,7 @@
         <field name="model_id" ref="product.model_product_product"/>
         <field name="binding_model_id" ref="product.model_product_product"/>
         <field name="binding_view_types">form,list</field>
-        <field name="group_ids" eval="[(6, 0, (ref('integration.group_integration_manager'),))]"/>
+        <field name="groups_id" eval="[(6, 0, (ref('integration.group_integration_manager'),))]"/>
         <field name="state">code</field>
         <field name="code">
 if records:
@@ -41,14 +41,14 @@ if records:
         <field name="code">action = records.mapped('product_tmpl_id').action_run_refresh_product_info_from_external()</field>
     </record>
 
-    <record id="product_product_action_open_related_jobs" model="ir.actions.server">
-        <field name="name">View Synchronization History</field>
+    <record id="product_product_action_open_job_logs" model="ir.actions.server">
+        <field name="name">View Sync Logs</field>
         <field name="model_id" ref="product.model_product_product"/>
         <field name="binding_model_id" ref="product.model_product_product"/>
         <field name="binding_view_types">form</field>
         <field name="state">code</field>
-        <field name="group_ids" eval="[(4, ref('integration.group_integration_manager'))]"/>
-        <field name="code">action = records.open_related_jobs()</field>
+        <field name="groups_id" eval="[(4, ref('integration.group_integration_manager'))]"/>
+        <field name="code">action = records.open_job_logs()</field>
     </record>
 
     <record id="product_product_view_form_easy_inherit_integration" model="ir.ui.view">
@@ -74,7 +74,20 @@ if records:
 
             <sheet position="inside">
                 <group name="integrations" string="Stores">
+                    <div colspan="2">
+                        <div class="alert alert-warning" role="alert"
+                            invisible="not integration_company_mismatch">
+                            <i class="fa fa-warning" title="Warning"/>
+                            <strong>Company mismatch:</strong>
+                            this product belongs to another company than the selected e-commerce store(s).
+                            This may affect mapping and synchronization.
+                        </div>
+                    </div>
                     <field name="integration_ids" widget="many2many_checkboxes"/>
+                </group>
+
+                <group name="store_specific_settings_variant">
+                    <!-- Content will be added here dynamically based on the selected stores -->
                 </group>
 
                 <group name="product_variant_images" string="Extra Variant Media">
@@ -88,11 +101,12 @@ if records:
                         </div>
                     </div>
 
-                    <field name="integration_variant_image_ids"
+                    <field name="product_variant_image_ids"
                            colspan="2"
+                           class="o_website_sale_image_list"
                            context="{'default_name': name}"
                            mode="kanban"
-                           options="{'create_text':'Add Image'}"
+                           add-label="Add Image"
                            nolabel="1"
                            widget="x2_many_media_viewer"
                     />

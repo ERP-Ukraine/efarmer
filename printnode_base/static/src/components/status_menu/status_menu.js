@@ -12,6 +12,7 @@ import { session } from "@web/session";
 
 
 const MANAGER_GROUP = "printnode_base.printnode_security_group_manager";
+const USER_GROUP = "printnode_base.printnode_security_group_user";
 
 function useDirectPrintStatusMenuSystray() {
     const ui = useState(useService("ui"));
@@ -45,7 +46,6 @@ export class DirectPrintStatusMenu extends Component {
             limits: [],
             devices: {},
             workstations: [],
-            isManager: false,
             directPrintEnabled: session.dpc_user_enabled,
             loaded: false,
         });
@@ -54,22 +54,25 @@ export class DirectPrintStatusMenu extends Component {
         this.user = user;
 
         onWillRender(async () => {
-            if (!this.state.loaded) {
+            this.state.isUser = await this.user.hasGroup(USER_GROUP);
+
+            if (!this.state.loaded && this.state.isUser) {
+                const data = await this.orm.call(
+                    "printnode.base",
+                    "get_status",
+                    [],
+                    { "only_releases": true });
+
+                this.state.dpc_company_enabled = data.dpc_company_enabled;
+                this.state.dpc_user_enabled = data.dpc_user_enabled;
+                this.state.devices = data.devices;
+                this.state.workstations = data.workstations;
+
                 this.state.isManager = await this.user.hasGroup(MANAGER_GROUP);
-
                 if (this.state.isManager) {
-                    const data = await this.orm.call(
-                        "printnode.base",
-                        "get_status",
-                        [],
-                        { "only_releases": true });
-
                     this.state.limits = data.limits;
                     this.state.releases = data.releases;
-                    this.state.devices = data.devices;
-                    this.state.workstations = data.workstations;
-                    this.state.dpc_company_enabled = data.dpc_company_enabled;
-                    this.state.dpc_user_enabled = data.dpc_user_enabled;
+                    this.state.isAdvertisingDisabled = data.advertising_disabled;
                 }
 
                 this.state.loaded = true;

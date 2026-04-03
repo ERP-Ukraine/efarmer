@@ -31,7 +31,7 @@ class IntegrationImageMixin(models.AbstractModel):
 
     @property
     def is_image(self):
-        return self._name == 'ecommerce.product.image'
+        return self._name == 'product.image'
 
     def get_b64_data(self):
         return getattr(self, self._image_name)

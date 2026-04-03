@@ -17,7 +17,7 @@ class PrintNodeLoggerMixin(models.AbstractModel):
     To add logging to a model, first inherit from this model: _inherit = ['printnode.logger.mixin']
     """
     _name = 'printnode.logger.mixin'
-    _description = 'PrintNode logger'
+    _description = 'Direct Print logger'
 
     def printnode_logger(self, log_type, log_string, **kwargs):
         """
@@ -62,8 +62,7 @@ class PrintNodeLoggerMixin(models.AbstractModel):
         """
         self.env['ir.logging'].flush_model()
         try:
-            db_registry = Registry(db_name)
-            with db_registry.cursor() as cr:
+            with Registry(db_name).cursor() as cr:
                 env = api.Environment(cr, SUPERUSER_ID, {})
                 env['ir.logging'].sudo().create(logging_object)
         except psycopg2.Error as err:
@@ -81,10 +80,10 @@ class PrintNodeLoggerMixin(models.AbstractModel):
 
 
 class PrintNodeLogType(models.Model):
-    """PrintNode logging types entity
+    """Direct Print logging types entity
     """
     _name = 'printnode.log.type'
-    _description = 'PrintNode Log Types'
+    _description = 'Direct Print Log Types'
 
     active = fields.Boolean(
         string='Active',
@@ -96,7 +95,6 @@ class PrintNodeLogType(models.Model):
         required=True,
     )
 
-    _unique_name = models.Constraint(
-        'UNIQUE(name)',
-        'Log type already exists!',
-    )
+    _sql_constraints = [
+        ('name', 'unique(name)', 'Log type already exists!'),
+    ]

@@ -5,10 +5,10 @@ from odoo import models, fields
 
 
 class PrintNodePaper(models.Model):
-    """ PrintNode Paper entity
+    """ Direct Print Paper entity
     """
     _name = 'printnode.paper'
-    _description = 'PrintNode Paper'
+    _description = 'Direct Print Paper'
 
     name = fields.Char(
         'Name',

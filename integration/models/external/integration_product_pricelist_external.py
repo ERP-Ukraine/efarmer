@@ -35,13 +35,7 @@ class IntegrationProductPricelistExternal(models.Model):
                 integration,
                 f'{template_id}-{variant_id}',
             )
-            context = {
-                'company_id': integration.company_id.id,
-                'job_integration_id': integration.id,
-                'job_integration_job_type': 'pricelist',
-            }
             job = pricelist\
-                .with_context(**context) \
                 .with_delay(**job_kwargs) \
                 ._create_integration_items(
                     integration,
@@ -49,6 +43,7 @@ class IntegrationProductPricelistExternal(models.Model):
                     item_list,
                 )
 
+            pricelist.job_log(job)
             result.append(job)
 
         return result

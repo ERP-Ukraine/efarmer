@@ -5,8 +5,10 @@ from odoo import api, models, fields
 
 
 class PrintnodeWorkstation(models.Model):
+    """ Direct Print Workstation
+    """
     _name = 'printnode.workstation'
-    _description = 'Printnode Workstation'
+    _description = 'Direct Print Workstation'
 
     name = fields.Char(
         string='Workstation Name',
@@ -28,10 +30,9 @@ class PrintnodeWorkstation(models.Model):
         string='Default Workstation Scales',
     )
 
-    _unique_name = models.Constraint(
-        'UNIQUE(name)',
-        'Workstation name must be unique',
-    )
+    _sql_constraints = [
+        ('name', 'unique(name)', 'Workstation name must be unique'),
+    ]
 
     @api.model
     def get_workstation_devices(self):

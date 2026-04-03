@@ -1,5 +1,4 @@
 from odoo import fields, models
-from odoo.fields import Command
 
 
 class AccountMoveLine(models.Model):
@@ -27,5 +26,5 @@ class AccountMoveLine(models.Model):
                         or x.account_analytic_id.id == account_id
                     )
                 )
-                val.update({"tag_ids": [Command.set(tags.ids)]})
+                val.update({"tag_ids": [(6, 0, tags.ids)]})
         return vals

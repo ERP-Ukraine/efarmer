@@ -17,7 +17,7 @@ class TestPrintNodeStockPicking(TestPrintNodeCommon):
     def setUp(self):
         super(TestPrintNodeStockPicking, self).setUp()
 
-        self.package = self.env['stock.package'].create({
+        self.package = self.env['stock.quant.package'].create({
             'name': 'Test package',
         })
 
@@ -71,6 +71,7 @@ class TestPrintNodeStockPicking(TestPrintNodeCommon):
                 test_objects_for_print,
                 copies=1,
                 options={},
+                data={'source_document': []},
             )
 
     def test_scenario_print_document_on_picking_status_change(self):
@@ -95,6 +96,7 @@ class TestPrintNodeStockPicking(TestPrintNodeCommon):
                 stock_picking,
                 copies=1,
                 options={},
+                data={'source_document': stock_picking.mapped('name')},
             )
 
     def test_scenario_print_packages_label_on_transfer(self):
@@ -120,4 +122,5 @@ class TestPrintNodeStockPicking(TestPrintNodeCommon):
                 self.package,
                 copies=1,
                 options={},
+                data={'source_document': self.test_stock_picking.mapped('name')},
             )

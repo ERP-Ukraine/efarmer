@@ -30,8 +30,8 @@
                     </group>
                     <div class="text-danger">
                         <p>
-                            Warning! If the user is Inventory / Administrator,
-                            the Allowed Warehouses configuration is ignored and
+                            Warning! If the user is Inventory / Administrator, 
+                            the Allowed Warehouses configuration is ignored and 
                             the user will still be able to see all warehouses
                         </p>
                     </div>

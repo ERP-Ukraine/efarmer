@@ -8,8 +8,6 @@ from functools import reduce
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError, UserError
 
-from odoo.addons.integration_queue_job.job import Job
-
 from ..tools import ExternalImage
 from ..exceptions import NotMappedToExternal
 from ..models.sale_integration import EXPORT_EXTERNAL_BLOCK
@@ -20,7 +18,7 @@ _logger = logging.getLogger(__name__)
 INTEGRATION_PRODUCT_TEMPLATE_ACTIONS = [
     'Export to Stores', 'Export Stock to Stores',
     'Manage Store Connections', 'Refresh from Store',
-    'View Synchronization History',
+    'View Sync Logs',
 ]
 
 
@@ -35,28 +33,28 @@ class ProductTemplate(models.Model):
     _description = 'Product Template'
 
     _image_name = 'image_1920'
-    _image_names = 'integration_template_image_ids'
+    _image_names = 'product_template_image_ids'
     _internal_reference_field = 'default_code'
 
-    integration_default_category_id = fields.Many2one(
-        comodel_name='ecommerce.product.category',
+    default_public_categ_id = fields.Many2one(
+        comodel_name='product.public.category',
         string='Default Category',
     )
 
-    integration_category_ids = fields.Many2many(
-        comodel_name='ecommerce.product.category',
-        relation='ecommerce_product_category_product_template_rel',
+    public_categ_ids = fields.Many2many(
+        comodel_name='product.public.category',
+        relation='product_public_category_product_template_rel',
         string='Website Product Category',
     )
 
-    available_category_ids = fields.Many2many(
-        comodel_name='ecommerce.product.category',
-        compute='_compute_available_category_ids',
+    public_filter_categ_ids = fields.Many2many(
+        comodel_name='product.public.category',
+        compute='_compute_public_filter_categories',
         string='Website Product Category Filter',
     )
 
-    integration_template_image_ids = fields.One2many(
-        comodel_name='ecommerce.product.image',
+    product_template_image_ids = fields.One2many(
+        comodel_name='product.image',
         inverse_name='product_tmpl_id',
         string='Extra Product Media',
         copy=True,
@@ -91,12 +89,6 @@ class ProductTemplate(models.Model):
     website_seo_description = fields.Char(
         string='Meta description',
         translate=True,
-    )
-
-    feature_line_ids = fields.One2many(
-        comodel_name='product.template.feature.line',
-        string='Product Features',
-        inverse_name='product_tmpl_id',
     )
 
     to_force_sync_pricelist = fields.Boolean(
@@ -139,6 +131,53 @@ class ProductTemplate(models.Model):
         inverse_name='product_tmpl_id',
         string='External Tags',
     )
+
+    integration_company_mismatch = fields.Boolean(
+        compute='_compute_integration_company_mismatch',
+        help='Technical field used to detect multi-company mismatch.'
+             'It is True when this product belongs to a company, but at least one of the selected '
+             'e-commerce integrations belongs to a different company.'
+             'Make sure the product company matches the integration company, or remove mismatching integrations.'
+    )
+
+    # Migration fields
+    integration_default_category_id = fields.Many2one(
+        comodel_name='ecommerce.product.category',
+        string='E-Commerce Default Category',
+    )
+
+    integration_category_ids = fields.Many2many(
+        comodel_name='ecommerce.product.category',
+        relation='ecommerce_product_category_product_template_rel',
+        string='E-Commerce Product Category',
+    )
+
+    integration_template_image_ids = fields.One2many(
+        comodel_name='ecommerce.product.image',
+        inverse_name='product_tmpl_id',
+        string='E-Commerce Product Media',
+        copy=True,
+    )
+
+    @property
+    def is_consumable_storable(self):
+        return self.type == 'consu' and self.is_storable
+
+    @api.depends('company_id', 'integration_ids', 'integration_ids.company_id')
+    def _compute_integration_company_mismatch(self):
+        """
+        Compute whether this template company conflicts with any linked integration company.
+
+        If `company_id` is not set, mismatch is always False.
+        """
+        for rec in self:
+            if not rec.company_id:
+                rec.integration_company_mismatch = False
+                continue
+            mismatched = rec.integration_ids.filtered(
+                lambda i: i.company_id and i.company_id != rec.company_id
+            )
+            rec.integration_company_mismatch = bool(mismatched)
 
     def _get_view_postprocessed(self, view, arch, **options):
         # Redefined the standard method to update a form-view architecture
@@ -201,7 +240,6 @@ class ProductTemplate(models.Model):
 
     def get_integration_kits(self, integration_id: int, limit=1):
         self.ensure_one()
-
         integration = self.env['sale.integration'].browse(integration_id)
 
         kit = self.env['mrp.bom'].search([
@@ -235,42 +273,27 @@ class ProductTemplate(models.Model):
 
         for variant in variants:
             job_kwargs = integration._job_kwargs_export_inventory_variant(variant, False)
-            context = {
-                'company_id': integration.company_id.id,
-                'job_integration_id': integration.id,
-                'job_integration_job_type': 'inventory',
-                'job_template_id': self.id,
-            }
-            job = integration.with_context(**context).with_delay(**job_kwargs) \
-                .export_inventory_for_variant_with_delay(variant)
+            job = integration.with_delay(**job_kwargs).export_inventory_for_variant_with_delay(variant)
+
+            variant.job_log(job)
             result.append(job)
 
         return result
 
-    def open_related_jobs(self):
+    def open_job_logs(self):
         self.ensure_one()
         externals = self.integration_mapping_ids.mapped('external_template_id')
 
-        jobs = self.env['queue.job'].search([
-            '|',
-            ('external_template_id', 'in', externals.ids),
+        logs = self.env['job.log'].search([
+            ('res_model', '=', externals._name),
+            ('res_id', 'in', externals.ids),
+        ])
+
+        logs |= self.env['job.log'].search([
             ('template_id', '=', self.id),
         ])
 
-        view_ids = [
-            (0, 0, {'view_mode': 'list', 'view_id': self.env.ref('integration.view_integration_queue_job_list').id}),
-            (0, 0, {'view_mode': 'form', 'view_id': self.env.ref('integration.view_integration_queue_job_form').id}),
-        ]
-
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Jobs History',
-            'res_model': 'queue.job',
-            'view_mode': 'list,form',
-            'view_ids': view_ids,
-            'domain': [('id', 'in', jobs.ids)],
-            'target': 'current',
-        }
+        return logs.open_tree_view()
 
     def _unmark_force_sync_pricelist(self, ids=False):
         unlink_ids = ids or self.ids
@@ -339,22 +362,29 @@ class ProductTemplate(models.Model):
 
     @api.depends('product_variant_ids', 'product_variant_ids.integration_ids')
     def _compute_integration_ids(self):
-        # We can't use plain call of self._compute_template_field_from_variant_field('integration_ids') because it
-        # works incorrectly with inactive products (when self is mutple records and some of them are inactive).
         for template in self:
+            integration_ids = []
+
             if not template.active:
                 template = template.with_context(active_test=False)
 
-            self._compute_template_field_from_variant_field('integration_ids')
+            if len(template.product_variant_ids) == 1:
+                integration_ids = template.product_variant_ids.integration_ids.ids
+
+            template.integration_ids = [(6, 0, integration_ids)]
 
     def _inverse_integration_ids(self):
-        self._set_product_variant_field('integration_ids')
+        # TODO: Handle the case when the template has no variants
+        for template in self:
+            if len(template.product_variant_ids) == 1:
+                integration_ids = template.integration_ids.ids
+                template.product_variant_ids.integration_ids = [(6, 0, integration_ids)]
 
-    @api.depends('integration_category_ids')
-    def _compute_available_category_ids(self):
+    @api.depends('public_categ_ids')
+    def _compute_public_filter_categories(self):
         for rec in self:
             category_ids = list()
-            rec_categories = rec.integration_category_ids
+            rec_categories = rec.public_categ_ids
 
             if not rec_categories:
                 category_ids = rec_categories.search([]).ids
@@ -364,7 +394,7 @@ class ProductTemplate(models.Model):
                         category.parse_parent_recursively()
                     )
 
-            rec.available_category_ids = [(6, 0, category_ids)]
+            rec.public_filter_categ_ids = [(6, 0, category_ids)]
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -375,8 +405,11 @@ class ProductTemplate(models.Model):
         templates = super(ProductTemplate, self.with_context(ctx)).create(vals_list)
 
         for template, vals in zip(templates, vals_list):
+            # If template has multiple variants, then we need to set `integration_ids`
+            # to the all variants after the template is saved and all variants are created.
             if 'integration_ids' in vals:
-                template.product_variant_ids.integration_ids = vals['integration_ids']
+                if len(template.product_variant_ids) > 1:
+                    template.product_variant_ids.integration_ids = vals['integration_ids']
 
         # If `from_product_product` flag is True, export will be triggered from it's variant.
         if ctx.get('skip_product_export') or from_product_product:
@@ -425,40 +458,29 @@ class ProductTemplate(models.Model):
         return result
 
     def _trigger_export_single_template(self, vals: dict, first_export: bool = False):
-        result = self.env['queue.job']
+        result = list()
 
         for integration in self._get_enabled_integrations():
             export_template = first_export or integration._is_need_export_product(vals)
             export_images = integration._is_need_export_images(vals)
             integration = integration.with_context(company_id=integration.company_id.id)
 
-            job = None
+            job = log = None
             # A. Export template + images
             if export_template:
                 kw = integration._job_kwargs_export_template(self, export_images)
-                context = {
-                    'company_id': integration.company_id.id,
-                    'job_integration_id': integration.id,
-                    'job_integration_job_type': 'product',
-                    'job_template_id': self.id,
-                }
-                job = integration.with_context(**context).with_delay(**kw) \
+                job = integration.with_delay(**kw) \
                     .export_template(self, export_images=export_images, make_validation=True)
 
             # B. Export only images
             elif export_images:
                 kw = integration._job_kwargs_export_images(self)
-                context = {
-                    'company_id': integration.company_id.id,
-                    'job_integration_id': integration.id,
-                    'job_integration_job_type': 'product',
-                    'job_template_id': self.id,
-                }
-                job = integration.with_context(**context).with_delay(**kw) \
-                    .export_template_images_verbose(self.id)
+                job = integration.with_delay(**kw).export_template_images_verbose(self.id)
 
             if job:
-                result |= job.db_record() if isinstance(job, Job) else job
+                log = self.with_context(default_integration_id=integration.id).job_log(job)
+
+            result.append((integration, log))
 
         _logger.info('%s: Integration export jobs: %s', self, result)
 
@@ -476,18 +498,18 @@ class ProductTemplate(models.Model):
 
         return integrations
 
-    @api.onchange('integration_category_ids')
-    def _onchange_integration_category_ids(self):
+    @api.onchange('public_categ_ids')
+    def _onchange_public_categ_ids(self):
         category_ids = list()
 
-        for category in self.integration_category_ids:
+        for category in self.public_categ_ids:
             category_ids.extend(
                 category._origin.parse_parent_recursively()
             )
 
-        category_id = self.integration_default_category_id.id
+        category_id = self.default_public_categ_id.id
         if category_id and category_ids and category_id not in category_ids:
-            self.integration_default_category_id = False
+            self.default_public_categ_id = False
 
     def change_external_integration_template(self):
         message_pattern = self._get_change_external_message()
@@ -534,18 +556,14 @@ class ProductTemplate(models.Model):
         for integration in integrations:
             kw = integration._job_kwargs_export_images(self)
 
-            context = {
-                'company_id': integration.company_id.id,
-                'job_integration_id': integration.id,
-                'job_integration_job_type': 'product',
-                'job_template_id': self.id,
-            }
-            integration \
-                .with_context(**context) \
+            job = integration \
+                .with_context(company_id=integration.company_id.id) \
                 .with_delay(**kw).export_template_images_verbose(
                     self.id,
                     erase_mappings=self.env.context.get('integration_erase_mappings'),
                 )
+
+            self.with_context(default_integration_id=integration.id).job_log(job)
 
         return True
 
@@ -586,21 +604,18 @@ class ProductTemplate(models.Model):
             templates_block = templates[:EXPORT_EXTERNAL_BLOCK]
 
             if use_jobs_for_blocks:
-                context = {
-                    'company_id': self.company_id.id,
-                    'job_integration_id': self.id,
-                    'job_integration_job_type': 'product',
-                    'job_related_record_model': self._name,
-                    'job_related_record_ids': templates_block.ids,
-                }
-                templates_block = templates_block.with_context(**context).with_delay(
+                templates_block = templates_block.with_delay(  # TODO: undefined company_id in context
                     priority=11,
                     description=f'Export Templates. Prepare Templates ({block})',
                 )
 
-            templates_block.trigger_export_by_block(
+            job = templates_block.trigger_export_by_block(
                 export_images, integrations, manual_trigger,
             )
+
+            if use_jobs_for_blocks:
+                for integration in integrations:
+                    integration.job_log(job)
 
             templates = templates[EXPORT_EXTERNAL_BLOCK:]
 
@@ -641,15 +656,11 @@ class ProductTemplate(models.Model):
                 job_kwargs = integration._job_kwargs_export_template(
                     template, export_images, force=force_trigger,
                 )
-                context = {
-                    'company_id': integration.company_id.id,
-                    'job_integration_id': integration.id,
-                    'job_integration_job_type': 'product',
-                    'job_template_id': template.id,
-                }
-                integration \
-                    .with_context(**context) \
+                job = integration \
+                    .with_context(company_id=integration.company_id.id) \
                     .with_delay(**job_kwargs).export_template(template, **kwargs)
+
+                template.with_context(default_integration_id=integration.id).job_log(job)
 
     def _check_filling_mandatory_fields(self, integration):
         variant_ids = self.product_variant_ids
@@ -682,6 +693,7 @@ class ProductTemplate(models.Model):
 
         # 2. Check Internal-references
         ref_field = integration.product_reference_name
+        ref_field_count = f'{ref_field}_count'
         internal_references = self.product_variant_ids.filtered(
             lambda x: integration.id in x.integration_ids.ids
         ).mapped(ref_field)
@@ -697,16 +709,18 @@ class ProductTemplate(models.Model):
         # 2.1 We also should check if product do not have duplicated internal reference
         # As in Odoo standard duplicated reference is allowed
         # But we do not want to have it in external E-Commerce System
-        grouped_products = self.env['product.product']._read_group(
-            domain=[
+        grouped_products = self.env['product.product'].read_group(
+            [
                 (ref_field, 'in', internal_references),
                 ('product_tmpl_id.exclude_from_synchronization', '=', False)
             ],
-            groupby=[ref_field],
-            aggregates=[f'{ref_field}:count'],
+            [ref_field],
+            [ref_field],
         )
 
-        duplicated_refs = [ref for ref, count in grouped_products if count > 1]
+        duplicated_refs = [
+            x[ref_field] for x in grouped_products if x[ref_field_count] > 1
+        ]
         if duplicated_refs:
             message = _(
                 'Duplicate internal reference(s) detected: %s.\n\n'
@@ -738,6 +752,7 @@ class ProductTemplate(models.Model):
             'kits': self._get_kits(integration.id),
             'products': products,
             'variants_count': len(variants),
+            'has_attributes': bool(self.attribute_line_ids.filtered(lambda x: not x.exclude_from_synchronization)),
             'fields': self.calculate_export_fields_data(integration.id),
         }
 
@@ -864,7 +879,7 @@ class ProductTemplate(models.Model):
     def get_default_category(self, integration_id: int):
         self.ensure_one()
 
-        default_category = self.integration_default_category_id
+        default_category = self.default_public_categ_id
 
         if default_category:
             integration = self.env['sale.integration'].browse(integration_id)
@@ -877,7 +892,7 @@ class ProductTemplate(models.Model):
 
         return [
             x.to_external_or_export(integration)
-            for x in self.integration_category_ids
+            for x in self.public_categ_ids
         ]
 
     def get_taxes(self, integration_id: int):
@@ -910,33 +925,16 @@ class ProductTemplate(models.Model):
 
         return result
 
-    def get_product_features(self, integration_id: int):
-        integration = self.env['sale.integration'].browse(integration_id)
-
-        return [
-            {
-                'id': feature_line.feature_id.to_external_or_export(integration),
-                'id_feature_value': feature_line.feature_value_id.to_external_or_export(integration)
-            }
-            for feature_line in self.feature_line_ids
-        ]
-
     def copy(self, default=None):
         ctx = dict(skip_product_export=True)
-        template = super(ProductTemplate, self.with_context(**ctx)).copy(default=default)
+        records = super(ProductTemplate, self.with_context(**ctx)).copy(default=default)
 
-        vals = self._get_empty_mandatory_fields_vals()
-        if vals:
-            template.product_variant_ids.write(vals)
+        for template, original_template in zip(records, self):
+            vals = original_template._get_empty_mandatory_fields_vals()
+            if vals:
+                template.product_variant_ids.write(vals)
 
-        template.feature_line_ids = [
-            (0, 0, {
-                'feature_id': feature_line.feature_id.id,
-                'feature_value_id': feature_line.feature_value_id.id,
-            })
-            for feature_line in self.feature_line_ids
-        ]
-        return template
+        return records
 
     def _get_empty_mandatory_fields_vals(self):
         integrations = self._get_enabled_integrations()
@@ -1096,8 +1094,13 @@ class ProductTemplate(models.Model):
         return template_attribute_value_ids
 
     def _get_kits(self, integration_id: int):
-        # If the integration is configured to ignore BOMs, return an empty list
         integration = self.env['sale.integration'].browse(integration_id)
+
+        # Kit/bundle export is only supported for PrestaShop and Magento 2 connectors
+        if not (integration.is_integration_prestashop or integration.is_integration_magento_two):
+            return []
+
+        # If the integration is configured to ignore BOMs, return an empty list
         if integration.ignore_boms_for_product_export:
             return []
 

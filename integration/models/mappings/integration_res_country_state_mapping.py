@@ -8,6 +8,7 @@ class IntegrationResCountryStateMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'Integration Res Country State Mapping'
     _mapping_fields = ('state_id', 'external_state_id')
+    _mapping_label = 'State'
 
     state_id = fields.Many2one(
         string='Odoo State',
@@ -22,7 +23,10 @@ class IntegrationResCountryStateMapping(models.Model):
         ondelete='cascade',
     )
 
-    _uniq_mapping = models.Constraint(
-        'unique(integration_id, external_state_id)',
-        'Country State mapping should be unique per integration',
-    )
+    _sql_constraints = [
+        (
+            'uniq_mapping',
+            'unique(integration_id, external_state_id)',
+            'Country State mapping should be unique per integration'
+        ),
+    ]

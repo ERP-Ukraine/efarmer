@@ -17,9 +17,9 @@
         Print Without Downloading | Automatic Printing Odoo | Fast Printing from Odoo |
         Thermal Printer Odoo | ZPL Printer Support
     ''',
-    'version': '19.0.2.7.1',
+    'version': '18.0.2.8.0',
     'category': 'Tools',
-    "images": ["static/description/images/banner.gif"],
+    "images": ["static/description/images/banner-birthday.gif"],
     'author': 'VentorTech',
     'website': 'https://ecosystem.ventor.tech/product/direct-print-pro-one-time-payment/',
     'support': 'support@ventor.tech',
@@ -42,6 +42,7 @@
         'security/ir.model.access.csv',
         # Printed Reports Data
         'reports/package_zpl_template.xml',
+        'reports/printnode_test_report.xml',
         # Initial Data
         'data/ir_actions_server_data.xml',
         'data/ir_cron_data.xml',
@@ -88,6 +89,7 @@
         'views/stock_picking_views.xml',
         'views/delivery_carrier_views.xml',
         'views/printnode_scales_views.xml',
+        'views/res_company_views.xml',
         'views/res_config_settings_views.xml',
         'views/res_users_views.xml',
         'views/printnode_logging_views.xml',
@@ -110,6 +112,10 @@
     'installable': True,
     'application': True,
     "cloc_exclude": [
-        "**/*",
+        "data/*",
+        "models/*",
+        "controllers/*",
+        "reports/*",
+        "wizard/*",
     ]
 }

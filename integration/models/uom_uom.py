@@ -15,13 +15,15 @@ class UomUom(models.Model):
         This method try to find unit of weight measure by name from e-Commerce System
         and convert it
         """
-        if not weight:
-            return 0
+        if weight in (None, False, ''):
+            return 0.0
+
+        weight = float(weight)
 
         if not external_uom_name:
             return weight
 
-        external_weight_uom = self.env['uom.uom'].search([
+        external_weight_uom = self.env['uom.uom'].with_context(active_test=False).search([
             ('name', '=ilike', normalize_uom_name(external_uom_name)),
         ], limit=1)
 

@@ -61,7 +61,7 @@
                 <search>
                     <field name="erp_order_id"/>
                     <field name="external_str_id"/>
-                    <group>
+                    <group expand="0" string="Group By">
                         <filter string="ERP Order" name="group_by_erp_order_id" context="{'group_by': 'erp_order_id'}"/>
                     </group>
                 </search>
@@ -73,7 +73,7 @@
             <field name="path">eci-order-fulfillments</field>
             <field name="res_model">external.order.fulfillment</field>
             <field name="view_mode">list,form</field>
-            <field name="group_ids" eval="[(4, ref('base.group_no_one'))]"/>
+            <field name="groups_id" eval="[(4, ref('base.group_no_one'))]"/>
         </record>
 
     </data>

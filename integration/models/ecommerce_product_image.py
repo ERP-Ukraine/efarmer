@@ -9,7 +9,7 @@ class EcommerceProductImage(models.Model):
     _inherit = ['image.mixin', 'integration.image.mixin']
     _order = 'sequence, id'
 
-    name = fields.Char(string="Name", required=True)
+    name = fields.Char(string='Name', required=True)
 
     sequence = fields.Integer(default=10)
 

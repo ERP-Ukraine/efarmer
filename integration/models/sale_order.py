@@ -240,6 +240,9 @@ class SaleOrder(models.Model):
             else:
                 order.total_amount_difference_error_message = ''
 
+    def _get_integration_id_for_job(self):
+        return self.integration_id.id
+
     def _get_file_id_for_log(self):
         return self.related_input_files[:1].id
 
@@ -277,27 +280,12 @@ class SaleOrder(models.Model):
 
         return record.get_formview_action()
 
-    def open_related_jobs(self):
+    def open_job_logs(self):
         self.ensure_one()
-
-        jobs = self.env['queue.job'].search([
+        job_log_ids = self.env['job.log'].search([
             ('order_id', '=', self.id),
         ])
-
-        view_ids = [
-            (0, 0, {'view_mode': 'list', 'view_id': self.env.ref('integration.view_integration_queue_job_list').id}),
-            (0, 0, {'view_mode': 'form', 'view_id': self.env.ref('integration.view_integration_queue_job_form').id}),
-        ]
-
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Jobs History',
-            'res_model': 'queue.job',
-            'view_mode': 'list,form',
-            'view_ids': view_ids,
-            'domain': [('id', 'in', jobs.ids)],
-            'target': 'current',
-        }
+        return job_log_ids.open_tree_view()
 
     def check_is_order_shipped(self):
         """
@@ -360,16 +348,12 @@ class SaleOrder(models.Model):
 
                 job_kwargs = self._job_kwargs_export_sale_order_status(order)
 
-                context = {
-                    'company_id': integration.company_id.id,
-                    'job_integration_id': integration.id,
-                    'job_integration_job_type': 'order',
-                    'job_order_id': order.id,
-                }
-                integration \
-                    .with_context(**context) \
+                job = integration \
+                    .with_context(company_id=integration.company_id.id) \
                     .with_delay(**job_kwargs) \
                     .export_sale_order_status(order)
+
+                order.job_log(job)
 
         return result
 
@@ -509,16 +493,12 @@ class SaleOrder(models.Model):
 
         job_kwargs = self._job_kwargs_export_tracking(pickings)
 
-        context = {
-            'company_id': integration.company_id.id,
-            'job_integration_id': integration.id,
-            'job_integration_job_type': 'order',
-            'job_order_id': self.id,
-        }
         job = integration \
-            .with_context(**context) \
+            .with_context(company_id=integration.company_id.id) \
             .with_delay(**job_kwargs) \
             .export_tracking(pickings)
+
+        self.job_log(job)
 
         return job
 
@@ -558,8 +538,7 @@ class SaleOrder(models.Model):
         if external_data.get('integration_workflow_states'):
             status_code = external_data['integration_workflow_states'][0]
 
-            sub_status = self.env['integration.sale.order.factory'] \
-                ._get_order_sub_status(self.integration_id, status_code)
+            sub_status = self.integration_id._get_order_sub_status(status_code)
 
             vals['sub_status_id'] = sub_status.id
 
@@ -604,16 +583,16 @@ class SaleOrder(models.Model):
 
         return delivery_date
 
-    def _build_and_run_integration_workflow(self, order_data):
+    def _build_and_run_integration_workflow(self, workflow_states, payment_method_code):
         _logger.info('%s: create new / update existing Integration pipeline: %s', self.integration_id.name, self.name)
 
         self.ensure_one()
         pipeline = self.integration_pipeline
 
         if pipeline:
-            pipeline._update_pipeline(order_data)
+            pipeline._update_pipeline(workflow_states, payment_method_code)
         else:
-            _task_list, vals = self._build_task_list_and_vals(order_data)
+            _task_list, vals = self._build_task_list_and_vals(workflow_states, payment_method_code)
             next_step_task_list = _task_list and (_task_list[1:] + [(False, False)])
 
             pipeline_task_ids = [
@@ -638,17 +617,12 @@ class SaleOrder(models.Model):
             pipeline._mark_input_to_process()
 
             job_kwargs = self._job_kwargs_run_integration_workflow()
-            context = {
-                'company_id': self.company_id.id,
-                'job_integration_id': self.integration_id.id,
-                'job_integration_job_type': 'order',
-                'job_order_id': self.id,
-            }
-            pipeline \
-                .with_context(**context) \
+            job = pipeline\
+                .with_context(company_id=self.company_id.id) \
                 .with_delay(**job_kwargs) \
                 .trigger_pipeline()
 
+            pipeline.job_log(job)
         else:
             _logger.info('%s: integration pipeline has no active tasks.', self.name)
             pipeline._mark_input_as_done()
@@ -687,24 +661,25 @@ class SaleOrder(models.Model):
             ),
         }
 
-    def _build_task_list_and_vals(self, order_data):
+    def _build_task_list_and_vals(self, workflow_states, payment_method_code):
         """
         Builds the list of workflow tasks and corresponding pipeline values for an order.
 
-        :param order_data: dict containing the parsed order data, including payment and substatus.
+        :param workflow_states: list of external order status codes.
+        :param payment_method_code: external payment method code.
         :return: a tuple containing the updated task list and pipeline values.
         """
         integration = self.integration_id
-        payment = order_data.get('payment_method')
-        state_list = order_data.get('integration_workflow_states')
+        payment = payment_method_code
+        state_list = workflow_states
         PaymentExternal = self.env['integration.sale.order.payment.method.external']
         SubStatusExternal = self.env['integration.sale.order.sub.status.external']
 
         if not all(state_list):
             raise ApiImportError(_(
                 'Order substatus or payment method not found in the parsed data.\n\n'
-                'Please check the order data: %s'
-            ) % order_data)
+                'Please check the order data: workflow_states=%s, payment_method_code=%s'
+            ) % (state_list, payment))
 
         payment_external = PaymentExternal.get_external_by_code(integration, payment, raise_error=False)
 

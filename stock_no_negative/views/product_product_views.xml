@@ -11,7 +11,7 @@
         <field name="inherit_id" ref="stock.view_template_property_form" />
         <field name="arch" type="xml">
             <field name="categ_id" position="after">
-                <field name="allow_negative_stock" invisible="not is_storable" />
+                <field name="allow_negative_stock" invisible="type != 'product'" />
             </field>
         </field>
     </record>

@@ -61,15 +61,7 @@ class TestPrintNodeLogger(TestPrintNodeCommon):
             (6, 0, [self.env.ref('printnode_base.printnode_log_type_scenarios').id])]
         Picking = self.env['stock.picking']
 
-        # Case 1: Normal logging of print scenarios
-        Picking.with_user(self.user).print_scenarios(
-            'print_product_labels_on_transfer',
-            ids_list=[self.stock_picking.id, self.stock_picking_2.id],
-        )
-
-        self.assertEqual(self.mock_write_logs.call_count, 4)
-
-        # Case 2: UserError expected
+        # Case 1: UserError expected
         self.mock_scenario_get_printer.side_effect = UserError("Test UserError")
 
         with self.assertRaises(UserError):

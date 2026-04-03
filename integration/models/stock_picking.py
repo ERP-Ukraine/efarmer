@@ -87,16 +87,12 @@ class StockPicking(models.Model):
 
         job_kwargs = integration._job_kwargs_export_picking(picking)
 
-        context = {
-            'company_id': integration.company_id.id,
-            'job_integration_id': integration.id,
-            'job_integration_job_type': 'order',
-            'job_order_id': self.sale_id.id,
-        }
         job = integration \
-            .with_context(**context) \
+            .with_context(company_id=integration.company_id.id) \
             .with_delay(**job_kwargs) \
             .send_picking(picking)
+
+        self.job_log(job)
 
         return job
 
@@ -211,7 +207,22 @@ class StockPicking(models.Model):
             try:
                 # Let's rely on the `_sanity_check` (skip_sanity_check=False)
                 # standard method to get verbose error
-                picking.with_context(**PKG_CONTEXT).button_validate()
+                res = picking.with_context(**PKG_CONTEXT).button_validate()
+
+                # Picking validation is not guaranteed to complete automatically:
+                # it may raise a UserError or return a UI action requiring manual input.
+                # Such cases are treated as non-auto-validatable.
+                if isinstance(res, dict) and res.get('type') == 'ir.actions.act_window':
+                    _logger.info(
+                        'Picking [%s] requires manual validation.',
+                        picking.display_name,
+                    )
+
+                    return False, _(
+                        '[%s] requires manual validation.\n'
+                        'Validation result: %s'
+                    ) % (picking.display_name, res)
+
             except UserError as ex:
                 return False, f'[{picking.display_name}]: {ex.args[0]}'
 

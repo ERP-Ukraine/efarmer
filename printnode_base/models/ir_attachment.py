@@ -3,7 +3,6 @@ from odoo.exceptions import UserError
 
 
 class IrAttachment(models.Model):
-
     _inherit = "ir.attachment"
 
     def dpc_print(self):
@@ -23,13 +22,12 @@ class IrAttachment(models.Model):
         for attachment in self:
             params = {
                 "title": attachment.name,
-                "type": "qweb-pdf"
-                if attachment.mimetype == "application/pdf"
-                else "qweb-text",
+                "type": "qweb-pdf" if attachment.mimetype == "application/pdf" else "qweb-text",
                 "options": {"bin": printer_bin.name} if printer_bin else {},
+                "source_document": attachment.mapped("res_name"),
             }
             job_id = printer.printnode_print_b64(
-                attachment.datas.decode("ascii"), params, check_printer_format=False
+                attachment.datas.decode("ascii"), params, check_printer_format=False, postcommit=False
             )
             job_ids.append(job_id)
 

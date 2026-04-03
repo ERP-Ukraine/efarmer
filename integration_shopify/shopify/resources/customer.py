@@ -75,6 +75,9 @@ class Customer(ShopifyResourceRead, MetafieldMixin):
 
         customer = self.to_odoo_format()
 
+        if not self.default_address or not self.addresses:
+            return {}
+
         return {**customer, **self.default_address.to_odoo_format()}
 
     def to_odoo_format(self):
@@ -106,7 +109,7 @@ class Customer(ShopifyResourceRead, MetafieldMixin):
         # 4. Determine the address type as “invoice”.
         # Since in Shopify one address can be set as both billing and shipping addresses.
         # We only need the billing address
-        if values_['id'] == self.default_address_str_id:
+        if values_.get('id') == self.default_address_str_id:
             values_['default'] = True
 
         values_.update(kwargs)
@@ -114,6 +117,9 @@ class Customer(ShopifyResourceRead, MetafieldMixin):
         return values_
 
     def _filter_address(self, address_id: str):
+        if not address_id:
+            return None
+
         result = list(filter(lambda x: x.id_str == address_id, self.addresses))
 
         if not result:

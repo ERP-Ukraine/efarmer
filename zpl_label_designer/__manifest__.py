@@ -4,19 +4,19 @@
 {
     'name': 'ZPL Label Designer PRO',
     'summary': """
-        No-code ZPL label designer for Odoo. Design and print labels for products,
-        inventory, sales, manufacturing, and barcode operations. Supports one-to-many,
-        many-to-many fields, dynamic content, and custom formats. Works with Zebra and
-        other ZPL-compatible printers. Integrates with Odoo Direct Print PRO for automated printing
-        without IoT Box.
-        Keywords: ZPL Label Designer | Zebra Label Odoo | Thermal Label Designer |
-        Odoo Print Labels | ZPL Editor Odoo | Barcode Label Print | Product Labels Odoo |
-        Print from Odoo | Odoo Label Creator |Odoo Zebra Printer | ZPL Template Odoo |
-        Odoo Manufacturing Labels | Inventory Labeling Odoo | No-Code Label Design |
-        Dynamic ZPL Labels | Custom Labels in Odoo | Direct Print Integration | ZPL Print Odoo |
-        Label Generator for Odoo | Odoo Warehouse Labels
+        No-code ZPL label designer for Odoo. Design and print labels for products, inventory, sales,
+        manufacturing, and barcode operations. Supports one-to-many, many-to-many fields, dynamic content,
+        and custom formats. Works with Zebra and other ZPL-compatible printers. Integrates with Odoo Direct Print PRO
+        for automated printing without IoT Box.
+        Keywords: ZPL Label Designer | Zebra Label Odoo | Thermal Label Designer | Odoo Print Labels |
+        ZPL Editor Odoo | Barcode Label Print | Product Labels Odoo | Print from Odoo | Odoo Label Creator |
+        Odoo Zebra Printer | ZPL Template Odoo | Odoo Manufacturing Labels | Inventory Labeling Odoo |
+        No-Code Label Design | Dynamic ZPL Labels | Custom Labels in Odoo | Direct Print Integration |
+        ZPL Print Odoo | Label Generator for Odoo | Odoo Warehouse Labels | ZPL Designer | Create Label | Stock Label |
+        Lot Label | Serial Label | Odoo ZPL | Designer Label | Creating Label | Create ZPL |
+        Document Label | Package Label | Packaging Label | Price Label
     """,
-    'version': '19.0.1.3.4',
+    'version': '18.0.1.3.5',
     'category': 'Tools',
     "images": ["static/description/images/banner.gif"],
     'author': 'VentorTech',
@@ -53,7 +53,7 @@
     'installable': True,
     'application': True,
     "cloc_exclude": [
-        "**/*",
+        "static/**/*.js",
     ],
     'uninstall_hook': 'uninstall_hook',
     'post_init_hook': 'post_init_hook',

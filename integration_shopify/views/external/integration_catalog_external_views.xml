@@ -48,7 +48,7 @@
             <field name="path">eci-shopify-external-catalogs</field>
             <field name="res_model">integration.catalog.external</field>
             <field name="view_mode">list</field>
-            <field name="group_ids" eval="[(4, ref('base.group_no_one'))]"/>
+            <field name="groups_id" eval="[(4, ref('base.group_no_one'))]"/>
         </record>
 
     </data>

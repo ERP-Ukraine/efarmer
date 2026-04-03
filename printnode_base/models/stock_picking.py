@@ -46,27 +46,10 @@ class StockPicking(models.Model):
 
         return return_label_attachments
 
-    def _compute_state(self):
-        """Override to catch status updates
-        """
-        previous_states = {rec.id: rec.state for rec in self}
+    def _put_in_pack(self, move_line_ids):
+        package = super(StockPicking, self)._put_in_pack(move_line_ids)
 
-        super()._compute_state()
-
-        for record in self:
-            # with_company() used to print on correct printer when calling from scheduled actions
-            if record.id and previous_states.get(record.id) != record.state:
-                record.with_company(record.company_id).print_scenarios(
-                    'print_document_on_picking_status_change')
-
-    def action_put_in_pack(self, *, package_id=False, package_type_id=False, package_name=False):
-        package = super(StockPicking, self).action_put_in_pack(
-            package_id=package_id,
-            package_type_id=package_type_id,
-            package_name=package_name
-        )
-
-        if package and not isinstance(package, dict):
+        if package:
             self.print_scenarios(action='print_package_on_put_in_pack', packages_to_print=package)
 
         return package
@@ -123,7 +106,7 @@ class StockPicking(models.Model):
             return
 
         if not self.shipping_label_ids:
-            return self.print_last_shipping_labels_from_attachments()
+            return self.print_last_shipping_labels_from_attachments(raise_exception=True)
 
         last_label = self.shipping_label_ids[:1]
         start_time = last_label.create_date - timedelta(minutes=5)
@@ -150,7 +133,7 @@ class StockPicking(models.Model):
         for label in self.shipping_label_ids:
             label.print_via_printnode()
 
-    def print_last_shipping_labels_from_attachments(self, raise_exception=True):
+    def print_last_shipping_labels_from_attachments(self, raise_exception=False):
         """
         Print last shipping labels from attachments
         """
@@ -186,9 +169,10 @@ class StockPicking(models.Model):
             params = {
                 'title': doc.name,
                 'type': 'qweb-pdf' if doc.mimetype == 'application/pdf' else 'qweb-text',
+                'source_document': self.mapped('display_name'),
             }
             printer.printnode_print_b64(
-                doc.datas.decode('ascii'), params, check_printer_format=False)
+                doc.datas.decode('ascii'), params, check_printer_format=False, postcommit=False)
 
     def send_to_shipper(self):
         """
@@ -205,11 +189,12 @@ class StockPicking(models.Model):
                 move_lines_without_package = self.move_line_ids_without_package.filtered(
                     lambda l: not l.result_package_id)
                 if move_lines_without_package:
-                    raise UserError(_('Some products on Delivery Order are not in Package. For '
-                                      'printing Package Slips + Shipping Labels, please, put in '
-                                      'pack remaining products. If you want to print only Shipping '
-                                      'Label, please, deactivate "Print Package just after Shipping'
-                                      ' Label" checkbox in PrintNode/Configuration/Settings'))
+                    raise UserError(_('Some products on Delivery Order are not in Package. '
+                                      'For printing Package Slips + Shipping Labels, please, '
+                                      'put in pack remaining products. If you want to print only '
+                                      'Shipping Label, please, deactivate "Print Package just '
+                                      'after Shipping Label" checkbox in Direct Print '
+                                      'PRO -> Configuration -> Settings'))
 
         if auto_print:
             # Simple check if shipping printer set, raise exception if no shipping printer found
@@ -293,11 +278,15 @@ class StockPicking(models.Model):
         """
         Creates shipping labels for the current stock picking record.
         """
+        company = self.env.company
 
         # Splitting tracking references by separator, if there are several of them
-        tracking_list = re.sub(r'[+\-\\,/*\n\t\r]', ' ', self.carrier_tracking_ref).split()
+        keywords = re.sub(r'[+\-\\,/*\n\t\r]', ' ', self.carrier_tracking_ref).split()
 
-        messages_to_parse = self._get_message_to_parse(tracking_list)
+        if company.print_sl_by_keyword and company.company_sl_keyword:
+            keywords.append(company.company_sl_keyword)
+
+        messages_to_parse = self._get_message_to_parse(keywords)
         messages_to_parse = messages_to_parse.filtered('attachment_ids')
 
         # Get return shipping labels
@@ -469,15 +458,17 @@ class StockPicking(models.Model):
     def _scenario_print_packages_label_on_transfer(
         self, report_id, printer_id, number_of_copies=1, **kwargs
     ):
-        packages = self.package_history_ids.package_id
+        packages = self.move_line_ids.result_package_id
 
         if packages:
             print_options = kwargs.get('options', {})
+
             return printer_id.printnode_print(
                 report_id,
                 packages,
                 copies=number_of_copies,
                 options=print_options,
+                data={'source_document': self.mapped('name')},
             )
 
         return False
@@ -492,6 +483,7 @@ class StockPicking(models.Model):
             self,
             copies=number_of_copies,
             options=print_options,
+            data={'source_document': self.mapped('name')},
         )
         return printed
 
@@ -501,7 +493,7 @@ class StockPicking(models.Model):
         """
         Print new packages from stock.picking.
 
-        packages_to_print is a recordset of stock.package to print
+        packages_to_print is a recordset of stock.quant.package to print
         """
         print_options = kwargs.get('options', {})
 
@@ -510,6 +502,7 @@ class StockPicking(models.Model):
             packages_to_print,
             copies=number_of_copies,
             options=print_options,
+            data={'source_document': self.mapped('name')},
         )
 
     def _scenario_print_operations_document_on_transfer(
@@ -558,8 +551,8 @@ class StockPicking(models.Model):
 
         move_lines_qty_done_and_packaging = self.move_line_ids.filtered(
             lambda ml: (
-                ml.move_id.packaging_uom_id
-                and ml.move_id.packaging_uom_id.relative_factor != 0
+                ml.move_id.product_packaging_id
+                and ml.move_id.product_packaging_id.qty != 0
                 and not ml.printnode_printed
                 and ml.quantity > 0
             )
@@ -578,7 +571,7 @@ class StockPicking(models.Model):
 
         # convert number of labels for the line, according to the multiplicity of packaging
         for move_line in move_lines_qty_done_and_packaging:
-            labels_qty = move_line.quantity / move_line.move_id.packaging_uom_id.relative_factor
+            labels_qty = move_line.quantity / move_line.move_id.product_packaging_id.qty
             product_id = move_line.product_id.id
             if isinstance(product_id, int):
                 product_id = str(product_id)
@@ -653,15 +646,15 @@ class StockPicking(models.Model):
                 lots = lots.concat(move_line.lot_id)
 
             if lots:
-                printer_id.printnode_print(
+                printed = printer_id.printnode_print(
                     report_id,
                     lots,
                     copies=copies,
                     options=options,
+                    data={'source_document': self.name},
                 )
 
                 move_line.write({'printnode_printed': True})
-                printed = True
 
         return printed
 
@@ -676,8 +669,8 @@ class StockPicking(models.Model):
         """
         move_lines_with_lots_and_qty_done_and_packaging = new_move_lines.filtered(
             lambda ml: (
-                ml.move_id.packaging_uom_id
-                and ml.move_id.packaging_uom_id.relative_factor != 0
+                ml.move_id.product_packaging_id
+                and ml.move_id.product_packaging_id.qty != 0
                 and ml.lot_id
                 and not ml.printnode_printed
                 and ml.quantity > 0
@@ -686,7 +679,7 @@ class StockPicking(models.Model):
 
         lots = self.env['stock.lot']
         for move_line in move_lines_with_lots_and_qty_done_and_packaging:
-            labels_qty = move_line.quantity / move_line.move_id.packaging_uom_id.relative_factor
+            labels_qty = move_line.quantity / move_line.move_id.product_packaging_id.qty
             for i in range(math.ceil(labels_qty)):
                 lots = lots.concat(move_line.lot_id)
 
@@ -696,6 +689,7 @@ class StockPicking(models.Model):
                 lots,
                 copies=copies,
                 options=options,
+                data={'source_document': self.mapped('name')},
             )
 
             move_lines_with_lots_and_qty_done_and_packaging.write({'printnode_printed': True})
@@ -789,6 +783,9 @@ class StockPicking(models.Model):
         if data['quantity_by_product']:
             data['quantity_by_product'] = self.change_dictionary_keys_type_to_string(
                 data['quantity_by_product'])
+
+        # Add source document
+        data['source_document'] = self.mapped('display_name')
 
         return {
             'printer_id': printer_id,

@@ -8,6 +8,7 @@ class IntegrationECommerceProductCategoryMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'E-Commerce Product Category Mapping'
     _mapping_fields = ('category_id', 'external_category_id')
+    _mapping_label = 'E-Commerce Product Category'
 
     category_id = fields.Many2one(
         string='Odoo E-Commerce Category',

@@ -24,8 +24,8 @@ class ImportExportIntegrationWizard(models.TransientModel):
     _description = 'Import/Export Integration Wizard'
 
     integration_id = fields.Many2one(
-        comodel_name='sale.integration',
         string='E-Commerce Store',
+        comodel_name='sale.integration',
         default=lambda self: self.env.context.get('active_id'),
     )
 

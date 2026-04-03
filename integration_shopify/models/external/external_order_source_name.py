@@ -7,14 +7,17 @@ class ExternalOrderSourceName(models.Model):
     _name = 'external.order.source.name'
     _description = 'Order Source Mapping'
 
-    _external_name_uniq = models.Constraint(
-        'unique (integration_id, external_name)',
-        'Order source names must be unique per integration',
-    )
+    _sql_constraints = [
+        (
+            'external_name_uniq',
+            'unique (integration_id, external_name)',
+            'Order source names must be unique per integration',
+        )
+    ]
 
     integration_id = fields.Many2one(
         comodel_name='sale.integration',
-        string='E-Commerce Store',
+        string='E-Commerce Integration',
         ondelete='cascade',
         help='Associated e-commerce platform integration',
     )
@@ -26,7 +29,7 @@ class ExternalOrderSourceName(models.Model):
     )
 
     name = fields.Char(
-        string='Name',
+        string='Source Name',
         required=True,
         help='User-friendly name for this order source in Odoo',
     )

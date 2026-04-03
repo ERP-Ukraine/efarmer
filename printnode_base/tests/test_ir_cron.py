@@ -58,7 +58,7 @@ class TestPrintNodeIrCron(TestPrintNodeCommon):
         # Set Up
         self._set_up_stock_move()
 
-        # Printnode is disabled at company level - print scenario won't run.
+        # Direct Print is disabled at company level - print scenario won't run.
         # Transaction will be completed.
         self.company.printnode_enabled = False
         self.cron.active = True

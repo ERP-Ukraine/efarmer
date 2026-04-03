@@ -130,13 +130,24 @@
                             </div>
 
                             <div>
-                                <h4 class="mb-3">Example 'odoo.conf' configuration</h4>
+                                <h4 class="mb-3">Example 'odoo.conf' configurations</h4>
+
+                                <h5>Odoo.sh</h5>
 
                                 <ul>
-                                    <li>File Location: Depends on your server configuration (e.g., "/home/odoo/.config/odoo/odoo.conf" for Odoo.sh)</li>
+                                    <li>File Location: "/home/odoo/.config/odoo/odoo.conf"</li>
+                                    <li>Example settings:</li>
+                                        <pre class="mt-2">
+<code><field name="odoosh_template" no_label="1" readonly="1"/></code>
+                                        </pre>
+                                </ul>
+
+                                <h5>Custom server</h5>
+                                <ul>
+                                    <li>File Location: Depends on server configuration</li>
                                     <li>Example settings:</li>
                                     <pre class="mt-2">
-<code><field name="config_template" no_label="1" readonly="1"/></code>
+<code><field name="custom_template" no_label="1" readonly="1"/></code>
                                     </pre>
                                 </ul>
                             </div>

@@ -13,7 +13,7 @@
         </xpath>
 
         <xpath expr="//div[contains(@class, 'o_cp_action_menus')]/div/Dropdown[1]/t/t/DropdownItem[1]" position="after">
-            <t t-if="downloadItems.length">
+            <t t-if="downloadItems &amp;&amp; downloadItems.length">
                 <Dropdown t-if="downloadItems.length > 1">
                     <button>
                         <i class="small me-1 fa fa-download"/>

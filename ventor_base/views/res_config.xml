@@ -12,31 +12,6 @@
                      name="ventor_base"
                      groups="stock.group_stock_manager">
 
-                    <h2>Ventor Access Configuration</h2>
-                    <div class="row mt16 o_settings_container" name="ventor_access_configuration">
-                        <div class="col-12 col-lg-6 o_setting_box">
-                            <div class="o_setting_right_pane">
-                                <div class="content-group">
-                                    <button name="add_ventor_access"
-                                        string="Provide Access"
-                                        type="object"
-                                        class="btn btn-outline-primary me-2"/>
-                                        <strong>
-                                            <field name="ventor_access_status"
-                                                    readonly="1"
-                                                    decoration-success="ventor_access_status == 'Access is provided'"
-                                                    decoration-danger="ventor_access_status != 'Access is provided'"/>
-                                        </strong>
-                                    <div class="mt-2 mb-2 d-block">
-                                        <small>
-                                            <strong>NOTE:</strong> Allows Ventor Pro users to connect to Odoo.
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <h2>Ventor Application modules</h2>
                     <div class="row mt16 o_settings_container">
                         <div class="col-12 col-lg-6 o_setting_box">

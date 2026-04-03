@@ -5,11 +5,11 @@ import { MockServer } from "@web/../tests/helpers/mock_server";
 
 patch(MockServer.prototype, {
     /**
-     * Simulate the `systray_get_integrations` route response to render StatusMenu
+     * Simulate the `get_status_menu_data` route response to render StatusMenu
      * @override
      */
     async _performRPC(route, args) {
-        if (args.model === 'sale.integration' && args.method === 'systray_get_integrations') {
+        if (args.model === 'sale.integration' && args.method === 'get_status_menu_data') {
             return Promise.resolve([]);
         }
         return super._performRPC(...arguments);

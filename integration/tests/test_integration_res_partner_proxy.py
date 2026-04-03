@@ -4,17 +4,25 @@ from unittest.mock import patch
 
 from odoo import models
 from odoo.tests import tagged
-from .config.integration_init import OdooIntegrationInit
+from .config.integration_init import OdooIntegrationInit, load_xml
 
 
 @tagged('post_install', '-at_install', 'test_integration_partner_proxy')
 class TestIntegrationResPartnerProxy(OdooIntegrationInit):
 
-    def setUp(self):
-        super().setUp()
-
-        self.factory = self.env['integration.res.partner.factory'].create({
-            'integration_id': self.integration_no_api_1.id,
+    @classmethod
+    def setUpClass(cls):
+        super(TestIntegrationResPartnerProxy, cls).setUpClass()
+        # Load base integration XML data first (needed for refs)
+        load_xml(
+            cls.env,
+            module='integration',
+            path_file='tests/data',
+            filename='init_sale_integration.xml',
+        )
+        integration_no_api_1 = cls.env.ref('integration.integration_no_api_1')
+        cls.factory = cls.env['integration.res.partner.factory'].create({
+            'integration_id': integration_no_api_1.id,
         })
 
     def _create_proxy(self, type_: str, data: dict) -> models.Model:
@@ -192,7 +200,7 @@ class TestIntegrationResPartnerProxy(OdooIntegrationInit):
         """Test creating shipping address proxy."""
         data = {
             'person_name': 'Diana Prince',
-            'phone': '+4915712345678',
+            'mobile': '+4915712345678',
             'zip': '10115',
         }
 
@@ -200,7 +208,7 @@ class TestIntegrationResPartnerProxy(OdooIntegrationInit):
 
         self.assertTrue(proxy)
         self.assertEqual(proxy.type, 'shipping_address')
-        self.assertIn('+49', proxy.phone)
+        self.assertIn('+49', proxy.mobile)
 
     def test_external_id_set_for_customer_type(self):
         """Test that external_id is set from data['id'] for customer type."""
@@ -728,3 +736,45 @@ class TestIntegrationResPartnerProxy(OdooIntegrationInit):
 
         self.assertTrue(partner.is_company)
         self.assertEqual(partner.name, 'Skip Individual Corp')
+
+    def test_archived_mapped_partner_is_ignored_and_new_contact_created(self):
+        """If mapped partner is archived, mapping must be ignored and a new partner must be created."""
+        # Archived partner that is currently mapped
+        archived_partner = self.env['res.partner'].create({
+            'name': 'Archived Mapped Contact',
+            'is_company': False,
+            'company_id': self.company_id_1.id,
+            'active': False,
+            'email': 'archived@example.com',
+        })
+
+        ext_record = self.env['integration.res.partner.external'].create({
+            'integration_id': self.integration_no_api_1.id,
+            'code': 'ext-arch-1',
+            'name': archived_partner.name,
+        })
+
+        mapping = self.env['integration.res.partner.mapping'].create({
+            'integration_id': self.integration_no_api_1.id,
+            'external_partner_id': ext_record.id,
+            'partner_id': archived_partner.id,
+        })
+
+        # Proxy that will try to use mapping by external_id
+        proxy = self._create_proxy('customer', {
+            'id': 'ext-arch-1',
+            'person_name': 'John New',
+            'email': 'john.new@example.com',
+        })
+        self.assertTrue(proxy)
+
+        partner = proxy.get_or_create_partner()
+
+        # Must not reuse archived mapped partner
+        self.assertTrue(partner)
+        self.assertNotEqual(partner.id, archived_partner.id)
+        self.assertTrue(partner.active)
+
+        # Mapping must be updated to the new partner (same record, partner_id rewritten)
+        mapping.invalidate_recordset()
+        self.assertEqual(mapping.partner_id.id, partner.id)

@@ -124,13 +124,13 @@ class TestPrintNodeScenario(TestPrintNodeCommon):
         company.printnode_enabled = False
 
         user = self.env.user = self.user
-        user.group_ids = None
+        user.groups_id = None
         user.printnode_enabled = False
 
         self.assertFalse(self.scenario.print_reports('something', []))
 
         company.printnode_enabled = True
-        user.group_ids = [(6, 0, [self.env.ref(SECURITY_GROUP).id])]
+        user.groups_id = [(6, 0, [self.env.ref(SECURITY_GROUP).id])]
         user.printnode_enabled = True
 
         self.scenario.active = True
@@ -151,6 +151,7 @@ class TestPrintNodeScenario(TestPrintNodeCommon):
                 self.sale_order,
                 copies=1,
                 options={'bin': self.printer_bin.name},
+                data={'source_document': self.sale_order.mapped('name')},
             )
 
         # Expected to call a special method for printing

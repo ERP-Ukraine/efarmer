@@ -56,14 +56,18 @@ class TestPrintNodePrinter(TestPrintNodeCommon):
         """
 
         objects = self.report
-        test_str1 = f'{objects.display_name}_1'
+        test_str1 = f'{objects.display_name} (Model Overview objects, 1 copies)'
         title_str = self.printer._format_title(objects, 1)
-        self.assertEqual(test_str1, title_str, "Wrong make title string")
+        self.assertEqual(test_str1, title_str, "Model Overview (Model Overview objects, 1 copies)")
 
         objects += objects
-        test_str2 = f'{objects._description}_2_1'
+        test_str2 = f"{objects._description} (2 records, ['Model Overview', 'Model Overview'] objects, 1 copies)"
         title_str = self.printer._format_title(objects, 1)
-        self.assertEqual(test_str2, title_str, "Wrong make title string")
+        self.assertEqual(
+            test_str2,
+            title_str,
+            "Report Action (2 records, ['Model Overview', 'Model Overview'] objects, 1 copies)",
+        )
 
     def test_compute_print_rules(self):
         """
@@ -174,36 +178,63 @@ class TestPrintNodePrinter(TestPrintNodeCommon):
         printnode_check methods
         """
 
-        params = {}
+        params = {
+            'copies': 1,
+            'title': None,
+            'source_document': self.test_sale_order.name,
+            'type': 'raw_base64',
+            'options': {},
+            'report_name': self.report.name,
+        }
+
         print_b64_data = {
             'printerId': 0,
             'qty': 1,
             'title': None,
             'source': self.printer._get_source_name(),
+            'source_document': self.test_sale_order.name,
             'contentType': 'raw_base64',
             'content': ASCII_DATA,
-            'options': params,
+            'options': {},
+            'report_name': self.report.name,
         }
 
         # Printnode_check returned None
-        # Expect called _post_printnode_job method
+        # Expect scheduled post-commit callback that calls `_post_printnode_job(...)`
         mock_printnode_job = self._create_patch_object(type(self.printer), '_post_printnode_job')
         mock_printnode_check = self._create_patch_object(type(self.printer), 'printnode_check')
         mock_printnode_check.return_value = None
 
+        # IMPORTANT: patch `add` on the Callbacks class, not on the instance (instance attr is read-only).
+        mock_postcommit_add = self._create_patch_object(type(self.env.cr.postcommit), 'add')
+
         self.printer.printnode_print_b64(ASCII_DATA, params)
 
         self.assertEqual(mock_printnode_check.call_args_list, [call(report=params)])
+
+        # `_post_printnode_job` must not run immediately.
+        mock_printnode_job.assert_not_called()
+
+        # Manually execute OUR post-commit callback (Odoo may register other callbacks as well).
+        callbacks = [c.args[0] for c in mock_postcommit_add.call_args_list]
+
+        for cb in callbacks:
+            mock_printnode_job.reset_mock()
+            cb()
+            if mock_printnode_job.call_count == 1:
+                break
+
         mock_printnode_job.assert_called_once_with(print_b64_data)
 
         # Printnode_check returned an error
-        # Expect UserError
+        # Expect UserError (and no new post-commit job scheduled/executed)
         params.update({'set_error': 'testError'})
         mock_printnode_check.return_value = 'Test_Error'
 
         with self.cr.savepoint(), self.assertRaises(UserError) as err:
             self.printer.printnode_print_b64(ASCII_DATA, params)
 
+        # Still only one job call overall (from the first "success" case).
         mock_printnode_job.assert_called_once()
         self.assertEqual(mock_printnode_check.call_count, 2)
         self.assertEqual('Test_Error', err.exception.args[0])
@@ -222,22 +253,45 @@ class TestPrintNodePrinter(TestPrintNodeCommon):
         params = {}
         print_data = {
             'printerId': 0,
-            'title': 'Test SO_1',
+            'title': self.printer._format_title(self.test_sale_order, 1),
             'source': self.printer._get_source_name(),
+            'source_document': None,
             'contentType': 'pdf_base64',
             'content': base64.b64encode(content).decode('ascii'),
             'qty': 1,
             'options': params,
+            'report_name': self.so_report.display_name,
         }
 
         with self.cr.savepoint(), patch.object(type(self.printer), '_post_printnode_job') \
                 as mock_printnode_job, patch.object(type(self.printer), 'printnode_check_report') \
-                as mock_printnode_check_report:
+                as mock_printnode_check_report, patch.object(type(self.env.cr.postcommit), 'add') \
+                as mock_postcommit_add:
+
             mock_printnode_check_report.return_value = None
 
             self.printer.printnode_print(self.so_report, self.test_sale_order)
 
+            # Report check is executed immediately
             mock_printnode_check_report.assert_called_once_with(self.so_report)
-            mock_printnode_job.assert_called_once_with(print_data)
 
-        self.assertTrue(self.test_sale_order.printnode_printed)
+            # Print job is scheduled for post-commit execution, not executed immediately
+            mock_printnode_job.assert_not_called()
+
+            # Find OUR post-commit callback among all callbacks registered in this transaction.
+            # Odoo can register additional post-commit callbacks (e.g. mail tracking finalize).
+            callbacks = [c.args[0] for c in mock_postcommit_add.call_args_list]
+
+            # Our callback is the one that, once executed, calls `_post_printnode_job(...)`.
+            postcommit_callback = None
+            for cb in callbacks:
+                mock_printnode_job.reset_mock()
+                cb()
+                if mock_printnode_job.call_count == 1:
+                    postcommit_callback = cb
+                    break
+
+            self.assertIsNotNone(postcommit_callback, "PrintNode post-commit callback was not registered")
+
+            # After executing OUR callback, the print job must be sent with correct payload
+            mock_printnode_job.assert_called_once_with(print_data)

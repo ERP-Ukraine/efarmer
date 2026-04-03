@@ -2,19 +2,29 @@
 Odoo E-Commerce Connector Core
 ==============================
 
-|
-|
-
 Get Support & Access Documentation
 ----------------------------------
 
 Having trouble or want to explore detailed documentation? Visit our support portal for in-depth guides, FAQs, and the ability to contact our support team: https://support.ventor.tech/
 
-|
-|
-
 Release Notes
 -------------
+
+* 2.1.1 (2026-03-01)
+    - [NEW] Added "Export Inventory Now" button to the Inventory tab, allowing users to manually trigger a full inventory export for all products at any time — regardless of the Scheduled Inventory Sync setting. The export runs in batches as background jobs, the same way the scheduled action does.
+    - [NEW] Added "Run Now" button on background jobs (available in debug mode), allowing jobs to be executed in real time instead of being queued. This is primarily intended to simplify debugging and issue investigation.
+    - [IMP] Added pre-defined filters "Mapped to Store(s)" and "Not Mapped to any Store" on the product list, making it easier to identify which products are synchronized with your e-commerce store and which still require mapping.
+    - [FIX] Fixed an issue where external records for newly created categories did not have the parent category set, causing inconsistency with imported categories where the parent was correctly assigned.
+    - [FIX] Other improvements and fixes implemented to boost overall performance, stability, and reliability.
+
+* 2.1.0 (2026-02-18)
+    - [IMP] Enhanced UI/UX across connector views, based on customer feedback. The Status menu is now more functional, with quick access to unmapped records, store connections, and other key areas. The connections Kanban view was also improved, including a small 7-day orders chart and overall usability refinements to make daily monitoring and navigation more efficient.
+    - [IMP] Improved initial product import batching logic. When importing products in batches, the connector now processes all valid products even if some items contain errors (e.g., missing or duplicated SKU). Problematic products are automatically grouped into a separate background job with a clear error message, allowing users to fix issues and requeue only the affected records - without blocking the entire batch.
+    - [IMP] Improved multi-company product synchronization logic. The connector now validates the company on products during synchronization, ensuring that only products belonging to the integration’s company (or with no company set) are used. A new "Apply Company on Product" option was also added (disabled by default). When enabled, newly created products will automatically inherit the connection’s company, helping maintain clean and consistent multi-company data separation.
+    - [FIX] Resolved an issue in the auto-workflow picking validation that could cause an infinite loop when button_validate() returned a wizard instead of completing the transfer. The connector now correctly stops auto-validation in such cases, preventing repeated background job execution while preserving normal validation behavior.
+    - [FIX] Improved contact handling during order import. If a previously mapped Odoo contact is archived, the connector now ignores the existing mapping and creates a new active contact instead of assigning the archived one to the Sales Order.
+    - [FIX] Improved translation handling on imported Sales Orders. Order lines now consistently use the customer’s language (not the Odoo UI language), including product names and discount line descriptions (e.g., "Discount for ..."). The connector also includes safe fallbacks when customer language or translations are missing.
+    - [FIX] Other improvements and fixes implemented to boost overall performance, stability, and reliability.
 
 * 2.0.0 (2026-01-23)
     - [BREAKING] This is a major release with backward-incompatible changes. Please review the `release notes <https://ecosystem.ventor.tech/faq/release-notes/>`__ before upgrading.
@@ -24,6 +34,7 @@ Release Notes
     - [FIX] Other improvements and fixes implemented to boost overall performance, stability, and reliability.
 
 * 1.19.2 (2025-12-13)
+    - [IMP] Prepared connectors for Odoo 19.0 compatibility to ensure a smooth migration using special upgrade module. These changes align connector logic with Odoo 19.0's new e-commerce data models, making it easier and safer for customers to upgrade product categories and images during migration.
     - [FIX] Fixed an issue with order status export where multiple rapid status changes could be ignored. The connector now creates a separate background job for each status update, ensuring all changes are exported in the correct sequence to the e-commerce store.
 
 * 1.19.1 (2025-11-27)

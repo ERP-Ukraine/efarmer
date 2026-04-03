@@ -9,6 +9,7 @@ class IntegrationAccountTaxMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'Integration Account Tax Mapping'
     _mapping_fields = ('tax_id', 'external_tax_id')
+    _mapping_label = 'Tax'
 
     tax_id = fields.Many2one(
         string='Odoo Tax',

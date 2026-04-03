@@ -3,7 +3,7 @@
 
 {
     "name": "eFarmer Purchase",
-    "version": "19.0.1.3.0",
+    "version": "18.0.1.3.0",
     "category": "Other",
     "author": "VentorTech",
     "website": "https://ventor.tech",

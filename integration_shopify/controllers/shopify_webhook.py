@@ -19,7 +19,7 @@ _logger = logging.getLogger(__name__)
 class ShopifyWebhook(Controller, IntegrationWebhook):
 
     _kwargs = {
-        'type': 'jsonrpc',
+        'type': 'json',
         'auth': 'none',
         'methods': ['POST'],
         'csrf': False,

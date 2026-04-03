@@ -8,6 +8,7 @@ class IntegrationProductPricelistMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'Integration Product Pricelist Mapping'
     _mapping_fields = ('pricelist_id', 'external_pricelist_id')
+    _mapping_label = 'Pricelist'
 
     pricelist_id = fields.Many2one(
         string='Odoo Pricelist',
@@ -26,13 +27,9 @@ class IntegrationProductPricelistMapping(models.Model):
         external = self.external_pricelist_id
         job_kwargs = external._job_kwargs_import_special_prices(self.pricelist_id)
 
-        context = {
-            'company_id': self.integration_id.company_id.id,
-            'job_integration_id': self.integration_id.id,
-            'job_integration_job_type': 'pricelist',
-        }
-        external.with_context(**context) \
+        job = external.with_context(company_id=self.integration_id.company_id.id) \
             .with_delay(**job_kwargs).import_special_prices_external()
+        external.job_log(job)
 
         return {
             'type': 'ir.actions.client',

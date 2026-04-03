@@ -2,7 +2,7 @@
 
 <odoo>
     <data>
-        <!-- Views-->
+<!-- Views-->
         <record id='ventor_settings_tree_view' model='ir.ui.view'>
             <field name="name">Ventor Settings</field>
             <field name="model">ventor.option.setting</field>
@@ -11,7 +11,7 @@
                 <list create="false" editable="top">
                     <field name="name" readonly="1"/>
                     <field name="technical_name" readonly="1"/>
-                    <field name="settings_dependency" column_invisible="1"/>
+                    <field name="settings_dependency" invisible="1"/>
                     <field name="value" readonly="technical_name == 'show_next_product'" options="{'no_create': True, 'no_open': True}"/>
                     <field name="value_type" readonly="1" groups="base.group_no_one"/>
                     <field name="action_type" readonly="1" groups="base.group_no_one"/>
@@ -20,7 +20,7 @@
             </field>
         </record>
 
-        <!-- Actions-->
+<!-- Actions-->
         <record id='ventor_package_management_action' model='ir.actions.act_window'>
             <field name="name">Package Management</field>
             <field name="res_model">ventor.option.setting</field>
@@ -138,26 +138,23 @@
             <field name="domain">[('action_type', '=', 'rfid')]</field>
         </record>
 
-        <record id='ventor_order_recheck' model='ir.actions.act_window'>
-            <field name="name">Order Recheck</field>
-            <field name="res_model">ventor.option.setting</field>
-            <field name="view_mode">list</field>
-            <field name="usage">menu</field>
-            <field name="view_id" ref="ventor_settings_tree_view"/>
-            <field name="domain">[('action_type', '=', 'order_recheck')]</field>
-        </record>
-
-        <!-- Menus -->
+<!-- Menus -->
         <menuitem name="Package Management"
                   id="ventor_package_management_app_menu"
                   parent="ventor_base.ventor_settings_app_menu"
                   action="ventor_package_management_action"
-                  sequence="2"/>
+                  sequence="1"/>
 
         <menuitem name="Batch Picking"
                   id="ventor_batch_picking_app_menu"
                   parent="ventor_base.ventor_settings_app_menu"
                   action="ventor_batch_picking_action"
+                  sequence="2"/>
+
+        <menuitem name="Wave Picking"
+                  id="ventor_wave_picking_app_menu"
+                  parent="ventor_base.ventor_settings_app_menu"
+                  action="ventor_wave_picking_action"
                   sequence="3"/>
 
         <menuitem name="Cluster Picking"
@@ -166,22 +163,22 @@
                   action="ventor_cluster_picking_action"
                   sequence="4"/>
 
-        <menuitem name="Wave Picking"
-                  id="ventor_wave_picking_app_menu"
-                  parent="ventor_base.ventor_settings_app_menu"
-                  action="ventor_wave_picking_action"
-                  sequence="5"/>
-
         <menuitem name="Internal Transfers"
                   id="ventor_internal_transfers_app_menu"
                   parent="ventor_base.ventor_settings_app_menu"
                   action="ventor_internal_transfers_action"
-                  sequence="6"/>
+                  sequence="5"/>
 
         <menuitem name="Putaway"
                   id="ventor_putaway_app_menu"
                   parent="ventor_base.ventor_settings_app_menu"
                   action="ventor_putaway_action"
+                  sequence="6"/>
+
+        <menuitem name="Inventory Adjustments"
+                  id="ventor_inventory_adjustments_app_menu"
+                  parent="ventor_base.ventor_settings_app_menu"
+                  action="ventor_inventory_adjustments_action"
                   sequence="7"/>
 
         <menuitem name="Instant Inventory"
@@ -190,16 +187,16 @@
                   action="ventor_instant_inventory_action"
                   sequence="8"/>
 
-        <menuitem name="Inventory Adjustments"
-                  id="ventor_inventory_adjustments_app_menu"
-                  parent="ventor_base.ventor_settings_app_menu"
-                  action="ventor_inventory_adjustments_action"
-                  sequence="9"/>
-
         <menuitem name="Quick info"
                   id="ventor_quick_info_app_menu"
                   parent="ventor_base.ventor_settings_app_menu"
                   action="ventor_quick_info_action"
+                  sequence="9"/>
+
+        <menuitem name="Scrap Management"
+                  id="ventor_scrap_management_app_menu"
+                  parent="ventor_base.ventor_settings_app_menu"
+                  action="ventor_scrap_management_action"
                   sequence="10"/>
 
         <menuitem name="Create SO"
@@ -214,22 +211,10 @@
                   action="ventor_create_po_action"
                   sequence="12"/>
 
-        <menuitem name="Scrap Management"
-                  id="ventor_scrap_management_app_menu"
-                  parent="ventor_base.ventor_settings_app_menu"
-                  action="ventor_scrap_management_action"
-                  sequence="14"/>
-
         <menuitem name="RFID Inventory Adjustments"
                   id="ventor_rfid_app_menu"
                   parent="ventor_base.ventor_settings_app_menu"
                   action="ventor_rfid_action"
-                  sequence="15"/>
-
-        <menuitem name="Order Recheck"
-                  id="ventor_order_recheck_app_menu"
-                  parent="ventor_base.ventor_settings_app_menu"
-                  action="ventor_order_recheck"
-                  sequence="16"/>
+                  sequence="13"/>
     </data>
 </odoo>

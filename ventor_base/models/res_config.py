@@ -47,12 +47,6 @@ class VentorConfigSettings(models.TransientModel):
         config_parameter='ventor_base.custom_package_name',
     )
 
-    ventor_access_status = fields.Char(
-        string='Ventor Access Status',
-        compute='_compute_ventor_access_status',
-        compute_sudo=True,
-    )
-
     @api.onchange('module_outgoing_routing')
     def _onchange_module_outgoing_routing(self):
         if self.module_outgoing_routing:
@@ -78,34 +72,6 @@ class VentorConfigSettings(models.TransientModel):
         full_version = result and result[0]
         split_value = full_version and full_version.split('.')
         self.base_version = split_value and '.'.join(split_value[-3:])
-
-    @api.depends('company_id')
-    def _compute_ventor_access_status(self):
-        models_to_check = ['ir.model.fields', 'ir.model.data']
-        group_user = self.env.ref('base.group_user', raise_if_not_found=False)
-
-        for record in self:
-            status = 'Access is not provided'
-
-            if group_user:
-                access_records = self.env['ir.model.access'].search([
-                    ('model_id.model', 'in', models_to_check),
-                    ('group_id', '=', group_user.id)
-                ])
-                if access_records and all(access_records.mapped('perm_read')):
-                    status = 'Access is provided'
-
-            record.ventor_access_status = status
-
-    def add_ventor_access(self):
-        models_to_update = ['ir.model.fields', 'ir.model.data']
-        group_user = self.env.ref('base.group_user', raise_if_not_found=False)
-
-        if group_user:
-            self.env['ir.model.access'].sudo().search([
-                ('model_id.model', 'in', models_to_update),
-                ('group_id', '=', group_user.id),
-            ]).write({'perm_read': True})
 
     @api.model
     def get_values(self):

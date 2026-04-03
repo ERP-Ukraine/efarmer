@@ -90,11 +90,11 @@ def cached(func):
 
 class DashboardController(Controller):
 
-    @route('/integration-dashboard/get-active-integrations', type='jsonrpc', auth='user')
+    @route('/integration-dashboard/get-active-integrations', type='json', auth='user')
     def integration_dashboard_get_active_integrations(self) -> list:
         return request.env['sale.integration'].get_active_integrations()
 
-    @route(f'/integration-dashboard/{SALE_CARDS_TYPE}', type='jsonrpc', auth='user')
+    @route(f'/integration-dashboard/{SALE_CARDS_TYPE}', type='json', auth='user')
     @cached
     def integration_dashboard_get_sales_cards(
         self,
@@ -153,7 +153,7 @@ class DashboardController(Controller):
 
         return data
 
-    @route(f'/integration-dashboard/{SALE_DATA_TYPE}', type='jsonrpc', auth='user')
+    @route(f'/integration-dashboard/{SALE_DATA_TYPE}', type='json', auth='user')
     @cached
     def integration_dashboard_get_sales_data(
         self,
@@ -179,7 +179,7 @@ class DashboardController(Controller):
 
         return data
 
-    @route(f'/integration-dashboard/{TOP_PRODUCTS_TYPE}', type='jsonrpc', auth='user')
+    @route(f'/integration-dashboard/{TOP_PRODUCTS_TYPE}', type='json', auth='user')
     @cached
     def integration_dashboard_get_top_products(
         self,
@@ -197,7 +197,7 @@ class DashboardController(Controller):
 
         return {'products': products_data} if products_data else {}
 
-    @route(f'/integration-dashboard/{STORE_PERFORMANCE_TYPE}', type='jsonrpc', auth='user')
+    @route(f'/integration-dashboard/{STORE_PERFORMANCE_TYPE}', type='json', auth='user')
     @cached
     def integration_dashboard_get_store_performance(
         self,

@@ -25,7 +25,6 @@ class VentorOptionSetting(models.Model):
             ('create_so', 'Create SO'),
             ('create_po', 'Create PO'),
             ('rfid', 'RFID'),
-            ('order_recheck', 'Order Recheck'),
         ], required=True
     )
     description = fields.Text()
@@ -48,7 +47,7 @@ class VentorOptionSetting(models.Model):
 
     @api.onchange('value')
     def _onchange_value(self):
-        if self.technical_name in ('confirm_source_location', 'change_source_location', 'scan_source_location_once'):
+        if self.technical_name in ('confirm_source_location', 'change_source_location'):
             return self._set_change_source_location()
         elif self.technical_name in ('add_boxes_before_cluster', 'multiple_boxes_for_one_transfer'):
             return self._set_add_boxes_before_cluster()
@@ -71,12 +70,8 @@ class VentorOptionSetting(models.Model):
             return self.set_reusable_packages_related_fields(self._get_group_settings_value('stock.group_tracking_lot'))
         elif self.technical_name in ('confirm_destination_location'):
             self._set_confirm_destination_location_cluster_picking_fields()
-        elif self.technical_name in ('hide_products_quantity', 'start_inventory_with_one', 'start_count_from_zero'):
+        elif self.technical_name in ('hide_products_quantity', 'start_inventory_with_one'):
             return self._set_start_inventory_with_one_fields()
-        elif self.technical_name in ('quality_check_per_product_line'):
-            return self._set_quality_check_per_product_line()
-        elif self.technical_name in ('group_lines', 'transfer_more_items', 'behavior_on_split_operation'):
-            return self._set_move_more_than_planned()
 
     def _get_group_settings_value(self, key):
         internal_user_groups = self.env.ref('base.group_user').implied_ids
@@ -114,7 +109,6 @@ class VentorOptionSetting(models.Model):
             'create_so',
             'create_po',
             'rfid',
-            'order_recheck',
         ]
         ventor_option_settings = self.env['ventor.option.setting'].search([])
 
@@ -151,52 +145,24 @@ class VentorOptionSetting(models.Model):
                 self.value = self.env.ref('ventor_base.bool_false')
 
     def _set_change_source_location(self):
-        change_source_location = self.get_setting_field('change_source_location')
-        confirm_source_location = self.get_setting_field('confirm_source_location')
-        scan_source_location_once = self.get_setting_field('scan_source_location_once')
-
         if self.technical_name == 'confirm_source_location' and self.value == self.env.ref('ventor_base.bool_false'):
+            change_source_location = self.get_setting_field('change_source_location')
             change_source_location.value = self.env.ref('ventor_base.bool_false')
-            scan_source_location_once.value = self.env.ref('ventor_base.bool_false')
-
             return self._get_warning(_(
                 'Because you changed "​Confirm source location" to False, '
                 'automatically the following settings were also changed: '
                 '\n- "Change source location" was changed to False'
-                '\n- "Scan source location once" was changed to False'
             ))
-
         elif self.technical_name == 'change_source_location' and self.value == self.env.ref('ventor_base.bool_true'):
+            confirm_source_location = self.get_setting_field('confirm_source_location')
             if confirm_source_location.value == self.env.ref('ventor_base.bool_false'):
                 self.value = self.env.ref('ventor_base.bool_false')
-                return self._get_warning(_(
-                    'You cannot change "Change source location" to True, '
-                    'because you have the "​Confirm source location" setting disabled.'
-                ))
-
-        elif self.technical_name == 'scan_source_location_once' and self.value == self.env.ref('ventor_base.bool_true'):
-            if confirm_source_location.value == self.env.ref('ventor_base.bool_false'):
-                self.value = self.env.ref('ventor_base.bool_false')
-                return self._get_warning(_(
-                    'You cannot change "Scan source location once" to True, '
-                    'because you have the "​Confirm source location" setting disabled.'
-                ))
 
     def _set_confirm_destination_location_cluster_picking_fields(self):
         if self.value == self.env.ref('ventor_base.bool_true') and self.action_type == 'cluster_picking':
             use_reusable_packages = self.get_setting_field('use_reusable_packages')
             if use_reusable_packages.value == self.env.ref('ventor_base.bool_true'):
                 self.value = self.env.ref('ventor_base.bool_false')
-
-    def _set_quality_check_per_product_line(self):
-        is_qc_module_installed = self.is_module_installed('quality_control')
-        if not is_qc_module_installed and self.value == self.env.ref('ventor_base.bool_true'):
-            self.value = self.env.ref('ventor_base.bool_false')
-            return {'warning': {
-                'title': _("Warning"),
-                'message': _("To enable the '%s' setting, you must install the Quality Control module.",
-                            self.name),
-            }}
 
     def set_hold_destination_location_fields(self):
         if self.technical_name == 'move_multiple_products' and self.value == self.env.ref('ventor_base.bool_true'):
@@ -216,34 +182,6 @@ class VentorOptionSetting(models.Model):
     def set_manage_product_owner_fields(self, group_stock_tracking_owner):
         if not group_stock_tracking_owner and self.value == self.env.ref('ventor_base.bool_true'):
             self.value = self.env.ref('ventor_base.bool_false')
-
-    def _set_move_more_than_planned(self):
-        if self.value == self.env.ref('ventor_base.bool_true'):
-            transfer_more_items = self.get_setting_field('transfer_more_items')
-            if transfer_more_items.value == self.env.ref('ventor_base.bool_true'):
-                transfer_more_items.value = self.env.ref('ventor_base.bool_false')
-                return self._get_warning(_(
-                    'Because you changed "Group lines" to True, '
-                    'automatically the following settings were also changed: '
-                    '\n- "​Move more than planned" was changed to False'
-                ))
-
-        if self.technical_name == 'transfer_more_items' and self.value == self.env.ref('ventor_base.bool_true'):
-            group_lines = self.get_setting_field('group_lines')
-            if group_lines.value == self.env.ref('ventor_base.bool_true'):
-                self.value = self.env.ref('ventor_base.bool_false')
-                return self._get_warning(_(
-                    'You cannot change "Move more than planned" to True, '
-                    'because you have the "Group lines" setting enabled.'
-                ))
-
-        if self.technical_name == 'behavior_on_split_operation':
-            group_lines = self.get_setting_field('group_lines')
-            if group_lines.value == self.env.ref('ventor_base.bool_true'):
-                return self._get_warning(_(
-                    'The "Behavior on split operation" setting will not be applied '
-                    'because the "Group lines" setting is set to True'
-                ))
 
     def set_related_package_fields(self, group_stock_tracking_lot):
         if not group_stock_tracking_lot:
@@ -302,31 +240,16 @@ class VentorOptionSetting(models.Model):
             ))
 
     def _set_start_inventory_with_one_fields(self):
-        start_inventory_with_one = self.get_setting_field('start_inventory_with_one')
-        hide_products_quantity = self.get_setting_field('hide_products_quantity')
-        start_count_from_zero = self.get_setting_field('start_count_from_zero')
-
-        # Dependency between "Hide products quantity" and "Start inventory with 1"
         if self.action_type == 'instant_inventory' and self.value == self.env.ref('ventor_base.bool_true'):
+            start_inventory_with_one = self.get_setting_field('start_inventory_with_one')
             if start_inventory_with_one.value == self.env.ref('ventor_base.bool_false'):
                 start_inventory_with_one.value = self.env.ref('ventor_base.bool_true')
         if self.technical_name == 'start_inventory_with_one' and self.value == self.env.ref('ventor_base.bool_false'):
+            hide_products_quantity = self.get_setting_field('hide_products_quantity')
             if hide_products_quantity.value == self.env.ref('ventor_base.bool_true'):
                 self.value = self.env.ref('ventor_base.bool_true')
                 return self._get_warning(_(
                         'You cannot change "Start inventory with 1" to False, '
-                        'because you have the "Hide products quantity" setting enabled.'
-                    ))
-
-        # Dependency between "Hide products quantity" and "Start count from zero"
-        if self.technical_name == 'hide_products_quantity' and self.value == self.env.ref('ventor_base.bool_true'):
-            if start_count_from_zero.value == self.env.ref('ventor_base.bool_false'):
-                start_count_from_zero.value = self.env.ref('ventor_base.bool_true')
-        if self.technical_name == 'start_count_from_zero' and self.value == self.env.ref('ventor_base.bool_false'):
-            if hide_products_quantity.value == self.env.ref('ventor_base.bool_true'):
-                self.value = self.env.ref('ventor_base.bool_true')
-                return self._get_warning(_(
-                        'You cannot change "Start count from zero" to False, '
                         'because you have the "Hide products quantity" setting enabled.'
                     ))
 

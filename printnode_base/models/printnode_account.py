@@ -16,11 +16,11 @@ except ImportError:
 
 
 class PrintNodeAccount(models.Model):
-    """ PrintNode Account entity
+    """ Direct Print Account entity
     """
     _name = 'printnode.account'
     _inherit = 'printnode.logger.mixin'
-    _description = 'PrintNode Account'
+    _description = 'Direct Print Account'
 
     alias = fields.Char(
         string='Alias'
@@ -59,7 +59,7 @@ class PrintNodeAccount(models.Model):
         readonly=True,
     )
 
-    printnode_id = fields.Integer('Direct Print ID')
+    printnode_id = fields.Integer('Account ID')
 
     status = fields.Char(
         string='Status',
@@ -78,25 +78,15 @@ class PrintNodeAccount(models.Model):
         default=False,
     )
 
-    is_allowed_to_collect_data = fields.Boolean(
-        "Allow to collect stats",
-        default=False,
-    )
-
     is_scales_debug_enabled = fields.Boolean(
         "Is Scales Debug Enabled",
         default=False,
     )
 
-    _unique_printnode_id = models.Constraint(
-        'UNIQUE(printnode_id)',
-        'Account already exists.',
-    )
-
-    _unique_api_key = models.Constraint(
-        'UNIQUE(api_key)',
-        'API Key (token) must be unique.',
-    )
+    _sql_constraints = [
+        ('printnode_id', 'unique(printnode_id)', 'Account already exists.'),
+        ('api_key', 'unique(api_key)', 'API Key (token) must be unique.'),
+    ]
 
     @api.model_create_multi
     def create(self, vals):
@@ -144,12 +134,12 @@ class PrintNodeAccount(models.Model):
         # Any request errors
         if not response:
             # No response means that DPC API is not responding or something went wrong.
-            # It is better to try activate through PrintNode API instead of activation error
+            # It is better to try activate through Direct Print API instead of activation error
 
             # We do not know for sure
             self.is_dpc_account = None
 
-            # But can try to activate through PrintNode
+            # But can try to activate through Direct Print
             if self._is_correct_dpc_api_key():
                 self.update_limits_for_account()
                 self.import_devices()
@@ -159,7 +149,7 @@ class PrintNodeAccount(models.Model):
             raise exceptions.UserError(
                 _(
                     'Wrong API Key provided. Please, provide the correct key or '
-                    'check Direct Print / Settings page for details.\n\n'
+                    'check Direct Print PRO / Settings page for details.\n\n'
                     'Error details: {}'
                 ).format(self.status)
             )
@@ -172,8 +162,8 @@ class PrintNodeAccount(models.Model):
 
             return
 
-        # Status 404 means that it can be PrintNode API Key but we do not have it in DPC DB
-        # User can provide Printnode API key (with no use of our service)
+        # Status 404 means that it can be Direct Print API Key but we do not have it in DPC DB
+        # User can provide Direct Print API key (with no use of our service)
         if response.get('status_code', 200) == 404:
             self.is_dpc_account = False
 
@@ -333,7 +323,7 @@ class PrintNodeAccount(models.Model):
         # Notify user if number of available pages too low
         self._notify_about_limits()
 
-    def update_main_account(self, api_key, is_allowed_to_collect_data=True):
+    def update_main_account(self, api_key):
         """
         Update an existing or create a new main account.
         The main account is the account with lowest ID.
@@ -348,13 +338,11 @@ class PrintNodeAccount(models.Model):
                 # Update account
                 if main_account.api_key != api_key:
                     main_account.api_key = api_key
-                    main_account.is_allowed_to_collect_data = is_allowed_to_collect_data
 
         else:
             if api_key:
                 main_account = self.env['printnode.account'].create({
                     'api_key': api_key,
-                    'is_allowed_to_collect_data': is_allowed_to_collect_data,
                 })
                 main_account.activate_account()
 
@@ -362,13 +350,13 @@ class PrintNodeAccount(models.Model):
 
     @api.depends('endpoint', 'api_key', 'password')
     def _compute_account_status(self):
-        """ Request PrintNode account details - whoami
+        """ Request Direct Print account details - whoami
         """
         for rec in self.filtered(lambda x: x.endpoint and x.api_key):
             rec._send_printnode_request('whoami')
 
     def _get_node(self, node_type, node_id, parent_id):
-        """ Parse and update PrintNode nodes (printer and computers)
+        """ Parse and update Direct Print nodes (printer and computers)
         """
         node = self.env[f'printnode.{node_type}'].with_context(active_test=False).search([
             ('printnode_id', '=', node_id['id']),
@@ -456,7 +444,7 @@ class PrintNodeAccount(models.Model):
                 request_url, params=params, auth=auth, timeout=20)
 
             # 403 is a HTTP status code which can be returned for child accounts in some cases
-            # like checking printing limits on PrintNode
+            # like checking printing limits on Direct Print
             if resp.status_code not in (200, 204, 403):
                 resp.raise_for_status()
 
@@ -552,7 +540,7 @@ class PrintNodeAccount(models.Model):
 
     def _is_correct_dpc_api_key(self):
         """
-        Checks whether API key related to Printnode account
+        Checks whether API key related to Direct Print account
         """
         response = self._send_printnode_request('whoami')
         return bool(response)
@@ -578,20 +566,20 @@ class PrintNodeAccount(models.Model):
 
     def _get_limits_printnode(self):
         """
-        Get limits (printed pages + total available pages) from Printnode through API
+        Get limits (printed pages + total available pages) from Direct Print through API
         """
         printed = 0
         limits = 0
 
         stats = self._send_printnode_request('billing/statistics')
 
-        # Unavailable for child PrintNode accounts
+        # Unavailable for child Direct Print accounts
         if stats and 'current' in stats:
             printed = stats['current'].get('prints', 0)
 
         plan = self._send_printnode_request('billing/plan')
 
-        # Unavailable for child PrintNode accounts
+        # Unavailable for child Direct Print accounts
         if plan and 'current' in plan:
             raw_limits = plan['current'].get('printCurve')
             if raw_limits:
@@ -647,7 +635,7 @@ class PrintNodeAccount(models.Model):
 
     def clear_devices_from_odoo(self):
         """
-        Delete devices from Odoo if it is not connected to Printnode Account
+        Delete devices from Odoo if it is not connected to Direct Print Account
         """
 
         self.import_devices()
@@ -663,7 +651,7 @@ class PrintNodeAccount(models.Model):
             for rec in records:
                 rec.printer_id = None
 
-        # Step 1: Find computers that are not in Printnode and delete them.
+        # Step 1: Find computers that are not in Direct Print and delete them.
         list_printnode_computer_ids = list(map(
             lambda pc: pc.get('id'),
             self._get_all_computers()
@@ -680,7 +668,7 @@ class PrintNodeAccount(models.Model):
 
         odoo_computers_to_delete.unlink()
 
-        # Step 2: Find printers that are not in Printnode and delete them.
+        # Step 2: Find printers that are not in Direct Print and delete them.
         list_printnode_printer_ids = list(map(
             lambda pp: pp.get('id'),
             self._send_printnode_request('printers'),
@@ -714,7 +702,7 @@ class PrintNodeAccount(models.Model):
 
         # Create a new test scales connected to the test computer
         self.env['printnode.scales'].create({
-            'name': 'PrintNode Test Scale',
+            'name': 'Direct Print PRO Test Scale',
             'printnode_id': 0,
             'device_num': 0,
             'computer_id': test_computer.id,

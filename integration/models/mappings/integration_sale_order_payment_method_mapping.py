@@ -8,6 +8,7 @@ class IntegrationSaleOrderPaymentMethodMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'Integration Sale Order Payment Method Mapping'
     _mapping_fields = ('payment_method_id', 'external_payment_method_id')
+    _mapping_label = 'Payment Method'
 
     payment_method_id = fields.Many2one(
         string='Odoo Payment Method',
@@ -21,7 +22,10 @@ class IntegrationSaleOrderPaymentMethodMapping(models.Model):
         ondelete='cascade',
     )
 
-    _uniq_mapping = models.Constraint(
-        'unique(integration_id, external_payment_method_id)',
-        'Payment methods mapping should be unique per integration',
-    )
+    _sql_constraints = [
+        (
+            'uniq_mapping',
+            'unique(integration_id, external_payment_method_id)',
+            'Payment methods mapping should be unique per integration'
+        ),
+    ]

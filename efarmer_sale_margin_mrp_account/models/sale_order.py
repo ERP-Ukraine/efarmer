@@ -13,7 +13,7 @@ class SaleOrderLine(models.Model):
         )
         return bool(boms)
 
-    @api.depends("product_id", "company_id", "currency_id", "product_uom_id")
+    @api.depends('product_id', 'company_id', 'currency_id', 'product_uom')
     def _compute_purchase_price(self):
         for line in self.filtered(lambda x: x.has_kit_product()):
             line.product_id.button_bom_cost()

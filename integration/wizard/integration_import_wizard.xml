@@ -553,7 +553,7 @@
                         <div class="d-flex justify-content-between w-100">
                             <div>
                                 <button name="action_back_to_product_import" type="object" string="← Go Back" class="btn-secondary me-2"/>
-                                <button name="action_refresh_view" type="object" string="Refresh Status" class="btn-secondary me-2"/>
+                                <button name="action_refresh_queue_jobs_view" type="object" string="Refresh Status" class="btn-secondary me-2"/>
                                 <button name="action_finish_initial_import" type="object" string="Continue →" class="btn-primary me-2" invisible="not jobs_done"/>
                             </div>
 

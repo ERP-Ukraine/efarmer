@@ -33,6 +33,14 @@ class IntegrationImportEntity(models.Model):
     _description = 'Integration Import Entity'
     _order = 'name asc'
 
+    _sql_constraints = [
+        (
+            'unique_name_integration_type',
+            'UNIQUE(name, integration_type)',
+            'An import entity with this name and integration type already exists!'
+        ),
+    ]
+
     name = fields.Char(
         string='Name',
     )
@@ -97,8 +105,8 @@ class IntegrationImportWizard(models.TransientModel):
         return self.env.context.get('active_id')
 
     integration_id = fields.Many2one(
-        comodel_name='sale.integration',
         string='E-Commerce Store',
+        comodel_name='sale.integration',
         default=_default_integration_id,
         required=True,
     )
@@ -354,7 +362,7 @@ class IntegrationImportWizard(models.TransientModel):
         }
 
     def action_open_queue_jobs(self):
-        queue_job_action = self.env.ref('integration.integration_jobs_action')
+        queue_job_action = self.env.ref('integration.integration_job_log_action')
         return {
             'type': 'ir.actions.act_url',
             'url': f'/odoo/action-{queue_job_action.id}',
@@ -363,6 +371,8 @@ class IntegrationImportWizard(models.TransientModel):
 
     def action_refresh_unmapped_records(self):
         self.check_unmapped_mappings_before_product_import()
+        if not self.errors:
+            return self.action_continue_to_product_import()
         return self.action_refresh_view()
 
     def download_pdf(self):
@@ -380,6 +390,14 @@ class IntegrationImportWizard(models.TransientModel):
             'view_mode': 'form',
             'target': 'new',
         }
+
+    def action_refresh_queue_jobs_view(self):
+        child_jobs = self.env['queue.job'].search([
+            ('parent_id', 'in', self.jobs.ids),
+        ])
+        self.jobs = child_jobs + self.jobs
+
+        return self.action_refresh_view()
 
     def action_continue_to_product_import(self):
         if self.import_in_background and not self.jobs_done:

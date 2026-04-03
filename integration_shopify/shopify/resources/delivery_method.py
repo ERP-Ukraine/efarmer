@@ -12,7 +12,8 @@ class DeliveryMethod(GqlDict):
 
     @property
     def is_valid(self):
-        return bool(self.name and self.code)
+        is_valie_method = not self.method_type.is_none
+        return bool(is_valie_method and self.name and self.code)
 
     @property
     def name(self):
@@ -27,9 +28,27 @@ class DeliveryMethod(GqlDict):
         self.ensure_one()
         return self._env.DeliveryMethodType(self['methodType'])
 
-    def to_odoo_format(self, to_tuple=False):
+    def to_odoo_format(self, to_tuple: bool = False):
         self.ensure_one()
 
+        if not self.is_valid:
+            return False
+
+        method_type = self.method_type
+
+        # 1. Format the method as a standard type if no-shipping-type
+        if not method_type.is_shipping:
+            data = self._to_odoo_format_from_type(method_type.value)
+
+            # 1.1 If serialization was triggered from the specified delivery provider,
+            # let's add the original delivery method name instead of a common one
+            data['name'] = self.name
+
+            if to_tuple:
+                data = tuple(data.items())
+            return data
+
+        # 2. Format shipping method as a specific delivery provider
         formatted_code = self.format_delivery_code(self.name, self.code)
 
         data = (('id', formatted_code), ('name', self.name))
@@ -39,6 +58,27 @@ class DeliveryMethod(GqlDict):
 
         return dict(data)
 
-    def format_delivery_code(self, title: str, code: str) -> str:
+    def _to_odoo_format_from_type(self, method_type: str, to_tuple: bool = False):
+        if not method_type:
+            return False
+
+        method_type = self._env.DeliveryMethodType(method_type)
+
+        # 1. Format as a specific delivery provider
+        if method_type.is_shipping:
+            return self.to_odoo_format(to_tuple)
+
+        if method_type.is_none:
+            return False
+
+        # 2. Format as a standard type
+        data = (('id', method_type.value), ('name', method_type.get_description()))
+
+        if to_tuple:
+            return data
+
+        return dict(data)
+
+    def format_delivery_code(self, code: str, title: str = '') -> str:
         name = f'{title.title()} {code.title()}'  # TODO: get rid of this wierd formatting
         return f'{self.SHOPIFY_SHIPPING_PREFIX}{name}'
