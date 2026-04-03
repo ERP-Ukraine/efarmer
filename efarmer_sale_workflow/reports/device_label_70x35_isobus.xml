@@ -280,24 +280,24 @@
 
 
     <record id="action_device_label_isobus_mrp_production" model="ir.actions.report">
-        <field name="name">Product Device Label (70x35) Isobus</field>
+        <field name="name">Product Device Label (70x35) Cojali</field>
         <field name="model">mrp.production</field>
         <field name="report_type">qweb-text</field>
         <field name="report_name">efarmer_sale_workflow.device_label_70x35_isobus_mrp_production</field>
         <field name="report_file">efarmer_sale_workflow.device_label_70x35_isobus_mrp_production</field>
-        <field name="print_report_name">'Product Device Label 70x35 Isobus - %s' % (object.product_id.default_code)
+        <field name="print_report_name">'Product Device Label 70x35 Cojali - %s' % (object.product_id.default_code)
         </field>
         <field name="binding_model_id" ref="mrp.model_mrp_production"/>
         <field name="binding_type">report</field>
     </record>
 
     <record id="action_stock_device_label_isobus_quant" model="ir.actions.report">
-        <field name="name">Product Device Label (70x35) Isobus</field>
+        <field name="name">Product Device Label (70x35) Cojali</field>
         <field name="model">stock.quant</field>
         <field name="report_type">qweb-text</field>
         <field name="report_name">efarmer_sale_workflow.device_label_70x35_isobus_stock_quant</field>
         <field name="report_file">efarmer_sale_workflow.device_label_70x35_isobus_stock_quant</field>
-        <field name="print_report_name">'Product Device Label 70x35 Isobus - %s' % (object.product_id.default_code)
+        <field name="print_report_name">'Product Device Label 70x35 Cojali - %s' % (object.product_id.default_code)
         </field>
         <field name="binding_model_id" ref="stock.model_stock_quant"/>
         <field name="binding_type">report</field>
