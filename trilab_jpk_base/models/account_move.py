@@ -199,8 +199,11 @@ class AccountMove(models.Model):
                     date = move.date
                 move.write({'pl_vat_date': date})
 
-            if move.move_type in ('in_invoice', 'in_refund') and not move.x_pl_ksef_invoice_number and not move.x_pl_ksef_invoice_proof:
-                move.write({'x_pl_ksef_invoice_proof': 'BFK'})
+            if move.move_type in ('in_invoice', 'in_refund'):
+                if move.x_pl_ksef_invoice_number and move.x_pl_ksef_invoice_proof:
+                    move.write({'x_pl_ksef_invoice_proof': False})
+                elif not move.x_pl_ksef_invoice_number and not move.x_pl_ksef_invoice_proof:
+                    move.write({'x_pl_ksef_invoice_proof': 'BFK'})
 
         return response
 
