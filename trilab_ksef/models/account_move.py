@@ -304,6 +304,7 @@ class AccountMove(models.Model):
                     {
                         'x_ksef_invoice_reference': invoice_status.reference_number,
                         'x_pl_ksef_invoice_number': invoice_status.ksef_number,
+                        'x_pl_ksef_invoice_proof': False,
                         'x_ksef_last_invoice_status': invoice_status.status.code,
                     }
                 )

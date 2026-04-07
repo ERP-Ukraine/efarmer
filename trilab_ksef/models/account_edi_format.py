@@ -1258,7 +1258,10 @@ class AccountEdiFormat(models.Model):
                             .sudo()
                             .with_company(company_id)
                             .with_context(default_move_type=move_type)
-                            .create({'x_pl_ksef_invoice_number': filename[:-4] if filename.endswith('.xml') else filename})
+                            .create({
+                                'x_pl_ksef_invoice_number': filename[:-4] if filename.endswith('.xml') else filename,
+                                'x_pl_ksef_invoice_proof': False,
+                            })
                         )
                         attachment_id = (
                             self.sudo()
