@@ -55,7 +55,7 @@ class ProductEcommerceField(models.Model):
         for rec in self:
             rec.is_shopify_metafield = (rec.type_api == SHOPIFY) and rec.technical_name.startswith('metafields.')
 
-    def get_translation_key(self, field_name_only: bool = True):
+    def get_translation_key(self, strip_path: bool = True):
         self.ensure_one()
 
         if self.translation_key:
@@ -65,7 +65,7 @@ class ProductEcommerceField(models.Model):
             *__, namespace, key = api_name.split('.')
             value = f'metafields.{namespace}.{key}'
         else:
-            value = self.get_api_field_name(field_name_only=field_name_only)
+            value = self.get_api_field_name(strip_path=strip_path)
 
         return value
 
@@ -150,7 +150,7 @@ class ProductEcommerceField(models.Model):
                 return {}
 
         if serialize_translations:
-            key_ = self.get_translation_key(field_name_only=False)
+            key_ = self.get_translation_key(strip_path=False)
             __, v = value.popitem()
             return {key_: v}
 

@@ -16,6 +16,7 @@ class IntegrationProductProductExternal(models.Model):
     _inherit = ['integration.external.mixin', 'integration.product.external.mixin']
     _description = 'Integration Product Product External'
     _odoo_model = 'product.product'
+    _external_label = 'Product Variant'
 
     external_barcode = fields.Char(
         string='Barcode',

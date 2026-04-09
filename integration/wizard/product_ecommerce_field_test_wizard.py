@@ -8,6 +8,7 @@ from odoo import api, models, fields, _
 from odoo.exceptions import UserError
 
 from ..api.abstract_apiclient import AbsApiClient
+from ..tools import IS_FALSE
 
 _logger = logging.getLogger(__name__)
 
@@ -218,6 +219,17 @@ class ProductEcommerceFieldTestWizard(models.TransientModel):
             # Fetch product data from external API
             template_data, variant_data = self._fetch_external_product_data()
 
+            # Some connectors (e.g. PrestaShop) return an empty variants_list for
+            # simple products, so no IS_FALSE variant dict is available. Variant-level
+            # import scripts cannot run without data — show N/A instead of crashing.
+            if self.is_variant_field and variant_data is None:
+                self.write({
+                    'import_result': _('N/A — simple product has no variant-specific data in the API response.'),
+                    'import_tested': True,
+                    'import_success': True,
+                })
+                return self._return_wizard()
+
             # Determine Odoo record if exists (for script context)
             odoo_id = self._get_odoo_record_for_import()
 
@@ -366,7 +378,21 @@ class ProductEcommerceFieldTestWizard(models.TransientModel):
                 None
             )
 
-            if not variant_data:
+            # _parse_product_external_code returns the template ID as the variant
+            # code for IS_FALSE variants (simple products, case 3). In that case
+            # the variant dict uses IS_FALSE ('0') as its id, so retry with it.
+            # Some connectors (e.g. PrestaShop) return an empty variants_list for
+            # simple products; fall back to an empty dict so import scripts still
+            # run without crashing (fields that check key presence return no value).
+            if variant_data is None and variant_code == external_template_code:
+                variant_data = next(
+                    (v for v in variants_list if str(v['id']) == IS_FALSE),
+                    None,
+                )
+                # variant_data may remain None when the connector returns an empty
+                # variants_list for simple products (e.g. PrestaShop). The caller
+                # detects this and shows an N/A message instead of running scripts.
+            elif variant_data is None:
                 raise UserError(_(
                     'Variant data not found in API response. '
                     'The variant may have been deleted from the e-commerce platform.'

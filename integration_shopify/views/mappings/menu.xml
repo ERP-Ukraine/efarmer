@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="integration.menu_categories_mapping" model="ir.ui.menu">
+            <!-- In other connectors we call collections categories, so we need to rename them to make it more clear for user -->
+            <field name="name">Categories (Collections)</field>
+        </record>
+
+    </data>
+</odoo>

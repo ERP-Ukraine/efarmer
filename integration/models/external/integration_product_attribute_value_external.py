@@ -20,6 +20,13 @@ class IntegrationProductAttributeValueExternal(models.Model):
         ondelete='cascade',
     )
 
+    def _compute_display_name(self):
+        for rec in self:
+            if rec.external_attribute_id:
+                rec.display_name = f'(ID: {rec.code}) {rec.external_attribute_id.name}: {rec.name}'
+            else:
+                super(IntegrationProductAttributeValueExternal, rec)._compute_display_name()
+
     def _fix_unmapped(self, adapter_external_data):
         self._fix_unmapped_element(self.integration_id, 'attribute')
 

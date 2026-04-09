@@ -88,6 +88,7 @@ class GraphQLTemplate:
         url
         name
         email
+        myshopifyDomain
         weightUnit
         ianaTimezone
         timezoneOffset
@@ -271,6 +272,38 @@ class GraphQLTemplate:
         type
         ownerType
     """
+
+    TAXONOMY_CATEGORY_BODY = """
+        id
+        name
+        fullName
+        level
+        parentId
+        ancestorIds
+        isArchived
+    """
+
+    TAXONOMY_BODY = """
+        categories(first: 250) {
+            nodes {
+                %s
+            }
+        }
+    """ % TAXONOMY_CATEGORY_BODY
+
+    TAXONOMY_GET_CATEGORIES_BODY = """
+        categories(first: 250) {
+            pageInfo {
+                endCursor
+                hasNextPage
+            }
+            edges {
+                node {
+                    %s
+                }
+            }
+        }
+    """ % TAXONOMY_CATEGORY_BODY
 
     INVENTORY_LEVEL_BODY = """
         id
@@ -536,6 +569,9 @@ class GraphQLTemplate:
                 %s
             }
         }
+        category {
+            %s
+        }
         hasOnlyDefaultVariant
         variantsCount {
             count
@@ -561,6 +597,7 @@ class GraphQLTemplate:
     """ % (
         PRODUCT_OPTION_BODY,
         COLLECTION_BODY,
+        TAXONOMY_CATEGORY_BODY,
         METAFIELD_BODY,
         MEDIA_BODY,
         PRODUCT_VARIANT_BODY,

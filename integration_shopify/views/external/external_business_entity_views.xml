@@ -8,9 +8,9 @@
             <field name="arch" type="xml">
                 <list editable="bottom" create="0">
                     <field name="id" groups="base.group_no_one"/>
-                    <field name="integration_id"/>
-                    <field name="name"/>
-                    <field name="external_id"/>
+                    <field name="integration_id" readonly="1"/>
+                    <field name="name" readonly="1"/>
+                    <field name="external_id" readonly="1"/>
                 </list>
             </field>
         </record>
@@ -20,8 +20,8 @@
             <field name="model">external.business.entity</field>
             <field name="arch" type="xml">
                 <search>
-                    <field name="name"/>
-                    <field name="external_id"/>
+                    <field name="name" readonly="1"/>
+                    <field name="external_id" readonly="1"/>
                     <group>
                         <filter string="E-Commerce Store" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
                     </group>

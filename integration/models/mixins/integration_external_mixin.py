@@ -1,16 +1,16 @@
 # See LICENSE file for full copyright and licensing details.
 
 import logging
+import re
 
 from collections import defaultdict
 
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Domain
 from odoo.tools.sql import escape_psql
 
 from ...tools import is_translated_value
-from ...exceptions import NoExternal, MultipleExternalRecordsFound
+from ...exceptions import ErrorStore as es
 
 
 _logger = logging.getLogger(__name__)
@@ -64,6 +64,64 @@ class IntegrationExternalMixin(models.AbstractModel):
         'unique(integration_id, external_reference)',
         'External Reference should be unique',
     )
+
+    @api.model
+    def _sql_error_to_message(self, exc: es.UniqueViolation) -> str:
+        """Override to enrich default SQL constraint error messages with actionable details.
+
+        Odoo's default behavior shows only the static constraint message
+        (e.g. "Code should be unique") or raw PostgreSQL detail
+        (e.g. "Key (integration_id, code)=(1, 1231) already exists"),
+        which is not enough for the user to identify and resolve the conflict.
+
+        We skip default Odoo sql constraint handling to get info in raw PostgreSQL format (with conflicting
+        fields and values) -> grep existing record -> format user-friendly error message
+        """
+        # 1. Check if this constraint should be handled by our custom formatting
+        constraint_name = getattr(getattr(exc, 'diag'), 'constraint_name')
+
+        constraint_formatting_conditions = (
+            self._name in ('integration.product.template.external', 'integration.product.product.external'),
+            constraint_name.endswith('_uniq_code') or constraint_name.endswith('_uniq_reference')
+        )
+
+        if not all(constraint_formatting_conditions):
+            return super()._sql_error_to_message(exc)
+
+        # 2. Parse duplicated field:value pairs from PostgreSQL error details
+        field_value_dict = None
+        detail = getattr(getattr(exc, 'diag'), 'message_detail') or None
+        match = re.search(r'Key \((.+?)\)=\((.+?)\) already exists', detail)
+        if match:
+            keys = match.group(1).split(', ')
+            values = match.group(2).split(', ')
+            field_value_dict = dict(zip(keys, values))
+
+        # 3. Grep existing record
+        integration_id = field_value_dict.pop('integration_id')
+        domain = [(k, '=', v) for k, v in field_value_dict.items()]
+        domain.append(('integration_id', '=', int(integration_id)))
+
+        existing_record = self.search(domain, limit=1)
+
+        # 4. Format existing record info for the error message
+        existing_info = _(
+            'Could not be identified. The duplicate may come from '
+            'another record being imported in the same batch'
+        )
+        if existing_record:
+            record_fields = ', '.join('%s: %s' % (k, v) for k, v in field_value_dict.items())
+            existing_info = _('%s (ID: %s, %s)') % (existing_record.name, existing_record.id, record_fields)
+
+        # 5. Raise formatted error with all collected details
+        es.raise_error(
+            err_code='E113',
+            support_contact=True,
+            raise_from_none=True,
+            exc=exc,
+            existing_info=existing_info,
+            entity_label=self._external_label,
+        )
 
     @property
     def mapping_model(self):
@@ -153,7 +211,7 @@ class IntegrationExternalMixin(models.AbstractModel):
         for rec in self:
             value = f'(ID: {rec.code})'
 
-            if rec.external_reference:
+            if rec.external_reference and rec.external_reference != rec.code:
                 value = f'{value}[{rec.external_reference}]'
 
             value = f'{value} {getattr(rec, rec._rec_name)}'
@@ -224,7 +282,7 @@ class IntegrationExternalMixin(models.AbstractModel):
                     for record in odoo_record
                 ])
 
-                raise ValidationError(_(
+                raise es.ValidationError(_(
                     'Multiple Odoo records (%(model)s) found with the same internal reference:\n'
                     '%(details)s\n\n'
                     'Please review the duplicated records and resolve the issue by either removing '
@@ -276,13 +334,13 @@ class IntegrationExternalMixin(models.AbstractModel):
 
         if raise_error:
             if not external:
-                raise NoExternal(_(
+                raise es.NoExternal(_(
                     '\nCannot find external record. Please ensure the relevant objects are imported from '
                     'the E-Commerce System.'), model_name=self._name, code=code, integration=integration
                 )
 
             if len(external) > 1:
-                raise MultipleExternalRecordsFound(
+                raise es.MultipleExternalRecordsFound(
                     _('Found several external records'),
                     model_name=self._name,
                     code=code,
@@ -434,7 +492,7 @@ class IntegrationExternalMixin(models.AbstractModel):
         element: 'attribute' or 'feature'
         """
         if element not in ('attribute', 'feature'):
-            raise UserError(_(
+            raise es.UserError(_(
                 'The value must be either "attribute" or "feature". This is a technical issue '
                 'that cannot be fixed through configuration and requires investigation by our developers. '
                 'If you encounter this error, please contact our support team: https://support.ventor.tech/'
@@ -501,7 +559,7 @@ class IntegrationExternalMixin(models.AbstractModel):
         # 1. Try to get Code (External ID) of Value
         element_code = adapter_external_record.get('id_group')
         if not element_code:
-            raise UserError(_(
+            raise es.UserError(_(
                 'External %s value is missing the required "id_group" field. '
                 'This is a technical issue with the data received from the e-commerce system. '
                 'Please contact our support team to investigate the issue: https://support.ventor.tech/'
@@ -514,7 +572,7 @@ class IntegrationExternalMixin(models.AbstractModel):
         ])
 
         if not external_element:
-            raise UserError(_(
+            raise es.UserError(_(
                 'No External Product %s found with code %s. '
                 'It is possible that %ss have not been imported yet. '
                 'Please ensure that %ss are imported from the e-commerce system.\n'
@@ -522,7 +580,7 @@ class IntegrationExternalMixin(models.AbstractModel):
             ) % (element.capitalize(), element_code, element, element))
 
         if len(external_element) != 1:
-            raise UserError(_(
+            raise es.UserError(_(
                 'Multiple or no external %s records found for code %s. '
                 'This is a technical issue that requires investigation. '
                 'Please contact our support team for assistance: https://support.ventor.tech/'
@@ -562,6 +620,18 @@ class IntegrationExternalMixin(models.AbstractModel):
         if odoo_object and not element_record and not link_to_existing:
             result['element'] = RESULT_EXISTS
             return result
+
+        if len(odoo_object) > 1 and not element_record:
+            raise es.UserError(_(
+                'Multiple Odoo %s records share the name "%s" (IDs: %s). '
+                'Please ensure each %s name is unique in Odoo before running the import, '
+                'or manually create the mapping in the integration settings.'
+            ) % (
+                element.capitalize(),
+                self.name,
+                ', '.join(str(r.id) for r in odoo_object),
+                element.capitalize(),
+            ))
 
         # 2. Create Product Attribute/Feature (if it is not already created)
         if element_record:

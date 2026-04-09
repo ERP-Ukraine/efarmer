@@ -19,8 +19,8 @@ class ExternalStockLocationLine(models.Model):
     )
 
     integration_id = fields.Many2one(
-        comodel_name='sale.integration',
         string='E-Commerce Store',
+        comodel_name='sale.integration',
         ondelete='cascade',
         required=True,
     )

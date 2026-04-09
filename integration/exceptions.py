@@ -6,6 +6,7 @@ from odoo.exceptions import UserError, ValidationError
 from inspect import stack
 from logging import getLogger
 from psycopg2 import IntegrityError, OperationalError
+from psycopg2.errors import UniqueViolation
 from requests.exceptions import HTTPError, SSLError, ConnectionError as RequestsConnectionError
 from typing import Type, NamedTuple, Optional, List
 
@@ -258,6 +259,7 @@ class ErrorStore:
     NoReferenceFieldDefined = NoReferenceFieldDefined
 
     IntegrityError = IntegrityError
+    UniqueViolation = UniqueViolation
     OperationalError = OperationalError
 
     _error_codes = {
@@ -359,6 +361,16 @@ class ErrorStore:
                 'unmapped_codes',
             ],
         ),
+        'E113': ErrorInfo(
+            # error_type=UniqueViolation,
+            error_type=ValidationError,
+            format_method='format_unique_violation_error_message',
+            format_method_params=[
+                'exc',
+                'existing_info',
+                'entity_label',
+            ],
+        )
     }
 
     def __new__(cls):
@@ -373,6 +385,7 @@ class ErrorStore:
         err_code: str = 'E000',
         err_msg: str = '',
         support_contact: bool = True,
+        raise_from_none: bool = False,
         **kwargs,
     ):
         """
@@ -389,9 +402,10 @@ class ErrorStore:
 
         if err_code and err_code != 'E000':
             if not err_msg:
-                err_msg = cls.format_message(err_code, **kwargs)
+                err_msg = cls.format_message(err_code, raise_from_none=raise_from_none, **kwargs)
             else:
-                err_msg = _('\n\nError %(err_code)s:\n%(err_msg)s\n') % {
+                err_msg = _('%(gap)sError %(err_code)s:\n%(err_msg)s\n') % {
+                    'gap': '' if raise_from_none else '\n\n',
                     'err_code': err_code,
                     'err_msg': err_msg,
                 }
@@ -399,16 +413,20 @@ class ErrorStore:
         if support_contact:
             err_msg += cls.format_support_contact_string()
 
+        if raise_from_none:
+            raise err_type(err_msg) from None
         raise err_type(err_msg)
 
     @classmethod
-    def format_message(cls, err_code: str, support_contact: bool = False, **kwargs):
+    def format_message(cls, err_code: str, support_contact: bool = False, raise_from_none: bool = False, **kwargs):
         error_info = cls._error_codes.get(err_code, None)
         if error_info.format_method:
             return _(
-                '\n\nError %(err_code)s:\n'
-            ) % {'err_code': err_code} \
-                + getattr(cls, error_info.format_method)(**kwargs) \
+                '%(gap)sError %(err_code)s:\n'
+            ) % {
+                'gap': '' if raise_from_none else '\n\n',
+                'err_code': err_code,
+            } + getattr(cls, error_info.format_method)(**kwargs) \
                 + (cls.format_support_contact_string() if support_contact else '')
 
         cls.raise_error(
@@ -422,6 +440,34 @@ class ErrorStore:
     @staticmethod
     def format_support_contact_string():
         return str(_lt('\n\nIf you need assistance, please contact our support team: https://support.ventor.tech/'))
+
+    @classmethod
+    def format_unique_violation_error_message(
+        cls,
+        exc: UniqueViolation,
+        existing_info: str,
+        entity_label: str,
+    ):
+        """Currently the error message steps to resolve are focused on the problem with only products
+        if other records will use it -- update steps to resolve section with conditions"""
+        return _(
+            'Duplicate value detected during import of %(entity_label)s.\n\n'
+            'Existing record: %(existing_info)s\n\n'
+            'Steps to resolve:\n'
+            '\tStep 1 (always): Run validation test. If issues - fix; after fixing - retry action (e.g. failed job).\n'
+            '\tStep 2 (if problem still persists):\n'
+            '\t\t1. Go to External menu\n'
+            '\t\t2. Find existing product (specified above in the error message)\n'
+            '\t\t3. Do one of two things:\n'
+            '\t\t\t3.1 If product is still relevant (exists in store): Run Refresh External Products for product above (or all products).\n' # NOQA
+            '\t\t\t3.2. If this product does not exist anymore in store: Remove external record\n'
+            '\t\t4. Retry action.\n\n'
+            'Technical details: %(error)s'
+        ) % {
+            'existing_info': existing_info,
+            'entity_label': entity_label,
+            'error': str(exc),
+        }
 
     @staticmethod
     def format_not_mapped_from_external(msg, model_name=None, code=None, integration=None):

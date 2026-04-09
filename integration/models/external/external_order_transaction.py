@@ -168,6 +168,7 @@ class ExternalOrderTransaction(models.Model):
             ).create({
                 'amount': self.get_amount(),
                 'journal_id': self.get_journal(),
+                'payment_date': self.get_payment_date(),
                 'payment_difference_handling': 'open',
             })
 
@@ -219,6 +220,7 @@ class ExternalOrderTransaction(models.Model):
                     'amount_advance': self.get_amount(no_writeoff=True),
                     'currency_id': order.pricelist_id.currency_id.id,
                     'journal_id': self.get_journal(),
+                    'date': self.get_payment_date(),
                 })
 
             wizard.make_advance_payment()
@@ -265,7 +267,7 @@ class ExternalOrderTransaction(models.Model):
                 from_amount=self.float_amount,
                 to_currency=order_currency,
                 company=order.company_id,
-                date=self.external_process_date,
+                date=self.get_payment_date(),
             )
         else:
             amount = self.float_amount
@@ -275,6 +277,10 @@ class ExternalOrderTransaction(models.Model):
                 amount = order.amount_residual
 
         return amount
+
+    def get_payment_date(self):
+        """Prepare the payment date for the payment register wizard"""
+        return self.external_process_date or fields.Date.context_today(self)
 
     def get_writeoff_account(self):
         """Get the write-off account for payment differences"""

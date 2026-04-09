@@ -133,5 +133,10 @@
                   parent="menu_external"
                   sequence="430"/>
 
+        <menuitem id="menu_external_baselinker_only"
+                  name="Baselinker Only"
+                  parent="menu_external"
+                  sequence="440"/>
+
     </data>
 </odoo>

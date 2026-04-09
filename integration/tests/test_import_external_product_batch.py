@@ -19,7 +19,7 @@ class TestImportExternalProductBatch(OdooIntegrationInit):
 
         env = self.env
 
-        def mock_import(integration_self, tpl_ids):
+        def mock_import(integration_self, tpl_ids, **kwargs):
             return (
                 env['integration.product.template.external'].browse(),
                 env['integration.product.product.external'].browse(),
@@ -43,7 +43,7 @@ class TestImportExternalProductBatch(OdooIntegrationInit):
         external_pt = self.external_pt_1
         external_var = self.external_pt_1_var
 
-        def mock_import(integration_self, tpl_ids):
+        def mock_import(integration_self, tpl_ids, **kwargs):
             return (external_pt, external_var, error_list, failed_ids)
 
         self.patch(type(self.integration_no_api_1), '_import_external_product', mock_import)
@@ -68,7 +68,7 @@ class TestImportExternalProductBatch(OdooIntegrationInit):
         external_pt = self.external_pt_1
         external_var = self.external_pt_1_var
 
-        def mock_import(integration_self, tpl_ids):
+        def mock_import(integration_self, tpl_ids, **kwargs):
             return (external_pt, external_var, error_list, failed_ids)
 
         self.patch(type(self.integration_no_api_1), '_import_external_product', mock_import)

@@ -8,8 +8,23 @@
         <field name="arch" type="xml">
             <xpath expr="//group[@name='store_specific_settings']" position="inside">
                 <group name="shopify_settings" string="Shopify Specific Settings">
-                    <group>
+                    <group colspan="2">
                         <field name="continue_selling_without_stock"/>
+                        <field name="taxonomy_category_id"
+                               options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                    </group>
+                </group>
+            </xpath>
+            <xpath expr="//group[@name='product_categories']" position="replace">
+                <group name="product_categories" string="Categories" colspan="2">
+                    <group>
+                        <field name="integration_default_category_id" string="Default Category (Collection)" domain="[('id', 'in', available_category_ids)]" options="{'no_create': True, 'no_edit': True}" help="Primary category for this product in e-commerce stores"/>
+                        <field name="integration_category_ids" string="Website Product Categories (Collections)" widget="many2many">
+                            <list string="Additional Categories (Collections)">
+                                <field name="display_name" nolabel="1"/>
+                            </list>
+                        </field>
+                        <field name="available_category_ids" widget="many2many_tags" invisible="1"/>
                     </group>
                 </group>
             </xpath>

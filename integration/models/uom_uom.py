@@ -12,7 +12,7 @@ class UomUom(models.Model):
     @api.model
     def _convert_external_weight_uom(self, weight: float, external_uom_name: str, is_import: bool = True):
         """
-        This method try to find unit of weight measure by name from e-Commerce System
+        This method try to find unit of weight measure by name from e-commerce System
         and convert it
         """
         if weight in (None, False, ''):

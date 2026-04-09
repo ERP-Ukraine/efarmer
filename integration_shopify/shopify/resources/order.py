@@ -164,6 +164,10 @@ class OrderParseMixin:
             carrier = delivery_method.to_odoo_format()
             use_customer_currency = self.props.use_customer_currency
 
+            if carrier.get('id'):
+                method_type = delivery_method.method_type
+                carrier['is_pickup_point'] = method_type.is_pick_up or method_type.is_pickup_point
+
             # Use the original (non-discounted) price so that the factory can create
             # proper discount lines for the full discount amount.  Fall back to the
             # current discounted price if originalPriceSet is not available.

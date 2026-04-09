@@ -22,6 +22,10 @@ class IntegrationMappingMixin(models.AbstractModel):
         related='integration_id.company_id',
     )
 
+    type_api = fields.Selection(
+        related='integration_id.type_api',
+    )
+
     def show_unmapped_object(self):
         internal_field_name, external_field_name = self._mapping_fields
         external_obj = getattr(self, external_field_name)

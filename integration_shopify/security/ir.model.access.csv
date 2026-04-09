@@ -7,6 +7,7 @@ access_configuration_wizard_shopify,access_configuration_wizard_shopify,model_co
 access_configuration_wizard_shopify_line,configuration.wizard.shopify.line,model_configuration_wizard_shopify_line,base.group_user,1,1,1,1
 access_external_order_source_name,external.order.source.name,model_external_order_source_name,base.group_user,1,1,1,1
 access_integration_catalog_external,integration.catalog.external,model_integration_catalog_external,base.group_user,1,1,1,1
+access_external_taxonomy_category,external.taxonomy.category,model_external_taxonomy_category,base.group_user,1,1,1,0
 access_integration_catalog_external_line,integration.catalog.external.line,model_integration_catalog_external_line,base.group_user,1,1,1,1
 access_integration_product_pricelist_batch,integration.product.pricelist.batch,model_integration_product_pricelist_batch,base.group_user,1,1,1,1
 access_integration_auth_shopify,integration.auth.shopify,model_integration_auth_shopify,base.group_user,1,1,1,1

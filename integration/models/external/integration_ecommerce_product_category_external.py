@@ -1,4 +1,5 @@
 # See LICENSE file for full copyright and licensing details.
+import logging
 
 from typing import List, Dict
 
@@ -6,7 +7,6 @@ from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 from odoo.tools.sql import escape_psql
 
-import logging
 
 _logger = logging.getLogger(__name__)
 

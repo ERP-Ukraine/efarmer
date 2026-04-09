@@ -163,7 +163,7 @@ if records:
                     </group>
 
                     <!-- Categories Section -->
-                    <group string="Categories" colspan="2">
+                    <group name="product_categories" string="Categories" colspan="2">
                         <group >
                             <field name="integration_default_category_id" domain="[('id', 'in', available_category_ids)]" options="{'no_create': True, 'no_edit': True}" help="Primary category for this product in e-commerce stores"/>
                             <field name="integration_category_ids" widget="many2many">

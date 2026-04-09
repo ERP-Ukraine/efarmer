@@ -68,13 +68,13 @@
 
                         <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
                         <div class="text-muted mt-1 mb-3 small">
-                            Enter your store&apos;s name found in your Shopify admin URL.
+                            Enter your store ID found in your Shopify admin URL.
                             For example, if your URL is <i>https://admin.shopify.com/store/awesome-shop</i>,
                             enter <i>awesome-shop</i> here.
                         </div>
 
                         <field name="client_id" required="1" invisible="not use_oauth" readonly="access_granted"/>
-                        <field name="key" required="1" invisible="use_oauth" readonly="access_granted"/>
+                        <field name="key" required="1" invisible="use_oauth" readonly="access_granted" password="True"/>
                         <field name="secret_key" required="1" password="True" readonly="access_granted"/>
                     </group>
 

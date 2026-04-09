@@ -9,7 +9,7 @@ from odoo.exceptions import UserError
 from odoo.tools.float_utils import float_compare, float_round
 from odoo.tools.translate import LazyTranslate
 
-from ..exceptions import ErrorStore, ApiImportError, NotMappedFromExternal
+from ..exceptions import ErrorStore as es
 
 
 _lt = LazyTranslate(__name__)
@@ -19,6 +19,7 @@ _logger = logging.getLogger(__name__)
 # Mark strings for extraction (never executed, just for translation tools)
 _lt('Discount for %s')
 _lt('Coupon: %s')
+_lt('Pickup Point: %s')
 
 
 class IntegrationSaleOrderFactory(models.TransientModel):
@@ -329,7 +330,7 @@ class IntegrationSaleOrderFactory(models.TransientModel):
         if not product:
             try:
                 product = self._try_get_odoo_product(line_data)
-            except (ErrorStore.UndefinedExternalProduct, ErrorStore.NotFoundExternalProduct):
+            except (es.UndefinedExternalProduct, es.NotFoundExternalProduct):
                 product = self.env['product.product']
 
         taxes = self.get_taxes_from_external_list(product, line_data['taxes'])
@@ -389,7 +390,7 @@ class IntegrationSaleOrderFactory(models.TransientModel):
             ('name', '=ilike', order_currency_iso.lower()),
         ], limit=1)
         if not odoo_currency:
-            raise ApiImportError(
+            raise es.ApiImportError(
                 _(
                     'Currency with ISO code "%s" was not found in Odoo.\n'
                     'To resolve this issue, please ensure that the currency is correctly configured in Odoo:\n'
@@ -455,7 +456,7 @@ class IntegrationSaleOrderFactory(models.TransientModel):
         try:
             product = self._try_get_odoo_product(line_data)
             vals['product_id'] = product.id
-        except (ErrorStore.UndefinedExternalProduct, ErrorStore.NotFoundExternalProduct):
+        except (es.UndefinedExternalProduct) as error:
             line_name, line_reference = line_data['name'], line_data['reference']
 
             # Try to get fallback product if the product is not found or not defined
@@ -558,7 +559,7 @@ class IntegrationSaleOrderFactory(models.TransientModel):
         tax = integration._import_external_tax(tax_id)
 
         if not tax:
-            raise NotMappedFromExternal(
+            raise es.NotMappedFromExternal(
                 _(
                     'Failed to find the external tax with code "%s".\n\n'
                     'To resolve this issue, please run "Import Master Data" by clicking the button on '
@@ -576,7 +577,7 @@ class IntegrationSaleOrderFactory(models.TransientModel):
         price_include = all(tax.price_include for tax in taxes)
 
         if not price_include and any(tax.price_include for tax in taxes):
-            raise ApiImportError(
+            raise es.ApiImportError(
                 _(
                     'There is a mismatch in the "Included in Price" parameter across the taxes applied '
                     'to a line item.\n\n'
@@ -603,7 +604,7 @@ class IntegrationSaleOrderFactory(models.TransientModel):
         carrier = integration._import_external_carrier(carrier_data)
 
         if not carrier:
-            raise NotMappedFromExternal(
+            raise es.NotMappedFromExternal(
                 _(
                     'Failed to find the external delivery carrier with code "%s".\n\n'
                     'To resolve this issue, please run "Import Master Data" by clicking the button on '
@@ -619,13 +620,14 @@ class IntegrationSaleOrderFactory(models.TransientModel):
         return carrier
 
     def _create_delivery_line(self, order, delivery_data):
-        carrier = delivery_data['carrier'] or dict()
-        if not carrier.get('id'):
+        carrier_data = delivery_data['carrier'] or dict()
+        carrier_id = carrier_data.get('id')
+        if not carrier_id:
             return self.env['sale.order.line']
 
         # 1. Set delivery line
         integration = self.integration_id
-        carrier = self.try_get_odoo_delivery_carrier(carrier)
+        carrier = self.try_get_odoo_delivery_carrier(carrier_data)
         order.set_delivery_line(carrier, delivery_data['shipping_cost'])
 
         delivery_line = order.order_line.filtered(lambda line: line.is_delivery)
@@ -664,12 +666,25 @@ class IntegrationSaleOrderFactory(models.TransientModel):
                 delivery_line.discount = delivery_data['discount']['discount_percent']
 
         # 5. Update notes
-        if integration.so_delivery_note_field and delivery_data.get('delivery_notes'):
-            setattr(
-                order,
-                integration.so_delivery_note_field.name,
-                delivery_data['delivery_notes'],
-            )
+        note_field = integration.so_delivery_note_field
+        if note_field:
+            notes = []
+
+            delivery_notes = delivery_data.get('delivery_notes')
+            if delivery_notes:
+                notes.append(delivery_notes.strip())
+
+            if carrier_data.get('is_pickup_point', False):
+                pickup_info = self._get_translated_string(
+                    'Pickup Point: %s',
+                    carrier_data['name'],
+                    lang=order.partner_id.lang,
+                )
+                notes.append(pickup_info)
+
+            if notes:
+                final_notes = '\n'.join(notes)
+                setattr(order, note_field.name, final_notes)
 
         return delivery_line
 
@@ -680,7 +695,7 @@ class IntegrationSaleOrderFactory(models.TransientModel):
         integration = self.integration_id
         product = integration.gift_wrapping_product_id
         if not product:
-            raise ApiImportError(
+            raise es.ApiImportError(
                 _(
                     'The "Gift Wrapping Product" is not configured for the "%s" integration.\n\n'
                     'To resolve this issue, please configure the "Gift Wrapping Product" in '
@@ -726,12 +741,12 @@ class IntegrationSaleOrderFactory(models.TransientModel):
                 difference_product_id = integration.negative_price_difference_product_id
 
             if not difference_product_id:
-                raise ApiImportError(
+                raise es.ApiImportError(
                     _(
-                        'The total amount in the sales order from "%s" differs from '
+                        'The total amount in the sales order from %s differs from '
                         'the calculated amount in Odoo, usually due to rounding issues or tax discrepancies.\n'
                         'Order amounts: %f (Odoo) vs %f (%s)\n\n'
-                        'Odoo and "%s" calculate taxes differently, which can lead to this issue. '
+                        'Odoo and %s calculate taxes differently, which can lead to this issue. '
                         'To resolve it, you can either:\n'
                         '1. Go to "E-Commerce Integrations → Stores → %s".\n'
                         'Navigate to the "Sales Orders" tab, and in the "Order Extras Management" section, '
@@ -762,7 +777,7 @@ class IntegrationSaleOrderFactory(models.TransientModel):
     def _get_discount_product(self):
         integration = self.integration_id
         if not integration.discount_product_id:
-            raise ApiImportError(
+            raise es.ApiImportError(
                 _(
                     'Discount Product is not configured for the "%s" integration.\n'
                     'To resolve this issue, please configure the "Discount Product" setting in '

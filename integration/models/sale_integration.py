@@ -954,6 +954,16 @@ class SaleIntegration(models.Model):
         compute='_compute_integration_type',
     )
 
+    is_integration_baselinker = fields.Boolean(
+        string='Is Baselinker',
+        compute='_compute_integration_type',
+    )
+
+    supports_external_locations = fields.Boolean(
+        string='Supports External Locations',
+        compute='_compute_supports_external_locations',
+    )
+
     order_name_ref = fields.Char(
         string='Sales Order Prefix',
         help=(
@@ -1099,12 +1109,6 @@ class SaleIntegration(models.Model):
         )
     )
 
-    allow_multi_company_inventory_calculation = fields.Boolean(
-        string='Allow Multi-Company Inventory Calculation',
-        help='When enabled, producible quantity will be calculated across all companies '
-             'for locations mapped to the same external location. ',
-    )
-
     export_prices_cron_id = fields.Many2one(
         comodel_name='ir.cron',
         string='Export Prices Cron',
@@ -1171,6 +1175,11 @@ class SaleIntegration(models.Model):
             rec.is_integration_prestashop = rec.type_api == 'prestashop'
             rec.is_integration_magento_two = rec.type_api == 'magento2'
             rec.is_integration_woocommerce = rec.type_api == 'woocommerce'
+            rec.is_integration_baselinker = rec.type_api == 'baselinker'
+
+    def _compute_supports_external_locations(self):
+        for rec in self:
+            rec.supports_external_locations = rec.type_api in ('shopify', 'baselinker')
 
     @property
     def is_no_api(self):
@@ -2031,7 +2040,7 @@ class SaleIntegration(models.Model):
             self._post_create()
 
             # 1.3 Modify values if needed
-            if vals['type_api'] not in ('prestashop', 'shopify'):
+            if vals['type_api'] not in ('baselinker', 'prestashop', 'shopify'):
                 self.with_context(skip_write_actions=True) \
                     .write({'validate_barcode': False})
 
@@ -2097,19 +2106,13 @@ class SaleIntegration(models.Model):
         Normalize inventory-related fields to maintain logical consistency after write.
 
         Rules:
-        - If 'update_stock_for_manufacture_boms' is disabled, 'allow_multi_company_inventory_calculation'
-        must also be disabled.
         - If both 'export_inventory_job_enabled' and 'inventory_synchronization_cron_id_active'
         are disabled, 'update_stock_for_manufacture_boms' is automatically disabled.
         """
         for rec in self:
             updates = {}
 
-            # Rule 1: If BOM update is disabled → disable multi-company inventory calculation
-            if not rec.update_stock_for_manufacture_boms and rec.allow_multi_company_inventory_calculation:
-                updates['allow_multi_company_inventory_calculation'] = False
-
-            # Rule 2: If both inventory sync flags are disabled → disable BOM update
+            # If both inventory sync flags are disabled → disable BOM update
             if not rec.export_inventory_job_enabled and not rec.inventory_synchronization_cron_id_active:
                 if rec.update_stock_for_manufacture_boms:
                     updates['update_stock_for_manufacture_boms'] = False
@@ -2576,6 +2579,7 @@ class SaleIntegration(models.Model):
                     # Use the internal import method directly
                     external_templates, external_variants, error_list, __ = new_integration._import_external_product(
                         block_template_ids,
+                        raise_error=False,  # Don't raise errors, we want to collect them in the error_list
                     )
 
                     # FIXME: _import_external_product can't correctly process incorrect external IDs which leads
@@ -2953,9 +2957,6 @@ class SaleIntegration(models.Model):
         location_ids_list = self.location_line_ids._group_by_external_code()
 
         for (external_location_id, internal_locations) in location_ids_list:
-            if not self.allow_multi_company_inventory_calculation:
-                # Use sudo() to safely read company_id even if access is restricted
-                internal_locations = internal_locations.filtered(lambda loc: loc.sudo().company_id == self.company_id)
             locations |= internal_locations
 
         if not locations:
@@ -3210,7 +3211,6 @@ class SaleIntegration(models.Model):
                 '📦 FINAL CALCULATION RESULT\n'
                 '%s\n'
                 ' • Total Producible Quantity: %.2f %s\n'
-                ' • Multi-company mode: {"Enabled" if self.allow_multi_company_inventory_calculation else "Disabled"}\n'
                 ' Result across all configured locations\n'
             ) % (line_text, total_producible_qty, product.uom_id.display_name)
         )
@@ -3400,7 +3400,7 @@ class SaleIntegration(models.Model):
 
         return mapping._fix_unmapped_shipping_one()
 
-    def import_external_product(self, template_ids):
+    def import_external_product(self, template_ids, raise_error=True):
         """
         (1) receive actual product data
         (2) create or update externals/mappings
@@ -3410,8 +3410,9 @@ class SaleIntegration(models.Model):
             str: Formatted message string with detailed import results
         """
 
+        # We don't prop raise_error into private method intentionally: current method always should collect errors
         external_templates, external_variants, \
-            error_list, failed_external_template_ids = self._import_external_product(template_ids)
+            error_list, failed_external_template_ids = self._import_external_product(template_ids, raise_error=False)
 
         message = ''
         total_processed = len(template_ids) if isinstance(template_ids, list) else 1
@@ -3431,6 +3432,8 @@ class SaleIntegration(models.Model):
                 message += _('\nErrors encountered:\n')
                 for error in error_list:
                     message += _('\t• %s\n\n') % error
+            if not raise_error:
+                return message.strip('\n')
             raise UserError(_('\n\n%s') % message)
 
         # Success section
@@ -3493,6 +3496,8 @@ class SaleIntegration(models.Model):
                 message += _('  ... and %s more errors\n') % remaining_errors
             message += '\n'
 
+            if not raise_error:
+                return message.strip('\n')
             raise UserError(_('\n\n%s') % message)
 
         elif failed_external_template_ids:
@@ -3501,7 +3506,7 @@ class SaleIntegration(models.Model):
             ) % ',\n'.join(failed_external_template_ids)
             message += self._import_external_product_separate_job(failed_external_template_ids) or ''
 
-        return message
+        return message.rstrip('\n')
 
     def _import_external_product_separate_job(
         self,
@@ -3537,7 +3542,7 @@ class SaleIntegration(models.Model):
             'See next failed job logs to see the details.'
         )
 
-    def _import_external_product(self, template_ids, try_to_map=True):
+    def _import_external_product(self, template_ids, try_to_map=True, raise_error=True):
         """
         Import external product templates and their variants.
 
@@ -3563,7 +3568,7 @@ class SaleIntegration(models.Model):
         try:
             ext_templates_data, failed_external_template_ids, errors = self.adapter.get_product_templates(
                 template_ids,
-                raise_error=False,
+                raise_error=raise_error,
             )
         except (
             es.SSLError,
@@ -3641,6 +3646,9 @@ class SaleIntegration(models.Model):
             ) as e:
                 errors.append(str(e))
                 failed_external_template_ids.append(template_id)
+
+        if errors and raise_error:
+            raise es.ApiImportError('\n'.join(errors))
 
         return external_templates, external_variants, errors, list(set(failed_external_template_ids))
 
@@ -4071,6 +4079,23 @@ class SaleIntegration(models.Model):
             )
 
             if price_data:
+
+                is_valid, message = self._validate_no_duplicated_specific_prices(
+                    price_data,
+                    template,
+                    raise_error=False,
+                )
+
+                if not is_valid:
+                    _logger.warning(
+                        '%s: duplicated specific prices for "%s": %s',
+                        self.name,
+                        template.display_name,
+                        message,
+                    )
+                    _invalid_template_ids |= template
+                    continue
+
                 if self._validate_pricelist_data(price_data):
                     _template_ids |= template
                     block_list.append(price_data)
@@ -4106,6 +4131,12 @@ class SaleIntegration(models.Model):
 
     def export_pricelists_one(self, template):
         data = template.convert_pricelists(self.id, raise_error=True)
+
+        self._validate_no_duplicated_specific_prices(
+            data,
+            template,
+            raise_error=True,
+        )
 
         if not data:
             message = _(
@@ -5516,14 +5547,14 @@ class SaleIntegration(models.Model):
         # Missing reference fields in the e-commerce system
         if template_ids:
             ecommerce_errors['missing_references'] = {
-                'title': _('Products without "%s" in the e-Commerce system:') % ref_field_name,
+                'title': _('Products without "%s" in the e-commerce system:') % ref_field_name,
                 'items': template_ids,
             }
 
         # Missing reference fields in product variants
         if variant_ids:
             ecommerce_errors['missing_variant_references'] = {
-                'title': _('Product variants IDs without "%s" in e-Commerce System:') % ref_field_name,
+                'title': _('Product variants IDs without "%s" in e-commerce System:') % ref_field_name,
                 'items': variant_ids,
             }
 
@@ -5548,7 +5579,7 @@ class SaleIntegration(models.Model):
         # Duplicated references in the e-commerce system
         if duplicated_ref:
             ecommerce_errors['duplicated_references'] = {
-                'title': _('Duplicated references in the e-Commerce system:'),
+                'title': _('Duplicated references in the e-commerce system:'),
                 'items': duplicated_ref,
                 'is_dict': True,
             }
@@ -5556,21 +5587,21 @@ class SaleIntegration(models.Model):
         # Partially filled barcodes
         if part_fill_bar:
             ecommerce_errors['partial_barcodes'] = {
-                'title': _('Products with partially filled barcodes on variants in the e-Commerce system:'),
+                'title': _('Products with partially filled barcodes on variants in the e-commerce system:'),
                 'items': part_fill_bar,
             }
 
         # Duplicated barcodes in the e-commerce system
         if duplicated_bar:
             ecommerce_errors['duplicated_barcodes'] = {
-                'title': _('Duplicated barcodes in e-Commerce System:'),
+                'title': _('Duplicated barcodes in the e-commerce system:'),
                 'items': duplicated_bar,
                 'is_dict': True,
             }
 
         if no_barcode_variants:
             ecommerce_errors['no_barcode_variants'] = {
-                'title': _('Product variants without barcodes in the e-Commerce system:'),
+                'title': _('Product variants without barcodes in the e-commerce system:'),
                 'items': no_barcode_variants,
                 'is_dict': True,
                 'wrap_key': True,
@@ -5764,7 +5795,7 @@ class SaleIntegration(models.Model):
         if self._get_external_product(external_template_id):
             return False
 
-        external_template, __, errors, __ = self._import_external_product(external_template_id)
+        external_template, __, errors, __ = self._import_external_product(external_template_id, raise_error=False)
 
         if errors:
             _logger.warning(f'Errors during template import {external_template_id}:\n' + '\n'.join(errors))
@@ -6298,24 +6329,24 @@ class SaleIntegration(models.Model):
         total_qty = 0  # Default value
 
         locations = locations.sudo()
-        if not self.allow_multi_company_inventory_calculation:
-            locations = locations.filtered(lambda loc: loc.company_id == self.company_id)
 
         # Detect KIT (phantom BOM) products
         is_kit = bool(product.bom_ids.filtered(lambda b: b.type == 'phantom'))
 
         if self.update_stock_for_manufacture_boms and product.bom_ids and not is_kit:
-            # For products with manufacturing BOMs (not kits)
+            # For products with manufacturing BOMs (not kits), switch company context per
+            # location so that the correct per-company BOM is used in the calculation.
             for loc in locations:
-                if self.allow_multi_company_inventory_calculation:
-                    company_id = loc.company_id
-                    product = product.with_company(company_id)
-                # use context for each location
-                total_qty += product.with_context(location=loc.id)._compute_qty_producible(qty_field)
-            total_qty += getattr(product.with_context(location=locations.ids), qty_field, 0)
+                product_loc = product.with_company(loc.company_id).with_context(location=loc.id)
+                total_qty += product_loc._compute_qty_producible(qty_field)
+                total_qty += getattr(product_loc, qty_field, 0)
         elif hasattr(product, qty_field):
-            product = product.with_context(location=locations.ids)
-            total_qty = getattr(product, qty_field)
+            for loc in locations:
+                total_qty += getattr(
+                    product.with_company(loc.company_id).with_context(location=loc.id),
+                    qty_field,
+                    0,
+                )
         else:
             raise ValidationError(_(
                 'There is no %s field in product.product module to get quantity of '
@@ -6452,8 +6483,8 @@ class SaleIntegration(models.Model):
             raise es.NotMappedFromExternal(
                 _(
                     'Failed to find the external product variant with code "%s".\n\n'
-                    'To resolve this issue, please run "Link Products" using the button '
-                    'on the "Initial Import" tab in your "%s" integration settings.\n'
+                    'To resolve this issue, please run "Create in Odoo" action for all products upmapped products '
+                    'on the "Mappings -> Products" menu in your "%s" integration.\n'
                     'After that, verify that all products are correctly mapped in the following menus:\n'
                     '1. "Mappings → Products"\n'
                     '2. "Mappings → Product Variants"'
@@ -6548,7 +6579,7 @@ class SaleIntegration(models.Model):
 
     def _get_order_sub_status_tuple(self, status_code):
         sub_status_id = self.env['sale.order.sub.status'].from_external(self, status_code, False)
-        external_sub_status = self.env[f'integration.sale.order.sub.status.external'] \
+        external_sub_status = self.env['integration.sale.order.sub.status.external'] \
             .get_external_by_code(self, status_code, False)
 
         if not sub_status_id:
@@ -6724,3 +6755,46 @@ class SaleIntegration(models.Model):
             translations[external_code] = value
 
         return {'language': translations}
+
+    def _is_specific_price_duplicate_validation_enabled(self):
+        return False
+
+    def _format_duplicated_specific_prices_message(self, duplicates, record):
+        return ''
+
+    def _find_duplicated_specific_prices(self, prices):
+        return {}
+
+    def _validate_no_duplicated_specific_prices(self, price_data, template=None, raise_error=False):
+        if not price_data or not self._is_specific_price_duplicate_validation_enabled():
+            return True, ''
+
+        tmpl_data, variant_data = price_data
+        blocks = [tmpl_data, *variant_data]
+
+        messages = []
+
+        for block in blocks:
+            res_id, res_model, ext_id, prices, force = block
+
+            if not prices:
+                continue
+
+            duplicates = self._find_duplicated_specific_prices(prices)
+            if not duplicates:
+                continue
+
+            record = self.env[res_model].browse(res_id)
+
+            message = self._format_duplicated_specific_prices_message(duplicates, record)
+
+            messages.append(message)
+
+        if not messages:
+            return True, ''
+
+        final_message = '\n\n'.join(messages)
+        if raise_error:
+            raise es.UserError(final_message)
+
+        return False, final_message

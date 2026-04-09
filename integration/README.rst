@@ -6,6 +6,18 @@ Change Log
 
 |
 
+* 2.1.3 (2026-04-08)
+    - [IMP] The Transaction Date imported from the e-commerce store is now used as the Payment Date when creating payments in Odoo, ensuring payment records accurately reflect the original transaction date rather than the date of import.
+    - [IMP] The "Allow Multi-Company Inventory Calculation" setting has been removed. Multi-company stock calculation per location is now always enabled automatically with the correct company context applied, simplifying configuration.
+    - [IMP] API credentials (access tokens, secret keys, passwords) are now masked in connector authentication wizards, preventing sensitive information from being accidentally exposed.
+    - [IMP] When using the "Auto-Link" button on a product mapping, the result is now displayed in a dialog instead of silently failing or showing a raw error message.
+    - [IMP] Multiple small UI/UX improvements across connector views to enhance usability and overall user experience.
+    - [FIX] Fixed an issue where product variants remained archived in Odoo after the product was unarchived via webhook, causing the product to appear active while its variants were still inactive.
+    - [FIX] Fixed an issue where inventory export in multi-company setups could ignore configured stock locations belonging to a different company than the one set on the store connection, causing incorrect stock quantities to be sent to the e-commerce store.
+    - [FIX] Fixed a critical issue where preprocessing scripts in "Order and Delivery Attribute Import Mapping" silently failed on Odoo 19.0, returning empty values instead of the computed result. The failure was caused by an incompatible argument in the script execution engine and was not visible to the user — only a hidden warning log was generated. All attribute import mappings that use preprocessing scripts are now working correctly.
+    - [FIX] Fixed an issue where custom field mappings were incorrectly marked as system fields after migrating from version 1.X.X to 2.X.X.
+    - [FIX] Other improvements and fixes implemented to boost overall performance, stability, and reliability.
+
 * 2.1.2 (2026-03-20)
     - [NEW] Added detailed contact handling trace logs during order import to help diagnose how customers, delivery addresses, and invoice addresses are resolved. To enable, activate the "Save Logs" checkbox on the Testing tab and add "Customers Sync" to the Log Types. A "View Contact Trace" button on the external order form provides quick access to the saved trace for each imported order.
     - [NEW] Added support for "Create Advance Payments (Before Invoice)" — a new option in the Sales Orders tab (requires "Auto-Apply Payments from E-Commerce System" to be enabled). When active, the connector registers payments directly on the Sales Order at import time, before any invoice is created, using the OCA sale_advance_payment module. The auto-workflow payment step is fully compatible — it will skip payment creation if the advance payment already covers the invoice, or register only the remaining balance if partially covered.

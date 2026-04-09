@@ -36,6 +36,14 @@
                     <field name="trackable_fields_rel" string="Tracked Fields" widget="many2many_tags" readonly="1" optional="hide"/>
                     <field name="is_translatable_field" string="Multi-Language" widget="boolean_toggle" readonly="1" optional="hide"/>
                     <field name="is_scriptable_field" string="Uses Script" widget="boolean_toggle" readonly="1" optional="hide"/>
+
+                    <!-- Action buttons -->
+                    <button name="action_open_ecommerce_field"
+                            string="Open Field Definition"
+                            type="object"
+                            icon="fa-external-link"
+                            title="Open Field Definition"
+                    />
                 </list>
             </field>
         </record>

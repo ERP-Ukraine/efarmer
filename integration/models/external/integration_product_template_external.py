@@ -11,7 +11,7 @@ from odoo.tools.sql import escape_psql
 from odoo.tools.misc import clean_context
 
 from ...tools import _compute_checksum, ExternalImage, IS_FALSE
-from ...exceptions import ApiImportError
+from ...exceptions import ErrorStore as es
 
 
 _logger = logging.getLogger(__name__)
@@ -22,6 +22,7 @@ class IntegrationProductTemplateExternal(models.Model):
     _inherit = ['integration.external.mixin', 'integration.product.external.mixin']
     _description = 'Integration Product Template External'
     _odoo_model = 'product.template'
+    _external_label = 'Product Template'
 
     external_barcode = fields.Char(
         string='Barcode',
@@ -497,7 +498,7 @@ class IntegrationProductTemplateExternal(models.Model):
         )
 
         if not self.external_reference and not external_variants:
-            raise ApiImportError(_(
+            raise es.ApiImportError(_(
                 'External reference is missing for the product template with code "%s" (%s). '
                 'Please ensure that the product template has a valid external reference.'
             ) % (self.code, self.name))
@@ -507,7 +508,7 @@ class IntegrationProductTemplateExternal(models.Model):
 
             # Case 1: Missing external references for some product variants
             if not all(references):
-                raise ApiImportError(_(
+                raise es.ApiImportError(_(
                     'Some product variants of the product template "%s" (%s) are missing the external reference. '
                     'Please ensure that all product variants have valid external references. '
                     'Affected variants: %s'
@@ -515,7 +516,7 @@ class IntegrationProductTemplateExternal(models.Model):
 
             # Case 2: Duplicated external references for product variants
             if len(references) != len(set(references)):
-                raise ApiImportError(_(
+                raise es.ApiImportError(_(
                     'Some product variants of the product template "%s" (%s) have duplicated external references. '
                     'Please ensure that all product variants have unique external references. '
                     'Affected variants: %s'
@@ -527,7 +528,7 @@ class IntegrationProductTemplateExternal(models.Model):
 
                 # Case 3a: Some product variants are missing barcodes
                 if any(variant_barcodes) and not all(variant_barcodes):
-                    raise ApiImportError(_(
+                    raise es.ApiImportError(_(
                         'Some product variants of the product template "%s" (%s) are missing barcodes. '
                         'Either all variants of the same product should have barcodes, or none of them should '
                         'have barcodes in the external E-Commerce system. Please review the barcode configuration. '
@@ -541,8 +542,6 @@ class IntegrationProductTemplateExternal(models.Model):
 
         # 0. Return the existing mapping
         if template:
-            if not template.active:
-                template = template.with_context(active_test=False)
             return template
 
         # Search by the reference
@@ -609,11 +608,21 @@ class IntegrationProductTemplateExternal(models.Model):
                     'External product "%s" was not mapped to any Odoo product template\n'
                 ) % external_variant.format_recordset()
 
-        raise ApiImportError(error_message)
+        raise es.ApiImportError(error_message)
 
     def _try_to_update_mappings(self, template):
         # Count of the found template's variants is equal to the count of external records.
         # What was checked during searching in the `_find_product_by_field` method.
+        # If the template is archived its variants are also archived, so active_test=False
+        # is required to find them.
+        # WARNING: active_test=False also exposes variants that Odoo archived due to attribute
+        # changes (e.g. a value was removed from an attribute line while the variant was used in
+        # orders/invoices, so Odoo archived rather than deleted it). Those "deprecated" variants
+        # are not valid combinations any more and must not be mapped. This is only safe here
+        # because we apply it conditionally (archived template only) and the count assertion below
+        # will catch any mismatch between external and Odoo variant counts.
+        if not template.active:
+            template = template.with_context(active_test=False)
         odoo_variant_ids = template.product_variant_ids
         external_variant_ids = self.external_product_variant_ids
 
@@ -653,7 +662,7 @@ class IntegrationProductTemplateExternal(models.Model):
                     f'Barcode: {v.barcode or "-"}'
                     for v in odoo_variant_ids
                 )
-                raise ApiImportError(_(
+                raise es.ApiImportError(_(
                     'The external variant "%s" was not found among the following Odoo records:\n%s.\n\n'
                     'Please make sure that your have corresponding product variant in Odoo. '
                     'If the issue persists, contact our support team for further '
@@ -682,7 +691,7 @@ class IntegrationProductTemplateExternal(models.Model):
         product = klass.search(domain, limit=2)
 
         if len(product) > 1:
-            raise ApiImportError(_(
+            raise es.ApiImportError(_(
                 'Multiple %ss were found with the field "%s" (%s) equal to "%s". '
                 'Please ensure that the field value is unique to avoid conflicts.'
             ) % (klass._description, klass._get_field_string(field_name), field_name, value))
@@ -696,7 +705,7 @@ class IntegrationProductTemplateExternal(models.Model):
         template = product.product_tmpl_id
 
         if len(template.product_variant_ids) != len(self.external_product_variant_ids):
-            raise ApiImportError(
+            raise es.ApiImportError(
                 _(
                     'The number of product variants for the product template "%s" (ID: %s) is %s, '
                     'but the number of received external records is %s. This mismatch needs to be resolved. \n'
@@ -712,7 +721,7 @@ class IntegrationProductTemplateExternal(models.Model):
 
         for variant in template.product_variant_ids:
             if not getattr(variant, field_name):
-                raise ApiImportError(
+                raise es.ApiImportError(
                     _(
                         'Some product variants for the product template "%s" (ID: %s) have an '
                         'empty "%s" field (%s = %s). '

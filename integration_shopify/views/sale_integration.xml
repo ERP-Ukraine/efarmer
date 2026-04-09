@@ -13,17 +13,17 @@
                 <group name="advanced_sales_order_settings" position="inside">
                     <label for="integration_channel_ids" string="Sale Channels" />
                     <div class="o_row" colspan="1">
-                        <div class="flex-grow-1" style="max-width: 250px;">
+                        <div class="flex-grow-1">
                             <field name="integration_channel_ids" widget="many2many_tags" invisible="not is_integration_shopify" options="{'no_create': True, 'no_edit': True}"/>
+                            <button name="import_sale_channels" string="Import Sale Channels" type="object" class="btn btn-outline-primary mb-2" invisible="not is_integration_shopify"/>
                         </div>
-                        <button name="import_sale_channels" string="Import Sale Channels" type="object" class="btn btn-outline-primary" invisible="not is_integration_shopify"/>
                     </div>
                     <label for="integration_business_entity_ids" string="Merchant Business Entities" />
                     <div class="o_row" colspan="1">
-                        <div class="flex-grow-1" style="max-width: 250px;">
+                        <div class="flex-grow-1">
                             <field name="integration_business_entity_ids" widget="many2many_tags" options="{'no_create': True, 'no_edit': True}" />
+                            <button name="import_business_entities" string="Import Merchant Business Entities" type="object" class="btn btn-outline-primary mb-2"/>
                         </div>
-                        <button name="import_business_entities" string="Import Merchant Business Entities" type="object" class="btn btn-outline-primary"/>
                     </div>
                 </group>
                 <page name="sale_order_page" position="inside">

@@ -189,8 +189,8 @@ value = {
             <field name="odoo_field_id" ref="integration.field_product_template__external_tag_group_ids"/>
             <field name="mapping_active_by_default" eval="False"/>
             <field name="is_default" eval="True"/>
-            <field name="default_for_update" eval="True"/>
-            <field name="default_for_import" eval="True"/>
+            <field name="default_for_update" eval="False"/>
+            <field name="default_for_import" eval="False"/>
             <field name="trackable_fields_ids" eval="[(6, 0, (ref('integration.field_product_template__external_tag_group_ids'),))]"/>
             <field name="export_field_type">string</field>
             <field name="import_script">
@@ -222,6 +222,39 @@ tag_names = template.external_tag_group_ids.filtered(
 value = {
     api_name: tag_names,
 }
+            </field>
+        </record>
+
+        <record id="shopify_ecommerce_field_taxonomy_category" model="product.ecommerce.field">
+            <field name="name">Taxonomy Category</field>
+            <field name="technical_name">category</field>
+            <field name="type_api">shopify</field>
+            <field name="odoo_model_id" ref="product.model_product_template"/>
+            <field name="odoo_field_id" ref="integration_shopify.field_product_template__taxonomy_category_id"/>
+            <field name="mapping_active_by_default" eval="False"/>
+            <field name="is_default" eval="True"/>
+            <field name="default_for_update" eval="False"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('integration_shopify.field_product_template__taxonomy_category_id'),))]"/>
+            <field name="import_script">
+template_data, _ = external_data
+product = integration.adapter.gql.Product.set(**template_data)
+
+odoo_name = field.get_odoo_field_name()
+value = {odoo_name: False}
+
+if product.category:
+    TaxonomyCategory = env['external.taxonomy.category']
+    category = TaxonomyCategory.find_category(product.category.to_odoo_format(), raise_if_not_found=True)
+    value[odoo_name] = category.id
+            </field>
+            <field name="export_script">
+category = template.taxonomy_category_id
+
+value = {}
+
+if category and category.code:
+    value['category'] = integration.adapter.gql.TaxonomyCategory._create_gid(category.code)
             </field>
         </record>
 

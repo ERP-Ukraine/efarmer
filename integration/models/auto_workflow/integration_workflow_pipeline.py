@@ -55,6 +55,7 @@ class IntegrationWorkflowPipelineLine(models.Model):
         related='order_id.company_id',
     )
     integration_id = fields.Many2one(
+        string='E-Commerce Store',
         comodel_name='sale.integration',
         related='order_id.integration_id',
     )

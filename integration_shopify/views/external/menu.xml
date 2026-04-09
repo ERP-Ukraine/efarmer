@@ -14,6 +14,17 @@
                   action="integration_catalog_external_action"
                   sequence="20"/>
 
+        <menuitem id="menu_integration_taxonomy_category_external"
+                  name="Taxonomy Categories"
+                  parent="integration.menu_external_shopify_only"
+                  action="integration_taxonomy_category_external_action"
+                  sequence="20"/>
+
+        <record id="integration.menu_categories_external" model="ir.ui.menu">
+            <!-- In other connectors we call collections categories, so we need to rename them to make it more clear for user -->
+            <field name="name">Categories (Collections)</field>
+        </record>
+
         <menuitem id="menu_order_fulfillments"
                   name="Order Fulfillments"
                   parent="integration.menu_external_shopify_only"

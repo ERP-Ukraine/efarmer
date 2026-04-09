@@ -67,7 +67,7 @@ class ExportFileMixin(models.AbstractModel):
             html_bytes = html_content.encode('utf-8') if isinstance(html_content, str) else html_content
 
             result = subprocess.run(
-                ['wkhtmltopdf', '--quiet', '-', '-'],
+                ['wkhtmltopdf', '--quiet', '--encoding', 'utf-8', '-', '-'],
                 input=html_bytes,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,

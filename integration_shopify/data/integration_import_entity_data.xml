@@ -31,5 +31,19 @@
             <field name="supports_import_by_id">False</field>
         </record>
 
+        <record model="integration.import.entity" id="integration_shopify_import_entity_taxonomy_categories">
+            <field name="name">Taxonomy Categories</field>
+            <field name="integration_type">shopify</field>
+            <field name="method_name">integrationApiImportTaxonomyCategories</field>
+            <field name="external_model">external.taxonomy.category</field>
+            <field name="is_master_data">True</field>
+            <field name="supports_import_by_id">False</field>
+        </record>
+
+        <record model="integration.import.entity" id="integration.integration_import_entity_categories">
+            <!-- In other connectors we call collections categories, so we need to rename them to make it more clear for user -->
+            <field name="name">Categories (Collections)</field>
+        </record>
+
     </data>
 </odoo>

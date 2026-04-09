@@ -6,9 +6,9 @@ from odoo import models
 class ProductEcommerceFieldMapping(models.Model):
     _inherit = 'product.ecommerce.field.mapping'
 
-    def get_translation_key(self, field_name_only: bool = True):
+    def get_translation_key(self, strip_path: bool = True):
         self.ensure_one()
-        return self.ecommerce_field_id.get_translation_key(field_name_only=field_name_only)
+        return self.ecommerce_field_id.get_translation_key(strip_path=strip_path)
 
     def has_translatable_fields(self, integration_id: int, add_domain: list = None):
         domain = [

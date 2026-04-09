@@ -84,6 +84,16 @@ class Product(ShopifyResourceUpdate, ProductMixin):
         return [self._env.Collection.set(**vals) for vals in (self['collections'] or [])]
 
     @property
+    def category(self):
+        self.ensure_one()
+        if not self.key_exist('category'):
+            self.read()
+            self.raise_if_no_key('category')
+
+        category_data = self['category']
+        return self._env.TaxonomyCategory.set(**(category_data or {}))
+
+    @property
     def options(self):
         self.ensure_one()
         return [self._env.ProductOption.set(**vals) for vals in (self['options'] or [])]

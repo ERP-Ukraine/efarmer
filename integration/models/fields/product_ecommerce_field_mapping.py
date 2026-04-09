@@ -150,6 +150,16 @@ class ProductEcommerceFieldMapping(models.Model):
         self.export_enabled = self.ecommerce_field_id.default_for_update
         self.import_enabled = self.ecommerce_field_id.default_for_import
 
+    def action_open_ecommerce_field(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'product.ecommerce.field',
+            'res_id': self.ecommerce_field_id.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
     def mark_active(self):
         """
         Activate the mapping for synchronization.

@@ -40,6 +40,10 @@ class IntegrationAuthShopify(models.TransientModel):
         default='authentication',
     )
 
+    url = fields.Char(
+        string='Store ID',
+    )
+
     use_oauth = fields.Boolean(
         string='Use OAuth',
         default=True,
@@ -219,5 +223,7 @@ class IntegrationAuthShopify(models.TransientModel):
 
         shop = gql.Shop
         shop.init()
+
+        self.integration_id.set_settings_value('original_url', shop.myshopifyDomain)
 
         return bool(shop)

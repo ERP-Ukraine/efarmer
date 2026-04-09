@@ -59,7 +59,7 @@ class IntegrationProductTemplateExternal(models.Model):
         data = dict()
         template = self.odoo_record.with_context(skip_product_export=True)
         for mapping in template._get_ecommerce_fields_mappings(integration.id, add_domain):
-            key = mapping.get_translation_key(field_name_only=False)
+            key = mapping.get_translation_key(strip_path=False)
 
             if key in translations:
                 odoo_name = mapping.ecommerce_field_id.get_odoo_field_name(raise_if_not_found=True)

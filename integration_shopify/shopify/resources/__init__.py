@@ -62,6 +62,8 @@ from .selected_option import SelectedOption
 from .staged_upload_target import StagedUploadTarget
 from .translatable_content import TranslatableContent
 from .translation import Translation
+from .taxonomy_category import TaxonomyCategory
+from .taxonomy import Taxonomy
 from .translatable_resource import TranslatableResource
 from .price_list_parent import PriceListAdjustment, PriceListAdjustmentSettings, PriceListParent
 from .currency_setting import CurrencySetting

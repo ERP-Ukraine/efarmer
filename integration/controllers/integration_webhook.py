@@ -40,6 +40,25 @@ class IntegrationWebhook:
         headers = self._get_headers()
         return headers.get(self.SHOP_NAME, False)
 
+    def _verify_shop_domain(self, integration):
+        """
+        Verify that the shop domain in the webhook request matches the configured integration URL.
+
+        Override in connector-specific subclasses to skip or customise this check
+        when the connector does not send a shop domain header.
+
+        Returns (True, message) on success or (False, error_message) on failure.
+        """
+        name = integration.name
+        shop_domain = self.get_shop_domain(integration)
+        settings_url = integration._truncate_settings_url()
+        original_shop_domain = integration.get_settings_value('original_url', '')
+
+        if shop_domain not in (settings_url, original_shop_domain):
+            return False, '%s webhook invalid shop domain "%s".' % (name, shop_domain)
+
+        return True, '%s webhook shop domain verified.' % name
+
     def verify_webhook(self, integration):
         name = integration.name
         # 1. Verify integration activation
@@ -52,10 +71,9 @@ class IntegrationWebhook:
             return False, '%s webhook missing required headers: %s.' % (name, ', '.join(missing_headers))
 
         # 3. Verify forwarded host
-        shop_domain = self.get_shop_domain(integration)
-        settings_url = integration._truncate_settings_url()
-        if settings_url not in shop_domain:
-            return False, '%s webhook invalid shop domain "%s".' % (name, shop_domain)
+        domain_ok, domain_msg = self._verify_shop_domain(integration)
+        if not domain_ok:
+            return False, domain_msg
 
         # 4. Verify integration webhook-lines
         if not integration.webhook_line_ids:

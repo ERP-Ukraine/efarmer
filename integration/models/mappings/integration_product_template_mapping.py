@@ -2,7 +2,7 @@
 
 import logging
 
-from odoo import fields, models
+from odoo import fields, models, _
 
 _logger = logging.getLogger(__name__)
 
@@ -34,7 +34,13 @@ class IntegrationProductTemplateMapping(models.Model):
 
     def run_map_product(self):
         self.ensure_one()
-        return self.integration_id.import_external_product(self.external_template_id.code)
+        message = self.integration_id.import_external_product(
+            self.external_template_id.code,
+            raise_error=False,
+        )
+        action = self.env['message.wizard'].create_and_run(message)
+        action['name'] = _('Auto-Link Results')
+        return action
 
     def run_import_products(self):
         return self.mapped('external_template_id').run_import_products()

@@ -118,5 +118,10 @@
                   parent="menu_mappings"
                   sequence="430"/>
 
+        <menuitem id="menu_mappings_baselinker_only"
+                  name="Baselinker Only"
+                  parent="menu_mappings"
+                  sequence="440"/>
+
     </data>
 </odoo>

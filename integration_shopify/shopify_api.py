@@ -74,7 +74,8 @@ _logger = logging.getLogger(__name__)
 class ShopifyAPIClient(AbsApiClient):
 
     settings_fields = (
-        ('url', 'Shop URL', ''),
+        ('url', 'Shop ID', ''),
+        ('original_url', 'Original Shop ID', ''),
         ('key', 'Admin API access token', '', False, True),
         ('client_id', 'Client ID', '', False, True),
         ('secret_key', 'API Secret Key', '', False, True),
@@ -1121,6 +1122,12 @@ class ShopifyAPIClient(AbsApiClient):
             limit=math.inf,
         )
         return [x.to_odoo_format() for x in collections]
+
+    @check_scope('read_products')
+    def get_taxonomy_categories(self):
+        _logger.info('Shopify "%s": get_taxonomy_categories()', self._integration_name)
+        taxonomy_categories = self.gql.Taxonomy.get_categories()
+        return [x.to_odoo_format() for x in taxonomy_categories]
 
     @check_scope('read_products', 'read_markets')
     def get_catalogs(self):

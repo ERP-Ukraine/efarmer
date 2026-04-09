@@ -28,6 +28,13 @@ class TestIntegrationShopify(IntegrationShopifyBase):
             'import_enabled': True,
         })
 
+        # Create taxonomy category required by product test data
+        cls.env['external.taxonomy.category'].create({
+            'name': 'Electric Guitars',
+            'code': 'ae-2-8-7-2-4',
+            'integration_id': cls.integration.id,
+        })
+
     def test_get_product_accounts(self):
         # Product 1
         res = self.product1.product_tmpl_id.with_company(self.company).get_product_accounts()
@@ -67,6 +74,7 @@ class TestIntegrationShopify(IntegrationShopifyBase):
         t, (v1, v2, v3, v4), errors, __ = self.integration._import_external_product(
             ['10203545100500'],
             try_to_map=False,
+            raise_error=False,
         )
 
         # 1. Test external records

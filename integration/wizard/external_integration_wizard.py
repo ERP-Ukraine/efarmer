@@ -69,7 +69,7 @@ class ExternalIntegrationLine(models.TransientModel):
         return [
             (NO_CHANGE, 'No Change'),
             (SET, 'Set'),
-            (REMOVE, 'UnSet'),
+            (REMOVE, 'Unset'),
         ]
 
     wizard_id = fields.Many2one(

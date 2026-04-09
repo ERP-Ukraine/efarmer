@@ -26,6 +26,13 @@ class ProductTemplate(models.Model):
         default='DENY',
     )
 
+    taxonomy_category_id = fields.Many2one(
+        comodel_name='external.taxonomy.category',
+        string='Shopify Product Category',
+        domain="[('is_archived', '=', False)]",
+        help='The taxonomy category of the product in the external E-Commerce Store.',
+    )
+
     def to_export_format(self, integration):
         result = super().to_export_format(integration)
 

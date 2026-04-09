@@ -518,16 +518,16 @@ class ProductEcommerceField(models.Model):
 
         return record
 
-    def get_api_field_name(self, field_name_only: bool = False) -> str:
+    def get_api_field_name(self, strip_path: bool = False) -> str:
         """
         Get the API field name for external e-commerce system.
 
-        :param field_name_only: If True, return only the last part of dotted path
+        :param strip_path: If True, return only the last part of dotted path
         :return: API field name string
         """
         value = self.technical_name
 
-        if field_name_only:
+        if strip_path:
             value = value.split('.')[-1]
 
         return value
@@ -621,7 +621,7 @@ class ProductEcommerceField(models.Model):
 
         return {odoo_name: value_}
 
-    def _extract_import_value(self, integration_id: int, data: tuple, raw: bool = False):
+    def _extract_import_value(self, integration_id: int, data: tuple, strip_path: bool = False, raw: bool = False):
         """
         Extract and convert field value from external API data.
 
@@ -639,7 +639,7 @@ class ProductEcommerceField(models.Model):
         else:
             source_data = variant_data
 
-        api_name = self.get_api_field_name()
+        api_name = self.get_api_field_name(strip_path=strip_path)
         value = ExtractNode.extract_raw(source_data, api_name, '', raise_error=False)
 
         if raw:

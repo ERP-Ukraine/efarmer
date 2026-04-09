@@ -71,6 +71,12 @@
                                     alt="Connector Logo"
                                     invisible="type_api != 'woocommerce'"
                                 />
+                                <img
+                                    class="w-100"
+                                    src="/integration_baselinker/static/description/icon.png"
+                                    alt="Connector Logo"
+                                    invisible="type_api != 'baselinker'"
+                                />
                             </div>
                             <div class="col-md-10 d-flex flex-column justify-content-center mb-3">
                                 <h1>
@@ -82,6 +88,7 @@
                                     <field name="is_integration_prestashop" invisible="1"/> <!-- Required because it is used in the invisible condition above -->
                                     <field name="is_integration_magento_two" invisible="1"/> <!-- Required because it is used in the invisible condition above -->
                                     <field name="is_integration_woocommerce" invisible="1"/> <!-- Required because it is used in the invisible condition above -->
+                                    <field name="supports_external_locations" invisible="1"/> <!-- Required because it is used in parent.supports_external_locations in nested list -->
                                 </h2>
                                 <div class="d-flex align-items-center mt-2">
                                     <field name="api_access_granted" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
@@ -249,13 +256,13 @@
                                     <group name="order_actions" string="Sales Order Sync Settings">
                                         <field name="run_action_on_cancel_so" invisible="not id or is_integration_shopify" widget="boolean_toggle"/>
                                         <field name="sub_status_cancel_id"
-                                               required="run_action_on_cancel_so and (type_api in ['prestashop', 'woocommerce'])"
-                                               invisible="not run_action_on_cancel_so or (type_api not in ['prestashop', 'woocommerce'])"
+                                               required="run_action_on_cancel_so and (type_api in ['prestashop', 'woocommerce', 'baselinker'])"
+                                               invisible="not run_action_on_cancel_so or (type_api not in ['prestashop', 'woocommerce', 'baselinker'])"
                                         />
                                         <field name="run_action_on_so_invoice_status" widget="boolean_toggle"/>
                                         <field name="sub_status_paid_id"
-                                               required="run_action_on_so_invoice_status and (type_api in ['prestashop', 'woocommerce'])"
-                                               invisible="not run_action_on_so_invoice_status or (type_api not in ['prestashop', 'woocommerce'])"
+                                               required="run_action_on_so_invoice_status and (type_api in ['prestashop', 'woocommerce', 'baselinker'])"
+                                               invisible="not run_action_on_so_invoice_status or (type_api not in ['prestashop', 'woocommerce', 'baselinker'])"
                                         />
                                     </group>
                                     <group name="advanced_sales_order_settings" string="Advanced Sales Order Settings" invisible="not is_integration_shopify">
@@ -392,7 +399,7 @@
                                         </div>
                                         <div colspan="2">
                                             <group>
-                                                <field name="integration_sale_pricelist_id" invisible="is_integration_prestashop or is_integration_magento_two"/>
+                                                <field name="integration_sale_pricelist_id" invisible="is_integration_prestashop or is_integration_magento_two or is_integration_baselinker"/>
                                             </group>
                                             <div class="mb-4" invisible="not integration_sale_pricelist_id">
                                                 <span class="border-start border-warning border-2 d-block ps-2" name="sale-pricelist-warning">
@@ -406,13 +413,13 @@
                                     <group string="Product Synchronization Settings" name="product_synchronization_settings">
                                         <field name="mandatory_fields_initial_product_export" widget="many2many_tags" options="{'no_open': True, 'no_create': True}"/>
                                         <field name="global_tracked_fields" widget="many2many_tags" groups="base.group_no_one" options="{'no_open': True, 'no_create': True}"/>
-                                        <field name="product_bundle_policy" invisible="is_integration_shopify or is_integration_prestashop"/>
+                                        <field name="product_bundle_policy" invisible="is_integration_shopify or is_integration_prestashop or is_integration_baselinker"/>
                                         <field name="allow_import_images" widget="boolean_toggle"/>
                                         <field name="allow_export_images" widget="boolean_toggle"/>
                                         <field name="validate_barcode" invisible="is_integration_woocommerce" groups="base.group_no_one" widget="boolean_toggle"/>
                                         <field name="send_inactive_product" widget="boolean_toggle"/>
                                         <field name="is_import_dynamic_attribute" groups="base.group_no_one" widget="boolean_toggle"/>
-                                        <field name="ignore_boms_for_product_export" widget="boolean_toggle" invisible="is_integration_shopify or is_integration_woocommerce"/>
+                                        <field name="ignore_boms_for_product_export" widget="boolean_toggle" invisible="is_integration_shopify or is_integration_woocommerce or is_integration_baselinker"/>
                                     </group>
                                     <group string="Product Creation Settings" name="product_creation_settings">
                                         <div class="alert alert-info" role="alert" colspan="2">
@@ -462,16 +469,17 @@
                                         <field name="update_stock_for_manufacture_boms"
                                                widget="boolean_toggle"
                                                readonly="not export_inventory_job_enabled and not inventory_synchronization_cron_id_active"/>
-                                        <field name="allow_multi_company_inventory_calculation"
-                                                invisible="not update_stock_for_manufacture_boms"
-                                                widget="boolean_toggle"
-                                                groups="base.group_no_one"/>
                                     </group>
                                 </group>
                                 <group string="Inventory Location Mapping" name="inventory_location_mapping">
-                                    <div colspan="2">
+                                    <div colspan="2" invisible="not supports_external_locations">
                                         <p>
                                             Map Odoo inventory locations to corresponding e-commerce system locations to ensure accurate stock level synchronization.
+                                        </p>
+                                    </div>
+                                    <div colspan="2" invisible="supports_external_locations">
+                                        <p>
+                                            Select which Odoo inventory locations are included in stock level synchronization.
                                         </p>
                                     </div>
                                     <field name="location_line_ids" colspan="2" nolabel="1">
@@ -481,17 +489,19 @@
                                             <field name="erp_location_id"
                                                    domain="[('usage', '=', 'internal')]"
                                                    options="{'no_open': True, 'no_create': True}"/>
-                                            <field name="warehouse_id"/>
+                                            <field name="warehouse_id"
+                                                   column_invisible="not parent.supports_external_locations"/>
                                             <field name="external_location_id"
                                                    domain="[('integration_id', '=', integration_id)]"
                                                    options="{'no_open': True, 'no_create': True}"
+                                                   column_invisible="not parent.supports_external_locations"
                                             />
                                         </list>
                                     </field>
                                 </group>
                             </page>
 
-                            <page string="Webhooks" name="webhooks_defaults">
+                            <page string="Webhooks" name="webhooks_defaults" invisible="is_integration_baselinker">
                                 <div>
                                     Webhooks enable instant communication between your e-commerce platform and Odoo.
                                     Instead of waiting for the next scheduled sync, your store can push events
@@ -544,7 +554,7 @@
                                 </group>
                             </page>
 
-                            <page string="API" name="external_integration">
+                            <page string="API" name="external_integration" invisible="is_integration_baselinker">
                                 <div>
                                     Our connector enables additional API routes to enhance the integration between Odoo and your e-commerce platform.
                                     These APIs allow your store to request or receive structured business data—such as invoices — directly from your Odoo.
@@ -594,8 +604,9 @@
                                         <field name="receive_orders_cron_id_active" widget="boolean_toggle"/>
                                         <field name="export_tracking_job_enabled" widget="boolean_toggle"/>
                                         <field name="sub_status_shipped_id"
-                                               required="export_tracking_job_enabled and (type_api in ['prestashop', 'woocommerce'])"
-                                               invisible="not export_tracking_job_enabled or (type_api not in ['prestashop', 'woocommerce'])"
+                                               required="export_tracking_job_enabled and (type_api in ['prestashop', 'woocommerce', 'baselinker'])"
+                                               invisible="not export_tracking_job_enabled or (type_api not in ['prestashop', 'woocommerce', 'baselinker'])"
+                                               options="{'no_create': True, 'no_create_edit': True}"
                                         />
                                         <div class="alert alert-warning mb-1" role="alert" colspan="2" invisible="not is_integration_shopify">
                                              Ensure you have correctly configured the Inventory Location Mapping table on the Inventory tab before enabling this option. Incorrect mappings may lead to fulfillment errors in Shopify.
@@ -634,7 +645,17 @@
                                             <button name="action_run_import_wizard"
                                                     type="object"
                                                     string="Open Import Wizard"
-                                                    class="btn btn-outline-primary w-100"
+                                                    class="btn btn-outline-primary w-100 mb-2"
+                                            />
+                                            <button name="integrationApiProductsValidationTest"
+                                                    type="object"
+                                                    string="Run Validation Test"
+                                                    class="btn btn-outline-secondary w-100"
+                                            />
+                                            <button name="integrationApiProductsValidationTest"
+                                                    type="object"
+                                                    string="Run Validation Test"
+                                                    class="btn btn-outline-secondary w-100"
                                             />
                                         </div>
                                     </div>
@@ -670,7 +691,7 @@
                                     </div>
                                 </group>
 
-                                <group string="[Optional] Import Customers" name="initial_import_customers">
+                                <group string="[Optional] Import Customers" name="initial_import_customers" invisible="is_integration_baselinker">
                                     <div class="row" colspan="2">
                                         <div class="col-md-10">
                                             <p>
@@ -877,6 +898,7 @@
                             <t t-set="module_name" t-if="record.type_api.raw_value == 'shopify'" t-value="'integration_shopify'"/>
                             <t t-set="module_name" t-if="record.type_api.raw_value == 'magento2'" t-value="'integration_magento2'"/>
                             <t t-set="module_name" t-if="record.type_api.raw_value == 'woocommerce'" t-value="'integration_woocommerce'"/>
+                            <t t-set="module_name" t-if="record.type_api.raw_value == 'baselinker'" t-value="'integration_baselinker'"/>
                             <t t-set="module_name" t-if="record.type_api.raw_value == 'no_api'" t-value="'integration'"/>
 
                             <div class="p-0 h-100" t-att-style="card_opacity">

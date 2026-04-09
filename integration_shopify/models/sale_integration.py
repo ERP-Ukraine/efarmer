@@ -181,6 +181,18 @@ class SaleIntegration(models.Model):
 
         return tags
 
+    @expose_for_testing('Import Taxonomy Categories (Shopify Only)')
+    def integrationApiImportTaxonomyCategories(self, *args, **kw):
+        if not self.is_integration_shopify:
+            raise NotImplementedError
+
+        external_records, _ = self._import_external(
+            'external.taxonomy.category',
+            'get_taxonomy_categories',
+        )
+
+        return external_records
+
     def is_translations_needed(self, force_import: bool = None, force_export: bool = None):
         self.ensure_one()
 
