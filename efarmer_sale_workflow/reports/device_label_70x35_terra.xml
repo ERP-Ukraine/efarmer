@@ -4,7 +4,7 @@
     <template id="device_label_70x35_terra">
 
         <t t-foreach="docs" t-as="doc">
-            <t t-set="lots" t-value="doc.lot_producing_ids if doc._name == 'mrp.production' else doc.lot_id"/>
+            <t t-set="lots" t-value="doc.lot_producing_id if doc._name == 'mrp.production' else doc.lot_id"/>
             <t t-set="upper_amendment"
                t-value="lambda s,n,t: int(t and sum(1 for c in s[:n] if c.isupper() or c == '-')//5 + bool(sum(1 for c in s[:n] if c.isupper())%5)*1)"/>
             <t t-set="cutter"
