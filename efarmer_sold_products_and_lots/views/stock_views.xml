@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_sold_product_lots_filter" model="ir.ui.view">
+        <field name="name">Products move Search</field>
+        <field name="model">stock.move.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Sold Products and Lots">
+                <field name="reference" string="Reference"/>
+                <field name="product_id"/>
+                <field name="lot_id"/>
+                <field name="picking_partner_id"/>
+                <field name="state"/>
+                <filter string="Outgoing" name="moves_ougoing" domain="[('location_dest_id.usage', '=', 'customer')]"/>
+                <filter string="Returns" name="moves_returned" domain="[('location_id.usage', '=', 'customer')]"/>
+                <group>
+                    <filter string="Customer" name="customer" domain="['|', ('location_dest_id.usage', '=', 'customer'),('location_id.usage', '=', 'customer')]" context="{'group_by':'picking_partner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_stock_move_line_sold" model="ir.ui.view">
+        <field name="name">Sold Products &amp; Lots</field>
+        <field name="model">stock.move.line</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="picking_partner_id" />
+                <field name="picking_id" optional="show"/>
+                <field name="date" optional="show"/>
+                <field name="reference" optional="hide"/>
+                <field name="product_id" optional="show"/>
+                <field name="lot_id" optional="show"/>
+                <field name="location_id" optional="show"/>
+                <field name="location_dest_id" optional="show"/>
+                <field name="qty_done" optional="show"/>
+                <field name="product_uom_id" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" optional="show"/>
+                <field name="state" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="sold_product_lots_action" model="ir.actions.act_window">
+        <field name="name">Sold Products &amp; Lots</field>
+        <field name="res_model">stock.move.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_stock_move_line_sold" />
+        <field name="domain">['|', ('location_dest_id.usage', '=', 'customer'),('location_id.usage', '=', 'customer')]</field>
+        <field name="context">{'search_default_customer':1}</field>
+        <field name="search_view_id" ref="view_sold_product_lots_filter"/>
+    </record>
+
+    <menuitem
+        id="menu_sold_product_lots"
+        name="Sold Products &amp; Lots"
+        parent="stock.menu_warehouse_report"
+        sequence="150"
+        action="sold_product_lots_action"
+    />
+</odoo>
