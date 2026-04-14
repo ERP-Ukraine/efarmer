@@ -177,7 +177,6 @@ class AccountMove(models.Model):
             ('BFK', 'BFK'),
             ('DI', 'DI'),
         ],
-        default='BFK',
         string='KSeF Invoice Proof',
         help='Dane z faktur lub oznaczenia dotyczące występowania faktur w Krajowym Systemie e-Faktur\n'
         'OFF - Faktura, o której mowa w art. 106nf ust. 1 ustawy, która na dzień złożenia ewidencji nie posiada '
@@ -199,6 +198,12 @@ class AccountMove(models.Model):
                 else:
                     date = move.date
                 move.write({'pl_vat_date': date})
+
+            if move.move_type in ('in_invoice', 'in_refund'):
+                if move.x_pl_ksef_invoice_number and move.x_pl_ksef_invoice_proof:
+                    move.write({'x_pl_ksef_invoice_proof': False})
+                elif not move.x_pl_ksef_invoice_number and not move.x_pl_ksef_invoice_proof:
+                    move.write({'x_pl_ksef_invoice_proof': 'BFK'})
 
         return response
 
