@@ -2,8 +2,8 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
 from . import (
-    # account_fiscal_position,
-    # account_fiscal_position_tax,
+    account_fiscal_position,
+    account_fiscal_position_tax,
     product_function,
     product_template,
     product_vat,
@@ -12,5 +12,5 @@ from . import (
     res_users,
     sale_order,
     sale_order_line,
-    # stock_valuation_layer_revaluation,
+    stock_valuation_layer_revaluation,
 )
