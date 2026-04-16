@@ -11,10 +11,6 @@
     "license": "LGPL-3",
     "depends": ["base"],
     "data": [
-        # Security
-        # "security/ir.model.access.csv",
-        # Wizard Views
-        # "wizards/hr_payslip_import_wizard.xml",
     ],
     "installable": True,
     "application": True,
