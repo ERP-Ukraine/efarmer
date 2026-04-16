@@ -4,8 +4,8 @@ YouTrack Integration
 Change Log
 ##########
 
-* 19.0.1.0.0 (2026-02-25)
-    - Migrated to ODOO 19
+* 18.0.1.0.0 (2026-02-25)
+    - Migrated to ODOO 18
 
 * 1.0.2 (2023-04-19)
     - Fixed filling of Task Name PL field
