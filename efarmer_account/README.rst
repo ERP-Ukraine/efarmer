@@ -4,8 +4,8 @@ eFarmer Account module
 Change Log
 ##########
 
-* 19.0.1.0.0 (2026-02-11)
-    - Migrated to ODOO 19
+* 18.0.1.0.0 (2026-02-11)
+    - Migrated to ODOO 18
 
 * 15.0.1.3.0 (2025-12-15)
     - Post Migration Changes
