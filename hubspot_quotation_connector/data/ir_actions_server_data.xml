@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2023 Solvve, Inc. <sales@solvve.com>
+-->
+<odoo>
+    <data noupdate="True">
+        <record id="assign_sale_order_hubspot_deal_action" model="ir.actions.server">
+            <field name="name">Assign HubSpot Deal</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="binding_view_types">form</field>
+            <field name="state">code</field>
+            <field name="code">action = records.action_assign_hubspot_deal()</field>
+            <field name="group_ids"
+                   eval="[(6, 0, [
+                        ref('hubspot_quotation_connector.hubspot_user'),
+                   ])]"/>
+        </record>
+
+        <record id="unassign_sale_order_hubspot_deal_action" model="ir.actions.server">
+            <field name="name">Unassign HubSpot Deal</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="binding_view_types">form</field>
+            <field name="state">code</field>
+            <field name="code">action = records.action_unassign_hubspot_deal()</field>
+            <field name="group_ids"
+                   eval="[(6, 0, [
+                        ref('hubspot_quotation_connector.hubspot_user'),
+                   ])]"/>
+        </record>
+    </data>
+</odoo>
