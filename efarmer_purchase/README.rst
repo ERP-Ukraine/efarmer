@@ -4,6 +4,10 @@ Purchase eFarmer module
 Change Log
 ##########
 
+18.0.1.0.0 (2026-16-04)
+*****************************************************************
+    - Migrated to ODOO 18
+
 * 1.3.0 (2026-01-26)
     -  Add a user-level setting ‘Allow Purchase Order Lines’ to hide/show Purchase Order Lines menu
 
