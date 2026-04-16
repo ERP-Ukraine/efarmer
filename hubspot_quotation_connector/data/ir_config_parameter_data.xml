@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2023 Solvve, Inc. <sales@solvve.com>
+-->
+<odoo>
+    <data noupdate="True">
+        <record id="deals_extra_properties" model="ir.config_parameter">
+            <field name="key">hubspot_quotation_connector.sale_order_field_map</field>
+            <field name="value">
+                {
+                'order_amount': 'amount',
+                'order_margin': 'margin',
+                'order_number': 'odoo_sale_order_number',
+                'order_date': 'closedate',
+                }
+            </field>
+        </record>
+        <record id="deals_fetch_limit" model="ir.config_parameter">
+            <field name="key">hubspot_quotation_connector.deals_fetch_limit</field>
+            <field name="value">80</field>
+        </record>
+    </data>
+</odoo>

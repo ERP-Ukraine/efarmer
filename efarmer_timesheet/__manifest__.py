@@ -27,6 +27,7 @@
         # Model Views
         "views/hr_views.xml",
         "views/account_analytic_line_views.xml",
+        "views/timesheet_analysis_report_views.xml",
     ],
     "installable": True,
     "application": True,

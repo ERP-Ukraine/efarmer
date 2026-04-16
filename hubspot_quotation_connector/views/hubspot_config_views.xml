@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2023 Solvve, Inc. <sales@solvve.com>
+-->
+<odoo>
+
+    <record id="hubspot_config_form_view" model="ir.ui.view">
+        <field name="name">hubspot.config.form</field>
+        <field name="model">hubspot.config</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="access_token" password="True"/>
+                        </group>
+                        <group>
+                            <field name="write_uid"/>
+                            <field name="write_date"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="hubspot_config_tree_view" model="ir.ui.view">
+        <field name="name">hubspot.config.tree</field>
+        <field name="model">hubspot.config</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="access_token" password="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hubspot_config_act_window" model="ir.actions.act_window">
+        <field name="name">HubSpot</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hubspot.config</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <menuitem name="HubSpot Connector"
+              id="hubspot_connector_menu"
+              parent="base.menu_automation"
+              action="hubspot_config_act_window"/>
+</odoo>

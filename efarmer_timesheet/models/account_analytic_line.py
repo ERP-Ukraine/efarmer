@@ -1,7 +1,6 @@
 # Copyright 2026 VentorTech OU
 # Part of Ventor modules. See LICENSE file for full copyright and licensing details.
-
-from odoo import models, fields, _, api
+from odoo import models, fields, api
 
 
 class AccountAnalyticLine(models.Model):
