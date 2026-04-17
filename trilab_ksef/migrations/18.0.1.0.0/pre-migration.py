@@ -4,106 +4,114 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+MODULES = [
+    "rma",
+    "hr_holidays_public",
+    "hr_attendance_report_theoretical_time",
+    "efarmer_activities",
+    "efarmer_bom_disassembly",
+    "efarmer_forecasted_receipts_report",
+    "efarmer_helpdesk_repair",
+    "efarmer_sale_customer_mail",
+    "efarmer_sale_report",
+    "efarmer_trilab_extension",
+    "efarmer_whitelist_history",
+    "hr_attendance_autoclose",
+    "hr_attendance_calendar_view",
+    "hr_attendance_geolocation",
+    "hr_attendance_reason",
+    "hr_attendance_report_theoretical_time",
+    "hr_holidays_public",
+    "list_view_sticky_header",
+    "purchase_invoice_plan",
+    "purchase_open_qty",
+    "purchase_order_line_sequence",
+    "sale_order_line_sequence",
+    "stock_picking_line_sequence",
+    "trilab_invoice",
+    "trilab_jpk_base",
+    "trilab_jpk_vat",
+    "trilab_pl_reports",
+    "trilab_whitelist-15.0.2.5",
+    "trilab_ksef",
+]
 
-MODEL_TABLE_MAP = {
-    "ir.ui.view": "ir_ui_view",
-    "ir.actions.act_window": "ir_actions_act_window",
-    "ir.actions.server": "ir_actions_server",
-    "ir.actions.report": "ir_actions_report",
-    "ir.actions.act_window.view": "ir_actions_act_window_view",
-    "ir.ui.menu": "ir_ui_menu",
-    "mail.template": "mail_template",
-}
+def delete_by_model(cr, model, table):
+    _logger.info(f"🧹 Deleting {model}")
 
+    cr.execute(f"""
+        DELETE FROM {table}
+        WHERE id IN (
+            SELECT res_id
+            FROM ir_model_data
+            WHERE module = ANY(%s)
+              AND model = %s
+        )
+    """, (MODULES, model))
 
 def migrate(cr, version):
     if not version:
         return
 
-    _logger.info("🚀 START FULL MODULE CLEANUP")
-
-    modules = [
-        "rma",
-        "hr_holidays_public",
-        "hr_attendance_report_theoretical_time",
-        "efarmer_activities",
-        "efarmer_bom_disassembly",
-        "efarmer_forecasted_receipts_report",
-        "efarmer_helpdesk_repair",
-        "efarmer_sale_customer_mail",
-        "efarmer_sale_report",
-        "efarmer_trilab_extension",
-        "efarmer_whitelist_history",
-        "hr_attendance_autoclose",
-        "hr_attendance_calendar_view",
-        "hr_attendance_geolocation",
-        "hr_attendance_reason",
-        "hr_attendance_report_theoretical_time",
-        "hr_holidays_public",
-        "list_view_sticky_header",
-        "purchase_invoice_plan",
-        "purchase_open_qty",
-        "purchase_order_line_sequence",
-        "sale_order_line_sequence",
-        "stock_picking_line_sequence",
-        "trilab_invoice",
-        "trilab_jpk_base",
-        "trilab_jpk_vat",
-        "trilab_pl_reports",
-        "trilab_whitelist-15.0.2.5",
-        "trilab_ksef",
-    ]
+    _logger.info("🚀 START FULL CLEANUP")
 
     # =====================================================
-    # 1. GET ALL RECORDS FROM ir_model_data
+    # OPTIONAL: disable FK constraints (recommended)
     # =====================================================
-    cr.execute("""
-        SELECT module, name, model, res_id
-        FROM ir_model_data
-        WHERE module = ANY(%s)
-    """, (modules,))
+    _logger.info("⚙️ Disabling FK constraints")
+    cr.execute("SET session_replication_role = 'replica'")
 
-    records = cr.fetchall()
+    try:
+        # =================================================
+        # DELETE IN CORRECT ORDER
+        # =================================================
 
-    _logger.info("Found %s records to process", len(records))
+        # 1. action views (depends on actions)
+        delete_by_model(cr, "ir.actions.act_window.view", "ir_actions_act_window_view")
 
-    # =====================================================
-    # 2. DELETE RECORDS BY MODEL
-    # =====================================================
-    for module, name, model, res_id in records:
-        table = MODEL_TABLE_MAP.get(model)
+        # 2. server actions
+        delete_by_model(cr, "ir.actions.server", "ir_actions_server")
 
-        if not table:
-            # skip unknown models (or log them)
-            _logger.warning("Skipping model: %s (%s.%s)", model, module, name)
-            continue
+        # 3. report actions
+        delete_by_model(cr, "ir.actions.report", "ir_actions_report")
 
-        try:
-            _logger.info("Deleting %s (%s.%s)", model, module, name)
+        # 4. window actions
+        delete_by_model(cr, "ir.actions.act_window", "ir_actions_act_window")
 
-            cr.execute(f"""
-                DELETE FROM {table}
-                WHERE id = %s
-            """, (res_id,))
+        # 5. menus (depend on actions)
+        delete_by_model(cr, "ir.ui.menu", "ir_ui_menu")
 
-        except Exception as e:
-            _logger.error(
-                "Failed deleting %s (%s.%s): %s",
-                model, module, name, str(e)
-            )
+        # 6. views
+        delete_by_model(cr, "ir.ui.view", "ir_ui_view")
 
-    # =====================================================
-    # 3. DELETE ir_model_data ENTRIES
-    # =====================================================
-    _logger.info("Cleaning ir_model_data")
+        # 7. mail templates
+        delete_by_model(cr, "mail.template", "mail_template")
 
-    cr.execute("""
-        DELETE FROM ir_model_data
-        WHERE module = ANY(%s)
-    """, (modules,))
+        # =================================================
+        # OPTIONAL: delete business models (if needed)
+        # =================================================
+        # Example:
+        # delete_by_model(cr, "account.account.tag", "account_account_tag")
+        # delete_by_model(cr, "jpk.account.tag", "jpk_account_tag")
 
-    _logger.info(" CLEANUP FINISHED")
+        # =================================================
+        # CLEAN ir_model_data LAST
+        # =================================================
+        _logger.info("🧹 Cleaning ir_model_data")
 
+        cr.execute("""
+            DELETE FROM ir_model_data
+            WHERE module = ANY(%s)
+        """, (MODULES,))
+
+    finally:
+        # =================================================
+        # RE-ENABLE FK constraints
+        # =================================================
+        _logger.info("⚙️ Restoring FK constraints")
+        cr.execute("SET session_replication_role = 'origin'")
+
+    _logger.info("✅ CLEANUP FINISHED")
 # # -*- coding: utf-8 -*-
 
 # import logging
