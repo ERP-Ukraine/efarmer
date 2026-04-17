@@ -18,8 +18,3 @@ def migrate(cr, version):
             ALTER TABLE product_ecommerce_field
             RENAME COLUMN auto_create_mapping TO mapping_active_by_default
         """)
-
-    cr.execute("""
-        DELETE FROM ir_config_parameter
-        WHERE key = 'integration.import_data_block_size'
-    """)
