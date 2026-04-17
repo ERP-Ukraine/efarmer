@@ -67,19 +67,21 @@ def migrate(cr, version):
     # =====================================================
     _logger.info("Cleaning ir.config_parameter duplicates")
 
-    config_keys_to_delete = [
-        "integration.import_data_block_size",
+    params = [
+        ("integration.import_data_block_size", "5000"),
+        ("integration.export_inventory_block_size", "250"),
+        ("integration.integration_api_key", "8c60bb92a2a7beb2a0fc399f0831d6d818a87441"),
+        ("vt_ecosystem.ecosystem_api_url", "https://ecosystem-api.ventor.tech/v1"),
+        ("integration.skip_convert_to_webp", "0"),
     ]
 
-    for key in config_keys_to_delete:
-        try:
-            cr.execute("""
-                DELETE FROM ir_config_parameter
-                WHERE key = %s
-            """, (key,))
-        except Exception as e:
-            _logger.error(f"Failed deleting config param {key}: {e}")
-            cr.rollback()
+    for key, value in params:
+        cr.execute("""
+            INSERT INTO ir_config_parameter (key, value, create_uid, write_uid, create_date, write_date)
+            VALUES (%s, %s, 1, 1, NOW(), NOW())
+            ON CONFLICT (key)
+            DO UPDATE SET value = EXCLUDED.value
+        """, (key, value))
 
     # =====================================================
     # DELETE IN STRICT ORDER (FK SAFE)
