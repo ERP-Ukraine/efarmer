@@ -61,6 +61,25 @@ def migrate(cr, version):
         return
 
     _logger.info("START CLEANUP (SAFE MODE)")
+    
+    # =====================================================
+    # CLEAN CONFIG PARAMETERS (avoid duplicate key error)
+    # =====================================================
+    _logger.info("Cleaning ir.config_parameter duplicates")
+
+    config_keys_to_delete = [
+        "integration.import_data_block_size",
+    ]
+
+    for key in config_keys_to_delete:
+        try:
+            cr.execute("""
+                DELETE FROM ir_config_parameter
+                WHERE key = %s
+            """, (key,))
+        except Exception as e:
+            _logger.error(f"Failed deleting config param {key}: {e}")
+            cr.rollback()
 
     # =====================================================
     # DELETE IN STRICT ORDER (FK SAFE)
@@ -108,24 +127,7 @@ def migrate(cr, version):
         _logger.error(f"Failed cleaning ir_model_data: {e}")
         cr.rollback()
 
-    # =====================================================
-    # CLEAN CONFIG PARAMETERS (avoid duplicate key error)
-    # =====================================================
-    _logger.info("Cleaning ir.config_parameter duplicates")
 
-    config_keys_to_delete = [
-        "integration.import_data_block_size",
-    ]
-
-    for key in config_keys_to_delete:
-        try:
-            cr.execute("""
-                DELETE FROM ir_config_parameter
-                WHERE key = %s
-            """, (key,))
-        except Exception as e:
-            _logger.error(f"Failed deleting config param {key}: {e}")
-            cr.rollback()
     _logger.info("CLEANUP FINISHED")
 
 # # -*- coding: utf-8 -*-
