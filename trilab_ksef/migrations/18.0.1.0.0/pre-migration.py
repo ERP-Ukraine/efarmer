@@ -14,8 +14,6 @@ MODULES = [
     "efarmer_helpdesk_repair",
     "efarmer_sale_customer_mail",
     "efarmer_sale_report",
-    "efarmer_trilab_extension",
-    "efarmer_whitelist_history",
     "hr_attendance_autoclose",
     "hr_attendance_calendar_view",
     "hr_attendance_geolocation",
@@ -28,90 +26,87 @@ MODULES = [
     "purchase_order_line_sequence",
     "sale_order_line_sequence",
     "stock_picking_line_sequence",
-    "trilab_invoice",
-    "trilab_jpk_base",
     "trilab_jpk_vat",
     "trilab_pl_reports",
     "trilab_whitelist-15.0.2.5",
     "trilab_ksef",
+    "trilab_invoice",
+    "trilab_jpk_base",
+    "efarmer_trilab_extension",
+    "efarmer_whitelist_history",
 ]
 
 def delete_by_model(cr, model, table):
     _logger.info(f"🧹 Deleting {model}")
 
-    cr.execute(f"""
-        DELETE FROM {table}
-        WHERE id IN (
-            SELECT res_id
-            FROM ir_model_data
-            WHERE module = ANY(%s)
-              AND model = %s
-        )
-    """, (MODULES, model))
+    try:
+        cr.execute(f"""
+            DELETE FROM {table}
+            WHERE id IN (
+                SELECT res_id
+                FROM ir_model_data
+                WHERE module = ANY(%s)
+                  AND model = %s
+            )
+        """, (MODULES, model))
+    except Exception as e:
+        _logger.error(f"Failed deleting {model}: {e}")
+        cr.rollback()
 
 def migrate(cr, version):
     if not version:
         return
 
-    _logger.info("🚀 START FULL CLEANUP")
+    _logger.info("START CLEANUP (SAFE MODE)")
 
     # =====================================================
-    # OPTIONAL: disable FK constraints (recommended)
+    # DELETE IN STRICT ORDER (FK SAFE)
     # =====================================================
-    _logger.info("⚙️ Disabling FK constraints")
-    cr.execute("SET session_replication_role = 'replica'")
+
+    # 1. action views
+    delete_by_model(cr, "ir.actions.act_window.view", "ir_actions_act_window_view")
+
+    # 2. server actions
+    delete_by_model(cr, "ir.actions.server", "ir_actions_server")
+
+    # 3. report actions
+    delete_by_model(cr, "ir.actions.report", "ir_actions_report")
+
+    # 4. window actions
+    delete_by_model(cr, "ir.actions.act_window", "ir_actions_act_window")
+
+    # 5. menus (AFTER actions!)
+    delete_by_model(cr, "ir.ui.menu", "ir_ui_menu")
+
+    # 6. views
+    delete_by_model(cr, "ir.ui.view", "ir_ui_view")
+
+    # 7. mail templates
+    delete_by_model(cr, "mail.template", "mail_template")
+
+    # =====================================================
+    # OPTIONAL: your custom data models
+    # =====================================================
+    # Example:
+    # delete_by_model(cr, "account.account.tag", "account_account_tag")
+    # delete_by_model(cr, "jpk.account.tag", "jpk_account_tag")
+
+    # =====================================================
+    # CLEAN ir_model_data LAST
+    # =====================================================
+    _logger.info("Cleaning ir_model_data")
 
     try:
-        # =================================================
-        # DELETE IN CORRECT ORDER
-        # =================================================
-
-        # 1. action views (depends on actions)
-        delete_by_model(cr, "ir.actions.act_window.view", "ir_actions_act_window_view")
-
-        # 2. server actions
-        delete_by_model(cr, "ir.actions.server", "ir_actions_server")
-
-        # 3. report actions
-        delete_by_model(cr, "ir.actions.report", "ir_actions_report")
-
-        # 4. window actions
-        delete_by_model(cr, "ir.actions.act_window", "ir_actions_act_window")
-
-        # 5. menus (depend on actions)
-        delete_by_model(cr, "ir.ui.menu", "ir_ui_menu")
-
-        # 6. views
-        delete_by_model(cr, "ir.ui.view", "ir_ui_view")
-
-        # 7. mail templates
-        delete_by_model(cr, "mail.template", "mail_template")
-
-        # =================================================
-        # OPTIONAL: delete business models (if needed)
-        # =================================================
-        # Example:
-        # delete_by_model(cr, "account.account.tag", "account_account_tag")
-        # delete_by_model(cr, "jpk.account.tag", "jpk_account_tag")
-
-        # =================================================
-        # CLEAN ir_model_data LAST
-        # =================================================
-        _logger.info("🧹 Cleaning ir_model_data")
-
         cr.execute("""
             DELETE FROM ir_model_data
             WHERE module = ANY(%s)
         """, (MODULES,))
+    except Exception as e:
+        _logger.error(f"Failed cleaning ir_model_data: {e}")
+        cr.rollback()
 
-    finally:
-        # =================================================
-        # RE-ENABLE FK constraints
-        # =================================================
-        _logger.info("⚙️ Restoring FK constraints")
-        cr.execute("SET session_replication_role = 'origin'")
+    _logger.info("CLEANUP FINISHED")
 
-    _logger.info("✅ CLEANUP FINISHED")
 # # -*- coding: utf-8 -*-
 
 # import logging
