@@ -27,6 +27,7 @@ MODULES = [
     "purchase_order_line_sequence",
     "sale_order_line_sequence",
     "stock_picking_line_sequence",
+    "sale_delivery_state",
     "trilab_jpk_vat",
     "trilab_pl_reports",
     "trilab_whitelist-15.0.2.5",
