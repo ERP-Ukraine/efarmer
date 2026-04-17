@@ -6,6 +6,7 @@
             <field name="key">integration.import_data_block_size</field>
             <field name="value">5000</field>
         </record> -->
+        
         <function model="ir.config_parameter" name="set_param">
             <value eval="'integration.import_data_block_size'"/>
             <value eval="'5000'"/>
