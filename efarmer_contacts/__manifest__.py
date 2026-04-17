@@ -12,10 +12,10 @@
         'base',
         'account',
         'base_vat',
-        'account_consolidation',
+        # 'account_consolidation',
     ],
     'data': [
-        'views/res_config_settings_views.xml',
+        # 'views/res_config_settings_views.xml',
     ],
     'installable': True,
     'application': True,
