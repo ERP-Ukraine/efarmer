@@ -6,6 +6,7 @@ _logger = logging.getLogger(__name__)
 
 MODULES = [
     "rma",
+    "account_journal_general_sequence",
     "hr_holidays_public",
     "hr_attendance_report_theoretical_time",
     "efarmer_activities",
