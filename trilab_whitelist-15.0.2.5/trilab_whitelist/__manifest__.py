@@ -11,12 +11,9 @@
     with the Polish Ministry of Finance whitelist API - according to new rules and regulations
     ''',
     'depends': [
-        'account',
+        'base',
     ],
     'data': [
-        'security/ir.model.access.csv',
-        'views/account_move.xml',
-        'wizard/partner_check_wl.xml',
     ],
     'images': [
         'static/description/banner.png',

@@ -10,14 +10,8 @@
     'category': 'Accounting',
     'depends': [
         'base',
-        'trilab_whitelist',
-        'account',
     ],
     'data': [
-        'security/ir.model.access.csv',
-        'views/whitelist_view.xml',
-        'views/sale_order_view.xml',
-        'views/res_partner.xml',
     ],
     'installable': True,
     'application': True,

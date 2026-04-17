@@ -1,7 +1,7 @@
 {
     'name': 'Forecasted Receipts Report, eFarmer',
 
-    'version': '1.0',
+    'version': '18.0.1.0.0',
     'category': 'Other',
     'author': 'ERP Ukraine',
     'website': 'https://erp.co.ua',
@@ -14,12 +14,9 @@
     'demo': [],
 
     'depends': [
-        'contacts',
-        'stock',
+        'base',
     ],
 
     'data': [
-        'data/data.xml',
-        'views/res_partner_views.xml',
     ],
 }

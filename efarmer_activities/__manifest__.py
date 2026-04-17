@@ -10,10 +10,9 @@
     "license": "OPL-1",
     "summary": "Manage your activities",
     "depends": [
-        "mail",
+        "base",
     ],
     "data": [
-        "views/mail_activity_views.xml",
     ],
     "installable": True,
     "application": True,

@@ -15,20 +15,11 @@
     'website': "https://trilab.pl",
 
     'category': 'Accounting',
-    'version': '15.0.3.0.0',
+    'version': '18.0.3.0.0',
 
     'depends': ['account_reports'],
 
     'data': [
-        # Tags
-        'data/trilab_accounting_tags.xml',
-        'data/trilab_analytic_tags.xml',
-
-        # Reports
-        'data/trilab_balance_sheet_report.xml',
-        'data/trilab_pl_RZiSPor_report.xml',
-        'data/trilab_pl_RZiSKalk_report.xml',
-        'data/trilab_pl_CIT_report.xml',
     ],
     'images': [
         'static/description/banner.png'
