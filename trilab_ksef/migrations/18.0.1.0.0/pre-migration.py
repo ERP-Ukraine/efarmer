@@ -36,6 +36,7 @@ MODULES = [
     "trilab_jpk_base",
     "efarmer_trilab_extension",
     "efarmer_whitelist_history",
+    "integration",
 ]
 
 def delete_by_model(cr, model, table):
