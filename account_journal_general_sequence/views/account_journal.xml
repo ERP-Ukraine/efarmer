@@ -20,7 +20,10 @@
         <field name="inherit_id" ref="account.view_account_journal_form" />
         <field name="arch" type="xml">
             <field name="refund_sequence" position="before">
-                <field name="entry_number_sequence_id" />
+                <field name="entry_number_sequence_id_name" invisible="1" />
+                <field
+                    name="entry_number_sequence_id"
+                />
             </field>
         </field>
     </record>

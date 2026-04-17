@@ -4,7 +4,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 15.0\n"
+"Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -29,8 +29,8 @@ msgid "Accounting Valuation"
 msgstr ""
 
 #. module: stock_account_valuation_report
+#. odoo-python
 #: code:addons/stock_account_valuation_report/models/product_product.py:0
-#, python-format
 msgid "Accounting Valuation at date"
 msgstr ""
 
@@ -102,13 +102,6 @@ msgid "Inventory Quantity"
 msgstr ""
 
 #. module: stock_account_valuation_report
-#: code:addons/stock_account_valuation_report/models/product_product.py:0
-#: model:ir.model.fields,field_description:stock_account_valuation_report.field_product_product__valuation
-#, python-format
-msgid "Inventory Valuation"
-msgstr ""
-
-#. module: stock_account_valuation_report
 #: model:ir.model.fields,field_description:stock_account_valuation_report.field_product_product__stock_value
 msgid "Inventory Value"
 msgstr ""
@@ -116,11 +109,6 @@ msgstr ""
 #. module: stock_account_valuation_report
 #: model:ir.model,name:stock_account_valuation_report.model_account_move_line
 msgid "Journal Item"
-msgstr ""
-
-#. module: stock_account_valuation_report
-#: model:ir.model.fields,field_description:stock_account_valuation_report.field_stock_valuation_history____last_update
-msgid "Last Modified on"
 msgstr ""
 
 #. module: stock_account_valuation_report
@@ -139,17 +127,13 @@ msgid "Manual"
 msgstr ""
 
 #. module: stock_account_valuation_report
-#: model:ir.model.fields,help:stock_account_valuation_report.field_product_product__valuation
-msgid ""
-"Manual: The accounting entries to value the inventory are not posted automatically.\n"
-"        Automated: An accounting entry is automatically created to value the inventory when a product enters or leaves the company.\n"
-"        "
+#: model:ir.model.fields,field_description:stock_account_valuation_report.field_account_move_line__product_id
+msgid "Product"
 msgstr ""
 
 #. module: stock_account_valuation_report
 #: model:ir.model,name:stock_account_valuation_report.model_product_product
-#: model:ir.model.fields,field_description:stock_account_valuation_report.field_account_move_line__product_id
-msgid "Product"
+msgid "Product Variant"
 msgstr ""
 
 #. module: stock_account_valuation_report
@@ -180,13 +164,28 @@ msgid "Stock Valuation History"
 msgstr ""
 
 #. module: stock_account_valuation_report
-#: model:ir.model.fields,field_description:stock_account_valuation_report.field_product_product__stock_valuation_layer_ids
-msgid "Stock Valuation Layer"
-msgstr ""
-
-#. module: stock_account_valuation_report
 #: model:ir.model.fields,field_description:stock_account_valuation_report.field_product_product__valuation_discrepancy
 #: model_terms:ir.ui.view,arch_db:stock_account_valuation_report.product_search_form_view
 #: model_terms:ir.ui.view,arch_db:stock_account_valuation_report.view_stock_product_tree2
 msgid "Valuation Discrepancy"
+msgstr ""
+
+#. module: stock_account_valuation_report
+#: model:ir.model.fields,field_description:stock_account_valuation_report.field_product_product__valuation_layer_ids
+msgid "Valuation Layer"
+msgstr ""
+
+#. module: stock_account_valuation_report
+#: model_terms:ir.ui.view,arch_db:stock_account_valuation_report.product_search_form_view
+msgid "Valuation Or Qty Discrepancy"
+msgstr ""
+
+#. module: stock_account_valuation_report
+#: model_terms:ir.ui.view,arch_db:stock_account_valuation_report.view_stock_product_tree2
+msgid "View Journal Items"
+msgstr ""
+
+#. module: stock_account_valuation_report
+#: model_terms:ir.ui.view,arch_db:stock_account_valuation_report.view_stock_product_tree2
+msgid "View Valuation Layers"
 msgstr ""

@@ -1,7 +1,8 @@
 # See LICENSE file for full copyright and licensing details.
 
-from odoo import fields, models, api, _
 import logging
+
+from odoo import fields, models, api, _
 
 
 _logger = logging.getLogger(__name__)
@@ -12,13 +13,16 @@ class IntegrationProductProductMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'Integration Product Product Mapping'
     _mapping_fields = ('product_id', 'external_product_id')
+    _mapping_label = 'Product Variant'
 
     product_id = fields.Many2one(
+        string='Odoo Variant',
         comodel_name='product.product',
         ondelete='cascade',
     )
 
     external_product_id = fields.Many2one(
+        string='E-Commerce Variant',
         comodel_name='integration.product.product.external',
         required=True,
         ondelete='cascade',
@@ -66,7 +70,7 @@ class IntegrationProductProductMapping(models.Model):
     def write(self, vals):
         res = super(IntegrationProductProductMapping, self).write(vals)
         for rec in self:
-            if 'product_id' in vals and rec._context.get('product_product_mapping'):
+            if 'product_id' in vals and rec.env.context.get('product_product_mapping'):
                 rec._auto_mapping_product_template()
         return res
 
@@ -144,3 +148,35 @@ class IntegrationProductProductMapping(models.Model):
             _logger.info('Auto zeroing product_template: %s',
                          product_template_mapping.template_id.name)
         return True
+
+    def calculate_import_fields_data(self):
+        self.ensure_one()
+
+        external_variant = self.external_product_id
+        if not external_variant:
+            return {}
+
+        data = external_variant.calculate_import_fields_data()
+
+        if self.env.context.get('integration_return_action'):
+            return self.env['message.wizard'].create_json_and_run(data)
+
+        return data
+
+    def calculate_export_data(self):
+        self.ensure_one()
+
+        product = self.product_id
+        if not product:
+            return {}
+
+        __, variant_code = self.external_product_id.code.split('-')
+        if variant_code == '0':
+            product = product.product_tmpl_id
+
+        data = product.calculate_export_fields_data(self.integration_id.id)
+
+        if self.env.context.get('integration_return_action'):
+            return self.env['message.wizard'].create_json_and_run(data)
+
+        return data

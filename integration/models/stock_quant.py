@@ -38,32 +38,47 @@ class StockQuant(models.Model):
     def write(self, vals):
         result = super(StockQuant, self).write(vals)
 
-        # Correction of sending incorrect stock when using the Internal Transfer menu in Ventor
+        # To correctly send a qty to the e-commerce system when changing qty in Ventor PRO,
+        # it is necessary to separate logic into a separate block, since the requests in
+        # the app differ from the standard ones in Odoo
         context = self.env.context
-        if context.get('from_ventor') and not context.get('button_validate_picking_ids'):
-            return result
+        if context.get('from_ventor'):
+            # Sending stock during inventory to Instant Inventory и Inventory Adjustment menus in Ventor PRO
+            if TRACKABLE_FIELDS.intersection(set(vals.keys())):
+                self.trigger_export()
+
+            # Sending stock by moving products in Internal Transfer menu in Ventor
+            if not context.get('button_validate_picking_ids'):
+                return result
 
         if TRACKABLE_FIELDS.intersection(set(vals.keys())):
             self.trigger_export()
 
         return result
 
+    def unlink(self):
+        # Handle mainly an _unlink_zero_quants() case and other deletion cases
+        self.trigger_export()
+        return super(StockQuant, self).unlink()
+
     def trigger_export(self):
         if self.env.context.get('skip_inventory_export'):
             return
 
-        integrations = self.env['sale.integration'].get_integrations('export_inventory')
-        if not integrations:
+        _integrations = self.env['sale.integration'].get_integrations('export_inventory')
+        if not _integrations:
             return
 
         templates = self._get_templates_to_export_inventory()
 
         for template in templates:
             if template.company_id:
-                integrations = integrations.filtered(lambda x: x.company_id == template.company_id)
+                integrations = _integrations.filtered(lambda x: x.company_id == template.company_id)
+            else:
+                integrations = _integrations
 
             for integration in integrations:
-                template._export_inventory_on_template(integration)
+                template._export_inventory_on_template(integration.id)
 
     def _get_templates_to_export_inventory(self):
         templates = self.env['product.template']
@@ -71,10 +86,6 @@ class StockQuant(models.Model):
         for rec in self:
             product = rec.product_id
             templates |= product.product_tmpl_id
-            templates |= product.get_used_in_kits_recursively()
+            templates |= product.get_bom_parent_templates_recursively()
 
-        return templates.filtered(
-            lambda x: x.type == 'product'
-            and not x.exclude_from_synchronization
-            and not x.exclude_from_synchronization_stock
-        )
+        return templates.filtered(lambda x: x.integration_should_export_inventory)

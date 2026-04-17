@@ -2,30 +2,220 @@
 <odoo>
     <data>
 
-        <record id="product_ecommerce_field_view_tree" model="ir.ui.view">
-            <field name="name">product.ecommerce.field.view.tree</field>
+        <record id="product_ecommerce_field_view_form" model="ir.ui.view">
+            <field name="name">product.ecommerce.field.view.form</field>
             <field name="model">product.ecommerce.field</field>
             <field name="arch" type="xml">
-                <tree editable="bottom"
-                      decoration-warning="is_private"
-                >
+                <form delete="0">
+                    <sheet>
+                        <!-- Hidden technical fields -->
+                        <field name="is_template_field" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                        <field name="is_variant_field" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                        <field name="is_default" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="is_private" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                        <field name="is_scriptable_field" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="is_translatable_field" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="odoo_model_name" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+
+                        <!-- Status badges -->
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_open_test_wizard"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-flask">
+                                <span class="o_stat_text">Test Mapping</span>
+                            </button>
+                            <button class="oe_stat_button" disabled="1" icon="fa-lock" invisible="not is_default">
+                                <span class="o_stat_text">System Field</span>
+                            </button>
+                            <button class="oe_stat_button" disabled="1" icon="fa-code" invisible="not is_scriptable_field">
+                                <span class="o_stat_text">Uses Scripts</span>
+                            </button>
+                            <button class="oe_stat_button" disabled="1" icon="fa-globe" invisible="not is_translatable_field">
+                                <span class="o_stat_text">Multi-Language</span>
+                            </button>
+                        </div>
+
+                        <!-- Title and Connector Type -->
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1>
+                                <field name="name" placeholder="e.g. Product Title, Meta Description..." readonly="is_default"/>
+                            </h1>
+                            <field name="type_api" readonly="is_default"/>
+                        </div>
+
+                        <!-- Section: Field Mapping -->
+                        <h3 class="mt-4 mb-3">Field Mapping</h3>
+                        <div class="alert alert-info mb-3" role="alert">
+                            <i class="fa fa-info-circle me-2" title="Information"/>
+                            Define which Odoo field corresponds to which e-commerce field.
+                            The system will use this mapping to synchronize data between systems.
+                        </div>
+                        <group>
+                            <group string="Odoo">
+                                <field name="odoo_model_id" string="Model"
+                                       readonly="is_default"
+                                       options="{'no_create': True, 'no_edit': True}"/>
+                                <field name="odoo_field_id" string="Field" readonly="is_default" required="is_translatable_field" options="{'no_create': True, 'no_edit': True}"/>
+                            </group>
+                            <group string="E-Commerce">
+                                <field name="technical_name" string="API Field Name" readonly="is_default" placeholder="e.g. title, body_html, metafields.custom.size"/>
+                                <field name="export_field_type" string="Export Output Type" readonly="is_default"/>
+                            </group>
+                        </group>
+
+                        <!-- Section: Default Sync Settings -->
+                        <h3 class="mt-4 mb-3">Default Sync Settings</h3>
+                        <div class="alert alert-secondary mb-3" role="alert">
+                            <i class="fa fa-cog me-2" title="Settings"/>
+                            These settings will be applied when this field definition is added to a new store.
+                            You can override them per store in <strong>Field Synchronization</strong>.
+                        </div>
+                        <group>
+                            <group>
+                                <field name="default_for_update" string="Export (Odoo → Shop) Enabled" widget="boolean_toggle" readonly="is_default"/>
+                                <field name="default_for_import" string="Import (Shop → Odoo) Enabled" widget="boolean_toggle" readonly="is_default"/>
+                            </group>
+                            <group>
+                                <field name="mapping_active_by_default" string="Active by Default" widget="boolean_toggle" readonly="is_default"/>
+                                <field name="is_translatable_field" string="Multi-Language" widget="boolean_toggle" readonly="is_default" force_save="1"/>
+                            </group>
+                        </group>
+
+                        <!-- Section: Data Transformation Scripts -->
+                        <notebook>
+                            <page string="Data Transformation" name="scripts">
+                                <div class="alert alert-warning mb-3" role="alert">
+                                    <i class="fa fa-exclamation-triangle me-2" title="Warning"/>
+                                    <strong>Advanced Feature:</strong>
+                                    Scripts allow you to transform data during import/export.
+                                    Leave empty for direct field mapping without transformation.
+                                </div>
+
+                                <!-- Help section (collapsible) -->
+                                <div>
+                                    <details class="mb-3">
+                                        <summary class="p-0" style="cursor: pointer; list-style: none;">
+                                            <i class="fa fa-question-circle me-1" title="Help"/>
+                                            <span class="text-primary">Show available variables</span>
+                                        </summary>
+                                        <div class="alert alert-light mt-2 border" role="alert">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <strong>Common Variables:</strong>
+                                                    <ul class="mb-2 small">
+                                                        <li><code>integration</code> - sale.integration record</li>
+                                                        <li><code>field</code> - Current field record</li>
+                                                        <li><code>env</code> - Odoo environment</li>
+                                                        <li><code>datetime</code> - datetime module</li>
+                                                        <li><code>UserError</code> - Exception class</li>
+                                                        <li><code>ValidationError</code> - Exception class</li>
+                                                     </ul>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <strong>Import Script:</strong>
+                                                    <ul class="mb-2 small">
+                                                        <li><code>template</code> - product.template record</li>
+                                                        <li><code>variant</code> - product.product record</li>
+                                                        <li><code>external_data</code> - (template_data, variant_data)</li>
+                                                        <li><code>EXTERNAL_CODE</code> - External ID</li>
+                                                        <li><code>VARIANTS_COUNT</code> - Number of variants</li>
+                                                        <li><code>FIRST_TIME_IMPORT</code> - Boolean</li>
+                                                     </ul>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <strong>Export Script:</strong>
+                                                    <ul class="mb-2 small">
+                                                        <li><code>template</code> - product.template record</li>
+                                                        <li><code>variant</code> - product.product record</li>
+                                                        <li><code>EXTERNAL_CODE</code> - External ID</li>
+                                                        <li><code>VARIANTS_COUNT</code> - Number of variants</li>
+                                                        <li><code>FORCE_PRODUCT_EXPORT</code> - Boolean</li>
+                                                     </ul>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2 small text-muted">
+                                                <i class="fa fa-lightbulb-o me-1" title="Tip"/>
+                                                Your script must set a <code>value</code> variable with the result.
+                                            </div>
+                                        </div>
+                                    </details>
+                                </div>
+
+                                <!-- Scripts side by side -->
+                                <group>
+                                    <group string="Import Script (E-Commerce → Odoo)">
+                                        <field name="import_script" nolabel="1" colspan="2" widget="ace" options="{'mode': 'python'}" readonly="is_default"/>
+                                    </group>
+                                    <group string="Export Script (Odoo → E-Commerce)">
+                                        <field name="export_script" nolabel="1" colspan="2" widget="ace" options="{'mode': 'python'}" readonly="is_default"/>
+                                    </group>
+                                </group>
+                            </page>
+
+                            <!-- Technical Settings (debug mode) -->
+                            <page string="Technical Settings" name="technical" groups="base.group_no_one">
+                                <h3 class="mt-4 mb-3">Change Tracking</h3>
+                                <div class="alert alert-info mb-3" role="alert">
+                                    <i class="fa fa-info-circle me-2" title="Information"/>
+                                    When any of these Odoo fields change, the system will trigger an export
+                                    to update the e-commerce platform.
+                                </div>
+                                <field name="trackable_fields_ids" widget="many2many_tags" readonly="is_default" options="{'no_create': True}"/>
+
+                                <h3 class="mt-4 mb-3">Linked Store Mappings</h3>
+                                <div class="alert alert-secondary mb-3" role="alert">
+                                    <i class="fa fa-link me-2"/>
+                                    These are the store-specific configurations using this field definition.
+                                    Manage them in <strong>Field Synchronization</strong> menu.
+                                </div>
+                                <field name="mapping_ids" nolabel="1" readonly="1">
+                                    <list>
+                                        <field name="integration_id" string="Store"/>
+                                        <field name="active" string="Active"/>
+                                        <field name="export_enabled" string="Export"/>
+                                        <field name="import_enabled" string="Import"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="product_ecommerce_field_view_list" model="ir.ui.view">
+            <field name="name">product.ecommerce.field.view.list</field>
+            <field name="model">product.ecommerce.field</field>
+            <field name="arch" type="xml">
+                <list decoration-warning="is_private"
+                      delete="0"
+                      js_class="product_ecommerce_field_list_view"
+                 >
                     <field name="id" groups="base.group_no_one"/>
+                    <field name="name"/>
                     <field name="type_api"/>
                     <field name="odoo_model_id"/>
-                    <field name="odoo_field_id" attrs="{'required': [('value_converter', 'in', ('simple', 'translatable_field'))]}"/>
-                    <field name="name"/>
-                    <field name="odoo_field_name"/>
-                    <field name="technical_name" attrs="{'required': [('value_converter', 'in', ('simple', 'translatable_field'))]}"/>
-                    <field name="send_method" attrs="{'required': [('value_converter', '=', 'python_method')]}"/>
-                    <field name="value_converter"/>
-                    <field name="trackable_fields_ids" widget="many2many_tags" optional="hide"/>
-                    <field name="receive_method" attrs="{'required': [('value_converter', '=', 'python_method')]}"/>
-                    <field name="default_for_update" widget="boolean_toggle" optional="hide"/>
-                    <field name="default_for_import" widget="boolean_toggle" optional="hide"/>
-                    <field name="is_default" widget="boolean_toggle" optional="hide"/>
-                    <field name="mapping_ids" widget="many2many_tags" optional="hide"/>
-                    <field name="is_private" widget="boolean_toggle" invisible="1" readonly="1"/>
-                </tree>
+                    <field name="odoo_field_id"/>
+                    <field name="technical_name"/>
+                    <field name="is_translatable_field" widget="boolean_toggle"/>
+                    <field name="is_scriptable_field" widget="boolean_toggle"/>
+                    <field name="is_private" column_invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                    <field name="is_default" column_invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                    <button name="make_copy"
+                            type="object"
+                            string="Duplicate to Edit"
+                            icon="fa-copy"
+                            invisible="not is_default"
+                     />
+                    <button name="action_unlink"
+                            type="object"
+                            string="Delete"
+                            icon="fa-trash"
+                            invisible="is_default"
+                     />
+                </list>
             </field>
         </record>
 
@@ -34,30 +224,72 @@
             <field name="model">product.ecommerce.field</field>
             <field name="arch" type="xml">
                 <search>
+                    <!-- Search fields -->
                     <field name="id" groups="base.group_no_one"/>
-                    <field name="name"/>
-                    <field name="technical_name"/>
-                    <field name="send_method"/>
-                    <field name="receive_method"/>
-                    <field name="trackable_fields_ids"/>
-                    <filter string="Public" name="hide_private" domain="[('is_private', '=', False)]"/>
-                    <filter string="Not Update" name="default_for_update" domain="[('default_for_update', '=', False)]"/>
-                    <filter string="Not Import" name="default_for_import" domain="[('default_for_import', '=', False)]"/>
-                    <filter string="Is Not Default" name="is_default" domain="[('is_default', '=', False)]"/>
+                    <field name="name" string="Field Name"/>
+                    <field name="technical_name" string="E-Commerce Field"/>
+                    <field name="odoo_field_id" string="Odoo Field"/>
+                    <field name="trackable_fields_ids" string="Tracked Fields"/>
+                    <field name="is_private" invisible="1"/> <!-- Required because it is used in the search filters below -->
+
+                    <separator/>
+
+                    <!-- Visibility filters -->
+                    <filter string="User-Created" name="filter_user_created"
+                            domain="[('is_private', '=', False), ('is_default', '=', False)]"/>
+                    <filter string="System Fields" name="filter_system"
+                            domain="[('is_default', '=', True)]"/>
+                    <filter string="Hide Private" name="filter_hide_private"
+                            domain="[('is_private', '=', False)]"/>
+
+                    <separator/>
+
+                    <!-- Default sync direction filters -->
+                    <filter string="Odoo → Shop by Default" name="filter_default_export"
+                            domain="[('default_for_update', '=', True)]"/>
+                    <filter string="Shop → Odoo by Default" name="filter_default_import"
+                            domain="[('default_for_import', '=', True)]"/>
+                    <filter string="Active by Default" name="filter_active_by_default"
+                            domain="[('mapping_active_by_default', '=', True)]"/>
+
+                    <separator/>
+
+                    <!-- Field type filters -->
+                    <filter string="Template Fields" name="filter_template"
+                            domain="[('odoo_model_id.model', '=', 'product.template')]"/>
+                    <filter string="Variant Fields" name="filter_variant"
+                            domain="[('odoo_model_id.model', '=', 'product.product')]"/>
+
+                    <separator/>
+
+                    <!-- Special field filters -->
+                    <filter string="Multi-Language" name="filter_translatable"
+                            domain="[('is_translatable_field', '=', True)]"/>
+                    <filter string="Uses Script" name="filter_scriptable"
+                            domain="[('is_scriptable_field', '=', True)]"/>
+
+                    <separator/>
+
+                    <!-- Group by -->
                     <group expand="0" string="Group By">
-                        <filter string="Type API" name="group_type_api" context="{'group_by':'type_api'}"/>
+                        <filter string="Connector Type" name="group_type_api"
+                                context="{'group_by': 'type_api'}"/>
+                        <filter string="Odoo Model" name="group_odoo_model_id"
+                                context="{'group_by': 'odoo_model_id'}"/>
+                        <filter string="System / User-Created" name="group_is_default"
+                                context="{'group_by': 'is_default'}"/>
                     </group>
                 </search>
             </field>
         </record>
 
         <record id="product_ecommerce_field_action" model="ir.actions.act_window">
-            <field name="name">Product E-commerce Fields</field>
+            <field name="name">Field Definitions</field>
             <field name="res_model">product.ecommerce.field</field>
-            <field name="view_mode">tree</field>
+            <field name="view_mode">list,form</field>
             <field name="context">
                 {
-                    'search_default_hide_private': 1,
+                    'search_default_filter_hide_private': 1,
                     'search_default_group_type_api': 1,
                 }
             </field>

@@ -22,5 +22,10 @@
             <field name="value">https://ecosystem-api.ventor.tech/v1</field>
         </record>
 
+        <record model="ir.config_parameter" id="skip_convert_to_webp">
+            <field name="key">integration.skip_convert_to_webp</field>
+            <field name="value">0</field>
+        </record>
+
     </data>
 </odoo>

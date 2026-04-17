@@ -1,13 +1,8 @@
-from odoo import SUPERUSER_ID, api
-
-
-def uninstall_hook(cr, registry):
+def uninstall_hook(env):
     """
     This hooks cleans links to report. Odoo can't handle such links, so it will ignore some reports
     which was used anywhere in the system.
     """
-    env = api.Environment(cr, SUPERUSER_ID, {})
-
     reports_model_data = env['ir.model.data'].search_read([
         ('module', '=', 'zpl_label_designer'),
         ('model', '=', 'ir.actions.report')], ['res_id'])
@@ -23,10 +18,9 @@ def uninstall_hook(cr, registry):
     env['ir.config_parameter'].sudo().search([('key', '=', 'zpl_label_designer.api_key')]).unlink()
 
 
-def post_init_hook(cr, registry):
+def post_init_hook(env):
     """
     Generate API key to use for API requests from designer to Odoo.
     """
-    env = api.Environment(cr, SUPERUSER_ID, {})
     Config = env['res.config.settings']
     Config.generate_zld_api_key()

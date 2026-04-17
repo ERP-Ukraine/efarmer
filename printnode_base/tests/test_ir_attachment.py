@@ -30,6 +30,7 @@ class TestPrintNodeIrAttachment(TestPrintNodeCommon):
             "title": self.attachment.name,
             "type": "qweb-text",
             "options": {},
+            "source_document": self.attachment.mapped("res_name"),
         }
 
     def test_dpc_print(self):
@@ -54,7 +55,8 @@ class TestPrintNodeIrAttachment(TestPrintNodeCommon):
             mock_printnode_print_b64.assert_called_once_with(
                 self.attachment.datas.decode("ascii"),
                 self.call_params,
-                check_printer_format=False
+                check_printer_format=False,
+                postcommit=False,
             )
 
     def test_remote_dpc_print(self):

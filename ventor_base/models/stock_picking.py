@@ -134,6 +134,19 @@ class StockPickingType(models.Model):
              "Working only with 'Consignment' setting on Odoo side"
     )
 
+    open_details_screen_first = fields.Boolean(
+        string="Open details screen first",
+        default=False,
+        help="Clicking on transfer card will bring details screen "
+             "instead of opening a whole stock picking"
+    )
+
+    scan_destination_location_once = fields.Boolean(
+        string="Scan destination location once",
+        help="Scan the destination location only once with the last item. "
+             "The destination location will be applied to all lines."
+    )
+
     scan_destination_package = fields.Boolean(
         string="Confirm destination package",
         help="User has to scan a barcode of destination package. The dot next to the field "
@@ -193,13 +206,14 @@ class StockPickingType(models.Model):
         for item in self:
             item.is_stock_production_lot_enabled = group_production_lot in internal_user_groups
 
-    @api.model
-    def create(self, vals):
-        if 'code' in vals:
-            vals['show_next_product'] = vals['code'] != "incoming"
-            vals['change_destination_location'] = True
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if 'code' in vals:
+                vals['show_next_product'] = vals['code'] != "incoming"
+                vals['change_destination_location'] = True
 
-        return super(StockPickingType, self).create(vals)
+        return super(StockPickingType, self).create(vals_list)
 
     @api.onchange('confirm_source_location')
     def _onchange_confirm_source_location(self):
@@ -228,8 +242,8 @@ class StockPickingType(models.Model):
             return {
                 'warning': {
                     'title': _("Warning"),
-                    'message': _("'Autocomplete item quantity' is available only "
-                                 "if 'Change destination location' is enabled")
+                    'message': _("'Apply quantity automatically' is available only "
+                                 "if 'Confirm destination location' is enabled")
                 }
             }
 
@@ -276,6 +290,7 @@ class StockPickingType(models.Model):
                 "confirm_destination_location": self.confirm_destination_location,
                 "apply_quantity_automatically": self.apply_quantity_automatically,
                 "change_destination_location": self.change_destination_location,
+                "scan_destination_location_once": self.scan_destination_location_once,
                 "autocomplete_the_item_quantity_field": self.autocomplete_the_item_quantity_field,
                 "show_print_attachment_button": self.show_print_attachment_button,
                 "show_put_in_pack_button": self.show_put_in_pack_button,
@@ -287,5 +302,6 @@ class StockPickingType(models.Model):
                 "confirm_source_package": self.confirm_source_package,
                 "check_shipping_information": self.check_shipping_information,
                 "hide_qty_to_receive": self.hide_qty_to_receive,
+                "open_details_screen_first": self.open_details_screen_first,
             }
         }

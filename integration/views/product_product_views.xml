@@ -2,7 +2,7 @@
 <odoo>
 
     <record id="model_product_product_action_force_export_to_external" model="ir.actions.server">
-        <field name="name">Force Export To External</field>
+        <field name="name">Export to Stores</field>
         <field name="model_id" ref="product.model_product_product"/>
         <field name="binding_model_id" ref="product.model_product_product"/>
         <field name="binding_view_types">form,list</field>
@@ -11,7 +11,7 @@
     </record>
 
     <record id="model_product_product_action_force_export_inventory" model="ir.actions.server">
-        <field name="name">Export Product Quantities to External</field>
+        <field name="name">Export Stock to Stores</field>
         <field name="model_id" ref="product.model_product_product"/>
         <field name="binding_model_id" ref="product.model_product_product"/>
         <field name="binding_view_types">form,list</field>
@@ -20,7 +20,7 @@
     </record>
 
     <record id="product_product_change_external_integration" model="ir.actions.server">
-        <field name="name">Change External Integration</field>
+        <field name="name">Manage Store Connections</field>
         <field name="model_id" ref="product.model_product_product"/>
         <field name="binding_model_id" ref="product.model_product_product"/>
         <field name="binding_view_types">form,list</field>
@@ -33,7 +33,7 @@ if records:
     </record>
 
     <record id="model_product_product_action_refresh_product_info" model="ir.actions.server">
-        <field name="name">Refresh Product Info From External</field>
+        <field name="name">Refresh from Store</field>
         <field name="model_id" ref="product.model_product_product"/>
         <field name="binding_model_id" ref="product.model_product_product"/>
         <field name="binding_view_types">form,list</field>
@@ -42,7 +42,7 @@ if records:
     </record>
 
     <record id="product_product_action_open_job_logs" model="ir.actions.server">
-        <field name="name">Open Job Logs</field>
+        <field name="name">View Sync Logs</field>
         <field name="model_id" ref="product.model_product_product"/>
         <field name="binding_model_id" ref="product.model_product_product"/>
         <field name="binding_view_types">form</field>
@@ -51,23 +51,68 @@ if records:
         <field name="code">action = records.open_job_logs()</field>
     </record>
 
-    <record id="product_product_view_form_easy_inherit_website_sale" model="ir.ui.view">
+    <record id="product_product_view_form_easy_inherit_integration" model="ir.ui.view">
         <field name="name">product.product</field>
         <field name="model">product.product</field>
         <field name="inherit_id" ref="product.product_variant_easy_edit_view"/>
         <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button class="oe_stat_button"
+                    name="action_integration_mappings"
+                    type="object"
+                    icon="fa-list-ul"
+                    help="E-Commerce Store Mappings"
+                    invisible="not mapping_count">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="mapping_count" widget="statinfo" nolabel="1" class="mr4"/>
+                        </span>
+                        <span class="o_stat_text">Store Mappings</span>
+                    </div>
+                </button>
+            </div>
+
             <sheet position="inside">
-                <group name="integrations" string="Sales Integrations">
+                <group name="integrations" string="Stores">
+                    <div colspan="2">
+                        <div class="alert alert-warning" role="alert"
+                            invisible="not integration_company_mismatch">
+                            <i class="fa fa-warning" title="Warning"/>
+                            <strong>Company mismatch:</strong>
+                            this product belongs to another company than the selected e-commerce store(s).
+                            This may affect mapping and synchronization.
+                        </div>
+                    </div>
                     <field name="integration_ids" widget="many2many_checkboxes"/>
                 </group>
+
+                <group name="store_specific_settings_variant">
+                    <!-- Content will be added here dynamically based on the selected stores -->
+                </group>
+
                 <group name="product_variant_images" string="Extra Variant Media">
+                    <div colspan="2">
+                        <div class="alert alert-info" role="alert">
+                            <p class="mb-0">
+                                <i class="fa fa-info-circle" title="Information"/>
+                                Add additional images for your product.
+                                These will be synchronized to your e-commerce stores to showcase your product.
+                            </p>
+                        </div>
+                    </div>
+
                     <field name="product_variant_image_ids"
+                           colspan="2"
                            class="o_website_sale_image_list"
                            context="{'default_name': name}"
                            mode="kanban"
-                           options="{'create_text':'Add a Media'}" nolabel="1"/>
+                           add-label="Add Image"
+                           nolabel="1"
+                           widget="x2_many_media_viewer"
+                    />
                 </group>
             </sheet>
+
             <xpath expr="//group[@name='pricing']/div" position="after">
                 <field name="variant_extra_price" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}"/>
             </xpath>
@@ -77,9 +122,24 @@ if records:
     <record id="product_normal_form_view_integration" model="ir.ui.view">
         <field name="name">product.product.form.integration</field>
         <field name="model">product.product</field>
-        <field name="inherit_id" ref="product.product_normal_form_view" />
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
         <field name="arch" type="xml">
-            <div name="pricing" position="after">
+            <div name="button_box" position="inside">
+                <button class="oe_stat_button"
+                    name="action_integration_mappings"
+                    type="object"
+                    icon="fa-list-ul"
+                    help="E-Commerce Store Mappings"
+                    invisible="not mapping_count">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="mapping_count" widget="statinfo" nolabel="1" class="mr4"/>
+                        </span>
+                        <span class="o_stat_text">Store Mappings</span>
+                    </div>
+                </button>
+            </div>
+            <div name="list_price_uom" position="after">
                 <field name="variant_extra_price" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}"/>
             </div>
         </field>
@@ -95,60 +155,18 @@ if records:
             <xpath expr="//filter[@name='no_integrations_set']" position="replace"/>
             <xpath expr="//filter[@name='partial_integrations_set']" position="replace"/>
             <xpath expr="//filter[@name='exclude_from_synchronization']" position="replace"/>
+            <xpath expr="//filter[@name='exclude_from_synchronization_stock']" position="replace"/>
+            <xpath expr="//filter[@name='with_bom']" position="replace"/>
             <xpath expr="//filter[@name='inactive']" position="after">
                 <separator/>
-                <filter string="Integrations set" name="integrations_setall_integrations_set" domain="[('integration_ids', '!=', False)]"/>
-                <filter string="No integrations set" name="no_integrations_set" domain="[('integration_ids', '=', False)]"/>
+                <filter string="With Bill of Materials" name="with_bom" domain="[('bom_ids', '!=', False)]"/>
                 <separator/>
-                <filter string="Excluded from sync" name="exclude_from_synchronization" domain="[('exclude_from_synchronization', '=', True)]"/>
-                <filter string="Excluded from stock sync" name="exclude_from_synchronization_stock" domain="[('exclude_from_synchronization_stock', '=', True)]"/>
+                <filter string="Linked to E-Commerce Store(s)" name="integrations_setall_integrations_set" domain="[('integration_ids', '!=', False)]"/>
+                <filter string="Not linked to any E-Commerce Store" name="no_integrations_set" domain="[('integration_ids', '=', False)]"/>
+                <separator/>
+                <filter string="Do not sync with E-Commerce Stores" name="exclude_from_synchronization" domain="[('exclude_from_synchronization', '=', True)]"/>
+                <filter string="Do not sync stock with E-Commerce Stores" name="exclude_from_synchronization_stock" domain="[('exclude_from_synchronization_stock', '=', True)]"/>
             </xpath>
-        </field>
-    </record>
-
-    <record id="product_form_view_mapping_button" model="ir.ui.view">
-        <field name="name">product.product.mapping</field>
-        <field name="model">product.product</field>
-        <field name="inherit_id" ref="product.product_normal_form_view"/>
-        <field name="arch" type="xml">
-            <div name="button_box" position="inside">
-                <button class="oe_stat_button"
-                    name="show_variant_mappings"
-                    type="object"
-                    icon="fa-list-ul"
-                    help="Number of mappings"
-                    groups="base.group_no_one">
-                    <div class="o_field_widget o_stat_info">
-                        <span class="o_stat_value">
-                            <field name="mapping_count" widget="statinfo" nolabel="1" class="mr4"/>
-                        </span>
-                        <span class="o_stat_text">Mappings</span>
-                    </div>
-                </button>
-            </div>
-        </field>
-    </record>
-
-    <record id="product_easy_form_view_mapping_button" model="ir.ui.view">
-        <field name="name">product.product.mapping</field>
-        <field name="model">product.product</field>
-        <field name="inherit_id" ref="product.product_variant_easy_edit_view"/>
-        <field name="arch" type="xml">
-            <div name="button_box" position="inside">
-                <button class="oe_stat_button"
-                    name="show_variant_mappings"
-                    type="object"
-                    icon="fa-list-ul"
-                    help="Number of mappings"
-                    groups="base.group_no_one">
-                    <div class="o_field_widget o_stat_info">
-                        <span class="o_stat_value">
-                            <field name="mapping_count" widget="statinfo" nolabel="1" class="mr4"/>
-                        </span>
-                        <span class="o_stat_text">Mappings</span>
-                    </div>
-                </button>
-            </div>
         </field>
     </record>
 

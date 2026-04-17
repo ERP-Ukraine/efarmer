@@ -10,6 +10,8 @@ SECURITY_GROUP = 'printnode_base.printnode_security_group_user'
 
 
 class PrintNodeScenarioMixin(models.AbstractModel):
+    """ Direct Print Abstract Scenario Printing mixin
+    """
     _name = 'printnode.scenario.mixin'
     _inherit = 'printnode.logger.mixin'
     _description = 'Abstract scenario printing mixin'
@@ -36,3 +38,11 @@ class PrintNodeScenarioMixin(models.AbstractModel):
                 return False
 
             raise err
+
+    def change_dictionary_keys_type_to_string(self, dct):
+        """Change dictionary keys type to string
+        """
+        new_dict = {}
+        for i in dct:
+            new_dict[str(i)] = dct[i]
+        return new_dict

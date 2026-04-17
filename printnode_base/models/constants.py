@@ -4,7 +4,7 @@
 
 class Constants:
     """
-    Constants class for the "Odoo Direct Print PRO" module.
+    Constants class for the "Odoo Direct Print" module.
     """
     ACTION_BUTTONS_LOG_TYPE = 'ACTION BUTTONS'
     REPORTS_LOG_TYPE = 'REPORTS'

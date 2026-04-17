@@ -1,6 +1,6 @@
 # See LICENSE file for full copyright and licensing details.
 
-from odoo import api, fields, models, _
+from odoo import api, fields, models
 
 
 class ProductPublicCategoryMixin(models.AbstractModel):
@@ -19,11 +19,9 @@ class ProductPublicCategoryMixin(models.AbstractModel):
         if self.parent_id:
             parent_id = self.parent_id.to_external_or_export(integration)
 
-        name = integration.convert_translated_field_to_integration_format(self, 'name')
-
         return {
-            'name': name,
             'parent_id': parent_id,
+            'name': self.convert_field_translations_to_external(integration.id, 'name'),
         }
 
     def parse_parent_recursively(self, parents=None):
@@ -74,9 +72,10 @@ class ProductPublicCategory(models.Model):
     def _compute_display_name(self):
         for category in self:
             category.display_name = " / ".join(category.parents_and_self.mapped(
-                lambda cat: cat.name or _("New")
+                lambda cat: cat.name or self.env._("New")
             ))
 
+    @api.depends('parent_path')
     def _compute_parents_and_self(self):
         for category in self:
             if category.parent_path:

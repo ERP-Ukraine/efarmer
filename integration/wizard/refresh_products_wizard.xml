@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
         <record id="view_refresh_products_wizard" model="ir.ui.view">
-            <field name="name">Refresh Product Info From External</field>
+            <field name="name">Refresh from Store</field>
             <field name="model">refresh.products.wizard</field>
             <field name="arch" type="xml">
-                <form string="Refresh Product Info From External">
+                <form string="Refresh from Store">
                     <group>
-                        <field name="allowed_integration_ids" invisible="1"/>
-                        <field name="allowed_integration_count" invisible="1"/>
+                        <field name="allowed_integration_ids" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                        <field name="allowed_integration_count" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
                         <field name="integration_id" options="{'no_quick_create':True,'no_create_edit':True}"/>
-                        <field name="refresh_images"/>
-                        <field name="export_to_other" attrs="{'invisible': [('allowed_integration_count', '=', 1)]}"/>
+                        <field name="export_to_other" invisible="allowed_integration_count == 1"/>
                     </group>
                     <footer>
                         <button name="run_refresh" string="Refresh" type="object" class="btn-primary"/>
@@ -21,7 +20,8 @@
         </record>
 
         <record id="refresh_products_wizard_action" model="ir.actions.act_window">
-            <field name="name">Refresh Product Info From External</field>
+            <field name="name">Refresh from Store</field>
+            <field name="path">eci-refresh-products-wizard</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">refresh.products.wizard</field>
             <field name="view_mode">form</field>

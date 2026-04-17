@@ -8,7 +8,7 @@ class PrintNodeReportPolicy(models.Model):
     """ Call Button
     """
     _name = 'printnode.report.policy'
-    _description = 'PrintNode Report Policy'
+    _description = 'Direct Print Report Policy'
 
     _rec_name = 'report_id'
 

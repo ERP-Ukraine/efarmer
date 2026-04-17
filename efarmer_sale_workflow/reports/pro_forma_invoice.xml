@@ -6,22 +6,21 @@
         </xpath>
         <xpath expr="//t[@t-set='address']" position="replace">
           <t t-set="address">
-            <div t-field="doc.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;name&quot;, &quot;address&quot;,  &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
+            <div t-field="doc.partner_id" t-options='{"widget": "contact", "fields": ["name", "address", "phone"], "no_marker": True, "phone_icons": True}'/>
             <p t-if="doc.partner_id.vat"><t t-esc="doc.company_id.account_fiscal_country_id.vat_label or 'Tax ID'"/>: <span t-field="doc.partner_id.vat"/></p>
             <strong t-if="doc.partner_shipping_id == doc.partner_invoice_id">Invoicing and Shipping Address:</strong>
             <strong t-if="doc.partner_shipping_id != doc.partner_invoice_id">Invoicing Address:</strong>
-            <div t-field="doc.partner_invoice_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
+            <div t-field="doc.partner_invoice_id" t-options='{"widget": "contact", "fields": ["name", "address", "phone"], "no_marker": True, "phone_icons": True}'/>
             <t t-if="doc.partner_shipping_id != doc.partner_invoice_id">
               <t>
                   <strong>Shipping Address:</strong>
-                  <div t-field="doc.partner_shipping_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
+                  <div t-field="doc.partner_shipping_id" t-options='{"widget": "contact", "fields": ["name", "address", "phone"], "no_marker": True, "phone_icons": True}'/>
               </t>
             </t>
           </t>
         </xpath>
         <!-- Print `Payment terms: <the payment term name>` instead of the payment term note. -->
-        <xpath expr="//span[@t-field='doc.payment_term_id.note']" position="replace">
-        </xpath>
+        <xpath expr="//span[@t-field='doc.payment_term_id.note']" position="replace"/>
         <!-- Don't print the payment term below after the total block on pro-forma docs. -->
         <xpath expr="//p[@t-if='not is_html_empty(doc.payment_term_id.note)']" position="attributes">
             <attribute name="t-if">not is_html_empty(doc.payment_term_id.note) and not (is_pro_forma or env.context.get('proforma'))</attribute>
@@ -35,7 +34,7 @@
             <div name="proforma-payment-term" t-attf-class="#{'col-6' if report_type != 'html' else 'col-sm-7'}">
                 <div name="delivery-term-div" t-if="doc.delivery_term_id" style="padding-top: 15px;">
                     <t t-if="doc.payment_term_id">
-                      <strong style="color:#b3953c">Payment terms: <span t-field="doc.payment_term_id"/></strong>
+                      <strong style="color:#b3953c">Payment terms: <span t-field="doc.payment_term_id.name"/></strong>
                       <br/>
                     </t>
                     <strong style="color:#b3953c">Delivery terms: <span t-field="doc.delivery_term_id.name"/></strong>
@@ -47,7 +46,8 @@
             <div id="total" class="col-6" name="total">
                     <table class="table table-sm">
                         <!-- Tax totals -->
-                        <t t-set="tax_totals" t-value="json.loads(doc.tax_totals_json)"/>
+                        <t t-set="tax_totals" t-value="doc.tax_totals"/>
+                        <t t-set="currency" t-value="doc.currency_id"/>
                         <t t-call="account.document_tax_totals"/>
                     </table>
               </div>
@@ -70,7 +70,7 @@
                   <br/>
                   <p>
                       <strong>WICHTIG!</strong>
-                      <t t-if="any([code.startswith('KDU.0044') for code in doc.order_line.mapped('product_id').filtered(lambda p: p.default_code).mapped('default_code')])">
+                      <t t-if="any(code.startswith('KDU.0044') for code in doc.order_line.product_id.filtered(lambda p: p.default_code).mapped('default_code'))">
                           <li>
                               Um eine zeitnahe Bearbeitung und Auslieferung Ihrer Bestellung zu gewährleisten, geben Sie bitte das
                               spezifische Modell Ihres Traktors und die Parameter der Lenkradwelle an (<a target="_blank"  href="https://tech.fieldbee.com/">
@@ -105,7 +105,7 @@ Diese Steuern liegen in der Verantwortung des Kunden und die Höhe kann je nach 
                   <br/>
                   <p>
                       <strong>WAŻNE!</strong>
-                      <t t-if="any([code.startswith('KDU.0044') for code in doc.order_line.mapped('product_id').filtered(lambda p: p.default_code).mapped('default_code')])">
+                      <t t-if="any(code.startswith('KDU.0044') for code in doc.order_line.product_id.filtered(lambda p: p.default_code).mapped('default_code'))">
                           <li>
                               W celu zapewnienia terminowej realizacji i wysyłki zamówienia prosimy o podanie konkretnego modelu posiadanego ciągnika oraz parametrów wału kierownicy (<a target="_blank"  href="https://tech.fieldbee.com/">LINK</a>).
                               Jeśli te informacje nie zostaną podane w momencie składania zamówienia, wysyłka będzie opóźniona.
@@ -137,7 +137,7 @@ Podatki te leżą w gestii klienta, a ich wysokość różni się w zależności
                   <br/>
                   <p>
                       <strong>IMPORTANT!</strong>
-                      <t t-if="any([code.startswith('KDU.0044') for code in doc.order_line.mapped('product_id').filtered(lambda p: p.default_code).mapped('default_code')])">
+                      <t t-if="any(code.startswith('KDU.0044') for code in doc.order_line.product_id.filtered(lambda p: p.default_code).mapped('default_code'))">
                           <li>
                               To ensure timely processing and shipping of your order, please provide the specific model of
                               your tractor and the parameters of the steering wheel shaft (<a target="_blank"  href="https://tech.fieldbee.com/">LINK</a>)
@@ -169,7 +169,7 @@ Podatki te leżą w gestii klienta, a ich wysokość różni się w zależności
                   <br/>
                   <p>
                       <strong>IMPORTANTE!</strong>
-                      <t t-if="any([code.startswith('KDU.0044') for code in doc.order_line.mapped('product_id').filtered(lambda p: p.default_code).mapped('default_code')])">
+                      <t t-if="any(code.startswith('KDU.0044') for code in doc.order_line.product_id.filtered(lambda p: p.default_code).mapped('default_code'))">
                           <li>
                               Per garantire una tempestiva elaborazione e una spedizione dell'ordine, ti preghiamo di fornire il modello
                               specifico del tuo trattore e i parametri asse del volante (<a target="_blank"  href="https://tech.fieldbee.com/">LINK</a>). In caso di mancata ricezione di queste
@@ -201,7 +201,7 @@ Podatki te leżą w gestii klienta, a ich wysokość różni się w zależności
                   <br/>
                   <p>
                       <strong>IMPORTANT!</strong>
-                      <t t-if="any([code.startswith('KDU.0044') for code in doc.order_line.mapped('product_id').filtered(lambda p: p.default_code).mapped('default_code')])">
+                      <t t-if="any(code.startswith('KDU.0044') for code in doc.order_line.product_id.filtered(lambda p: p.default_code).mapped('default_code'))">
                           <li>
                               To ensure timely processing and shipping of your order, please provide the specific model of
                               your tractor and the parameters of the steering wheel shaft (<a target="_blank"  href="https://tech.fieldbee.com/">LINK</a>)

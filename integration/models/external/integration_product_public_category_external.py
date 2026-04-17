@@ -76,8 +76,8 @@ class IntegrationProductPublicCategoryExternal(models.Model):
         integrations = self.mapped('integration_id')
 
         for integration in integrations:
-            # Import categories from e-Commerce System
-            external_categories_data = integration._build_adapter().get_categories()
+            # Import categories from E-Commerce System
+            external_categories_data = integration.adapter.get_categories()
 
             for category in self.filtered(lambda x: x.integration_id == integration):
                 category.import_category(external_categories_data)
@@ -100,19 +100,19 @@ class IntegrationProductPublicCategoryExternal(models.Model):
             # Update category name including translations
             external_category_data = [c for c in external_categories_data if c['id'] == self.code]  # NOQA
             if not external_category_data:
-                raise UserError(
-                    _('Category with code %s (%s) not found in the external system') %
-                    (self.code, self.name)
-                )
+                raise UserError(_(
+                    'No category found in the external system with code "%s" (%s). '
+                    'Please verify that the category exists and is correctly imported.'
+                ) % (self.code, self.name))
 
             external_category_data = external_category_data[0]
-            name = self.integration_id.convert_translated_field_to_odoo_format(
-                external_category_data['name'])
+            name = self.env['integration.res.lang.mapping'] \
+                .convert_external_translations(self.integration_id.id, external_category_data['name'])
 
-            odoo_category = self.create_or_update_with_translation(
-                integration=self.integration_id,
-                odoo_object=odoo_category,
-                vals={'name': name},
+            odoo_category = self.create_or_update_with_translations(
+                self.integration_id.id,
+                odoo_category,
+                {'name': name},
             )
 
             # There is nothing else to do
@@ -146,19 +146,19 @@ class IntegrationProductPublicCategoryExternal(models.Model):
             external_category_data = [c for c in external_categories_data if c['id'] == category.code]  # NOQA
 
             if not external_category_data:
-                raise UserError(
-                    _('Category with code %s (%s) not found in the external system') %
-                    (category.code, category.name)
-                )
+                raise UserError(_(
+                    'No category found in the external system with code "%s" (%s). '
+                    'Please verify that the category exists and is correctly imported.'
+                ) % (self.code, self.name))
 
             external_category_data = external_category_data[0]
-            name = self.integration_id.convert_translated_field_to_odoo_format(
-                external_category_data['name'])
+            name = self.env['integration.res.lang.mapping'] \
+                .convert_external_translations(self.integration_id.id, external_category_data['name'])
 
-            odoo_category = self.create_or_update_with_translation(
-                integration=self.integration_id,
-                odoo_object=odoo_category,
-                vals={'name': name},
+            odoo_category = self.create_or_update_with_translations(
+                self.integration_id.id,
+                odoo_category,
+                {'name': name},
             )
 
             category.create_or_update_mapping(odoo_id=odoo_category.id)
@@ -169,10 +169,10 @@ class IntegrationProductPublicCategoryExternal(models.Model):
                     pass
                 else:
                     # This case should never happen, but it is better to check
-                    raise UserError(
-                        _('The category with name "%s" already exists and has a different parent') %  # NOQA
-                        category.name
-                    )
+                    raise UserError(_(
+                        'The category "%s" already exists but is linked to a different parent category. '
+                        'Please review the category hierarchy and update the parent category if necessary.'
+                    ) % category.name)
             else:
                 # This is case when category was created and we need to set its parent
                 odoo_category.parent_id = parent
@@ -198,20 +198,20 @@ class IntegrationProductPublicCategoryExternal(models.Model):
         )
 
         if len(odoo_category) > 1:
-            raise UserError(
-                _('There are several public categories with name "%s"') % self.name
-            )
+            raise UserError(_(
+                'Multiple public categories with the name "%s" were found. Please ensure that category '
+                'names are unique to avoid conflicts.'
+            ) % self.name)
 
         return odoo_category
 
     def _map_external(self, adapter_external_data):
         cycle_category_id = self.find_loop_category(adapter_external_data)
         if cycle_category_id:
-            raise UserError(
-                _('The product categories contain a loop. Please check the parent-child '
-                  'relationships of the categories. Category with id %s is causing the loop.') %
-                cycle_category_id
-            )
+            raise UserError(_(
+                'A loop was detected in the product category hierarchy. Please review the '
+                'parent-child relationships of the categories. The category with ID %s is causing the loop.'
+            ) % cycle_category_id)
 
         return super(IntegrationProductPublicCategoryExternal, self)._map_external(
             adapter_external_data)

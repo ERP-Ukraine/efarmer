@@ -6,6 +6,7 @@ from odoo.tests import common
 
 
 SECURITY_GROUP = 'printnode_base.printnode_security_group_user'
+BASE_INTERNAL_USER_GROUP = 'base.group_user'
 
 # Devices from api.printnode
 TEST_COMPUTERS_FROM_PRINTNODE = [
@@ -56,10 +57,11 @@ class TestPrintNodeCommon(common.TransactionCase):
         self.user = self.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Direct Print User',
             'company_id': self.company.id,
-            'login': 'user',
+            'login': 'user_pn',
             'email': 'user@print.node',
             'groups_id': [(6, 0, [
-                self.env.ref(SECURITY_GROUP).id
+                self.env.ref(SECURITY_GROUP).id,
+                self.env.ref(BASE_INTERNAL_USER_GROUP).id,
             ])]
         })
 
@@ -162,7 +164,7 @@ class TestPrintNodeCommon(common.TransactionCase):
 
         # Scenarios
         self.scenario_action = self.env['printnode.scenario.action'].create({
-            'name': "Test Printnode Scenario Action",
+            'name': "Test Direct Print Scenario Action",
             'code': 'test_scenario_action',
             'model_id': self.so_model.id,
             'reports_model_id': self.so_model.id,
@@ -191,14 +193,14 @@ class TestPrintNodeCommon(common.TransactionCase):
             'name': 'Test Delivery Carrier',
             'product_id': self.env['product.product'].create({
                 'name': 'Test Product',
-                'type': 'product',
+                'is_storable': True,
             }).id,
         })
 
         # Products
         self.product_id = self.env['product.product'].create({
             'name': 'Test Product',
-            'type': 'product',
+            'is_storable': True,
         })
 
         # Locations
@@ -250,7 +252,7 @@ class TestPrintNodeCommon(common.TransactionCase):
 
     def _create_workstation(self):
         """
-        Define or create a test workstation and define devices for it
+        Create a test workstation and define printers and scales.
         """
         workstation_id = self.env['printnode.workstation'].create({
             'name': 'Test Workstation',

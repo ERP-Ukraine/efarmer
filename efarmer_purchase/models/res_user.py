@@ -7,4 +7,6 @@ from odoo import fields, models
 class ResUsers(models.Model):
     _inherit = "res.users"
 
-    default_department_id = fields.Many2one(comodel_name="hr.department", string="Default Department")
+    default_department_id = fields.Many2one(
+        comodel_name="hr.department", string="Default Department"
+    )

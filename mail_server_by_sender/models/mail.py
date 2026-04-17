@@ -11,7 +11,7 @@ class Message(models.Model):
         # If there is outgoing mail server with username equals to sender's address - use it!
         for values in values_list:
             if 'email_from' not in values:
-                author_id, email_from = self.env['mail.thread']._message_compute_author(values.get('author_id'), email_from=None, raise_exception=False)
+                author_id, email_from = self.env['mail.thread']._message_compute_author(values.get('author_id'), email_from=None)
                 values['email_from'] = email_from
             if not values.get('mail_server_id'):
                 sender_address = tools.email_split(values['email_from'])

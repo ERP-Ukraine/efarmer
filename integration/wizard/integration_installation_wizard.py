@@ -16,7 +16,7 @@ OPTIONAL_MODULES = [
 ]
 
 ODOOSH_SERVER_EXAMPLE = [
-    '[queue_job]\n',
+    '[queue_job] \n',
     'channels = root:1\n',
     'scheme = https\n',
     'port = 443\n',
@@ -24,7 +24,7 @@ ODOOSH_SERVER_EXAMPLE = [
 
 CUSTOM_SERVER_EXAMPLE = [
     'workers = 2 ; set here amount of workers higher than 1\n',
-    '[queue_job]\n',
+    '[queue_job] \n',
     'channels = root:1\n',
 ]
 
@@ -63,12 +63,11 @@ class IntegrationInstallationWizard(models.TransientModel):
             bool: True if the Odoo setup is compatible with the integration, False otherwise.
         """
         config = odoo.tools.config
+        errors = []
+        error_necessary_module_msg = 'The necessary module is not set as a server-wide module in the "odoo.conf"'
 
         # Get the base URL from the configuration parameter
         base_url = self.get_base_url().split('//')[1]
-
-        errors = []
-
         python_path = os.environ.get('PYTHONPATH') or ''
         is_odoosh = '.odoo.com' in base_url or '/odoo.sh' in python_path
 
@@ -104,10 +103,10 @@ class IntegrationInstallationWizard(models.TransientModel):
                 if not host_found:
                     errors.append('The "host" parameter is not set in the "odoo.conf"')
 
-        # Check installed modules
-        modules_str = ','.join(REQUIRED_MODULES)
+        # Check required modules
+        required_modules = set(REQUIRED_MODULES)
+        modules_str = ','.join(required_modules)
         server_wide_modules = config.options.get('server_wide_modules', '')
-
         # If the 'server_wide_modules' parameter is not set in the odoo.conf file, the system
         # automatically adds the 'base' value. This code snippet excludes the 'base' value and
         # any empty strings.
@@ -117,26 +116,33 @@ class IntegrationInstallationWizard(models.TransientModel):
             if rec and rec != 'base'
         )
 
-        if set(REQUIRED_MODULES) - server_wide_modules:
-            errors.append(
-                'The necessary module is not set as a server-wide module in the "odoo.conf"'
-            )
-            if server_wide_modules - set(REQUIRED_MODULES):
-                modules_str = modules_str + ',' + ','.join(
-                    server_wide_modules - set(REQUIRED_MODULES))
+        # Identify missing and extra modules
+        missing_required_modules = required_modules - server_wide_modules
+        extra_required_modules = server_wide_modules - required_modules
 
-        installed_modules = self.env['ir.module.module'].search([('state', '=', 'installed')])
+        # Report errors for missing modules
+        if missing_required_modules:
+            errors.append(error_necessary_module_msg)
+            if extra_required_modules:
+                modules_str = modules_str + ',' + ','.join(extra_required_modules)
+
+        # Check installed modules
+        installed_modules = self.env['ir.module.module'].search(
+            [('state', '=', 'installed')])
         integration_modules = installed_modules.filtered(
             lambda m: m.name.startswith('integration_') and 'extension' not in m.name
         )
 
-        integration_modules_name = set(integration_modules.mapped('name'))
-        missing_modules = integration_modules_name - server_wide_modules - set(OPTIONAL_MODULES)
-        if missing_modules:
-            modules_str = ','.join(REQUIRED_MODULES) + ',' + ','.join(missing_modules)
-            errors.append(
-                'The necessary module is not set as a server-wide module in the "odoo.conf"'
-            )
+        integration_modules = set(integration_modules.mapped('name'))
+        missing_integration_modules = integration_modules - server_wide_modules
+        extra_integration_modules = integration_modules - missing_integration_modules
+        if missing_integration_modules:
+            modules_str = ','.join(required_modules) + ',' + ','.join(
+                missing_integration_modules)
+            if extra_integration_modules:
+                modules_str += ',' + ','.join(extra_integration_modules)
+            if error_necessary_module_msg not in errors:
+                errors.append(error_necessary_module_msg)
 
         if errors:
             server_wide_modules_str = 'server_wide_modules = ' + modules_str + '\n'
@@ -157,22 +163,25 @@ class IntegrationInstallationWizard(models.TransientModel):
 
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Integration Installation Wizard'),
+            'name': _('Let\'s ensure a seamless setup!'),
             'res_model': 'integration.installation.wizard',
             'res_id': self.id,
             'view_mode': 'form',
             'target': 'new',
         }
 
+    def open_configuration_wizard(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Getting Started: E-Commerce Connector Made Easy'),
+            'res_model': 'integration.configuration.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+        }
+
     def close_wizard(self):
-        action_id = self.env.ref('integration.integrations_list_action').id
-        menu_id = self.env.ref('integration.view_sale_integration_kanban').id
-
-        url_menu = f'/web#action=%d&model=sale.integration&view_type=kanban&menu_id=%d&cids=1' \
-            % (action_id, menu_id)
-
         return {
             'type': 'ir.actions.act_url',
-            'url': url_menu,
+            'url': '/odoo/eci',
             'target': 'self',
         }

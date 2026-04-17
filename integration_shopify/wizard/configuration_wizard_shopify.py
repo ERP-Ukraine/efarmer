@@ -1,11 +1,11 @@
 #  See LICENSE file for full copyright and licensing details.
 
-from shopify import ApiVersion
+from odoo import models, fields, _
+from odoo.exceptions import UserError
 
-from odoo import models, fields, api
-from odoo.exceptions import ValidationError
-
-from ..shopify.shopify_helpers import ShopifyOrderStatus, MIN_API_VERSION, REQUIRED_SCOPES
+from ..shopify.resources.order_status import OrderStatus
+from ..shopify.resources.order_display_financial_status import OrderDisplayFinancialStatus as OrderFinancialStatus
+from ..shopify.resources.order_display_fulfillment_status import OrderDisplayFulfillmentStatus as OrderFulfillmentStatus
 
 
 class QuickConfigurationShopify(models.TransientModel):
@@ -13,57 +13,22 @@ class QuickConfigurationShopify(models.TransientModel):
     _inherit = 'configuration.wizard'
     _description = 'Quick Configuration for Shopify'
     _steps = [
-        ('step_url', 'Step 1. Enter Store Url, API version and Access Token'),
-        ('step_access_scopes', 'Step 2. Admin API access scopes'),
-        ('step_languages', 'Step 3. Languages Mapping'),
-        ('step_sale_channels', 'Step 4. Select Sale Channels for the receive filter'),
-        ('step_order_status', 'Step 5. Select order statuses for the receive filter'),
+        ('step_intro', 'Introduction'),
+        ('step_languages', 'Step 1. Languages Mapping'),
+        ('step_order_status', 'Step 2. Select global order statuses for the receive filter'),
         (
             'step_order_financial_status',
-            'Step 6. Select order financial statuses for the receive filter',
+            'Step 3. Select order financial statuses for the receive filter',
         ),
         (
             'step_order_fulfillment_status',
-            'Step 7. Select order fulfillment statuses for the receive filter',
+            'Step 4. Select order fulfillment statuses for the receive filter',
         ),
         ('step_finish', 'Finish'),
     ]
 
-    def _get_available_lib_versions(self):
-        releases = ApiVersion.versions.values()
-        versions = [
-            x.name for x in releases if x.stable and int(x.numeric_version) >= MIN_API_VERSION
-        ]
-        return [(x, x) for x in versions]
-
     state = fields.Char(
-        default='step_url',
-    )
-    url = fields.Char(
-        string='Shop Url',
-    )
-    api_version = fields.Selection(
-        selection=_get_available_lib_versions,
-        string='API Version',
-    )
-    key = fields.Char(
-        string='Admin API access token',
-    )
-    secret_key = fields.Char(
-        string='API secret key',
-    )
-    is_valid_access_scopes = fields.Boolean(
-        string='Proven Access Scopes',
-        compute='_compute_is_valid_access_scopes',
-    )
-    configuration_scope_ids = fields.One2many(
-        comodel_name='configuration.wizard.shopify.line',
-        inverse_name='configuration_wizard_id',
-        string='Access Scopes',
-        domain=lambda self: [
-            ('is_scope', '=', True),
-            ('configuration_wizard_id', '=', self.id),
-        ],
+        default='step_intro',
     )
     configuration_order_status_ids = fields.One2many(
         comodel_name='configuration.wizard.shopify.line',
@@ -101,113 +66,24 @@ class QuickConfigurationShopify(models.TransientModel):
         ],
     )
 
-    configuration_integration_channel_ids = fields.Many2many(
-        related='integration_id.integration_channel_ids',
-        readonly=False,
-        string='Sale Channels',
-        domain="[('integration_id', '=', integration_id)]",
-        help=(
-            'Select the sales channels you want to import orders from in this e-commerce store. '
-            'Leave this field empty if you want to import orders from all sales channels. '
-            'A special "No Channel" option is available to include orders that are not associated '
-            'with any specific sales channel. This can be useful for capturing orders that may have '
-            'been created outside of the normal channel structure.'
-        ),
-    )
-
-    @api.depends('configuration_scope_ids')
-    def _compute_is_valid_access_scopes(self):
-        for rec in self:
-            value = True
-
-            if rec.configuration_scope_ids:
-                value = not any(rec.configuration_scope_ids.mapped('is_missed'))
-
-            rec.is_valid_access_scopes = value
-
-    # Step Url
-    def run_before_step_url(self):
-        self.url = self.integration_id.get_settings_value('url')
-        current_version = self.integration_id.get_settings_value('version')
-
-        versions = self.env['configuration.wizard.shopify']._get_available_lib_versions()
-        available_versions = [x[0] for x in versions]
-
-        if current_version not in available_versions:
-            current_version = False
-
-        self.api_version = current_version
-        self.key = self.integration_id.get_settings_value('key')
-        self.secret_key = self.integration_id.get_settings_value('secret_key')
-
-    def run_after_step_url(self):
-        self.integration_id.set_settings_value('url', self.url)
-        self.integration_id.set_settings_value('version', self.api_version)
-        self.integration_id.set_settings_value('key', self.key)
-        self.integration_id.set_settings_value('secret_key', self.secret_key)
-
-        self.integration_id.increment_sync_token()
-
-        try:
-            self.integration_id.action_active()
-        except Exception as ex:
-            raise ValidationError(ex.args[0])
-
-        return True
-
-    # Step Scopes
-    def run_before_step_access_scopes(self):
-        self._run_before_step_access_scopes()
-
-    def _run_before_step_access_scopes(self):
-        self.configuration_scope_ids.unlink()
-
-        vals_list = list()
-        adapter = self.integration_id._build_adapter()
-
-        adapter_scopes = adapter._client._get_access_scope()
-        adapter.access_scopes = adapter_scopes
-        all_scopes = set([*adapter_scopes, *REQUIRED_SCOPES])
-
-        for scope in all_scopes:
-            if scope not in REQUIRED_SCOPES:
-                continue
-
-            vals = {
-                'is_scope': True,
-                'name': ' '.join(map(lambda x: x.capitalize(), scope.split('_'))),
-                'is_missed': scope not in adapter_scopes,
-                'configuration_wizard_id': self.id,
-            }
-            vals_list.append(vals)
-
-        self.env['configuration.wizard.shopify.line'].create(vals_list)
-
-    def run_after_step_access_scopes(self):
-        return True
-
-    # Step Sale Channel
-    def run_before_step_sale_channels(self):
-        self.integration_id.integrationApiImportSaleChannels()
-        self.configuration_integration_channel_ids = self.integration_id.integration_channel_ids
-
-    def run_after_step_sale_channels(self):
-        return True
+    # Step Intro
+    def run_before_step_intro(self):
+        pass
 
     # Step Order Status
     def run_before_step_order_status(self):
-        if self.configuration_order_status_ids:
-            return
+        self.configuration_order_status_ids.unlink()
 
-        vals_list = list()
-        status_dict = ShopifyOrderStatus.order_statuses()
-        for code, (name, info) in status_dict.items():
+        status_list = OrderStatus.to_list()
+
+        vals_list = []
+        for data in status_list:
             vals = {
                 'is_order_status': True,
                 'activate': False,
-                'name': name,
-                'code': code,
-                'info': info,
+                'name': data['string'],
+                'code': data['name'],
+                'info': data['description'],
                 'configuration_wizard_id': self.id,
             }
             vals_list.append(vals)
@@ -225,9 +101,14 @@ class QuickConfigurationShopify(models.TransientModel):
 
     def run_after_step_order_status(self):
         active_status_ids = self.configuration_order_status_ids.filtered('activate')
-        default_status_id = self.configuration_order_status_ids.filtered(
-            lambda x: x.code == ShopifyOrderStatus.STATUS_OPEN
-        )
+
+        if not active_status_ids:
+            raise UserError(_(
+                'You have to select at least one order status to be imported.'
+            ))
+
+        default_status_id = self.configuration_order_status_ids \
+            .filtered(lambda x: x.code == OrderStatus.open.name)
         status_ids = active_status_ids or default_status_id
 
         self.integration_id.set_settings_value(
@@ -238,18 +119,18 @@ class QuickConfigurationShopify(models.TransientModel):
 
     # Step Order Financial Status
     def run_before_step_order_financial_status(self):
-        if self.configuration_order_financial_status_ids:
-            return
+        self.configuration_order_financial_status_ids.unlink()
 
-        vals_list = list()
-        status_dict = ShopifyOrderStatus.financial_statuses()
-        for code, (name, info) in status_dict.items():
+        vals_list = []
+        status_list = OrderFinancialStatus.to_list()
+
+        for data in status_list:
             vals = {
                 'is_order_financial_status': True,
                 'activate': False,
-                'name': name,
-                'code': code,
-                'info': info,
+                'name': data['string'],
+                'code': data['name'],
+                'info': data['description'],
                 'configuration_wizard_id': self.id,
             }
             vals_list.append(vals)
@@ -267,9 +148,15 @@ class QuickConfigurationShopify(models.TransientModel):
 
     def run_after_step_order_financial_status(self):
         active_status_ids = self.configuration_order_financial_status_ids.filtered('activate')
-        default_status_id = self.configuration_order_financial_status_ids.filtered(
-            lambda x: x.code == ShopifyOrderStatus.SPECIAL_STATUS_ANY
-        )
+
+        if not active_status_ids:
+            raise UserError(_(
+                'You have to select at least one order financial status to be imported.'
+            ))
+
+        default_status_id = self.configuration_order_financial_status_ids \
+            .filtered(lambda x: x.code == OrderFinancialStatus.paid.name)
+
         status_ids = active_status_ids or default_status_id
 
         self.integration_id.set_settings_value(
@@ -280,18 +167,23 @@ class QuickConfigurationShopify(models.TransientModel):
 
     # Step Order Fullfillment Status
     def run_before_step_order_fulfillment_status(self):
-        if self.configuration_order_fulfillment_status_ids:
-            return
+        self.configuration_order_fulfillment_status_ids.unlink()
 
-        vals_list = list()
-        status_dict = ShopifyOrderStatus.fulfillment_statuses()
-        for code, (name, info) in status_dict.items():
+        vals_list = []
+        status_list = OrderFulfillmentStatus.to_list(exclude=[
+            'open',
+            'pending_fulfillment',
+            'restocked',
+            'in_progress',
+            'partially_fulfilled',
+        ])
+        for data in status_list:
             vals = {
                 'is_order_fulfillment_status': True,
                 'activate': False,
-                'name': name,
-                'code': code,
-                'info': info,
+                'name': data['string'],
+                'code': data['name'],
+                'info': data['description'],
                 'configuration_wizard_id': self.id,
             }
             vals_list.append(vals)
@@ -309,9 +201,15 @@ class QuickConfigurationShopify(models.TransientModel):
 
     def run_after_step_order_fulfillment_status(self):
         active_status_ids = self.configuration_order_fulfillment_status_ids.filtered('activate')
-        default_status_id = self.configuration_order_fulfillment_status_ids.filtered(
-            lambda x: x.code == ShopifyOrderStatus.SPECIAL_STATUS_ANY
-        )
+
+        if not active_status_ids:
+            raise UserError(_(
+                'You have to select at least one order fulfillment status to be imported.'
+            ))
+
+        default_status_id = self.configuration_order_fulfillment_status_ids \
+            .filtered(lambda x: x.code == OrderFulfillmentStatus.fulfilled.name)
+
         status_ids = active_status_ids or default_status_id
 
         self.integration_id.set_settings_value(
@@ -319,10 +217,6 @@ class QuickConfigurationShopify(models.TransientModel):
             ','.join(status_ids.mapped('code')),
         )
         return True
-
-    def refresh_scopes(self):
-        self._run_before_step_access_scopes()
-        return self.get_action_view()
 
     @staticmethod
     def get_form_xml_id():
@@ -344,12 +238,6 @@ class QuickConfigurationShopifyLine(models.TransientModel):
     )
     info = fields.Char(
         string='Info',
-    )
-    is_scope = fields.Boolean(
-        string='Is Scope',
-    )
-    is_missed = fields.Boolean(
-        string='Missed',
     )
     is_order_status = fields.Boolean(
         string='Is Order Status',

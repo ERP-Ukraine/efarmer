@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data>
+
+        <record id="integration_configuration_wizard_form" model="ir.ui.view">
+            <field name="name">integration.configuration.wizard.form</field>
+            <field name="model">integration.configuration.wizard</field>
+            <field name="arch" type="xml">
+                <form name="Configuration Wizard">
+                    <sheet>
+                        <field name="state" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="is_last_step" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+
+                        <div name="step_0" invisible="state != 'step_0'">
+                            <div class="row">
+                                <div class="container">
+                                    <p>
+                                        This step-by-step guide is designed to help you get started with our connector quickly and efficiently.
+                                        Whether you're configuring your first connection or fine-tuning your setup, we've got you covered.
+                                    </p>
+
+                                    <p>
+                                        Each step includes a short video tutorial to guide you through key features and configurations.
+                                        You can start from the beginning or jump to any specific section you need.
+                                    </p>
+
+                                    <p>
+                                        Let's get started! 🚀
+                                    </p>
+
+                                    <h4>Contents</h4>
+                                    <ul class="list-group pb-2">
+                                        <li class="list-group-item">
+                                            <button class="btn btn-sm btn-link" name="go_to_step_1" type="object" string="1. Installation and Basic Odoo Setup"/>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <button class="btn btn-sm btn-link" name="go_to_step_2" type="object" string="2. Odoo - E-Commerce Store Connection Configuration"/>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <button class="btn btn-sm btn-link" name="go_to_step_3" type="object" string="3. Initial Import: Master Data (Attributes, Categories, Taxes, etc.)"/>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <button class="btn btn-sm btn-link" name="go_to_step_4" type="object" string="4. Products: Initial Import into Odoo"/>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <button class="btn btn-sm btn-link" name="go_to_step_5" type="object" string="5. Orders: Import Configuration &amp; Settings"/>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <button class="btn btn-sm btn-link" name="go_to_step_6" type="object" string="6. Product Information Synchronization"/>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <button class="btn btn-sm btn-link" name="go_to_step_7" type="object" string="7. Inventory Synchronization"/>
+                                        </li>
+                                    </ul>
+                                    
+                                    <p class="alert alert-info" role="alert">
+                                        <strong>Tip:</strong> For the best experience, we recommend opening the configuration in a new tab while keeping
+                                        this guide open to watch the videos.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div name="step_1" invisible="state != 'step_1'">
+                            <div class="row">
+                                <div class="container">
+                                    <!-- 1. Installation and basic Odoo setup -->
+                                    <iframe
+                                        class="youtube-embedded-video"
+                                        src="https://www.youtube.com/embed/GbZYT0dUMcw"
+                                        title="YouTube video player"
+                                        frameborder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        referrerpolicy="strict-origin-when-cross-origin"
+                                        allowfullscreen="allowfullscreen"
+                                    ></iframe>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div name="step_2" invisible="state != 'step_2'">
+                            <field name="is_woocommerce_installed" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                            <field name="is_prestashop_installed" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                            <field name="is_shopify_installed" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                            <field name="is_magento2_installed" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+
+                            <div class="row">
+                                <div class="container">
+                                    <!-- 2. Odoo - E-Commerce store connection configuration -->
+                                    <div invisible="is_woocommerce_installed == False">
+                                        <iframe
+                                            class="youtube-embedded-video"
+                                            src="https://www.youtube.com/embed/LhCN2ycQwoc"
+                                            title="YouTube video player"
+                                            frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                            referrerpolicy="strict-origin-when-cross-origin"
+                                            allowfullscreen="allowfullscreen"
+                                        ></iframe>
+                                    </div>
+
+                                    <div invisible="is_prestashop_installed == False">
+                                        <iframe
+                                            class="youtube-embedded-video"
+                                            src="https://www.youtube.com/embed/oAdVWez8kRg"
+                                            title="YouTube video player"
+                                            frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                            referrerpolicy="strict-origin-when-cross-origin"
+                                            allowfullscreen="allowfullscreen"
+                                        ></iframe>
+                                    </div>
+
+                                    <div invisible="is_shopify_installed == False">
+                                        <iframe
+                                            class="youtube-embedded-video"
+                                            src="https://www.youtube.com/embed/jpKBHcmJIiU"
+                                            title="YouTube video player"
+                                            frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                            referrerpolicy="strict-origin-when-cross-origin"
+                                            allowfullscreen="allowfullscreen"
+                                        ></iframe>
+                                    </div>
+
+                                    <div invisible="is_magento2_installed == False">
+                                        <iframe
+                                            class="youtube-embedded-video"
+                                            src="https://www.youtube.com/embed/9D1EF6A1kEc"
+                                            title="YouTube video player"
+                                            frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                            referrerpolicy="strict-origin-when-cross-origin"
+                                            allowfullscreen="allowfullscreen"
+                                        ></iframe>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div name="step_3" invisible="state != 'step_3'">
+                            <div class="row">
+                                <div class="container">
+                                    <!-- 3. Initial import: master data (attributes, categories, taxes, etc.) -->
+                                    <iframe
+                                        class="youtube-embedded-video"
+                                        src="https://www.youtube.com/embed/2SdQmxjvFE4"
+                                        title="YouTube video player"
+                                        frameborder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        referrerpolicy="strict-origin-when-cross-origin"
+                                        allowfullscreen="allowfullscreen"
+                                    ></iframe>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div name="step_4" invisible="state != 'step_4'">
+                            <div class="row">
+                                <div class="container">
+                                    <!-- 4. Products: initial import into Odoo -->
+                                    <iframe
+                                        class="youtube-embedded-video"
+                                        src="https://www.youtube.com/embed/3P6e0PnYMpc"
+                                        title="YouTube video player"
+                                        frameborder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        referrerpolicy="strict-origin-when-cross-origin"
+                                        allowfullscreen="allowfullscreen"
+                                    ></iframe>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div name="step_5" invisible="state != 'step_5'">
+                            <div class="row">
+                                <div class="container">
+                                    <!-- 5. Orders: import configuration & settings -->
+                                    <iframe
+                                        class="youtube-embedded-video"
+                                        src="https://www.youtube.com/embed/3NqPrWHUsGM"
+                                        title="YouTube video player"
+                                        frameborder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        referrerpolicy="strict-origin-when-cross-origin"
+                                        allowfullscreen="allowfullscreen"
+                                    ></iframe>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div name="step_6" invisible="state != 'step_6'">
+                            <div class="row">
+                                <div class="container">
+                                    <!-- 6. Product information synchronization between E-Commerce store and Odoo -->
+                                    <iframe
+                                        class="youtube-embedded-video"
+                                        src="https://www.youtube.com/embed/9hfKodJUFk0"
+                                        title="YouTube video player"
+                                        frameborder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        referrerpolicy="strict-origin-when-cross-origin"
+                                        allowfullscreen="allowfullscreen"
+                                    ></iframe>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div name="step_7" invisible="state != 'step_7'">
+                            <div class="row">
+                                <div class="container">
+                                    <!-- 7. Inventory synchronization: keeping stock updated in E-Commerce store -->
+                                    <iframe
+                                        class="youtube-embedded-video"
+                                        src="https://www.youtube.com/embed/0xNr6QgXGKg"
+                                        title="YouTube video player"
+                                        frameborder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        referrerpolicy="strict-origin-when-cross-origin"
+                                        allowfullscreen="allowfullscreen"
+                                    ></iframe>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div name="step_8" invisible="state != 'step_8'">
+                            <div class="row">
+                                <div class="container">
+                                    <p>
+                                        Thank you for completing the setup wizard for our E-Commerce connector!
+                                        Your connector is now ready to streamline your business processes
+                                        between Odoo and your e-commerce platform.
+                                    </p>
+
+                                    <h4>Next Steps</h4>
+                                    <ul class="list-group pb-2">
+                                        <li class="list-group-item">
+                                            <button class="btn btn-sm btn-link"
+                                                    name="go_to_integrations_list"
+                                                    type="object"
+                                                    string="Start Using the Connector"/>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <a href="https://ecosystem.ventor.tech/frequently-asked-questions/"
+                                               role="button"
+                                               class="btn btn-sm btn-link"
+                                               target="_blank">Visit the Documentation</a>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <a href="https://support.ventor.tech/"
+                                               role="button"
+                                               class="btn btn-sm btn-link"
+                                               target="_blank">Contact Support</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <footer>
+                            <div class="d-flex justify-content-between w-100">
+                                <div class="d-flex align-items-center align-content-around flex-wrap gap-1">
+                                    <button name="go_to_prev_step"
+                                            type="object"
+                                            string="← Previous Step"
+                                            class="btn btn-primary"
+                                            invisible="state == 'step_0'"
+                                    />
+
+                                    <button name="go_to_next_step"
+                                            type="object"
+                                            string="Next Step →"
+                                            class="btn btn-primary"
+                                            invisible="is_last_step or state == 'step_0'"
+                                    />
+
+                                    <button name="go_to_next_step"
+                                            type="object"
+                                            string="Get Started →"
+                                            class="btn btn-primary"
+                                            invisible="state != 'step_0'"
+                                    />
+                                </div>
+
+                                <div class="d-flex align-items-center align-content-around flex-wrap gap-1">
+                                    <button name="go_to_step_0"
+                                            type="object"
+                                            string="Back to Contents"
+                                            class="btn btn-outline-secondary"
+                                            invisible="state == 'step_0'"
+                                    />
+
+                                    <a href="https://ecosystem.ventor.tech/product/installation-configuration-service/"
+                                       role="button"
+                                       target="_blank"
+                                       class="btn btn-outline-warning"
+                                    >🚀 Save Time with Professional Setup</a>
+
+                                    <a href="https://support.ventor.tech/"
+                                       role="button"
+                                       target="_blank"
+                                       class="btn btn-outline-info"
+                                    >Help &amp; Support</a>
+                                </div>
+                            </div>
+                        </footer>
+                    </sheet>
+                </form>
+
+            </field>
+        </record>
+
+        <record id="integration_configuration_action" model="ir.actions.act_window">
+            <field name="name">Getting Started: E-Commerce Connector Made Easy</field>
+            <field name="res_model">integration.configuration.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="integration_configuration_wizard_form"/>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+
+</odoo>

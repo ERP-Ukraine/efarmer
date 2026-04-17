@@ -2,58 +2,144 @@
 
 from typing import Dict
 
-from odoo import api, models
+from odoo import fields, models
 
 
-class IntegrationSaleOrderFactory(models.AbstractModel):
+class IntegrationSaleOrderFactory(models.TransientModel):
     _inherit = 'integration.sale.order.factory'
 
-    @api.model
-    def _prepare_order_vals(self, integration, order_data):
-        res = super(IntegrationSaleOrderFactory, self)\
-            ._prepare_order_vals(integration, order_data)
+    external_order_financial_status = fields.Char(
+        string='External Financial Status',
+    )
 
-        if integration.is_shopify():
-            external_location_id = order_data.get('external_location_id')
+    external_order_fulfillment_status = fields.Char(
+        string='External Fulfillment Status',
+    )
+
+    @property
+    def workflow_states(self):
+        if self.integration_id.is_integration_shopify:
+            return [x for x in [
+                self.external_order_financial_status,
+                self.external_order_fulfillment_status,
+            ] if x]
+        return super().workflow_states
+
+    def _extract_workflow_data(self, order_data):
+        super()._extract_workflow_data(order_data)
+        if self.integration_id.is_integration_shopify:
+            states = order_data.get('integration_workflow_states', [])
+            self.external_order_financial_status = states[0] if states else False
+            self.external_order_fulfillment_status = states[1] if len(states) > 1 else False
+
+    def _prepare_order_vals(self, order_data):
+        integration = self.integration_id
+        res = super(IntegrationSaleOrderFactory, self)._prepare_order_vals(order_data)
+
+        if integration.is_integration_shopify:
+            # 1. Prepare warehouse
+            external_location_id = order_data['external_location_id']
+            if external_location_id:
+                warehouse = integration._get_wh_from_external_location(external_location_id)
+                if warehouse:
+                    res['warehouse_id'] = warehouse.id
+
+            # 2. Prepare sale channel
+            channel_data = order_data['sale_channel_data']
+            if channel_data:
+                channel = self.env['external.sale.channel'].create_or_update(
+                    integration.id,
+                    channel_data['channel_id'],
+                    channel_data['channel_name']
+                )
+
+                res['integration_sale_channel_id'] = channel.id
+
+            # 3. Prepare order source name
+            source_name = order_data['order_source_name']
+            if source_name:
+                order_source_name = self.env['external.order.source.name'] \
+                    .get_or_create(integration.id, source_name)
+
+                res['integration_order_source_name_id'] = order_source_name.id
+
+        return res
+
+    def _prepare_order_line_vals(self, order, line_data):
+        integration = self.integration_id
+        res = super(IntegrationSaleOrderFactory, self)._prepare_order_line_vals(order, line_data)
+
+        if integration.is_integration_shopify:
+            external_location_id = line_data.get('external_location_id')
 
             if external_location_id:
                 warehouse = integration._get_wh_from_external_location(external_location_id)
                 if warehouse:
                     res['warehouse_id'] = warehouse.id
 
-            channel_id = order_data.get('channel_id')
-            if channel_id:
-                # Check if the user has imported sales channels.
-                # This is to avoid issues with order imports after migrating
-                # from old versions to 1.17.0 (when sales channels were introduced).
-                # Before version 1.17.0, the connector didn't require the 'read_publications'
-                # permission, which is now needed for importing sales channels.
-                if self.env['external.sale.channel'].search([('integration_id', '=', integration.id)]):
-                    sale_channel = self.env['external.sale.channel'].get_record(integration.id, channel_id)
-                    res['integration_sale_channel_id'] = sale_channel.id if sale_channel else False
-
         return res
 
-    def _prepare_order_line_vals(self, integration, line):
-        res = super(IntegrationSaleOrderFactory, self)._prepare_order_line_vals(integration, line)
+    def _create_order(self, order_data):
+        """
+        Override to create a sale order.
+        """
+        integration = self.integration_id
+        order = super(IntegrationSaleOrderFactory, self)._create_order(order_data)
 
-        if integration.is_shopify():
-            external_location_id = line.get('external_location_id')
+        if integration.is_integration_shopify:
+            payment_methods = self.env['sale.order.payment.method']
+            for payment_method_data in order_data['payment_methods']:
+                payment_methods |= self._get_payment_method(payment_method_data)
 
-            if external_location_id:
-                warehouse = integration._get_wh_from_external_location(external_location_id)
-                if warehouse:
-                    res['warehouse_id'] = warehouse.id
+            if payment_methods:
+                order.write({
+                    'payment_method_ids': [(6, 0, payment_methods.ids)],
+                })
 
-        return res
+        return order
 
-    def _post_create_order(self, integration: models.Model, order: models.Model, order_data: Dict):
+    def _prepare_order_discount_line_vals(self, order, line_data, product=None):
+        """
+        When multiple_discount_lines is enabled for Shopify, return one set of vals per
+        coupon/discount allocation so that the base loop places each discount line
+        immediately after its corresponding product or delivery line.
+        When disabled, delegates to the base connector (one aggregate line per line).
+        """
+        integration = self.integration_id
+        if not integration.is_integration_shopify or not integration.multiple_discount_lines:
+            return super()._prepare_order_discount_line_vals(order, line_data, product=product)
+
+        allocations = line_data.get('discount', {}).get('discount_allocations', [])
+        if not allocations:
+            return []
+
+        result = []
+        for allocation in allocations:
+            if not allocation.get('discount_amount'):
+                continue
+
+            allocation_line_data = dict(line_data, discount={
+                'discount_amount': allocation['discount_amount'],
+                'discount_amount_tax_incl': allocation.get('discount_amount_tax_incl', 0),
+            })
+            for vals in super()._prepare_order_discount_line_vals(
+                order, allocation_line_data, product=product
+            ):
+                code = allocation.get('code', '')
+                if code:
+                    vals['name'] = f'{vals["name"]} (CODE: {code})'
+                result.append(vals)
+
+        return result
+
+    def _post_create_order(self, order: models.Model, order_data: Dict):
         """
         Update order fields based on meta field mappings from the integration.
         """
-        super(IntegrationSaleOrderFactory, self)._post_create_order(integration, order, order_data)
+        integration = self.integration_id
+        super(IntegrationSaleOrderFactory, self)._post_create_order(order, order_data)
 
-        if not integration.is_shopify():
+        if not integration.is_integration_shopify:
             return order
 
         metafield_mappings = integration.order_metafield_mapping_ids
@@ -62,7 +148,7 @@ class IntegrationSaleOrderFactory(models.AbstractModel):
             return order
 
         # Retrieve meta fields associated with the order
-        order_metafields = integration.get_object_metafields('order', order_data['id'])
+        order_metafields = integration.adapter.get_order_metafields_by_id(order_data['id'])
 
         if not order_metafields:
             return order

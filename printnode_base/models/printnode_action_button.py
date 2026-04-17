@@ -14,7 +14,7 @@ class PrintNodeActionButton(models.Model):
     """
     _name = 'printnode.action.button'
     _inherit = 'printnode.logger.mixin'
-    _description = 'PrintNode Action Button'
+    _description = 'Direct Print Action Button'
 
     _rec_name = 'report_id'
 
@@ -204,9 +204,11 @@ class PrintNodeActionButton(models.Model):
                                     f'Printer defined: {printer}')
 
             options = {'bin': printer_bin.name} if printer_bin else {}
+
             printer.printnode_print(
                 action.report_id,
                 objects,
                 copies=action.number_of_copies,
                 options=options,
+                data={'source_document': objects.mapped('name')},
             )

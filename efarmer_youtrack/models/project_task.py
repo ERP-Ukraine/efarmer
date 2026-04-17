@@ -1,4 +1,4 @@
-# Copyright 2023 VentorTech OU
+# Copyright 2026 VentorTech OU
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
 
@@ -6,28 +6,28 @@ from odoo import fields, models
 
 
 class Task(models.Model):
-    _inherit = 'project.task'
+    _inherit = "project.task"
 
     youtrack_id = fields.Char(
-        string='YouTrack ID',
+        string="YouTrack ID",
     )
 
     task_code = fields.Char(
-        string='Issue Code',
+        string="Issue Code",
     )
 
     product_version_id = fields.Many2one(
-        comodel_name='youtrack.product.version',
-        string='Product Version',
+        comodel_name="youtrack.product.version",
+        string="Product Version",
     )
 
     issue_type_id = fields.Many2one(
-        comodel_name='youtrack.issue.type',
-        string='Issue Type',
+        comodel_name="youtrack.issue.type",
+        string="Issue Type",
     )
 
     name_pl = fields.Char(
-        string='Name PL',
+        string="Name PL",
     )
 
     is_epic = fields.Boolean(
@@ -37,12 +37,12 @@ class Task(models.Model):
     )
 
     epic_id = fields.Many2one(
-        comodel_name='project.task',
-        string='Epic Task',
+        comodel_name="project.task",
+        string="Epic Task",
         readonly=True,
     )
 
     asset_id = fields.Many2one(
-        comodel_name='account.asset',
-        string='Product',
+        comodel_name="account.asset",
+        string="Product",
     )

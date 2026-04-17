@@ -11,7 +11,7 @@
             <field name="binding_view_types">form</field>
             <field name="state">code</field>
             <field name="code">action = records.action_assign_hubspot_deal()</field>
-            <field name="groups_id"
+            <field name="group_ids"
                    eval="[(6, 0, [
                         ref('hubspot_quotation_connector.hubspot_user'),
                    ])]"/>
@@ -24,7 +24,7 @@
             <field name="binding_view_types">form</field>
             <field name="state">code</field>
             <field name="code">action = records.action_unassign_hubspot_deal()</field>
-            <field name="groups_id"
+            <field name="group_ids"
                    eval="[(6, 0, [
                         ref('hubspot_quotation_connector.hubspot_user'),
                    ])]"/>

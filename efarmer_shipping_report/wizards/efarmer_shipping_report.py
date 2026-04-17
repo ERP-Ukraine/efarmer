@@ -1,8 +1,11 @@
 import io
 import base64
 from collections import defaultdict
+
+from xlsxwriter import Workbook
+
 from odoo import api, fields, models
-from odoo.tools import PatchedXlsxWorkbook
+from odoo.exceptions import ValidationError
 
 PICKING_STATUS_WAITING_AND_READY = 'waiting_and_ready'
 PICKING_STATUS_DONE = 'done'
@@ -21,16 +24,19 @@ class EfarmerShipingReport(models.TransientModel):
         required=True,
     )
 
-    _sql_constraints = [
-        ('valid_dates', 'CHECK(date_from <= date_to)', 'Date from must be greater than or equal to that date to.'),
-    ]
-
     @api.model
     def _get_picking_status_variants(self):
         return [
             (PICKING_STATUS_WAITING_AND_READY, 'Waiting or Ready'),
             (PICKING_STATUS_DONE, 'Done'),
         ]
+
+    @api.constrains("date_from", "date_to")
+    def _check_date(self):
+        for rec in self.filtered(lambda r: r.date_from and r.date_to):
+            if rec.date_from > rec.date_to:
+                msg = "Date from must be less than or equal to that date to."
+                raise ValidationError(msg)
 
     def build(self):
         self.ensure_one()
@@ -102,8 +108,7 @@ class EfarmerShipingReport(models.TransientModel):
             'products': self.env['product.product'],
             'moves': {},
         }
-
-        for move in pickings.mapped('move_lines').filtered(lambda x: x.state != 'cancel'):
+        for move in pickings.move_ids.filtered(lambda m: m.state != 'cancel'):
             order = move.sale_line_id.order_id
             picking = move.picking_id
             partner = picking.partner_id or order.partner_id
@@ -124,7 +129,7 @@ class EfarmerShipingReport(models.TransientModel):
     def _get_report_bytes(self, report_data):
         stream = io.BytesIO()
 
-        with PatchedXlsxWorkbook(stream) as workbook:
+        with Workbook(stream) as workbook:
             worksheet = workbook.add_worksheet()
             row_no = 0
 
@@ -178,7 +183,7 @@ class EfarmerShipingReport(models.TransientModel):
                 worksheet.write(row_no, 1, order.name or '', cell_format)
                 worksheet.write(row_no, 2, picking.name or '', cell_format)
                 worksheet.write(row_no, 3, partner.name or '', cell_format)
-                worksheet.write(row_no, 4, self._get_partner_address(partner))
+                worksheet.write(row_no, 4, partner._display_address())
                 worksheet.write(row_no, 5, partner.country_id.name or '', cell_format)
                 worksheet.write(row_no, 6, partner.email or '', cell_format)
                 col_no = 7
@@ -186,7 +191,7 @@ class EfarmerShipingReport(models.TransientModel):
                 for product in report_data['products']:
                     moves = move_info.get(product.id)
                     if moves:
-                        lot_names = moves.mapped('move_line_ids.lot_id.name')
+                        lot_names = moves.move_line_ids.lot_id.mapped('name')
 
                         # Display either lots (if exists)
                         if self.picking_status != PICKING_STATUS_WAITING_AND_READY and lot_names:
@@ -194,7 +199,7 @@ class EfarmerShipingReport(models.TransientModel):
                         # Or quantity
                         else:
                             qty = sum(moves.mapped(get_sm_qty))
-                            worksheet.write(row_no, col_no, str(int(qty) if qty.is_integer() else qty), product_cell_format)
+                            worksheet.write(row_no, col_no, str(qty), product_cell_format)
 
                     col_no += 1
 
@@ -204,23 +209,12 @@ class EfarmerShipingReport(models.TransientModel):
         return stream
 
     @api.model
-    def _get_partner_address(self, partner):
-        parts = []
-
-        for field_ in ('street', 'street2', 'city', 'state_id', 'zip', 'country_id'):
-            value = getattr(partner, field_)
-            if value:
-                parts.append(value.name if field_ == 'state_id' or field_ == 'country_id' else value)
-
-        return ',\n'.join(parts)
-
-    @api.model
     def get_empty_stock_move_recordset(self):
         return self.env['stock.move']
 
 
 def get_sm_qty(sm):
     if sm.state == 'done':
-        return sm.quantity_done
+        return sm.quantity
     else:
         return sm.product_qty

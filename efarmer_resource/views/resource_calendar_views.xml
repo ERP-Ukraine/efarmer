@@ -15,11 +15,11 @@
                         </group>
 
                         <field name="hours_per_year">
-                            <tree string="Hours per Month" create="0" delete="0" default_order="month asc">
+                            <list string="Hours per Month" create="0" delete="0" default_order="month asc">
                                 <field name="month"/>
                                 <field name="total_hours" sum="Total"/>
                                 <field name="working_hours" sum="Total"/>
-                            </tree>
+                            </list>
                         </field>
                     </page>
                 </page>

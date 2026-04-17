@@ -3,7 +3,7 @@
     <data>
         <template id="efarmer_purchase.ereport_purchase_order_inherit"
                   inherit_id="purchase.report_purchaseorder_document">
-            <xpath expr="//p[@t-field='o.user_id']" position="replace">
+            <xpath expr="//div[@t-field='o.user_id']" position="replace">
                 <p>
                     <span t-field="o.user_id.name"/>
                     <t t-if="o.user_id.phone">

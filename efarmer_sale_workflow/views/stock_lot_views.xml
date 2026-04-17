@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_stock_lot_filter_inherit_unused" model="ir.ui.view">
+        <field name="name">stock.lot.search.inherit.unused</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.search_product_lot_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <filter
+                    string="Unused"
+                    name="unused_lots"
+                    domain="[('is_unused', '=', True)]"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>

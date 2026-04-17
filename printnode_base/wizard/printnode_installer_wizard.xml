@@ -1,61 +1,372 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
     <data>
-        <record id="printnode_installer_wizard_view" model="ir.ui.view">
-            <field name="name">printnode.installer.form</field>
+
+        <record id="printnode_installer_wizard_form" model="ir.ui.view">
+            <field name="name">printnode.installer.wizard.form</field>
             <field name="model">printnode.installer</field>
             <field name="arch" type="xml">
-                <form string='Direct Print Client Installer'>
-                    <field invisible="1" name="state"/>
+                <form name="Configuration Wizard">
+                    <sheet>
+                        <field name="state" invisible="1"/>
+                        <field name="is_last_step" invisible="1"/>
 
-                    <h1>App Installed</h1>
-                    <div states="introduction">
-                        <p>
-                            Now you need to subscribe to our Printing Service.
-                            <br />
-                            <small>
-                                Or
-                                <button string="enter your API key" name="show_settings" type="object" class="btn-link btn-small p-0"/>
-                                if you already have it
-                            </small>
-                        </p>
+                        <div name="step_0" invisible="state != 'step_0'">
+                            <div class="row">
+                                <div class="container">
+                                    <p>
+                                        Direct Print PRO lets you print documents instantly - no downloads, no dialogs.
+                                        <strong>Just click and print. Fast, secure, and fully automatic.</strong>
+                                    </p>
 
-                        <hr />
+                                    <p>With our module, you can:</p>
+                                    <ul class="o_form_list_view">
+                                        <li>
+                                            Instantly print any Odoo report - including
+                                            invoices, delivery slips, product and shipping labels, and more
+                                        </li>
+                                        <li>
+                                            Set flexible printing rules per report, user, workstation, or company
+                                        </li>
+                                        <li>
+                                            Automate printing flows - for example, print labels right after confirming a delivery
+                                        </li>
+                                    </ul>
 
-                        <a href="https://print.ventor.tech/docs" target="_blank">Installation Documentation</a>
+                                    <p>
+                                        <strong>No PDFs, no popups, no extra clicks.</strong>
+                                        Just fast and reliable printing that saves your team time.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
 
-                    </div>
+                        <div name="step_1" invisible="state != 'step_1'">
+                            <div class="row">
+                                <div class="container">
+                                    <p>
+                                        To ensure smooth and reliable printing, you need a
+                                        <strong>VentorTech Printing subscription</strong>.
+                                    </p>
 
-                    <group states="settings">
-                        <field name="api_key" />
-                        <!-- <field name="is_allowed_to_collect_data" /> -->
-                    </group>
+                                    <p>
+                                        This subscription connects your Odoo to a secure external print server
+                                        that receives print requests, processes them, and sends them directly to
+                                        your local printers. This setup enables direct printing from Odoo
+                                        without the need to download PDFs or interact with print dialogs.
+                                    </p>
 
-                    <footer states="introduction">
-                        <button string="Continue" name="get_api_key" type="object" class="btn-primary"/>
-                    </footer>
+                                    <p>
+                                        Due to technical limitations, it's not possible to send print jobs
+                                        directly from Odoo to your printers without such a service.
+                                        The subscription helps us maintain the printing infrastructure and
+                                        continue improving the security, reliability, and features of our printing services.
+                                    </p>
 
-                    <footer states="settings">
-                        <button string="Save" name="save_settings" type="object" class="btn-primary"/>
-                        <button string="Back" name="show_introduction" type="object" class="btn-secondary"/>
-                    </footer>
+                                    <hr class="my-3"/>
+
+                                    <div class="d-flex justify-content-start mb-2">
+                                        <a href="https://print.ventor.tech/plans"
+                                        target="_blank"
+                                        role="button"
+                                        class="btn btn-outline-primary">
+                                            Subscribe or Start Free Trial
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div name="step_2" invisible="state != 'step_2'">
+                            <div class="row">
+                                <div class="container">
+                                    <p>
+                                        To import your printers and start using Direct Print PRO, connect your account using an API key.
+                                    </p>
+
+                                    <label for="api_key"><strong>Your API Key</strong></label><br/>
+                                    <field name="api_key" placeholder="Paste or autofill your API key here"/>
+
+                                    <br/>
+                                    <div class="my-3">
+                                        <div class="alert alert-info alert-link d-flex align-items-center rounded-2 p-2 collapsed"
+                                            role="button" data-bs-toggle="collapse" data-bs-target="#apiKeyInfo"
+                                            aria-expanded="false" aria-controls="apiKeyInfo" style="cursor: pointer;">
+                                            <i class="fa fa-info-circle me-2"></i>
+                                            <span class="text-muted">
+                                                <strong>Where I can find my API key?</strong>
+                                            </span>
+                                        </div>
+                                        <div class="collapse" id="apiKeyInfo">
+                                            <div class="alert alert-light border rounded p-3" role="alert">
+                                                <ul class="mb-0">
+                                                    <li>
+                                                        Log in using your credentials at <a href="https://print.ventor.tech/login" target="_blank">My Account</a>.
+                                                    </li>
+                                                    <li>
+                                                        Go to <strong>Profile menu</strong>  and in the <strong>Account section</strong> you will find your <strong>API Key</strong>.
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div name="step_3" invisible="state != 'step_3'">
+                            <div class="row">
+                                <div class="container">
+                                    <p>
+                                        To enable printing and fetch your printers, you need to install the
+                                        <strong>Direct Print Client</strong> on your computer.
+                                    </p>
+
+                                    <p>
+                                        This lightweight app runs in the background and connects your Odoo to local printers.
+                                        For reliable printing, the client must always be running and connected to a stable internet connection.
+                                    </p>
+
+                                    <p><strong>1. Download the app for your OS:</strong></p>
+
+                                    <field name="client_apps_html" widget="html"/>
+
+                                    <div class="my-3">
+                                        <div class="alert alert-info alert-link d-flex align-items-center rounded-2 p-2 collapsed"
+                                            role="button" data-bs-toggle="collapse" data-bs-target="#collapseInfo1"
+                                            aria-expanded="false" aria-controls="collapseInfo1" style="cursor: pointer;">
+                                            <i class="fa fa-info-circle me-2"/>
+                                            <span class="text-muted">
+                                                <strong>Don't see the OS you need?</strong>
+                                            </span>
+                                        </div>
+                                        <div class="collapse" id="collapseInfo1">
+                                            <div class="alert alert-light border rounded p-2" role="alert">
+                                                <p class="mb-0">
+                                                    If you don’t see the OS you need, please contact us at
+                                                    <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/group/-1" target="_blank">VentorTech Support</a>
+                                                    and specify your operating system.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <p class="mt-4"><strong>2. Log in into your account:</strong></p>
+
+                                    <p>
+                                        Log in to the client using your credentials from <a href="https://print.ventor.tech/login" target="_blank">My Account</a>.
+                                    </p>
+
+                                    <div class="my-3">
+                                        <div class="alert alert-info alert-link d-flex align-items-center rounded-2 p-2 collapsed"
+                                            role="button" data-bs-toggle="collapse" data-bs-target="#collapseInfo2"
+                                            aria-expanded="false" aria-controls="collapseInfo2" style="cursor: pointer;">
+                                            <i class="fa fa-info-circle me-2"/>
+                                            <span class="text-muted">
+                                                <strong>Can't find credentials?</strong>
+                                            </span>
+                                        </div>
+                                        <div class="collapse" id="collapseInfo2">
+                                            <div class="alert alert-light border rounded p-2" role="alert">
+                                                <ul class="mb-0">
+                                                    <li>
+                                                        Log in using your credentials at <a href="https://print.ventor.tech/login" target="_blank">My Account</a>.
+                                                    </li>
+                                                    <li>
+                                                        Go to <strong>Profile menu</strong>  and in the <strong>Account section</strong> you will find your client credentials.
+                                                    </li>
+                                                </ul>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <p>
+                                        Once installed and logged in, click <strong>Continue</strong> to import your printers.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div name="step_4" invisible="state != 'step_4'">
+                            <div class="row">
+                                <div class="container">
+                                    <p><strong>You're almost done!</strong></p>
+
+                                    <p>
+                                        To enable Odoo Direct Print PRO, you need to activate the feature for both your company and user profile.
+                                        These settings will define how printing behaves across your Odoo system.
+                                    </p>
+
+                                    <div class="row mt-4">
+                                        <!-- Company Settings -->
+                                        <div class="col-6 border-end pe-4">
+                                            <h5 class="text-center mb-3">
+                                                <i class="fa fa-lg fa-building-o me-2"></i> Company Settings
+                                            </h5>
+                                            <div class="d-flex align-items-start mb-3">
+                                                <field name="company_printnode_enabled"/>
+                                                <div class="ms-2">
+                                                    <strong>Enable Direct Printing for company</strong>
+                                                </div>
+                                            </div>
+
+                                            <div class="d-flex align-items-center mb-0">
+                                                <label for="company_printnode_printer" string='Default Printer (Company)' class="me-2 mb-0 text-nowrap fw-semibold form-label"></label>
+                                                <field name="company_printnode_printer" options="{'no_create': True}" class="flex-grow-1 mb-0 pb-0"/>
+                                            </div>
+                                            <p class="small text-muted mt-0">
+                                                Select the default printer for company.
+                                            </p>
+                                        </div>
+
+                                        <!-- User Preferences -->
+                                        <div class="col-6 ps-4">
+                                            <h5 class="text-center mb-3">
+                                                <i class="fa fa-user-o fa-lg me-2"></i> User Settings
+                                            </h5>
+                                            <div class="d-flex align-items-start mb-3">
+                                                <field name="user_printnode_enabled"/>
+                                                <div class="ms-2">
+                                                    <strong>Enable Direct Printing for user</strong>
+                                                </div>
+                                            </div>
+
+                                            <div class="d-flex align-items-center mb-0">
+                                                <label for="user_printnode_printer" string='Default Printer (User)' class="me-2 mb-0 text-nowrap fw-semibold form-label"></label>
+                                                <field name="user_printnode_printer" options="{'no_create': True}" class="flex-grow-1 mb-0 pb-0"/>
+                                            </div>
+                                            <p class="small text-muted mt-0">
+                                                Select the default printer for user. This printer takes priority over the company printer for your user.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div name="step_5" invisible="state != 'step_5'">
+                            <div class="row">
+                                <div class="container">
+                                    <p>
+                                        <strong>You can now print documents directly from Odoo - no downloads, no dialogs.</strong><br/>
+                                    </p>
+
+                                    <p>
+                                        Also, you can fine-tune advanced settings like automated printing, report-specific printers,
+                                        user-level preferences, and more.
+                                        All extra configuration is available in the module settings.
+                                    </p>
+
+                                    <hr />
+
+                                    <div class="mt-3">
+                                        <h5 class="fw-bold mb-2">What's next?</h5>
+                                        <ul class="ps-3 mb-0">
+                                            <li>
+                                                Use "Print Test Page" button below to check how printing works.
+                                            </li>
+                                            <li>
+                                                Need help with anything?
+                                                Check our
+                                                <a href="https://ecosystem.ventor.tech/faq/direct-print" target="_blank" class="text-decoration-none text-primary">
+                                                    <span class="text-info">documentation</span>
+                                                </a>
+                                                or contact our
+                                                <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/group/-1" target="_blank" class="text-decoration-none text-primary">
+                                                    <span class="text-info">support team</span>
+                                                </a>.
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <div invisible="disable_advertising == True" class="alert alert-info d-flex flex-column rounded mb-1 mt-3" role="alert">
+                                        <p class="fw-bold mb-1">
+                                            🎁 <span class="text-danger">€30 Credit for Your Review</span>
+                                        </p>
+                                        <div>
+                                            Leave a review on the <a href="https://apps.odoo.com/apps/modules/18.0/printnode_base/#ratings" target="_blank">
+                                                <span class="text-info"><strong class="text-info">Odoo App Store</strong></span>
+                                            </a> and get €30 as credits for your printing subscription.
+                                        </div>
+                                        <div>
+                                            <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/article/522453101" target="_blank">
+                                                <small class="text-info">How to leave your review? Check the FAQ</small>
+                                            </a>
+                                        </div>
+                                        <div class="mt-1">
+                                            Just <a href="https://support.ventor.tech/" target="_blank"><strong class="text-info">contact us</strong></a> after posting - it's that simple!
+                                        </div>
+                                        <div class="fst-italic mb-0">
+                                            Promo runs until 1 June 2026
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <footer>
+                            <div class="d-flex justify-content-between w-100">
+                                <div class="d-flex align-items-center align-content-around flex-wrap gap-1">
+                                    <button name="go_to_prev_step"
+                                        type="object"
+                                        string="Back"
+                                        class="btn btn-outline-primary"
+                                        invisible="state == 'step_0'"/>
+
+                                    <button name="go_to_next_step"
+                                        type="object"
+                                        string="Continue"
+                                        class="btn btn-primary"
+                                        invisible="is_last_step"/>
+
+                                    <button name="action_finish"
+                                        type="object"
+                                        string="Finish &amp; Close"
+                                        class="btn btn-primary"
+                                        invisible="not is_last_step"/>
+
+                                </div>
+
+                                <div invisible="is_last_step" class="d-flex align-items-center align-content-around flex-wrap gap-1">
+                                    <a href="https://youtu.be/jZAYCuH6PN0?si=sZUrxKI2Itj4BmDa"
+                                       role="button"
+                                       target="_blank"
+                                       class="btn btn-outline-info"
+                                    >See Getting Started Guide</a>
+                                </div>
+
+                                <div invisible="not is_last_step or (not user_printnode_enabled and not company_printnode_enabled)" class="d-flex align-items-center align-content-around flex-wrap gap-1">
+                                    <button name="action_test_printing"
+                                        type="object"
+                                        string="Print Test Page"
+                                        class="btn btn-outline-info"/>
+                                </div>
+                            </div>
+                        </footer>
+                    </sheet>
                 </form>
+
             </field>
         </record>
 
         <record id="printnode_installer_action" model="ir.actions.act_window">
-            <field name="name">Direct Print Client Installer</field>
+            <field name="name">Direct Print PRO Configuration</field>
             <field name="res_model">printnode.installer</field>
             <field name="view_mode">form</field>
-            <field name="view_id" ref="printnode_installer_wizard_view"/>
+            <field name="view_id" ref="printnode_installer_wizard_form"/>
             <field name="target">new</field>
         </record>
+
     </data>
 
     <data noupdate="1">
-        <record id="printnode_installer_todo" model="ir.actions.todo">
+        <record id="printnode_configuration_todo" model="ir.actions.todo">
             <field name="state">open</field>
             <field name="action_id" ref="printnode_installer_action"/>
         </record>
     </data>
+
 </odoo>

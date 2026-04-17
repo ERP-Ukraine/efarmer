@@ -6,7 +6,6 @@ from odoo.tools import float_compare
 
 
 class PurchaseOrder(models.Model):
-
     _inherit = "purchase.order"
 
     account_payment_ids = fields.One2many(
@@ -56,11 +55,9 @@ class PurchaseOrder(models.Model):
     )
     def _compute_purchase_advance_payment(self):
         for order in self:
-            # Extend filter: include accounts with "Allow Transfer from Payable"
-            # This ensures Residual Amount also considers reclassified advances
             mls = order.account_payment_ids.mapped("move_id.line_ids").filtered(
-                lambda x: (x.account_id.internal_type == "payable" and x.parent_state == "posted")
-                or (x.account_id.allow_payable_transfer and x.parent_state == "posted")
+                lambda x: x.account_id.account_type == "liability_payable"
+                and x.parent_state == "posted"
             )
             advance_amount = 0.0
             for line in mls:
@@ -68,16 +65,11 @@ class PurchaseOrder(models.Model):
                 # Exclude reconciled pre-payments amount because once reconciled
                 # the pre-payment will reduce bill residual amount like any
                 # other payment.
-                if line.account_id.internal_type == "payable":
-                    # use residuals for payable accounts
-                    line_amount = (
-                        line.amount_residual_currency
-                        if line.currency_id else line.amount_residual
-                    )
-                elif line.account_id.allow_payable_transfer:
-                    # use full balance for advances (since residual is always 0)
-                    line_amount = line.balance if line.currency_id else line.amount_currency or line.debit - line.credit
-
+                line_amount = (
+                    line.amount_residual_currency
+                    if line.currency_id
+                    else line.amount_residual
+                )
                 if line_currency != order.currency_id:
                     advance_amount += line.currency_id._convert(
                         line_amount,
@@ -87,13 +79,38 @@ class PurchaseOrder(models.Model):
                     )
                 else:
                     advance_amount += line_amount
+            # Compute amount by payments without an account.move related.
+            adv_pays = order.account_payment_ids.filtered(
+                lambda x: x.state in ["in_process", "paid"]
+                and not x.outstanding_account_id
+                and not x.move_id
+            )
+            for ap in adv_pays:
+                if ap.invoice_ids:
+                    # This is not perfect but it is the best we can do.
+                    # Once the payment is linked to the invoice, it is better
+                    # to not consider it anymore because is not going to be
+                    # reconciled (it has no move_id), otherwise the risk to
+                    # double-count payments is high.
+                    continue
+
+                ap_currency = ap.currency_id or ap.company_currency_id
+                if ap_currency != order.currency_id:
+                    advance_amount += ap_currency._convert(
+                        ap.amount,
+                        order.currency_id,
+                        order.company_id,
+                        ap.date or fields.Date.today(),
+                    )
+                else:
+                    advance_amount += ap.amount
             # Consider payments in related invoices.
             invoice_paid_amount = 0.0
             for inv in order.invoice_ids:
                 invoice_paid_amount += inv.amount_total - inv.amount_residual
             amount_residual = order.amount_total - advance_amount - invoice_paid_amount
             payment_state = "not_paid"
-            if mls or order.invoice_ids:
+            if mls or not order.currency_id.is_zero(invoice_paid_amount):
                 has_due_amount = float_compare(
                     amount_residual, 0.0, precision_rounding=order.currency_id.rounding
                 )

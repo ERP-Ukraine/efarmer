@@ -32,7 +32,7 @@ class SaleOrder(models.Model):
     )
 
     integration_sale_channel_id = fields.Many2one(
-        string='e-Commerce Sales Channel',
+        string='E-Commerce Sales Channel',
         comodel_name='external.sale.channel',
         copy=False,
         help=(
@@ -40,26 +40,48 @@ class SaleOrder(models.Model):
         ),
     )
 
+    integration_order_source_name_id = fields.Many2one(
+        string='E-Commerce Order Source Name',
+        comodel_name='external.order.source.name',
+        copy=False,
+        help=(
+            'The name of the source associated with the order.'
+        ),
+    )
+
+    payment_method_ids = fields.Many2many(
+        string='E-Commerce Payment Methods',
+        comodel_name='sale.order.payment.method',
+        domain='[("integration_id", "=", integration_id)]',
+        copy=False,
+    )
+
+    external_tag_ids = fields.Many2many(
+        string='External Tags',
+        comodel_name='external.integration.tag',
+        relation='external_integration_tag_sale_order_rel',
+        column1='sale_order_id',
+        column2='external_integration_tag_id',
+        domain='[("ttype", "=", "order")]',
+        copy=False,
+    )
+
     def _shopify_cancel_order(self, *args, **kw):
+        # from _perform_method_by_name calling
         _logger.info('SaleOrder _shopify_cancel_order(). Not implemented.')
         pass
 
     def _shopify_shipped_order(self, *args, **kw):
+        # from _perform_method_by_name calling
         _logger.info('SaleOrder _shopify_shipped_order(). Not implemented.')
         pass
 
     def _shopify_paid_order(self, *args, **kw):
+        # from _perform_method_by_name calling
         _logger.info('SaleOrder _shopify_paid_order()')
-        status = self.env['sale.order.sub.status']\
-            .from_external(self.integration_id, 'paid')  # TODO: attention, hardcode!
-        self.sub_status_id = status.id
 
-    def _prepare_vals_for_sale_order_status(self):
-        res = super(SaleOrder, self)._prepare_vals_for_sale_order_status()
-        if self.integration_id.is_shopify():
-            res['amount'] = str(self.amount_total)
-            res['currency'] = self.currency_id.name
-        return res
+        status = self.env['sale.order.sub.status'].from_external(self.integration_id, 'paid')
+        self.sub_status_id = status.id
 
     @api.depends('order_risk_ids')
     def _compute_is_risky_sale(self):
@@ -77,144 +99,102 @@ class SaleOrder(models.Model):
 
             rec.is_risky_sale = value
 
-    def _integration_validate_order(self):
-        result, message = super()._integration_validate_order()
+    def _adjust_integration_external_data(self, external_data: dict) -> dict:
+        # Perform the common logic in the super() method
+        res = super(SaleOrder, self)._adjust_integration_external_data(external_data)
 
-        if not result:
-            return result, message
+        if not self.integration_id.is_integration_shopify:
+            return res
 
-        if self.integration_id.is_shopify():
-            _logger.info('Run integration auto-workflow validate_order: Shopify overridden')
-            if self.integration_id.apply_external_fulfillments:
-
-                for fulfillment in self.external_fulfillment_ids.filtered(lambda x: not x.is_done):
-                    res, __ = fulfillment.validate()
-
-                    if not res:
-                        _logger.warning(
-                            '%s: %s --> External fulfillment "%s" was not applied',
-                            self.integration_id.name, self, fulfillment.external_str_id,
-                        )
-
-        return result, message
-
-    def _adjust_integration_external_data(self, external_data):
-        if not self.integration_id.is_shopify():
-            return super(SaleOrder, self)._adjust_integration_external_data(external_data)
-
-        external_order_id = self.env.context.get('external_order_id')
-        if not external_order_id:
-            return external_data
-
+        external_order_id = self.external_order_name
         adapter = self.integration_id.adapter
+
+        order = adapter.gql.Order.set(id=external_order_id)
+        order.update_props(
+            use_customer_currency=adapter._settings['use_customer_currency'],
+        )
+        read_order = False
+
+        def _read():
+            nonlocal read_order
+
+            if not read_order:
+                order.read()
+                read_order = True
+
         if 'order_risks' not in external_data:
             # 1. Fetch Order Risks
-            order_risks = adapter.fetch_order_risks(external_order_id)
+            _read()
+            order_risks = order.parse_order_risks()
             external_data['order_risks'] = order_risks
 
-        if 'order_transactions' not in external_data:
+        if 'payment_transactions' not in external_data:
             # 2. Fetch Order Payments
-            order_txns = adapter.fetch_order_payments(external_order_id)
-            external_data['order_transactions'] = order_txns
+            _read()
+            payment_txns = order.parse_payment_transactions()
+            external_data['payment_transactions'] = payment_txns
 
         if 'order_fulfillments' not in external_data:
             # 3. Fetch Order Fulfillments
-            order_fulfillments = adapter.fetch_fulfillments(external_order_id)
+            _read()
+            order_fulfillments = order.parse_fulfillments()
             external_data['order_fulfillments'] = order_fulfillments
 
         return external_data
 
-    def _apply_values_from_external(self, external_data):
-        if not self.integration_id.is_shopify():
-            return super(SaleOrder, self)._apply_values_from_external(external_data)
+    def _apply_values_from_external(self, external_data: dict) -> dict:
+        integration = self.integration_id
 
-        if not isinstance(external_data, dict):
-            return external_data
+        if integration.is_integration_shopify:
+            vals = dict()
+            # 0. State update --> partially updated in the super() method
+            if external_data.get('integration_workflow_states'):
+                # 1. Update Statuses
+                fulfillment_code = external_data['integration_workflow_states'][1]
 
-        vals = dict()
-        # 0. State update
-        if external_data.get('integration_workflow_states'):
-            # 1. Update Statuses
-            SoFactory = self.env['integration.sale.order.factory']
-            financial_code, fulfillment_code = external_data['integration_workflow_states']
+                sub_status_fulfillment = integration._get_order_sub_status(fulfillment_code)
 
-            sub_status_financial = SoFactory._get_order_sub_status(
-                self.integration_id,
-                financial_code,
-            )
-            sub_status_fulfillment = SoFactory._get_order_sub_status(
-                self.integration_id,
-                fulfillment_code,
-            )
-            vals.update(
-                sub_status_id=sub_status_financial.id,
-                shopify_fulfilment_status=sub_status_fulfillment.id,
-            )
+                vals['shopify_fulfilment_status'] = sub_status_fulfillment.id
 
-        # 1. Tags
-        if external_data.get('external_tags'):
-            # 2. Update Tags
-            ctx = dict(default_integration_id=self.integration_id.id)
-            ExternalTag = self.env['external.integration.tag'].with_context(**ctx)
+            # 1. Tags
+            if external_data.get('external_tags'):
+                # 2. Update Tags
+                tags = []
+                for tag_name in external_data['external_tags']:
+                    tag = self.env['external.integration.tag'] \
+                        ._get_or_create_external_tag(tag_name, 'order', integration_id=integration.id)
+                    tags.append((4, tag.id, 0))
 
-            tags = list()
-            for tag_name in external_data['external_tags']:
-                tag = ExternalTag._get_or_create_tag_from_name(tag_name)
-                tags.append((4, tag.id, 0))
+                vals['external_tag_ids'] = tags
 
-            vals['external_tag_ids'] = tags
+            # 2. Risks
+            if external_data.get('order_risks'):
+                # 3. Update Risks
+                ExternalOrderRisk = self.env['external.order.risk']
 
-        # 2. Risks
-        if external_data.get('order_risks'):
-            # 3. Update Risks
-            ExternalOrderRisk = self.env['external.order.risk']
+                risks = list()
+                for risk_data in external_data['order_risks']:
+                    risk = ExternalOrderRisk._create_or_update_risk_from_external(risk_data)
+                    risks.append((4, risk.id, 0))
 
-            risks = list()
-            for risk_data in external_data['order_risks']:
-                risk = ExternalOrderRisk._create_or_update_risk_from_external(risk_data)
-                risk.append((4, risk.id, 0))
+                vals['order_risk_ids'] = risks
 
-            vals['order_risk_ids'] = risks
+            # 3. Fulfillments
+            if external_data.get('order_fulfillments'):
+                Fulfillment = self.env['external.order.fulfillment'] \
+                    .with_context(integration_id=integration.id)
 
-        # 3. Payment
-        if external_data.get('order_transactions'):
-            # 4. Update Transactions (Payments)
-            Transaction = self.env['external.order.transaction']\
-                .with_context(integration_id=self.integration_id.id)
+                fulfillments = list()
+                for fulfill_data in external_data['order_fulfillments']:
+                    record = Fulfillment._get_or_create_from_external(fulfill_data)
+                    fulfillments.append((4, record.id, 0))
 
-            txns = list()
-            for txn_data in external_data['order_transactions']:
-                txn = Transaction._get_or_create_txn_from_external(txn_data)
-                txns.append((4, txn.id, 0))
+                vals['external_fulfillment_ids'] = fulfillments
 
-            vals['external_payment_ids'] = txns
+            if vals:
+                self.with_context(skip_dispatch_to_external=True).write(vals)
 
-        # 4. Fulfillments
-        if external_data.get('order_fulfillments'):
-            Fulfillment = self.env['external.order.fulfillment']\
-                .with_context(erp_order_id=self.id)
-
-            fulfillments = list()
-            for fulfill_data in external_data['order_fulfillments']:
-                record = Fulfillment._get_or_create_from_external(fulfill_data)
-                fulfillments.append((4, record.id, 0))
-
-            vals['external_fulfillment_ids'] = fulfillments
-
-        if vals:
-            self.with_context(skip_dispatch_to_external=True).write(vals)
-
-        # -- Post actions -- TODO: this actions have to by process by workflow tasks (integration.workflow.pipeline)
-        if self.env.context.get('skip_integration_order_post_action'):
-            return external_data
-
-        if self.is_confirmed:
-            # 4.1 Apply fulfillments
-            if self.integration_id.apply_external_fulfillments:
-                for record in self.external_fulfillment_ids.filtered(lambda x: not x.is_done):
-                    record.validate()
-
-        return external_data
+        return super(SaleOrder, self)._apply_values_from_external(external_data)
 
     def _get_order_fraud_threshold(self):
         threshold = self.env['ir.config_parameter'].sudo().get_param(

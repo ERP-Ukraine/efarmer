@@ -3,32 +3,35 @@
     <data>
 
         <record id="integration_sale_order_sub_status_external_auto_workflow_view_tree" model="ir.ui.view">
-            <field name="name">integration.sale.order.sub.status.external.auto.workflow.view.tree</field>
+            <field name="name">integration.sale.order.sub.status.external.auto.workflow.view.list</field>
             <field name="model">integration.sale.order.sub.status.external</field>
             <field name="arch" type="xml">
-                <tree editable="bottom" create="0">
+                <list editable="bottom" create="0">
+                    <field name="company_id" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
                     <field name="integration_id" readonly="1"/>
                     <field name="code" readonly="1" optional="hide"/>
                     <field name="name" readonly="1"/>
-                    <field name="validate_order" widget="boolean_toggle"/>
-                    <field name="validate_picking" attrs="{'readonly': [('validate_order', '=', False)]}" force_save="1" widget="boolean_toggle"/>
-                    <field name="create_invoice" attrs="{'readonly': [('validate_order', '=', False)]}" force_save="1" widget="boolean_toggle"/>
-                    <field name="force_invoice_date" attrs="{'readonly': [('create_invoice', '=', False)]}" force_save="1" widget="boolean_toggle"/>
-                    <field name="invoice_journal_id" 
-                           options="{'no_create': True}" 
-                           attrs="{'required': [('create_invoice', '=', True)], 'readonly': [('create_invoice', '=', False)]}"
+                    <field name="validate_order" force_save="1"/>
+                    <field name="validate_picking" readonly="not validate_order" force_save="1"/>
+                    <field name="create_invoice" readonly="not validate_order" force_save="1"/>
+                    <field name="invoice_journal_id"
+                           options="{'no_create': True}"
+                           required="create_invoice"
+                           readonly="not create_invoice"
                            force_save="1"
                     />
-                    <field name="validate_invoice" attrs="{'readonly': [('create_invoice', '=', False)]}" force_save="1" widget="boolean_toggle"/>
-                    <field name="register_payment" attrs="{'readonly': [('validate_invoice', '=', False)]}" force_save="1" widget="boolean_toggle"/>
-                </tree>
+                    <field name="validate_invoice" readonly="not create_invoice" force_save="1"/>
+                    <field name="send_invoice" readonly="not create_invoice" force_save="1"/>
+                    <field name="register_payment" readonly="not create_invoice" force_save="1"/>
+                </list>
             </field>
         </record>
 
         <record id="integration_sale_order_sub_status_external_auto_workflow_action" model="ir.actions.act_window">
             <field name="name">Order Statuses</field>
+            <field name="path">eci-order-sub-statuses</field>
             <field name="res_model">integration.sale.order.sub.status.external</field>
-            <field name="view_mode">tree</field>
+            <field name="view_mode">list</field>
             <field name="view_id" ref="integration_sale_order_sub_status_external_auto_workflow_view_tree"/>
         </record>
 

@@ -52,7 +52,7 @@ class IntegrationAccountTaxExternal(models.Model):
 
     def action_import_taxes_from_external(self):
         for integration in self.mapped('integration_id'):
-            adapter_data_list = integration._build_adapter().get_taxes()
+            adapter_data_list = integration.adapter.get_taxes()
 
             for tax in self.filtered(lambda x: x.integration_id == integration):
                 tax.import_tax(adapter_data_list)
@@ -71,7 +71,8 @@ class IntegrationAccountTaxExternal(models.Model):
 
         mapping = self.create_or_update_mapping()
 
-        return mapping.with_context(force_create_tax=True)\
+        return mapping \
+            .with_context(force_create_tax=True) \
             ._fix_unmapped_tax_one(external_data=adapter_data)
 
     def _post_import_external_one(self, adapter_external_record):

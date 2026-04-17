@@ -10,12 +10,12 @@ _logger = logging.getLogger(__name__)
 
 
 class PrintNodePrinter(models.Model):
-    """ PrintNode Scales entity
+    """ Direct Print Scales entity
     """
     _name = 'printnode.scales'
-    _description = 'PrintNode Scales'
+    _description = 'Direct Print Scales'
 
-    printnode_id = fields.Integer('Printnode ID')
+    printnode_id = fields.Integer('Scale ID')
 
     active = fields.Boolean(
         'Active',
@@ -41,7 +41,7 @@ class PrintNodePrinter(models.Model):
     )
 
     status = fields.Char(
-        'PrintNode Status',
+        'Status',
         size=64,
     )
 
@@ -67,12 +67,10 @@ class PrintNodePrinter(models.Model):
         ),
     ]
 
-    def name_get(self):
-        result = []
+    @api.depends('name', 'device_num', 'computer_id.name')
+    def _compute_display_name(self):
         for scales in self:
-            name = f'{scales.name}-{scales.device_num} ({scales.computer_id.name})'
-            result.append((scales.id, name))
-        return result
+            scales.display_name = f'{scales.name}-{scales.device_num} ({scales.computer_id.name})'
 
     @api.depends('status', 'computer_id.status')
     def _compute_scales_status(self):
@@ -83,12 +81,12 @@ class PrintNodePrinter(models.Model):
             rec.online = rec.status in ['online'] and rec.computer_id.status in ['connected']
 
     def get_scales_measure_kg(self, show_error_on_zero=True):
-        """ Gets scales measure (kg) using PrintNode service.
+        """ Gets scales measure (kg) using Direct Print PRO service.
             Returns mass in kg.
         """
         scales_results = '/computer/{}/scale/{}/{}'.format(
             self.computer_id.printnode_id,
-            self.name,
+            self.name.replace(' ', '%20').replace('/', '%2F'),
             self.device_num,
         )
         result = self.account_id._send_printnode_request(scales_results)

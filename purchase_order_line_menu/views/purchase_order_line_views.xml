@@ -1,25 +1,28 @@
-<?xml version="1.0" encoding="utf-8" ?>
 <!-- Copyright 2023 Moduon Team
      License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
 <odoo>
     <record id="purchase_order_line_tree" model="ir.ui.view">
-        <field name="name">purchase.order.line.tree</field>
+        <field name="name">purchase.order.line.list</field>
         <field name="model">purchase.order.line</field>
         <field name="inherit_id" ref="purchase.purchase_order_line_tree" />
         <field name="mode">primary</field>
         <field name="priority">17</field>
         <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="default_order">order_id asc, id asc</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_id']" position="attributes">
+                <attribute name="widget">many2one</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="widget">many2one</attribute>
+            </xpath>
+            <xpath expr="//field[@name='product_id']" position="attributes">
+                <attribute name="widget">many2one</attribute>
+            </xpath>
             <xpath expr="//field[@name='order_id']" position="after">
                 <field name="state" optional="hide" />
                 <field name="invoice_status" optional="hide" />
-            </xpath>
-            <xpath expr="//field[@name='name']" position="after">
-                <field name="account_analytic_id" optional="hide" />
-                <field
-                    name="analytic_tag_ids"
-                    widget="many2many_tags"
-                    optional="hide"
-                />
             </xpath>
             <xpath expr="//field[@name='product_id']" position="after">
                 <field name="product_type" optional="hide" />
@@ -46,7 +49,7 @@
             <xpath expr="//field[@name='date_planned']" position="before">
                 <field name="date_order" optional="show" widget="date" />
             </xpath>
-            <xpath expr="//tree" position="inside">
+            <xpath expr="//list" position="inside">
                 <field name="product_packaging_id" optional="hide" />
             </xpath>
             <xpath expr="//field[@name='name']" position="attributes">
@@ -55,7 +58,7 @@
             <xpath expr="//field[@name='date_planned']" position="attributes">
                 <attribute name="optional">hide</attribute>
             </xpath>
-            <xpath expr="/tree" postion="inside">
+            <xpath expr="//list" position="inside">
                 <field
                     name="invoice_lines"
                     widget="many2many_tags"
@@ -149,16 +152,6 @@
                     context="{'group_by' : 'invoice_status'}"
                 />
                 <filter
-                    name="groupby_account_analytic"
-                    string="Analytic Account"
-                    context="{'group_by' : 'account_analytic_id'}"
-                />
-                <filter
-                    name="groupby_analytic_tags"
-                    string="Analytic Tags"
-                    context="{'group_by' : 'analytic_tag_ids'}"
-                />
-                <filter
                     name="groupby_date_order"
                     string="Order Date"
                     context="{'group_by' : 'date_order'}"
@@ -171,12 +164,16 @@
         <field name="name">Purchase Order Lines</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">purchase.order.line</field>
-        <field name="view_mode">tree,form,pivot</field>
+        <field name="view_mode">list,pivot,form</field>
+        <field name="domain">[('display_type', '=', False)]</field>
         <field
             name="search_view_id"
             ref="purchase_order_line_menu.purchase_order_line_search"
         />
         <field name="view_id" ref="purchase_order_line_menu.purchase_order_line_tree" />
+        <field
+            name="context"
+        >{'search_default_flt_state_purchase': 1, 'search_default_flt_state_done': 1}</field>
     </record>
 
     <menuitem

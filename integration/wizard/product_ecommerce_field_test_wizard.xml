@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="product_ecommerce_field_test_wizard_view_form" model="ir.ui.view">
+            <field name="name">product.ecommerce.field.test.wizard.view.form</field>
+            <field name="model">product.ecommerce.field.test.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Test Field Mapping">
+                    <sheet>
+                        <!-- Hidden fields -->
+                        <field name="is_template_field" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="is_variant_field" invisible="1"/> <!-- Required because it is used in the required condition below -->
+                        <field name="type_api" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                        <field name="mapping_exists" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="import_tested" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="export_tested" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="import_success" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="export_success" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="has_error" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="error_traceback" invisible="1"/> <!-- Required because it is used in the error display below -->
+
+                        <!-- Header info -->
+                        <div class="alert alert-info" role="alert">
+                            <i class="fa fa-flask me-2"/>
+                            Test how this field definition transforms data during import and export.
+                            No mapping is required - you can test before creating one.
+                        </div>
+
+                        <!-- Field and Store selection -->
+                        <group>
+                            <field name="ecommerce_field_id" string="Field Definition"/>
+                            <field name="integration_id" string="Store"
+                                   options="{'no_create': True, 'no_edit': True}"/>
+                        </group>
+
+                        <!-- Mapping status (informational) -->
+                        <div invisible="not integration_id">
+                            <div class="alert alert-secondary mb-3" role="alert"
+                                 invisible="mapping_exists">
+                                <i class="fa fa-info-circle me-2"/>
+                                <span>No mapping exists yet for this store.</span>
+                                <button name="action_create_mapping" type="object"
+                                        string="Create Mapping Now" class="btn btn-sm btn-outline-primary ms-3"/>
+                                <span class="text-muted ms-2">or test first and create later.</span>
+                            </div>
+
+                            <div class="alert alert-success mb-3" role="alert" invisible="not mapping_exists">
+                                <p class="mb-0">
+                                    <i class="fa fa-check-circle me-2"/>
+                                    <span>Mapping exists:</span>
+                                    <field name="mapping_id" class="ms-2 mb-0" readonly="1" nolabel="1"/>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Test panels (visible when integration is selected) -->
+                        <group invisible="not integration_id">
+
+                            <!-- Import Test Panel -->
+                            <group string="Test Import (E-Commerce → Odoo)">
+                                <div class="text-muted small mb-2" colspan="2">
+                                    Fetch data from e-commerce and see what value would be imported into Odoo.
+                                </div>
+
+                                <field name="external_template_id" string="External Product"
+                                       options="{'no_create': True, 'no_edit': True}"/>
+
+                                <field name="external_variant_id" string="External Variant"
+                                       options="{'no_create': True, 'no_edit': True}"
+                                       invisible="is_template_field"
+                                       required="is_variant_field and external_template_id"/>
+
+                                <div colspan="2">
+                                    <button name="action_test_import" type="object"
+                                            string="Run Import Test" class="btn btn-primary"
+                                            icon="fa-download"
+                                            invisible="not external_template_id"/>
+                                </div>
+
+                                <!-- Success result -->
+                                <div colspan="2" invisible="not import_tested or not import_success">
+                                    <label for="import_result" string="Result:" class="fw-bold mb-0"/>
+                                    <field name="import_result" widget="json_editor" nolabel="1"
+                                           class="border rounded"/>
+                                </div>
+                            </group>
+
+                            <!-- Export Test Panel -->
+                            <group string="Test Export (Odoo → E-Commerce)">
+                                <div class="text-muted small mb-2" colspan="2">
+                                    Read Odoo data and see what value would be sent to e-commerce.
+                                </div>
+
+                                <field name="product_template_id" string="Odoo Product"
+                                       options="{'no_create': True, 'no_edit': True}"/>
+
+                                <field name="product_variant_id" string="Odoo Variant"
+                                       options="{'no_create': True, 'no_edit': True}"
+                                       invisible="is_template_field"
+                                       required="is_variant_field and product_template_id"/>
+
+                                <div colspan="2">
+                                    <button name="action_test_export" type="object"
+                                            string="Run Export Test" class="btn btn-primary"
+                                            icon="fa-upload"
+                                            invisible="not product_template_id"/>
+                                </div>
+
+                                <!-- Success result -->
+                                <div colspan="2" invisible="not export_tested or not export_success">
+                                    <label for="export_result" string="Result:" class="fw-bold mb-0"/>
+                                    <field name="export_result" widget="json_editor" nolabel="1"
+                                           class="border rounded"/>
+                                </div>
+                            </group>
+
+                        </group>
+
+                        <!-- Error display block -->
+                        <div class="alert alert-warning clearfix" role="alert"
+                             invisible="not has_error">
+                            <p><b><i class="fa fa-exclamation-triangle me-2"/>An error occurred</b></p>
+                            <p>Please review the error details below and correct your configuration if needed.</p>
+                            <p class="mb-2"><b>Error Message:</b></p>
+                            <p class="mb-3">
+                                <field name="error_message" nolabel="1" readonly="1" widget="text"/>
+                            </p>
+                            <div class="accordion" id="errorAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <a href="#" class="accordion-button collapsed" role="button"
+                                           data-bs-toggle="collapse" data-bs-target="#errorCollapse"
+                                           aria-expanded="false" aria-controls="errorCollapse">
+                                            See full traceback
+                                        </a>
+                                    </h2>
+                                    <div id="errorCollapse" class="accordion-collapse collapse"
+                                         data-bs-parent="#errorAccordion">
+                                        <div class="accordion-body">
+                                            <div class="alert alert-danger o_error_detail mb-0" role="alert">
+                                                <pre><field name="error_traceback" nolabel="1" readonly="1" widget="text"/></pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button name="action_clear_error" type="object"
+                                        string="Dismiss Error" class="btn btn-sm btn-outline-secondary"/>
+                            </div>
+                        </div>
+
+                    </sheet>
+                    <footer>
+                        <button string="Close" class="btn btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -9,24 +9,25 @@ class IntegrationAccountTaxMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'Integration Account Tax Mapping'
     _mapping_fields = ('tax_id', 'external_tax_id')
+    _mapping_label = 'Tax'
 
     tax_id = fields.Many2one(
-        comodel_name='account.tax',
         string='Odoo Tax',
+        comodel_name='account.tax',
         ondelete='cascade',
         domain="[('type_tax_use','=','sale'), ('company_id', '=', company_id)]",
     )
     external_tax_id = fields.Many2one(
-        comodel_name='integration.account.tax.external',
         string='External Tax',
+        comodel_name='integration.account.tax.external',
         required=True,
         ondelete='cascade',
     )
 
     # TODO: remove in Odoo 16 as Deprecated
     external_tax_group_id = fields.Many2one(
-        comodel_name='integration.account.tax.group.external',
         string='External Tax Group',
+        comodel_name='integration.account.tax.group.external',
     )
 
     # TODO: add constain
@@ -60,13 +61,29 @@ class IntegrationAccountTaxMapping(models.Model):
             'integration_id': integration.id,
             'company_id': integration.company_id.id,
         }
-        if external_data.get('price_include'):
-            value = external_data['price_include']
-        else:
-            value = self.integration_id.price_including_taxes
 
-        tax_vals['price_include'] = value
+        if integration.default_tax_scope:
+            tax_vals['tax_scope'] = integration.default_tax_scope
+        if integration.default_tax_group_id:
+            tax_vals['tax_group_id'] = integration.default_tax_group_id.id
+
+        if external_data.get('price_include'):
+            price_include_value = external_data['price_include']
+        else:
+            price_include_value = self.integration_id.price_including_taxes
+
+        if price_include_value:
+            tax_vals['price_include_override'] = 'tax_included'
+        else:
+            tax_vals['price_include_override'] = 'tax_excluded'
         odoo_tax = tax_id.create(tax_vals)
+
+        account = integration.default_account_id
+        if account:
+            for line in odoo_tax.invoice_repartition_line_ids | odoo_tax.refund_repartition_line_ids:
+                if line.repartition_type == 'tax':
+                    line.account_id = account
+
         self.tax_id = odoo_tax.id
 
         return odoo_tax
@@ -81,7 +98,6 @@ class IntegrationAccountTaxMapping(models.Model):
             ('amount_type', '=', 'percent'),
             ('name', '=ilike', escape_psql(self.external_tax_id.name)),
             ('company_id', '=', self.integration_id.company_id.id),
-            ('integration_id', 'in', [self.integration_id.id, False]),
         ]
         if external_data:
             domain.append(
@@ -89,11 +105,16 @@ class IntegrationAccountTaxMapping(models.Model):
             )
 
             if external_data.get('price_include'):
-                value = external_data['price_include']
+                price_include_value = external_data['price_include']
             else:
-                value = self.integration_id.price_including_taxes
+                price_include_value = self.integration_id.price_including_taxes
+
+            if price_include_value:
+                value = 'tax_included'
+            else:
+                value = 'tax_excluded'
             domain.append(
-                ('price_include', '=', value)
+                ('price_include_override', '=', value)
             )
 
         odoo_tax = tax_id.search(domain, limit=1)

@@ -19,20 +19,20 @@
             </field>
         </record>
         <record id="view_delivery_terms_tree" model="ir.ui.view">
-            <field name="name">delivery.terms.tree</field>
+            <field name="name">delivery.terms.list</field>
             <field name="model">delivery.terms</field>
             <field name="arch" type="xml">
-                <tree>
+                <list>
                     <field name="name"/>
                     <field name="default_for_company"/>
                     <field name="company_id"/>
-                </tree>
+                </list>
             </field>
         </record>
         <record id="action_delivery_terms" model="ir.actions.act_window">
             <field name="name">Delivery Terms</field>
             <field name="res_model">delivery.terms</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
         </record>
         <menuitem id="menu_delivery_terms" name="Delivery Terms" parent="sale.menu_sale_config" sequence="60"/>
         <menuitem id="menu_delivery_terms_form" name="Delivery Terms" parent="menu_delivery_terms" action="action_delivery_terms" sequence="10"/>

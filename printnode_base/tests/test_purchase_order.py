@@ -52,6 +52,7 @@ class TestPrintNodePurchaseOrder(TestPrintNodeCommon):
                 self.purchase_order.picking_ids,
                 copies=1,
                 options={},
+                data={'source_document': []},
             )
 
     def test_button_confirm(self):

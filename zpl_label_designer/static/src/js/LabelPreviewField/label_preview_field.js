@@ -1,49 +1,47 @@
 /** @odoo-module **/
 
-import fieldRegistry from 'web.field_registry';
-import { FieldText } from 'web.basic_fields';
+import { registry } from '@web/core/registry';
+import { Component, onWillStart, useState, xml } from '@odoo/owl';
 
 const DENSITY = {
-  152: '6dpmm',
-  203: '8dpmm',
-  300: '12dpmm',
-  600: '24dpmm',
+    152: '6dpmm',
+    203: '8dpmm',
+    300: '12dpmm',
+    600: '24dpmm',
 };
 
-const LabelPreviewField = FieldText.extend({
-  _renderEdit: function () {
-    this._renderZPLPreview();
-  },
+export class LabelPreviewField extends Component {
+    setup() {
+        this.imageSrc = useState({ value: null });
 
-  _renderReadonly: function () {
-    this._renderZPLPreview();
-  },
+        onWillStart(async () => {
+            const record = this.props.record;
 
-  _renderZPLPreview: function () {
-    if (this.record.data.preview) {
-      // TODO: Move dpmm to readonly calculated field on backend?
-      const dpmm = DENSITY[this.record.data.dpi];
-      const width = this.record.data.width;
-      const height = this.record.data.height;
-      const labelaryUrl = `https://api.labelary.com/v1/printers/${dpmm}/labels/${width}x${height}/0/`;
+            const dpmm = DENSITY[record.data.dpi];
+            const width = record.data.width;
+            const height = record.data.height;
+            const data = record.data[this.props.name];
 
-      const formData = new FormData();
-      formData.append('file', this.value);
+            const formData = new FormData();
+            formData.append('file', data);
 
-      fetch(labelaryUrl, { method: 'POST', body: formData })
-        .then((response) => response.blob())
-        .then((blob) => {
-          const previewURL = URL.createObjectURL(blob);
+            fetch(this.generateLabelaryUrl(dpmm, width, height), { method: 'POST', body: formData })
+                .then((response) => response.blob())
+                .then((blob) => {
+                    const previewURL = URL.createObjectURL(blob);
 
-          const imageEl = document.createElement('img');
-          imageEl.classList.add('border');
-          imageEl.src = previewURL;
-
-          this.$el.prepend(imageEl);
+                    // Update image source
+                    this.imageSrc.value = previewURL;
+                });
         });
-      // TODO: Add error catching
     }
-  },
-});
 
-fieldRegistry.add('zld_label_preview', LabelPreviewField);
+    generateLabelaryUrl(dpmm, width, height) {
+        return `https://api.labelary.com/v1/printers/${dpmm}/labels/${width}x${height}/0/`;
+    }
+
+}
+
+LabelPreviewField.template = 'zpl_label_designer.LabelPreviewField';
+
+registry.category('fields').add('zld_label_preview', { component: LabelPreviewField });

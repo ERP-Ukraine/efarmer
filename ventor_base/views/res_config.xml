@@ -6,11 +6,10 @@
         <field name="model">res.config.settings</field>
         <field name="inherit_id" ref="base.res_config_settings_view_form" />
         <field name="arch" type="xml">
-            <xpath expr="//div[hasclass('settings')]" position="inside" >
-                <div class="app_settings_block"
-                     data-string="Ventor Configuration"
+            <xpath expr="//form" position="inside" >
+                <app data-string="Ventor Configuration"
                      string="Ventor Configuration"
-                     data-key="ventor_base"
+                     name="ventor_base"
                      groups="stock.group_stock_manager">
 
                     <h2>Ventor Application modules</h2>
@@ -96,7 +95,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </app>
             </xpath>
         </field>
     </record>

@@ -3,8 +3,9 @@
 from odoo import models, fields, _
 from odoo.exceptions import ValidationError
 
-NO_CHANNEL_EXTERNAL_ID = 'no_channel'
+
 NO_CHANNEL_NAME = 'No Channel'
+NO_CHANNEL_EXTERNAL_ID = 'no_channel'
 
 
 class ExternalSaleChannel(models.Model):
@@ -21,7 +22,7 @@ class ExternalSaleChannel(models.Model):
 
     integration_id = fields.Many2one(
         comodel_name='sale.integration',
-        string='Sale Integration',
+        string='E-Commerce Store',
         ondelete='cascade',
     )
 
@@ -35,40 +36,32 @@ class ExternalSaleChannel(models.Model):
         required=True,
     )
 
-    def create_or_update(self, external_id, name):
-        """
-            Get an existing sale channel or create a new one if it doesn't exist.
-        """
-        integration_id = self.env.context.get('default_integration_id')
-        if not integration_id:
-            raise ValidationError(_('Integration ID is required in the context.'))
+    @property
+    def is_no_channel(self) -> bool:
+        self.ensure_one()
+        return self.external_id == NO_CHANNEL_EXTERNAL_ID
 
-        channel = self.get_record(integration_id, external_id, raise_error=False)
+    def create_or_update(self, integration_id: int, external_id: str, name: str) -> models.Model:
+        record = self.get_record(integration_id, external_id, raise_error=False)
 
-        if channel:
-            channel.write({'name': name})
+        if record:
+            record.write({'name': name})
         else:
-            channel_vals = {
-                'external_id': external_id,
+            record = self.create({
                 'name': name,
+                'external_id': external_id,
                 'integration_id': integration_id,
-            }
+            })
 
-            channel = self.create(channel_vals)
+        return record
 
-        return channel
-
-    def get_record(self, integration_id, external_id, raise_error=True):
-        """
-            Get the sale channel record based on the external ID.
-        """
-        domain = [
+    def get_record(self, integration_id: int, external_id: str, raise_error: bool = True) -> models.Model:
+        record = self.search([
             ('external_id', '=', external_id),
             ('integration_id', '=', integration_id),
-        ]
+        ], limit=1)
 
-        channel = self.search(domain, limit=1)
-        if not channel and raise_error:
+        if not record and raise_error:
             raise ValidationError(_(
                 f'We couldn\'t find the sales channel with ID {external_id} in your Shopify store.\n\n'
                 f'To fix this:\n'
@@ -81,19 +74,19 @@ class ExternalSaleChannel(models.Model):
                 f'team: https://support.ventor.tech/'
             ))
 
-        return channel
+        return record
 
-    def _ensure_no_channel_exists(self, integration_id):
+    def _ensure_no_channel_exists(self, integration_id: int) -> models.Model:
         """
         Ensure 'No Channel' exists for the current integration.
         """
-        no_channel = self.get_record(integration_id, NO_CHANNEL_EXTERNAL_ID, False)
+        record = self.get_record(integration_id, NO_CHANNEL_EXTERNAL_ID, False)
 
-        if not no_channel:
-            no_channel = self.create({
-                'external_id': NO_CHANNEL_EXTERNAL_ID,
+        if not record:
+            record = self.create({
                 'name': NO_CHANNEL_NAME,
+                'external_id': NO_CHANNEL_EXTERNAL_ID,
                 'integration_id': integration_id,
             })
 
-        return no_channel
+        return record

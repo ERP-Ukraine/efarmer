@@ -18,19 +18,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 ######################################################################################################
 {
-        "name": "Download Multiple Attachments",
-        "version": "15.0",
-        "depends": [
-                'base'
-        ],
-        "author": "BHC",
-        'website': 'www.bhc.be',
-        "description": """""",
-        'data': [
-                'views/attachment_views.xml',
-        ],
-        'images': [
-            "static/description/banner.png"
-        ],
-        'license': 'LGPL-3',
+    "name": "Download Multiple Attachments",
+    "version": "18.0.1.0.0",
+    "depends": ["base"],
+    "author": "BHC, VentorTech",
+    "website": "www.bhc.be",
+    "description": """""",
+    "data": [
+        "views/attachment_views.xml",
+    ],
+    "images": ["static/description/banner.png"],
+    "license": "LGPL-3",
 }

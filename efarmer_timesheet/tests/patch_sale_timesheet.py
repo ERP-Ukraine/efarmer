@@ -1,12 +1,14 @@
-# Copyright 2023 VentorTech OU
+# Copyright 2026 VentorTech OU
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
 
 from odoo.tests import tagged
-from odoo.addons.sale_timesheet.tests.test_project_update import TestProjectUpdateSaleTimesheet
+from odoo.addons.sale_timesheet.tests.test_project_update import (
+    TestProjectUpdateSaleTimesheet,
+)
 
 
-@tagged('post_install', '-at_install')
+@tagged("post_install", "-at_install")
 class TestProjectUpdateSaleTimesheetPatch(TestProjectUpdateSaleTimesheet):
     """
     Need for patching:
@@ -17,36 +19,41 @@ class TestProjectUpdateSaleTimesheetPatch(TestProjectUpdateSaleTimesheet):
 
     def test_project_update_description_profitability(self):
         self.project_pigs.allow_billable = True
-        currency_res_dict = {'EUR': '0.00\xa0€', 'USD': '$\xa00.00'}
-        currency_expected_value = currency_res_dict.get(self.env.company.currency_id.name, 'EUR')
-        template_values = self.env['project.update']._get_template_values(self.project_pigs)
+        currency_res_dict = {"EUR": "0.00\xa0€", "USD": "$\xa00.00"}
+        currency_expected_value = currency_res_dict.get(
+            self.env.company.currency_id.name, "EUR"
+        )
+        template_values = self.env["project.update"]._get_template_values(
+            self.project_pigs
+        )
 
         self.assertEqual(
-            template_values['profitability']['costs'],
+            template_values["profitability"]["costs"],
             currency_expected_value,
-            'Project costs used in the template should be well defined'
+            "Project costs used in the template should be well defined",
         )
         self.assertEqual(
-            template_values['profitability']['revenues'],
+            template_values["profitability"]["revenues"],
             currency_expected_value,
-            'Project revenues used in the template should be well defined'
+            "Project revenues used in the template should be well defined",
         )
         self.assertEqual(
-            template_values['profitability']['margin'],
+            template_values["profitability"]["margin"],
             0,
-            'Margin used in the template should be well defined'
+            "Margin used in the template should be well defined",
         )
         self.assertEqual(
-            template_values['profitability']['margin_formatted'],
+            template_values["profitability"]["margin_formatted"],
             currency_expected_value,
-            'Margin formatted used in the template should be well defined'
+            "Margin formatted used in the template should be well defined",
         )
         self.assertEqual(
-            template_values['profitability']['margin_percentage'],
-            '0',
-            'Margin percentage used in the template should be well defined'
+            template_values["profitability"]["margin_percentage"],
+            "0",
+            "Margin percentage used in the template should be well defined",
         )
 
 
-TestProjectUpdateSaleTimesheet.test_project_update_description_profitability = \
+TestProjectUpdateSaleTimesheet.test_project_update_description_profitability = (
     TestProjectUpdateSaleTimesheetPatch.test_project_update_description_profitability
+)

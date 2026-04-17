@@ -2,12 +2,14 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 import doctest
 import logging
-import sys
 import typing
 from contextlib import contextmanager
 from itertools import groupby
 from operator import attrgetter
 from unittest import TestCase, mock
+
+from odoo.tests.case import TestCase as _TestCase
+from odoo.tests.common import MetaCase
 
 from odoo.addons.queue_job.delay import Graph
 
@@ -95,6 +97,7 @@ def trap_jobs():
         "odoo.addons.queue_job.delay.Job",
         name="Job Class",
         auto_spec=True,
+        unsafe=True,
     ) as job_cls_mock:
         with JobsTrap(job_cls_mock) as trap:
             yield trap
@@ -209,13 +212,10 @@ class JobsTrap:
 
         if expected_call not in actual_calls:
             raise AssertionError(
-                "Job %s was not enqueued.\n"
-                "Actual enqueued jobs:\n%s"
-                % (
+                "Job {} was not enqueued.\n" "Actual enqueued jobs:\n{}".format(
                     self._format_job_call(expected_call),
                     "\n".join(
-                        " * %s" % (self._format_job_call(call),)
-                        for call in actual_calls
+                        f" * {self._format_job_call(call)}" for call in actual_calls
                     ),
                 )
             )
@@ -255,6 +255,7 @@ class JobsTrap:
         if not job.identity_key or all(
             j.identity_key != job.identity_key for j in self.enqueued_jobs
         ):
+            self._prepare_context(job)
             self.enqueued_jobs.append(job)
 
             patcher = mock.patch.object(job, "store")
@@ -272,6 +273,13 @@ class JobsTrap:
             )
         )
         return job
+
+    def _prepare_context(self, job):
+        # pylint: disable=context-overridden
+        job_model = job.job_model.with_context({})
+        field_records = job_model._fields["records"]
+        # Filter the context to simulate store/load of the job
+        job.recordset = field_records.convert_to_write(job.recordset, job_model)
 
     def __enter__(self):
         return self
@@ -292,16 +300,16 @@ class JobsTrap:
     def _format_job_call(self, call):
         method_all_args = []
         if call.args:
-            method_all_args.append(", ".join("%s" % (arg,) for arg in call.args))
+            method_all_args.append(", ".join(f"{arg}" for arg in call.args))
         if call.kwargs:
             method_all_args.append(
-                ", ".join("%s=%s" % (key, value) for key, value in call.kwargs.items())
+                ", ".join(f"{key}={value}" for key, value in call.kwargs.items())
             )
-        return "<%s>.%s(%s) with properties (%s)" % (
+        return "<{}>.{}({}) with properties ({})".format(
             call.method.__self__,
             call.method.__name__,
             ", ".join(method_all_args),
-            ", ".join("%s=%s" % (key, value) for key, value in call.properties.items()),
+            ", ".join(f"{key}={value}" for key, value in call.properties.items()),
         )
 
     def __repr__(self):
@@ -345,7 +353,7 @@ class JobMixin:
 
 
 @contextmanager
-def mock_with_delay():
+def mock_with_delay():  # pylint: disable=E501
     """Context Manager mocking ``with_delay()``
 
     DEPRECATED: use ``trap_jobs()'``.
@@ -390,9 +398,9 @@ def mock_with_delay():
                 self.assertDictEqual(delay_kwargs, {})
 
     An example of the first kind of test:
-    https://github.com/camptocamp/connector-jira/blob/0ca4261b3920d5e8c2ae4bb0fc352ea3f6e9d2cd/connector_jira/tests/test_batch_timestamp_import.py#L43-L76  # noqa
+    https://github.com/camptocamp/connector-jira/blob/0ca4261b3920d5e8c2ae4bb0fc352ea3f6e9d2cd/connector_jira/tests/test_batch_timestamp_import.py#L43-L76
     And the second kind:
-    https://github.com/camptocamp/connector-jira/blob/0ca4261b3920d5e8c2ae4bb0fc352ea3f6e9d2cd/connector_jira/tests/test_import_task.py#L34-L46  # noqa
+    https://github.com/camptocamp/connector-jira/blob/0ca4261b3920d5e8c2ae4bb0fc352ea3f6e9d2cd/connector_jira/tests/test_import_task.py#L34-L46
 
     """
     with mock.patch(
@@ -406,7 +414,7 @@ def mock_with_delay():
         yield delayable_cls, delayable
 
 
-class OdooDocTestCase(doctest.DocTestCase):
+class OdooDocTestCase(doctest.DocTestCase, _TestCase, MetaCase("DummyCase", (), {})):
     """
     We need a custom DocTestCase class in order to:
     - define test_tags to run as part of standard tests
@@ -427,7 +435,7 @@ class OdooDocTestCase(doctest.DocTestCase):
 
     def setUp(self):
         """Log an extra statement which test is started."""
-        super(OdooDocTestCase, self).setUp()
+        super().setUp()
         logging.getLogger(__name__).info("Running tests for %s", self._dt_test.name)
 
 
@@ -443,9 +451,6 @@ def load_doctests(module):
         Also extend the DocTestCase class trivially to fit the class teardown
         that Odoo backported for its own test classes from Python 3.8.
         """
-        if sys.version_info < (3, 8):
-            doctest.DocTestCase.doClassCleanups = lambda: None
-            doctest.DocTestCase.tearDown_exceptions = []
 
         for idx, test in enumerate(doctest.DocTestSuite(module)):
             odoo_test = OdooDocTestCase(test, seq=idx)

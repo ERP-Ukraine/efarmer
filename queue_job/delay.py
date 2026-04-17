@@ -4,11 +4,11 @@
 
 import itertools
 import logging
-import os
 import uuid
 from collections import defaultdict, deque
 
 from .job import Job
+from .utils import must_run_without_delay
 
 _logger = logging.getLogger(__name__)
 
@@ -217,17 +217,9 @@ class DelayableGraph(Graph):
         In tests, prefer to use
         :func:`odoo.addons.queue_job.tests.common.trap_jobs`.
         """
-        if os.getenv("TEST_QUEUE_JOB_NO_DELAY"):
-            _logger.warning(
-                "`TEST_QUEUE_JOB_NO_DELAY` env var found. NO JOB scheduled."
-            )
-            return True
         envs = {vertex.recordset.env for vertex in vertices}
         for env in envs:
-            if env.context.get("test_queue_job_no_delay"):
-                _logger.warning(
-                    "`test_queue_job_no_delay` ctx key found. NO JOB scheduled."
-                )
+            if must_run_without_delay(env):
                 return True
         return False
 
@@ -240,8 +232,7 @@ class DelayableGraph(Graph):
         elif jobs_count == 1:
             if jobs[0].graph_uuid:
                 raise ValueError(
-                    "Job %s is a single job, it should not"
-                    " have a graph uuid" % (jobs[0],)
+                    f"Job {jobs[0]} is a single job, it should not have a graph uuid"
                 )
         else:
             graph_uuids = {job.graph_uuid for job in jobs if job.graph_uuid}
@@ -344,7 +335,7 @@ class DelayableChain:
 
     def __repr__(self):
         inner_graph = "\n\t".join(repr(self._graph).split("\n"))
-        return "DelayableChain(\n\t{}\n)".format(inner_graph)
+        return f"DelayableChain(\n\t{inner_graph}\n)"
 
     def on_done(self, *delayables):
         """Connects the current chain to other delayables/chains/groups
@@ -396,7 +387,7 @@ class DelayableGroup:
 
     def __repr__(self):
         inner_graph = "\n\t".join(repr(self._graph).split("\n"))
-        return "DelayableGroup(\n\t{}\n)".format(inner_graph)
+        return f"DelayableGroup(\n\t{inner_graph}\n)"
 
     def on_done(self, *delayables):
         """Connects the current group to other delayables/chains/groups
@@ -492,11 +483,10 @@ class Delayable:
         return [self]
 
     def __repr__(self):
-        return "Delayable({}.{}({}, {}))".format(
-            self.recordset,
-            self._job_method.__name__ if self._job_method else "",
-            self._job_args,
-            self._job_kwargs,
+        return (
+            f"Delayable({self.recordset}."
+            f"{self._job_method.__name__ if self._job_method else ''}"
+            f"({self._job_args}, {self._job_kwargs}))"
         )
 
     def __del__(self):
@@ -506,7 +496,7 @@ class Delayable:
     def _set_from_dict(self, properties):
         for key, value in properties.items():
             if key not in self._properties:
-                raise ValueError("No property %s" % (key,))
+                raise ValueError(f"No property {key}")
             setattr(self, key, value)
 
     def set(self, *args, **kwargs):
@@ -534,6 +524,51 @@ class Delayable:
         """Delay the whole graph"""
         self._graph.delay()
 
+    def split(self, size, chain=False):
+        """Split the Delayables.
+
+        Use `DelayableGroup` or `DelayableChain`
+        if `chain` is True containing batches of size `size`
+        """
+        if not self._job_method:
+            raise ValueError("No method set on the Delayable")
+
+        total_records = len(self.recordset)
+
+        delayables = []
+        for index in range(0, total_records, size):
+            recordset = self.recordset[index : index + size]
+            delayable = Delayable(
+                recordset,
+                priority=self.priority,
+                eta=self.eta,
+                max_retries=self.max_retries,
+                description=self.description,
+                channel=self.channel,
+                identity_key=self.identity_key,
+            )
+            # Update the __self__
+            delayable._job_method = getattr(recordset, self._job_method.__name__)
+            delayable._job_args = self._job_args
+            delayable._job_kwargs = self._job_kwargs
+
+            delayables.append(delayable)
+
+        description = self.description or (
+            self._job_method.__doc__.splitlines()[0].strip()
+            if self._job_method.__doc__
+            else f"{self.recordset._name}.{self._job_method.__name__}"
+        )
+        for index, delayable in enumerate(delayables):
+            delayable.set(
+                description=f"{description} (split {index + 1}/{len(delayables)})"
+            )
+
+        # Prevent warning on deletion
+        self._generated_job = True
+
+        return (DelayableChain if chain else DelayableGroup)(*delayables)
+
     def _build_job(self):
         if self._generated_job:
             return self._generated_job
@@ -560,7 +595,7 @@ class Delayable:
             return super().__getattr__(name)
         if name in self.recordset:
             raise AttributeError(
-                "only methods can be delayed (%s called on %s)" % (name, self.recordset)
+                f"only methods can be delayed ({name} called on {self.recordset})"
             )
         recordset_method = getattr(self.recordset, name)
         self._job_method = recordset_method
@@ -571,7 +606,7 @@ class Delayable:
         self._generated_job.perform()
 
 
-class DelayableRecordset(object):
+class DelayableRecordset:
     """Allow to delay a method for a recordset (shortcut way)
 
     Usage::
@@ -620,9 +655,9 @@ class DelayableRecordset(object):
         return _delay_delayable
 
     def __str__(self):
-        return "DelayableRecordset(%s%s)" % (
-            self.delayable.recordset._name,
-            getattr(self.delayable.recordset, "_ids", ""),
+        return (
+            f"DelayableRecordset({self.delayable.recordset._name}"
+            f"{getattr(self.delayable.recordset, '_ids', '')})"
         )
 
     __repr__ = __str__

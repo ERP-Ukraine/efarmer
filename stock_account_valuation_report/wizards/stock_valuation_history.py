@@ -8,6 +8,7 @@ from odoo.tools.safe_eval import safe_eval
 class StockValuationHistory(models.TransientModel):
     _name = "stock.valuation.history"
     _description = "Stock Valuation History"
+    _rec_name = "inventory_datetime"
 
     inventory_datetime = fields.Datetime(
         "Dual Valuation at Date",
@@ -19,7 +20,7 @@ class StockValuationHistory(models.TransientModel):
         action = self.env["ir.actions.act_window"]._for_xml_id(
             "stock_account_valuation_report.product_valuation_action"
         )
-        domain = [("type", "=", "product")]
+        domain = [("is_storable", "=", True)]
         product_id = self.env.context.get("product_id", False)
         product_tmpl_id = self.env.context.get("product_tmpl_id", False)
         if product_id:

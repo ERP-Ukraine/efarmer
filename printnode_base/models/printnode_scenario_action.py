@@ -10,17 +10,17 @@ class PrintNodeScenarioAction(models.Model):
     """ Action for scenarios
     """
     _name = 'printnode.scenario.action'
-    _description = 'PrintNode Scenario Action'
+    _description = 'Direct Print Scenario Action'
 
     name = fields.Char(
         string='Name',
-        size=64,
+        size=200,
         required=True,
     )
 
     code = fields.Char(
         string='Code',
-        size=64,
+        size=200,
         required=True,
     )
 

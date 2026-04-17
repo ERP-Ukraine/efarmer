@@ -8,13 +8,16 @@ class IntegrationProductPublicCategoryMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'Integration Product Public Category Mapping'
     _mapping_fields = ('public_category_id', 'external_public_category_id')
+    _mapping_label = 'Product Category'
 
     public_category_id = fields.Many2one(
+        string='Odoo E-Commerce Category',
         comodel_name='product.public.category',
         ondelete='cascade',
     )
 
     external_public_category_id = fields.Many2one(
+        string='External E-Commerce Category',
         comodel_name='integration.product.public.category.external',
         required=True,
         ondelete='cascade',

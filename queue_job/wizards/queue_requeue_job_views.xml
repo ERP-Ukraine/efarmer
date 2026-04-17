@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <record id="view_requeue_job" model="ir.ui.view">
         <field name="name">Requeue Jobs</field>
         <field name="model">queue.requeue.job</field>
         <field name="arch" type="xml">
             <form string="Requeue Jobs">
                 <group string="The selected jobs will be requeued.">
-                    <field name="job_ids" nolabel="1" />
+                    <field name="job_ids" nolabel="1" colspan="2" />
                 </group>
                 <footer>
                     <button
@@ -30,5 +29,4 @@
         <field name="target">new</field>
         <field name="binding_model_id" ref="queue_job.model_queue_job" />
     </record>
-
 </odoo>

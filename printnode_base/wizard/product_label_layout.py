@@ -7,28 +7,12 @@ from odoo.exceptions import ValidationError, UserError
 
 
 class ProductLabelLayout(models.TransientModel):
-    _inherit = 'product.label.layout'
+    _name = 'product.label.layout'
+    _inherit = ['product.label.layout', 'printnode.label.layout.mixin']
 
-    picking_quantity = fields.Selection(
+    move_quantity = fields.Selection(
         selection_add=[('custom_per_product', 'Custom Per Product')],
         ondelete={'custom_per_product': 'set default'}
-    )
-
-    printer_id = fields.Many2one(
-        comodel_name='printnode.printer',
-        compute='_compute_printer_id',
-        readonly=False,
-        store=True,
-    )
-
-    printer_bin = fields.Many2one(
-        'printnode.printer.bin',
-        string='Printer Bin',
-        required=False,
-        domain='[("printer_id", "=", printer_id)]',
-        compute='_compute_printer_bin_id',
-        readonly=False,
-        store=True,
     )
 
     product_line_ids = fields.One2many(
@@ -46,111 +30,117 @@ class ProductLabelLayout(models.TransientModel):
         string='Active Model'
     )
 
-    is_dpc_enabled = fields.Boolean(
-        default=lambda self: self._is_dpc_enabled(),
-    )
-
-    @api.depends('printer_id')
-    def _compute_printer_bin_id(self):
-        for rec in self:
-            rec.printer_bin = rec.printer_id.default_printer_bin
-
-    @api.depends('print_format')
-    def _compute_printer_id(self):
-        for rec in self:
-            printer, _ = rec._get_label_printer()
-            rec.printer_id = printer
-
-    def _default_printer_id(self):
-        """
-        Returns only default printer from _get_label_printer()
-        """
-        printer, _ = self._get_label_printer()
-        return printer
-
-    def _get_label_printer(self):
-        """
-        Priority:
-        1. Printer from User Rules (if exists)
-        2. Printer from Report Policy (if exists)
-        3. Printer from Workstation (if exists)
-        4. Default printer for current user (User Preferences)
-        5. Default printer for current company (Settings)
-        """
-        self.ensure_one()
-
-        if self._is_dpc_enabled():
-            xml_id, _ = self._prepare_report_data()
-
-            if xml_id:
-                report_id = self.env.ref(xml_id).id
-                return self.env.user.get_report_printer(report_id)
-
-        workstation_printer_id = self.env.user._get_workstation_device('printer_id')
-
-        printer = workstation_printer_id \
-            or self.env.user.printnode_printer \
-            or self.env.company.printnode_printer
-
-        printer_bin = printer.default_printer_bin
-
-        return printer, printer_bin
-
-    def _is_dpc_enabled(self):
-        """
-        Returns True only if DPC enabled on the company level
-        """
-        return self.env.company.printnode_enabled
-
     @api.model
     def default_get(self, fields_list):
         default_vals = super(ProductLabelLayout, self).default_get(fields_list)
 
-        move_line_ids = self.env.context.get('default_move_line_ids')
-        if default_vals.get('picking_quantity') == 'picking':
-            default_vals['active_model'] = 'product.product'
-            qties = defaultdict(
-                int,
-                {k: 0 for k in self.env.context.get('default_product_ids', [])}
-            )
+        if default_vals.get('move_quantity') == 'picking':
+            move_line_ids = self.env.context.get('default_move_line_ids')
+            product_ids = self.env.context.get('default_product_ids', [])
+            qties = defaultdict(int, {k: 0 for k in product_ids})
+
             if move_line_ids:
                 uom_unit = self.env.ref('uom.product_uom_categ_unit', raise_if_not_found=False)
                 for line in self.env['stock.move.line'].browse(move_line_ids):
                     if line.product_uom_id.category_id == uom_unit:
-                        qties[line.product_id.id] += line.qty_done
-            default_vals['product_line_ids'] = [(0, 0, {
-                'product_id': p,
-                'quantity': int(q)
-            }) for p, q in qties.items()]
+                        qties[line.product_id.id] += line.quantity
+
+            default_vals.update({
+                'active_model': 'product.product',
+                'product_line_ids': [
+                    (0, 0, {'product_id': p, 'quantity': int(q)})
+                    for p, q in qties.items()
+                ],
+            })
         elif self.env.context.get('default_product_tmpl_ids'):
-            default_vals['active_model'] = 'product.template'
-            default_vals['product_tmpl_line_ids'] = [(0, 0, {
-                'product_tmpl_id': p_id,
-                'quantity': 1
-            }) for p_id in self.env.context.get('default_product_tmpl_ids')]
+            product_tmpl_ids = self.env.context.get('default_product_tmpl_ids')
+
+            default_vals.update({
+                'active_model': 'product.template',
+                'product_tmpl_line_ids': [
+                    (0, 0, {'product_tmpl_id': p_id, 'quantity': 1})
+                    for p_id in product_tmpl_ids
+                ]
+            })
         else:
-            default_vals['active_model'] = 'product.product'
-            default_vals['product_line_ids'] = [(0, 0, {
-                'product_id': p_id,
-                'quantity': 1
-            }) for p_id in self.env.context.get('default_product_ids', [])]
+            product_ids = self.env.context.get('default_product_ids', [])
+
+            default_vals.update({
+                'active_model': 'product.product',
+                'product_line_ids': [
+                    (0, 0, {'product_id': p_id, 'quantity': 1})
+                    for p_id in product_ids
+                ],
+            })
 
         return default_vals
+
+    @api.model
+    def fields_get(self, allfields=None, attributes=None):
+        fields = super().fields_get(allfields=allfields, attributes=attributes)
+
+        # TODO: Remove "Operation Quantities" from list of values - for now it doesn't work
+        # Remove "Operation Quantities" from list of values
+        # if 'move_quantity' in fields:
+        #     if self.env.context.get('default_move_quantity') != 'move':
+        #         fields['move_quantity'].update({
+        #             'selection': [
+        #                 ('custom', 'Custom'),
+        #                 ('custom_per_product', 'Custom Per Product')
+        #             ]
+        #         })
+        return fields
 
     def _prepare_report_data(self):
         xml_id, data = super()._prepare_report_data()
 
-        if self.picking_quantity != 'custom_per_product':
+        if (
+            self._origin  # Not raise error on the first call
+            and self.move_quantity == 'move'
+            and not self.move_ids
+            and (self.product_line_ids or self.product_tmpl_line_ids)
+        ):
+            # Most likely we are printing labels from product form view
+            # In this case this value is not valid
+            # TODO: Check fields_get for the better solution
+            raise UserError(_('You can use "Operation Quantities" only when printing from picking'))
+
+        if self.move_quantity != 'custom_per_product':
             return xml_id, data
+
         if self.active_model == 'product.template' and self.product_tmpl_line_ids:
             data['quantity_by_product'] = {
-                line.product_tmpl_id.id: line.quantity for line in self.product_tmpl_line_ids
+                str(line.product_tmpl_id.id): line.quantity for line in self.product_tmpl_line_ids
             }
         elif self.active_model == 'product.product' and self.product_line_ids:
             data['quantity_by_product'] = {
-                line.product_id.id: line.quantity for line in self.product_line_ids
+                str(line.product_id.id): line.quantity for line in self.product_line_ids
             }
         return xml_id, data
+
+    def process(self):
+        self.ensure_one()
+
+        if self.move_quantity == 'custom_per_product':
+            self._check_quantity()
+
+        # Download PDF if no printer selected and disable printing on company and user level
+        printing_allowed = self.env.company.printnode_enabled and self.env.user.printnode_enabled and self.printer_id
+        if not printing_allowed:
+            # Update context to download on client side instead of printing
+            # Check action_service.js file for details
+            return super(ProductLabelLayout, self.with_context(download_only=True)).process()
+
+        xml_id, data = self._prepare_report_data()
+
+        if not xml_id:
+            raise UserError(_('Unable to find report template for %s format', self.print_format))
+
+        return self.env.ref(xml_id).with_context(
+            printer_id=self.printer_id.id,
+            printer_bin=self.printer_bin.id,
+            source_document='Product Print Label Wizard',
+        ).report_action(None, data=data)
 
     def _check_quantity(self):
         for rec in self.product_line_ids:
@@ -162,39 +152,6 @@ class ProductLabelLayout(models.TransientModel):
                         'product': rec.product_id.display_name or rec.product_tmpl_id.display_name,
                     })
                 )
-
-    def process(self):
-        self.ensure_one()
-
-        if self.picking_quantity == 'custom_per_product':
-            self._check_quantity()
-
-        # if no printer than download PDF
-        if not self.printer_id:
-            return super(ProductLabelLayout, self.with_context(download_only=True)).process()
-
-        xml_id, data = self._prepare_report_data()
-
-        if not xml_id:
-            raise UserError(_('Unable to find report template for %s format', self.print_format))
-
-        return self.env.ref(xml_id).with_context(
-            printer_id=self.printer_id.id,
-            printer_bin=self.printer_bin.id
-        ).report_action(None, data=data)
-
-    @api.model
-    def fields_get(self, allfields=None, attributes=None):
-        fields = super().fields_get(allfields=allfields, attributes=attributes)
-        if 'picking_quantity' in fields:
-            if self.env.context.get('default_picking_quantity') != 'picking':
-                fields['picking_quantity'].update({
-                    'selection': [
-                        ('custom', 'Custom'),
-                        ('custom_per_product', 'Custom Per Product')
-                    ]
-                })
-        return fields
 
 
 class ProductLabelLayoutLine(models.TransientModel):

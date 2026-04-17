@@ -5,8 +5,10 @@ from odoo import api, models, fields
 
 
 class PrintnodeWorkstation(models.Model):
+    """ Direct Print Workstation
+    """
     _name = 'printnode.workstation'
-    _description = 'Printnode Workstation'
+    _description = 'Direct Print Workstation'
 
     name = fields.Char(
         string='Workstation Name',
@@ -63,12 +65,12 @@ class PrintnodeWorkstation(models.Model):
 
     @api.model
     def get_workstation(self):
-        workstation_id = self.env.context.get('printnode_workstation_id')
+        id = self.env.context.get('printnode_workstation_id')
 
-        if workstation_id:
+        if id:
             # We have to use exists() to make sure the entry exists in the database and
             # not just in the ORM cache.
-            workstation = self.env['printnode.workstation'].browse(workstation_id).exists()
+            workstation = self.env['printnode.workstation'].browse(id).exists()
             return workstation
 
         return None

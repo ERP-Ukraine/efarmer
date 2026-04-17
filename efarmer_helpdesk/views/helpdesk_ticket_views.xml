@@ -6,20 +6,15 @@
         <field name="model">helpdesk.ticket</field>
         <field name="inherit_id" ref="helpdesk_sale.helpdesk_ticket_view_form_inherit_helpdesk_invoicing"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='partner_email']" position="after">
+            <xpath expr="//field[@name='email_cc']" position="after">
                 <field name="efarmer_client_type"/>
                 <field name="use_fsm" invisible="1"/>
                 <field name="use_coupons" invisible="1"/>
             </xpath>
             <xpath expr="//field[@name='sale_order_id']" position="replace">
                 <field name="sale_order_id"
-                       attrs="{'invisible': [
-                           ('use_credit_notes', '=', False),
-                           ('use_product_returns', '=', False),
-                           ('use_product_repairs', '=', False),
-                           ('use_fsm', '=', False),
-                           ('use_coupons', '=', False),
-                       ]}"/>
+                       invisible="not (use_credit_notes or use_product_returns or use_product_repairs or use_fsm or use_coupons)"
+                      />
             </xpath>
         </field>
     </record>

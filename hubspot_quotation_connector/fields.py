@@ -5,4 +5,4 @@ from odoo.fields import Integer
 
 
 class BigInteger(Integer):
-    column_type = ('int8', 'int8')
+    column_type = ("int8", "int8")

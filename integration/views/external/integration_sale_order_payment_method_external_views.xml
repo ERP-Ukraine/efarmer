@@ -3,12 +3,12 @@
     <data>
 
         <record id="integration_sale_order_payment_method_external_view_tree" model="ir.ui.view">
-            <field name="name">integration.sale.order.payment.method.external.view.tree</field>
+            <field name="name">integration.sale.order.payment.method.external.view.list</field>
             <field name="model">integration.sale.order.payment.method.external</field>
             <field name="arch" type="xml">
-                <tree editable="bottom">
+                <list editable="bottom">
                     <field name="id" groups="base.group_no_one"/>
-                    <field name="company_id" invisible="1"/>
+                    <field name="company_id" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
                     <field name="integration_id"/>
                     <field name="code"/>
                     <field name="name"/>
@@ -16,11 +16,12 @@
                     <field name="payment_term_id"/>
                     <field name="send_payment_status_when"/>
                     <button name="action_open_mapping"
-                            title="Open Mapping"
-                            icon="fa-external-link"
                             type="object"
+                            string="Open Mapping"
+                            icon="fa-external-link"
+                            class="btn-outline-primary"
                     />
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -34,7 +35,7 @@
                     <field name="external_reference"/>
                     <field name="integration_id"/>
                     <group expand="0" string="Group By">
-                        <filter string="Sale Integration" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
+                        <filter string="E-Commerce Store" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
                     </group>
                 </search>
             </field>
@@ -42,8 +43,9 @@
 
         <record id="integration_sale_order_payment_method_external_action" model="ir.actions.act_window">
             <field name="name">External Payment Methods</field>
+            <field name="path">eci-external-payment-methods</field>
             <field name="res_model">integration.sale.order.payment.method.external</field>
-            <field name="view_mode">tree</field>
+            <field name="view_mode">list</field>
             <field name="view_id" ref="integration_sale_order_payment_method_external_view_tree"/>
         </record>
 

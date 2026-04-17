@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="integration_catalog_external_view_tree" model="ir.ui.view">
+            <field name="name">integration.catalog.external.view.list</field>
+            <field name="model">integration.catalog.external</field>
+            <field name="arch" type="xml">
+                <list editable="bottom" create="0">
+                    <field name="id" groups="base.group_no_one"/>
+                    <field name="integration_id" readonly="1"/>
+                    <field name="status" readonly="1"/>
+                    <field name="name" readonly="1"/>
+                    <field name="code" readonly="1"/>
+                    <field name="catalog_type" readonly="1"/>
+                    <field name="currency_code" readonly="1"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="integration_catalog_external_view_form" model="ir.ui.view">
+            <field name="name">integration.catalog.external.view.form</field>
+            <field name="model">integration.catalog.external</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="id"/>
+                            <field name="integration_id" readonly="1"/>
+                            <field name="status" readonly="1"/>
+                            <field name="name" readonly="1"/>
+                            <field name="code" readonly="1"/>
+                            <field name="catalog_type" readonly="1"/>
+                            <field name="currency_code" readonly="1"/>
+                        </group>
+                        <group string="Raw Data" name="raw_data">
+                            <field name="pricelist_data" readonly="1"/>
+                            <field name="publication_data" readonly="1"/>
+                            <field name="market_data" readonly="1"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="integration_catalog_external_action" model="ir.actions.act_window">
+            <field name="name">External Catalogs</field>
+            <field name="path">eci-shopify-external-catalogs</field>
+            <field name="res_model">integration.catalog.external</field>
+            <field name="view_mode">list</field>
+            <field name="groups_id" eval="[(4, ref('base.group_no_one'))]"/>
+        </record>
+
+    </data>
+</odoo>

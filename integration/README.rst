@@ -6,6 +6,102 @@ Change Log
 
 |
 
+* 2.1.1 (2026-03-01)
+    - [NEW] Added "Export Inventory Now" button to the Inventory tab, allowing users to manually trigger a full inventory export for all products at any time — regardless of the Scheduled Inventory Sync setting. The export runs in batches as background jobs, the same way the scheduled action does.
+    - [NEW] Added "Run Now" button on background jobs (available in debug mode), allowing jobs to be executed in real time instead of being queued. This is primarily intended to simplify debugging and issue investigation.
+    - [IMP] Added pre-defined filters "Mapped to Store(s)" and "Not Mapped to any Store" on the product list, making it easier to identify which products are synchronized with your e-commerce store and which still require mapping.
+    - [FIX] Fixed an issue where external records for newly created categories did not have the parent category set, causing inconsistency with imported categories where the parent was correctly assigned.
+    - [FIX] Other improvements and fixes implemented to boost overall performance, stability, and reliability.
+
+* 2.1.0 (2026-02-18)
+    - [IMP] Enhanced UI/UX across connector views, based on customer feedback. The Status menu is now more functional, with quick access to unmapped records, store connections, and other key areas. The connections Kanban view was also improved, including a small 7-day orders chart and overall usability refinements to make daily monitoring and navigation more efficient.
+    - [IMP] Improved initial product import batching logic. When importing products in batches, the connector now processes all valid products even if some items contain errors (e.g., missing or duplicated SKU). Problematic products are automatically grouped into a separate background job with a clear error message, allowing users to fix issues and requeue only the affected records - without blocking the entire batch.
+    - [IMP] Improved multi-company product synchronization logic. The connector now validates the company on products during synchronization, ensuring that only products belonging to the integration’s company (or with no company set) are used. A new "Apply Company on Product" option was also added (disabled by default). When enabled, newly created products will automatically inherit the connection’s company, helping maintain clean and consistent multi-company data separation.
+    - [FIX] Resolved an issue in the auto-workflow picking validation that could cause an infinite loop when button_validate() returned a wizard instead of completing the transfer. The connector now correctly stops auto-validation in such cases, preventing repeated background job execution while preserving normal validation behavior.
+    - [FIX] Improved contact handling during order import. If a previously mapped Odoo contact is archived, the connector now ignores the existing mapping and creates a new active contact instead of assigning the archived one to the Sales Order.
+    - [FIX] Improved translation handling on imported Sales Orders. Order lines now consistently use the customer’s language (not the Odoo UI language), including product names and discount line descriptions (e.g., "Discount for ..."). The connector also includes safe fallbacks when customer language or translations are missing.
+    - [FIX] Other improvements and fixes implemented to boost overall performance, stability, and reliability.
+
+* 2.0.0 (2026-01-23)
+    - [BREAKING] This is a major release with backward-incompatible changes. Please review the `release notes <https://ecosystem.ventor.tech/faq/release-notes/>`__ before upgrading.
+    - [IMP] Product field mapping engine fully refactored. The connector now supports flexible and extensible product field mappings, including custom Python-based transformation logic configurable directly from the Odoo UI.
+    - [IMP] Improved handling of missing or custom order items. When an order line references a product that no longer exists or represents a custom item and a fallback product is used, the connector now preserves the original product name and SKU from the e-commerce order in the Sales Order Line description.
+    - [IMP] Improved automatic cleanup of connector-generated logs. Connector logs (including webhook-related entries) are now cleaned up using a dedicated Odoo cleanup mechanism with a configurable retention period, helping reduce database noise and improve long-term performance.
+    - [FIX] Other improvements and fixes implemented to boost overall performance, stability, and reliability.
+
+* 1.19.2 (2025-12-13)
+    - [IMP] Prepared connectors for Odoo 19.0 compatibility to ensure a smooth migration using special upgrade module. These changes align connector logic with Odoo 19.0's new e-commerce data models, making it easier and safer for customers to upgrade product categories and images during migration.
+    - [FIX] Fixed an issue with order status export where multiple rapid status changes could be ignored. The connector now creates a separate background job for each status update, ensuring all changes are exported in the correct sequence to the e-commerce store.
+
+* 1.19.1 (2025-11-27)
+    - [NEW] Added option to leave the Salesperson field empty on imported Sales Orders. Previously, orders were assigned to Administrator by default. This behavior now matches Odoo's website_sale flow and provides more flexibility for teams that prefer assigning Salespersons manually.
+    - [IMP] The "Import Orders" setting is now preserved when Sale Integration is disabled, ensuring the selected value is restored when reactivated. Internal automation checks were also refined for more consistent behavior.
+    - [FIX] Fixed an issue in the configuration validation wizard that caused validation to fail when using the Integration Queue Job module (VentorTech fork of Job Queue). The wizard now works correctly with the updated job management logic in Odoo 19.0.
+    - [FIX] Order webhooks now correctly respect the "Orders Cut-off Date" setting. Orders created before the cut-off date will no longer be imported or updated when webhook events are received.
+    - [FIX] Improved contact matching logic and resolved several edge-case issues that could create duplicate contacts in specific scenarios. Synchronization is now more accurate and consistent.
+    - [FIX] Numerous background improvements and fixes implemented to boost overall performance, stability, and reliability.
+
+* 1.19.0 (2025-10-27)
+    - [NEW] Redesigned Import Wizard that unifies and simplifies all data import processes. Whether performing an initial setup or importing new records later, users can now follow a clear, step-by-step workflow to bring products, customers, and orders from their e-commerce store into Odoo with ease. This overhaul makes the entire import process faster, more reliable, and beginner-friendly.
+    - [NEW] Added “Failed Job Notifications” checkbox on user profiles to control who receives alerts about failed jobs. Enabled by default for users with Job Queue Manager rights.
+    - [IMP] Redesigned UI/UX for a smoother, more intuitive experience. Views and menus were reorganized for faster navigation, with new actions, clearer tooltips, and many small visual improvements.
+    - [IMP] Improved webhook stability and data accuracy across all connectors. Fixed issues that could cause missing product details and enhanced order webhook logic to respect importable order statuses — preventing unwanted imports of orders in undesired states.
+    - [IMP] Improved handling of external fulfillments and payments from e-commerce stores. These records are now applied not only during automated workflows but also when users perform actions manually — such as confirming orders or creating invoices in Odoo. This change provides greater flexibility and ensures external data stays synchronized regardless of how the workflow is triggered.
+    - [IMP] Enhanced contact matching logic to prevent duplicates. The connector now uses normalized email and phone values when searching for existing Odoo contacts and addresses, significantly reducing the creation of duplicate records during synchronization.
+    - [IMP] Status menu visibility is now limited to users with connector configuration access, keeping the interface clean and focused for regular users.
+    - [FIX] Resolved issues with BoM quantity calculations for products using Bills of Materials. The connector now correctly computes stock levels in complex BoM scenarios, ensuring accurate quantity synchronization based on customer feedback.
+    - [FIX] Updated sales dashboard analytics to exclude cancelled orders from statistics, ensuring more accurate sales and performance insights.
+    - [FIX] Numerous background improvements and fixes implemented to boost overall performance, stability, and reliability.
+
+* 1.18.2 (2025-07-23)
+    - [IMP] Improved order webhook handling: the connector now checks for missing orders and triggers import if needed before processing status updates.
+    - [FIX] Resolved issue where delivery notes were not added to PICK transfers in 2-step delivery operations.
+    - [FIX] Resolved issue with Invoices API where credit notes and some invoices were not returned when requested by the e-commerce system.
+    - [FIX] Over 30 background improvements and fixes implemented to boost overall performance, stability, and reliability.
+
+* 1.18.1 (2025-05-27)
+    - [NEW] Added advanced attribute mapping: Now it is possible to map values from external order JSON (e.g. order.store_name) to custom fields on Sales Orders and Deliveries. Includes support for optional Python transformations. Configuration is available in debug mode under Sales Orders → Order & Delivery Attribute Import Mapping.
+    - [IMP] Refactored all error and warning messages to provide clearer explanations, actionable steps, and configuration guidance. Users can now troubleshoot common issues independently without needing to contact support.
+    - [IMP] Improved: updated priority logic for background jobs (How the Connector Prioritizes Background Jobs).
+    - [IMP] Improved consistency: all scheduled actions and webhooks are now executed under the OdooBot user.
+    - [IMP] Added new Receive webhook gap (sec) setting to delay webhook event processing when needed.
+    - [IMP] Added shortcut to external order on Sales Order form.
+    - [FIX] Fixed: webhooks now respect product and order import filters set in the connection configuration.
+    - [FIX] Fixed issue where product images could be deleted in Odoo when webhooks were active.
+    - [FIX] Fixed issues with default customer configuration when customer data is missing.
+    - [FIX] Fixed edge cases where customer info was incomplete or missing in imported orders.
+    - [FIX] Made several small improvements to enhance overall performance and stability.
+
+* 1.18.0 (2025-03-26)
+    - [NEW] Launched a dynamic sales dashboard that displays key metrics - total sales, order trends, top products, and customer insights (new vs. returning and country stats) - in an intuitive, easy-to-understand format.
+    - [NEW] Added "Ignore BoMs for Product Export" checkbox to skip export of components for products with attached Bill of Materials, useful for synchronizing products as simple items without bundles/kits.
+    - [NEW] Added support for synchronizing stock levels for products with "Manufacture" BoMs based on component quantities and BOM records; can be enabled via the "Calculate Stock for 'Manufacture' BoMs" checkbox in the Inventory tab.
+    - [NEW] Added support for formulas in pricelist items for both regular and sale price synchronization using Odoo pricelists, enabling export of formula-based prices to e-commerce stores.
+    - [NEW] Added Getting Started wizard with introduction videos to enhance user experience.
+    - [NEW] Added ability to specify default values for "Tag Group", "Account", and "Tax Scope" fields when creating new Odoo taxes via the connector.
+    - [NEW] Added automatic tests for orders import and auto-workflow features in connector.
+    - [IMP] Refactored image synchronization logic to use mappings, improving performance and preventing unnecessary deletion and creation of images.
+    - [IMP] Improved contact creation logic by preventing duplicate child address contacts when billing and shipping addresses are identical, writing the address directly on the customer/company contact.
+    - [IMP] Added button in debug mode to open product variant from the product templates view for templates with a single product variant.
+    - [IMP] Improved customer matching during order creation by performing case-insensitive comparisons for name and surname fields to avoid duplicates (previously applied only for addresses).
+    - [FIX] Fixed issue with images preview in product view (Odoo 18.0).
+    - [FIX] Fixed issues causing standard Odoo tests to fail due to connectors.
+    - [FIX] Fixed issues with real-time stock export during quantity updates using Ventor PRO application.
+    - [FIX] Made several small improvements to enhance overall performance and stability.
+
+* 1.17.2 (2024-11-18)
+    - [NEW] Added a checkbox to force the application of fiscal positions to imported orders. This ensures accurate tax calculation even when order line taxes differ from product default taxes. By default, the connector will only set the correct fiscal position without recalculating taxes.
+    - Added the ability to import orders with a configurable delay. This is useful when you need to wait for payment confirmation or other custom actions before importing orders into Odoo.
+    - Resolved the issue where incorrect prices were set on product variants during the initial import from the e-commerce system to Odoo.
+    - Made several small improvements to enhance overall performance and stability.
+
+* 1.17.1 (2024-09-19)
+    - Resolved the issue where incorrect pricelist and currency were set for imported orders.
+    - Resolved the issue with the website_sale module dependency in Odoo 17.0.
+    - Resolved the issue related to exporting images for templates with variants that are excluded from synchronization.
+    - Improved customers import: The connector will use default billing information from the e-commerce store during the initial customer import process, if it is available.
+    - Made several small improvements to enhance overall performance and stability.
+
 * 1.17.0 (2024-08-02)
     - NEW! Added the ability to process orders from guests who haven't created an account on e-commerce store.
     - Fixed issues with orders containing fallback or removed products.
@@ -39,6 +135,7 @@ Change Log
     - We've also made several additional fixes and enhancements for a better overall experience.
 
 * 1.15.3 (2024-01-05)
+    - NEW! On odoo.sh when the backup is restored on the staging branch, disable automatic all sales integrations, disable on integrations critical functions (export of products, order statuses, product inventory) and delete webhooks.
     - Refactored logic of mapping products.
     - Improved orders processing: imported orders data will be marked as "require update" to make sure that the latest updates will be downloaded during Sales Order creation in Odoo.
     - Fixed an issue with stock synchronization for products with zero stock.
@@ -73,29 +170,29 @@ Change Log
 
 * 1.14.0 (2023-09-19)
     - NEW! Added the ability to exclude specific products from Stock Synchronization with the use of special checkbox in the E-commerce tab on the product form. `(watch video) <https://www.youtube.com/watch?v=l9Mu3eCPBds>`__
-    - Fixed issue with updating translatable fields when default ERP language different to e-Commerce shop language.
+    - Fixed issue with updating translatable fields when default ERP language different to E-Commerce System language.
     - Fixed issue with missed orders.
     - Fixed issue with exporting tracking number for pickings with product kits.
     - Added unit tests for testing field mapping logic within the integration module.
     - Other small improvements and fixes.
 
 * 1.13.0 (2023-08-14)
-    - NEW! Add setting for export prices via price list from Odoo to Magento 2. Configurable based on integration. `(watch video) <https://www.youtube.com/watch?v=Q9Hh1okL3bw&ab_channel=VentorTech>`__
-    - NEW! Import prices via price list from Odoo to e-commerce system.
+    - NEW! Add setting for export prices via pricelist from Odoo to Magento 2. Configurable based on integration. `(watch video) <https://www.youtube.com/watch?v=Q9Hh1okL3bw&ab_channel=VentorTech>`__
+    - NEW! Import prices via pricelist from Odoo to e-commerce system.
     - NEW! Improve automatic mapping of country states to Odoo country states.
     - Added basic automated tests for the Integration module.
 
 * 1.12.0 (2023-07-19)
     - NEW! Allow excluding specific product attributes to synchronize from Odoo to external system. Can be configured in “Sales - Configuration - Attributes“.
     - NEW! Added setting to automatically create products on SO Import in case products doesn’t exist yet in Odoo. Configurable based on integration.
-    - NEW! During initial import, the connector will generate only product variants that exist in e-Commerce Systems. For this purpose, all Attributes that are created by the connector are now created with “Creation Mode“ = Dynamic.
+    - NEW! During initial import, the connector will generate only product variants that exist in E-Commerce Systems. For this purpose, all Attributes that are created by the connector are now created with “Creation Mode“ = Dynamic.
     - NEW! Add new behavior on empty tax “Take from the Product“. When selected, if the downloaded sales order line will not have defined taxes, it will insert on the sales order line customer tax defined on the product.
-    - NEW! In case it is configured not to download the barcode field from e-Commerce System will not analyze external products for duplicated barcodes.
+    - NEW! In case it is configured not to download the barcode field from E-Commerce System will not analyze external products for duplicated barcodes.
     - NEW! Discount for individual products is added as a separate line on Odoo Sales Order for proper financial records.
     - NEW! Allow switching on and off validation of missing barcodes on product variants. When “Validate missing barcodes for variants“ is enabled then the connector will validate that either all variants should have barcodes, or neither of the variants should have barcodes (the mix is not allowed). Available only in Debug mode on the “Product Defaults“ tab.
     - Improved logic for inventory initial import.
     - Now field with the integrations list is also tracked for changes, so changing it will trigger product export.
-    - Do not send inactive product variants when exporting product to e-Commerce Systems.
+    - Do not send inactive product variants when exporting product to E-Commerce Systems.
     - Download orders by batches to avoid timeout of “Receive Orders” job.
     - Added to sales integration list of global fields that are monitored for changes. So when the product is updated and these fields are changed, then we also trigger the export of the product.
     - Product attributes are synchronized according to their sequence to preserve the same order as in Odoo.
@@ -111,9 +208,9 @@ Change Log
 * 1.11.0 (2023-03-13)
     - NEW! Added “Exclude from Synchronisation” settings on the product to exclude specific products and all their variants totally from sync and all related logic (validation, auto-mapping)
     - NEW! Contacts that were created by the connector will have a special Tag with the name of the sales integration it was created from. That allows us to easier find all contacts created from specific integration
-    - Copy “e-Commerce payment method” from Sales Order to the related Customer Invoice
+    - Copy “E-Commerce Payment Method” from Sales Order to the related Customer Invoice
     - Sales Orders with a non-valid EU VAT number will be created. But a warning message will be added in Internal Note for the created Sales Order informing the user about this problem
-    - Convert weight on import/export of products in case UoM in Odoo is different from UoM in e-Commerce System (kgs vs lbs).
+    - Convert weight on import/export of products in case UoM in Odoo is different from UoM in E-Commerce System (kgs vs lbs).
     - Other small fixes and improvements.
 
 * 1.10.0 (2023-02-17)
@@ -135,7 +232,7 @@ Change Log
 
 * 1.9.0 (2022-12-28)
     - NEW! Add a setting to send products from Odoo on initial export in “inactive“ status, so they can be reviewed and published manually.
-    - NEW! Mark Sales Order as Paid on e-Commerce System in case all related invoices are Paid.
+    - NEW! Mark Sales Order as Paid on E-Commerce System in case all related invoices are Paid.
     - NEW! Allow defining payment terms that will be used instead of the standard.
     - NEW! Trigger new products export only if product has non-empty fields mandatory for a product export.
     - NEW! Send "Paid" status to external system either after all invoices are validated or all invoices are marked as paid (depending on "Send payment status when" property on the payment method).
@@ -148,7 +245,7 @@ Change Log
     - Now order date is the same in external system and in Odoo. Taking into account sales order time zone.
     - Added controller to allow retrieving PDF Invoices from Odoo with API Key by external system Order ID.
     - Fix auto-workflow action “Validate Picking“ not validating pickings in case of multi-step delivery.
-    - Force sending products to the external e-Commerce system is now working also if automatic products export from Odoo is disabled.
+    - Force sending products to the external e-commerce system is now working also if automatic products export from Odoo is disabled.
     - Fixed known vulnerabilities in handling webhooks.
     - More verbose webhooks logging.
     - Improved performing "receive orders" function (including webhooks).
@@ -177,7 +274,7 @@ Change Log
 
 * 1.8.0 (2022-10-10)
     - NEW! Allow exporting of product quantities both in real-time and by cron. Make it configurable on the “Inventory“ tab on sales integration.
-    - NEW! Allow defining which field should be synchronized when sending the stock to the e-Commerce system. Allowing 3 options: “Free To Use Quantity“, “On Hand Quantity” and  “Forecasted Quantity”.
+    - NEW! Allow defining which field should be synchronized when sending the stock to the e-commerce system. Allowing 3 options: “Free To Use Quantity“, “On Hand Quantity” and  “Forecasted Quantity”.
     - NEW! Implemented wizard allowing to import customers based on the last update date.
     - NEW! Implementing Gift Wrap synchronization from Prestashop to Odoo as a separate line in sales orders.
     - NEW! Added setting to allow automatic creation of Delivery Carrier and Taxes in Odoo if the existing mapping is not found (during initial import and during Sales Order Import).
@@ -192,26 +289,26 @@ Change Log
     - Improved manual mapping of product variants and product templates in case template has only 1 variant.
 
 * 1.7.1 (2022-09-08)
-    - Added possibility to specify additional field where Sales Order reference from external e-Commerce system will be added (for example "Client Reference" field on SO).
+    - Added possibility to specify additional field where Sales Order reference from external e-commerce system will be added (for example "Client Reference" field on SO).
     - "Product Defaults" tab on integration now visible for all integrations.
     - Improve functionality for partners creation to adapt it to Shopify needs.
 
 * 1.7.0 (2022-09-05)
     - NEW! Major feature. Introduced auto workflow that allows based on sales order status: to validate sales order, create and validate invoice for it and register payment on created invoice. Configuration is flexible and can be done individually for every SO status.
-    - NEW! Added logic to allow creating webhooks on e-Commerce system for automatic tracking of the order status changes.
+    - NEW! Added logic to allow creating webhooks on e-commerce system for automatic tracking of the order status changes.
     - Implemented separate functionality of products mapping (trying to map with existing Odoo Product) from products import (trying to map and if not found create product in Odoo).
     - Add possibility to call "Try Map Products" from External -> Products and External -> Mappings menus.
     - During creation of sales order if mapping for product was not found trying to auto-map by reference OR barcode with existing Odoo Product before failing creation of sales order.
     - Send tracking numbers only when sales order is fully shipped (all related pickings are either "done" or "cancelled" and there are at least some delivered items).
     - Made improvements for connector to support 50 000 Products.
     - Fixing issue with synchronizing records with special symbols in their name ("%", "_" , etc.).
-    - Allow to disable export of product images from Odoo to e-Commerce Systems.
+    - Allow to disable export of product images from Odoo to E-Commerce Systems.
 
 * 1.6.0 (2022-07-21)
     - Added possibility to define Cancel action for the integration.
     - Added Product Features / Product Feature values related models (to be used in specific connectors).
     - Added possibility to define “Default Sales Person” on sales integration. So it will be automatically set when new received SO is created.
-    - Saving external e-commerce system sales order reference to separate field “External Sales Order Ref“ on Sales Order.
+    - Saving external e-commerce system sales order reference to separate field “E-Commerce Order Reference“ on Sales Order.
     - Allow to select only Sales Taxes in “Mappings - Taxes” menu.
     - Try automatically map products not only by internal reference, but also by barcode (if it exists).
     - Added the ability to work both with the Manufacturing module and without it.
@@ -225,7 +322,7 @@ Change Log
     - Fixed incorrect name of constraint for internal records.
     - Automatically cleanup non-existing external product and product variants records (in case not found in external system).
     - Do not fail job in case images or inventory where not exported properly during Export Template job. That helps to avoid duplicates in external system.
-    - Before exporting products from Odoo to external system double check that same product already exists in external e-Commerce system. If exists then map it automatically by internal reference.
+    - Before exporting products from Odoo to external system double check that same product already exists in external e-commerce system. If exists then map it automatically by internal reference.
 
 * 1.5.4 (2022-06-12)
     - Group taxes and tax groups together according to the integration.
@@ -282,8 +379,8 @@ Change Log
 
 * 1.4.0 (2022-02-17)
     - Added possibility to import product attributes and values by action “Import Products Attributes“ in menus “External → Product Attributes“ and “Mappings → Product Attributes“.
-    - Added creation of Order Discount from e-Commerce System as a separate product line in a sell order.
-    - Fix issue with trying to send stock to e-Commerce for products that has disabled integration.
+    - Added creation of Order Discount from E-Commerce System as a separate product line in a sell order.
+    - Fix issue with trying to send stock to E-Commerce System for products that has disabled integration.
     - Fix bug of mapping modification for users without role Job Queue Manager.
 
 * 1.3.5 (2021-12-31)
@@ -293,12 +390,12 @@ Change Log
 * 1.3.4 (2021-12-24)
     - Added “Initial Import“ tab with two separate buttons into “Sale Integration“:
         - “Import Master Data“ - download and try to map common data.
-        - “Import products“ - try to import products from e-Commerce System to Odoo (with pre-validation step).
+        - “Import products“ - try to import products from E-Commerce System to Odoo (with pre-validation step).
     - Added possibility to import products by action Import Products in menu “External → Products“.
     - Import of products is run in jobs separately for each product.
 
 * 1.3.3 (2021-11-22)
-    - Downloaded sales order now is moved from file to JSON format and can be edited/viewed in menu “e-Commerce Integration → Sales Raw Data“.
+    - Downloaded sales order now is moved from file to JSON format and can be edited/viewed in menu “E-Commerce Integrations → External Orders“.
 
 * 1.3.2 (2021-10-27)
     - Synchronize tracking only after it is added to the stock picking. Some carrier connectors.
@@ -308,7 +405,7 @@ Change Log
 
 * 1.3 (2021-10-02)
     - Automapping of the Countries, Country States, Languages, Payment Methods.
-    - Added Default Sales Team to Sales Order created via e-Commerce Integration.
+    - Added Default Sales Team to Sales Order created via E-Commerce Integrations.
     - Added synchronization of VAT and Personal Identification Number field.
     - In case purchase is done form the company, create Company and Contact inside Odoo.
 
@@ -320,7 +417,7 @@ Change Log
     - Add field for Delivery Notes on Sales Order.
     - Added configuration to define on Sales Integration which fields should be used on SO and Delivery Order for Delivery Notes.
     - Allow to specify which product should be exported to which channel.
-    - If e-Commerce Product Name is not empty, send it instead of standard Product Name.
+    - If E-Commerce Product Name is not empty, send it instead of standard Product Name.
 
 * 1.0.5 (2021-06-25)
     - Fixed a bug of creating duplicate sale orders.
@@ -341,3 +438,5 @@ Change Log
 
 * 1.0 (2021-03-23)
     - Initial implementation.
+
+|
