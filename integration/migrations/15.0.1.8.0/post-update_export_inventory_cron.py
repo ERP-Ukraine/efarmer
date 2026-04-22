@@ -9,7 +9,7 @@ def migrate(cr, version):
     integrations = env['sale.integration'].search([])
     integrations.update_crons_activity()
 
-    parameter = env['ir.config_parameter'].search([('key', '=', 'integration.data_block_size')])
+    # parameter = env['ir.config_parameter'].search([('key', '=', 'integration.data_block_size')])
 
     # if parameter:
     #     parameter.key = 'integration.import_data_block_size'
