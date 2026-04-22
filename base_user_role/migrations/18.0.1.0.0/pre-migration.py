@@ -96,11 +96,12 @@ def migrate(cr, version):
         ("integration.skip_convert_to_webp", "0"),
     ]
 
-    placeholders = ','.join(['%s'] * len(params))
+    keys = [key for key, value in params]
+    placeholders = ','.join(['%s'] * len(keys))
     cr.execute(f"""
         DELETE FROM ir_config_parameter
         WHERE key IN ({placeholders})
-    """, tuple(params))
+    """, tuple(keys))
     _logger.info(f"  Deleted {cr.rowcount} config param records")
 
     # =====================================================
