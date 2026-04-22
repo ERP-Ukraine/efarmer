@@ -77,6 +77,143 @@ def delete_by_model(cr, model, table):
         _logger.error(f"Failed deleting {model}: {e}")
         cr.execute("ROLLBACK TO SAVEPOINT delete_savepoint")
 
+def delete_views_recursive(cr, modules):
+    """
+    Delete views registered by modules recursively.
+    First collects ALL child views (at any depth) that inherit
+    from views being deleted, then deletes all of them together.
+    This avoids the ir_ui_view_inheritance_mode constraint
+    which forbids extension views from having inherit_id = NULL.
+    """
+    _logger.info("🧹 Collecting views to delete (including all children)...")
+
+    # Get initial set of view ids from our modules
+    cr.execute("""
+        SELECT res_id
+        FROM ir_model_data
+        WHERE module = ANY(%s)
+        AND model = 'ir.ui.view'
+        AND EXISTS (
+            SELECT 1 FROM ir_ui_view WHERE id = res_id
+        )
+    """, (modules,))
+
+    initial_ids = set(row[0] for row in cr.fetchall())
+    if not initial_ids:
+        _logger.info("  No views found, skipping")
+        return
+
+    _logger.info(f"  Found {len(initial_ids)} direct views from modules")
+
+    # Recursively collect ALL child views at any depth
+    all_ids = set(initial_ids)
+    current_level = set(initial_ids)
+
+    depth = 0
+    while current_level:
+        depth += 1
+        cr.execute("""
+            SELECT id
+            FROM ir_ui_view
+            WHERE inherit_id = ANY(%s)
+            AND id != ANY(%s)
+        """, (list(current_level), list(all_ids)))
+
+        children = set(row[0] for row in cr.fetchall())
+        if not children:
+            break
+
+        _logger.info(f"  Found {len(children)} child views at depth {depth}")
+        all_ids.update(children)
+        current_level = children
+
+    _logger.info(f"  Total views to delete (including children): {len(all_ids)}")
+
+    # Delete all collected views in one query
+    try:
+        cr.execute("""
+            DELETE FROM ir_ui_view
+            WHERE id = ANY(%s)
+        """, (list(all_ids),))
+        _logger.info(f"  ✅ Deleted {cr.rowcount} views")
+    except Exception as e:
+        _logger.error(f"  Failed deleting views: {e}")
+        cr.execute("ROLLBACK TO SAVEPOINT delete_savepoint")
+
+
+def delete_menus_recursive(cr, modules):
+    """
+    Delete menus registered by modules recursively.
+    First collects ALL child menus at any depth,
+    then clears action references and deletes all at once.
+    """
+    _logger.info("🧹 Collecting menus to delete (including all children)...")
+
+    cr.execute("""
+        SELECT res_id
+        FROM ir_model_data
+        WHERE module = ANY(%s)
+        AND model = 'ir.ui.menu'
+        AND EXISTS (
+            SELECT 1 FROM ir_ui_menu WHERE id = res_id
+        )
+    """, (modules,))
+
+    initial_ids = set(row[0] for row in cr.fetchall())
+    if not initial_ids:
+        _logger.info("  No menus found, skipping")
+        return
+
+    _logger.info(f"  Found {len(initial_ids)} direct menus from modules")
+
+    # Recursively collect ALL child menus at any depth
+    all_ids = set(initial_ids)
+    current_level = set(initial_ids)
+
+    depth = 0
+    while current_level:
+        depth += 1
+        cr.execute("""
+            SELECT id
+            FROM ir_ui_menu
+            WHERE parent_id = ANY(%s)
+            AND id != ANY(%s)
+        """, (list(current_level), list(all_ids)))
+
+        children = set(row[0] for row in cr.fetchall())
+        if not children:
+            break
+
+        _logger.info(f"  Found {len(children)} child menus at depth {depth}")
+        all_ids.update(children)
+        current_level = children
+
+    _logger.info(f"  Total menus to delete (including children): {len(all_ids)}")
+
+    # Clear action references first to avoid FK issues
+    try:
+        cr.execute("""
+            UPDATE ir_ui_menu
+            SET action = NULL
+            WHERE id = ANY(%s)
+        """, (list(all_ids),))
+        _logger.info(f"  Cleared action references from {cr.rowcount} menus")
+    except Exception as e:
+        _logger.error(f"  Failed clearing menu actions: {e}")
+        cr.execute("ROLLBACK TO SAVEPOINT delete_savepoint")
+        return
+
+    # Delete all collected menus in one query
+    try:
+        cr.execute("""
+            DELETE FROM ir_ui_menu
+            WHERE id = ANY(%s)
+        """, (list(all_ids),))
+        _logger.info(f"  ✅ Deleted {cr.rowcount} menus")
+    except Exception as e:
+        _logger.error(f"  Failed deleting menus: {e}")
+        cr.execute("ROLLBACK TO SAVEPOINT delete_savepoint")
+
 def migrate(cr, version):
     if not version:
         return
@@ -108,82 +245,24 @@ def migrate(cr, version):
     # DELETE IN STRICT ORDER (FK SAFE)
     # =====================================================
 
-    _logger.info("🧹 Detaching child views...")
-    cr.execute("SAVEPOINT delete_savepoint")
-    try:
-        cr.execute("""
-            UPDATE ir_ui_view
-            SET inherit_id = NULL
-            WHERE inherit_id IN (
-                SELECT res_id
-                FROM ir_model_data
-                WHERE module = ANY(%s)
-                AND model = 'ir.ui.view'
-            )
-        """, (MODULES,))
-        _logger.info(f"  Detached {cr.rowcount} child views")
-    except Exception as e:
-        _logger.error(f"Failed detaching child views: {e}")
-        cr.execute("ROLLBACK TO SAVEPOINT delete_savepoint")
-
-    # 2. Detach child menus to avoid FK constraint on ir_ui_menu
-    _logger.info("🧹 Detaching child menus...")
-    cr.execute("SAVEPOINT delete_savepoint")
-    try:
-        cr.execute("""
-            UPDATE ir_ui_menu
-            SET parent_id = NULL
-            WHERE parent_id IN (
-                SELECT res_id
-                FROM ir_model_data
-                WHERE module = ANY(%s)
-                AND model = 'ir.ui.menu'
-            )
-            AND id NOT IN (
-                SELECT res_id
-                FROM ir_model_data
-                WHERE module = ANY(%s)
-                AND model = 'ir.ui.menu'
-            )
-        """, (MODULES, MODULES))
-        _logger.info(f"  Detached {cr.rowcount} child menus")
-    except Exception as e:
-        _logger.error(f"Failed detaching child menus: {e}")
-        cr.execute("ROLLBACK TO SAVEPOINT delete_savepoint")
-
-    # 3. Remove menu action references
-    _logger.info("🧹 Clearing menu action references...")
-    cr.execute("SAVEPOINT delete_savepoint")
-    try:
-        cr.execute("""
-            UPDATE ir_ui_menu
-            SET action = NULL
-            WHERE id IN (
-                SELECT res_id
-                FROM ir_model_data
-                WHERE module = ANY(%s)
-                AND model = 'ir.ui.menu'
-            )
-        """, (MODULES,))
-        _logger.info(f"  Cleared {cr.rowcount} menu action references")
-    except Exception as e:
-        _logger.error(f"Failed clearing menu actions: {e}")
-        cr.execute("ROLLBACK TO SAVEPOINT delete_savepoint")
-
-    # 4. Delete all action types
+    # 1. Delete all action types first
+    # (menus reference actions, so actions must go first)
     for model, table in ACTION_MODELS:
         cr.execute("SAVEPOINT delete_savepoint")
         delete_by_model(cr, model, table)
 
-    # 5. Delete menus
+    # 2. Delete menus recursively
+    # (collect children first, clear actions, then delete)
     cr.execute("SAVEPOINT delete_savepoint")
-    delete_by_model(cr, "ir.ui.menu", "ir_ui_menu")
+    delete_menus_recursive(cr, MODULES)
 
-    # 6. Delete views
+    # 3. Delete views recursively
+    # (collect all children at any depth, then delete all at once
+    #  to avoid ir_ui_view_inheritance_mode constraint violation)
     cr.execute("SAVEPOINT delete_savepoint")
-    delete_by_model(cr, "ir.ui.view", "ir_ui_view")
+    delete_views_recursive(cr, MODULES)
 
-    # 7. Delete mail templates
+    # 4. Delete mail templates
     cr.execute("SAVEPOINT delete_savepoint")
     delete_by_model(cr, "mail.template", "mail_template")
 
