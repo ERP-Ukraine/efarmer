@@ -39,8 +39,28 @@ MODULES = [
     "integration",
 ]
 
+ACTION_MODELS = [
+    ("ir.actions.act_window", "ir_act_window"),
+    ("ir.actions.server", "ir_act_server"),
+    ("ir.actions.report", "ir_act_report_xml"),
+    ("ir.actions.client", "ir_act_client"),
+    ("ir.actions.act_url", "ir_act_url"),
+]
+
 def delete_by_model(cr, model, table):
-    _logger.info(f"🧹 Deleting {model}")
+    _logger.info(f"🧹 Deleting {model} from table {table}")
+
+    # Check table exists first
+    cr.execute("""
+        SELECT EXISTS (
+            SELECT 1 FROM information_schema.tables
+            WHERE table_schema = 'public'
+            AND table_name = %s
+        )
+    """, (table,))
+    if not cr.fetchone()[0]:
+        _logger.warning(f"  Table {table} does not exist, skipping")
+        return
 
     try:
         cr.execute(f"""
@@ -52,145 +72,136 @@ def delete_by_model(cr, model, table):
                   AND model = %s
             )
         """, (MODULES, model))
+        _logger.info(f"  Deleted {cr.rowcount} records from {table}")
     except Exception as e:
         _logger.error(f"Failed deleting {model}: {e}")
-        cr.rollback()
-
-def link_config_params_to_xmlids(cr):
-    """
-    Link existing ir.config_parameter records to xmlids
-    so Odoo skips INSERT and does UPDATE instead during module load.
-    Without this, Odoo tries to INSERT records that already exist
-    in the DB (created in V15), causing duplicate key errors.
-    """
-    _logger.info("🔗 Linking ir.config_parameter records to xmlids...")
-
-    # (module, xml_id, key)
-    params = [
-        ("integration", "export_inventory_block_size", "integration.export_inventory_block_size"),
-        ("integration", "integration_api_key", "integration.integration_api_key"),
-        ("integration", "ecosystem_api_url", "vt_ecosystem.ecosystem_api_url"),
-        ("integration", "skip_convert_to_webp", "integration.skip_convert_to_webp"),
-        ("integration", "data_block_size", "integration.import_data_block_size"),
-    ]
-
-    for module, xml_id, key in params:
-        # Upsert the param value first
-        cr.execute("""
-            INSERT INTO ir_config_parameter (key, value, create_uid, write_uid, create_date, write_date)
-            VALUES (%s, %s, 1, 1, NOW(), NOW())
-            ON CONFLICT (key) DO NOTHING
-        """, (key, ""))
-
-        # Get the record id
-        cr.execute("""
-            SELECT id FROM ir_config_parameter
-            WHERE key = %s
-        """, (key,))
-        row = cr.fetchone()
-        if not row:
-            _logger.warning(f"  Param {key} not found, skipping xmlid link")
-            continue
-
-        res_id = row[0]
-
-        # Check if xmlid already exists
-        cr.execute("""
-            SELECT id FROM ir_model_data
-            WHERE module = %s AND name = %s
-        """, (module, xml_id))
-
-        if cr.fetchone():
-            _logger.info(f"  Xmlid {module}.{xml_id} already exists, skipping")
-            continue
-
-        # Create the xmlid linking to the existing record
-        # noupdate=TRUE so Odoo won't overwrite the value on upgrade
-        cr.execute("""
-            INSERT INTO ir_model_data
-                (module, name, model, res_id, noupdate, create_uid, write_uid, create_date, write_date)
-            VALUES
-                (%s, %s, 'ir.config_parameter', %s, TRUE, 1, 1, NOW(), NOW())
-        """, (module, xml_id, res_id))
-        _logger.info(f"  ✅ Linked {key} → {module}.{xml_id}")
-
-    _logger.info("✅ Config params xmlid linking done")
+        cr.execute("ROLLBACK TO SAVEPOINT delete_savepoint")
 
 def migrate(cr, version):
     if not version:
         return
 
     _logger.info("START CLEANUP (SAFE MODE)")
-    link_config_params_to_xmlids(cr)
+
     # =====================================================
     # CLEAN CONFIG PARAMETERS (avoid duplicate key error)
     # =====================================================
-    # _logger.info("Cleaning ir.config_parameter duplicates")
+    _logger.info("Cleaning ir.config_parameter duplicates")
 
-    # params = [
-    #     ("integration.import_data_block_size", "5000"),
-    #     ("integration.export_inventory_block_size", "250"),
-    #     ("integration.integration_api_key", "8c60bb92a2a7beb2a0fc399f0831d6d818a87441"),
-    #     ("vt_ecosystem.ecosystem_api_url", "https://ecosystem-api.ventor.tech/v1"),
-    #     ("integration.skip_convert_to_webp", "0"),
-    # ]
+    params = [
+        ("integration.import_data_block_size", "5000"),
+        ("integration.export_inventory_block_size", "250"),
+        ("integration.integration_api_key", "8c60bb92a2a7beb2a0fc399f0831d6d818a87441"),
+        ("vt_ecosystem.ecosystem_api_url", "https://ecosystem-api.ventor.tech/v1"),
+        ("integration.skip_convert_to_webp", "0"),
+    ]
 
-    # for key, value in params:
-    #     cr.execute("""
-    #         INSERT INTO ir_config_parameter (key, value, create_uid, write_uid, create_date, write_date)
-    #         VALUES (%s, %s, 1, 1, NOW(), NOW())
-    #         ON CONFLICT (key)
-    #         DO UPDATE SET value = EXCLUDED.value
-    #     """, (key, value))
+    placeholders = ','.join(['%s'] * len(params))
+    cr.execute(f"""
+        DELETE FROM ir_config_parameter
+        WHERE key IN ({placeholders})
+    """, tuple(params))
+    _logger.info(f"  Deleted {cr.rowcount} config param records")
 
     # =====================================================
     # DELETE IN STRICT ORDER (FK SAFE)
     # =====================================================
 
-    # 1. action views
-    delete_by_model(cr, "ir.actions.act_window.view", "ir_actions_act_window_view")
+    _logger.info("🧹 Detaching child views...")
+    cr.execute("SAVEPOINT delete_savepoint")
+    try:
+        cr.execute("""
+            UPDATE ir_ui_view
+            SET inherit_id = NULL
+            WHERE inherit_id IN (
+                SELECT res_id
+                FROM ir_model_data
+                WHERE module = ANY(%s)
+                AND model = 'ir.ui.view'
+            )
+        """, (MODULES,))
+        _logger.info(f"  Detached {cr.rowcount} child views")
+    except Exception as e:
+        _logger.error(f"Failed detaching child views: {e}")
+        cr.execute("ROLLBACK TO SAVEPOINT delete_savepoint")
 
-    # 2. server actions
-    delete_by_model(cr, "ir.actions.server", "ir_actions_server")
+    # 2. Detach child menus to avoid FK constraint on ir_ui_menu
+    _logger.info("🧹 Detaching child menus...")
+    cr.execute("SAVEPOINT delete_savepoint")
+    try:
+        cr.execute("""
+            UPDATE ir_ui_menu
+            SET parent_id = NULL
+            WHERE parent_id IN (
+                SELECT res_id
+                FROM ir_model_data
+                WHERE module = ANY(%s)
+                AND model = 'ir.ui.menu'
+            )
+            AND id NOT IN (
+                SELECT res_id
+                FROM ir_model_data
+                WHERE module = ANY(%s)
+                AND model = 'ir.ui.menu'
+            )
+        """, (MODULES, MODULES))
+        _logger.info(f"  Detached {cr.rowcount} child menus")
+    except Exception as e:
+        _logger.error(f"Failed detaching child menus: {e}")
+        cr.execute("ROLLBACK TO SAVEPOINT delete_savepoint")
 
-    # 3. report actions
-    delete_by_model(cr, "ir.actions.report", "ir_actions_report")
+    # 3. Remove menu action references
+    _logger.info("🧹 Clearing menu action references...")
+    cr.execute("SAVEPOINT delete_savepoint")
+    try:
+        cr.execute("""
+            UPDATE ir_ui_menu
+            SET action = NULL
+            WHERE id IN (
+                SELECT res_id
+                FROM ir_model_data
+                WHERE module = ANY(%s)
+                AND model = 'ir.ui.menu'
+            )
+        """, (MODULES,))
+        _logger.info(f"  Cleared {cr.rowcount} menu action references")
+    except Exception as e:
+        _logger.error(f"Failed clearing menu actions: {e}")
+        cr.execute("ROLLBACK TO SAVEPOINT delete_savepoint")
 
-    # 4. window actions
-    delete_by_model(cr, "ir.actions.act_window", "ir_actions_act_window")
+    # 4. Delete all action types
+    for model, table in ACTION_MODELS:
+        cr.execute("SAVEPOINT delete_savepoint")
+        delete_by_model(cr, model, table)
 
-    # 5. menus (AFTER actions!)
+    # 5. Delete menus
+    cr.execute("SAVEPOINT delete_savepoint")
     delete_by_model(cr, "ir.ui.menu", "ir_ui_menu")
 
-    # 6. views
+    # 6. Delete views
+    cr.execute("SAVEPOINT delete_savepoint")
     delete_by_model(cr, "ir.ui.view", "ir_ui_view")
 
-    # 7. mail templates
+    # 7. Delete mail templates
+    cr.execute("SAVEPOINT delete_savepoint")
     delete_by_model(cr, "mail.template", "mail_template")
 
     # =====================================================
-    # OPTIONAL: your custom data models
-    # =====================================================
-    # Example:
-    # delete_by_model(cr, "account.account.tag", "account_account_tag")
-    # delete_by_model(cr, "jpk.account.tag", "jpk_account_tag")
-
-    # =====================================================
     # CLEAN ir_model_data LAST
+    # Must be last — everything above relies on it
+    # to find records to delete
     # =====================================================
-    _logger.info("Cleaning ir_model_data")
-
+    _logger.info("🧹 Cleaning ir_model_data")
     try:
         cr.execute("""
             DELETE FROM ir_model_data
             WHERE module = ANY(%s)
         """, (MODULES,))
+        _logger.info(f"  Deleted {cr.rowcount} ir_model_data records")
     except Exception as e:
         _logger.error(f"Failed cleaning ir_model_data: {e}")
-        cr.rollback()
 
-
-    _logger.info("CLEANUP FINISHED")
+    _logger.info("✅ CLEANUP FINISHED")
 
 # # -*- coding: utf-8 -*-
 
