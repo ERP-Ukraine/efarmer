@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <odoo>
-    <data noupdate="0">
+    <data noupdate="1">
 
         <!-- <record model="ir.config_parameter" id="data_block_size">
             <field name="key">integration.import_data_block_size</field>
