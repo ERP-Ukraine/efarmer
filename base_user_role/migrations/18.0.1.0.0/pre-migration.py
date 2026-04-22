@@ -214,12 +214,91 @@ def delete_menus_recursive(cr, modules):
         _logger.error(f"  Failed deleting menus: {e}")
         cr.execute("ROLLBACK TO SAVEPOINT delete_savepoint")
 
+def clean_specific_views(cr):
+    """
+    Clean specific views that have orphaned action references
+    stored in DB from V15 that conflict with V18 file versions.
+    """
+    _logger.info("🧹 Cleaning specific orphaned DB view content...")
+
+    import json
+    import re
+
+    # View 4721 has x_wl_action_validate_bank_account button
+    # stored in DB from V15 trilab_whitelist module
+    orphaned_buttons = [
+        "x_wl_action_validate_bank_account",
+    ]
+
+    for button_name in orphaned_buttons:
+        cr.execute("""
+            SELECT id, arch_db
+            FROM ir_ui_view
+            WHERE arch_db::text ILIKE %s
+        """, (f"%{button_name}%",))
+
+        rows = cr.fetchall()
+        if not rows:
+            _logger.info(f"  No views found with button {button_name}, skipping")
+            continue
+
+        pattern = re.compile(
+            rf'<button[^>]*name="{re.escape(button_name)}"[^>]*/>'
+            rf'|<button[^>]*name="{re.escape(button_name)}"[^>]*>.*?</button>',
+            re.I | re.S
+        )
+
+        for view_id, arch_db in rows:
+            try:
+                if isinstance(arch_db, dict):
+                    cleaned_arch = {}
+                    for lang, content in arch_db.items():
+                        cleaned_arch[lang] = pattern.sub("", content)
+                    cr.execute("""
+                        UPDATE ir_ui_view
+                        SET arch_db = %s::jsonb
+                        WHERE id = %s
+                    """, (json.dumps(cleaned_arch), view_id))
+
+                elif isinstance(arch_db, str):
+                    try:
+                        parsed = json.loads(arch_db)
+                        if isinstance(parsed, dict):
+                            cleaned_arch = {}
+                            for lang, content in parsed.items():
+                                cleaned_arch[lang] = pattern.sub("", content)
+                            cr.execute("""
+                                UPDATE ir_ui_view
+                                SET arch_db = %s::jsonb
+                                WHERE id = %s
+                            """, (json.dumps(cleaned_arch), view_id))
+                        else:
+                            cleaned = pattern.sub("", arch_db)
+                            cr.execute("""
+                                UPDATE ir_ui_view
+                                SET arch_db = %s
+                                WHERE id = %s
+                            """, (cleaned, view_id))
+                    except (json.JSONDecodeError, TypeError):
+                        cleaned = pattern.sub("", arch_db)
+                        cr.execute("""
+                            UPDATE ir_ui_view
+                            SET arch_db = %s
+                            WHERE id = %s
+                        """, (cleaned, view_id))
+
+                _logger.info(f"  ✅ Cleaned button {button_name} from view id={view_id}")
+
+            except Exception as e:
+                _logger.warning(f"  ⚠️ Failed to clean view id={view_id}: {e}")
+
 def migrate(cr, version):
     if not version:
         return
 
     _logger.info("START CLEANUP (SAFE MODE)")
-
+    clean_specific_views(cr)
+    
     # =====================================================
     # CLEAN CONFIG PARAMETERS (avoid duplicate key error)
     # =====================================================
