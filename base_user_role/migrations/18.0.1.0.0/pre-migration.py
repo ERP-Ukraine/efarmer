@@ -56,32 +56,92 @@ def delete_by_model(cr, model, table):
         _logger.error(f"Failed deleting {model}: {e}")
         cr.rollback()
 
+def link_config_params_to_xmlids(cr):
+    """
+    Link existing ir.config_parameter records to xmlids
+    so Odoo skips INSERT and does UPDATE instead during module load.
+    Without this, Odoo tries to INSERT records that already exist
+    in the DB (created in V15), causing duplicate key errors.
+    """
+    _logger.info("🔗 Linking ir.config_parameter records to xmlids...")
+
+    # (module, xml_id, key)
+    params = [
+        ("integration", "export_inventory_block_size", "integration.export_inventory_block_size"),
+        ("integration", "integration_api_key", "integration.integration_api_key"),
+        ("integration", "ecosystem_api_url", "vt_ecosystem.ecosystem_api_url"),
+        ("integration", "skip_convert_to_webp", "integration.skip_convert_to_webp"),
+        ("integration", "data_block_size", "integration.import_data_block_size"),
+    ]
+
+    for module, xml_id, key in params:
+        # Upsert the param value first
+        cr.execute("""
+            INSERT INTO ir_config_parameter (key, value, create_uid, write_uid, create_date, write_date)
+            VALUES (%s, %s, 1, 1, NOW(), NOW())
+            ON CONFLICT (key) DO NOTHING
+        """, (key, ""))
+
+        # Get the record id
+        cr.execute("""
+            SELECT id FROM ir_config_parameter
+            WHERE key = %s
+        """, (key,))
+        row = cr.fetchone()
+        if not row:
+            _logger.warning(f"  Param {key} not found, skipping xmlid link")
+            continue
+
+        res_id = row[0]
+
+        # Check if xmlid already exists
+        cr.execute("""
+            SELECT id FROM ir_model_data
+            WHERE module = %s AND name = %s
+        """, (module, xml_id))
+
+        if cr.fetchone():
+            _logger.info(f"  Xmlid {module}.{xml_id} already exists, skipping")
+            continue
+
+        # Create the xmlid linking to the existing record
+        # noupdate=TRUE so Odoo won't overwrite the value on upgrade
+        cr.execute("""
+            INSERT INTO ir_model_data
+                (module, name, model, res_id, noupdate, create_uid, write_uid, create_date, write_date)
+            VALUES
+                (%s, %s, 'ir.config_parameter', %s, TRUE, 1, 1, NOW(), NOW())
+        """, (module, xml_id, res_id))
+        _logger.info(f"  ✅ Linked {key} → {module}.{xml_id}")
+
+    _logger.info("✅ Config params xmlid linking done")
+
 def migrate(cr, version):
     if not version:
         return
 
     _logger.info("START CLEANUP (SAFE MODE)")
-    
+    link_config_params_to_xmlids(cr)
     # =====================================================
     # CLEAN CONFIG PARAMETERS (avoid duplicate key error)
     # =====================================================
-    _logger.info("Cleaning ir.config_parameter duplicates")
+    # _logger.info("Cleaning ir.config_parameter duplicates")
 
-    params = [
-        ("integration.import_data_block_size", "5000"),
-        ("integration.export_inventory_block_size", "250"),
-        ("integration.integration_api_key", "8c60bb92a2a7beb2a0fc399f0831d6d818a87441"),
-        ("vt_ecosystem.ecosystem_api_url", "https://ecosystem-api.ventor.tech/v1"),
-        ("integration.skip_convert_to_webp", "0"),
-    ]
+    # params = [
+    #     ("integration.import_data_block_size", "5000"),
+    #     ("integration.export_inventory_block_size", "250"),
+    #     ("integration.integration_api_key", "8c60bb92a2a7beb2a0fc399f0831d6d818a87441"),
+    #     ("vt_ecosystem.ecosystem_api_url", "https://ecosystem-api.ventor.tech/v1"),
+    #     ("integration.skip_convert_to_webp", "0"),
+    # ]
 
-    for key, value in params:
-        cr.execute("""
-            INSERT INTO ir_config_parameter (key, value, create_uid, write_uid, create_date, write_date)
-            VALUES (%s, %s, 1, 1, NOW(), NOW())
-            ON CONFLICT (key)
-            DO UPDATE SET value = EXCLUDED.value
-        """, (key, value))
+    # for key, value in params:
+    #     cr.execute("""
+    #         INSERT INTO ir_config_parameter (key, value, create_uid, write_uid, create_date, write_date)
+    #         VALUES (%s, %s, 1, 1, NOW(), NOW())
+    #         ON CONFLICT (key)
+    #         DO UPDATE SET value = EXCLUDED.value
+    #     """, (key, value))
 
     # =====================================================
     # DELETE IN STRICT ORDER (FK SAFE)
