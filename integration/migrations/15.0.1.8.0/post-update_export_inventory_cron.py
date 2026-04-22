@@ -11,5 +11,5 @@ def migrate(cr, version):
 
     parameter = env['ir.config_parameter'].search([('key', '=', 'integration.data_block_size')])
 
-    if parameter:
-        parameter.key = 'integration.import_data_block_size'
+    # if parameter:
+    #     parameter.key = 'integration.import_data_block_size'
