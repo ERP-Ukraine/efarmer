@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_ksef_batch_import_wizard_form" model="ir.ui.view">
+        <field name="name">ksef.batch.import.wizard.form</field>
+        <field name="model">ksef.batch.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="KSeF Batch Import">
+                <group>
+                    <group>
+                        <field name="allowed_company_ids" invisible="True"/>
+                        <field name="company_ids"
+                               widget="many2many_tags"
+                               domain="[('id', 'in', allowed_company_ids)]"
+                               options="{'no_create': True, 'no_open': True}"/>
+                    </group>
+                    <group>
+                        <field name="date_from" widget="daterange" options="{'end_date_field': 'date_to'}"/>
+                        <field name="date_to" invisible="True"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string="Start Import" name="action_start_batch_import" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ksef_batch_import_wizard" model="ir.actions.act_window">
+        <field name="name">KSeF Batch Import</field>
+        <field name="res_model">ksef.batch.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+            id="menu_ksef_batch_import_wizard"
+            name="KSeF Batch Import"
+            parent="account.menu_finance_entries"
+            action="action_ksef_batch_import_wizard"
+            sequence="100"
+            groups="account.group_account_manager"/>
+</odoo>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <template id="kp_kw_report_document">
+        <t t-call="web.basic_layout">
+            <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang or o.env.user.lang)"/>
+            <t t-set="is_amount_positive" t-value="o.currency_id.compare_amounts(o.amount, 0.0) > 0"/>
+
+            <table class="table-bordered kp-kw-table">
+                <tr>
+                    <td colspan="2" class="fst-italic">
+                        <b class="mb-0" t-field="o.company_id.partner_id"
+                           t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <b t-if="is_amount_positive">CASH IN PROOF KP:</b>
+                        <b t-else="">CASH OUT PROOF KW:</b>
+                        <t t-out="o.name"/><br/>
+                        <b>Dated:</b>
+                        <t t-out="o.date"/></td>
+                </tr>
+
+                <t t-set="abs_amount" t-value="abs(o.amount)"/>
+
+                <tr>
+                    <td colspan="2">
+                        <b t-if="is_amount_positive">From:</b>
+                        <b t-else="">To:</b>
+                        <t t-out="o.partner_id.name"/><br/>
+                        <b>For:</b>
+                        <t t-out="o.payment_ref"/><br/>
+                        <b>Amount:</b>
+                        <t t-out="abs_amount"
+                           t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/><br/>
+                    </td>
+                </tr>
+                <tr class="kp-kw-signature">
+                    <td class="col-3">Cashier's signature:</td>
+                    <td class="col-3">
+                        <t t-if="is_amount_positive">
+                            Payer signature:
+                        </t>
+                        <t t-else="">
+                            Receiver's signature:
+                        </t>
+                    </td>
+                </tr>
+            </table>
+        </t>
+    </template>
+
+    <record id="kp_kw_paper_format" model="report.paperformat">
+        <field name="name">B6 KP/KW</field>
+        <field name="format">B6</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">8.0</field>
+        <field name="margin_bottom">3.0</field>
+        <field name="margin_left">3.0</field>
+        <field name="margin_right">3.0</field>
+        <field name="header_spacing">30</field>
+    </record>
+
+    <template id="kp_kw_report">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="trilab_pl_reports.kp_kw_report_document" t-lang="o.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_kp_kw_report" model="ir.actions.report">
+        <field name="name">KP/KW</field>
+        <field name="model">account.bank.statement.line</field>
+        <field name="paperformat_id" ref="kp_kw_paper_format"/>
+        <field name="report_name">trilab_pl_reports.kp_kw_report</field>
+        <field name="report_file">kp_kw_report</field>
+        <field name="print_report_name">'%s_%s' % ((object.currency_id.compare_amounts(object.amount, 0.0) > 0) and 'KP' or 'KW', object.name)</field>
+        <field name="binding_model_id" ref="account.model_account_bank_statement_line"/>
+    </record>
+
+</odoo>

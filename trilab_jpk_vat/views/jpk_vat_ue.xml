@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="jpk_vat_ue_view_form" model="ir.ui.view">
+        <field name="name">jpk.vat.ue.form</field>
+        <field name="model">jpk.vat.ue</field>
+        <field name="priority">1</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form string="VAT UE" create="False">
+                <header invisible="context.get('active_model')"> <!-- Hide header in wizard -->
+                    <button name="action_generate_xml" string="Export XML" class="oe_highlight" type="object"/>
+                    <button name="action_generate_pdf" string="Export PDF" class="oe_highlight" type="object"/>
+                </header>
+                <sheet col="1" class="p-0">
+                    <field name="original_vat_ue_id" invisible="True"/>
+                    <group colspan="4">
+                        <field name="version" readonly="True"/>
+                        <field name="month" readonly="True"/>
+                        <field name="year" readonly="True" widget="text"/>
+                    </group>
+
+
+                    <div class="row gx-1">
+                        <div class="col-12">
+                            <separator string="C. Informacja o Wewnątrzwspólnotowych Dostawach Towarów"/>
+                        </div>
+
+                        <div class="col-12" invisible="not original_vat_ue_id">
+                            <separator string="Before"/>
+                        </div>
+
+                        <div class="col-12" invisible="not original_vat_ue_id">
+                            <field name="original_group1_line_ids" nolabel="1" class="text-center" readonly="True">
+                                <list create="False" edit="False">
+                                    <field name="country_code" width="10%"/>
+                                    <field name="nip" width="30%"/>
+                                    <field name="amount" width="40%"/>
+                                    <field name="tt" width="20%"/>
+                                </list>
+                            </field>
+                        </div>
+
+                        <div class="col-12" invisible="not original_vat_ue_id">
+                            <separator string="After"/>
+                        </div>
+
+                        <div class="col-12">
+                            <field name="group1_line_ids" nolabel="1" class="text-center" readonly="True">
+                                <list create="False" edit="False">
+                                    <field name="country_code" width="10%"/>
+                                    <field name="nip" width="30%"/>
+                                    <field name="amount" width="40%"/>
+                                    <field name="tt" width="20%"/>
+                                </list>
+                            </field>
+                        </div>
+
+
+                        <div class="col-12">
+                            <separator string="D. Informacja o Wewnątrzwspólnotowych Nabyciach Towarów"/>
+                        </div>
+
+                        <div class="col-12" invisible="not original_vat_ue_id">
+                            <separator string="Before"/>
+                        </div>
+
+                        <div class="col-12" invisible="not original_vat_ue_id">
+                            <field name="original_group2_line_ids" nolabel="1" class="text-center" readonly="True">
+                                <list create="False" edit="False">
+                                    <field name="country_code" width="10%"/>
+                                    <field name="nip" width="30%"/>
+                                    <field name="amount" width="40%"/>
+                                    <field name="tt" width="20%"/>
+                                </list>
+                            </field>
+                        </div>
+
+                        <div class="col-12" invisible="not original_vat_ue_id">
+                            <separator string="After"/>
+                        </div>
+
+                        <div class="col-12">
+                            <field name="group2_line_ids" nolabel="1" class="text-center" readonly="True">
+                                <list create="False" edit="False">
+                                    <field name="country_code" width="10%"/>
+                                    <field name="nip" width="30%"/>
+                                    <field name="amount" width="40%"/>
+                                    <field name="tt" width="20%"/>
+                                </list>
+                            </field>
+                        </div>
+
+                        <div class="col-12">
+                            <separator string="E. Informacja o Wewnątrzwspólnotowym Świadczeniu Usług"/>
+                        </div>
+
+                        <div class="col-12" invisible="not original_vat_ue_id">
+                            <separator string="Before"/>
+                        </div>
+
+                        <div class="col-12" invisible="not original_vat_ue_id">
+                            <field name="original_group3_line_ids" nolabel="1" class="text-center" readonly="True">
+                                <list create="False" edit="False">
+                                    <field name="country_code" width="10%"/>
+                                    <field name="nip" width="30%"/>
+                                    <field name="amount" width="40%"/>
+                                </list>
+                            </field>
+                        </div>
+
+                        <div class="col-12" invisible="not original_vat_ue_id">
+                            <separator string="After"/>
+                        </div>
+
+                        <div class="col-12">
+                            <field name="group3_line_ids" nolabel="1" class="text-center" readonly="True">
+                                <list create="False" edit="False">
+                                    <field name="country_code" width="10%"/>
+                                    <field name="nip" width="30%"/>
+                                    <field name="amount" width="40%"/>
+                                </list>
+                            </field>
+                        </div>
+
+                    </div>
+
+                </sheet>
+                <footer>
+                    <!-- Post -->
+                    <field name="is_jpk_transfer_installed" invisible="True"/>
+                    <button name="action_generate_xml" string="Export XML" class="oe_highlight" type="object"/>
+                    <button name="action_transfer_xml" string="Export XML and send" class="oe_highlight" type="object"
+                            invisible="not is_jpk_transfer_installed"
+                            context="{'vat_ue': True}"
+                    />
+                    <button name="action_generate_pdf" string="Export PDF" class="oe_highlight" type="object"/>
+                    <button name="action_cancel" string="Cancel" type="object"/>
+                </footer>
+
+            </form>
+        </field>
+    </record>
+
+</odoo>

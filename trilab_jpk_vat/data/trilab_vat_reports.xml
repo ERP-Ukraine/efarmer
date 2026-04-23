@@ -1,0 +1,628 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="0">
+
+  <!-- Account Tags -->
+  <record id="pl_jpk_K_10" model="account.account.tag">
+    <field name="name">N_S_KRZW</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_10" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_10"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_10</field>
+    <field name="jpk_v7_group">P_10</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_10" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_10"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_10</field>
+    <field name="jpk_v7_group">P_10</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_11" model="account.account.tag">
+    <field name="name">N_S_D-EX</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_11" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_11"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_11</field>
+    <field name="jpk_v7_group">P_11</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_11" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_11"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_11</field>
+    <field name="jpk_v7_group">P_11</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_12" model="account.account.tag">
+    <field name="name">N_S_D-UE</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_12" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_12"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_12</field>
+    <field name="jpk_v7_group">P_12</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_12" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_12"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_12</field>
+    <field name="jpk_v7_group">P_12</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT_UE_K_12" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_12"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.vat_ue5_v2_0e_doc_type"/>
+    <field name="jpk_markup">K_12</field>
+    <field name="jpk_v7_group">P_12</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_13" model="account.account.tag">
+    <field name="name">N_S_KR0</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_13" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_13"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_13</field>
+    <field name="jpk_v7_group">P_13</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_13" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_13"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_13</field>
+    <field name="jpk_v7_group">P_13</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_14" model="account.account.tag">
+    <field name="name">N_S_KR0a129</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_14" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_14"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_14</field>
+    <field name="jpk_v7_group">P_14</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_14" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_14"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_14</field>
+    <field name="jpk_v7_group">P_14</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_15" model="account.account.tag">
+    <field name="name">N_S_KR5</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_15" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_15"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_15</field>
+    <field name="jpk_v7_group">P_15</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_15" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_15"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_15</field>
+    <field name="jpk_v7_group">P_15</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_16" model="account.account.tag">
+    <field name="name">P_S_KR5</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_16" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_16"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_16</field>
+    <field name="jpk_v7_group">P_16</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_16" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_16"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_16</field>
+    <field name="jpk_v7_group">P_16</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_17" model="account.account.tag">
+    <field name="name">N_S_KR8</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_17" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_17"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_17</field>
+    <field name="jpk_v7_group">P_17</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_17" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_17"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_17</field>
+    <field name="jpk_v7_group">P_17</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_18" model="account.account.tag">
+    <field name="name">P_S_KR8</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_18" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_18"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_18</field>
+    <field name="jpk_v7_group">P_18</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_18" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_18"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_18</field>
+    <field name="jpk_v7_group">P_18</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_19" model="account.account.tag">
+    <field name="name">N_S_KR23</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_19" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_19"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_19</field>
+    <field name="jpk_v7_group">P_19</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_19" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_19"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_19</field>
+    <field name="jpk_v7_group">P_19</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_20" model="account.account.tag">
+    <field name="name">P_S_KR23</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_20" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_20"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_20</field>
+    <field name="jpk_v7_group">P_20</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_20" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_20"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_20</field>
+    <field name="jpk_v7_group">P_20</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_21" model="account.account.tag">
+    <field name="name">N_S_WDT</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_21" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_21"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_21</field>
+    <field name="jpk_v7_group">P_21</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_21" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_21"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_21</field>
+    <field name="jpk_v7_group">P_21</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT_UE_K_21" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_21"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.vat_ue5_v2_0e_doc_type"/>
+    <field name="jpk_markup">K_21</field>
+    <field name="jpk_v7_group">P_21</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_22" model="account.account.tag">
+    <field name="name">N_S_EXT</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_22" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_22"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_22</field>
+    <field name="jpk_v7_group">P_22</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_22" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_22"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_22</field>
+    <field name="jpk_v7_group">P_22</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_23" model="account.account.tag">
+    <field name="name">N_S_WNT</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_23" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_23"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_23</field>
+    <field name="jpk_v7_group">P_23</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_23" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_23"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_23</field>
+    <field name="jpk_v7_group">P_23</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT_UE_K_23" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_23"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.vat_ue5_v2_0e_doc_type"/>
+    <field name="jpk_markup">K_23</field>
+    <field name="jpk_v7_group">P_23</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_24" model="account.account.tag">
+    <field name="name">P_S_WNT</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_24" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_24"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_24</field>
+    <field name="jpk_v7_group">P_24</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_24" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_24"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_24</field>
+    <field name="jpk_v7_group">P_24</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_25" model="account.account.tag">
+    <field name="name">N_S_IMa33a</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_25" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_25"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_25</field>
+    <field name="jpk_v7_group">P_25</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_25" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_25"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_25</field>
+    <field name="jpk_v7_group">P_25</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_26" model="account.account.tag">
+    <field name="name">P_S_IMa33a</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_26" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_26"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_26</field>
+    <field name="jpk_v7_group">P_26</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_26" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_26"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_26</field>
+    <field name="jpk_v7_group">P_26</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_27" model="account.account.tag">
+    <field name="name">N_S_IUpUE</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_27" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_27"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_27</field>
+    <field name="jpk_v7_group">P_27</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_27" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_27"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_27</field>
+    <field name="jpk_v7_group">P_27</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_28" model="account.account.tag">
+    <field name="name">P_S_IUpUE</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_28" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_28"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_28</field>
+    <field name="jpk_v7_group">P_28</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_28" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_28"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_28</field>
+    <field name="jpk_v7_group">P_28</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_29" model="account.account.tag">
+    <field name="name">N_S_IUzUE</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_29" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_29"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_29</field>
+    <field name="jpk_v7_group">P_29</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_29" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_29"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_29</field>
+    <field name="jpk_v7_group">P_29</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_30" model="account.account.tag">
+    <field name="name">P_S_IUzUE</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_30" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_30"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_30</field>
+    <field name="jpk_v7_group">P_30</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_30" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_30"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_30</field>
+    <field name="jpk_v7_group">P_30</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_31" model="account.account.tag">
+    <field name="name">N_S_DT-pod-nab</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_31" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_31"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_32</field>
+    <field name="jpk_v7_group">P_32</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_31" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_31"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_31</field>
+    <field name="jpk_v7_group">P_31</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_32" model="account.account.tag">
+    <field name="name">P_S_DT-pod-nab</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_32" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_32"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_33</field>
+    <field name="jpk_v7_group">P_33</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_32" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_32"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_32</field>
+    <field name="jpk_v7_group">P_32</field>
+    <field name="jpk_section">SprzedazWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_43" model="account.account.tag">
+    <field name="name">N_Z_ST</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_43" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_43"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_43</field>
+    <field name="jpk_v7_group">P_43</field>
+    <field name="jpk_section">ZakupWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_43" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_43"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_40</field>
+    <field name="jpk_v7_group">P_40</field>
+    <field name="jpk_section">ZakupWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_44" model="account.account.tag">
+    <field name="name">P_Z_ST</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_44" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_44"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_44</field>
+    <field name="jpk_v7_group">P_44</field>
+    <field name="jpk_section">ZakupWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_44" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_44"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_41</field>
+    <field name="jpk_v7_group">P_41</field>
+    <field name="jpk_section">ZakupWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_45" model="account.account.tag">
+    <field name="name">N_Z_POZ</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_45" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_45"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_45</field>
+    <field name="jpk_v7_group">P_45</field>
+    <field name="jpk_section">ZakupWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_45" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_45"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_42</field>
+    <field name="jpk_v7_group">P_42</field>
+    <field name="jpk_section">ZakupWiersz</field>
+  </record>
+
+  <record id="pl_jpk_K_46" model="account.account.tag">
+    <field name="name">P_Z_POZ</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+
+  <record id="pl_jpk_VAT_K_46" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_46"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_vat_doc_type"/>
+    <field name="jpk_markup">K_46</field>
+    <field name="jpk_v7_group">P_46</field>
+    <field name="jpk_section">ZakupWiersz</field>
+  </record>
+
+  <record id="pl_jpk_VAT7_K_46" model="jpk.account.tag">
+    <field name="account_tag_id" ref="pl_jpk_K_46"/>
+    <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+    <field name="jpk_markup">K_43</field>
+    <field name="jpk_v7_group">P_43</field>
+    <field name="jpk_section">ZakupWiersz</field>
+  </record>
+
+  <record id="pl_jpk_dodaj_NKUP" model="account.account.tag">
+    <field name="name">dodaj NKUP</field>
+    <field name="applicability">taxes</field>
+    <field name="country_id" ref="base.pl"/>
+  </record>
+</odoo>

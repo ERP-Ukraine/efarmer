@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <app name="account" position="inside">
+                <block title="Trilab Invoice" id="trilab_invoicing_settings" name="trilab_invoice"
+                       groups="account.group_account_manager">
+                    <setting id="use_trilab_invoice"
+                             company_dependent="1"
+                             help="Enable use of Trilab Invoice module for this company">
+                        <field name="x_use_trilab_invoice"/>
+                    </setting>
+
+                    <setting id="x_show_price_before_discount_options"
+                             company_dependent="1"
+                             invisible="not x_use_trilab_invoice"
+                             help="Show price before discount on Customer Invoices">
+                        <field name="x_show_price_before_discount"/>
+                    </setting>
+
+                    <setting id="x_hide_zero_price_aml_options"
+                             company_dependent="1"
+                             invisible="not x_use_trilab_invoice"
+                             help="Hide Invoice lines with zero price">
+                        <field name="x_hide_zero_price_aml"/>
+                    </setting>
+
+                    <setting id="x_down_payments"
+                             string="Down Payments"
+                             help="Product used for down payments"
+                             company_dependent="1">
+                        <field name="x_sale_down_payment_product_id" context="{'default_detailed_type': 'service'}"/>
+                    </setting>
+
+                    <setting id="x_no_reverse_moves_reconcile"
+                             company_dependent="1"
+                             help="Reversed Moves will not be automatically reconciled with original invoice">
+                        <field name="x_no_reverse_moves_reconcile"/>
+                    </setting>
+
+                    <setting id="company_partner_bank_on_proforma"
+                             help="Show bank details on sale orders and pro-forma invoices">
+                        <field name="x_company_partner_bank_on_proforma"/>
+                    </setting>
+                </block>
+            </app>
+        </field>
+    </record>
+</odoo>

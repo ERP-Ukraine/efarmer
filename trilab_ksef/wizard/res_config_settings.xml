@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="ksef_res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">ksef.res.config.settings.view.form.inherit.account</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='account']" position="inside">
+                <block title="Trilab KSeF" name="trilab_ksef_setting_container">
+                    <setting id="x_action_ksef_settings" string="KSeF Settings">
+                        <button name="trilab_ksef.action_ksef_settings"
+                                icon="oi-arrow-right"
+                                type="action"
+                                string="View KSeF Settings"
+                                class="btn-link"/>
+                    </setting>
+                    <setting id="x_ksef_settings_id" company_dependent="1">
+                        <field name="x_ksef_settings_id"/>
+                        <span class="fa fa-lg fa-building-o" title="Values set here are company-specific."/>
+                    </setting>
+                    <setting id="x_ksef_token" company_dependent="1" invisible="not x_ksef_settings_id">
+                        <field name="x_ksef_plain_token" string="KSeF Token" required="x_ksef_settings_id" password="True"/>
+                    </setting>
+                    <setting id="x_ksef_purchase" company_dependent="1" invisible="not x_ksef_settings_id">
+                        <div class="content-group">
+                            <div class="row mt16">
+                                <label for="x_ksef_purchase_journal_id" string="Purchase Journal"/>
+                                <field name="x_ksef_purchase_journal_id" domain="[('type', '=', 'purchase')]"/>
+                            </div>
+                            <div class="row mt16">
+                                <label for="x_ksef_fallback_purchase_journal_id" string="Fallback Purchase Journal"/>
+                                <field name="x_ksef_fallback_purchase_journal_id" domain="[('type', '=', 'purchase')]"/>
+                            </div>
+                            <div class="row mt16">
+                                <label for="x_ksef_purchase_invoice_sync_date" string="Purchase Invoice Sync Date"/>
+                                <field name="x_ksef_purchase_invoice_sync_date"/>
+                            </div>
+                        </div>
+                    </setting>
+                    <setting id="x_ksef_invoice_date_applicability" company_dependent="1"
+                             invisible="not x_ksef_settings_id">
+                        <field name="default_x_ksef_invoice_date_applicability"
+                               string="Default Invoice date or billing period"/>
+                    </setting>
+                    <setting id="ksef_verification_link_settings" company_dependent="1"
+                             invisible="not x_ksef_settings_id" string="Verification Link Settings">
+                        <field name="x_ksef_verification_link_certificate_name" invisible="True"/>
+                        <field name="x_ksef_verification_link_private_key_name" invisible="True"/>
+
+                        <div class="mt16">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="x_ksef_plain_verification_link_certificate_datas"
+                                           string="Verification Link Certificate"/>
+                                    <field name="x_ksef_plain_verification_link_certificate_datas"
+                                           widget="binary"
+                                           required="x_ksef_settings_id"
+                                           filename="x_ksef_verification_link_certificate_name"/>
+                                </div>
+                                <div class="row mt16">
+                                    <label for="x_ksef_plain_verification_link_private_key_datas"
+                                           string="Verification Link Private Key"/>
+                                    <field name="x_ksef_plain_verification_link_private_key_datas"
+                                           widget="binary"
+                                           required="x_ksef_settings_id"
+                                           filename="x_ksef_verification_link_private_key_name"/>
+                                </div>
+                                <div class="row mt16">
+                                    <label for="x_ksef_plain_verification_link_private_key_password"/>
+                                    <field name="x_ksef_plain_verification_link_private_key_password" password="True"
+                                           required="x_ksef_settings_id"/>
+                                </div>
+                            </div>
+                        </div>
+                    </setting>
+                    <setting id="ksef_additional_settings" company_dependent="1" invisible="not x_ksef_settings_id"
+                             string="Additional Settings">
+                        <div class="mt16">
+                            <div class="content-group">
+                                <div>
+                                    <field name="x_ksef_enable_barcodes"/>
+                                    <label for="x_ksef_enable_barcodes"/>
+                                </div>
+                                <div>
+                                    <field name="x_ksef_enable_ignore_zero_amount_lines"/>
+                                    <label for="x_ksef_enable_ignore_zero_amount_lines"/>
+                                </div>
+                                <div>
+                                    <field name="x_ksef_enable_seller_contact_info"/>
+                                    <label for="x_ksef_enable_seller_contact_info"/>
+                                </div>
+                                <div>
+                                    <field name="x_ksef_enable_buyer_contact_info"/>
+                                    <label for="x_ksef_enable_buyer_contact_info"/>
+                                </div>
+                                <div>
+                                    <field name="x_ksef_enable_outgoing_stock_pickings"/>
+                                    <label for="x_ksef_enable_outgoing_stock_pickings"/>
+                                </div>
+                                <div>
+                                    <field name="x_ksef_disable_shipping_third_party"/>
+                                    <label for="x_ksef_disable_shipping_third_party"/>
+                                </div>
+                            </div>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -7,8 +7,7 @@
             <field name="arch" type="xml">
                 <div name="journal_div" position="after">
                     <field name="is_manually_current_rate"/>
-                    <!-- TODO: uncomment when it's migrated -->
-                    <!-- <field name="product_vat_id" readonly="is_manually_current_rate == False"/> -->
+                    <field name="product_vat_id" readonly="is_manually_current_rate == False"/>
                     <field name="current_rate_pln" readonly="is_manually_current_rate == False"/>
                 </div>
             </field>

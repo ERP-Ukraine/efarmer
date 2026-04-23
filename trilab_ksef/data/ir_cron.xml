@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="True">
+    <record id="cron_start_invoice_batch_import" model="ir.cron">
+        <field name="name">KSeF Start Invoice Batch Import</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="state">code</field>
+        <field name="code">model._x_ksef_cron_start_invoice_batch_import()</field>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="cron_check_invoice_batch_import_status" model="ir.cron">
+        <field name="name">KSeF Check Invoice Batch Import Status</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="state">code</field>
+        <field name="code">model._x_ksef_cron_check_invoice_batch_import_status()</field>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="cron_check_invoice_status" model="ir.cron">
+        <field name="name">KSeF Check Invoice Status</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="state">code</field>
+        <field name="code">model._x_ksef_cron_check_invoice_status()</field>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

@@ -1,0 +1,18 @@
+.ui-widget.ui-autocomplete {
+
+  .ui-menu-item {
+
+    &.partner_autocomplete_dropdown_many2one.gus,
+    &.partner_autocomplete_dropdown_char.gus {
+
+      .o_partner_autocomplete_narration {
+        font-style: italic;
+        color: #aaaaaa;
+      }
+
+      .o_partner_autocomplete_info {
+        margin-left: 0;
+      }
+    }
+  }
+}

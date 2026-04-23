@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="check_nip_gus_form" model="ir.ui.view">
+        <field name="name">check_nip_gus_form</field>
+        <field name="model">trilab.check.partner</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="errors_count" invisible="True"/>
+                <field name="mode" invisible="True"/>
+                <field name="check_ids" nolabel="1" create="False" options="{'no_create': True}"
+                       readonly="mode != 'gus'">
+                    <list string="Updates" create="False"
+                          decoration-success="not is_error and not is_warning"
+                          decoration-warning="is_warning" decoration-danger="is_error">
+                        <field name="partner_id" invisible="True"/>
+                        <field name="is_error" invisible="True"/>
+                        <field name="is_warning" invisible="True"/>
+                        <field name="error_type" invisible="True"/>
+                        <field name="gus_selected_id" invisible="True"/>
+
+                        <field name="display_name" string="Name" readonly="True"/>
+                        <field name="phone" class="o_force_ltr" readonly="True" optional="show"/>
+                        <field name="email" readonly="True" optional="show"/>
+                        <field name="regon" readonly="True" column_invisible="parent.mode != 'gus'"/>
+                        <field name="krs" readonly="True" column_invisible="parent.mode != 'gus'"/>
+                        <field name="vat" readonly="True" optional="hide"/>
+                        <field name="x_pl_nip_state" readonly="True" column_invisible="parent.mode !='nip'"/>
+                        <field name="x_pl_nip_check_date"
+                               invisible="not x_pl_nip_check_date" column_invisible="parent.mode != 'nip'"
+                               readonly="True"/>
+                        <field name="x_pl_vies_state" column_invisible="parent.mode != 'vies'"/>
+                        <field name="x_pl_vies_check_date"
+                               invisible="not x_pl_vies_check_date" column_invisible="parent.mode != 'vies'"
+                               readonly="True"/>
+                        <field name="x_pl_gus_update_date"
+                               invisible="not x_pl_gus_update_date" column_invisible="parent.mode != 'gus'"
+                               readonly="True"/>
+                        <field name="user_id" readonly="True" optional="show" domain="[('share', '=', False)]"/>
+                        <field name="city" readonly="True" optional="show"/>
+                        <field name="state_id" readonly="True" optional="hide"/>
+                        <field name="category_id" readonly="True" optional="hide" widget="many2many_tags"
+                               options="{'color_field': 'color'}"/>
+                        <field name="company_id" readonly="True" groups="base.group_multi_company"/>
+                        <field name="error_message" string="Error" readonly="True"
+                               invisible="not error_type" column_invisible="parent.errors_count == 0"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="update_selected_partners" type="object" string="Update valid records"
+                            class="oe_highlight" invisible="context.get('x_hide_buttons')"/>
+                    <button string="Close" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="trilab_check_partner_details_form" model="ir.ui.view">
+        <field name="name">gus choose partner</field>
+        <field name="model">trilab.check.partner.details</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form string="Select GUS Company">
+                <field name="error_type" invisible="True"/>
+                <group invisible="error_type not in ('gus_update', 'gus_multiple')" name="select_partner">
+                    <field name="partner_id" invisible="True"/>
+                    <field name="gus_selected_id" domain="[('details_id', '=', id), ('partner_id', '=', partner_id)]"
+                           options="{'no_create_edit': True,'no_quick_create': True,'no_create': True,'no_open': True}"/>
+                </group>
+                <group string="Current Company Data" name="current_data" col="12">
+                    <group name="registry_data" colspan="6">
+                        <field name="vat" string="VAT"/>
+                        <field name="regon" string="REGON"/>
+                        <field name="krs" string="KRS/No. Evidence" invisible="not krs"/>
+                        <label for="x_pl_gus_inactive_date" class="text-danger"
+                               string="GUS Business Inactive Date"
+                               invisible="not x_pl_gus_inactive_date"/>
+                        <field name="x_pl_gus_inactive_date" nolabel="1" class="text-danger"
+                               invisible="not x_pl_gus_inactive_date"/>
+                    </group>
+
+                    <group name="address_data" colspan="6">
+                        <field name="street" string="Street"/>
+                        <field name="street2" string="Add. addr"/>
+                        <field name="zip" string="Zip"/>
+                        <field name="city" string="City"/>
+                        <field name="state_id" string=""/>
+
+                        <field name="phone" invisible="not phone"/>
+                        <field name="email" invisible="not email"/>
+                    </group>
+                </group>
+
+                <group invisible="not gus_selected_id or error_type not in ('gus_update', 'gus_multiple')"
+                       string="Updated Company Data" name="new_data" col="12">
+                    <group name="registry_data" colspan="6">
+                        <field name="x_vat" string="VAT"/>
+                        <field name="x_regon" string="REGON"/>
+                        <field name="x_krs" string="KRS/No. Evidence" invisible="not x_krs"/>
+                        <label for="x_x_pl_gus_inactive_date" class="text-danger"
+                               string="GUS Business Inactive Date"
+                               invisible="not x_x_pl_gus_inactive_date"/>
+                        <field name="x_x_pl_gus_inactive_date" nolabel="1" class="text-danger"/>
+                    </group>
+
+                    <group name="address_data" colspan="6">
+                        <field name="x_street" string="Street"/>
+                        <field name="x_street2" string="Add. addr"/>
+                        <field name="x_zip" string="Zip"/>
+                        <field name="x_city" string="City"/>
+                        <field name="x_state_id" string=""/>
+
+                        <field name="x_phone" invisible="not x_phone"/>
+                        <field name="x_email" invisible="not x_email"/>
+                    </group>
+                </group>
+                <field name="is_multi_mode" invisible="True"/>
+                <footer invisible="is_multi_mode">
+                    <button name="update_partner" type="object" string="Save" class="oe_highlight"/>
+                    <button string="Discard" special="cancel"/>
+                </footer>
+                <footer invisible="not is_multi_mode">
+                    <button name="back_to_wizard" type="object" string="Back to the list" class="oe_highlight"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

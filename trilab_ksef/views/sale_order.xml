@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_sale_order_form" model="ir.ui.view">
+        <field name="name">sale.order.form</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='sale_info']//field[@name='invoice_status']" position="after">
+                <field name="x_ksef_third_party_ids"
+                       readonly="state in ['cancel', 'sale']">
+                    <list editable="bottom">
+                        <field name="partner_id"/>
+                        <field name="classification"/>
+                        <field name="classification_other" readonly="classification != '-1'"/>
+                    </list>
+                </field>
+            </xpath>
+        </field>
+    </record>
+</odoo>
