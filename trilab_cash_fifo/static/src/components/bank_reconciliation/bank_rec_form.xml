@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-inherit="account_accountant.BankRecRecordFormButtonsHeaderLeft" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('o_statusbar_buttons')]/button[1]" position="before">
+            <button class="btn btn-primary" t-on-click="(ev) => this.xActionPostMove()"
+                    t-if="data.x_show_post_move_btn">
+                <span>Post Move</span>
+            </button>
+        </xpath>
+    </t>
+</templates>

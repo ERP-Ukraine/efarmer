@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_move_form_inherit" model="ir.ui.view">
+        <field name="name">KSeF account.move.form.inherit</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='x_invoice_sale_date']" position="after">
+                <field name="x_ksef_invoice_date_applicability"
+                       readonly="state != 'draft'"
+                       required="x_use_ti and move_type != 'entry'"
+                       invisible="move_type == 'entry' or not x_use_ti"
+                       string="Invoice date or billing period"
+                />
+            </xpath>
+
+            <xpath expr="//button[@name='action_invoice_sent']" position="after">
+                <field name="x_ksef_show_check_invoice_status_btn" invisible="True"/>
+                <field name="x_ksef_show_resend_btn" invisible="True"/>
+                <button name="x_ksef_check_invoice_status"
+                        string="Check KSeF Invoice Status"
+                        type="object"
+                        invisible="not x_ksef_show_check_invoice_status_btn"/>
+                <button name="x_ksef_resend_invoice"
+                        string="Resend to KSeF"
+                        type="object"
+                        invisible="not x_ksef_show_resend_btn"/>
+            </xpath>
+
+            <xpath expr="//button[@name='button_draft']" position="attributes">
+                <attribute name="invisible">x_ksef_has_generated_xml or not show_reset_to_draft_button</attribute>
+            </xpath>
+
+            <xpath expr="//button[@name='button_draft']" position="after">
+                <field name="x_ksef_has_generated_xml" invisible="True"/>
+                <button name="button_draft"
+                        string="Reset to Draft"
+                        type="object"
+                        groups="account.group_account_invoice"
+                        invisible="not x_ksef_has_generated_xml or not show_reset_to_draft_button"
+                        confirm="A KSeF XML document has already been generated for this invoice. Continue?"
+                        data-hotkey="r"/>
+            </xpath>
+
+            <xpath expr="//div[hasclass('alert-warning')][last()]" position="after">
+                <field name="x_ksef_warn_refund_no_reversed_entry" invisible="True"/>
+                <div class="alert alert-warning" role="alert"
+                     invisible="not x_ksef_warn_refund_no_reversed_entry">
+                    This refund has no originating invoice linked. It will <strong>not</strong> be sent to KSeF automatically and must be submitted manually.
+                </div>
+            </xpath>
+
+            <xpath expr="//page[@id='pl_vat']" position="inside">
+                <group>
+                    <group string="Flags">
+
+                        <field name="x_ksef_p_16" readonly="state != 'draft'"/>
+                        <field name="x_ksef_p_17" readonly="state != 'draft'"/>
+                    </group>
+                    <group string="KSeF Third Parties">
+                        <field name="x_ksef_third_party_ids"
+                               colspan="2"
+                               nolabel="1"
+                               readonly="state != 'draft'"
+                        >
+                            <list editable="bottom">
+                                <field name="partner_id"/>
+                                <field name="classification"/>
+                                <field name="classification_other" readonly="classification != '-1'"/>
+                            </list>
+                        </field>
+                    </group>
+                </group>
+                <group string="Exemptions">
+                    <field name="x_ksef_p_19"
+                           readonly="state != 'draft'"/>
+                    <field name="x_ksef_p_19a"
+                           invisible="not x_ksef_p_19"
+                           readonly="state != 'draft'"
+                           required="x_ksef_p_19 and not (x_ksef_p_19b or x_ksef_p_19c)"/>
+                    <field name="x_ksef_p_19b"
+                           invisible="not x_ksef_p_19"
+                           readonly="state != 'draft'"
+                           required="x_ksef_p_19 and not (x_ksef_p_19a or x_ksef_p_19c)"/>
+                    <field name="x_ksef_p_19c"
+                           invisible="not x_ksef_p_19"
+                           readonly="state != 'draft'"
+                           required="x_ksef_p_19 and not (x_ksef_p_19a or x_ksef_p_19b)"/>
+                </group>
+                <group string="Margin Procedure">
+                    <field name="x_ksef_p_pmarzy"
+                           readonly="state != 'draft'"/>
+                    <field name="x_ksef_p_pmarzy_2"
+                           invisible="not x_ksef_p_pmarzy"
+                           readonly="state != 'draft'"/>
+                    <field name="x_ksef_p_pmarzy_3_1"
+                           invisible="not x_ksef_p_pmarzy"
+                           readonly="state != 'draft'"/>
+                    <field name="x_ksef_p_pmarzy_3_2"
+                           invisible="not x_ksef_p_pmarzy"
+                           readonly="state != 'draft'"/>
+                    <field name="x_ksef_p_pmarzy_3_3"
+                           invisible="not x_ksef_p_pmarzy"
+                           readonly="state != 'draft'"/>
+                </group>
+                <group string="KSeF References">
+                    <field name="x_pl_ksef_invoice_number" readonly="True"/>
+                    <field name="x_ksef_invoice_reference" string="KSeF Reference Number" readonly="True"/>
+                    <field name="x_ksef_session_reference" readonly="True"/>
+                    <field name="x_ksef_session_type" readonly="True"/>
+                    <field name="x_ksef_invoice_status" readonly="True"/>
+                    <field name="x_ksef_last_invoice_status" readonly="True" groups="base.group_no_one"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="ksef_unlink_to_send_edi_documents" model="ir.actions.server">
+        <field name="name">KSeF Delete To Send EDI Documents</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_view_types">form,list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.x_ksef_unlink_to_send_edi_documents()</field>
+    </record>
+</odoo>

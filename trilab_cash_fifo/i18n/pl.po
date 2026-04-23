@@ -1,0 +1,199 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* trilab_cash_fifo
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-16 15:31+0000\n"
+"PO-Revision-Date: 2026-01-16 15:31+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: trilab_cash_fifo
+#: model_terms:ir.ui.view,arch_db:trilab_cash_fifo.message_valuation_consumed
+msgid "Amount in company currency:"
+msgstr "Kwota w walucie firmy:"
+
+#. module: trilab_cash_fifo
+#: model_terms:ir.ui.view,arch_db:trilab_cash_fifo.message_valuation_consumed
+msgid "Amount:"
+msgstr "Kwota:"
+
+#. module: trilab_cash_fifo
+#: model:ir.model,name:trilab_cash_fifo.model_account_bank_statement_line
+msgid "Bank Statement Line"
+msgstr "Pozycja wyciągu bankowego"
+
+#. module: trilab_cash_fifo
+#: model:ir.model,name:trilab_cash_fifo.model_bank_rec_widget
+msgid "Bank reconciliation widget for a single statement line"
+msgstr "Widżet uzgodnień bankowych dla pozycji wyciągu"
+
+#. module: trilab_cash_fifo
+#: model:ir.model.fields,field_description:trilab_cash_fifo.field_account_bank_statement_line__x_can_edit_valuation
+msgid "Can Edit Valuation"
+msgstr ""
+
+#. module: trilab_cash_fifo
+#. odoo-python
+#: code:addons/trilab_cash_fifo/models/account_bank_statement_line.py:0
+msgid ""
+"Cannot add record with a date, that is earlier than statement line that "
+"contains a valuation."
+msgstr ""
+"Nie można dodać rekordu z datą wcześniejszą niż data wiersza zestawienia, "
+"który zawiera wycenę."
+
+#. module: trilab_cash_fifo
+#: model:ir.model.fields,field_description:trilab_cash_fifo.field_account_journal__x_cash_valuation_method
+msgid "Cash Valuation Method"
+msgstr "Metoda wyceny gotówki"
+
+#. module: trilab_cash_fifo
+#. odoo-python
+#: code:addons/trilab_cash_fifo/models/account_journal.py:0
+msgid ""
+"Cash Valuation Method can only be set for Cash and Bank journals in "
+"currencies different than Company Currency."
+msgstr ""
+"Metoda wyceny gotówki może być ustawiona tylko dla dzienników gotówkowych i "
+"bankowych w walutach różnych od waluty firmy."
+
+#. module: trilab_cash_fifo
+#: model:ir.model.fields,field_description:trilab_cash_fifo.field_account_journal__x_cash_valuation_as_draft
+msgid "Cash Valuations as Draft"
+msgstr "Wyceny jako Projekt"
+
+#. module: trilab_cash_fifo
+#: model_terms:ir.ui.view,arch_db:trilab_cash_fifo.message_valuation_consumed
+msgid "Consumed from:"
+msgstr "Skonsumowano z:"
+
+#. module: trilab_cash_fifo
+#: model:ir.model.fields,help:trilab_cash_fifo.field_account_journal__x_cash_valuation_as_draft
+msgid "Create journal entries for cash valuations in the Draft state."
+msgstr "Twórz zapisy do dziennika dla wycen w stanie „Projekt”."
+
+#. module: trilab_cash_fifo
+#: model_terms:ir.ui.view,arch_db:trilab_cash_fifo.message_valuation_consumed
+msgid "Currency Table"
+msgstr "Tabela walut"
+
+#. module: trilab_cash_fifo
+#: model_terms:ir.ui.view,arch_db:trilab_cash_fifo.message_valuation_consumed
+msgid "Currency rate date:"
+msgstr "Data kursu:"
+
+#. module: trilab_cash_fifo
+#: model_terms:ir.ui.view,arch_db:trilab_cash_fifo.message_valuation_consumed
+msgid "Currency rate:"
+msgstr "Kurs waluty:"
+
+#. module: trilab_cash_fifo
+#: model:ir.model.fields.selection,name:trilab_cash_fifo.selection__account_journal__x_cash_valuation_method__fifo
+msgid "FIFO"
+msgstr ""
+
+#. module: trilab_cash_fifo
+#: model:ir.model,name:trilab_cash_fifo.model_account_journal
+msgid "Journal"
+msgstr "Dziennik"
+
+#. module: trilab_cash_fifo
+#: model:ir.model,name:trilab_cash_fifo.model_account_move
+msgid "Journal Entry"
+msgstr "Zapis dziennika"
+
+#. module: trilab_cash_fifo
+#. odoo-javascript
+#: code:addons/trilab_cash_fifo/static/src/components/bank_reconciliation/bank_rec_form.xml:0
+msgid "Post Move"
+msgstr "Zaksięguj Zapis"
+
+#. module: trilab_cash_fifo
+#: model:ir.actions.server,name:trilab_cash_fifo.x_action_post_moves
+msgid "Post Moves"
+msgstr "Zaksięguj Zapisy"
+
+#. module: trilab_cash_fifo
+#. odoo-python
+#: code:addons/trilab_cash_fifo/models/account_bank_statement_line.py:0
+msgid "Posted %s moves."
+msgstr "Zaksięgowano %s zapisów."
+
+#. module: trilab_cash_fifo
+#. odoo-python
+#: code:addons/trilab_cash_fifo/models/account_bank_statement_line.py:0
+msgid "Posting Moves"
+msgstr "Księgowanie zapisów"
+
+#. module: trilab_cash_fifo
+#: model:ir.model.fields,field_description:trilab_cash_fifo.field_account_bank_statement_line__x_is_valuation_line
+msgid "Valuation Line"
+msgstr "Linia wyceny"
+
+#. module: trilab_cash_fifo
+#: model:ir.model.fields,field_description:trilab_cash_fifo.field_account_bank_statement_line__x_valuation_remaining_amount
+msgid "Valuation Remaining Amount"
+msgstr "Pozostała kwota wyceny"
+
+#. module: trilab_cash_fifo
+#: model:ir.model.fields,field_description:trilab_cash_fifo.field_account_bank_statement_line__x_is_valuation_used
+msgid "Valuation Used"
+msgstr "Wycena użyta"
+
+#. module: trilab_cash_fifo
+#: model_terms:ir.ui.view,arch_db:trilab_cash_fifo.message_valuation_consumed
+msgid "Valuation:"
+msgstr "Wycena:"
+
+#. module: trilab_cash_fifo
+#: model:ir.model.fields,field_description:trilab_cash_fifo.field_account_journal__x_cash_valuation_visible
+msgid "X Cash Valuation Visible"
+msgstr ""
+
+#. module: trilab_cash_fifo
+#: model:ir.model.fields,field_description:trilab_cash_fifo.field_bank_rec_widget__x_show_post_move_btn
+msgid "X Show Post Move Btn"
+msgstr ""
+
+#. module: trilab_cash_fifo
+#. odoo-python
+#: code:addons/trilab_cash_fifo/models/account_bank_statement_line.py:0
+msgid "You cannot change the amount for negative lines."
+msgstr "Nie możesz zmienić kwoty dla linii ujemnych."
+
+#. module: trilab_cash_fifo
+#. odoo-python
+#: code:addons/trilab_cash_fifo/models/account_bank_statement_line.py:0
+msgid ""
+"You cannot change the amount of a statement line that has used valuation "
+"line."
+msgstr "Nie możesz zmienić kwoty linii wyciągu, która użyła linii wyceny."
+
+#. module: trilab_cash_fifo
+#. odoo-python
+#: code:addons/trilab_cash_fifo/models/account_bank_statement_line.py:0
+msgid "You cannot change the amount to a value with different sign."
+msgstr "Nie możesz zmienić kwoty na wartość o innym znaku."
+
+#. module: trilab_cash_fifo
+#. odoo-python
+#: code:addons/trilab_cash_fifo/models/account_bank_statement_line.py:0
+msgid "You cannot change the date of a valuation statement line."
+msgstr "Nie możesz zmienić daty linii wyceny wyciągu."
+
+#. module: trilab_cash_fifo
+#. odoo-python
+#: code:addons/trilab_cash_fifo/models/account_bank_statement_line.py:0
+msgid ""
+"You cannot delete valuation lines that have been used or have negative "
+"amount."
+msgstr ""
+"Nie możesz usunąć linii wyceny, które zostały użyte lub mają ujemną kwotę."

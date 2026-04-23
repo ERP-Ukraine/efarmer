@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="False">
+
+    <record model="discuss.channel" id="trilab_ksef.ksef_channel">
+        <field name="name">trilab_ksef</field>
+        <field name="description">General announcements for KSeF activities.</field>
+        <field name="group_public_id" ref="base.group_system"/>
+    </record>
+
+</odoo>

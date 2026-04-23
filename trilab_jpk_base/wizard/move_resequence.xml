@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="move_resequence" model="ir.ui.view">
+        <field name="name">move_resequence</field>
+        <field name="model">trilab_jpk_base.move_resequence</field>
+        <field name="arch" type="xml">
+            <form string="Resequence Entries">
+                <group>
+                    <field class="w-auto" name="year" required="True"/>
+                    <field class="w-auto" name="journal_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                </group>
+
+                <footer>
+                    <button string="Run" type="object" name="action_resequence_entries" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_move_resequence" model="ir.actions.act_window">
+        <field name="name">Resequence Entries</field>
+        <field name="res_model">trilab_jpk_base.move_resequence</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_move_resequence"
+              name="Resequence Entries"
+              parent="account.menu_finance_entries"
+              groups="account.group_account_manager"
+              action="action_move_resequence"
+              sequence="999"/>
+</odoo>

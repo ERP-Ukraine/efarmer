@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 {
-    "name": "CMI Activities",
+    "name": "eFarmer Activities",
     "version": "1.1",
     "category": "Custom",
     "author": "VentorTech",

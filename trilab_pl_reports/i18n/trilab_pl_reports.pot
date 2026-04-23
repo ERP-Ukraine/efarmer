@@ -1,0 +1,2084 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* trilab_pl_reports
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-07-23 13:28+0000\n"
+"PO-Revision-Date: 2025-07-23 13:28+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: trilab_pl_reports
+#: model:ir.actions.report,print_report_name:trilab_pl_reports.action_kp_kw_report
+msgid ""
+"'%s_%s' % ((object.currency_id.compare_amounts(object.amount, 0.0) > 0) and "
+"'KP' or 'KW', object.name)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_C_1
+msgid "- Cash On Hand and in Bank Accounts"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_IV_1
+msgid "- Established under the Company's Articles"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B_IV_1
+msgid "- Excise Tax"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_III_1
+msgid "- Fair Value Revaluation"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_C_3
+msgid "- Granted Loans"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_B_3
+msgid "- Grants Loaned"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_A_3
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_B_3
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_A_3
+msgid "- Loans Granted"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_IV_2_1
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_I_2_1
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_I_3_1
+msgid "- Long Term"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_C_2
+msgid "- Other Cash"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_III_3
+msgid "- Other Entities"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_A_4
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_B_4
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_C_4
+msgid "- Other Long Term Financial Assets"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_C_3
+msgid "- Other Monetary Assets"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_A_2
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_B_2
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_C_2
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_A_2
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_B_2
+msgid "- Other Securities"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_A_4
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_B_4
+msgid "- Other Short Term Financial Assets"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_III_2
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_B
+msgid "- Other Subsidiary Entities"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_2
+msgid "- Other Subsidiary Entities Receivables"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_1_A_2
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_2_A_2
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_3_A_2
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_1_A_2
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_2_A_2
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_D_2
+msgid "- Over 12 Months"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_IV_2
+msgid "- Own Shares and Stocks"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B_VI_1
+msgid "- Pension"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_II_1
+msgid ""
+"- Share Premiums - Excess Issue Price over Nominal Shares (Stocks) Value"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_A_1
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_B_1
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_C_1
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_A_1
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_B_1
+msgid "- Shares or Stocks"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_IV_2_2
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_I_2_2
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_I_3_2
+msgid "- Short Term"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_III_1
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_A
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_A_J
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_B_J
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_III_J
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_I_A_1
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_I_B_1
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_K_II_J
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_K_I_J
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_A_J
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_III_J
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_II_J
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_I_A_1
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_I_B_1
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_H_II_J
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_H_I_J
+msgid "- Subsidiary Entities"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_II_J
+msgid "- Subsidiary Entities:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_1_A_1
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_2_A_1
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_3_A_1
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_1_A_1
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_2_A_1
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_D_1
+msgid "- Up to 12 Months"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model_terms:ir.ui.view,arch_db:trilab_pl_reports.kp_kw_report_document
+msgid ""
+"<br/>\n"
+"                        <b>Amount:</b>"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model_terms:ir.ui.view,arch_db:trilab_pl_reports.kp_kw_report_document
+msgid ""
+"<br/>\n"
+"                        <b>Dated:</b>"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model_terms:ir.ui.view,arch_db:trilab_pl_reports.kp_kw_report_document
+msgid ""
+"<br/>\n"
+"                        <b>For:</b>"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_IV
+msgid "Accruals"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_V
+msgid "Accumulated Profit/Loss"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_E
+msgid "Administrative Expenses"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_I_5
+msgid "Advances on Delivery and Services"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_III_1
+msgid "Aktywa_A_III_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_III_2
+msgid "Aktywa_A_III_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_III_3
+msgid "Aktywa_A_III_3"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_II_1_A
+msgid "Aktywa_A_II_1_A"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_II_1_B
+msgid "Aktywa_A_II_1_B"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_II_1_C
+msgid "Aktywa_A_II_1_C"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_II_1_D
+msgid "Aktywa_A_II_1_D"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_II_1_E
+msgid "Aktywa_A_II_1_E"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_II_2
+msgid "Aktywa_A_II_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_II_3
+msgid "Aktywa_A_II_3"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_IV_1
+msgid "Aktywa_A_IV_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_IV_2
+msgid "Aktywa_A_IV_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_IV_3_A_1
+msgid "Aktywa_A_IV_3_A_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_IV_3_A_2
+msgid "Aktywa_A_IV_3_A_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_IV_3_A_3
+msgid "Aktywa_A_IV_3_A_3"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_IV_3_A_4
+msgid "Aktywa_A_IV_3_A_4"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_IV_3_B_1
+msgid "Aktywa_A_IV_3_B_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_IV_3_B_2
+msgid "Aktywa_A_IV_3_B_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_IV_3_B_3
+msgid "Aktywa_A_IV_3_B_3"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_IV_3_B_4
+msgid "Aktywa_A_IV_3_B_4"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_IV_3_C_1
+msgid "Aktywa_A_IV_3_C_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_IV_3_C_2
+msgid "Aktywa_A_IV_3_C_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_IV_3_C_3
+msgid "Aktywa_A_IV_3_C_3"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_IV_3_C_4
+msgid "Aktywa_A_IV_3_C_4"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_IV_4
+msgid "Aktywa_A_IV_4"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_I_1
+msgid "Aktywa_A_I_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_I_2
+msgid "Aktywa_A_I_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_I_3
+msgid "Aktywa_A_I_3"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_I_4
+msgid "Aktywa_A_I_4"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_V_1
+msgid "Aktywa_A_V_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_A_V_2
+msgid "Aktywa_A_V_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_III_1_A_1
+msgid "Aktywa_B_III_1_A_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_III_1_A_2
+msgid "Aktywa_B_III_1_A_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_III_1_A_3
+msgid "Aktywa_B_III_1_A_3"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_III_1_A_4
+msgid "Aktywa_B_III_1_A_4"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_III_1_B_1
+msgid "Aktywa_B_III_1_B_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_III_1_B_2
+msgid "Aktywa_B_III_1_B_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_III_1_B_3
+msgid "Aktywa_B_III_1_B_3"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_III_1_B_4
+msgid "Aktywa_B_III_1_B_4"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_III_1_C_1
+msgid "Aktywa_B_III_1_C_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_III_1_C_2
+msgid "Aktywa_B_III_1_C_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_III_1_C_3
+msgid "Aktywa_B_III_1_C_3"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_III_2
+msgid "Aktywa_B_III_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_II_1_A_1
+msgid "Aktywa_B_II_1_A_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_II_1_A_2
+msgid "Aktywa_B_II_1_A_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_II_1_B
+msgid "Aktywa_B_II_1_B"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_II_2_A_1
+msgid "Aktywa_B_II_2_A_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_II_2_A_2
+msgid "Aktywa_B_II_2_A_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_II_2_B
+msgid "Aktywa_B_II_2_B"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_II_3_A_1
+msgid "Aktywa_B_II_3_A_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_II_3_A_2
+msgid "Aktywa_B_II_3_A_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_II_3_B
+msgid "Aktywa_B_II_3_B"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_II_3_C
+msgid "Aktywa_B_II_3_C"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_II_3_D
+msgid "Aktywa_B_II_3_D"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_IV
+msgid "Aktywa_B_IV"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_I_1
+msgid "Aktywa_B_I_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_I_2
+msgid "Aktywa_B_I_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_I_3
+msgid "Aktywa_B_I_3"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_I_4
+msgid "Aktywa_B_I_4"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_B_I_5
+msgid "Aktywa_B_I_5"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_C
+msgid "Aktywa_C"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Aktywa_D
+msgid "Aktywa_D"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:ir.model.fields.selection,name:trilab_pl_reports.selection__pl_journal_report_wizard__target_move__all
+msgid "All Entries"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:ir.model.fields.selection,name:trilab_pl_reports.selection__pl_journal_report_wizard__target_move__posted
+msgid "All Posted Entries"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa
+msgid "Assets Total"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_II_2
+msgid "Assets under Construction"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_II_3
+msgid "Assets under Construction Advances"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.column,name:trilab_pl_reports.trilab_balance_sheet_balance
+#: model:account.report.column,name:trilab_pl_reports.trilab_pl_CIT_balance
+#: model:account.report.column,name:trilab_pl_reports.trilab_pl_RZiSKalk_balance
+#: model:account.report.column,name:trilab_pl_reports.trilab_pl_RZiSPor_balance
+msgid "Balance"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model_terms:ir.ui.view,arch_db:trilab_pl_reports.kp_kw_report_document
+msgid "CASH IN PROOF KP:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model_terms:ir.ui.view,arch_db:trilab_pl_reports.kp_kw_report_document
+msgid "CASH OUT PROOF KW:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_CIT_revenue_tax
+msgid "CIT Tax Base"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_C
+msgid "Called Up Share Capital (fund) Not Paid"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model_terms:ir.ui.view,arch_db:trilab_pl_reports.journal_wizard
+msgid "Cancel"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model_terms:ir.ui.view,arch_db:trilab_pl_reports.kp_kw_report_document
+msgid "Cashier's signature:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:ir.model.fields,field_description:trilab_pl_reports.field_pl_journal_report_wizard__company_id
+msgid "Company"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_CIT_expenses
+msgid "Costs"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:ir.model.fields,field_description:trilab_pl_reports.field_pl_journal_report_wizard__create_uid
+#: model:ir.model.fields,field_description:trilab_pl_reports.field_report_trilab_pl_reports_pl_journal_report__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:ir.model.fields,field_description:trilab_pl_reports.field_pl_journal_report_wizard__create_date
+#: model:ir.model.fields,field_description:trilab_pl_reports.field_report_trilab_pl_reports_pl_journal_report__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_A
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_II_3_A
+msgid "Credits and Loans"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B
+msgid "Current Assets"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model_terms:ir.ui.view,arch_db:trilab_pl_reports.journal_wizard
+msgid "Dates"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_B
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_II_3_B
+msgid "Debt Securities Issuance"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_I_1
+msgid "Deferred Income Tax"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_V_1
+msgid "Deferred Income Tax Assets"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_E
+msgid "Delivery and Services Advances Received"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_1_A
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_2_A
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_D
+msgid "Delivery and Services, with maturity:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B_I
+msgid "Depreciation"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_I_1
+msgid "Development Costs"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:ir.model.fields,field_description:trilab_pl_reports.field_pl_journal_report_wizard__display_name
+#: model:ir.model.fields,field_description:trilab_pl_reports.field_report_trilab_pl_reports_pl_journal_report__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_H_II
+msgid "Disposal Loss on Financial Assets, including:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_I
+msgid "Dividends and Shares in Profits, including:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_I
+msgid "Dividends and Shares, including:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:ir.model.fields,field_description:trilab_pl_reports.field_pl_journal_report_wizard__date_to
+msgid "End Date"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A
+msgid "Equity (own fund)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model_terms:ir.ui.view,arch_db:trilab_pl_reports.journal_wizard
+msgid "Export PDF"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model_terms:ir.ui.view,arch_db:trilab_pl_reports.journal_wizard
+msgid "Export XLSX"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_III
+msgid "Financial Assets Disposal Gain, including:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_III
+msgid "Financial Assets Gain on disposal, including:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_K_II
+msgid "Financial Assets Loss on disposal, including:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_IV
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_K_III
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_IV
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_H_III
+msgid "Financial Assets Revaluation"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_K
+msgid "Financial Expenses"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J
+msgid "Financial Revenue"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G
+msgid "Financial Revenues"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_H
+msgid "Financial expenses"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_I_3
+msgid "Finished Products"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_II_1
+msgid "Fixed Assets"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_II
+msgid "Fixed Tangible Assets"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model_terms:ir.ui.view,arch_db:trilab_pl_reports.kp_kw_report_document
+msgid "From:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_C
+msgid "Funds and Other Pecuniary Assets"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_G_I
+msgid "Gain on Disposal Non Financial Fixed Assets"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_I_4
+msgid "Goods"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_A_II
+msgid "Goods Net Sale Revenue"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_A_IV
+msgid "Goods Sale Net Revenue"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_I_2
+msgid "Goodwill"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_I
+msgid "Gross Profit/Loss (F+G-H)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_L
+msgid "Gross Profit/Loss (I+J-K)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:ir.model.fields,field_description:trilab_pl_reports.field_pl_journal_report_wizard__id
+#: model:ir.model.fields,field_description:trilab_pl_reports.field_report_trilab_pl_reports_pl_journal_report__id
+msgid "ID"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3_C
+msgid "In other Entities"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_CIT_income
+msgid "Income"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_M
+msgid "Income Tax"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_J
+msgid "Income tax"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_I
+msgid "Initial Capital (fund)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_I
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_2
+msgid "Intangible Assets"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_I_4
+msgid "Intangible Assets Advances"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_II
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_K_I
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_II
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_H_I
+msgid "Interest, including:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_I
+msgid "Inventory"
+msgstr ""
+
+#. module: trilab_pl_reports
+#. odoo-python
+#: code:addons/trilab_pl_reports/wizard/pl_journal.py:0
+msgid "Journal Report"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:ir.model.fields,field_description:trilab_pl_reports.field_pl_journal_report_wizard__journal_ids
+#: model:ir.ui.menu,name:trilab_pl_reports.menu_pl_journal
+msgid "Journals"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:ir.actions.report,name:trilab_pl_reports.action_kp_kw_report
+msgid "KP/KW"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_II_1_A
+msgid "Landed Properties (perpetual land usufruct rights)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:ir.model.fields,field_description:trilab_pl_reports.field_pl_journal_report_wizard__write_uid
+#: model:ir.model.fields,field_description:trilab_pl_reports.field_report_trilab_pl_reports_pl_journal_report__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:ir.model.fields,field_description:trilab_pl_reports.field_pl_journal_report_wizard__write_date
+#: model:ir.model.fields,field_description:trilab_pl_reports.field_report_trilab_pl_reports_pl_journal_report__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B
+msgid "Liabilities and Provisions for Liabilities"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3
+msgid "Liabilities to Other Entities"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_V
+msgid "Long Term Accruals"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_3
+msgid "Long Term Financial Assets"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV
+msgid "Long Term Investments"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_II
+msgid "Long Term Liabilities"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_III
+msgid "Long Term Receivables"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_I_1
+msgid "Materials"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B_II
+msgid "Materials and Energy Consumption"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_IV_1
+msgid "Negative Goodwill"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_A_I
+msgid "Net Product Sales"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_CIT_revenue
+msgid "Net Profit"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_VII
+msgid "Net Profit written off during the Financial Year (negative value)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_VI
+msgid "Net Profit/Loss"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_L
+msgid "Net Profit/Loss (I-J-K)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_O
+msgid "Net Profit/Loss (L-M-N)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_G_III
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_H_II
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_D_III
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_E_II
+msgid "Non Financial Assets Revaluation"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_E_I
+msgid "Non Financial Fixed Assets Disposal Loss"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_H_I
+msgid "Non Financial Fixed Assets Loss on Disposal"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_D_I
+msgid "Non Financial Fixed Assets Profit Disposal"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_CIT_income_ntax
+msgid "Non Taxable Income"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_F
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_II_3_D
+msgid "Note Payable"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_F
+msgid "Operating Activity Profit/Loss (C+D-E)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_I
+msgid "Operating Activity Profit/Loss(F+G-H)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B
+msgid "Operating Expenses"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_1_B
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_2_B
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_3_C
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_1_B
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_2_B
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_I
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_II_3_E
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_V
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_K_IV
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_V
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_H_IV
+msgid "Other"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_V_2
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_IV_2
+msgid "Other Accruals"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_B
+msgid "Other Entities"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_3
+msgid "Other Entities Receivables"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_I_B
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_I_B
+msgid "Other Entities, including:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_C
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_II_3_C
+msgid "Other Financial Liabilities"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_II_1_E
+msgid "Other Fixed Assets"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_I_3
+msgid "Other Intangible Assets"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_4
+msgid "Other Long Term Investments"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_N
+msgid "Other Mandatory Profit Decrease (loss increase)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_K
+msgid "Other Mandatory Profit Reductions (loss increase)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_H
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_H_III
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_E
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_E_III
+msgid "Other Operating Costs"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B_VII
+msgid "Other Operating Expenses"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_G
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_G_IV
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_D_IV
+msgid "Other Operating Revenue"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_I_3
+msgid "Other Provisions"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_IV
+msgid "Other Reserve Capitals (funds), including:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_2
+msgid "Other Short Term Investments"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_2
+msgid "Other Subsidiary Entities Liabilities"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_D
+msgid "Other operating revenues"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B_III
+msgid "Outsourced Services"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_D
+msgid "Own Shares and Stocks"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report,name:trilab_pl_reports.trilab_balance_sheet
+msgid "PL Balance Sheet"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report,name:trilab_pl_reports.trilab_pl_CIT
+msgid "PL CIT"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:ir.actions.act_window,name:trilab_pl_reports.action_view_pl_journal_wizard
+#: model:ir.actions.report,name:trilab_pl_reports.action_print_report_pl_journal_html
+#: model:ir.model,name:trilab_pl_reports.model_report_trilab_pl_reports_pl_journal_report
+#: model:ir.ui.menu,name:trilab_pl_reports.menu_action_pl_journal_report
+msgid "PL Journal Report"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model_terms:ir.ui.view,arch_db:trilab_pl_reports.journal_wizard
+msgid "PL Journal Report Options"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:ir.actions.report,name:trilab_pl_reports.action_print_report_pl_journal_pdf
+msgid "PL Journal Report PDF"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:ir.model,name:trilab_pl_reports.model_pl_journal_report_wizard
+msgid "PL Journal Report Wizard"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:ir.actions.report,name:trilab_pl_reports.action_print_report_pl_journal_xlsx
+msgid "PL Journal Report XLSX"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report,name:trilab_pl_reports.trilab_pl_RZiSKalk
+msgid "PL Profit and Loss (calculation variant) RZiSKalk"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report,name:trilab_pl_reports.trilab_pl_RZiSPor
+msgid "PL Profit and Loss (comparative variant) RZiSPor"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_A_I
+msgid "Pasywa_A_I"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_A_II
+msgid "Pasywa_A_II"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_A_III
+msgid "Pasywa_A_III"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_A_III_1
+msgid "Pasywa_A_III_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_A_II_1
+msgid "Pasywa_A_II_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_A_IV
+msgid "Pasywa_A_IV"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_A_IV_1
+msgid "Pasywa_A_IV_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_A_IV_2
+msgid "Pasywa_A_IV_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_A_V
+msgid "Pasywa_A_V"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_A_VI
+msgid "Pasywa_A_VI"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_A_VII
+msgid "Pasywa_A_VII"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_III_1_A_1
+msgid "Pasywa_B_III_1_A_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_III_1_A_2
+msgid "Pasywa_B_III_1_A_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_III_1_B
+msgid "Pasywa_B_III_1_B"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_III_2_A_1
+msgid "Pasywa_B_III_2_A_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_III_2_A_2
+msgid "Pasywa_B_III_2_A_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_III_2_B
+msgid "Pasywa_B_III_2_B"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_III_3_A
+msgid "Pasywa_B_III_3_A"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_III_3_B
+msgid "Pasywa_B_III_3_B"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_III_3_C
+msgid "Pasywa_B_III_3_C"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_III_3_D_1
+msgid "Pasywa_B_III_3_D_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_III_3_D_2
+msgid "Pasywa_B_III_3_D_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_III_3_E
+msgid "Pasywa_B_III_3_E"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_III_3_F
+msgid "Pasywa_B_III_3_F"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_III_3_G
+msgid "Pasywa_B_III_3_G"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_III_3_H
+msgid "Pasywa_B_III_3_H"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_III_3_I
+msgid "Pasywa_B_III_3_I"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_III_4
+msgid "Pasywa_B_III_4"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_II_1
+msgid "Pasywa_B_II_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_II_2
+msgid "Pasywa_B_II_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_II_3_A
+msgid "Pasywa_B_II_3_A"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_II_3_B
+msgid "Pasywa_B_II_3_B"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_II_3_C
+msgid "Pasywa_B_II_3_C"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_II_3_D
+msgid "Pasywa_B_II_3_D"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_II_3_E
+msgid "Pasywa_B_II_3_E"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_IV_1
+msgid "Pasywa_B_IV_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_IV_2_1
+msgid "Pasywa_B_IV_2_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_IV_2_2
+msgid "Pasywa_B_IV_2_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_I_1
+msgid "Pasywa_B_I_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_I_2_1
+msgid "Pasywa_B_I_2_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_I_2_2
+msgid "Pasywa_B_I_2_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_I_3_1
+msgid "Pasywa_B_I_3_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.Pasywa_B_I_3_2
+msgid "Pasywa_B_I_3_2"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model_terms:ir.ui.view,arch_db:trilab_pl_reports.kp_kw_report_document
+msgid "Payer signature:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_II_1_C
+msgid "Plants and Machinery"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_A_II
+msgid ""
+"Product Inventory Change (increase - positive value, decrease - negative "
+"value)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_A_I
+msgid "Product Sale Net Revenue"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_A_III
+msgid "Production for Own Needs Cost"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_B
+msgid "Products and Goods Sale Cost, including:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_A
+msgid "Products and Goods Sale Net Revenue, including:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_II_1_B
+msgid ""
+"Properties, Premises, Property Interests and Civil Engineering Constructions"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_I_2
+msgid "Provision for Pensions and Similar Benefits"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_I
+msgid "Provisions for Liabilities"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_A_I
+msgid "RZiSKalk_A_I"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_A_II
+msgid "RZiSKalk_A_II"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_A_J
+msgid "RZiSKalk_A_J"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_B_I
+msgid "RZiSKalk_B_I"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_B_II
+msgid "RZiSKalk_B_II"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_B_J
+msgid "RZiSKalk_B_J"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_D
+msgid "RZiSKalk_D"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_E
+msgid "RZiSKalk_E"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_G_I
+msgid "RZiSKalk_G_I"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_G_II
+msgid "RZiSKalk_G_II"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_G_III
+msgid "RZiSKalk_G_III"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_G_IV
+msgid "RZiSKalk_G_IV"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_H_I
+msgid "RZiSKalk_H_I"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_H_II
+msgid "RZiSKalk_H_II"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_H_III
+msgid "RZiSKalk_H_III"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_J_II
+msgid "RZiSKalk_J_II"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_J_III
+msgid "RZiSKalk_J_III"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_J_III_J
+msgid "RZiSKalk_J_III_J"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_J_II_J
+msgid "RZiSKalk_J_II_J"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_J_IV
+msgid "RZiSKalk_J_IV"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_J_I_A
+msgid "RZiSKalk_J_I_A"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_J_I_A_1
+msgid "RZiSKalk_J_I_A_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_J_I_B
+msgid "RZiSKalk_J_I_B"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_J_I_B_1
+msgid "RZiSKalk_J_I_B_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_J_V_poz
+msgid "RZiSKalk_J_V_poz"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_J_V_rk
+msgid "RZiSKalk_J_V_rk"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_K_I
+msgid "RZiSKalk_K_I"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_K_II
+msgid "RZiSKalk_K_II"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_K_III
+msgid "RZiSKalk_K_III"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_K_II_J
+msgid "RZiSKalk_K_II_J"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_K_IV_poz
+msgid "RZiSKalk_K_IV_poz"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_K_IV_rk
+msgid "RZiSKalk_K_IV_rk"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_K_I_J
+msgid "RZiSKalk_K_I_J"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_M
+msgid "RZiSKalk_M"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSKalk_N
+msgid "RZiSKalk_N"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_A_I
+msgid "RZiSPor_A_I"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_A_II
+msgid "RZiSPor_A_II"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_A_III
+msgid "RZiSPor_A_III"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_A_IV
+msgid "RZiSPor_A_IV"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_A_J
+msgid "RZiSPor_A_J"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_B_I
+msgid "RZiSPor_B_I"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_B_II
+msgid "RZiSPor_B_II"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_B_III
+msgid "RZiSPor_B_III"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_B_IV
+msgid "RZiSPor_B_IV"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_B_IV_1
+msgid "RZiSPor_B_IV_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_B_V
+msgid "RZiSPor_B_V"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_B_VI
+msgid "RZiSPor_B_VI"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_B_VII
+msgid "RZiSPor_B_VII"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_B_VIII
+msgid "RZiSPor_B_VIII"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_B_VI_1
+msgid "RZiSPor_B_VI_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_D_I
+msgid "RZiSPor_D_I"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_D_II
+msgid "RZiSPor_D_II"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_D_III
+msgid "RZiSPor_D_III"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_D_IV
+msgid "RZiSPor_D_IV"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_E_I
+msgid "RZiSPor_E_I"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_E_II
+msgid "RZiSPor_E_II"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_E_III
+msgid "RZiSPor_E_III"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_G_II
+msgid "RZiSPor_G_II"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_G_III
+msgid "RZiSPor_G_III"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_G_III_J
+msgid "RZiSPor_G_III_J"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_G_II_J
+msgid "RZiSPor_G_II_J"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_G_IV
+msgid "RZiSPor_G_IV"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_G_I_A
+msgid "RZiSPor_G_I_A"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_G_I_A_1
+msgid "RZiSPor_G_I_A_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_G_I_B
+msgid "RZiSPor_G_I_B"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_G_I_B_1
+msgid "RZiSPor_G_I_B_1"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_G_V_poz
+msgid "RZiSPor_G_V_poz"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_G_V_rk
+msgid "RZiSPor_G_V_rk"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_H_I
+msgid "RZiSPor_H_I"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_H_II
+msgid "RZiSPor_H_II"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_H_III
+msgid "RZiSPor_H_III"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_H_II_J
+msgid "RZiSPor_H_II_J"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_H_IV_poz
+msgid "RZiSPor_H_IV_poz"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_H_IV_rk
+msgid "RZiSPor_H_IV_rk"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_H_I_J
+msgid "RZiSPor_H_I_J"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_J
+msgid "RZiSPor_J"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.account.tag,name:trilab_pl_reports.RZiSPor_K
+msgid "RZiSPor_K"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_IV_1
+msgid "Real Estate"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_3_D
+msgid "Receivables claimed at Court"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model_terms:ir.ui.view,arch_db:trilab_pl_reports.kp_kw_report_document
+msgid "Receiver's signature:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_H
+msgid "Remunerations"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_III
+msgid "Revaluation Reserve (fund), including:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_A
+msgid "Sale and Equivalent Net Revenue, including:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_C
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_C
+msgid "Sales Gross Profit/Loss (A-B)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_F
+msgid "Sales Profit/Loss (C-D-E)"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_D
+msgid "Sell Costs"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_I_2
+msgid "Semi Finished Products and Products in Progress"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_IV
+msgid "Short Term Accruals"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1
+msgid "Short Term Financial Assets"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III
+msgid "Short Term Investments"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II
+msgid "Short Term Receivables"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III
+msgid "Short Term liabilities"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B_VI
+msgid "Social Insurance and Other Benefits, including:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_B_II
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B_VIII
+msgid "Sold Goods Value"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_B_I
+msgid "Sold Products Production Costs"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_4
+msgid "Special Funds"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:ir.model.fields,field_description:trilab_pl_reports.field_pl_journal_report_wizard__date_from
+msgid "Start Date"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_III_1_A
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_II_1
+msgid "Subsidiary Entities"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_1
+msgid "Subsidiary Entities Liabilities"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_1
+msgid "Subsidiary Entities Receivables"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_II_2
+msgid "Subsidiary Entities in which the Entity has Equity Involvement"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_J_I_A
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_G_I_A
+msgid "Subsidiary Entities, including:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSKalk_G_II
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_D_II
+msgid "Subsidies"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_A_II
+msgid "Supplementary Capital (fund), including:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:ir.model.fields,field_description:trilab_pl_reports.field_pl_journal_report_wizard__target_move
+msgid "Target Moves"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_CIT_expenses_tax
+msgid "Tax Deductible Costs"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_CIT_expenses_ntax
+msgid "Tax Non Deductible Costs"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_CIT_income_tax
+msgid "Taxable Income"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B_IV
+msgid "Taxes And Charges, including:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_III_3_G
+msgid ""
+"Taxes, Customs, Social and Health Insurance and Other Public Law Titles"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_3_B
+msgid ""
+"Taxes, Grants, Customs, Social and Health Insurance and Other Public Law "
+"Titles"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa_B_II_3
+msgid "To other Entities"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model_terms:ir.ui.view,arch_db:trilab_pl_reports.kp_kw_report_document
+msgid "To:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Pasywa
+msgid "Total Liabilities"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_1_A
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_2_A
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_B_II_3_A
+msgid "Trade Receivables, with Maturity:"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_bs_Aktywa_A_II_1_D
+msgid "Transport Equipment"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model_terms:ir.ui.view,arch_db:trilab_pl_reports.journal_wizard
+msgid "View Report"
+msgstr ""
+
+#. module: trilab_pl_reports
+#: model:account.report.line,name:trilab_pl_reports.trilab_pl_RZiSPor_B_V
+msgid "Wages"
+msgstr ""

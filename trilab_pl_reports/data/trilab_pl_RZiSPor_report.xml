@@ -1,0 +1,513 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="trilab_pl_RZiSPor" model="account.report">
+        <field name="name">PL Profit and Loss (comparative variant) RZiSPor</field>
+        <field name="root_report_id" ref="account_reports.profit_and_loss"/>
+        <field name="country_id" ref="base.pl"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_analytic" eval="True"/>
+        <field name="filter_analytic_groupby" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_journals" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="default_opening_date_filter">this_year</field>
+        <field name="column_ids">
+            <record id="trilab_pl_RZiSPor_balance" model="account.report.column">
+                <field name="name">Balance</field>
+                <field name="expression_label">balance</field>
+            </record>
+        </field>
+        <field name="line_ids">
+            <record id="trilab_pl_RZiSPor_A" model="account.report.line">
+                <field name="name">Sale and Equivalent Net Revenue, including:</field>
+                <field name="code">RZiSPor_A</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSPor_A_I.balance + RZiSPor_A_II.balance + RZiSPor_A_III.balance + RZiSPor_A_IV.balance</field>
+                <field name="children_ids">
+                    <record id="trilab_pl_RZiSPor_A_J" model="account.report.line">
+                        <field name="name">- Subsidiary Entities</field>
+                        <field name="code">RZiSPor_A_J</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_A_J'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_A_I" model="account.report.line">
+                        <field name="name">Net Product Sales</field>
+                        <field name="code">RZiSPor_A_I</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_A_I'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_A_II" model="account.report.line">
+                        <field name="name">Product Inventory Change (increase - positive value, decrease - negative value)</field>
+                        <field name="code">RZiSPor_A_II</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_A_II'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_A_III" model="account.report.line">
+                        <field name="name">Production for Own Needs Cost</field>
+                        <field name="code">RZiSPor_A_III</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_A_III'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_A_IV" model="account.report.line">
+                        <field name="name">Goods Sale Net Revenue</field>
+                        <field name="code">RZiSPor_A_IV</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_A_IV'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                </field>
+            </record>
+            <record id="trilab_pl_RZiSPor_B" model="account.report.line">
+                <field name="name">Operating Expenses</field>
+                <field name="code">RZiSPor_B</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSPor_B_I.balance + RZiSPor_B_II.balance + RZiSPor_B_III.balance + RZiSPor_B_IV.balance + RZiSPor_B_V.balance + RZiSPor_B_VI.balance + RZiSPor_B_VII.balance + RZiSPor_B_VIII.balance</field>
+                <field name="children_ids">
+                    <record id="trilab_pl_RZiSPor_B_I" model="account.report.line">
+                        <field name="name">Depreciation</field>
+                        <field name="code">RZiSPor_B_I</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_B_I'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_B_II" model="account.report.line">
+                        <field name="name">Materials and Energy Consumption</field>
+                        <field name="code">RZiSPor_B_II</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_B_II'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_B_III" model="account.report.line">
+                        <field name="name">Outsourced Services</field>
+                        <field name="code">RZiSPor_B_III</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_B_III'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_B_IV" model="account.report.line">
+                        <field name="name">Taxes And Charges, including:</field>
+                        <field name="code">RZiSPor_B_IV</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_B_IV'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_B_IV_1" model="account.report.line">
+                        <field name="name">- Excise Tax</field>
+                        <field name="code">RZiSPor_B_IV_1</field>
+                        <field name="hierarchy_level" eval="2"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_B_IV_1'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_B_V" model="account.report.line">
+                        <field name="name">Wages</field>
+                        <field name="code">RZiSPor_B_V</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_B_V'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_B_VI" model="account.report.line">
+                        <field name="name">Social Insurance and Other Benefits, including:</field>
+                        <field name="code">RZiSPor_B_VI</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_B_VI'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_B_VI_1" model="account.report.line">
+                         <field name="name">- Pension</field>
+                         <field name="code">RZiSPor_B_VI_1</field>
+                         <field name="hierarchy_level" eval="2"/>
+                         <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_B_VI_1'))])</field>
+                         <field name="groupby">account_id</field>
+                         <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_B_VII" model="account.report.line">
+                        <field name="name">Other Operating Expenses</field>
+                        <field name="code">RZiSPor_B_VII</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_B_VII'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_B_VIII" model="account.report.line">
+                        <field name="name">Sold Goods Value</field>
+                        <field name="code">RZiSPor_B_VIII</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_B_VIII'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                </field>
+            </record>
+            <record id="trilab_pl_RZiSPor_C" model="account.report.line">
+                <field name="name">Sales Gross Profit/Loss (A-B)</field>
+                <field name="code">RZiSPor_C</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSPor_A.balance - RZiSPor_B.balance</field>
+            </record>
+            <record id="trilab_pl_RZiSPor_D" model="account.report.line">
+                <field name="name">Other operating revenues</field>
+                <field name="code">RZiSPor_D</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSPor_D_I.balance + RZiSPor_D_II.balance + RZiSPor_D_III.balance + RZiSPor_D_IV.balance</field>
+                <field name="children_ids">
+                    <record id="trilab_pl_RZiSPor_D_I" model="account.report.line">
+                        <field name="name">Non Financial Fixed Assets Profit Disposal</field>
+                        <field name="code">RZiSPor_D_I</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                        <field name="expression_ids">
+                            <record id="trilab_pl_RZiSPor_D_I_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">domain</field>
+                                <field name="formula" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_D_I'))]"/>
+                                <field name="subformula">(abs(sum)-sum)/2</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_D_II" model="account.report.line">
+                        <field name="name">Subsidies</field>
+                        <field name="code">RZiSPor_D_II</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_D_II'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_D_III" model="account.report.line">
+                        <field name="name">Non Financial Assets Revaluation</field>
+                        <field name="code">RZiSPor_D_III</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_D_III'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_D_IV" model="account.report.line">
+                        <field name="name">Other Operating Revenue</field>
+                        <field name="code">RZiSPor_D_IV</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_D_IV'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                </field>
+            </record>
+            <record id="trilab_pl_RZiSPor_E" model="account.report.line">
+                <field name="name">Other Operating Costs</field>
+                <field name="code">RZiSPor_E</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSPor_E_I.balance + RZiSPor_E_II.balance + RZiSPor_E_III.balance</field>
+                <field name="children_ids">
+                    <record id="trilab_pl_RZiSPor_E_I" model="account.report.line">
+                        <field name="name">Non Financial Fixed Assets Disposal Loss</field>
+                        <field name="code">RZiSPor_E_I</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                        <field name="expression_ids">
+                            <record id="trilab_pl_RZiSPor_E_I_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">domain</field>
+                                <field name="formula" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_E_I'))]"/>
+                                <field name="subformula">(abs(sum)+sum)/2</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_E_II" model="account.report.line">
+                        <field name="name">Non Financial Assets Revaluation</field>
+                        <field name="code">RZiSPor_E_II</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_E_II'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_E_III" model="account.report.line">
+                        <field name="name">Other Operating Costs</field>
+                        <field name="code">RZiSPor_E_III</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_E_III'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                </field>
+            </record>
+            <record id="trilab_pl_RZiSPor_F" model="account.report.line">
+                <field name="name">Operating Activity Profit/Loss (C+D-E)</field>
+                <field name="code">RZiSPor_F</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSPor_C.balance + RZiSPor_D.balance - RZiSPor_E.balance</field>
+            </record>
+            <record id="trilab_pl_RZiSPor_G" model="account.report.line">
+                <field name="name">Financial Revenues</field>
+                <field name="code">RZiSPor_G</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSPor_G_I.balance + RZiSPor_G_II.balance + RZiSPor_G_III.balance + RZiSPor_G_IV.balance + RZiSPor_G_V.balance</field>
+                <field name="children_ids">
+                    <record id="trilab_pl_RZiSPor_G_I" model="account.report.line">
+                        <field name="name">Dividends and Shares in Profits, including:</field>
+                        <field name="code">RZiSPor_G_I</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="aggregation_formula">RZiSPor_G_I_A.balance + RZiSPor_G_I_B.balance</field>
+                        <field name="children_ids">
+                            <record id="trilab_pl_RZiSPor_G_I_A" model="account.report.line">
+                                <field name="name">Subsidiary Entities, including:</field>
+                                <field name="code">RZiSPor_G_I_A</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_I_A'))])</field>
+                                <field name="groupby">account_id</field>
+                                <field name="foldable" eval="True"/>
+                            </record>
+                            <record id="trilab_pl_RZiSPor_G_I_A_1" model="account.report.line">
+                                 <field name="name">- Subsidiary Entities</field>
+                                 <field name="code">RZiSPor_G_I_A_1</field>
+                                 <field name="hierarchy_level" eval="3"/>
+                                 <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_I_A_1'))])</field>
+                                 <field name="groupby">account_id</field>
+                                 <field name="foldable" eval="True"/>
+                            </record>
+                            <record id="trilab_pl_RZiSPor_G_I_B" model="account.report.line">
+                                <field name="name">Other Entities, including:</field>
+                                <field name="code">RZiSPor_G_I_B</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_I_B'))])</field>
+                                <field name="groupby">account_id</field>
+                                <field name="foldable" eval="True"/>
+                            </record>
+                            <record id="trilab_pl_RZiSPor_G_I_B_1" model="account.report.line">
+                                <field name="name">- Subsidiary Entities</field>
+                                <field name="code">RZiSPor_G_I_B_1</field>
+                                <field name="hierarchy_level" eval="3"/>
+                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_I_B_1'))])</field>
+                                <field name="groupby">account_id</field>
+                                <field name="foldable" eval="True"/>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_G_II" model="account.report.line">
+                        <field name="name">Interest, including:</field>
+                        <field name="code">RZiSPor_G_II</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_II'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_G_II_J" model="account.report.line">
+                         <field name="name">- Subsidiary Entities</field>
+                         <field name="code">RZiSPor_G_II_J</field>
+                         <field name="hierarchy_level" eval="2"/>
+                         <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_II_J'))])</field>
+                         <field name="groupby">account_id</field>
+                         <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_G_III" model="account.report.line">
+                        <field name="name">Financial Assets Disposal Gain, including:</field>
+                        <field name="code">RZiSPor_G_III</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                        <field name="expression_ids">
+                            <record id="trilab_pl_RZiSPor_G_III_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">domain</field>
+                                <field name="formula" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_III'))]"/>
+                                <field name="subformula">(abs(sum)-sum)/2</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_G_III_J" model="account.report.line">
+                           <field name="name">- Subsidiary Entities</field>
+                           <field name="code">RZiSPor_G_III_J</field>
+                           <field name="hierarchy_level" eval="1"/>
+                           <field name="groupby">account_id</field>
+                           <field name="foldable" eval="True"/>
+                           <field name="expression_ids">
+                                <record id="trilab_pl_RZiSPor_G_III_J_balance" model="account.report.expression">
+                                   <field name="label">balance</field>
+                                   <field name="engine">domain</field>
+                                   <field name="formula" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_III_J'))]"/>
+                                   <field name="subformula">(abs(sum)-sum)/2</field>
+                                   <field name="green_on_positive" eval="False"/>
+                                </record>
+                           </field>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_G_IV" model="account.report.line">
+                        <field name="name">Financial Assets Revaluation</field>
+                        <field name="code">RZiSPor_G_IV</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_IV'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_G_V" model="account.report.line">
+                        <field name="name">Other</field>
+                        <field name="code">RZiSPor_G_V</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="foldable" eval="True"/>
+                        <field name="expression_ids">
+                            <record id="trilab_pl_RZiSPor_G_V_rk_balance" model="account.report.expression">
+                                <field name="label">balance1</field>
+                                <field name="engine">domain</field>
+                                <field name="formula" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_V_rk'))]"/>
+                                <field name="subformula">(abs(sum)-sum)/2</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                            <record id="trilab_pl_RZiSPor_G_V_poz_balance" model="account.report.expression">
+                                <field name="label">balance2</field>
+                                <field name="engine">domain</field>
+                                <field name="formula" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_G_V_poz'))]"/>
+                                <field name="subformula">-sum</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                            <record id="trilab_pl_RZiSPor_G_V_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">aggregation</field>
+                                <field name="formula">RZiSPor_G_V.balance1 + RZiSPor_G_V.balance2</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                </field>
+            </record>
+            <record id="trilab_pl_RZiSPor_H" model="account.report.line">
+                <field name="name">Financial expenses</field>
+                <field name="code">RZiSPor_H</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSPor_H_I.balance + RZiSPor_H_II.balance + RZiSPor_H_III.balance + RZiSPor_H_IV.balance</field>
+                <field name="children_ids">
+                    <record id="trilab_pl_RZiSPor_H_I" model="account.report.line">
+                        <field name="name">Interest, including:</field>
+                        <field name="code">RZiSPor_H_I</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_H_I'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_H_I_J" model="account.report.line">
+                        <field name="name">- Subsidiary Entities</field>
+                        <field name="code">RZiSPor_H_I_J</field>
+                        <field name="hierarchy_level" eval="2"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_H_I_J'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_H_II" model="account.report.line">
+                        <field name="name">Disposal Loss on Financial Assets, including:</field>
+                        <field name="code">RZiSPor_H_II</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                        <field name="expression_ids">
+                            <record id="trilab_pl_RZiSPor_H_II_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">domain</field>
+                                <field name="formula" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_H_II'))]"/>
+                                <field name="subformula">(abs(sum)+sum)/2</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_H_II_J" model="account.report.line">
+                        <field name="name">- Subsidiary Entities</field>
+                        <field name="code">RZiSPor_H_II_J</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                        <field name="expression_ids">
+                            <record id="trilab_pl_RZiSPor_H_II_J_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">domain</field>
+                                <field name="formula" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_H_II_J'))]"/>
+                                <field name="subformula">(abs(sum)+sum)/2</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_H_III" model="account.report.line">
+                        <field name="name">Financial Assets Revaluation</field>
+                        <field name="code">RZiSPor_H_III</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_H_III'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSPor_H_IV" model="account.report.line">
+                        <field name="name">Other</field>
+                        <field name="code">RZiSPor_H_IV</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="foldable" eval="True"/>
+                        <field name="expression_ids">
+                            <record id="trilab_pl_RZiSPor_H_IV_rk_balance" model="account.report.expression">
+                                <field name="label">balance1</field>
+                                <field name="engine">domain</field>
+                                <field name="formula" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_H_IV_rk'))]"/>
+                                <field name="subformula">(abs(sum)+sum)/2</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                            <record id="trilab_pl_RZiSPor_H_IV_poz_balance" model="account.report.expression">
+                                <field name="label">balance2</field>
+                                <field name="engine">domain</field>
+                                <field name="formula" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_H_IV_poz'))]"/>
+                                <field name="subformula">sum</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                            <record id="trilab_pl_RZiSPor_H_IV_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">aggregation</field>
+                                <field name="formula">RZiSPor_H_IV.balance1 + RZiSPor_H_IV.balance2</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                </field>
+            </record>
+            <record id="trilab_pl_RZiSPor_I" model="account.report.line">
+                <field name="name">Gross Profit/Loss (F+G-H)</field>
+                <field name="code">RZiSPor_I</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSPor_F.balance + RZiSPor_G.balance - RZiSPor_H.balance</field>
+            </record>
+            <record id="trilab_pl_RZiSPor_J" model="account.report.line">
+                <field name="name">Income tax</field>
+                <field name="code">RZiSPor_J</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_J'))])</field>
+                <field name="groupby">account_id</field>
+                <field name="foldable" eval="True"/>
+            </record>
+            <record id="trilab_pl_RZiSPor_K" model="account.report.line">
+                <field name="name">Other Mandatory Profit Reductions (loss increase)</field>
+                <field name="code">RZiSPor_K</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSPor_K'))])</field>
+                <field name="groupby">account_id</field>
+                <field name="foldable" eval="True"/>
+            </record>
+            <record id="trilab_pl_RZiSPor_L" model="account.report.line">
+                <field name="name">Net Profit/Loss (I-J-K)</field>
+                <field name="code">RZiSPor_L</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSPor_I.balance - RZiSPor_J.balance - RZiSPor_K.balance</field>
+            </record>
+        </field>
+    </record>
+
+</odoo>

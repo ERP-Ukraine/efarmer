@@ -1,0 +1,1130 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* trilab_invoice
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-07-11 08:39+0000\n"
+"PO-Revision-Date: 2024-07-11 08:39+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "&amp;bull;&amp;nbsp;BIC/SWIFT:"
+msgstr "&amp;bull;&amp;nbsp; BIC/SWIFT:"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
+msgid "<span class=\"fa fa-lg fa-\" title=\"Values set here are company-specific.\"/>"
+msgstr ""
+"<span class=\"fa fa-lg fa-paste\" title=\"Values set here are company-"
+"specific.\"/>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
+msgid ""
+"<span class=\"fa fa-lg fa-building-o\" title=\"Values set here are company-"
+"specific.\" groups=\"base.group_multi_company\"/>"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
+msgid ""
+"<span class=\"fa fa-lg fa-building-o\" title=\"Values set here are company-"
+"specific.\"/>"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_sale_advance_payment_inv_inherit
+msgid "<span class=\"o_form_label\">Convert to </span>"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">NET Amount</span>\n"
+"                                <span groups=\"account.group_show_line_subtotals_tax_included\">GROSS Amount</span>"
+msgstr ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">Celkem bez "
+"DPH</span> <span "
+"groups=\"account.group_show_line_subtotals_tax_included\">HRUBÁ "
+"částka</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">NET Amount</span>\n"
+"                            <span groups=\"account.group_show_line_subtotals_tax_included\">GROSS Amount</span>"
+msgstr ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">Celkem bez "
+"DPH</span> <span "
+"groups=\"account.group_show_line_subtotals_tax_included\">HRUBÁ "
+"částka</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">NET Amount</span>\n"
+"                <span groups=\"account.group_show_line_subtotals_tax_included\">GROSS Amount</span>"
+msgstr ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">Celkem bez "
+"DPH</span> <span "
+"groups=\"account.group_show_line_subtotals_tax_included\">HRUBÁ "
+"částka</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Description</span>"
+msgstr "<span>Popis</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Disc.%</span>"
+msgstr "<span>Sleva %</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>GROSS Amount</span>"
+msgstr "<span>Celkem včetně DPH</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Invoice Date</span>"
+msgstr "<span>Datum faktury</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Invoice Number</span>"
+msgstr "<span>Číslo faktury</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Items after correction:</span>"
+msgstr "<span>Položky po opravě:</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Items prior to correction:</span>"
+msgstr "<span>Položky před opravou:</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>NET Amount</span>"
+msgstr "<span>Celkem bez DPH</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Quantity</span>"
+msgstr "<span>Množství</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Taxes</span>"
+msgstr "<span>DPH</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Unit Price NET</span>"
+msgstr "<span>Cena bez DPH/ks</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Unit price NET after disc.</span>"
+msgstr "<span>Cena bez DPH/ks po slevě</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>VAT Amount</span>"
+msgstr "<span>Částka DPH</span>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<strong class=\"mt-4\">Connected Advance Invoices:</strong>"
+msgstr "<strong class=\"mt-4\">Připojené zálohové faktury:</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<strong class=\"mt-4\">Sale Order Summary:</strong>"
+msgstr "<strong class=\"mt-4\">Souhrn prodejní objednávky:</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<strong class=\"mt-4\">Total after taking into account advances:</strong>"
+msgstr "<strong class=\"mt-4\">Celkem po započtení záloh:</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<strong>Advance Invoice Summary / Amount To Pay:</strong>"
+msgstr "<strong>Shrnutí zálohové faktury / částka k zaplacení:</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<strong>Connected Final Invoices:</strong>"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<strong>Corrected invoice date:</strong>"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<strong>Corrected invoice:</strong>"
+msgstr "<strong>Opravená faktura:</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<strong>Correction reason:</strong>"
+msgstr "<strong>Důvod opravy:</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.tax_summary
+msgid "<strong>GROSS Amount</strong>"
+msgstr "<strong>Celkem</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.tax_summary
+msgid "<strong>NET Amount</strong>"
+msgstr "<strong>Celkem bez DPH</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<strong>Sale Date:</strong>"
+msgstr "<strong>DUZP:</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid ""
+"<strong>Settlement of received advance payment according to tax "
+"rates:</strong>"
+msgstr "<strong>Vypořádání přijaté zálohy dle sazeb daně:</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.tax_summary
+msgid "<strong>Total</strong>"
+msgstr "<strong>Součet</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.tax_summary
+msgid "<strong>VAT Amount</strong>"
+msgstr "<strong>Částka DPH</strong>"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.tax_summary
+msgid "<strong>VAT Rate</strong>"
+msgstr "<strong>Sazba DPH</strong>"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "A line of this move is using a deprecated account, you cannot post it."
+msgstr "Řádek tohoto přesunu používá zastaralý účet, nemůžete jej zaúčtovat."
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_account_move_reversal
+msgid "Account Move Reversal"
+msgstr "Účet Změna pohybu"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_partner_bank_id
+msgid "Account Number"
+msgstr "Číslo účtu"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Add Credit Note PL"
+msgstr "Přidat dobropis PL"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Add a line"
+msgstr "Přidání čáry"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Add a note"
+msgstr "Přidání poznámky"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Add a section"
+msgstr "Přidání oddílu"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#: model:ir.model.fields.selection,name:trilab_invoice.selection__sale_advance_payment_inv__x_advance_payment_method_2__advance
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#, python-format
+msgid "Advance Invoice"
+msgstr "Zálohová faktura"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_advance_lines
+msgid "Advance Lines"
+msgstr "Předsunuté linie"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/sale_advance_payment_inv.py:0
+#, python-format
+msgid "Advance line value is bigger than order value"
+msgstr "Hodnota řádku zálohy je větší než hodnota objednávky"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/sale_advance_payment_inv.py:0
+#, python-format
+msgid "Advance line value must be positive"
+msgstr "Hodnota řádku předstihu musí být kladná"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/sale_advance_payment_inv.py:0
+#, python-format
+msgid "Advance payment"
+msgstr "Akontace"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/sale_advance_payment_inv.py:0
+#, python-format
+msgid "Advance payment [%s]"
+msgstr "Platba předem [%s]"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Amount Due"
+msgstr "Dlužná částka"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Bank Account Number:"
+msgstr "Číslo bankovního účtu:"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Buyer:"
+msgstr "Odběratel:"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#, python-format
+msgid "Cancelled Advance Invoice"
+msgstr "Zrušení zálohové faktury"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#, python-format
+msgid "Cancelled Final Invoice"
+msgstr "Zrušení faktury daňového dokladu"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#, python-format
+msgid "Cancelled Invoice"
+msgstr "Storno faktury"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
+msgid ""
+"Change currency rate for invoices in foreign currencies according to sale "
+"date."
+msgstr "Změna kurzu měny pro faktury v cizích měnách podle data prodeje."
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Change only those lines that should be corrected"
+msgstr "Změňte pouze ty řádky, které by měly být opraveny"
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_res_company
+msgid "Companies"
+msgstr "Společnosti"
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_res_config_settings
+msgid "Config Settings"
+msgstr "Nastavení konfigurace"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_convert_rate
+msgid "Convert Rate"
+msgstr "Kurz"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_convert_to_local
+msgid "Convert To Local Currency"
+msgstr "Převést na CZK"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Corrected Invoice"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_corrected_invoice_line_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_corrected_invoice_line_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_corrected_invoice_line_ids
+msgid "Corrected Invoice lines"
+msgstr "Opravené řádky faktury"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_account_move_reversal_pl
+msgid "Corrected invoice number"
+msgstr "Opravené číslo faktury"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#, python-format
+msgid "Correction Invoice"
+msgstr "Opravný daňový doklad"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+#, python-format
+msgid "Correction Invoices"
+msgstr "Opravný daňový doklady"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_order_form
+msgid "Create Invoice PL"
+msgstr "Vytvořit fakturu CZ"
+
+#. module: trilab_invoice
+#: model:ir.actions.act_window,name:trilab_invoice.action_view_sale_advance_payment_inv_pl
+msgid "Create invoices PL"
+msgstr "Vytváření faktur CZ"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_sale_advance_line__create_uid
+msgid "Created by"
+msgstr "Vytvořil"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_sale_advance_line__create_date
+msgid "Created on"
+msgstr "Vytvořeno"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "Credit Note"
+msgstr "Dobropis"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "Credit Note PL"
+msgstr "Dobropis PL"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_sale_advance_line__currency_id
+msgid "Currency"
+msgstr "Měna"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_currency_rate
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_currency_rate
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_currency_rate
+msgid "Currency Rate"
+msgstr "Měnový kurz"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Description"
+msgstr "Popis"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Disc.%"
+msgstr "Sleva %"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_sale_advance_line__display_name
+msgid "Display Name"
+msgstr "Zobrazované jméno"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#, python-format
+msgid "Draft Final Invoice"
+msgstr "Návrh konečné faktury"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#, python-format
+msgid "Draft Invoice"
+msgstr "Návrh faktury"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_invoice_duplicate_date
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_invoice_duplicate_date
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_invoice_duplicate_date
+msgid "Duplicate Date"
+msgstr "Duplicitní datum"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Duplicate on"
+msgstr "Duplikovat na"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
+msgid "Enable use of Trilab Invoice module for this company."
+msgstr "Povolit použití modulu Trilab Invoice pro tuto společnost."
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#, python-format
+msgid "Final Invoice"
+msgstr "Konečná faktura"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__x_force_print
+msgid "Force Print"
+msgstr "Síla tisku"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
+msgid "Hide Invoice lines on the report with zero price."
+msgstr "Skrýt řádky faktury v sestavě s nulovou cenou."
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_res_company__x_hide_zero_price_aml
+#: model:ir.model.fields,field_description:trilab_invoice.field_res_config_settings__x_hide_zero_price_aml
+msgid "Hide Zero Price AML on Invoices"
+msgstr "Skrytí nulové ceny AML na fakturách"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_sale_advance_line__id
+msgid "ID"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "In words:"
+msgstr "Slovy:"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#, python-format
+msgid "Invoice"
+msgstr "Faktura daňový doklad"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Invoice Number"
+msgstr "Faktura číslo"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_advance_payment_method_2
+msgid "Invoice Type"
+msgstr "Typ faktury"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Invoiced Products:"
+msgstr "Fakturované produkty:"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_is_convertible
+msgid "Is Convertible"
+msgstr "Je konvertibilní"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "It is not possible to issue two direct corrections for one invoice."
+msgstr "Na jednu fakturu není možné vystavit dvě přímé opravy."
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_account_move
+msgid "Journal Entry"
+msgstr "Položka deníku"
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_account_move_line
+msgid "Journal Item"
+msgstr "Položka deníku"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Journal Items"
+msgstr "Položky deníku"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_sale_advance_line____last_update
+msgid "Last Modified on"
+msgstr "Poslední aktualizace v"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_sale_advance_line__write_uid
+msgid "Last Updated by"
+msgstr "Naposledy upraveno"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_sale_advance_line__write_date
+msgid "Last Updated on"
+msgstr "Naposledy změněno"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Lines After"
+msgstr "Řádky za"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Lines Before"
+msgstr "Řádky před"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/sale_advance_payment_inv.py:0
+#, python-format
+msgid "Missing sale order"
+msgstr "Chybějící objednávka prodeje"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "Multiple or missing taxes for lines"
+msgstr "Řádek musí obsahovat pouze jednu daň"
+
+#. module: trilab_invoice
+#: model:ir.model.fields.selection,name:trilab_invoice.selection__sale_advance_payment_inv__x_advance_payment_method_2__normal
+msgid "Normal Invoice"
+msgstr "Běžná faktura"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Note"
+msgstr "Poznámka"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "Only draft invoice can be recalculated!"
+msgstr "Převést lze pouze návrh faktury!"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "Only one draft invoice can be recalculated!"
+msgstr "Převést lze pouze jeden návrh faktury!"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_orders_currency_id
+msgid "Orders Currency"
+msgstr "Měna objednávek"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_original_invoice_line_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_original_invoice_line_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_original_invoice_line_ids
+msgid "Original Invoice Lines"
+msgstr "Původní řádky faktury"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_sale_advance_line__original_subtotal
+msgid "Original Subtotal"
+msgstr "Původní mezisoučet"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_sale_advance_line__original_total
+msgid "Original Total"
+msgstr "Původní součet"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Paid on"
+msgstr "Zaplaceno dne"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/sale_advance_payment_inv.py:0
+#, python-format
+msgid "Percent Value cannot be greater than 100%"
+msgstr "Hodnota v procentech nesmí být větší než 100 %"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/sale_advance_payment_inv.py:0
+#, python-format
+msgid "Percent Value must be positive"
+msgstr "Procentuální hodnota musí být kladná"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Price"
+msgstr "Cena"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#, python-format
+msgid "Pro Forma Invoice"
+msgstr "Zálohová faktura"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Quantity"
+msgstr "Množství"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/sale_order.py:0
+#: code:addons/trilab_invoice/models/sale_order.py:0
+#, python-format
+msgid "Rate %s with effective date: %s"
+msgstr "Hodnotit %s s datem účinnosti: %s"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_account_move_reversal_pl
+msgid "Reason"
+msgstr "Důvod"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Recalculate Downpayment"
+msgstr "Spočítejte si zálohové platby"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Reference"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.actions.act_window,name:trilab_invoice.action_view_account_move_reversal_pl
+msgid "Reverse"
+msgstr "Stornovat"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "SPLIT PAYMENT MECHANISM"
+msgstr "MECHANISMUS ODDĚLENÝCH PLATEB"
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_trilab_sale_advance_line
+msgid "Sale Advance Line"
+msgstr "Prodejní zálohová linka"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_journal_id
+msgid "Sale Journal"
+msgstr "Prodejní deník"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Sale Order Data ("
+msgstr "Údaje o objednávce prodeje ("
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_invoice_sale_date
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_invoice_sale_date
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_invoice_sale_date
+msgid "Sale/Delivery Date"
+msgstr "Datum prodeje/měny"
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_sale_advance_payment_inv
+msgid "Sales Advance Payment Invoice"
+msgstr "Prodejní platba faktury dopředu"
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_sale_order
+msgid "Sales Order"
+msgstr "Prodejní objednávka"
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Řádek zakázky"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Section"
+msgstr "Sekce"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_res_company__x_show_price_before_discount
+#: model:ir.model.fields,field_description:trilab_invoice.field_res_config_settings__x_show_price_before_discount
+msgid "Show Price Before Discount on Invoices"
+msgstr "Zobrazit cenu před slevou na fakturách"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
+msgid "Show price before discount on Customer Invoices."
+msgstr "Zobrazit cenu před slevou na zákaznických fakturách."
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Subtotal"
+msgstr "Mezisoučet"
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_account_tax
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_sale_advance_line__tax_id
+msgid "Tax"
+msgstr "Daň"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_use_ti
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_use_ti
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_use_ti
+msgid "Technical Field: Is Poland"
+msgstr "Technické pole: Je Polsko"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_order__x_use_ti
+msgid "Technical Field: Use Trilab Invoice"
+msgstr "Technické pole: Použití faktury Trilab"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "The Bill/Refund date is required to validate this document."
+msgstr "Aby bylo možné fakturu přijmout, je potřeba doplnit datum dokladu."
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid ""
+"The current total is %s but the expected total is %s. In order to post the "
+"invoice/bill, you can adjust its lines or the expected Total (tax inc.)."
+msgstr ""
+"Aktuální součet je %s ale očekávaný součet je %s. Chcete-li zaúčtovat "
+"fakturu / účet, můžete upravit její řádky nebo očekávanou částku Total "
+"(včetně daně)."
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "The entry %s (id %s) is already posted."
+msgstr "Položka %s (id %s) je již zaúčtována."
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid ""
+"The field 'Customer' is required, please complete it to validate the "
+"Customer Invoice."
+msgstr "Pole \"Zákazník\" je povinné, vyplňte jej pro ověření faktury odběratele."
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid ""
+"The field 'Vendor' is required, please complete it to validate the Vendor "
+"Bill."
+msgstr ""
+"Pole \"Dodavatel\" je povinné, vyplňte jej pro ověření faktury dodavatele."
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid ""
+"The recipient bank account linked to this invoice is archived.\n"
+"So you cannot confirm the invoice."
+msgstr ""
+"Bankovní účet příjemce propojený s touto fakturou je archivován.\n"
+"Fakturu tedy nemůžete potvrdit."
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/sale_advance_payment_inv.py:0
+#, python-format
+msgid "There are no order lines that are delivered to be invoiced."
+msgstr "Neexistují žádné řádky objednávky, které jsou dodány k fakturaci."
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "This move is configured to be auto-posted on %s"
+msgstr ""
+"Tento přesun je nakonfigurován tak, aby byl automaticky zaúčtován na %s"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "This move will be posted at the accounting date: %(date)s"
+msgstr "Tento pohyb bude zaúčtován k účetnímu dni: %(date)s"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_in_invoice_tree
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_out_invoice_tree
+msgid "To Pay in Currency"
+msgstr "Platba v měně"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Total"
+msgstr "Celkem"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
+msgid "Trilab Invoice"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Unit Price NET"
+msgstr "Cena bez DPH/ks"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Unit Price NET before disc."
+msgstr "Cena bez DPH/ks pred slevě"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_tax.py:0
+#, python-format
+msgid "Untaxed Amount"
+msgstr "Nezdaněná částka"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "UoM"
+msgstr "MJ"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_res_company__x_use_ti
+#: model:ir.model.fields,field_description:trilab_invoice.field_res_config_settings__x_use_trilab_invoice
+msgid "Use Trilab Invoice Module"
+msgstr "Použití Trilab Invoice Module"
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.tax_summary
+msgid "VAT Amount in"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_sale_advance_line__percent
+msgid "Value Percent"
+msgstr "Hodnota v procentech"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_sale_advance_line__value_total
+msgid "Value [GROSS]"
+msgstr "Hodnota [GROSS]"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_sale_advance_line__value
+msgid "Value [NET]"
+msgstr "Hodnota [NET]"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/sale_order.py:0
+#, python-format
+msgid "Value in advance invoices is greater than order value"
+msgstr "Hodnota zálohových faktur je vyšší než hodnota objednávky"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#, python-format
+msgid "Vendor Bill"
+msgstr "Dodavatelská faktura"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+#, python-format
+msgid "Vendor Correction Invoice"
+msgstr "Opravný daňový doklad dodavatele"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "Vendor invoice number is required"
+msgstr "Je vyžadováno číslo faktury dodavatele"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_sale_advance_line__wizard_id
+msgid "Wizard"
+msgstr "Průvodce optimalizací rychlosti"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_advance_invoices_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_advance_invoices_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_advance_invoices_ids
+msgid "X Advance Invoices"
+msgstr "Zálohové faktury"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_advance_source_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_advance_source_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_advance_source_id
+msgid "X Advance Source"
+msgstr "Pokročilý zdroj"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_allowed_partner_bank_ids
+msgid "X Allowed Partner Bank"
+msgstr "Povolená partnerská banka"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_amount_residual
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_amount_residual
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_amount_residual
+msgid "X Amount Due"
+msgstr "Dlužná částka"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_company_currency_id
+msgid "X Company Currency"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_corrected_amount_total
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_corrected_amount_total
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_corrected_amount_total
+msgid "X Corrected Amount Total"
+msgstr "Opravená částka celkem"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_correction_invoices_len
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_correction_invoices_len
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_correction_invoices_len
+msgid "X Correction Invoices Len"
+msgstr "Opravný daňový doklad Len"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_final_source_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_final_source_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_final_source_id
+msgid "X Final Source"
+msgstr "Konečný zdroj"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_invoice_line_ids
+msgid "X Invoice Line"
+msgstr "Řádek faktury"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__x_is_corrected_line
+msgid "X Is Corrected Line"
+msgstr "Je opravený řádek"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__x_price_subtotal
+msgid "X Price Subtotal"
+msgstr "Cena Mezisoučet"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__x_price_total
+msgid "X Price Total"
+msgstr "Cena celkem"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__x_quantity
+msgid "X Quantity"
+msgstr "Množství"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_show_currency_rate
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_show_currency_rate
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_show_currency_rate
+msgid "X Show Currency Rate"
+msgstr "Zobrazit měnový kurz"
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_amount_total
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_amount_total
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_amount_total
+msgid "X Total in Currency"
+msgstr "Celkem v měně"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "You cannot post an entry in an archived journal (%(journal)s)"
+msgstr "Nelze zaúčtovat položku v archivovaném deníku (%(journal)s)"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "You cannot validate a document with an inactive currency: %s"
+msgstr "Doklad s neaktivní měnou nelze ověřit: %s"
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid ""
+"You cannot validate an invoice with a negative total amount. You should "
+"create a credit note instead. Use the action menu to transform it into a "
+"credit note or refund."
+msgstr ""
+"Nelze ověřit fakturu se zápornou celkovou částkou. Místo toho byste měli "
+"vytvořit dobropis. Pomocí nabídky akcí jej můžete přeměnit na dobropis nebo "
+"refundaci."
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "You don't have the access rights to post an invoice."
+msgstr "Nemáte přístupová práva k zaúčtování faktury."
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#, python-format
+msgid "You need to add a line before posting."
+msgstr "Před odesláním musíte přidat řádek."

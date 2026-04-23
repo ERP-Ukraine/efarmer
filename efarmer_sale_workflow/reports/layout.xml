@@ -2,11 +2,10 @@
 <odoo>
 
 <template id="external_layout_standard" inherit_id="web.external_layout_standard">
-    <!-- Don't print the company info. -->
-        <xpath expr="//ul[@name='company_address_list']/li[@t-if='company.is_company_details_empty']"
+    <!-- Don't print the company info and VAT. -->
+        <xpath expr="//ul[@name='company_address_list']"
                     position="replace"/>
-        <xpath expr="//ul[@name='company_address_list']/li[@t-else='']"
-            position="replace"/>
+        
     <xpath expr="//div[@t-field='company.report_header']" position="replace">
       <div class="col-9 text-end" style="margin-top:22px;">
         <span t-field="company.report_header"/>

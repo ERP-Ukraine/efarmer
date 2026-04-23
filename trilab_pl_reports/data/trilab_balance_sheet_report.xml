@@ -1,0 +1,1216 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="trilab_balance_sheet" model="account.report">
+        <field name="name">PL Balance Sheet</field>
+        <field name="root_report_id" ref="account_reports.balance_sheet"/>
+        <field name="country_id" ref="base.pl"/>
+        <field name="filter_date_range" eval="False"/>
+        <field name="filter_analytic" eval="True"/>
+        <field name="filter_analytic_groupby" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_journals" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="default_opening_date_filter">today</field>
+        <field name="column_ids">
+            <record id="trilab_balance_sheet_balance" model="account.report.column">
+                <field name="name">Balance</field>
+                <field name="expression_label">balance</field>
+            </record>
+        </field>
+        <field name="line_ids">
+            <record id="trilab_bs_Aktywa" model="account.report.line">
+                <field name="name">Assets Total</field>
+                <field name="code">Aktywa</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">Aktywa_A.balance + Aktywa_B.balance + Aktywa_C.balance + Aktywa_D.balance</field>
+                <field name="children_ids">
+                    <record id="trilab_bs_Aktywa_A" model="account.report.line">
+                        <field name="name">Fixed Assets</field>
+                        <field name="code">Aktywa_A</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="aggregation_formula">Aktywa_A_I.balance + Aktywa_A_II.balance + Aktywa_A_III.balance + Aktywa_A_IV.balance + Aktywa_A_V.balance</field>
+                        <field name="children_ids">
+                            <record id="trilab_bs_Aktywa_A_I" model="account.report.line">
+                                <field name="name">Intangible Assets</field>
+                                <field name="code">Aktywa_A_I</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="aggregation_formula">Aktywa_A_I_1.balance + Aktywa_A_I_2.balance + Aktywa_A_I_3.balance + Aktywa_A_I_4.balance</field>
+                                <field name="children_ids">
+                                    <record id="trilab_bs_Aktywa_A_I_1" model="account.report.line">
+                                        <field name="name">Development Costs</field>
+                                        <field name="code">Aktywa_A_I_1</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_I_1'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                    <record id="trilab_bs_Aktywa_A_I_2" model="account.report.line">
+                                        <field name="name">Goodwill</field>
+                                        <field name="code">Aktywa_A_I_2</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_I_2'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                    <record id="trilab_bs_Aktywa_A_I_3" model="account.report.line">
+                                        <field name="name">Other Intangible Assets</field>
+                                        <field name="code">Aktywa_A_I_3</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_I_3'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                    <record id="trilab_bs_Aktywa_A_I_4" model="account.report.line">
+                                        <field name="name">Intangible Assets Advances</field>
+                                        <field name="code">Aktywa_A_I_4</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_I_4'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="trilab_bs_Aktywa_A_II" model="account.report.line">
+                                <field name="name">Fixed Tangible Assets</field>
+                                <field name="code">Aktywa_A_II</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="aggregation_formula">Aktywa_A_II_1.balance + Aktywa_A_II_2.balance + Aktywa_A_II_3.balance</field>
+                                <field name="children_ids">
+                                    <record id="trilab_bs_Aktywa_A_II_1" model="account.report.line">
+                                        <field name="name">Fixed Assets</field>
+                                        <field name="code">Aktywa_A_II_1</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="aggregation_formula">Aktywa_A_II_1_A.balance + Aktywa_A_II_1_B.balance + Aktywa_A_II_1_C.balance + Aktywa_A_II_1_D.balance + Aktywa_A_II_1_E.balance</field>
+                                        <field name="children_ids">
+                                            <record id="trilab_bs_Aktywa_A_II_1_A" model="account.report.line">
+                                                <field name="name">Landed Properties (perpetual land usufruct rights)</field>
+                                                <field name="code">Aktywa_A_II_1_A</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_II_1_A'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                            <record id="trilab_bs_Aktywa_A_II_1_B" model="account.report.line">
+                                                <field name="name">Properties, Premises, Property Interests and Civil Engineering Constructions</field>
+                                                <field name="code">Aktywa_A_II_1_B</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_II_1_B'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                            <record id="trilab_bs_Aktywa_A_II_1_C" model="account.report.line">
+                                                <field name="name">Plants and Machinery</field>
+                                                <field name="code">Aktywa_A_II_1_C</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_II_1_C'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                            <record id="trilab_bs_Aktywa_A_II_1_D" model="account.report.line">
+                                                <field name="name">Transport Equipment</field>
+                                                <field name="code">Aktywa_A_II_1_D</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_II_1_D'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                            <record id="trilab_bs_Aktywa_A_II_1_E" model="account.report.line">
+                                                <field name="name">Other Fixed Assets</field>
+                                                <field name="code">Aktywa_A_II_1_E</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_II_1_E'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                        </field>
+                                    </record>
+                                    <record id="trilab_bs_Aktywa_A_II_2" model="account.report.line">
+                                        <field name="name">Assets under Construction</field>
+                                        <field name="code">Aktywa_A_II_2</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_II_2'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                    <record id="trilab_bs_Aktywa_A_II_3" model="account.report.line">
+                                        <field name="name">Assets under Construction Advances</field>
+                                        <field name="code">Aktywa_A_II_3</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_II_3'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="trilab_bs_Aktywa_A_III" model="account.report.line">
+                                <field name="name">Long Term Receivables</field>
+                                <field name="code">Aktywa_A_III</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="aggregation_formula">Aktywa_A_III_1.balance + Aktywa_A_III_2.balance + Aktywa_A_III_3.balance</field>
+                                <field name="children_ids">
+                                    <record id="trilab_bs_Aktywa_A_III_1" model="account.report.line">
+                                        <field name="name">- Subsidiary Entities</field>
+                                        <field name="code">Aktywa_A_III_1</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_III_1'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                    <record id="trilab_bs_Aktywa_A_III_2" model="account.report.line">
+                                        <field name="name">- Other Subsidiary Entities</field>
+                                        <field name="code">Aktywa_A_III_2</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_III_2'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                    <record id="trilab_bs_Aktywa_A_III_3" model="account.report.line">
+                                        <field name="name">- Other Entities</field>
+                                        <field name="code">Aktywa_A_III_3</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_III_3'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="trilab_bs_Aktywa_A_IV" model="account.report.line">
+                                <field name="name">Long Term Investments</field>
+                                <field name="code">Aktywa_A_IV</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="aggregation_formula">Aktywa_A_IV_1.balance + Aktywa_A_IV_2.balance + Aktywa_A_IV_3.balance + Aktywa_A_IV_4.balance</field>
+                                <field name="children_ids">
+                                    <record id="trilab_bs_Aktywa_A_IV_1" model="account.report.line">
+                                        <field name="name">Real Estate</field>
+                                        <field name="code">Aktywa_A_IV_1</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_IV_1'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                    <record id="trilab_bs_Aktywa_A_IV_2" model="account.report.line">
+                                        <field name="name">Intangible Assets</field>
+                                        <field name="code">Aktywa_A_IV_2</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_IV_2'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                    <record id="trilab_bs_Aktywa_A_IV_3" model="account.report.line">
+                                        <field name="name">Long Term Financial Assets</field>
+                                        <field name="code">Aktywa_A_IV_3</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="aggregation_formula">Aktywa_A_IV_3_A.balance + Aktywa_A_IV_3_B.balance + Aktywa_A_IV_3_C.balance</field>
+                                        <field name="children_ids">
+                                            <record id="trilab_bs_Aktywa_A_IV_3_A" model="account.report.line">
+                                                <field name="name">- Subsidiary Entities</field>
+                                                <field name="code">Aktywa_A_IV_3_A</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="aggregation_formula">Aktywa_A_IV_3_A_1.balance + Aktywa_A_IV_3_A_2.balance + Aktywa_A_IV_3_A_3.balance + Aktywa_A_IV_3_A_4.balance</field>
+                                                <field name="children_ids">
+                                                    <record id="trilab_bs_Aktywa_A_IV_3_A_1" model="account.report.line">
+                                                        <field name="name">- Shares or Stocks</field>
+                                                        <field name="code">Aktywa_A_IV_3_A_1</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_IV_3_A_1'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Aktywa_A_IV_3_A_2" model="account.report.line">
+                                                        <field name="name">- Other Securities</field>
+                                                        <field name="code">Aktywa_A_IV_3_A_2</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_IV_3_A_2'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Aktywa_A_IV_3_A_3" model="account.report.line">
+                                                        <field name="name">- Loans Granted</field>
+                                                        <field name="code">Aktywa_A_IV_3_A_3</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_IV_3_A_3'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Aktywa_A_IV_3_A_4" model="account.report.line">
+                                                        <field name="name">- Other Long Term Financial Assets</field>
+                                                        <field name="code">Aktywa_A_IV_3_A_4</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_IV_3_A_4'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                </field>
+                                            </record>
+                                            <record id="trilab_bs_Aktywa_A_IV_3_B" model="account.report.line">
+                                                <field name="name">- Other Subsidiary Entities</field>
+                                                <field name="code">Aktywa_A_IV_3_B</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="aggregation_formula">Aktywa_A_IV_3_B_1.balance + Aktywa_A_IV_3_B_2.balance + Aktywa_A_IV_3_B_3.balance + Aktywa_A_IV_3_B_4.balance</field>
+                                                <field name="children_ids">
+                                                    <record id="trilab_bs_Aktywa_A_IV_3_B_1" model="account.report.line">
+                                                        <field name="name">- Shares or Stocks</field>
+                                                        <field name="code">Aktywa_A_IV_3_B_1</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_IV_3_B_1'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Aktywa_A_IV_3_B_2" model="account.report.line">
+                                                        <field name="name">- Other Securities</field>
+                                                        <field name="code">Aktywa_A_IV_3_B_2</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_IV_3_B_2'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Aktywa_A_IV_3_B_3" model="account.report.line">
+                                                        <field name="name">- Loans Granted</field>
+                                                        <field name="code">Aktywa_A_IV_3_B_3</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_IV_3_B_3'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Aktywa_A_IV_3_B_4" model="account.report.line">
+                                                        <field name="name">- Other Long Term Financial Assets</field>
+                                                        <field name="code">Aktywa_A_IV_3_B_4</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_IV_3_B_4'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                </field>
+                                            </record>
+                                            <record id="trilab_bs_Aktywa_A_IV_3_C" model="account.report.line">
+                                                <field name="name">In other Entities</field>
+                                                <field name="code">Aktywa_A_IV_3_C</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="aggregation_formula">Aktywa_A_IV_3_C_1.balance + Aktywa_A_IV_3_C_2.balance + Aktywa_A_IV_3_C_3.balance + Aktywa_A_IV_3_C_4.balance</field>
+                                                <field name="children_ids">
+                                                    <record id="trilab_bs_Aktywa_A_IV_3_C_1" model="account.report.line">
+                                                        <field name="name">- Shares or Stocks</field>
+                                                        <field name="code">Aktywa_A_IV_3_C_1</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_IV_3_C_1'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Aktywa_A_IV_3_C_2" model="account.report.line">
+                                                        <field name="name">- Other Securities</field>
+                                                        <field name="code">Aktywa_A_IV_3_C_2</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_IV_3_C_2'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Aktywa_A_IV_3_C_3" model="account.report.line">
+                                                        <field name="name">- Granted Loans</field>
+                                                        <field name="code">Aktywa_A_IV_3_C_3</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_IV_3_C_3'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Aktywa_A_IV_3_C_4" model="account.report.line">
+                                                        <field name="name">- Other Long Term Financial Assets</field>
+                                                        <field name="code">Aktywa_A_IV_3_C_4</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_IV_3_C_4'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                </field>
+                                            </record>
+                                        </field>
+                                    </record>
+                                    <record id="trilab_bs_Aktywa_A_IV_4" model="account.report.line">
+                                        <field name="name">Other Long Term Investments</field>
+                                        <field name="code">Aktywa_A_IV_4</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_IV_4'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="trilab_bs_Aktywa_A_V" model="account.report.line">
+                                <field name="name">Long Term Accruals</field>
+                                <field name="code">Aktywa_A_V</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="aggregation_formula">Aktywa_A_V_1.balance + Aktywa_A_V_2.balance</field>
+                                <field name="children_ids">
+                                    <record id="trilab_bs_Aktywa_A_V_1" model="account.report.line">
+                                        <field name="name">Deferred Income Tax Assets</field>
+                                        <field name="code">Aktywa_A_V_1</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_V_1'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                    <record id="trilab_bs_Aktywa_A_V_2" model="account.report.line">
+                                        <field name="name">Other Accruals</field>
+                                        <field name="code">Aktywa_A_V_2</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_A_V_2'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                </field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="trilab_bs_Aktywa_B" model="account.report.line">
+                        <field name="name">Current Assets</field>
+                        <field name="code">Aktywa_B</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="aggregation_formula">Aktywa_B_I.balance + Aktywa_B_II.balance + Aktywa_B_III.balance + Aktywa_B_IV.balance</field>
+                        <field name="children_ids">
+                            <record id="trilab_bs_Aktywa_B_I" model="account.report.line">
+                                <field name="name">Inventory</field>
+                                <field name="code">Aktywa_B_I</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="aggregation_formula">Aktywa_B_I_1.balance + Aktywa_B_I_2.balance + Aktywa_B_I_3.balance + Aktywa_B_I_4.balance + Aktywa_B_I_5.balance</field>
+                                <field name="children_ids">
+                                    <record id="trilab_bs_Aktywa_B_I_1" model="account.report.line">
+                                        <field name="name">Materials</field>
+                                        <field name="code">Aktywa_B_I_1</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_I_1'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                    <record id="trilab_bs_Aktywa_B_I_2" model="account.report.line">
+                                        <field name="name">Semi Finished Products and Products in Progress</field>
+                                        <field name="code">Aktywa_B_I_2</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_I_2'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                    <record id="trilab_bs_Aktywa_B_I_3" model="account.report.line">
+                                        <field name="name">Finished Products</field>
+                                        <field name="code">Aktywa_B_I_3</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_I_3'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                    <record id="trilab_bs_Aktywa_B_I_4" model="account.report.line">
+                                        <field name="name">Goods</field>
+                                        <field name="code">Aktywa_B_I_4</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_I_4'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                    <record id="trilab_bs_Aktywa_B_I_5" model="account.report.line">
+                                        <field name="name">Advances on Delivery and Services</field>
+                                        <field name="code">Aktywa_B_I_5</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_I_5'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="trilab_bs_Aktywa_B_II" model="account.report.line">
+                                <field name="name">Short Term Receivables</field>
+                                <field name="code">Aktywa_B_II</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="aggregation_formula">Aktywa_B_II_1.balance + Aktywa_B_II_2.balance + Aktywa_B_II_3.balance</field>
+                                <field name="children_ids">
+                                    <record id="trilab_bs_Aktywa_B_II_1" model="account.report.line">
+                                        <field name="name">Subsidiary Entities Receivables</field>
+                                        <field name="code">Aktywa_B_II_1</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="aggregation_formula">Aktywa_B_II_1_A.balance + Aktywa_B_II_1_B.balance</field>
+                                        <field name="children_ids">
+                                            <record id="trilab_bs_Aktywa_B_II_1_A" model="account.report.line">
+                                                <field name="name">Trade Receivables, with Maturity:</field>
+                                                <field name="code">Aktywa_B_II_1_A</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="aggregation_formula">Aktywa_B_II_1_A_1.balance + Aktywa_B_II_1_A_2.balance</field>
+                                                <field name="children_ids">
+                                                    <record id="trilab_bs_Aktywa_B_II_1_A_1" model="account.report.line">
+                                                        <field name="name">- Up to 12 Months</field>
+                                                        <field name="code">Aktywa_B_II_1_A_1</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_II_1_A_1'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Aktywa_B_II_1_A_2" model="account.report.line">
+                                                        <field name="name">- Over 12 Months</field>
+                                                        <field name="code">Aktywa_B_II_1_A_2</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_II_1_A_2'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                </field>
+                                            </record>
+                                            <record id="trilab_bs_Aktywa_B_II_1_B" model="account.report.line">
+                                                <field name="name">Other</field>
+                                                <field name="code">Aktywa_B_II_1_B</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_II_1_B'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                        </field>
+                                    </record>
+                                    <record id="trilab_bs_Aktywa_B_II_2" model="account.report.line">
+                                        <field name="name">- Other Subsidiary Entities Receivables</field>
+                                        <field name="code">Aktywa_B_II_2</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="aggregation_formula">Aktywa_B_II_2_A.balance + Aktywa_B_II_2_B.balance</field>
+                                        <field name="children_ids">
+                                            <record id="trilab_bs_Aktywa_B_II_2_A" model="account.report.line">
+                                                <field name="name">Trade Receivables, with Maturity:</field>
+                                                <field name="code">Aktywa_B_II_2_A</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="aggregation_formula">Aktywa_B_II_2_A_1.balance + Aktywa_B_II_2_A_2.balance</field>
+                                                <field name="children_ids">
+                                                    <record id="trilab_bs_Aktywa_B_II_2_A_1" model="account.report.line">
+                                                        <field name="name">- Up to 12 Months</field>
+                                                        <field name="code">Aktywa_B_II_2_A_1</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_II_2_A_1'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Aktywa_B_II_2_A_2" model="account.report.line">
+                                                        <field name="name">- Over 12 Months</field>
+                                                        <field name="code">Aktywa_B_II_2_A_2</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_II_2_A_2'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                </field>
+                                            </record>
+                                            <record id="trilab_bs_Aktywa_B_II_2_B" model="account.report.line">
+                                                <field name="name">Other</field>
+                                                <field name="code">Aktywa_B_II_2_B</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_II_2_B'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                        </field>
+                                    </record>
+                                    <record id="trilab_bs_Aktywa_B_II_3" model="account.report.line">
+                                        <field name="name">Other Entities Receivables</field>
+                                        <field name="code">Aktywa_B_II_3</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="aggregation_formula">Aktywa_B_II_3_A.balance + Aktywa_B_II_3_B.balance + Aktywa_B_II_3_C.balance + Aktywa_B_II_3_D.balance</field>
+                                        <field name="children_ids">
+                                            <record id="trilab_bs_Aktywa_B_II_3_A" model="account.report.line">
+                                                <field name="name">Trade Receivables, with Maturity:</field>
+                                                <field name="code">Aktywa_B_II_3_A</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="aggregation_formula">Aktywa_B_II_3_A_1.balance + Aktywa_B_II_3_A_2.balance</field>
+                                                <field name="children_ids">
+                                                    <record id="trilab_bs_Aktywa_B_II_3_A_1" model="account.report.line">
+                                                        <field name="name">- Up to 12 Months</field>
+                                                        <field name="code">Aktywa_B_II_3_A_1</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_II_3_A_1'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Aktywa_B_II_3_A_2" model="account.report.line">
+                                                        <field name="name">- Over 12 Months</field>
+                                                        <field name="code">Aktywa_B_II_3_A_2</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_II_3_A_2'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                </field>
+                                            </record>
+                                            <record id="trilab_bs_Aktywa_B_II_3_B" model="account.report.line">
+                                                <field name="name">Taxes, Grants, Customs, Social and Health Insurance and Other Public Law Titles</field>
+                                                <field name="code">Aktywa_B_II_3_B</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_II_3_B'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                            <record id="trilab_bs_Aktywa_B_II_3_C" model="account.report.line">
+                                                <field name="name">Other</field>
+                                                <field name="code">Aktywa_B_II_3_C</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_II_3_C'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                            <record id="trilab_bs_Aktywa_B_II_3_D" model="account.report.line">
+                                                <field name="name">Receivables claimed at Court</field>
+                                                <field name="code">Aktywa_B_II_3_D</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_II_3_D'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                        </field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="trilab_bs_Aktywa_B_III" model="account.report.line">
+                                <field name="name">Short Term Investments</field>
+                                <field name="code">Aktywa_B_III</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="aggregation_formula">Aktywa_B_III_1.balance + Aktywa_B_III_2.balance</field>
+                                <field name="children_ids">
+                                    <record id="trilab_bs_Aktywa_B_III_1" model="account.report.line">
+                                        <field name="name">Short Term Financial Assets</field>
+                                        <field name="code">Aktywa_B_III_1</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="aggregation_formula">Aktywa_B_III_1_A.balance + Aktywa_B_III_1_B.balance + Aktywa_B_III_1_C.balance</field>
+                                        <field name="children_ids">
+                                            <record id="trilab_bs_Aktywa_B_III_1_A" model="account.report.line">
+                                                <field name="name">Subsidiary Entities</field>
+                                                <field name="code">Aktywa_B_III_1_A</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="aggregation_formula">Aktywa_B_III_1_A_1.balance + Aktywa_B_III_1_A_2.balance + Aktywa_B_III_1_A_3.balance + Aktywa_B_III_1_A_4.balance</field>
+                                                <field name="children_ids">
+                                                    <record id="trilab_bs_Aktywa_B_III_1_A_1" model="account.report.line">
+                                                        <field name="name">- Shares or Stocks</field>
+                                                        <field name="code">Aktywa_B_III_1_A_1</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_III_1_A_1'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Aktywa_B_III_1_A_2" model="account.report.line">
+                                                        <field name="name">- Other Securities</field>
+                                                        <field name="code">Aktywa_B_III_1_A_2</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_III_1_A_2'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Aktywa_B_III_1_A_3" model="account.report.line">
+                                                        <field name="name">- Loans Granted</field>
+                                                        <field name="code">Aktywa_B_III_1_A_3</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_III_1_A_3'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Aktywa_B_III_1_A_4" model="account.report.line">
+                                                        <field name="name">- Other Short Term Financial Assets</field>
+                                                        <field name="code">Aktywa_B_III_1_A_4</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_III_1_A_4'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                </field>
+                                            </record>
+                                            <record id="trilab_bs_Aktywa_B_III_1_B" model="account.report.line">
+                                                <field name="name">Other Entities</field>
+                                                <field name="code">Aktywa_B_III_1_B</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="aggregation_formula">Aktywa_B_III_1_B_1.balance + Aktywa_B_III_1_B_2.balance + Aktywa_B_III_1_B_3.balance + Aktywa_B_III_1_B_4.balance</field>
+                                                <field name="children_ids">
+                                                    <record id="trilab_bs_Aktywa_B_III_1_B_1" model="account.report.line">
+                                                        <field name="name">- Shares or Stocks</field>
+                                                        <field name="code">Aktywa_B_III_1_B_1</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_III_1_B_1'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Aktywa_B_III_1_B_2" model="account.report.line">
+                                                        <field name="name">- Other Securities</field>
+                                                        <field name="code">Aktywa_B_III_1_B_2</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_III_1_B_2'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Aktywa_B_III_1_B_3" model="account.report.line">
+                                                        <field name="name">- Grants Loaned</field>
+                                                        <field name="code">Aktywa_B_III_1_B_3</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_III_1_B_3'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Aktywa_B_III_1_B_4" model="account.report.line">
+                                                        <field name="name">- Other Short Term Financial Assets</field>
+                                                        <field name="code">Aktywa_B_III_1_B_4</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_III_1_B_4'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                </field>
+                                            </record>
+                                            <record id="trilab_bs_Aktywa_B_III_1_C" model="account.report.line">
+                                                <field name="name">Funds and Other Pecuniary Assets</field>
+                                                <field name="code">Aktywa_B_III_1_C</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="aggregation_formula">Aktywa_B_III_1_C_1.balance + Aktywa_B_III_1_C_2.balance + Aktywa_B_III_1_C_3.balance</field>
+                                                <field name="children_ids">
+                                                    <record id="trilab_bs_Aktywa_B_III_1_C_1" model="account.report.line">
+                                                        <field name="name">- Cash On Hand and in Bank Accounts</field>
+                                                        <field name="code">Aktywa_B_III_1_C_1</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_III_1_C_1'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Aktywa_B_III_1_C_2" model="account.report.line">
+                                                        <field name="name">- Other Cash</field>
+                                                        <field name="code">Aktywa_B_III_1_C_2</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_III_1_C_2'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Aktywa_B_III_1_C_3" model="account.report.line">
+                                                        <field name="name">- Other Monetary Assets</field>
+                                                        <field name="code">Aktywa_B_III_1_C_3</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_III_1_C_3'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                </field>
+                                            </record>
+                                        </field>
+                                    </record>
+                                    <record id="trilab_bs_Aktywa_B_III_2" model="account.report.line">
+                                        <field name="name">Other Short Term Investments</field>
+                                        <field name="code">Aktywa_B_III_2</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_III_2'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="trilab_bs_Aktywa_B_IV" model="account.report.line">
+                                <field name="name">Short Term Accruals</field>
+                                <field name="code">Aktywa_B_IV</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_B_IV'))])</field>
+                                <field name="groupby">account_id</field>
+                                <field name="foldable" eval="True"/>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="trilab_bs_Aktywa_C" model="account.report.line">
+                        <field name="name">Called Up Share Capital (fund) Not Paid</field>
+                        <field name="code">Aktywa_C</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_C'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_bs_Aktywa_D" model="account.report.line">
+                        <field name="name">Own Shares and Stocks</field>
+                        <field name="code">Aktywa_D</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Aktywa_D'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                </field>
+            </record>
+            <record id="trilab_bs_Pasywa" model="account.report.line">
+                <field name="name">Total Liabilities</field>
+                <field name="code">Pasywa</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">Pasywa_A.balance + Pasywa_B.balance</field>
+                <field name="children_ids">
+                    <record id="trilab_bs_Pasywa_A" model="account.report.line">
+                        <field name="name">Equity (own fund)</field>
+                        <field name="code">Pasywa_A</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="aggregation_formula">Pasywa_A_I.balance + Pasywa_A_II.balance + Pasywa_A_III.balance + Pasywa_A_IV.balance + Pasywa_A_V.balance + Pasywa_A_VI.balance + Pasywa_A_VII.balance</field>
+                        <field name="children_ids">
+                            <record id="trilab_bs_Pasywa_A_I" model="account.report.line">
+                                <field name="name">Initial Capital (fund)</field>
+                                <field name="code">Pasywa_A_I</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_A_I'))])</field>
+                                <field name="groupby">account_id</field>
+                                <field name="foldable" eval="True"/>
+                            </record>
+                            <record id="trilab_bs_Pasywa_A_II" model="account.report.line">
+                                <field name="name">Supplementary Capital (fund), including:</field>
+                                <field name="code">Pasywa_A_II</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_A_II'))])</field>
+                                <field name="groupby">account_id</field>
+                                <field name="foldable" eval="True"/>
+                            </record>
+                            <record id="trilab_bs_Pasywa_A_II_1" model="account.report.line">
+                                <field name="name">- Share Premiums - Excess Issue Price over Nominal Shares (Stocks) Value</field>
+                                <field name="code">Pasywa_A_II_1</field>
+                                <field name="hierarchy_level" eval="3"/>
+                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_A_II_1'))])</field>
+                                <field name="groupby">account_id</field>
+                                <field name="foldable" eval="True"/>
+                            </record>
+                            <record id="trilab_bs_Pasywa_A_III" model="account.report.line">
+                                <field name="name">Revaluation Reserve (fund), including:</field>
+                                <field name="code">Pasywa_A_III</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_A_III'))])</field>
+                                <field name="groupby">account_id</field>
+                                <field name="foldable" eval="True"/>
+                            </record>
+                            <record id="trilab_bs_Pasywa_A_III_1" model="account.report.line">
+                                <field name="name">- Fair Value Revaluation</field>
+                                <field name="code">Pasywa_A_III_1</field>
+                                <field name="hierarchy_level" eval="3"/>
+                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_A_III_1'))])</field>
+                                <field name="groupby">account_id</field>
+                                <field name="foldable" eval="True"/>
+                            </record>
+                            <record id="trilab_bs_Pasywa_A_IV" model="account.report.line">
+                                <field name="name">Other Reserve Capitals (funds), including:</field>
+                                <field name="code">Pasywa_A_IV</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_A_IV'))])</field>
+                                <field name="groupby">account_id</field>
+                                <field name="foldable" eval="True"/>
+                            </record>
+                            <record id="trilab_bs_Pasywa_A_IV_1" model="account.report.line">
+                                <field name="name">- Established under the Company's Articles</field>
+                                <field name="code">Pasywa_A_IV_1</field>
+                                <field name="hierarchy_level" eval="3"/>
+                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_A_IV_1'))])</field>
+                                <field name="groupby">account_id</field>
+                                <field name="foldable" eval="True"/>
+                            </record>
+                            <record id="trilab_bs_Pasywa_A_IV_2" model="account.report.line">
+                                <field name="name">- Own Shares and Stocks</field>
+                                <field name="code">Pasywa_A_IV_2</field>
+                                <field name="hierarchy_level" eval="3"/>
+                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_A_IV_2'))])</field>
+                                <field name="groupby">account_id</field>
+                                <field name="foldable" eval="True"/>
+                            </record>
+                            <record id="trilab_bs_Pasywa_A_V" model="account.report.line">
+                                <field name="name">Accumulated Profit/Loss</field>
+                                <field name="code">Pasywa_A_V</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_A_V'))])</field>
+                                <field name="groupby">account_id</field>
+                                <field name="foldable" eval="True"/>
+                            </record>
+                            <record id="trilab_bs_Pasywa_A_VI" model="account.report.line">
+                                <field name="name">Net Profit/Loss</field>
+                                <field name="code">Pasywa_A_VI</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="foldable" eval="True"/>
+                                <field name="expression_ids">
+                                    <record id="trilab_bs_Pasywa_A_VI_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">RZiSPor_L.balance</field>
+                                        <field name="subformula">cross_report</field>
+                                        <field name="date_scope">from_fiscalyear</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="trilab_bs_Pasywa_A_VII" model="account.report.line">
+                                <field name="name">Net Profit written off during the Financial Year (negative value)</field>
+                                <field name="code">Pasywa_A_VII</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_A_VII'))])</field>
+                                <field name="groupby">account_id</field>
+                                <field name="foldable" eval="True"/>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="trilab_bs_Pasywa_B" model="account.report.line">
+                        <field name="name">Liabilities and Provisions for Liabilities</field>
+                        <field name="code">Pasywa_B</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="aggregation_formula">Pasywa_B_I.balance + Pasywa_B_II.balance + Pasywa_B_III.balance + Pasywa_B_IV.balance</field>
+                        <field name="children_ids">
+                            <record id="trilab_bs_Pasywa_B_I" model="account.report.line">
+                                <field name="name">Provisions for Liabilities</field>
+                                <field name="code">Pasywa_B_I</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="aggregation_formula">Pasywa_B_I_1.balance + Pasywa_B_I_2.balance + Pasywa_B_I_3.balance</field>
+                                <field name="children_ids">
+                                    <record id="trilab_bs_Pasywa_B_I_1" model="account.report.line">
+                                        <field name="name">Deferred Income Tax</field>
+                                        <field name="code">Pasywa_B_I_1</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_I_1'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                    <record id="trilab_bs_Pasywa_B_I_2" model="account.report.line">
+                                        <field name="name">Provision for Pensions and Similar Benefits</field>
+                                        <field name="code">Pasywa_B_I_2</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="aggregation_formula">Pasywa_B_I_2_1.balance + Pasywa_B_I_2_2.balance</field>
+                                        <field name="children_ids">
+                                            <record id="trilab_bs_Pasywa_B_I_2_1" model="account.report.line">
+                                                <field name="name">- Long Term</field>
+                                                <field name="code">Pasywa_B_I_2_1</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_I_2_1'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                            <record id="trilab_bs_Pasywa_B_I_2_2" model="account.report.line">
+                                                <field name="name">- Short Term</field>
+                                                <field name="code">Pasywa_B_I_2_2</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_I_2_2'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                        </field>
+                                    </record>
+                                    <record id="trilab_bs_Pasywa_B_I_3" model="account.report.line">
+                                        <field name="name">Other Provisions</field>
+                                        <field name="code">Pasywa_B_I_3</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="aggregation_formula">Pasywa_B_I_3_1.balance + Pasywa_B_I_3_2.balance</field>
+                                        <field name="children_ids">
+                                            <record id="trilab_bs_Pasywa_B_I_3_1" model="account.report.line">
+                                                <field name="name">- Long Term</field>
+                                                <field name="code">Pasywa_B_I_3_1</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_I_3_1'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                            <record id="trilab_bs_Pasywa_B_I_3_2" model="account.report.line">
+                                                <field name="name">- Short Term</field>
+                                                <field name="code">Pasywa_B_I_3_2</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_I_3_2'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                        </field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="trilab_bs_Pasywa_B_II" model="account.report.line">
+                                <field name="name">Long Term Liabilities</field>
+                                <field name="code">Pasywa_B_II</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="aggregation_formula">Pasywa_B_II_1.balance + Pasywa_B_II_2.balance + Pasywa_B_II_3.balance</field>
+                                <field name="children_ids">
+                                    <record id="trilab_bs_Pasywa_B_II_1" model="account.report.line">
+                                        <field name="name">Subsidiary Entities</field>
+                                        <field name="code">Pasywa_B_II_1</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_II_1'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                    <record id="trilab_bs_Pasywa_B_II_2" model="account.report.line">
+                                        <field name="name">Subsidiary Entities in which the Entity has Equity Involvement</field>
+                                        <field name="code">Pasywa_B_II_2</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_II_2'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                    <record id="trilab_bs_Pasywa_B_II_3" model="account.report.line">
+                                        <field name="name">To other Entities</field>
+                                        <field name="code">Pasywa_B_II_3</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="aggregation_formula">Pasywa_B_II_3_A.balance + Pasywa_B_II_3_B.balance + Pasywa_B_II_3_C.balance + Pasywa_B_II_3_D.balance + Pasywa_B_II_3_E.balance</field>
+                                        <field name="children_ids">
+                                            <record id="trilab_bs_Pasywa_B_II_3_A" model="account.report.line">
+                                                <field name="name">Credits and Loans</field>
+                                                <field name="code">Pasywa_B_II_3_A</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_II_3_A'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                            <record id="trilab_bs_Pasywa_B_II_3_B" model="account.report.line">
+                                                <field name="name">Debt Securities Issuance</field>
+                                                <field name="code">Pasywa_B_II_3_B</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_II_3_B'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                            <record id="trilab_bs_Pasywa_B_II_3_C" model="account.report.line">
+                                                <field name="name">Other Financial Liabilities</field>
+                                                <field name="code">Pasywa_B_II_3_C</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_II_3_C'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                            <record id="trilab_bs_Pasywa_B_II_3_D" model="account.report.line">
+                                                <field name="name">Note Payable</field>
+                                                <field name="code">Pasywa_B_II_3_D</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_II_3_D'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                            <record id="trilab_bs_Pasywa_B_II_3_E" model="account.report.line">
+                                                <field name="name">Other</field>
+                                                <field name="code">Pasywa_B_II_3_E</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_II_3_E'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                        </field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="trilab_bs_Pasywa_B_III" model="account.report.line">
+                                <field name="name">Short Term liabilities</field>
+                                <field name="code">Pasywa_B_III</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="aggregation_formula">Pasywa_B_III_1.balance + Pasywa_B_III_2.balance + Pasywa_B_III_3.balance + Pasywa_B_III_4.balance</field>
+                                <field name="children_ids">
+                                    <record id="trilab_bs_Pasywa_B_III_1" model="account.report.line">
+                                        <field name="name">Subsidiary Entities Liabilities</field>
+                                        <field name="code">Pasywa_B_III_1</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="aggregation_formula">Pasywa_B_III_1_A.balance + Pasywa_B_III_1_B.balance</field>
+                                        <field name="children_ids">
+                                            <record id="trilab_bs_Pasywa_B_III_1_A" model="account.report.line">
+                                                <field name="name">Delivery and Services, with maturity:</field>
+                                                <field name="code">Pasywa_B_III_1_A</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="aggregation_formula">Pasywa_B_III_1_A_1.balance + Pasywa_B_III_1_A_2.balance</field>
+                                                <field name="children_ids">
+                                                    <record id="trilab_bs_Pasywa_B_III_1_A_1" model="account.report.line">
+                                                        <field name="name">- Up to 12 Months</field>
+                                                        <field name="code">Pasywa_B_III_1_A_1</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_III_1_A_1'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Pasywa_B_III_1_A_2" model="account.report.line">
+                                                        <field name="name">- Over 12 Months</field>
+                                                        <field name="code">Pasywa_B_III_1_A_2</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_III_1_A_2'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                </field>
+                                            </record>
+                                            <record id="trilab_bs_Pasywa_B_III_1_B" model="account.report.line">
+                                                <field name="name">Other</field>
+                                                <field name="code">Pasywa_B_III_1_B</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_III_1_B'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                        </field>
+                                    </record>
+                                    <record id="trilab_bs_Pasywa_B_III_2" model="account.report.line">
+                                        <field name="name">Other Subsidiary Entities Liabilities</field>
+                                        <field name="code">Pasywa_B_III_2</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="aggregation_formula">Pasywa_B_III_2_A.balance + Pasywa_B_III_2_B.balance</field>
+                                        <field name="children_ids">
+                                            <record id="trilab_bs_Pasywa_B_III_2_A" model="account.report.line">
+                                                <field name="name">Delivery and Services, with maturity:</field>
+                                                <field name="code">Pasywa_B_III_2_A</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="aggregation_formula">Pasywa_B_III_2_A_1.balance + Pasywa_B_III_2_A_2.balance</field>
+                                                <field name="children_ids">
+                                                    <record id="trilab_bs_Pasywa_B_III_2_A_1" model="account.report.line">
+                                                        <field name="name">- Up to 12 Months</field>
+                                                        <field name="code">Pasywa_B_III_2_A_1</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_III_2_A_1'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Pasywa_B_III_2_A_2" model="account.report.line">
+                                                        <field name="name">- Over 12 Months</field>
+                                                        <field name="code">Pasywa_B_III_2_A_2</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_III_2_A_2'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                </field>
+                                            </record>
+                                            <record id="trilab_bs_Pasywa_B_III_2_B" model="account.report.line">
+                                                <field name="name">Other</field>
+                                                <field name="code">Pasywa_B_III_2_B</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_III_2_B'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                        </field>
+                                    </record>
+                                    <record id="trilab_bs_Pasywa_B_III_3" model="account.report.line">
+                                        <field name="name">Liabilities to Other Entities</field>
+                                        <field name="code">Pasywa_B_III_3</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="aggregation_formula">Pasywa_B_III_3_A.balance + Pasywa_B_III_3_B.balance + Pasywa_B_III_3_C.balance + Pasywa_B_III_3_D.balance + Pasywa_B_III_3_E.balance + Pasywa_B_III_3_F.balance + Pasywa_B_III_3_G.balance + Pasywa_B_III_3_H.balance + Pasywa_B_III_3_I.balance</field>
+                                        <field name="children_ids">
+                                            <record id="trilab_bs_Pasywa_B_III_3_A" model="account.report.line">
+                                                <field name="name">Credits and Loans</field>
+                                                <field name="code">Pasywa_B_III_3_A</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_III_3_A'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                            <record id="trilab_bs_Pasywa_B_III_3_B" model="account.report.line">
+                                                <field name="name">Debt Securities Issuance</field>
+                                                <field name="code">Pasywa_B_III_3_B</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_III_3_B'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                            <record id="trilab_bs_Pasywa_B_III_3_C" model="account.report.line">
+                                                <field name="name">Other Financial Liabilities</field>
+                                                <field name="code">Pasywa_B_III_3_C</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_III_3_C'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                            <record id="trilab_bs_Pasywa_B_III_3_D" model="account.report.line">
+                                                <field name="name">Delivery and Services, with maturity:</field>
+                                                <field name="code">Pasywa_B_III_3_D</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="aggregation_formula">Pasywa_B_III_3_D_1.balance + Pasywa_B_III_3_D_2.balance</field>
+                                                <field name="children_ids">
+                                                    <record id="trilab_bs_Pasywa_B_III_3_D_1" model="account.report.line">
+                                                        <field name="name">- Up to 12 Months</field>
+                                                        <field name="code">Pasywa_B_III_3_D_1</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_III_3_D_1'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                    <record id="trilab_bs_Pasywa_B_III_3_D_2" model="account.report.line">
+                                                        <field name="name">- Over 12 Months</field>
+                                                        <field name="code">Pasywa_B_III_3_D_2</field>
+                                                        <field name="hierarchy_level" eval="5"/>
+                                                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_III_3_D_2'))])</field>
+                                                        <field name="groupby">account_id</field>
+                                                        <field name="foldable" eval="True"/>
+                                                    </record>
+                                                </field>
+                                            </record>
+                                            <record id="trilab_bs_Pasywa_B_III_3_E" model="account.report.line">
+                                                <field name="name">Delivery and Services Advances Received</field>
+                                                <field name="code">Pasywa_B_III_3_E</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_III_3_E'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                            <record id="trilab_bs_Pasywa_B_III_3_F" model="account.report.line">
+                                                <field name="name">Note Payable</field>
+                                                <field name="code">Pasywa_B_III_3_F</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_III_3_F'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                            <record id="trilab_bs_Pasywa_B_III_3_G" model="account.report.line">
+                                                <field name="name">Taxes, Customs, Social and Health Insurance and Other Public Law Titles</field>
+                                                <field name="code">Pasywa_B_III_3_G</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_III_3_G'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                            <record id="trilab_bs_Pasywa_B_III_3_H" model="account.report.line">
+                                                <field name="name">Remunerations</field>
+                                                <field name="code">Pasywa_B_III_3_H</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_III_3_H'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                            <record id="trilab_bs_Pasywa_B_III_3_I" model="account.report.line">
+                                                <field name="name">Other</field>
+                                                <field name="code">Pasywa_B_III_3_I</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_III_3_I'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                        </field>
+                                    </record>
+                                    <record id="trilab_bs_Pasywa_B_III_4" model="account.report.line">
+                                        <field name="name">Special Funds</field>
+                                        <field name="code">Pasywa_B_III_4</field>
+                                        <field name="hierarchy_level" eval="4"/>
+                                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_III_4'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="trilab_bs_Pasywa_B_IV" model="account.report.line">
+                                <field name="name">Accruals</field>
+                                <field name="code">Pasywa_B_IV</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="aggregation_formula">Pasywa_B_IV_1.balance + Pasywa_B_IV_2.balance</field>
+                                <field name="children_ids">
+                                    <record id="trilab_bs_Pasywa_B_IV_1" model="account.report.line">
+                                        <field name="name">Negative Goodwill</field>
+                                        <field name="code">Pasywa_B_IV_1</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_IV_1'))])</field>
+                                        <field name="groupby">account_id</field>
+                                        <field name="foldable" eval="True"/>
+                                    </record>
+                                    <record id="trilab_bs_Pasywa_B_IV_2" model="account.report.line">
+                                        <field name="name">Other Accruals</field>
+                                        <field name="code">Pasywa_B_IV_2</field>
+                                        <field name="hierarchy_level" eval="3"/>
+                                        <field name="aggregation_formula">Pasywa_B_IV_2_1.balance + Pasywa_B_IV_2_2.balance</field>
+                                        <field name="children_ids">
+                                            <record id="trilab_bs_Pasywa_B_IV_2_1" model="account.report.line">
+                                                <field name="name">- Long Term</field>
+                                                <field name="code">Pasywa_B_IV_2_1</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_IV_2_1'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                            <record id="trilab_bs_Pasywa_B_IV_2_2" model="account.report.line">
+                                                <field name="name">- Short Term</field>
+                                                <field name="code">Pasywa_B_IV_2_2</field>
+                                                <field name="hierarchy_level" eval="4"/>
+                                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.Pasywa_B_IV_2_2'))])</field>
+                                                <field name="groupby">account_id</field>
+                                                <field name="foldable" eval="True"/>
+                                            </record>
+                                        </field>
+                                    </record>
+                                </field>
+                            </record>
+                        </field>
+                    </record>
+                </field>
+            </record>
+        </field>
+    </record>
+
+</odoo>

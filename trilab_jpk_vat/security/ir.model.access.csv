@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_jpk_vat7m_report_wizard,access_jpk_vat7m_report_wizard,model_jpk_vat7m_report_wizard,account.group_account_user,1,1,1,1
+access_jpk_vat7m,"JPK Document Access VAT7M",model_jpk_vat_7m,account.group_account_user,1,1,1,0
+access_admin_jpk_vat7m,"JPK Document Access VAT7M",model_jpk_vat_7m,account.group_account_manager,1,1,1,1
+access_jpk_vat_ue_group,access_jpk_vat_ue_group,trilab_jpk_vat.model_jpk_vat_ue_group,base.group_user,1,1,1,1
+access_jpk_vat_ue,access_jpk_vat_ue,trilab_jpk_vat.model_jpk_vat_ue,base.group_user,1,1,1,1
+access_jpk_vat7m_v2_report_wizard,access_jpk_vat7m_v2_report_wizard,trilab_jpk_vat.model_jpk_vat7m_v2_report_wizard,base.group_user,1,1,1,1
+access_jpk_vat_vat_ue_correction,"access_jpk_vat_vat_ue_correction",model_jpk_vat_vat_ue_correction,account.group_account_user,1,1,1,0
+access_jpk_vat7m_v3_report_wizard,access_jpk_vat7m_v3_report_wizard,trilab_jpk_vat.model_jpk_vat7m_v3_report_wizard,base.group_user,1,1,1,1

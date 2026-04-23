@@ -1,0 +1,64 @@
+id,name,name@pl,code_prefix_start,code_prefix_end
+agchart010,Fixed assets,Środki trwałe,010,010
+agchart020,Intangible assets,Wartości niematerialne i prawne,020,020
+agchart071,Depreciation of fixed assets,Umorzenie środków trwałych,071,071
+agchart072,Depreciation of intangible assets,Umorzenie wartości niematerialnych,072,072
+agchart080,Investments in progress,Inwestycje w toku,080,080
+agchart101,Cash,Kasa,101,101
+agchart130,Current bank accounts,Bieżące rachunki bankowe,130,130
+agchart131,Auxiliary bank accounts,Pomocnicze rachunki bankowe,131,131
+agchart149,Cash on hand,Środki pieniężne w drodze,149,149
+agchart200,Receivables for deliveries,Należności za dostawy,200,200
+agchart205,Payables for deliveries,Zobowiązania za dostawy,205,205
+agchart211,Receivables from POS,Należności z POS,210,210
+agchart220,Budgetary settlements,Rozrachunki budżetowe,220,220
+agchart221,VAT settlements,Rozliczenie VAT,221,221
+agchart222,Customs settlements,Rozrachunki celne,222,222
+agchart224,Settlements with Social Security.,Rozrachunki z ZUS,224,224
+agchart229,Budget receivables to the balance sheet,Należności budżetowe do bilansu,229,229
+agchart231,Payroll settlements,Rozrachunki z tytułu wynagrodzeń,231,231
+agchart234,Settlements with employees,Rozrachunki z pracownikami,234,234
+agchart242,Settlement of inventory,Rozliczenie inwentaryzacji,242,242
+agchart249,Other settlements,Inne rozliczenia,249,249
+agchart250,Settlements with owners,Rozrachunki z właścicielami,250,250
+agchart270,Write-downs of assets,Odpisy aktualizujące aktywa,270,270
+agchart300,Settlement of purchases,Rozliczenie zakupu,300,300
+agchart302,Settlement of sales,Rozliczenie sprzedaży,305,305
+agchart310,Materials,Materiały,310,310
+agchart330,Trade goods,Towary handlowe,330,330
+agchart340,Valuation deviations on materials and merchandise,Odchylenia od wyceny materiałów i towarów,340,340
+agchart400,Depreciation,Amortyzacja,400,400
+agchart401,Consumption of materials and energy,Zużycie materiałów i energii,401,401
+agchart402,External services,Usługi obce,402,402
+agchart403,Taxes and public charges,Podatki i opłaty publiczne,403,403
+agchart404,Salaries and wages,Wynagrodzenia,404,404
+agchart405,Employee benefits,Świadczenia na rzecz pracowników,405,405
+agchart406,Other costs by type,Pozostałe koszty rodzajowe,406,406
+agchart490,Transfer of production costs,Przeniesienie kosztów produkcji,490,490
+agchart580,Settlement of production,Rozliczenie produkcji,580,580
+agchart600,Finished goods,Wyroby gotowe,600,600
+agchart620,Deviations from valuation of finished goods,Odchylenia od wyceny wyrobów gotowych,620,620
+agchart640,Deferred expenses,Rozliczenia międzyokresowe kosztów,640,640
+agchart650,Deferred CIT assets,Aktywa odroczonego CIT,650,650
+agchart701,Revenues from sales of products,Przychody ze sprzedaży wyrobów,701,701
+agchart702,Revenues from sales of services,Przychody ze sprzedaży usług,702,702
+agchart703,Value of products sold,Wartość sprzedanych wyrobów,703,703
+agchart730,Revenue from sales of goods,Przychody ze sprzedaży towarów,730,730
+agchart731,Value of goods sold,Wartość sprzedanych towarów,731,731
+agchart740,Revenues from sales of materials,Przychody ze sprzedaży materiałów,740,740
+agchart741,Value of materials sold,Wartość sprzedanych materiałów,741,741
+agchart750,Financial income,Przychody finansowe,750,750
+agchart751,Financial expenses,Koszty finansowe,751,751
+agchart760,Other operating income,Pozostałe przychody operacyjne,760,760
+agchart761,Other operating expenses,Pozostałe koszty operacyjne,761,761
+agchart800,Share capital,Kapitał zakładowy,800,800
+agchart810,Supplementary capital,Kapitał zapasowy,810,810
+agchart820,Settlement of financial result,Rozliczenie wyniku finansowego,820,820
+agchart830,Long-term provisions,Rezerwy długoterminowe,830,830
+agchart845,Advances received from sales,Otrzymane zaliczki ze sprzedaży,845,845
+agchart849,Other deferred income,Pozostałe przychody przyszłych okresów,849,849
+agchart850,SOCIAL BENEFITS FUND,ZFŚS,850,850
+agchart860,Financial result,Wynik finansowy,860,860
+agchart870,Income tax,Podatek dochodowy,870,870
+agchart991,Accounts of differences of monetary operations,Konta różnic operacji pieniężnych,991,994
+agchart999,Technical balancing account,Konto techniczne bilansujące,999,999

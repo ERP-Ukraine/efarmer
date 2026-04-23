@@ -1,0 +1,122 @@
+<head>
+    <meta charset="UTF-8">
+</head>
+<section class="oe_container app">
+    <div class="oe_row oe_spaced" style="max-width: 95%;">
+        <div class="oe_span12">
+            <h2 class="oe_slogan">Trilab Partners Sync for Poland</h2>
+            <div class="oe_demo" style=" margin: 30px auto 0; padding: 0 15px 0 0; border:none; width: 96%;">
+                <ol>
+                    <li>
+                        Autocomplete data from the Polish GUS/Regon database during the creation or editing
+                        existing partner (company).
+                    </li>
+                    <li>
+                        Validating the status of the entity in VAT (in the Poland Ministry of Finance database)
+                        with status change history.
+                    </li>
+                    <li>
+                        Validating the status of the entity in EU VAT Registry (VIES)
+                        with status change history.
+                    </li>
+                    <li>
+                        Validating the status of parent in Bad Debtors Register - Krajowy Rejestr Długów,
+                        with status validation history.
+                    </li>
+                </ol>
+                <p>
+                    Mass actions:
+                </p>
+                <ul>
+                    <li>mass validation of the VAT status of contractors</li>
+                    <li>mass update of data from the CSO / REGON database</li>
+                </ul>
+
+                <p>
+                    To use this module, you need an API key obtained from
+                    <a href="https://api.stat.gov.pl/Home/RegonApi" target="_blank">GUS Page</a>.
+                </p>
+                <p>
+                    This module requires two external python modules: '<code>zeep</code>', '<code>stdnum</code>'.<br/>
+                    Make sure, it is installed before installing this module.<br/>
+                    For odoo.sh, add those modules in <code>requirements.txt</code> file in root of your branch.
+                </p>
+
+                <ol>
+                    <li>
+                        Automatyczne podpowiadanie danych z bazy GUS/Regon w trakcie zakładania nowego lub edycji
+                        istniejącego kontrahenta.<br/>
+                        <img src="scr1.png" width="600"/>
+                        <p></p>
+                        <img src="scr2.png" width="600"/>
+                    </li>
+
+                    <li>
+                        Sprawdzanie statusu podmiotu w VAT (w bazie danych Ministerstwa finansów) z zapisywaniem
+                        historii w przypadku zmian statusu.
+                    </li>
+                    <li>
+                        Sprawdzanie statusu podmiotu w bazie VAT EU (VIES) z zapisywaniem
+                        historii w przypadku zmian statusu.
+                    </li>
+                    <li>
+                        Sprawdzanie statusu podmiotu bazie KRD - Krajowego Rejestru Długów
+                        z zapisywaniem historii weryfikacji.
+                        <br/>
+                        <img src="scr3.png" width="600"/>
+                    </li>
+                </ol>
+                <p>
+                    Akcje masowe:
+                </p>
+                <ul>
+                    <li>masowe sprawdzanie statusu VAT kontrahentów</li>
+                    <li>masowa aktualizacja danych z bazy GUS/REGON</li>
+                </ul>
+
+                <p>
+                    Moduł ten wymaga:
+                </p>
+                <ul>
+                    <li> klucza dostępu do API GUS. Klucz ten można uzyskać po zarejestrowaniu się na
+                        <a href="https://api.stat.gov.pl/Home/RegonApi" target="_blank">Stronie GUS</a></li>
+                    <li> użytkownika i hasła do KRD (usługa oddzielnie płatna w KRD). </li>
+                </ul>
+
+                <p>
+                    Moduł ten używa dwóch zewnętrznych modułów python: '<code>zeep</code>', '<code>stdnum</code>'.<br/>
+                    Upewnij się, że moduł ten jest zainstalowany przed uruchomieniem instalacji tego modułu.<br/>
+                    Dla odoo.sh, dodaj ten moduł do pliku <code>requirements.txt</code> w katalogu głównym
+                    swojego brancha.
+                </p>
+
+                <p>Wspiera wersję 18 Odoo.</p>
+
+            </div>
+        </div>
+    </div>
+    <div class="oe_row oe_spaced text-center">
+        <div class="oe_span12">
+            <h2 class="oe_slogan">Technical Help & Support</h2>
+        </div>
+        <div class="col-md-12 pad0">
+            <div class="oe_mt16">
+                <h4>For any type of technical help & support requests, Feel free to contact us</h4>
+                <p>
+                    <a style="background: #002e5a  none repeat scroll 0 0; color: rgb(255, 255, 255);position: relative; overflow: hidden;"
+                       class="btn btn-warning btn-lg" rel="nofollow" href="mailto:odoo@trilab.pl"><span
+                            style="height: 354px; width: 354px; top: -147.433px; left: -6.93335px;"
+                            class="o_ripple"></span>
+                        <i class="fa fa-envelope"></i> odoo@trilab.pl</a>
+                </p>
+            </div>
+            <div class="oe_mt16">
+                <h4>Visit our website for more support.</h4>
+                <a style="background: #002e5a  none repeat scroll 0 0; color: rgb(255, 255, 255);position: relative; overflow: hidden;"
+                   class="btn btn-warning btn-lg" rel="nofollow" href="https://trilab.pl" target="_blank"><span
+                        style="height: 354px; width: 354px; top: -147.433px; left: -6.93335px;" class="o_ripple"></span>
+                    <i class="fa fa-web"></i>https://trilab.pl</a>
+            </div>
+        </div>
+    </div>
+</section>
