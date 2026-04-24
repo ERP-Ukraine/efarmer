@@ -14,9 +14,15 @@
     'website': 'https://ventor.tech',
     'license': 'LGPL-3',
     'depends': [
-        'base'
+        'efarmer_sale_workflow',
+        'trilab_jpk_base',
+        'trilab_invoice',
+        'mrp',
     ],
     'data': [
+        # Model Views
+        'data/trilab_vat_reports.xml',
+        'views/sale_order_views.xml',
     ],
     'installable': True,
     'application': True,
