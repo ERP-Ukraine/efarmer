@@ -293,23 +293,23 @@ def migrate(cr, version):
     # =====================================================
     # CLEAN CONFIG PARAMETERS (avoid duplicate key error)
     # =====================================================
-    _logger.info("Cleaning ir.config_parameter duplicates")
+    # _logger.info("Cleaning ir.config_parameter duplicates")
 
-    params = [
+    # params = [
         # ("integration.import_data_block_size", "5000"),
         # ("integration.export_inventory_block_size", "250"),
         # ("integration.integration_api_key", "8c60bb92a2a7beb2a0fc399f0831d6d818a87441"),
         # ("vt_ecosystem.ecosystem_api_url", "https://ecosystem-api.ventor.tech/v1"),
         # ("integration.skip_convert_to_webp", "0"),
-    ]
+    # ]
 
-    keys = [key for key, value in params]
-    placeholders = ','.join(['%s'] * len(keys))
-    cr.execute(f"""
-        DELETE FROM ir_config_parameter
-        WHERE key IN ({placeholders})
-    """, tuple(keys))
-    _logger.info(f"  Deleted {cr.rowcount} config param records")
+    # keys = [key for key, value in params]
+    # placeholders = ','.join(['%s'] * len(keys))
+    # cr.execute(f"""
+    #     DELETE FROM ir_config_parameter
+    #     WHERE key IN ({placeholders})
+    # """, tuple(keys))
+    # _logger.info(f"  Deleted {cr.rowcount} config param records")
 
     # =====================================================
     # DELETE IN STRICT ORDER (FK SAFE)
