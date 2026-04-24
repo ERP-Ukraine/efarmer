@@ -1,7 +1,6 @@
 import base64
 
 from lxml import etree
-
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 from odoo.tools import float_repr
@@ -30,25 +29,15 @@ P_48_SUM_FIELDS = ('p_39', 'p_41', 'p_43', 'p_44', 'p_45', 'p_46', 'p_47')
 
 COMPUTED_FIELDS = ('p_37', 'p_38', 'p_48', 'p_51', 'p_53', 'p_62')
 
+JPK_V7M_V3_SYSTEM_CODE = 'JPK_V7M (3)'
+
 
 class JPKV7M(models.Model):
     _name = 'jpk.vat.7m'
+    _inherit = 'jpk.document.mixin'
     _description = 'JPK V7M/V7K'
 
-    version = fields.Char(string='JPK Version')
-    technical_version = fields.Selection(
-        selection=[
-            ('v1', 'v1'),
-            ('v2', 'v2'),
-            ('v3', 'v3'),
-        ],
-        required=True,
-    )
-
-    year = fields.Integer(string='Year')
-    month = fields.Integer(string='Month')
-
-    cel_zlozenia = fields.Integer(string='Cel złożenia')
+    system_code = fields.Char(related='document_type_id.system_code')
 
     czesc_deklaracyjna = fields.Boolean(string='Część deklaracyjna', default=True)
     czesc_ewidencyjna = fields.Boolean(string='Część ewidencyjna', default=True)
@@ -57,65 +46,65 @@ class JPKV7M(models.Model):
         string='P_10',
         default=0,
         help='Zbiorcza wysokość podstawy opodatkowania z tytułu dostawy towarów oraz świadczenia usług na terytorium '
-        'kraju, zwolnionych od podatku – wykazana w K_10',
+        'kraju, zwolnionych od podatku - wykazana w K_10',
     )
     p_11 = fields.Integer(
         string='P_11',
         default=0,
         help='Zbiorcza wysokość podstawy opodatkowania z tytułu dostawy towarów oraz świadczenia usług poza '
-        'terytorium kraju – wykazana w K_11',
+        'terytorium kraju - wykazana w K_11',
     )
     p_12 = fields.Integer(
         string='P_12',
         default=0,
         help='Zbiorcza wysokość podstawy opodatkowania z tytułu świadczenia usług, o których mowa w art. 100 ust. 1 '
-        'pkt 4 ustawy – wykazana w K_12',
+        'pkt 4 ustawy - wykazana w K_12',
     )
     p_13 = fields.Integer(
         string='P_13',
         default=0,
         help='Zbiorcza wysokość podstawy opodatkowania z tytułu dostawy towarów oraz świadczenia usług na terytorium '
-        'kraju, opodatkowanych stawką 0% – wykazana w K_13',
+        'kraju, opodatkowanych stawką 0% - wykazana w K_13',
     )
     p_14 = fields.Integer(
         string='P_14',
         default=0,
         help='Zbiorcza wysokość podstawy opodatkowania z tytułu dostawy towarów, o której mowa w art. 129 ustawy '
-        '– wykazana w K_14',
+        '- wykazana w K_14',
     )
     p_15 = fields.Integer(
         string='P_15',
         default=0,
         help='Zbiorcza wysokość podstawy opodatkowania z tytułu dostawy towarów oraz świadczenia usług na terytorium '
-        'kraju, opodatkowanych stawką 5%, oraz korekty dokonanej zgodnie z art. 89a ust. 1 i 4 ustawy – wykazana w '
+        'kraju, opodatkowanych stawką 5%, oraz korekty dokonanej zgodnie z art. 89a ust. 1 i 4 ustawy - wykazana w '
         'K_15',
     )
     p_16 = fields.Integer(
         string='P_16',
         default=0,
         help='Zbiorcza wysokość podatku należnego z tytułu dostawy towarów oraz świadczenia usług na terytorium kraju, '
-        'opodatkowanych stawką 5%, oraz korekty dokonanej zgodnie z art. 89a ust. 1 i 4 ustawy – wykazana w K_16',
+        'opodatkowanych stawką 5%, oraz korekty dokonanej zgodnie z art. 89a ust. 1 i 4 ustawy - wykazana w K_16',
     )
     p_17 = fields.Integer(
         string='P_17',
         default=0,
         help='Zbiorcza wysokość podstawy opodatkowania z tytułu dostawy towarów oraz świadczenia usług na terytorium '
         'kraju, opodatkowanych stawką 7% albo 8%, oraz korekty dokonanej zgodnie z art. 89a ust. 1 i 4 ustawy '
-        '– wykazana w K_17',
+        '- wykazana w K_17',
     )
     p_18 = fields.Integer(
         string='P_18',
         default=0,
         help='Zbiorcza wysokość podatku należnego z tytułu dostawy towarów oraz świadczenia usług na terytorium '
         'kraju, opodatkowanych stawką 7% albo 8%, oraz korekty dokonanej zgodnie z art. 89a ust. 1 i 4 ustawy '
-        '– wykazana w K_18',
+        '- wykazana w K_18',
     )
     p_19 = fields.Integer(
         string='P_19',
         default=0,
         help='Zbiorcza wysokość podstawy opodatkowania z tytułu dostawy towarów oraz świadczenia usług na terytorium '
         'kraju, opodatkowanych stawką 22% albo 23%, oraz korekty dokonanej zgodnie z art. 89a ust. 1 i 4 ustawy '
-        '– wykazana w K_19',
+        '- wykazana w K_19',
     )
     p_20 = fields.Integer(
         string='P_20',
@@ -124,43 +113,42 @@ class JPKV7M(models.Model):
         'towarów oraz świadczenia usług na terytorium kraju, '
         'opodatkowanych stawką 22% albo 23%, oraz korekty '
         'dokonanej zgodnie z art. 89a ust. 1 i 4 ustawy '
-        '– wykazana w K_20',
+        '- wykazana w K_20',
     )
     p_21 = fields.Integer(
         string='P_21',
         default=0,
-        help='Zbiorcza wysokość podstawy opodatkowania z tytułu '
-        'wewnątrzwspólnotowej dostawy towarów – wykazana w K_21',
+        help='Zbiorcza wysokość podstawy opodatkowania z tytułu wewnątrzwspólnotowej dostawy towarów - wykazana w K_21',
     )
     p_22 = fields.Integer(
         string='P_22',
         default=0,
-        help='Zbiorcza wysokość podstawy opodatkowania z tytułu ' 'eksportu towarów – wykazana w K_22',
+        help='Zbiorcza wysokość podstawy opodatkowania z tytułu eksportu towarów - wykazana w K_22',
     )
     p_23 = fields.Integer(
         string='P_23',
         default=0,
         help='Zbiorcza wysokość podstawy opodatkowania z tytułu '
-        'wewnątrzwspólnotowego nabycia towarów – wykazana w K_23',
+        'wewnątrzwspólnotowego nabycia towarów - wykazana w K_23',
     )
     p_24 = fields.Integer(
         string='P_24',
         default=0,
-        help='Zbiorcza wysokość podatku należnego z tytułu ' 'wewnątrzwspólnotowego nabycia towarów – wykazana w K_24',
+        help='Zbiorcza wysokość podatku należnego z tytułu wewnątrzwspólnotowego nabycia towarów - wykazana w K_24',
     )
     p_25 = fields.Integer(
         string='P_25',
         default=0,
         help='Zbiorcza wysokość podstawy opodatkowania z tytułu '
         'importu towarów rozliczanego zgodnie z art. 33a ustawy '
-        '– wykazana w K_25',
+        '- wykazana w K_25',
     )
     p_26 = fields.Integer(
         string='P_26',
         default=0,
         help='Zbiorcza wysokość podatku należnego z tytułu importu '
         'towarów rozliczanego zgodnie z art. 33a ustawy '
-        '– wykazana w K_26',
+        '- wykazana w K_26',
     )
     p_27 = fields.Integer(
         string='P_27',
@@ -168,7 +156,7 @@ class JPKV7M(models.Model):
         help='Zbiorcza wysokość podstawy opodatkowania z tytułu '
         'importu usług, zwyłączeniem usług nabywanych od '
         'podatników podatku od wartości dodanej, do których '
-        'stosuje się art. 28b ustawy – wykazana w K_27',
+        'stosuje się art. 28b ustawy - wykazana w K_27',
     )
     p_28 = fields.Integer(
         string='P_28',
@@ -176,7 +164,7 @@ class JPKV7M(models.Model):
         help='Zbiorcza wysokość podatku należnego z tytułu '
         'importu usług, zwyłączeniem usług nabywanych od '
         'podatników podatku od wartości dodanej, do których '
-        'stosuje się art. 28b ustawy – wykazana w K_28',
+        'stosuje się art. 28b ustawy - wykazana w K_28',
     )
     p_29 = fields.Integer(
         string='P_29',
@@ -184,7 +172,7 @@ class JPKV7M(models.Model):
         help='Zbiorcza wysokość podstawy opodatkowania z tytułu '
         'importu usług nabywanych od podatników podatku od '
         'wartości dodanej, do których stosuje się art. 28b '
-        'ustawy – wykazana w K_29',
+        'ustawy - wykazana w K_29',
     )
     p_30 = fields.Integer(
         string='P_30',
@@ -192,35 +180,35 @@ class JPKV7M(models.Model):
         help='Zbiorcza wysokość podatku należnego z tytułu '
         'importu usług nabywanych od podatników podatku od '
         'wartości dodanej, do których stosuje się art. 28b '
-        'ustawy – wykazana w K_30',
+        'ustawy - wykazana w K_30',
     )
     p_31 = fields.Integer(
         string='P_31',
         default=0,
         help='Zbiorcza wysokość podstawy opodatkowania z tytułu '
         'dostawy towarów, dla których podatnikiem jest nabywca '
-        'zgodnie z art. 17 ust. 1 pkt 5 ustawy – wykazana w K_31',
+        'zgodnie z art. 17 ust. 1 pkt 5 ustawy - wykazana w K_31',
     )
     p_32 = fields.Integer(
         string='P_32',
         default=0,
         help='Zbiorcza wysokość podatku należnego z tytułu '
         'dostawy towarów, dla których podatnikiem jest nabywca '
-        'zgodnie z art. 17 ust. 1 pkt 5 ustawy – wykazana w K_32',
+        'zgodnie z art. 17 ust. 1 pkt 5 ustawy - wykazana w K_32',
     )
     p_33 = fields.Integer(
         string='P_33',
         default=0,
         help='Zbiorcza wysokość podatku należnego od towarów objętych '
         'spisem z natury, o którym mowa w art. 14 ust. 5 ustawy '
-        '– wykazana w K_33',
+        '- wykazana w K_33',
     )
     p_34 = fields.Integer(
         string='P_34',
         default=0,
         help='Zbiorcza wysokość zwrotu odliczonej lub zwróconej kwoty '
         'wydanej na zakup kas rejestrujących, o którym mowa w '
-        'art. 111 ust. 6 ustawy – wykazana w K_34',
+        'art. 111 ust. 6 ustawy - wykazana w K_34',
     )
     p_35 = fields.Integer(
         string='P_35',
@@ -230,7 +218,7 @@ class JPKV7M(models.Model):
         'wykazana w wysokości podatku należnego z tytułu '
         'określonego w P_24, podlegająca wpłacie w terminie, '
         'o którym mowa w art. 103 ust. 3, w związku z ust. 4 '
-        'ustawy – wykazana w K_35',
+        'ustawy - wykazana w K_35',
     )
     p_36 = fields.Integer(
         string='P_36',
@@ -239,7 +227,7 @@ class JPKV7M(models.Model):
         'wewnątrzwspólnotowego nabycia towarów, o których mowa '
         'w art. 103 ust. 5aa ustawy, podlegająca wpłacie '
         'w terminach, o których mowa w art. 103 ust. 5a '
-        'i 5b ustawy – wykazana w K_36',
+        'i 5b ustawy - wykazana w K_36',
     )
     p_37 = fields.Integer(
         string='P_37',
@@ -270,24 +258,24 @@ class JPKV7M(models.Model):
         default=0,
         help='Zbiorcza wartość netto z tytułu nabycia towarów '
         'i usług zaliczanych upodatnika do środków trwałych '
-        '– wykazana w K_40',
+        '- wykazana w K_40',
     )
     p_41 = fields.Integer(
         string='P_41',
         default=0,
         help='Zbiorcza wysokość podatku naliczonego z tytułu '
         'nabycia towarów i usług zaliczanych u podatnika '
-        'do środków trwałych – wykazana w K_41',
+        'do środków trwałych - wykazana w K_41',
     )
     p_42 = fields.Integer(
         string='P_42',
         default=0,
-        help='Zbiorcza wartość netto z tytułu nabycia pozostałych ' 'towarów i usług – wykazana w K_42',
+        help='Zbiorcza wartość netto z tytułu nabycia pozostałych towarów i usług - wykazana w K_42',
     )
     p_43 = fields.Integer(
         string='P_43',
         default=0,
-        help='Zbiorcza wysokość podatku naliczonego z tytułu ' 'nabycia pozostałych towarów i usług – wykazana w K_43',
+        help='Zbiorcza wysokość podatku naliczonego z tytułu nabycia pozostałych towarów i usług - wykazana w K_43',
     )
     p_44 = fields.Integer(
         string='P_44',
@@ -295,35 +283,34 @@ class JPKV7M(models.Model):
         help='Zbiorcza wysokość podatku naliczonego z tytułu '
         'korekty podatku naliczonego od nabycia towarów i usług '
         'zaliczanych u podatnika do środków trwałych '
-        '– wykazana w K_44',
+        '- wykazana w K_44',
     )
     p_45 = fields.Integer(
         string='P_45',
         default=0,
         help='Zbiorcza wysokość podatku naliczonego z tytułu '
         'korekty podatku naliczonego od nabycia pozostałych '
-        'towarów i usług – wykazana w K_45',
+        'towarów i usług - wykazana w K_45',
     )
     p_46 = fields.Integer(
         string='P_46',
         default=0,
         help='Zbiorcza wysokość podatku naliczonego z tytułu korekty '
         'podatku naliczonego, o której mowa w art. 89b ust. 1 '
-        'ustawy – wykazana w K_46',
+        'ustawy - wykazana w K_46',
     )
     p_47 = fields.Integer(
         string='P_47',
         default=0,
         help='Zbiorcza wysokość podatku naliczonego z tytułu '
         'korekty podatku naliczonego, o której mowa '
-        'w art. 89b ust. 4 ustawy – wykazana w K_47',
+        'w art. 89b ust. 4 ustawy - wykazana w K_47',
     )
     p_48 = fields.Integer(
         string='P_48',
         readonly=True,
         compute='_compute_p48',
-        help='Łączna wysokość podatku naliczonego do odliczenia. '
-        'Suma kwot z P_39, P_41, P_43, P_44, P_45, P_46 i P_47',
+        help='Łączna wysokość podatku naliczonego do odliczenia. Suma kwot z P_39, P_41, P_43, P_44, P_45, P_46 i P_47',
     )
 
     p_49 = fields.Integer(
@@ -345,7 +332,7 @@ class JPKV7M(models.Model):
         help='Wysokość podatku objęta zaniechaniem poboru. '
         'Podaje się wysokość podatku objętą zaniechaniem poboru '
         'na podstawie art. 22 ustawy z dnia 29 sierpnia 1997 r. '
-        '– Ordynacja podatkowa (Dz. U. z 2019 r. poz. 900, '
+        '- Ordynacja podatkowa (Dz. U. z 2019 r. poz. 900, '
         'z późn. zm.), do wysokości nadwyżki podatku należnego '
         'nad naliczonym pomniejszonej o wysokość ulgi na zakup '
         'kas rejestrujących, do odliczenia w danym okresie '
@@ -369,7 +356,7 @@ class JPKV7M(models.Model):
         'podatku należnego w danym okresie rozliczeniowym lub '
         'wysokość ulgi na zakup kas rejestrujących jest większa '
         'od wysokości nadwyżki podatku należnego nad naliczonym '
-        '– w P_52 podaje się pozostałą nieodliczoną w P_49 '
+        '- w P_52 podaje się pozostałą nieodliczoną w P_49 '
         'wysokość ulgi na zakup kas rejestrujących, '
         'przysługującą podatnikowi do zwrotu lub do '
         'odliczenia od podatku należnego za następne '
@@ -394,6 +381,7 @@ class JPKV7M(models.Model):
         'zwrotowi na rachunek bankowy podatnika oraz do '
         'zaliczenia na poczet przyszłych zobowiązań podatkowych.',
     )
+
     p_55_58 = fields.Selection(
         selection=[
             ('P_55', 'Zwrot na rachunek VAT, o którym mowa w art. 87 ust. 6a ustawy'),
@@ -403,13 +391,14 @@ class JPKV7M(models.Model):
         ],
         default='P_55',
     )
+
     p_55_58_v3 = fields.Selection(
         selection=[
-            ('P_540', 'Zwrot na rachunek rozliczeniowy podatnika w terminie 15 dni'),
-            ('P_55', 'Zwrot na rachunek VAT podatnika w terminie 25 dni'),
-            ('P_56', 'Zwrot na rachunek rozliczeniowy podatnika w terminie 25 dni (art. 87 ust. 6 ustawy'),
-            ('P_560', 'Zwrot na rachunek rozliczeniowy podatnika w terminie 40 dni'),
-            ('P_58', 'Zwrot na rachunek rozliczeniowy podatnika w terminie 180 dni'),
+            ('P_540', 'Zwrot na rachunek rozliczeniowy podatnika w terminie 15 dni: 1 - tak'),
+            ('P_55', 'Zwrot na rachunek VAT podatnika w terminie 25 dni: 1 - tak'),
+            ('P_56', 'Zwrot na rachunek rozliczeniowy podatnika w terminie 25 dni (art. 87 ust. 6 ustawy): 1 - tak'),
+            ('P_560', 'Zwrot na rachunek rozliczeniowy podatnika w terminie 40 dni: 1 - tak'),
+            ('P_58', 'Zwrot na rachunek rozliczeniowy podatnika w terminie 180 dni: 1 - tak'),
         ],
         default='P_55',
     )
@@ -444,7 +433,7 @@ class JPKV7M(models.Model):
         string='P_62',
         readonly=True,
         compute='_compute_p62',
-        help='Wysokość nadwyżki podatku naliczonego nad należnym do przeniesienia na następny ' 'okres rozliczeniowy.',
+        help='Wysokość nadwyżki podatku naliczonego nad należnym do przeniesienia na następny okres rozliczeniowy.',
     )
     p_63 = fields.Boolean(
         string='P_63',
@@ -529,68 +518,55 @@ class JPKV7M(models.Model):
         'art. 109b ust. 4 ustawy.',
     )
 
-    source_xml = fields.Binary()
-    document_type_id = fields.Many2one('jpk.document.type')
-    is_jpk_transfer_installed = fields.Boolean(compute='_compute_jpk_transfer')
-
-    @api.depends_context('company')
-    def _compute_jpk_transfer(self):
-        for rec in self:
-            rec.is_jpk_transfer_installed = self.env.company.x_is_jpk_transfer_installed()
-
     @api.depends(*P_37_SUM_FIELDS)
     def _compute_p37(self):
-        for rec in self:
-            rec.p_37 = sum([rec[n] if rec[n] else 0 for n in P_37_SUM_FIELDS])
+        for rec_id in self:
+            rec_id.p_37 = sum([rec_id[field] if rec_id[field] else 0 for field in P_37_SUM_FIELDS])
 
     @api.depends(*P_38_SUM_FIELDS)
     def _compute_p38(self):
-        for rec in self:
-            rec.p_38 = sum([rec[n] if rec[n] else 0 for n in P_38_PLUS_SUM_FIELDS]) - sum(
-                [rec[n] if rec[n] else 0 for n in P_38_MINUS_SUM_FIELDS]
+        for rec_id in self:
+            rec_id.p_38 = sum([rec_id[field] if rec_id[field] else 0 for field in P_38_PLUS_SUM_FIELDS]) - sum(
+                [rec_id[field] if rec_id[field] else 0 for field in P_38_MINUS_SUM_FIELDS]
             )
 
     @api.depends(*P_48_SUM_FIELDS)
     def _compute_p48(self):
-        for rec in self:
-            rec.p_48 = sum([rec[n] if rec[n] else 0 for n in P_48_SUM_FIELDS])
+        for rec_id in self:
+            rec_id.p_48 = sum([rec_id[field] if rec_id[field] else 0 for field in P_48_SUM_FIELDS])
 
     @api.depends('p_38', 'p_48', 'p_49', 'p_50')
     def _compute_p51(self):
-        for rec in self:
-            _sum = rec.p_38 - rec.p_48
-            rec.p_51 = (_sum - rec.p_49 - rec.p_50) if _sum > 0 else 0
+        for rec_id in self:
+            _sum = rec_id.p_38 - rec_id.p_48
+            rec_id.p_51 = (_sum - rec_id.p_49 - rec_id.p_50) if _sum > 0 else 0
 
     @api.depends('version', 'p_38', 'p_48', 'p_49', 'p_51', 'p_50', 'p_52')
     def _compute_p53(self):
-        for rec in self:
-            if rec.version == '1-0E':
-                # Jeżeli P_51 > 0 to P_53 = 0 w przeciwnym wypadku jeżeli (P_48 + P_49 + P_50  + P_52) – P_38 >  0
-                # to P_53 = P_48 - P_38 + P_49 + P_50  + P_52 w pozostałych przypadkach P_53 = 0.
-                if rec.p_51 > 0:
-                    rec.p_53 = 0
-                elif rec.p_48 + rec.p_49 + rec.p_50 + rec.p_52 - rec.p_38 >= 0:
-                    rec.p_53 = rec.p_48 - rec.p_38 + rec.p_49 + rec.p_50 + rec.p_52
+        for rec_id in self:
+            if rec_id.version == '1-0E':
+                # Jeżeli P_51 > 0 to P_53 = 0 w przeciwnym wypadku, jeżeli (P_48 + P_49 + P_50 + P_52) - P_38 > 0
+                # to P_53 = P_48 - P_38 + P_49 + P_50 + P_52 w pozostałych przypadkach P_53 = 0.
+                if rec_id.p_51 > 0:
+                    rec_id.p_53 = 0
+                elif rec_id.p_48 + rec_id.p_49 + rec_id.p_50 + rec_id.p_52 - rec_id.p_38 >= 0:
+                    rec_id.p_53 = rec_id.p_48 - rec_id.p_38 + rec_id.p_49 + rec_id.p_50 + rec_id.p_52
                 else:
-                    rec.p_53 = 0
+                    rec_id.p_53 = 0
             else:
-                _sum = rec.p_48 - rec.p_38
-                rec.p_53 = (_sum - +rec.p_52) if _sum >= 0 else 0
+                _sum = rec_id.p_48 - rec_id.p_38
+                rec_id.p_53 = (_sum - rec_id.p_52) if _sum >= 0 else 0
 
     @api.depends('p_53', 'p_54')
     def _compute_p62(self):
-        for rec in self:
-            rec.p_62 = rec.p_53 - rec.p_54
+        for rec_id in self:
+            rec_id.p_62 = rec_id.p_53 - rec_id.p_54
 
     @api.constrains('cel_zlozenia', 'czesc_deklaracyjna', 'czesc_ewidencyjna')
     def _check_correction(self):
-        for record in self:
-            if record.cel_zlozenia == 2 and not any([record.czesc_deklaracyjna, record.czesc_ewidencyjna]):
+        for rec_id in self:
+            if rec_id.cel_zlozenia == 2 and not any([rec_id.czesc_deklaracyjna, rec_id.czesc_ewidencyjna]):
                 raise ValidationError('Przynajmniej jedna sekcja musi być wskazana')
-
-    # noinspection PyUnusedLocal
-    def get_report_filename(self, options=None):
-        return f'v7m_{self.month}_{self.year}{self.cel_zlozenia > 1 and "_korekta" or ""}'
 
     @api.model
     def get_xml_tns_map(self):
@@ -616,6 +592,7 @@ class JPKV7M(models.Model):
             if pozycje:
                 pozycje = pozycje[0]
                 pozycje.clear()
+
             else:
                 deklaracja = root.xpath('tns:Deklaracja', namespaces={'tns': tns})[0]
                 pozycje = etree.SubElement(deklaracja, etree.QName(tns, 'PozycjeSzczegolowe'))
@@ -623,15 +600,16 @@ class JPKV7M(models.Model):
             fields_def = self.fields_get()
             elements = {}
 
-            for field in filter(lambda x: x.startswith('p_'), self.fields_get_keys()):
-                if self.technical_version == 'v3' and field == "p_55_58":
+            for field in filter(lambda x: x.startswith('p_'), self._fields):
+                if field == 'p_55_58' and self.system_code == JPK_V7M_V3_SYSTEM_CODE:
                     continue
-                elif self.technical_version != 'v3' and field == "p_55_58_v3":
+
+                if field == 'p_55_58_v3' and self.system_code != JPK_V7M_V3_SYSTEM_CODE:
                     continue
 
                 # exceptions
                 # skip p_54 to p_58 if p_54 is 0
-                if field in ('p_54', "p_55_58_v3", "p_55_58") and self.p_54 == 0:
+                if field in ('p_54', 'p_55_58', 'p_55_58_v3') and self.p_54 == 0:
                     continue
 
                 # skip p_59 to p_61 if p_59 is not set
@@ -644,25 +622,31 @@ class JPKV7M(models.Model):
                     if not value and value != '':
                         # skip
                         continue
+
                 elif field_type == 'integer':
                     value = str(value)
+
                 elif field_type == 'float':
                     value = float_repr(value, 2)
+
                 elif field_type == 'selection':
                     if not value and value != '':
                         continue
 
                     field = value
                     value = '1'
+
                 elif field_type == 'boolean':
                     if not value:
                         continue
+
                     value = '1'
 
                 elements[field.upper()] = value
 
             for element, value in sorted(elements.items()):
                 etree.SubElement(pozycje, etree.QName(tns, element)).text = value
+
         else:
             for deklaracja in root.xpath('tns:Deklaracja', namespaces={'tns': tns}):
                 root.remove(deklaracja)
@@ -675,15 +659,18 @@ class JPKV7M(models.Model):
 
     def action_generate_xml(self):
         return {
-            'type': 'ir_actions_account_report_download',
-            'data': {'model': self._name, 'options': '{}', 'output_format': 'xml', 'financial_id': self.id},
+            'type': 'ir.actions.report',
+            'report_name': 'trilab_jpk_vat.jpk_vat7m_report',
+            'report_type': 'jpk_xml',
+            'report_file': 'trilab_jpk_vat.jpk_vat7m_report',
+            'name': 'VAT 7M',
         }
 
     def action_transfer_xml(self):
         document_type = 'trilab_jpk_base.jpk_v7m_1_2_doc_type'
         if self.version == '1-0E':
             document_type = 'trilab_jpk_base.jpk_v7m_1_0_doc_type'
-            if self.document_type_id.system_code == 'JPK_V7M (3)':
+            if self.system_code == JPK_V7M_V3_SYSTEM_CODE:
                 document_type = 'trilab_jpk_base.jpk_v7m_3_1_0e_doc_type'
 
         # noinspection PyUnresolvedReferences
@@ -702,7 +689,7 @@ class JPKV7M(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'jpk.transfer',
-            'views': [[False, 'form']],
+            'view_mode': 'form',
             'res_id': transfer_id.id,
             # 'target': 'new'
         }
@@ -713,4 +700,7 @@ class JPKV7M(models.Model):
         return {'type': 'ir.actions.act_window_close'}
 
     def action_generate_pdf(self):
-        return self.env.ref('trilab_jpk_vat.report_jpk_vat_7m_pdf').report_action(self)
+        return self.env.ref('trilab_jpk_vat.action_print_report_jpk_vat7m_report_pdf').report_action(self)
+
+    def get_print_report_name(self):
+        return f'vat_7m_{self.version.replace("-", "_")}_{self.month:02d}_{self.year}{self.cel_zlozenia > 1 and "_korekta" or ""}'

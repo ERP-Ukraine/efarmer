@@ -8,4 +8,13 @@
         </record>
 
     </data>
+
+    <data noupdate="0">
+
+        <record model="ir.config_parameter" id="interation_graphql_version">
+            <field name="key">integration.graphql_version</field>
+            <field name="value">2026-01</field>
+        </record>
+
+    </data>
 </odoo>

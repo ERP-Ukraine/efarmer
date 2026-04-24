@@ -1,6 +1,6 @@
 # See LICENSE file for full copyright and licensing details.
 
-from odoo.tests import TransactionCase
+from odoo.tests import TransactionCase, tagged
 
 from ..tools import PickingLine, PickingSerializer, SaleTransferSerializer
 
@@ -10,33 +10,33 @@ from ..tools import PickingLine, PickingSerializer, SaleTransferSerializer
 # )
 
 picking_lines1 = [
-    ('external_id1', 5, 12 , True),
-    ('external_id1', 4, 3 , False),
-    ('external_id2', 3, 1 , False),
-    ('external_id2', 3, 6 , True),
-    ('external_id3', 6, 4 , False),
+    ('external_id1', 5, 12 , True, True),
+    ('external_id1', 4, 3 , False, True),
+    ('external_id2', 3, 1 , False, True),
+    ('external_id2', 3, 6 , True, True),
+    ('external_id3', 6, 4 , False, True),
 ]
 
 picking_lines2 = [
-    ('external_id1', 5, 21 , True),
-    ('external_id2', 3, 13 , True),
-    ('external_id3', 6, 1 , False),
+    ('external_id1', 5, 21 , True, True),
+    ('external_id2', 3, 13 , True, True),
+    ('external_id3', 6, 1 , False, True),
 ]
 
 picking_lines3 = [
-    ('external_id1', 5, 10 , True),
-    ('external_id2', 3, 12 , True),
-    ('external_id3', 6, 1 , False),
+    ('external_id1', 5, 10 , True, True),
+    ('external_id2', 3, 12 , True, True),
+    ('external_id3', 6, 1 , False, True),
 ]
 
 picking_lines4 = [
-    ('external_id1', 5, 16 , True),
-    ('external_id2', 3, 17 , True),
-    ('external_id3', 6, 2 , False),
+    ('external_id1', 5, 16 , True, True),
+    ('external_id2', 3, 17 , True, True),
+    ('external_id3', 6, 2 , False, True),
 ]
 
 picking_lines5 = [
-    ('external_id1', 5, 1, False),
+    ('external_id1', 5, 1, False, True),
 ]
 
 data_list1 = [
@@ -45,6 +45,7 @@ data_list1 = [
             'erp_id': 104,
             'name': 'Picking1-standard',
             'carrier': 'Carrier',
+            'carrier_code': 'Carrier',
             'tracking': 'tracking_ref1',
             'is_backorder': False,
             'is_dropship': False,
@@ -56,6 +57,7 @@ data_list1 = [
             'erp_id': 105,
             'name': 'Picking2-backorder',
             'carrier': 'Carrier',
+            'carrier_code': 'Carrier',
             'tracking': 'tracking_ref2',
             'is_backorder': True,
             'is_dropship': False,
@@ -67,6 +69,7 @@ data_list1 = [
             'erp_id': 103,
             'name': 'Picking3-dropship',
             'carrier': 'Carrier',
+            'carrier_code': 'Carrier',
             'tracking': 'tracking_ref3',
             'is_backorder': False,
             'is_dropship': True,
@@ -81,6 +84,7 @@ data_list2 = [
             'erp_id': 104,
             'name': 'Picking1-standard',
             'carrier': 'Carrier',
+            'carrier_code': 'Carrier',
             'tracking': 'tracking_ref1',
             'is_backorder': False,
             'is_dropship': False,
@@ -92,6 +96,7 @@ data_list2 = [
             'erp_id': 105,
             'name': 'Picking2-backorder',
             'carrier': 'Carrier',
+            'carrier_code': 'Carrier',
             'tracking': 'tracking_ref2',
             'is_backorder': True,
             'is_dropship': False,
@@ -106,6 +111,7 @@ data_list3 = [
             'erp_id': 106,
             'name': 'Picking1-standard',
             'carrier': 'Carrier',
+            'carrier_code': 'Carrier',
             'tracking': 'tracking_ref1',
             'is_backorder': False,
             'is_dropship': False,
@@ -117,6 +123,7 @@ data_list3 = [
             'erp_id': 107,
             'name': 'Picking3-dropship',
             'carrier': 'Carrier',
+            'carrier_code': 'Carrier',
             'tracking': 'tracking_ref3',
             'is_backorder': False,
             'is_dropship': True,
@@ -140,6 +147,7 @@ def to_export_format_multi(data_list):
     return SaleTransferSerializer(tracking_data_list)
 
 
+@tagged('post_install', '-at_install', 'test_integration_core')
 class TestTransfer(TransactionCase):
 
     def setUp(self):
@@ -204,7 +212,7 @@ class TestTransfer(TransactionCase):
         data1, data2, data3 = data_list
 
         # 1.
-        self.assertEqual(data1['carrier'], 'Carrier')
+        self.assertEqual(data1['carrier_code'], 'Carrier')
         self.assertEqual(data1['name'], 'Picking1-standard')
         self.assertEqual(data1['tracking'], 'tracking_ref1')
         self.assertEqual(len(data1['lines']), 3)
@@ -221,7 +229,7 @@ class TestTransfer(TransactionCase):
         self.assertEqual(line3['id'], 'external_id3')
 
         # 2.
-        self.assertEqual(data2['carrier'], 'Carrier')
+        self.assertEqual(data2['carrier_code'], 'Carrier')
         self.assertEqual(data2['name'], 'Picking2-backorder')
         self.assertEqual(data2['tracking'], 'tracking_ref2')
         self.assertEqual(len(data2['lines']), 1)
@@ -232,7 +240,7 @@ class TestTransfer(TransactionCase):
         self.assertEqual(line1['qty'], 1)
 
         # 3.
-        self.assertEqual(data3['carrier'], 'Carrier')
+        self.assertEqual(data3['carrier_code'], 'Carrier')
         self.assertEqual(data3['name'], 'Picking3-dropship')
         self.assertEqual(data3['tracking'], 'tracking_ref3')
         self.assertEqual(len(data3['lines']), 1)
@@ -290,7 +298,7 @@ class TestTransfer(TransactionCase):
         data1, data2 = data_list
 
         # 1.
-        self.assertEqual(data1['carrier'], 'Carrier')
+        self.assertEqual(data1['carrier_code'], 'Carrier')
         self.assertEqual(data1['name'], 'Picking1-standard')
         self.assertEqual(data1['tracking'], 'tracking_ref1')
         self.assertEqual(len(data1['lines']), 3)
@@ -307,7 +315,7 @@ class TestTransfer(TransactionCase):
         self.assertEqual(line3['id'], 'external_id3')
 
         # 2.
-        self.assertEqual(data2['carrier'], 'Carrier')
+        self.assertEqual(data2['carrier_code'], 'Carrier')
         self.assertEqual(data2['name'], 'Picking2-backorder')
         self.assertEqual(data2['tracking'], 'tracking_ref2')
         self.assertEqual(len(data2['lines']), 1)
@@ -355,7 +363,7 @@ class TestTransfer(TransactionCase):
         data1 = data_list[0]
 
         # 1.
-        self.assertEqual(data1['carrier'], 'Carrier')
+        self.assertEqual(data1['carrier_code'], 'Carrier')
         self.assertEqual(data1['name'], 'Picking1-standard')
         self.assertEqual(data1['tracking'], 'tracking_ref1, tracking_ref3')  # Joint tracking
         self.assertEqual(len(data1['lines']), 3)

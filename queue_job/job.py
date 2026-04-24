@@ -41,19 +41,6 @@ RETRY_INTERVAL = 10 * 60  # seconds
 _logger = logging.getLogger(__name__)
 
 
-# TODO remove in 15.0 or 16.0, used to keep compatibility as the
-# class has been moved in 'delay'.
-def DelayableRecordset(*args, **kwargs):
-    # prevent circular import
-    from .delay import DelayableRecordset as dr
-
-    _logger.debug(
-        "DelayableRecordset moved from the queue_job.job"
-        " to the queue_job.delay python module"
-    )
-    return dr(*args, **kwargs)
-
-
 def identity_exact(job_):
     """Identity function using the model, method and all arguments as key
 
@@ -105,7 +92,7 @@ def identity_exact_hasher(job_):
 
 
 @total_ordering
-class Job(object):
+class Job:
     """A Job is a task to execute. It is the in-memory representation of a job.
 
     Jobs are stored in the ``queue.job`` Odoo Model, but they are handled
@@ -224,9 +211,7 @@ class Job(object):
         """
         stored = cls.db_records_from_uuids(env, [job_uuid])
         if not stored:
-            raise NoSuchJobError(
-                "Job %s does no longer exist in the storage." % job_uuid
-            )
+            raise NoSuchJobError(f"Job {job_uuid} does no longer exist in the storage.")
         return cls._load_from_db_record(stored)
 
     @classmethod
@@ -372,12 +357,6 @@ class Job(object):
         return self
 
     @staticmethod
-    def db_record_from_uuid(env, job_uuid):
-        # TODO remove in 15.0 or 16.0
-        _logger.debug("deprecated, use 'db_records_from_uuids")
-        return Job.db_records_from_uuids(env, [job_uuid])
-
-    @staticmethod
     def db_records_from_uuids(env, job_uuids):
         model = env["queue.job"].sudo()
         record = model.search([("uuid", "in", tuple(job_uuids))])
@@ -424,11 +403,11 @@ class Job(object):
             args = ()
         if isinstance(args, list):
             args = tuple(args)
-        assert isinstance(args, tuple), "%s: args are not a tuple" % args
+        assert isinstance(args, tuple), f"{args}: args are not a tuple"
         if kwargs is None:
             kwargs = {}
 
-        assert isinstance(kwargs, dict), "%s: kwargs are not a dict" % kwargs
+        assert isinstance(kwargs, dict), f"{kwargs}: kwargs are not a dict"
 
         if not _is_model_method(func):
             raise TypeError("Job accepts only methods of Models")
@@ -539,8 +518,8 @@ class Job(object):
 
         return self.result
 
-    def enqueue_waiting(self):
-        sql = """
+    def _get_common_dependent_jobs_query(self):
+        return """
             UPDATE queue_job
             SET state = %s
             FROM (
@@ -568,8 +547,16 @@ class Job(object):
             AND %s = ALL(jobs.parent_states)
             AND state = %s;
         """
+
+    def enqueue_waiting(self):
+        sql = self._get_common_dependent_jobs_query()
         self.env.cr.execute(sql, (PENDING, self.uuid, DONE, WAIT_DEPENDENCIES))
-        self.env["queue.job"].invalidate_cache(["state"])
+        self.env["queue.job"].invalidate_model(["state"])
+
+    def cancel_dependent_jobs(self):
+        sql = self._get_common_dependent_jobs_query()
+        self.env.cr.execute(sql, (CANCELLED, self.uuid, CANCELLED, WAIT_DEPENDENCIES))
+        self.env["queue.job"].invalidate_model(["state"])
 
     def store(self):
         """Store the Job"""
@@ -676,9 +663,9 @@ class Job(object):
     def func_string(self):
         model = repr(self.recordset)
         args = [repr(arg) for arg in self.args]
-        kwargs = ["{}={!r}".format(key, val) for key, val in self.kwargs.items()]
+        kwargs = [f"{key}={val!r}" for key, val in self.kwargs.items()]
         all_args = ", ".join(args + kwargs)
-        return "{}.{}({})".format(model, self.method_name, all_args)
+        return f"{model}.{self.method_name}({all_args})"
 
     def __eq__(self, other):
         return self.uuid == other.uuid
@@ -748,7 +735,7 @@ class Job(object):
         elif self.func.__doc__:
             return self.func.__doc__.splitlines()[0].strip()
         else:
-            return "{}.{}".format(self.model_name, self.func.__name__)
+            return f"{self.model_name}.{self.func.__name__}"
 
     @property
     def uuid(self):
@@ -856,7 +843,7 @@ class Job(object):
                     break
         elif not seconds:
             seconds = RETRY_INTERVAL
-        if isinstance(seconds, (list, tuple)):
+        if isinstance(seconds, (list | tuple)):
             seconds = randint(seconds[0], seconds[1])
         return seconds
 

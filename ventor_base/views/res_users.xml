@@ -18,6 +18,9 @@
                             <field name="ventor_user_settings"
                                    style="overflow-y: scroll; resize: none; height: 120px; width: 100%%"
                                    groups="base.group_no_one"/>
+                            <field name="ventor_filter_settings"
+                                   style="overflow-y: scroll; resize: none; height: 120px; width: 100%%"
+                                   groups="base.group_no_one"/>
                         </group>
                     </page>
                 </xpath>

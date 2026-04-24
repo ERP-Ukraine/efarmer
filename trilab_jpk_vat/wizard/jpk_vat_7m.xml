@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="jpk_vat7m_report_wizard" model="ir.ui.view">
+        <field name="name">JPK VAT 7M Report Wizard</field>
+        <field name="model">jpk.vat7m.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="VAT Report Options">
+                <field name="is_pl_partner_sync_installed" invisible="True"/>
+
+                <div class="row gx-1">
+                    <div class="col-6">
+                        <group name="main_info">
+                            <field
+                                    name="company_id"
+                                    options="{'no_create': True}"
+                                    groups="base.group_multi_company"
+                            />
+                        </group>
+                        <group name="filters">
+                            <group name="date_range">
+                                <field name="date_from" widget="daterange" options='{"related_end_date": "date_to"}'/>
+                                <field name="date_to" widget="daterange" options='{"related_start_date": "date_from"}'/>
+                            </group>
+                        </group>
+                    </div>
+                    <div class="col-6">
+                        <group name="other_filters">
+                            <field name="target_move" widget="radio"/>
+                            <field name="submit_purpose" widget="radio"/>
+                        </group>
+                    </div>
+                </div>
+
+                <footer>
+                    <button
+                            name="button_export_html"
+                            string="View Transactions"
+                            type="object"
+                            default_focus="1"
+                            class="oe_highlight"
+                    />
+                    <button
+                            name="button_export_pdf"
+                            string="Export PDF - Transactions"
+                            type="object"
+                    />
+                    <button
+                            name="button_export_xlsx"
+                            string="Export XLSX - Report"
+                            type="object"
+                    />
+                    <button
+                            name="button_export_xlsx_flat"
+                            string="Export XLSX - Extract"
+                            type="object"
+                    />
+                    <button
+                            name="button_export_xml"
+                            string="Export XML"
+                            type="object"
+                    />
+                    <button
+                            name="button_export_xml_eu"
+                            string="Export VAT EU"
+                            type="object"
+                    />
+                    <button name="button_check_partners_vat"
+                            string="Check Partners' VAT"
+                            type="object"
+                            invisible="not is_pl_partner_sync_installed"
+                    />
+                    <button string="Cancel" class="oe_link" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_jpk_vat7m_report_wizard" model="ir.actions.act_window">
+        <field name="name">JPK_V7M (1)</field>
+        <field name="res_model">jpk.vat7m.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="jpk_vat7m_report_wizard"/>
+        <field name="target">new</field>
+    </record>
+
+    <record id="action_jpk_vat7m_v2_report_wizard" model="ir.actions.act_window">
+        <field name="name">JPK_V7M (2)</field>
+        <field name="res_model">jpk.vat7m.v2.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="jpk_vat7m_report_wizard"/>
+        <field name="target">new</field>
+    </record>
+
+    <record id="action_jpk_vat7m_v3_report_wizard" model="ir.actions.act_window">
+        <field name="name">JPK_V7M (3)</field>
+        <field name="res_model">jpk.vat7m.v3.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="jpk_vat7m_report_wizard"/>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+            parent="trilab_jpk_base.menu_report_jpk"
+            action="trilab_jpk_vat.action_jpk_vat7m_report_wizard"
+            id="menu_jpk_vat_7m_report_wizard"
+            sequence="61"
+    />
+
+    <menuitem
+            parent="trilab_jpk_base.menu_report_jpk"
+            action="trilab_jpk_vat.action_jpk_vat7m_v2_report_wizard"
+            id="menu_jpk_vat_7m_v2_report_wizard"
+            sequence="62"
+    />
+
+    <menuitem
+            parent="trilab_jpk_base.menu_report_jpk"
+            action="trilab_jpk_vat.action_jpk_vat7m_v3_report_wizard"
+            id="menu_jpk_vat_7m_v3_report_wizard"
+            sequence="63"
+    />
+
+</odoo>

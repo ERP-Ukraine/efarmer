@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="view_invoice_wizard" model="ir.ui.view">
+        <field name="name">Invoice Orders</field>
+        <field name="model">trilab.invoice.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Invoice Sales Order">
+                <group>
+                    <group>
+                        <field name="has_down_payments" invisible="True"/>
+                        <field name="sale_order_ids" invisible="True"/>
+                        <field name="allowed_partner_bank_ids" invisible="True"/>
+                        <field name="is_convertible" invisible="True"/>
+                        <field name="currency_id" invisible="True"/>
+                        <field name="invoicing_timesheet_enabled" invisible="True"/>
+
+                        <field name="sale_order_count" invisible="sale_order_count == 1"/>
+                        <field name="consolidated_billing" invisible="sale_order_count == 1"/>
+
+                        <field name="display_draft_invoice_warning" invisible="True"/>
+                        <field name="display_invoice_amount_warning" invisible="True"/>
+
+                        <field name="invoice_type" class="oe_inline" widget="radio" options="{'horizontal': true}"
+                               invisible="sale_order_count > 1"/>
+                        <field name="journal_id" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="partner_bank_id" domain="[('id', 'in', allowed_partner_bank_ids)]"/>
+                    </group>
+                    <group name="timesheet_invoice_date_range" invisible="not invoicing_timesheet_enabled" colspan="2">
+                        <field
+                                class="w-75 w-md-50 w-lg-25"
+                                name="date_start_invoice_timesheet"
+                                string="Timesheets Period"
+                                widget="daterange"
+                                required="date_start_invoice_timesheet or date_end_invoice_timesheet"
+                                options="{'end_date_field': 'date_end_invoice_timesheet', 'always_range': true}"
+                                title="Only timesheets not yet invoiced (and validated, if applicable) from this period will be invoiced. If the period is not indicated, all timesheets not yet invoiced (and validated, if applicable) will be invoiced without distinction."
+                        />
+                        <field name="date_end_invoice_timesheet" invisible="True"/>
+                    </group>
+                    <group>
+                        <div name="convert_div" class="o_wrap_field d-flex d-sm-contents flex-column mb-3 mb-sm-0"
+                             invisible="not is_convertible">
+                            <div class="o_wrap_field_boolean row">
+                                <div class="col-4 o_wrap_label text-break text-900">
+                                    <div class="o_form_label">
+                                        <span>Convert to</span>
+                                        <field name="company_currency_id"
+                                               class="oe_inline ms-1"
+                                               readonly="True"
+                                               options="{'no_create': True, 'no_open': True}"/>
+                                    </div>
+                                </div>
+                                <div class="col-8 o_wrap_input">
+                                    <field name="convert_to_local"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <field name="convert_rate_id"
+                               invisible="not convert_to_local"
+                               domain="[('currency_id', '=', currency_id)]"/>
+                    </group>
+                </group>
+
+                <group invisible="invoice_type != 'normal'" string="Invoice lines">
+                    <field name="invoice_line_ids" nolabel="1" colspan="2" options="{'no_create': True}"
+                           domain="[('order_id', 'in', sale_order_ids)]">
+                        <list editable="bottom" create="0" delete="1">
+                            <field name="company_id" column_invisible="True"/>
+                            <field name="invoice_status" column_invisible="True"/>
+                            <field name="product_id"/>
+                            <field name="name"/>
+                            <field name="product_uom_qty"/>
+                            <field name="qty_delivered"/>
+                            <field name="qty_invoiced"/>
+                            <field name="price_unit"/>
+                            <field name="tax_id" widget="many2many_tags"/>
+                            <field name="price_subtotal"/>
+                            <field name="price_total"/>
+                        </list>
+                    </field>
+                </group>
+
+                <group invisible="invoice_type != 'advance'" string="Advance lines">
+                    <field name="advance_line_ids" nolabel="1" colspan="2">
+                        <list editable="bottom" create="0" delete="0" edit="1">
+                            <field name="tax_id" readonly="True" force_save="True"/>
+                            <field name="amount" context="{'amount': True}" sum="Total [NET]"/>
+                            <field name="amount_total" context="{'amount_total': True}" sum="Total [GROSS]"/>
+                            <field name="percent" context="{'percent': True}"/>
+                            <field name="so_amount" readonly="True" force_save="True"/>
+                            <field name="so_amount_total" readonly="True" force_save="True"/>
+                            <field name="currency_id" column_invisible="True"/>
+                        </list>
+                    </field>
+                </group>
+
+                <div class="alert alert-warning pb-1" role="alert" invisible="not display_draft_invoice_warning">
+                    <p>There are existing <a name="view_draft_invoices" type="object">Draft Invoices</a> for this
+                        Sale
+                        Order.</p>
+                    <p invisible="invoice_type == 'normal'">
+                        The new invoice will deduct draft invoices linked to this sale order.
+                    </p>
+                </div>
+
+                <div id="payment_method_details">
+                    <span invisible="not display_invoice_amount_warning"
+                          class="oe_inline text-danger">
+                        <i class="fa fa-warning"/>
+                        The Down Payment total amount is greater than the amount remaining to be invoiced
+                    </span>
+                </div>
+
+                <group>
+                    <group invisible="not has_down_payments">
+                        <field name="amount_invoiced"/>
+                    </group>
+                    <group>
+                        <field name="amount_to_invoice"/>
+                    </group>
+                </group>
+
+                <footer>
+                    <button name="create_invoices" type="object"
+                            id="create_invoice_open"
+                            string="Create Draft Invoice"
+                            class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_view_invoice_wizard" model="ir.actions.act_window">
+        <field name="name">Create invoices PL</field>
+        <field name="res_model">trilab.invoice.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_view_types">list</field>
+    </record>
+
+</odoo>

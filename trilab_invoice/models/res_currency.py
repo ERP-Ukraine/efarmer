@@ -1,33 +1,52 @@
+import logging
+
 from odoo import models
+from odoo.tools import get_iso_codes, get_lang
 
-
-class CurrencyRate(models.Model):
-    _inherit = 'res.currency.rate'
-
-    def name_get(self):
-        return [
-            (curr_rate.id, f'{curr_rate.currency_id.name} - {curr_rate.name} - {curr_rate.inverse_company_rate}')
-            for curr_rate in self
-        ]
+_logger = logging.getLogger(__name__)
 
 
 class Currency(models.Model):
     _inherit = 'res.currency'
 
-    # noinspection PyShadowingBuiltins
-    def _convert(self, from_amount, to_currency, company, date, round=True):
-        if self._context.get('x_trilab_force_currency_rate'):
-            self, to_currency = self or to_currency, to_currency or self
-            assert self, 'convert amount from unknown currency'
-            assert to_currency, 'convert amount to unknown currency'
-            assert company, 'convert amount from unknown company'
-            assert date, 'convert amount from unknown date'
+    def amount_to_text(self, amount):
+        if not self.env.company.x_use_ti:
+            return super().amount_to_text(amount)
 
-            if self == to_currency:
-                to_amount = from_amount
-            else:
-                to_amount = from_amount * self._context['x_trilab_force_currency_rate']
+        self.ensure_one()
 
-            return to_currency.round(to_amount) if round else to_amount
+        amount = '{:.2f}'.format(amount)
 
-        return super()._convert(from_amount, to_currency, company, date, round=round)
+        # If template preview
+        if preview_lang := self.env.context.get('template_preview_lang'):
+            lang = get_iso_codes(preview_lang)
+
+        else:
+            lang = get_lang(self.env).iso_code
+
+        try:
+            # noinspection PyPackageRequirements
+            from num2words import num2words
+
+            # noinspection PyBroadException
+            try:
+                return num2words(amount, lang=lang, to='currency', currency=self.name)
+
+            except NotImplementedError:
+                _logger.warning(f'num2words - unsupported language {lang}/{self.name}')
+                return ''
+
+            except Exception:
+                # currency convert unsupported for this language (no proper exception returned)
+                return num2words(amount, lang=lang)
+
+        except ImportError:
+            _logger.warning('num2words not installed, no text2word for invoice')
+            return ''
+
+        except Exception as e:
+            _logger.error('num2words - %s', e)
+            return ''
+
+    def round(self, amount):
+        return super().round(amount) + 0.0

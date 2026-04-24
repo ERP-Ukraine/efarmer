@@ -3,7 +3,7 @@
 import datetime
 import logging
 
-from odoo import SUPERUSER_ID, api, fields, models
+from odoo import SUPERUSER_ID, _, api, fields, models
 
 _logger = logging.getLogger(__name__)
 
@@ -11,7 +11,7 @@ _logger = logging.getLogger(__name__)
 class ResUsersRole(models.Model):
     _name = "res.users.role"
     _inherits = {"res.groups": "group_id"}
-    _description = "User role"
+    _description = "User Role"
 
     group_id = fields.Many2one(
         comodel_name="res.groups",
@@ -72,12 +72,12 @@ class ResUsersRole(models.Model):
             "base.group_erp_manager"
         )
 
-    @api.model
-    def create(self, vals):
+    @api.model_create_multi
+    def create(self, vals_list):
         model = (self.sudo() if self._bypass_rules() else self).browse()
-        new_record = super(ResUsersRole, model).create(vals)
-        new_record.update_users()
-        return new_record
+        new_records = super(ResUsersRole, model).create(vals_list)
+        new_records.update_users()
+        return new_records
 
     def read(self, fields=None, load="_classic_read"):
         recs = self.sudo() if self._bypass_rules() else self
@@ -99,9 +99,14 @@ class ResUsersRole(models.Model):
 
     def unlink(self):
         users = self.mapped("user_ids")
-        res = super(ResUsersRole, self).unlink()
+        res = super().unlink()
         users.set_groups_from_roles(force=True)
         return res
+
+    def copy(self, default=None):
+        self.ensure_one()
+        default = dict(default or {}, name=_("%s (copy)", self.name))
+        return super().copy(default)
 
     def update_users(self):
         """Update all the users concerned by the roles identified by `ids`."""
@@ -147,7 +152,7 @@ class ResUsersRoleLine(models.Model):
         (
             "user_role_uniq",
             "unique (user_id,role_id)",
-            "Roles can be assigned to a user only once at a time",
+            "User roles can be assigned to a user only once at a time",
         )
     ]
 
@@ -167,6 +172,6 @@ class ResUsersRoleLine(models.Model):
 
     def unlink(self):
         users = self.mapped("user_id")
-        res = super(ResUsersRoleLine, self).unlink()
+        res = super().unlink()
         users.set_groups_from_roles(force=True)
         return res

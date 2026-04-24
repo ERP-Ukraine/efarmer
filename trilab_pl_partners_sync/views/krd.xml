@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <template id="krd_result">
+        <body>
+            <strong>Response from the KRD</strong>
+            <table>
+                <tr>
+                    <th width="500px">UNPAID DEBTS:</th>
+                    <th>&amp;nbsp;</th>
+                </tr>
+                <tr>
+                    <td>The amount of economic information</td>
+                    <td t-out="Summary['InformationCount']"/>
+                </tr>
+                <tr>
+                    <td>Total number of negative commitments</td>
+                    <td t-out="Summary['OInformationCount']"/>
+                </tr>
+                <tr>
+                    <td>Number of uses of a forged document</td>
+                    <td t-out="Summary['DInformationCount']"/>
+                </tr>
+                <tr>
+                    <td>Number of negative liability cases</td>
+                    <td t-out="Summary['DebtorsCount']"/>
+                </tr>
+                <tr>
+                    <td>Number of creditors of the debtor</td>
+                    <td t-out="Summary['CreditorsCount']"/>
+                </tr>
+                <tr>
+                    <td>Total amount of debts</td>
+                    <td>
+                        <span t-out="Summary['TotalArrears']['Amount']"/>
+                        <span t-out="Summary['TotalArrears']['Currency']"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>DEBTS PAID:</th>
+                    <th>&amp;nbsp;</th>
+                </tr>
+                <tr>
+                    <td>Number of creditors of the counterparty</td>
+                    <td t-out="PositiveInformationSummary['ProvidersCount']"/>
+                </tr>
+                <tr>
+                    <td>Total number of positive commitments</td>
+                    <td t-out="PositiveInformationSummary['PaidObligationsCount']"/>
+                </tr>
+                <tr>
+                    <td>Average value of paid debts</td>
+                    <td t-out="PositiveInformationSummary['AveragePaidDebt']"/>
+                </tr>
+                <tr>
+                    <td>Average number of days: due date vs. due date</td>
+                    <td t-out="PositiveInformationSummary['AveragePaymentTimeInDays']"/>
+                </tr>
+                <tr>
+                    <td>Sum of paid debts</td>
+                    <td t-out="PositiveInformationSummary['SumPaidDebt']"/>
+                </tr>
+            </table>
+        </body>
+    </template>
+
+</odoo>

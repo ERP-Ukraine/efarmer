@@ -1,7 +1,6 @@
 import base64
 
 from lxml import etree
-from markupsafe import Markup
 from odoo.exceptions import ValidationError
 from odoo.tools import file_path
 
@@ -14,10 +13,10 @@ INVOICE_TYPES = {
     'VAT': 'Faktura podstawowa',
     'KOR': 'Faktura korygująca',
     'ZAL': 'Faktura zaliczkowa',
-    'ROZ': 'Faktura wystawiona w związku z art. 106f ust. 3 ustawy',
-    'UPR': 'Faktura, o której mowa w art. 106e ust. 5 pkt 3 ustawy',
-    'KOR_ZAL': 'Faktura korygująca fakturę zaliczkową',
-    'KOR_ROZ': 'Faktura korygująca fakturę wystawioną w związku z art. 106f ust. 3 ustawy',
+    'ROZ': 'Faktura rozliczeniowa',
+    'UPR': 'Faktura uproszczona',
+    'KOR_ZAL': 'Faktura korygująca zaliczkową',
+    'KOR_ROZ': 'Faktura korygująca rozliczeniową',
 }
 
 
@@ -25,7 +24,7 @@ class ReportTrilabKsefInvoice(models.Model):
     _name = 'report.trilab_ksef.report_invoice'
     _description = 'KSeF report invoice'
 
-    # noinspection PyUnusedLocal
+    # noinspection PyUnusedLocal,PyUnboundLocalVariable
     @api.model
     def _get_report_values(self, docids, data=None):
         move_ids = self.env['account.move'].browse(docids)
@@ -49,8 +48,11 @@ class ReportTrilabKsefInvoice(models.Model):
 
                     data[move_id.id]['number'] = ksef_faktura.Fa.P_2.text
                     data[move_id.id]['type'] = INVOICE_TYPES.get(ksef_faktura.Fa.RodzajFaktury.text)
-                    data[move_id.id]['system_info'] = ksef_faktura.Naglowek.SystemInfo.text
-                    data[move_id.id]['html'] = Markup(xslt(tree))
+
+                    if system_info := ksef_faktura.Naglowek.SystemInfo.text:
+                        data[move_id.id]['system_info'] = system_info
+
+                    data[move_id.id]['html'] = xslt(tree)
 
                 except (etree.XMLSyntaxError, etree.XSLTParseError) as error:
                     raise ValidationError(

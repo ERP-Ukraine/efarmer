@@ -2,7 +2,7 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
 import re
-from odoo.addons.trilab_jpk_vat.models.jpk_vat7m_v3_report import JpkReportV3
+from odoo.addons.trilab_jpk_vat.reports.jpk_vat7m_v3 import JpkReportV3
 
 
 def extract_kwota_expression(sql: str) -> str:

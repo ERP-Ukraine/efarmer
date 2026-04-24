@@ -17,16 +17,6 @@ msgstr ""
 "X-Generator: Weblate 4.3.2\n"
 
 #. module: purchase_order_line_menu
-#: model_terms:ir.ui.view,arch_db:purchase_order_line_menu.purchase_order_line_search
-msgid "Analytic Account"
-msgstr ""
-
-#. module: purchase_order_line_menu
-#: model_terms:ir.ui.view,arch_db:purchase_order_line_menu.purchase_order_line_search
-msgid "Analytic Tags"
-msgstr ""
-
-#. module: purchase_order_line_menu
 #: model:ir.model.fields,field_description:purchase_order_line_menu.field_purchase_order_line__invoice_status
 #: model_terms:ir.ui.view,arch_db:purchase_order_line_menu.purchase_order_line_search
 msgid "Billing Status"

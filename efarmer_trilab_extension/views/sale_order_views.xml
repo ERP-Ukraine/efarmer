@@ -6,12 +6,10 @@
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="trilab_invoice.view_order_form"/>
             <field name="arch" type="xml">
-
                 <!-- Make Create Invoice button visible in "to_payment" and "to_confirm" states-->
                 <xpath expr="//button[@name='%(sale.action_view_sale_advance_payment_inv)d'][2]" position="attributes">
-                    <attribute name="attrs">{'invisible': ['|', ('x_is_poland', '=', True), '|', ('state', 'not in', ['to_payment', 'to_confirm', 'sale']), ('invoice_status', '!=', 'no')]}</attribute>
+                    <attribute name="invisible">state not in ('to_payment', 'to_confirm', 'sale') or invoice_status != 'no'</attribute>
                 </xpath>
-
             </field>
         </record>
 

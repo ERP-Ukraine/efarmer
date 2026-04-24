@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <odoo>
-    <template id="website_helpdesk_hide_help_center_button" inherit_id="website_helpdesk_forum.website_helpdesk_forum_team_page">
+    <!-- <template id="website_helpdesk_hide_help_center_button" inherit_id="website_helpdesk_forum.website_helpdesk_forum_team_page">
         <xpath expr="//t[@t-if='forum and team.use_website_helpdesk_forum']" position="replace">
         </xpath>
-    </template>
+    </template> -->
 
-    <template id="website_helpdesk_hide_team_ratings_button" inherit_id="website_helpdesk.team">
+    <!-- <template id="website_helpdesk_hide_team_ratings_button" inherit_id="website_helpdesk.team">
         <xpath expr="//t[@t-if='team.portal_show_rating']" position="replace">
         </xpath>
-    </template>
+    </template> -->
 
 
 </odoo>

@@ -3,24 +3,25 @@
     <data>
 
         <record id="integration_metafield_mapping_tree_view" model="ir.ui.view">
-            <field name="name">integration.metafield.mapping.tree</field>
+            <field name="name">integration.metafield.mapping.list</field>
             <field name="model">integration.metafield.mapping</field>
             <field name="arch" type="xml">
-                <tree>
-                    <field name="integration_id" invisible="1"/>
-                    <field name="type" invisible="1"/>
+                <list>
+                    <field name="integration_id" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                    <field name="type" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
                     <field name="metafield_id"/>
                     <field name="metafield_key"/>
                     <field name="metafield_type"/>
                     <field name="odoo_field_id"/>
-                </tree>
+                </list>
             </field>
         </record>
 
         <record id="integration_metafield_mapping_action" model="ir.actions.act_window">
             <field name="name">Metafield Mappings</field>
+            <field name="path">eci-metafield-mappings</field>
             <field name="res_model">integration.metafield.mapping</field>
-            <field name="view_mode">tree</field>
+            <field name="view_mode">list</field>
         </record>
 
     </data>

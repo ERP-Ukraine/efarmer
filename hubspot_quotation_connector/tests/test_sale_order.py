@@ -4,7 +4,6 @@
 import os
 from odoo.tests import TransactionCase, tagged
 
-
 # @tagged('--at_install', '-standard', 'hubspot')
 # class TestSaleOrder(TransactionCase):
 #     def setUp(self):
@@ -17,4 +16,3 @@ from odoo.tests import TransactionCase, tagged
 #             'name': 'Taras',
 #             'email': 'sha@gmail.com'
 #         })
-

@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 15.0+e\n"
+"Project-Id-Version: Odoo Server 18.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-13 15:45+0000\n"
-"PO-Revision-Date: 2026-03-13 15:45+0000\n"
+"POT-Creation-Date: 2026-04-20 10:57+0000\n"
+"PO-Revision-Date: 2026-04-20 10:57+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -29,120 +29,134 @@ msgid ""
 msgstr ""
 
 #. module: trilab_ksef
+#: model:ir.model.fields,help:trilab_ksef.field_ksef_third_party__classification
+#: model:ir.model.fields,help:trilab_ksef.field_res_partner__x_ksef_classification
+#: model:ir.model.fields,help:trilab_ksef.field_res_users__x_ksef_classification
+msgid ""
+"* Faktor - w przypadku gdy na fakturze występują dane faktora\n"
+"    * Odbiorca - w przypadku gdy na fakturze występują dane jednostek wewnętrznych, oddziałów, wyodrębnionych w ramach nabywcy, które same nie stanowią nabywcy w rozumieniu ustawy\n"
+"    * Podmiot pierwotny - w przypadku gdy na fakturze występują dane podmiotu będącego w stosunku do podatnika podmiotem przejętym lub przekształconym, który dokonywał dostawy lub świadczył usługę. Z wyłączeniem przypadków, o których mowa w art. 106j ust.2 pkt 3 ustawy, gdy dane te wykazywane są w części Podmiot1K\n"
+"    * Dodatkowy nabywca - w przypadku gdy na fakturze występują dane kolejnych (innych niż wymieniony w części Podmiot2) nabywców\n"
+"    * Wystawca faktury - w przypadku gdy na fakturze występują dane podmiotu wystawiającego fakturę w imieniu podatnika. Nie dotyczy przypadku, gdy wystawcą faktury jest nabywca\n"
+"    * Dokonujący płatności - w przypadku gdy na fakturze występują dane podmiotu regulującego zobowiązanie w miejsce nabywcy\n"
+"    * Jednostka samorządu terytorialnego - wystawca\n"
+"    * Jednostka samorządu terytorialnego - odbiorca\n"
+"    * Członek grupy VAT - wystawca\n"
+"    * Członek grupy VAT - odbiorca\n"
+"    * Pracownik\n"
+"    * Inny Rola - inny podmiot, wymagany opis roli podmiotu\n"
+"    "
+msgstr ""
+
+#. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_edi_format.py:0
-#, python-format
 msgid ""
 "- Address info is not fully filled for company: %s\n"
 "Required: Street, Zip, City"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_edi_format.py:0
-#, python-format
 msgid ""
 "- Address info is not fully filled for partner: %s\n"
 "Required: Street, Zip, City"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_edi_format.py:0
-#, python-format
 msgid "- Country not filled for company: %s"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_edi_format.py:0
-#, python-format
 msgid "- Country not filled for partner: %s"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_edi_format.py:0
-#, python-format
 msgid "- KSeF Invoice Number is missing for reversed entry"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_edi_format.py:0
-#, python-format
 msgid "- KSeF Invoice Number is missing for some advance invoices"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_edi_format.py:0
-#, python-format
 msgid "- KSeF Tax Amount Mapping must be set for taxes used in invoice lines"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_edi_format.py:0
-#, python-format
 msgid "- KSeF Token not configured for company: %s"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_edi_format.py:0
-#, python-format
 msgid "- KSeF settings not configured for company: %s"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_edi_format.py:0
-#, python-format
+msgid ""
+"- Margin procedure selected. Only one of these fields must be selected: "
+"Travel agencies, Used goods, Works of art, Antiques and collectibles"
+msgstr ""
+
+#. module: trilab_ksef
+#. odoo-python
+#: code:addons/trilab_ksef/models/account_edi_format.py:0
 msgid "- No taxes assigned to invoice lines"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_edi_format.py:0
-#, python-format
 msgid ""
 "- Number of corrected invoice lines does not match number of original "
 "invoice lines"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_edi_format.py:0
-#, python-format
 msgid ""
 "- P_19 selected. Only one of these fields must be selected: P_19A, P_19B, "
 "P_19C"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_edi_format.py:0
-#, python-format
-msgid ""
-"- P_PMarzy selected. Only one of these fields must be selected: P_PMarzy_2, "
-"P_PMarzy_3_1, P_PMarzy_3_2, P_PMarzy_3_3"
-msgstr ""
-
-#. module: trilab_ksef
-#: code:addons/trilab_ksef/models/account_edi_format.py:0
-#, python-format
-msgid "- Reversed entry is missing for refund invoice"
-msgstr ""
-
-#. module: trilab_ksef
-#: code:addons/trilab_ksef/models/account_edi_format.py:0
-#, python-format
 msgid "- Sale/Currency Date not filled"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_edi_format.py:0
-#, python-format
 msgid "- Tax ID not filled for company: %s"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_edi_format.py:0
-#, python-format
 msgid "- Too many procedures selected. Please select only one or none."
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_edi_format.py:0
-#, python-format
 msgid "- Trilab Invoice is not enabled for company: %s"
 msgstr ""
 
@@ -162,18 +176,10 @@ msgid "0% WDT"
 msgstr ""
 
 #. module: trilab_ksef
-#: model:ir.model.fields.selection,name:trilab_ksef.selection__account_tax__x_ksef_amount__22
-msgid "22%"
-msgstr ""
-
-#. module: trilab_ksef
-#: model:ir.model.fields.selection,name:trilab_ksef.selection__account_tax__x_ksef_amount__23
-msgid "23%"
-msgstr ""
-
-#. module: trilab_ksef
 #: model_terms:ir.ui.view,arch_db:trilab_ksef.ksef_res_config_settings_view_form
-msgid "<span class=\"o_form_label\">Additional Settings</span>"
+msgid ""
+"<span class=\"fa fa-lg fa-building-o\" title=\"Values set here are company-"
+"specific.\"/>"
 msgstr ""
 
 #. module: trilab_ksef
@@ -192,6 +198,12 @@ msgid "<strong>Wytworzona w:</strong>"
 msgstr ""
 
 #. module: trilab_ksef
+#: model_terms:ir.ui.view,arch_db:trilab_ksef.view_move_form_inherit
+msgid ""
+"A KSeF XML document has already been generated for this invoice. Continue?"
+msgstr ""
+
+#. module: trilab_ksef
 #: model:ir.model.fields.selection,name:trilab_ksef.selection__account_move__x_ksef_invoice_date_applicability__common
 #: model:ir.model.fields.selection,name:trilab_ksef.selection__res_config_settings__default_x_ksef_invoice_date_applicability__common
 msgid ""
@@ -200,8 +212,8 @@ msgid ""
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_move.py:0
-#, python-format
 msgid ""
 "A vendor with a matching Tax ID was not found. One with the corresponding "
 "details was created."
@@ -218,8 +230,14 @@ msgid "Accepted"
 msgstr ""
 
 #. module: trilab_ksef
-#: model:ir.model,name:trilab_ksef.model_account_account_tag
-msgid "Account Tag"
+#: model:ir.model,name:trilab_ksef.model_account_move_send
+msgid "Account Move Send"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_19a
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_19a
+msgid "Act/regulation provision"
 msgstr ""
 
 #. module: trilab_ksef
@@ -228,8 +246,25 @@ msgid "Active"
 msgstr ""
 
 #. module: trilab_ksef
+#: model_terms:ir.ui.view,arch_db:trilab_ksef.ksef_res_config_settings_view_form
+msgid "Additional Settings"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__ksef_third_party__classification__4
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__res_partner__x_ksef_classification__4
+msgid "Additional buyer"
+msgstr ""
+
+#. module: trilab_ksef
 #: model:ir.model.fields,field_description:trilab_ksef.field_ksef_batch_import_wizard__allowed_company_ids
 msgid "Allowed Company"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_pmarzy_3_3
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_pmarzy_3_3
+msgid "Antiques and collectibles"
 msgstr ""
 
 #. module: trilab_ksef
@@ -243,8 +278,8 @@ msgid "Batch"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/wizard/batch_import_wizard.py:0
-#, python-format
 msgid "Batch Import Started"
 msgstr ""
 
@@ -271,6 +306,12 @@ msgid "Cash"
 msgstr ""
 
 #. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_16
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_16
+msgid "Cash accounting"
+msgstr ""
+
+#. module: trilab_ksef
 #: model_terms:ir.ui.view,arch_db:trilab_ksef.ksef_qrcode
 msgid "Certificate"
 msgstr ""
@@ -283,6 +324,16 @@ msgstr ""
 #. module: trilab_ksef
 #: model:ir.model.fields.selection,name:trilab_ksef.selection__account_payment_term__x_ksef_payment_term_type__4
 msgid "Cheque"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_ksef_third_party__classification
+msgid "Classification"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_ksef_third_party__classification_other
+msgid "Classification Other"
 msgstr ""
 
 #. module: trilab_ksef
@@ -302,32 +353,33 @@ msgid "Contact"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_move.py:0
-#, python-format
 msgid "Could not find a partner data in KSeF XML."
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_move.py:0
-#, python-format
 msgid "Could not generate KSeF QR code."
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_move.py:0
-#, python-format
-msgid "Could not retrieve the tax: %s %% \"Included in Price\" for line '%s'."
+msgid "Could not retrieve the tax: %s%% \"Included in Price\" for line \"%s\"."
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_move.py:0
-#, python-format
-msgid "Could not retrieve the tax: %s %% not \"Included in Price\" for line '%s'."
+msgid "Could not retrieve the tax: %s%% not \"Included in Price\" for line \"%s\"."
 msgstr ""
 
 #. module: trilab_ksef
 #: model:ir.model.fields,field_description:trilab_ksef.field_ksef_batch_import_wizard__create_uid
 #: model:ir.model.fields,field_description:trilab_ksef.field_ksef_settings__create_uid
+#: model:ir.model.fields,field_description:trilab_ksef.field_ksef_third_party__create_uid
 #: model:ir.model.fields,field_description:trilab_ksef.field_report_trilab_ksef_report_invoice__create_uid
 msgid "Created by"
 msgstr ""
@@ -335,6 +387,7 @@ msgstr ""
 #. module: trilab_ksef
 #: model:ir.model.fields,field_description:trilab_ksef.field_ksef_batch_import_wizard__create_date
 #: model:ir.model.fields,field_description:trilab_ksef.field_ksef_settings__create_date
+#: model:ir.model.fields,field_description:trilab_ksef.field_ksef_third_party__create_date
 #: model:ir.model.fields,field_description:trilab_ksef.field_report_trilab_ksef_report_invoice__create_date
 msgid "Created on"
 msgstr ""
@@ -378,10 +431,23 @@ msgid ""
 msgstr ""
 
 #. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_19b
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_19b
+msgid "Directive provision"
+msgstr ""
+
+#. module: trilab_ksef
 #: model:ir.model.fields,field_description:trilab_ksef.field_ksef_batch_import_wizard__display_name
 #: model:ir.model.fields,field_description:trilab_ksef.field_ksef_settings__display_name
+#: model:ir.model.fields,field_description:trilab_ksef.field_ksef_third_party__display_name
 #: model:ir.model.fields,field_description:trilab_ksef.field_report_trilab_ksef_report_invoice__display_name
 msgid "Display Name"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,help:trilab_ksef.field_res_company__x_ksef_enable_ignore_zero_amount_lines
+#: model:ir.model.fields,help:trilab_ksef.field_res_config_settings__x_ksef_enable_ignore_zero_amount_lines
+msgid "Don't send Invoice's Zero Amount Lines"
 msgstr ""
 
 #. module: trilab_ksef
@@ -390,27 +456,32 @@ msgid "EDI format"
 msgstr ""
 
 #. module: trilab_ksef
-#: model:ir.model.fields,help:trilab_ksef.field_res_company__x_ksef_enable_barcodes
-#: model:ir.model.fields,help:trilab_ksef.field_res_config_settings__x_ksef_enable_barcodes
-msgid "Enable Barcodes on Invoice Lines"
+#: model:ir.model.fields,help:trilab_ksef.field_res_partner__x_ksef_eori
+#: model:ir.model.fields,help:trilab_ksef.field_res_users__x_ksef_eori
+msgid "EU Economic Operator Identification and Registration Number"
 msgstr ""
 
 #. module: trilab_ksef
-#: model:ir.model.fields,help:trilab_ksef.field_res_company__x_ksef_enable_ignore_zero_amount_lines
-#: model:ir.model.fields,help:trilab_ksef.field_res_config_settings__x_ksef_enable_ignore_zero_amount_lines
-msgid "Enable Ignore Zero Amount Lines on Invoice"
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__ksef_third_party__classification__11
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__res_partner__x_ksef_classification__11
+msgid "Employee"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_move.py:0
+msgid "Error while checking invoice status"
+msgstr ""
+
+#. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_move.py:0
-#, python-format
 msgid "Error while checking invoice status: %s"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/report/invoice.py:0
-#, python-format
 msgid "Error while parse invoice %s file: %s"
 msgstr ""
 
@@ -420,13 +491,43 @@ msgid "Exemptions"
 msgstr ""
 
 #. module: trilab_ksef
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__ksef_third_party__classification__1
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__res_partner__x_ksef_classification__1
+msgid "Factor"
+msgstr ""
+
+#. module: trilab_ksef
+#: model_terms:ir.ui.view,arch_db:trilab_ksef.ksef_res_config_settings_view_form
+msgid "Fallback Purchase Journal"
+msgstr ""
+
+#. module: trilab_ksef
 #: model_terms:ir.ui.view,arch_db:trilab_ksef.view_move_form_inherit
 msgid "Flags"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
+#: code:addons/trilab_ksef/models/account_move_send.py:0
+msgid "Generate KSeF XML"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,help:trilab_ksef.field_res_partner__x_ksef_gln
+#: model:ir.model.fields,help:trilab_ksef.field_res_users__x_ksef_gln
+msgid "Global Location Number"
+msgstr ""
+
+#. module: trilab_ksef
+#. odoo-python
+#: code:addons/trilab_ksef/models/account_move.py:0
+msgid "Got invalid invoice status from KSeF"
+msgstr ""
+
+#. module: trilab_ksef
 #: model:ir.model.fields,field_description:trilab_ksef.field_ksef_batch_import_wizard__id
 #: model:ir.model.fields,field_description:trilab_ksef.field_ksef_settings__id
+#: model:ir.model.fields,field_description:trilab_ksef.field_ksef_third_party__id
 #: model:ir.model.fields,field_description:trilab_ksef.field_report_trilab_ksef_report_invoice__id
 msgid "ID"
 msgstr ""
@@ -445,24 +546,30 @@ msgid "Interactive"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_move.py:0
-#, python-format
 msgid ""
 "Invalid invoice configuration:\n"
 "%s"
 msgstr ""
 
 #. module: trilab_ksef
-#: model_terms:ir.ui.view,arch_db:trilab_ksef.view_move_form_ti_inherit
+#: model_terms:ir.ui.view,arch_db:trilab_ksef.view_move_form_inherit
 msgid "Invoice date or billing period"
 msgstr ""
 
 #. module: trilab_ksef
-#: code:addons/trilab_ksef/models/account_edi_format.py:0
-#, python-format
+#. odoo-python
+#: code:addons/trilab_ksef/models/account_move.py:0
 msgid ""
 "Invoice imported from KSeF during batch import (batch reference: %s), file: "
 "%s"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__ksef_third_party__classification__5
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__res_partner__x_ksef_classification__5
+msgid "Invoice issuer"
 msgstr ""
 
 #. module: trilab_ksef
@@ -473,7 +580,6 @@ msgstr ""
 #. module: trilab_ksef
 #: model:ir.model.fields,help:trilab_ksef.field_account_bank_statement_line__x_ksef_p_19c
 #: model:ir.model.fields,help:trilab_ksef.field_account_move__x_ksef_p_19c
-#: model:ir.model.fields,help:trilab_ksef.field_account_payment__x_ksef_p_19c
 msgid ""
 "Jeśli pole P_19 równa się \"1\" - należy wskazać inną podstawę prawną "
 "wskazującą na to, że dostawa towarów lub świadczenie usług korzysta ze "
@@ -483,7 +589,6 @@ msgstr ""
 #. module: trilab_ksef
 #: model:ir.model.fields,help:trilab_ksef.field_account_bank_statement_line__x_ksef_p_19b
 #: model:ir.model.fields,help:trilab_ksef.field_account_move__x_ksef_p_19b
-#: model:ir.model.fields,help:trilab_ksef.field_account_payment__x_ksef_p_19b
 msgid ""
 "Jeśli pole P_19 równa się \"1\" - należy wskazać przepis dyrektywy "
 "2006/112/WE, który zwalnia od podatku taką dostawę towarów lub takie "
@@ -493,7 +598,6 @@ msgstr ""
 #. module: trilab_ksef
 #: model:ir.model.fields,help:trilab_ksef.field_account_bank_statement_line__x_ksef_p_19a
 #: model:ir.model.fields,help:trilab_ksef.field_account_move__x_ksef_p_19a
-#: model:ir.model.fields,help:trilab_ksef.field_account_payment__x_ksef_p_19a
 msgid ""
 "Jeśli pole P_19 równa się \"1\" - należy wskazać przepis ustawy albo aktu "
 "wydanego na podstawie ustawy, na podstawie którego podatnik stosuje "
@@ -506,31 +610,21 @@ msgid "Journal Entry"
 msgstr ""
 
 #. module: trilab_ksef
-#: code:addons/trilab_ksef/models/res_company.py:0
 #: model:ir.ui.menu,name:trilab_ksef.menu_ksef
 #: model:mail.activity.type,name:trilab_ksef.ksef_admin_activity
-#: model_terms:ir.ui.view,arch_db:trilab_ksef.ksef_res_config_settings_view_form
 #: model_terms:ir.ui.view,arch_db:trilab_ksef.res_partner_ksef_inherit_form
-#, python-format
 msgid "KSeF"
 msgstr ""
 
 #. module: trilab_ksef
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_attachment_id
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_attachment_id
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_attachment_id
-msgid "KSeF Attachment"
-msgstr ""
-
-#. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/res_company.py:0
-#, python-format
 msgid "KSeF Authentication Failed unexpectedly: %s"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/res_company.py:0
-#, python-format
 msgid "KSeF Authentication Failed: [%s] %s"
 msgstr ""
 
@@ -548,16 +642,47 @@ msgstr ""
 
 #. module: trilab_ksef
 #: model:ir.actions.server,name:trilab_ksef.cron_check_invoice_batch_import_status_ir_actions_server
-#: model:ir.cron,cron_name:trilab_ksef.cron_check_invoice_batch_import_status
-#: model:ir.cron,name:trilab_ksef.cron_check_invoice_batch_import_status
 msgid "KSeF Check Invoice Batch Import Status"
 msgstr ""
 
 #. module: trilab_ksef
 #: model:ir.actions.server,name:trilab_ksef.cron_check_invoice_status_ir_actions_server
-#: model:ir.cron,cron_name:trilab_ksef.cron_check_invoice_status
-#: model:ir.cron,name:trilab_ksef.cron_check_invoice_status
 msgid "KSeF Check Invoice Status"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_partner__x_ksef_classification
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_users__x_ksef_classification
+msgid "KSeF Classification"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_partner__x_ksef_classification_other
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_users__x_ksef_classification_other
+msgid "KSeF Classification Other"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.actions.server,name:trilab_ksef.ksef_unlink_to_send_edi_documents
+msgid "KSeF Delete To Send EDI Documents"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_company__x_ksef_disable_shipping_third_party
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_config_settings__x_ksef_disable_shipping_third_party
+msgid "KSeF Disable Shipping Address as Third Party"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_partner__x_ksef_disable_shipping_third_party
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_users__x_ksef_disable_shipping_third_party
+msgid "KSeF Do not send Shipping Partner as Third Party"
+msgstr ""
+
+#. module: trilab_ksef
+#. odoo-python
+#: code:addons/trilab_ksef/models/account_move.py:0
+msgid "KSeF EDI Document deleted before sending."
 msgstr ""
 
 #. module: trilab_ksef
@@ -567,9 +692,21 @@ msgid "KSeF Enable Barcodes"
 msgstr ""
 
 #. module: trilab_ksef
-#: model:ir.model.fields,field_description:trilab_ksef.field_res_company__x_ksef_enable_ignore_zero_amount_lines
-#: model:ir.model.fields,field_description:trilab_ksef.field_res_config_settings__x_ksef_enable_ignore_zero_amount_lines
-msgid "KSeF Enable Ignore Zero Amount Lines"
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_company__x_ksef_enable_buyer_contact_info
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_config_settings__x_ksef_enable_buyer_contact_info
+msgid "KSeF Enable Buyer Contact Info"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_company__x_ksef_enable_outgoing_stock_pickings
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_config_settings__x_ksef_enable_outgoing_stock_pickings
+msgid "KSeF Enable Outgoing Stock Pickings"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_company__x_ksef_enable_seller_contact_info
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_config_settings__x_ksef_enable_seller_contact_info
+msgid "KSeF Enable Seller Contact Info"
 msgstr ""
 
 #. module: trilab_ksef
@@ -593,38 +730,76 @@ msgid "KSeF Encrypted Verification Link Private Key Password"
 msgstr ""
 
 #. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_company__x_ksef_fallback_purchase_journal_id
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_config_settings__x_ksef_fallback_purchase_journal_id
+msgid "KSeF Fallback Purchase Journal"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_partner__x_ksef_gln
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_users__x_ksef_gln
+msgid "KSeF GLN"
+msgstr ""
+
+#. module: trilab_ksef
 #: model_terms:ir.ui.view,arch_db:trilab_ksef.ksef_report_invoice_document
 msgid "KSeF ID:"
 msgstr ""
 
 #. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_company__x_ksef_enable_ignore_zero_amount_lines
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_config_settings__x_ksef_enable_ignore_zero_amount_lines
+msgid "KSeF Ignore Zero Amount Lines"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_partner__x_ksef_internal_id
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_users__x_ksef_internal_id
+msgid "KSeF Internal ID"
+msgstr ""
+
+#. module: trilab_ksef
+#. odoo-python
+#: code:addons/trilab_ksef/models/res_partner.py:0
+#, python-format
+msgid "KSeF Internal ID contains an invalid NIP number."
+msgstr ""
+
+#. module: trilab_ksef
+#. odoo-python
+#: code:addons/trilab_ksef/models/res_partner.py:0
+#, python-format
+msgid "KSeF Internal ID has invalid format."
+msgstr ""
+
+#. module: trilab_ksef
 #: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_invoice_date_applicability
 #: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_invoice_date_applicability
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_invoice_date_applicability
 msgid "KSeF Invoice Date Applicability"
 msgstr ""
 
 #. module: trilab_ksef
 #: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_invoice_status
 #: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_invoice_status
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_invoice_status
 msgid "KSeF Invoice Status"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_move.py:0
-#: code:addons/trilab_ksef/models/account_move.py:0
-#: code:addons/trilab_ksef/models/account_move.py:0
-#: code:addons/trilab_ksef/models/account_move.py:0
-#, python-format
 msgid "KSeF Invoice status: %s - %s"
 msgstr ""
 
 #. module: trilab_ksef
 #: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_last_invoice_status
 #: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_last_invoice_status
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_last_invoice_status
 msgid "KSeF Last Invoice Status"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_partner__x_ksef_eori
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_users__x_ksef_eori
+msgid "KSeF Nr EORI"
 msgstr ""
 
 #. module: trilab_ksef
@@ -652,9 +827,7 @@ msgid "KSeF Purchase Journal"
 msgstr ""
 
 #. module: trilab_ksef
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_invoice_reference
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_invoice_reference
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_invoice_reference
+#: model_terms:ir.ui.view,arch_db:trilab_ksef.view_move_form_inherit
 msgid "KSeF Reference Number"
 msgstr ""
 
@@ -666,14 +839,12 @@ msgstr ""
 #. module: trilab_ksef
 #: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_session_reference
 #: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_session_reference
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_session_reference
 msgid "KSeF Session Reference Number"
 msgstr ""
 
 #. module: trilab_ksef
 #: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_session_type
 #: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_session_type
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_session_type
 msgid "KSeF Session Type"
 msgstr ""
 
@@ -683,13 +854,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:trilab_ksef.field_res_company__x_ksef_settings_id
 #: model:ir.model.fields,field_description:trilab_ksef.field_res_config_settings__x_ksef_settings_id
 #: model:ir.ui.menu,name:trilab_ksef.menu_ksef_settings
+#: model_terms:ir.ui.view,arch_db:trilab_ksef.ksef_res_config_settings_view_form
 msgid "KSeF Settings"
 msgstr ""
 
 #. module: trilab_ksef
 #: model:ir.actions.server,name:trilab_ksef.cron_start_invoice_batch_import_ir_actions_server
-#: model:ir.cron,cron_name:trilab_ksef.cron_start_invoice_batch_import
-#: model:ir.cron,name:trilab_ksef.cron_start_invoice_batch_import
 msgid "KSeF Start Invoice Batch Import"
 msgstr ""
 
@@ -699,8 +869,20 @@ msgid "KSeF Tax Amount Mapping"
 msgstr ""
 
 #. module: trilab_ksef
-#: model:ir.model.fields,field_description:trilab_ksef.field_res_company__x_ksef_plain_token
-#: model:ir.model.fields,field_description:trilab_ksef.field_res_config_settings__x_ksef_plain_token
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_third_party_ids
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_third_party_ids
+#: model:ir.model.fields,field_description:trilab_ksef.field_sale_order__x_ksef_third_party_ids
+#: model_terms:ir.ui.view,arch_db:trilab_ksef.view_move_form_inherit
+msgid "KSeF Third Parties"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model,name:trilab_ksef.model_ksef_third_party
+msgid "KSeF Third Party"
+msgstr ""
+
+#. module: trilab_ksef
+#: model_terms:ir.ui.view,arch_db:trilab_ksef.ksef_res_config_settings_view_form
 msgid "KSeF Token"
 msgstr ""
 
@@ -735,11 +917,29 @@ msgid "KSeF Verification Link Private Key Password"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
+#: code:addons/trilab_ksef/models/account_move.py:0
+msgid "KSeF batch %s import error"
+msgstr ""
+
+#. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/wizard/batch_import_wizard.py:0
-#, python-format
 msgid ""
 "KSeF batch import has been started for %d company/companies. The status "
 "check will run in 1 minute."
+msgstr ""
+
+#. module: trilab_ksef
+#. odoo-python
+#: code:addons/trilab_ksef/models/account_edi_format.py:0
+msgid "KSeF batch invoice sending error"
+msgstr ""
+
+#. module: trilab_ksef
+#. odoo-python
+#: code:addons/trilab_ksef/models/account_edi_format.py:0
+msgid "KSeF interactive invoice sending error"
 msgstr ""
 
 #. module: trilab_ksef
@@ -748,8 +948,8 @@ msgid "KSeF report invoice"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_move.py:0
-#, python-format
 msgid "KSeF verification link certificate and private key are not configured."
 msgstr ""
 
@@ -759,16 +959,9 @@ msgid "Krajowy System <b><font class=\"text-danger\">e</font>-Faktur</b>"
 msgstr ""
 
 #. module: trilab_ksef
-#: model:ir.model.fields,field_description:trilab_ksef.field_ksef_batch_import_wizard____last_update
-#: model:ir.model.fields,field_description:trilab_ksef.field_ksef_settings____last_update
-#: model:ir.model.fields,field_description:trilab_ksef.field_ksef_tax_tag____last_update
-#: model:ir.model.fields,field_description:trilab_ksef.field_report_trilab_ksef_report_invoice____last_update
-msgid "Last Modified on"
-msgstr ""
-
-#. module: trilab_ksef
 #: model:ir.model.fields,field_description:trilab_ksef.field_ksef_batch_import_wizard__write_uid
 #: model:ir.model.fields,field_description:trilab_ksef.field_ksef_settings__write_uid
+#: model:ir.model.fields,field_description:trilab_ksef.field_ksef_third_party__write_uid
 #: model:ir.model.fields,field_description:trilab_ksef.field_report_trilab_ksef_report_invoice__write_uid
 msgid "Last Updated by"
 msgstr ""
@@ -776,8 +969,21 @@ msgstr ""
 #. module: trilab_ksef
 #: model:ir.model.fields,field_description:trilab_ksef.field_ksef_batch_import_wizard__write_date
 #: model:ir.model.fields,field_description:trilab_ksef.field_ksef_settings__write_date
+#: model:ir.model.fields,field_description:trilab_ksef.field_ksef_third_party__write_date
 #: model:ir.model.fields,field_description:trilab_ksef.field_report_trilab_ksef_report_invoice__write_date
 msgid "Last Updated on"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__ksef_third_party__classification__7
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__res_partner__x_ksef_classification__7
+msgid "Local government unit - issuer"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__ksef_third_party__classification__8
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__res_partner__x_ksef_classification__8
+msgid "Local government unit - recipient"
 msgstr ""
 
 #. module: trilab_ksef
@@ -786,8 +992,19 @@ msgid "Margin Procedure"
 msgstr ""
 
 #. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_pmarzy
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_pmarzy
+msgid "Margin procedure"
+msgstr ""
+
+#. module: trilab_ksef
 #: model:ir.model.fields.selection,name:trilab_ksef.selection__account_payment_term__x_ksef_payment_term_type__7
 msgid "Mobile Payment"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_ksef_third_party__move_id
+msgid "Move"
 msgstr ""
 
 #. module: trilab_ksef
@@ -803,6 +1020,12 @@ msgstr ""
 #. module: trilab_ksef
 #: model:ir.model.fields,field_description:trilab_ksef.field_ksef_settings__name
 msgid "Name"
+msgstr ""
+
+#. module: trilab_ksef
+#. odoo-python
+#: code:addons/trilab_ksef/models/account_move.py:0
+msgid "No KSeF EDI format found on the journal."
 msgstr ""
 
 #. module: trilab_ksef
@@ -826,101 +1049,21 @@ msgid "Offline"
 msgstr ""
 
 #. module: trilab_ksef
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_16
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_16
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_p_16
-msgid "P_16"
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__ksef_third_party__classification__3
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__res_partner__x_ksef_classification__3
+msgid "Original entity"
 msgstr ""
 
 #. module: trilab_ksef
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_17
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_17
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_p_17
-msgid "P_17"
-msgstr ""
-
-#. module: trilab_ksef
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_18
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_18
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_p_18
-msgid "P_18"
-msgstr ""
-
-#. module: trilab_ksef
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_18a
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_18a
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_p_18a
-msgid "P_18A"
-msgstr ""
-
-#. module: trilab_ksef
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_19
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_19
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_p_19
-msgid "P_19"
-msgstr ""
-
-#. module: trilab_ksef
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_19a
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_19a
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_p_19a
-msgid "P_19A"
-msgstr ""
-
-#. module: trilab_ksef
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_19b
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_19b
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_p_19b
-msgid "P_19B"
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__ksef_third_party__classification__-1
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__res_partner__x_ksef_classification__-1
+msgid "Other Role"
 msgstr ""
 
 #. module: trilab_ksef
 #: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_19c
 #: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_19c
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_p_19c
-msgid "P_19C"
-msgstr ""
-
-#. module: trilab_ksef
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_23
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_23
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_p_23
-msgid "P_23"
-msgstr ""
-
-#. module: trilab_ksef
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_pmarzy
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_pmarzy
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_p_pmarzy
-msgid "P_PMarzy"
-msgstr ""
-
-#. module: trilab_ksef
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_pmarzy_2
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_pmarzy_2
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_p_pmarzy_2
-msgid "P_PMarzy_2"
-msgstr ""
-
-#. module: trilab_ksef
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_pmarzy_3_1
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_pmarzy_3_1
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_p_pmarzy_3_1
-msgid "P_PMarzy_3_1"
-msgstr ""
-
-#. module: trilab_ksef
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_pmarzy_3_2
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_pmarzy_3_2
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_p_pmarzy_3_2
-msgid "P_PMarzy_3_2"
-msgstr ""
-
-#. module: trilab_ksef
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_pmarzy_3_3
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_pmarzy_3_3
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_p_pmarzy_3_3
-msgid "P_PMarzy_3_3"
+msgid "Other legal basis"
 msgstr ""
 
 #. module: trilab_ksef
@@ -929,19 +1072,25 @@ msgid "Paid"
 msgstr ""
 
 #. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_ksef_third_party__partner_id
+msgid "Partner"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__ksef_third_party__classification__6
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__res_partner__x_ksef_classification__6
+msgid "Payer"
+msgstr ""
+
+#. module: trilab_ksef
 #: model:ir.model,name:trilab_ksef.model_account_payment_term
 msgid "Payment Terms"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/wizard/batch_import_wizard.py:0
-#, python-format
 msgid "Please select at least one company."
-msgstr ""
-
-#. module: trilab_ksef
-#: model:ir.model,name:trilab_ksef.model_product_product
-msgid "Product"
 msgstr ""
 
 #. module: trilab_ksef
@@ -987,8 +1136,19 @@ msgid "Purchase Invoice Sync Date"
 msgstr ""
 
 #. module: trilab_ksef
+#: model_terms:ir.ui.view,arch_db:trilab_ksef.ksef_res_config_settings_view_form
+msgid "Purchase Journal"
+msgstr ""
+
+#. module: trilab_ksef
 #: model:ir.model.fields,field_description:trilab_ksef.field_ksef_settings__qr_code_url
 msgid "QR Code URL"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__ksef_third_party__classification__2
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__res_partner__x_ksef_classification__2
+msgid "Recipient"
 msgstr ""
 
 #. module: trilab_ksef
@@ -997,8 +1157,58 @@ msgid "Rejected"
 msgstr ""
 
 #. module: trilab_ksef
+#: model_terms:ir.ui.view,arch_db:trilab_ksef.view_move_form_inherit
+msgid "Resend to KSeF"
+msgstr ""
+
+#. module: trilab_ksef
+#: model_terms:ir.ui.view,arch_db:trilab_ksef.view_move_form_inherit
+msgid "Reset to Draft"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_ksef_third_party__sale_order_id
+msgid "Sale Order"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model,name:trilab_ksef.model_sale_order
+msgid "Sales Order"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_17
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_17
+msgid "Self-billing"
+msgstr ""
+
+#. module: trilab_ksef
 #: model:ir.model.fields.selection,name:trilab_ksef.selection__account_move__x_ksef_invoice_status__sent
 msgid "Sent (In Progress)"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,help:trilab_ksef.field_res_company__x_ksef_enable_barcodes
+#: model:ir.model.fields,help:trilab_ksef.field_res_config_settings__x_ksef_enable_barcodes
+msgid "Show Barcodes on Invoice Lines"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,help:trilab_ksef.field_res_company__x_ksef_enable_buyer_contact_info
+#: model:ir.model.fields,help:trilab_ksef.field_res_config_settings__x_ksef_enable_buyer_contact_info
+msgid "Show Buyer email and phone on Sale Invoice"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,help:trilab_ksef.field_res_company__x_ksef_enable_outgoing_stock_pickings
+#: model:ir.model.fields,help:trilab_ksef.field_res_config_settings__x_ksef_enable_outgoing_stock_pickings
+msgid "Show Outgoing Stock Pickings on Sale Invoice"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,help:trilab_ksef.field_res_company__x_ksef_enable_seller_contact_info
+#: model:ir.model.fields,help:trilab_ksef.field_res_config_settings__x_ksef_enable_seller_contact_info
+msgid "Show Seller email and phone on Sale Invoice"
 msgstr ""
 
 #. module: trilab_ksef
@@ -1017,20 +1227,77 @@ msgid "Tax"
 msgstr ""
 
 #. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_19
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_19
+msgid "Tax exemption"
+msgstr ""
+
+#. module: trilab_ksef
 #: model:ksef.settings,name:trilab_ksef.settings_test_obj
 msgid "Test Environment"
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_move.py:0
-#, python-format
 msgid "The price unit for the product '%s' could not be found."
 msgstr ""
 
 #. module: trilab_ksef
+#. odoo-python
 #: code:addons/trilab_ksef/models/account_move.py:0
-#, python-format
 msgid "The product '%s' could not be found."
+msgstr ""
+
+#. module: trilab_ksef
+#: model_terms:ir.ui.view,arch_db:trilab_ksef.view_move_form_inherit
+msgid ""
+"This refund has no originating invoice linked. It will <strong>not</strong> "
+"be sent to KSeF automatically and must be submitted manually."
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_pmarzy_2
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_pmarzy_2
+msgid "Travel agencies"
+msgstr ""
+
+#. module: trilab_ksef
+#: model_terms:ir.ui.view,arch_db:trilab_ksef.ksef_res_config_settings_view_form
+msgid "Trilab KSeF"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,help:trilab_ksef.field_res_partner__x_ksef_internal_id
+#: model:ir.model.fields,help:trilab_ksef.field_res_users__x_ksef_internal_id
+msgid ""
+"Unique KSeF internal identifier (IDWew) composed of the taxpayer's NIP and "
+"an assigned unit number. Expected format: XXXXXXXXXX-XXXXX (e.g. "
+"1234567891-12345)."
+msgstr ""
+
+#. module: trilab_ksef
+#. odoo-python
+#: code:addons/trilab_ksef/models/account_move.py:0
+msgid "Unlinked %s KSeF EDI Document(s) from %s invoice(s)."
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_pmarzy_3_1
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_pmarzy_3_1
+msgid "Used goods"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__ksef_third_party__classification__9
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__res_partner__x_ksef_classification__9
+msgid "VAT group member - issuer"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__ksef_third_party__classification__10
+#: model:ir.model.fields.selection,name:trilab_ksef.selection__res_partner__x_ksef_classification__10
+msgid "VAT group member - recipient"
 msgstr ""
 
 #. module: trilab_ksef
@@ -1045,7 +1312,7 @@ msgstr ""
 
 #. module: trilab_ksef
 #: model_terms:ir.ui.view,arch_db:trilab_ksef.ksef_res_config_settings_view_form
-msgid "Verification Link Private Key Password"
+msgid "Verification Link Settings"
 msgstr ""
 
 #. module: trilab_ksef
@@ -1059,19 +1326,8 @@ msgid "Voucher"
 msgstr ""
 
 #. module: trilab_ksef
-#: model:ir.model.fields,help:trilab_ksef.field_account_bank_statement_line__x_ksef_p_18
-#: model:ir.model.fields,help:trilab_ksef.field_account_move__x_ksef_p_18
-#: model:ir.model.fields,help:trilab_ksef.field_account_payment__x_ksef_p_18
-msgid ""
-"W przypadku dostawy towarów lub wykonania usługi, dla których obowiązanym do"
-" rozliczenia podatku od wartości dodanej lub podatku o podobnym charakterze "
-"jest nabywca towaru lub usługi"
-msgstr ""
-
-#. module: trilab_ksef
 #: model:ir.model.fields,help:trilab_ksef.field_account_bank_statement_line__x_ksef_p_16
 #: model:ir.model.fields,help:trilab_ksef.field_account_move__x_ksef_p_16
-#: model:ir.model.fields,help:trilab_ksef.field_account_payment__x_ksef_p_16
 msgid ""
 "W przypadku dostawy towarów lub świadczenia usług, w odniesieniu do których "
 "obowiązek podatkowy powstaje zgodnie z art. 19a ust. 5 pkt 1 lub art. 21 "
@@ -1079,46 +1335,82 @@ msgid ""
 msgstr ""
 
 #. module: trilab_ksef
-#: model:ir.model.fields,help:trilab_ksef.field_account_bank_statement_line__x_ksef_p_23
-#: model:ir.model.fields,help:trilab_ksef.field_account_move__x_ksef_p_23
-#: model:ir.model.fields,help:trilab_ksef.field_account_payment__x_ksef_p_23
-msgid ""
-"W przypadku faktur wystawianych w procedurze uproszczonej przez drugiego w "
-"kolejności podatnika, o którym mowa w art. 135 ust. 1 pkt 4 lit. b i c oraz "
-"ust. 2 ustawy, zawierającej adnotację, o której mowa w art. 136 ust. 1 pkt 1"
-" ustawy i stwierdzenie, o którym mowa w art. 136 ust. 1 pkt 2 ustawy"
-msgstr ""
-
-#. module: trilab_ksef
 #: model:ir.model.fields,help:trilab_ksef.field_account_bank_statement_line__x_ksef_p_17
 #: model:ir.model.fields,help:trilab_ksef.field_account_move__x_ksef_p_17
-#: model:ir.model.fields,help:trilab_ksef.field_account_payment__x_ksef_p_17
 msgid "W przypadku faktur, o których mowa w art. 106d ust. 1 ustawy"
 msgstr ""
 
 #. module: trilab_ksef
-#: model:ir.model.fields,help:trilab_ksef.field_account_bank_statement_line__x_ksef_p_18a
-#: model:ir.model.fields,help:trilab_ksef.field_account_move__x_ksef_p_18a
-#: model:ir.model.fields,help:trilab_ksef.field_account_payment__x_ksef_p_18a
+#: model:ir.model.fields,help:trilab_ksef.field_res_company__x_ksef_disable_shipping_third_party
+#: model:ir.model.fields,help:trilab_ksef.field_res_config_settings__x_ksef_disable_shipping_third_party
 msgid ""
-"W przypadku faktur, w których kwota należności ogółem przekracza kwotę 15 "
-"000 zł lub jej równowartość wyrażoną w walucie obcej, obejmujących dokonaną "
-"na rzecz podatnika dostawę towarów lub świadczenie usług, o których mowa w "
-"załączniku nr 15 do ustawy"
+"When enabled, the shipping address will not be automatically included as a "
+"third party (Podmiot3, role: Recipient) in KSeF XML for any sale invoice in "
+"this company."
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,help:trilab_ksef.field_res_partner__x_ksef_disable_shipping_third_party
+#: model:ir.model.fields,help:trilab_ksef.field_res_users__x_ksef_disable_shipping_third_party
+msgid ""
+"When enabled, shipping partner will not be automatically included as a shipping "
+"third party (Podmiot3, role: Recipient) in KSeF XML, even if set as the "
+"delivery address. Also applies to contacts belonging to this partner."
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_p_pmarzy_3_2
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_p_pmarzy_3_2
+msgid "Works of art"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_attachment_id
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_attachment_id
+msgid "X KSeF Attachment"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_invoice_reference
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_invoice_reference
+msgid "X KSeF Reference Number"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_company__x_ksef_plain_token
+#: model:ir.model.fields,field_description:trilab_ksef.field_res_config_settings__x_ksef_plain_token
+msgid "X KSeF Token"
 msgstr ""
 
 #. module: trilab_ksef
 #: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_attachment_file
 #: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_attachment_file
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_attachment_file
 msgid "X Ksef Attachment File"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_has_generated_xml
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_has_generated_xml
+msgid "X Ksef Has Generated Xml"
 msgstr ""
 
 #. module: trilab_ksef
 #: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_show_check_invoice_status_btn
 #: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_show_check_invoice_status_btn
-#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_show_check_invoice_status_btn
 msgid "X Ksef Show Check Invoice Status Btn"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_show_resend_btn
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_show_resend_btn
+msgid "X Ksef Show Resend Btn"
+msgstr ""
+
+#. module: trilab_ksef
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_bank_statement_line__x_ksef_warn_refund_no_reversed_entry
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_move__x_ksef_warn_refund_no_reversed_entry
+#: model:ir.model.fields,field_description:trilab_ksef.field_account_payment__x_ksef_warn_refund_no_reversed_entry
+msgid "X Ksef Warn Refund No Reversed Entry"
 msgstr ""
 
 #. module: trilab_ksef
@@ -1129,7 +1421,6 @@ msgstr ""
 #. module: trilab_ksef
 #: model:ir.model.fields,help:trilab_ksef.field_account_bank_statement_line__x_ksef_p_pmarzy_3_2
 #: model:ir.model.fields,help:trilab_ksef.field_account_move__x_ksef_p_pmarzy_3_2
-#: model:ir.model.fields,help:trilab_ksef.field_account_payment__x_ksef_p_pmarzy_3_2
 msgid ""
 "Znacznik dostawy dzieł sztuki, dla których podstawę opodatkowania stanowi "
 "marża, zgodnie z art. 120 ustawy, a faktura dokumentująca dostawę zawiera "
@@ -1139,7 +1430,6 @@ msgstr ""
 #. module: trilab_ksef
 #: model:ir.model.fields,help:trilab_ksef.field_account_bank_statement_line__x_ksef_p_pmarzy_3_3
 #: model:ir.model.fields,help:trilab_ksef.field_account_move__x_ksef_p_pmarzy_3_3
-#: model:ir.model.fields,help:trilab_ksef.field_account_payment__x_ksef_p_pmarzy_3_3
 msgid ""
 "Znacznik dostawy przedmiotów kolekcjonerskich i antyków, dla których "
 "podstawę opodatkowania stanowi marża, zgodnie z art. 120 ustawy, a faktura "
@@ -1150,7 +1440,6 @@ msgstr ""
 #. module: trilab_ksef
 #: model:ir.model.fields,help:trilab_ksef.field_account_bank_statement_line__x_ksef_p_19
 #: model:ir.model.fields,help:trilab_ksef.field_account_move__x_ksef_p_19
-#: model:ir.model.fields,help:trilab_ksef.field_account_payment__x_ksef_p_19
 msgid ""
 "Znacznik dostawy towarów lub świadczenia usług zwolnionych od podatku na "
 "podstawie art. 43 ust. 1 ustawy, art. 113 ust. 1 i 9 ustawy albo przepisów "
@@ -1161,7 +1450,6 @@ msgstr ""
 #. module: trilab_ksef
 #: model:ir.model.fields,help:trilab_ksef.field_account_bank_statement_line__x_ksef_p_pmarzy_3_1
 #: model:ir.model.fields,help:trilab_ksef.field_account_move__x_ksef_p_pmarzy_3_1
-#: model:ir.model.fields,help:trilab_ksef.field_account_payment__x_ksef_p_pmarzy_3_1
 msgid ""
 "Znacznik dostawy towarów używanych, dla których podstawę opodatkowania "
 "stanowi marża, zgodnie z art. 120 ustawy, a faktura dokumentująca dostawę "
@@ -1171,7 +1459,6 @@ msgstr ""
 #. module: trilab_ksef
 #: model:ir.model.fields,help:trilab_ksef.field_account_bank_statement_line__x_ksef_p_pmarzy
 #: model:ir.model.fields,help:trilab_ksef.field_account_move__x_ksef_p_pmarzy
-#: model:ir.model.fields,help:trilab_ksef.field_account_payment__x_ksef_p_pmarzy
 msgid ""
 "Znacznik wystąpienia procedur marży, o których mowa w art. 119 lub art. 120 "
 "ustawy"
@@ -1180,7 +1467,6 @@ msgstr ""
 #. module: trilab_ksef
 #: model:ir.model.fields,help:trilab_ksef.field_account_bank_statement_line__x_ksef_p_pmarzy_2
 #: model:ir.model.fields,help:trilab_ksef.field_account_move__x_ksef_p_pmarzy_2
-#: model:ir.model.fields,help:trilab_ksef.field_account_payment__x_ksef_p_pmarzy_2
 msgid ""
 "Znacznik świadczenia usług turystyki, dla których podstawę opodatkowania "
 "stanowi marża, zgodnie z art. 119 ust. 1 ustawy, a faktura dokumentująca "

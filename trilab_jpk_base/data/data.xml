@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<odoo noupdate="0">
+<odoo>
+<data noupdate="1">
     <record id="jpk_vat_doc_att" model="ir.attachment">
         <field name="datas" type="base64" file="trilab_jpk_base/data/Schemat_JPK_VAT(3)_v1-1.xsd"/>
         <field name="name">Schemat_JPK_VAT(3)_v1-1.xsd</field>
@@ -22,6 +23,28 @@
         <field name="schema_version">1-0</field>
         <field name="xsd_id" ref="jpk_kr_doc_att"/>
         <field name="gate_type">eDocuments</field>
+    </record>
+
+    <record id="jpk_st_kr_doc_att" model="ir.attachment">
+        <field name="datas" type="base64" file="trilab_jpk_base/data/Schemat_JPK_ST_KR(1)_v1-0.xsd"/>
+        <field name="name">Schemat_JPK_ST_KR(1)_v1-0.xsd</field>
+    </record>
+    <record id="jpk_st_kr_doc_type" model="jpk.document.type">
+        <field name="name">JPK_ST_KR</field>
+        <field name="system_code">JPK_ST_KR (1)</field>
+        <field name="schema_version">1-0</field>
+        <field name="xsd_id" ref="jpk_st_kr_doc_att"/>
+    </record>
+
+    <record id="jpk_kr_pd_doc_att" model="ir.attachment">
+        <field name="datas" type="base64" file="trilab_jpk_base/data/Schemat_JPK_KR_PD(1)_v1-1.xsd"/>
+        <field name="name">Schemat_JPK_KR_PD(1)_v1-1.xsd</field>
+    </record>
+    <record id="jpk_kr_pd_doc_type" model="jpk.document.type">
+        <field name="name">JPK_KR_PD</field>
+        <field name="system_code">JPK_KR_PD (1)</field>
+        <field name="schema_version">1-1</field>
+        <field name="xsd_id" ref="jpk_kr_pd_doc_att"/>
     </record>
 
     <record id="jpk_wb_doc_att" model="ir.attachment">
@@ -73,8 +96,8 @@
     </record>
 
     <record id="jpk_fa_doc_att" model="ir.attachment">
-        <field name="datas" type="base64" file="trilab_jpk_base/data/Faktury_VAT_-JPK_FA(4).xsd"/>
-        <field name="name">Faktury_VAT_-JPK_FA(4).xsd</field>
+        <field name="datas" type="base64" file="trilab_jpk_base/data/Schemat_JPK_FA(4)_v1-0.xsd"/>
+        <field name="name">Schemat_JPK_FA(4)_v1-0.xsd</field>
     </record>
     <record id="jpk_fa_doc_type" model="jpk.document.type">
         <field name="name">JPK_FA</field>
@@ -136,7 +159,7 @@
         <field name="gate_type">eDeclarations</field>
     </record>
 
-        <record id="vat_uek5_v2_1e_doc_att" model="ir.attachment">
+    <record id="vat_uek5_v2_1e_doc_att" model="ir.attachment">
         <field name="datas" type="base64" file="trilab_jpk_base/data/Schemat_VAT_UEK(5)_2-1E.xsd"/>
         <field name="name">Schemat_VAT_UEK(5)_2-1E.xsd</field>
     </record>
@@ -148,4 +171,5 @@
         <field name="xsd_id" ref="vat_uek5_v2_1e_doc_att"/>
         <field name="gate_type">eDeclarations</field>
     </record>
+    </data>
 </odoo>

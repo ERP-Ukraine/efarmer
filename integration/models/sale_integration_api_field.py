@@ -24,28 +24,21 @@ class SaleIntegrationAPIFields(models.Model):
         ondelete='cascade',
     )
     eval = fields.Boolean(
-        string='Eval',
+        string='Execute as Code',
     )
     is_secure = fields.Boolean(
         string='Is Secure',
     )
 
-    def get_eval_globals(self):
-        self.ensure_one()
-        eval_globals = {
-            'record': self.sia_id,
-        }
-        return eval_globals
-
     @api.model
     def to_dictionary(self):
         sia_fields = {}
+
         for field in self:
             value = field.value
 
             if field.eval and value:
-                eval_globals = field.get_eval_globals()
-                value = safe_eval(field.value, eval_globals)
+                value = safe_eval(field.value)
 
             sia_fields[field.name] = {
                 'name': field.name,

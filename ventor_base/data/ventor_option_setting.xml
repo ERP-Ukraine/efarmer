@@ -49,7 +49,17 @@
             <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
             <field name="value_type">bool</field>
             <field name="action_type">package_management</field>
-            <field name="description">Force all products to be packed</field>
+            <field name="description">Force to pack all items that have a quantity greater than zero</field>
+        </record>
+
+        <record id="check_shipping_information" model="ventor.option.setting">
+            <field name="name">Check shipping information</field>
+            <field name="technical_name">check_shipping_information</field>
+            <field name="value" ref="ventor_base.bool_false"/>
+            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
+            <field name="value_type">bool</field>
+            <field name="action_type">package_management</field>
+            <field name="description">If the setting is active the user can edit shipping information before validate OUT transfer</field>
         </record>
 
         <!-- Batch picking -->
@@ -120,7 +130,7 @@
             <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
             <field name="value_type">bool</field>
             <field name="action_type">batch_picking</field>
-            <field name="description">Automatically validate the line after scanning a destination location. Warning: yoy have to insert QTY first before destination location</field>
+            <field name="description">Automatically validate the line after scanning a destination location. Warning: you have to insert QTY first before destination location</field>
         </record>
 
         <record id="manage_package_batch_picking" model="ventor.option.setting">
@@ -333,7 +343,7 @@
             <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
             <field name="value_type">bool</field>
             <field name="action_type">wave_picking</field>
-            <field name="description">Automatically validate the line after scanning a destination location. Warning: yoy have to insert QTY first before destination location</field>
+            <field name="description">Automatically validate the line after scanning a destination location. Warning: you have to insert QTY first before destination location</field>
         </record>
 
         <record id="manage_package_wave_picking" model="ventor.option.setting">
@@ -546,7 +556,7 @@
             <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
             <field name="value_type">bool</field>
             <field name="action_type">cluster_picking</field>
-            <field name="description">Automatically validate the line after scanning a destination location. Warning: yoy have to insert QTY first before destination location</field>
+            <field name="description">Automatically validate the line after scanning a destination location. Warning: you have to insert QTY first before destination location</field>
         </record>
 
         <record id="manage_package_cluster_picking" model="ventor.option.setting">
@@ -859,6 +869,27 @@
             <field name="description">Scan source (destination) packages right after scanning source (destination) location. Use it if you move from one package to another or pick items from packages or pallets. Works only if package management settings is active on Odoo side</field>
         </record>
 
+        <!-- Inventory Adjustments -->
+        <record id="hide_products_quantity" model="ventor.option.setting">
+            <field name="name">Hide product's quantity</field>
+            <field name="technical_name">hide_products_quantity</field>
+            <field name="value" ref="ventor_base.bool_false"/>
+            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
+            <field name="value_type">bool</field>
+            <field name="action_type">inventory_adjustments</field>
+            <field name="description">Prevent users from seeing on-hand quantity</field>
+        </record>
+
+        <record id="hide_apply_button" model="ventor.option.setting">
+            <field name="name">Hide Apply button</field>
+            <field name="technical_name">hide_apply_button</field>
+            <field name="value" ref="ventor_base.bool_false"/>
+            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
+            <field name="value_type">bool</field>
+            <field name="action_type">inventory_adjustments</field>
+            <field name="description">Products quantity will be saved but not applied</field>
+        </record>
+
         <!-- Instant inventory -->
         <record id="hold_inventory_location" model="ventor.option.setting">
             <field name="name">Hold inventory location</field>
@@ -907,7 +938,7 @@
             <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
             <field name="value_type">bool</field>
             <field name="action_type">instant_inventory</field>
-            <field name="description">Scan source (destination) packages right after scanning source (destination) location. Use it if you move from one package to another or pick items from packages or pallets. Works only if package management settings is active on Odoo side</field>
+            <field name="description">It shows additional field 'Package' that you can scan to make an inventory in a package. Works only if package management settings is active on Odoo side</field>
         </record>
 
         <record id="allow_creating_new_packages_instant_inventory" model="ventor.option.setting">
@@ -930,6 +961,26 @@
             <field name="description">Allow scan product owner. You can specify product owner while moving items. Working only with "Consignment" setting on Odoo side</field>
         </record>
 
+        <record id="prohibition_on_updating_inventory" model="ventor.option.setting">
+            <field name="name">Hide update inventory button</field>
+            <field name="technical_name">prohibition_on_updating_inventory</field>
+            <field name="value" ref="ventor_base.bool_false"/>
+            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
+            <field name="value_type">bool</field>
+            <field name="action_type">instant_inventory</field>
+            <field name="description">The user will not be able to overwrite the inventory qty, but only count it and save</field>
+        </record>
+
+        <record id="hide_products_quantity_ins_inventory" model="ventor.option.setting">
+            <field name="name">Hide product's quantity</field>
+            <field name="technical_name">hide_products_quantity</field>
+            <field name="value" ref="ventor_base.bool_false"/>
+            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
+            <field name="value_type">bool</field>
+            <field name="action_type">instant_inventory</field>
+            <field name="description">Prevent users from seeing on-hand quantity</field>
+        </record>
+
         <!-- Quick info -->
         <record id="grouping_quants" model="ventor.option.setting">
             <field name="name">Group quants</field>
@@ -939,6 +990,26 @@
             <field name="value_type">bool</field>
             <field name="action_type">quick_info</field>
             <field name="description">If active you can see aggregated QTY of all quants of the same product (including negative). Disable it to see all lines separately</field>
+        </record>
+
+        <record id="show_scrap_button" model="ventor.option.setting">
+            <field name="name">Show scrap button</field>
+            <field name="technical_name">show_scrap_button</field>
+            <field name="value" ref="ventor_base.bool_false"/>
+            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
+            <field name="value_type">bool</field>
+            <field name="action_type">quick_info</field>
+            <field name="description">Showing the scrap button on each product line</field>
+        </record>
+
+        <record id="hide_products_quantity_quick_info" model="ventor.option.setting">
+            <field name="name">Hide product's quantity</field>
+            <field name="technical_name">hide_products_quantity</field>
+            <field name="value" ref="ventor_base.bool_false"/>
+            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
+            <field name="value_type">bool</field>
+            <field name="action_type">quick_info</field>
+            <field name="description">Prevent users from seeing on-hand quantity</field>
         </record>
 
         <!-- Scrap Management -->
@@ -982,6 +1053,37 @@
             <field name="value_type">bool</field>
             <field name="action_type">create_po</field>
             <field name="description">You can edit qty and taxes every time you scan the product</field>
+        </record>
+
+        <!-- RFID -->
+        <record id="apply_all_lines_automatically_rfid" model="ventor.option.setting">
+            <field name="name">Apply all lines automatically</field>
+            <field name="technical_name">apply_all_lines_automatically</field>
+            <field name="value" ref="ventor_base.bool_false"/>
+            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
+            <field name="value_type">bool</field>
+            <field name="action_type">rfid</field>
+            <field name="description">The user can apply all scanned lines immediately after scanning</field>
+        </record>
+
+        <record id="hide_products_quantity_rfid" model="ventor.option.setting">
+            <field name="name">Hide product's quantity</field>
+            <field name="technical_name">hide_products_quantity</field>
+            <field name="value" ref="ventor_base.bool_false"/>
+            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
+            <field name="value_type">bool</field>
+            <field name="action_type">rfid</field>
+            <field name="description">Prevent users from seeing on-hand quantity</field>
+        </record>
+
+        <record id="hide_apply_button_rfid" model="ventor.option.setting">
+            <field name="name">Hide Apply button</field>
+            <field name="technical_name">hide_apply_button</field>
+            <field name="value" ref="ventor_base.bool_false"/>
+            <field name="settings_dependency" eval="[(6, 0, [ref('ventor_base.bool_false'), ref('ventor_base.bool_true')])]"/>
+            <field name="value_type">bool</field>
+            <field name="action_type">rfid</field>
+            <field name="description">Products quantity will be saved but not applied</field>
         </record>
     </data>
 </odoo>

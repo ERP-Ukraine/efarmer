@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <menuitem id="jpk_main_menu" name="JPK Transfers" sequence="25"
+    <menuitem id="jpk_main_menu" name="JPK Transfer" sequence="25"
               web_icon="trilab_jpk_base,static/description/icon_transfer.png"
               groups="jpk_user,jpk_user_see_all,jpk_manager"/>
 

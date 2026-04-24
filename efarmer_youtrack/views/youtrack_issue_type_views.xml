@@ -4,12 +4,12 @@
         <record id="youtrack_issue_type_tree" model="ir.ui.view">
             <field name="name">youtrack_issue_type.tree</field>
             <field name="model">youtrack.issue.type</field>
-            <field name="type">tree</field>
+            <field name="type">list</field>
             <field name="arch" type="xml">
-                <tree string="YouTrack Issue Types">
+                <list string="YouTrack Issue Types">
                     <field name="name" />
                     <field name="youtrack_id" />
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -35,7 +35,7 @@
         <record id='youtrack_issue_type_list_action' model='ir.actions.act_window'>
             <field name="name">YouTrack Issue Types</field>
             <field name="res_model">youtrack.issue.type</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
             <field name="view_id" ref="youtrack_issue_type_tree"/>
         </record>
 

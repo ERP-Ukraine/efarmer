@@ -9,8 +9,19 @@
         <field name="model">res.config.settings</field>
         <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[@name='quotation_order_setting_container']" position="inside">
-                <div class="col-12 col-lg-6 o_setting_box" id="sale_hubspot" groups="hubspot_quotation_connector.hubspot_user">
+            <block name="quotation_order_setting_container" position="inside">
+                <setting id="sale_hubspot">
+                    <field name="use_sale_hubspot_connector"/>
+                    <field name="sale_hubspot_config_id" invisible="not use_sale_hubspot_connector"/>
+                </setting>
+            </block>
+        </field>
+    </record>
+
+</odoo>
+
+            <!-- <xpath expr="//setting[@id='proforma_configuration']" position="after"> -->
+                <!-- <div class="col-12 col-lg-6 o_setting_box" id="sale_hubspot" groups="hubspot_quotation_connector.hubspot_user">
                     <div class="o_setting_left_pane">
                         <field name="use_sale_hubspot_connector"/>
                     </div>
@@ -22,9 +33,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </xpath>
-        </field>
-    </record>
-
-</odoo>
+                </div> -->
+                
+            <!-- </xpath> -->
+            

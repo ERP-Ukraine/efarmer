@@ -10,11 +10,9 @@ class ProductPublicCategory(models.Model):
     def to_export_format(self, integration):
         self.ensure_one()
 
-        if integration.is_shopify():
+        if integration.is_integration_shopify:
             return {
-                'name': integration.convert_translated_field_to_integration_format(
-                    self, 'name'
-                ),
+                'name': self.convert_field_translations_to_external(integration.id, 'name'),
             }
 
         return super(ProductPublicCategory, self).to_export_format(integration)

@@ -5,10 +5,10 @@ from odoo import models, fields
 
 
 class PrinterBin(models.Model):
-    """ PrintNode Printer Bin
+    """ Direct Print Printer Bin
     """
     _name = 'printnode.printer.bin'
-    _description = 'PrintNode Printer Bin'
+    _description = 'Direct Print Printer Bin'
 
     name = fields.Char(
         'Bin Name',

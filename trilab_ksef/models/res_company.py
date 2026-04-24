@@ -2,6 +2,7 @@ import json
 import logging
 from datetime import datetime, timedelta
 
+import psycopg2
 from cryptography.fernet import Fernet
 from odoo.exceptions import UserError
 from odoo.modules.registry import Registry
@@ -19,16 +20,31 @@ class ResCompany(models.Model):
     _inherit = 'res.company'
 
     x_ksef_settings_id = fields.Many2one(comodel_name='ksef.settings', string='KSeF Settings')
-    x_ksef_enable_barcodes = fields.Boolean('KSeF Enable Barcodes', help='Enable Barcodes on Invoice Lines')
+    x_ksef_enable_barcodes = fields.Boolean('KSeF Enable Barcodes', help='Show Barcodes on Invoice Lines')
+    x_ksef_enable_seller_contact_info = fields.Boolean(
+        'KSeF Enable Seller Contact Info', help='Show Seller email and phone on Sale Invoice'
+    )
+    x_ksef_enable_buyer_contact_info = fields.Boolean(
+        'KSeF Enable Buyer Contact Info', help='Show Buyer email and phone on Sale Invoice'
+    )
     x_ksef_enable_ignore_zero_amount_lines = fields.Boolean(
-        'KSeF Enable Ignore Zero Amount Lines', help='Enable Ignore Zero Amount Lines on Invoice'
+        'KSeF Ignore Zero Amount Lines', help="Don't send Invoice's Zero Amount Lines"
+    )
+    x_ksef_enable_outgoing_stock_pickings = fields.Boolean(
+        'KSeF Enable Outgoing Stock Pickings', help='Show Outgoing Stock Pickings on Sale Invoice'
+    )
+    x_ksef_disable_shipping_third_party = fields.Boolean(
+        string='KSeF Disable Shipping Address as Third Party',
+        help='When enabled, the shipping address will not be automatically included as a third party '
+             '(Podmiot3, role: Recipient) in KSeF XML for any sale invoice in this company.'
     )
     x_ksef_purchase_journal_id = fields.Many2one('account.journal', string='KSeF Purchase Journal')
+    x_ksef_fallback_purchase_journal_id = fields.Many2one('account.journal', string='KSeF Fallback Purchase Journal')
     x_ksef_purchase_invoice_sync_date = fields.Datetime(string='KSeF Purchase Invoice Sync Date', copy=False)
 
     x_ksef_token = fields.Char(string='KSeF Encrypted Token', copy=False)
     x_ksef_plain_token = fields.Char(
-        string='KSeF Token',
+        string='X KSeF Token',
         compute='_x_ksef_compute_plain_token',
         inverse='_x_ksef_inverse_plain_token',
         compute_sudo=True,
@@ -166,34 +182,31 @@ class ResCompany(models.Model):
             nip_identifier=self.partner_id.x_get_pl_vat(raise_exception=True),
         )
 
-    def x_ksef_create_admin_activity(self, note):
+    def x_ksef_notify_admins(self, note, subject=None):
         self.ensure_one()
 
         with Registry(self._cr.dbname).cursor() as cr:
             env = api.Environment(cr, self.env.uid, self.env.context)
+            env.ref('trilab_ksef.ksef_channel').sudo().message_post(
+                body=note,
+                subject=subject,
+                author_id=env.ref('base.partner_root').id,
+            )
 
-            activity_type_id = env.ref('trilab_ksef.ksef_admin_activity')
-            model_id = env['ir.model']._get_id('res.partner')
-
-            res_id = env.company.partner_id
-
-            env['mail.activity'].sudo().create(
-                [
-                    {
-                        'res_id': res_id.id,
-                        'res_model_id': model_id,
-                        'date_deadline': fields.Date.context_today(res_id),
-                        'summary': _('KSeF'),
-                        'note': note,
-                        'activity_type_id': activity_type_id.id,
-                        'user_id': user_id.id,
-                    }
-                    for user_id in env.user | env.ref('account.group_account_manager').users
-                ]
+    def _x_ksef_set_auth_state(self, auth_state_key: str, value: str) -> None:
+        try:
+            with self.env.cr.savepoint():
+                self.env['ir.config_parameter'].sudo().set_param(auth_state_key, value)
+        except psycopg2.DatabaseError:
+            _logger.warning(
+                f'KSeF: failed to persist auth state {auth_state_key} for company {self.id} will re-authenticate on next call',
+                self.id,
+                exc_info=True,
             )
 
     def _x_ksef_get_authenticated_client(self):
         self.ensure_one()
+
         client = self.sudo().x_ksef_get_client()
 
         auth_state_key = f'x_ksef_{self.id}_auth_state'
@@ -201,11 +214,8 @@ class ResCompany(models.Model):
 
         if not (current_auth_state := icp_id.get_param(auth_state_key)):
             _logger.debug('No existing KSeF auth state found, authenticating...')
-
             auth_response = client.authenticate_ksef_token()
-
-            icp_id.set_param(auth_state_key, auth_response.to_json())
-
+            self._x_ksef_set_auth_state(auth_state_key, auth_response.to_json())
             return client
 
         current_auth_state = json.loads(current_auth_state)
@@ -218,6 +228,7 @@ class ResCompany(models.Model):
             _logger.debug('Existing KSeF access token is valid, using it...')
             client.access_token = current_auth_state['access_token']
             return client
+
         elif access_token_expired and not refresh_token_expired and has_refresh_token:
             _logger.debug('Access token expired, refreshing with valid refresh token...')
             refresh_token = current_auth_state['refresh_token']
@@ -225,12 +236,12 @@ class ResCompany(models.Model):
             refresh_response = client.refresh_token(refresh_token)
             client.access_token = refresh_response['accessToken']['token']
 
-            icp_id.set_param(
+            self._x_ksef_set_auth_state(
                 auth_state_key,
                 json.dumps(
                     {
                         'access_token': client.access_token,
-                        'access_token_valid_until': client._parse_datetime(
+                        'access_token_valid_until': client.parse_datetime(
                             refresh_response['accessToken']['validUntil']
                         ).timestamp(),
                     }
@@ -245,7 +256,7 @@ class ResCompany(models.Model):
             _logger.warning('Auth state corrupted (missing refresh_token), re-authenticating...')
 
         auth_response = client.authenticate_ksef_token()
-        icp_id.set_param(auth_state_key, auth_response.to_json())
+        self._x_ksef_set_auth_state(auth_state_key, auth_response.to_json())
 
         return client
 
@@ -254,11 +265,13 @@ class ResCompany(models.Model):
 
         try:
             return self._x_ksef_get_authenticated_client()
+
         except KsefAuthenticationStatusError as error:
             error_msg = _('KSeF Authentication Failed: [%s] %s', error.status_code, error.status_description)
-            self.x_ksef_create_admin_activity(error_msg)
+            self.x_ksef_notify_admins(error_msg)
             raise UserError(error_msg) from error
+
         except KsefClientError as error:
             error_msg = _('KSeF Authentication Failed unexpectedly: %s', str(error))
-            self.x_ksef_create_admin_activity(error_msg)
+            self.x_ksef_notify_admins(error_msg)
             raise UserError(error_msg) from error

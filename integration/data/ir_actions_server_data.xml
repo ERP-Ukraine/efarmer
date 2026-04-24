@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Sale Integration > Action > Import/Export -->
+    <!-- E-Commerce Store > Action > Import / Export -->
     <record id="action_import_export_integration" model="ir.actions.server">
-        <field name="name">Import/Export Integration</field>
+        <field name="name">Import / Export Integration</field>
         <field name="model_id" ref="integration.model_sale_integration"/>
         <field name="binding_model_id" ref="integration.model_sale_integration"/>
         <field name="binding_view_types">form</field>

@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <record id="jpk_document_type_tree" model="ir.ui.view">
-        <field name="name">jpk_document_type_tree</field>
+    <record id="jpk_document_type_list" model="ir.ui.view">
+        <field name="name">jpk_document_type_list</field>
         <field name="model">jpk.document.type</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name"/>
                 <field name="system_code"/>
                 <field name="schema_version"/>
                 <field name="jpk_type"/>
                 <field name="description"/>
-                <field name="xsd_id" invisible="1"/>
+                <field name="xsd_id" invisible="True"/>
                 <field name="xsd_id_datas" widget="binary" filename="xsd_id_name"/>
-                <field name="xsd_id_name" invisible="1"/>
+                <field name="xsd_id_name" invisible="True"/>
                 <field name="gate_type"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -30,9 +30,9 @@
                             <field name="system_code"/>
                             <field name="schema_version"/>
                             <field name="jpk_type"/>
-                            <field name="xsd_id" invisible="1"/>
-                            <field name="xsd_id_datas" widget="binary" filename="xsd_id_name" readonly="0"/>
-                            <field name="xsd_id_name" readonly="0" invisible="1"/>
+                            <field name="xsd_id" invisible="True"/>
+                            <field name="xsd_id_datas" widget="binary" filename="xsd_id_name" readonly="False"/>
+                            <field name="xsd_id_name" invisible="True" force_save="True"/>
                             <field name="gate_type" widget="radio"/>
                         </group>
                         <group/>

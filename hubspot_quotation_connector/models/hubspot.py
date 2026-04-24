@@ -23,14 +23,14 @@ from odoo.tools.safe_eval import safe_eval
 
 
 class HubSpotConfig(models.Model):
-    _name = 'hubspot.config'
-    _description = 'HubSpot Configuration'
+    _name = "hubspot.config"
+    _description = "HubSpot Configuration"
 
     name = fields.Char(required=True)
     access_token = fields.Char(required=True)
 
     @property
-    @ormcache('self.env.uid', 'self.access_token')
+    @ormcache("self.env.uid", "self.access_token")
     def _client(self):
         """
         HubSpot Client
@@ -41,17 +41,15 @@ class HubSpotConfig(models.Model):
 
     @api.model
     def _sale_order_field_map(self) -> Dict[str, str]:
-        get_param = self.env['ir.config_parameter'].sudo().get_param
-        xmlid = 'hubspot_quotation_connector.sale_order_field_map'
-        return safe_eval(get_param(xmlid, default='{}'))
+        get_param = self.env["ir.config_parameter"].sudo().get_param
+        xmlid = "hubspot_quotation_connector.sale_order_field_map"
+        return safe_eval(get_param(xmlid, default="{}"))
 
     @api.model
     def _hubspot_field_convert(self, props: Dict[str, Any]) -> Dict[str, Any]:
         field_map = self._sale_order_field_map()
         return {
-            field_map[key]: value
-            for key, value in props.items()
-            if key in field_map
+            field_map[key]: value for key, value in props.items() if key in field_map
         }
 
     @api.model
@@ -59,34 +57,34 @@ class HubSpotConfig(models.Model):
         return self._sale_order_field_map()[name]
 
     def get_deals_by_partner(
-            self,
-            partner_id: 'odoo.model.res_partner',
-            properties: List[str] = None,
-            limit: int = None,
+        self,
+        partner_id: "odoo.model.res_partner",
+        properties: List[str] = None,
+        limit: int = None,
     ) -> List[SimplePublicObject]:
         contact_items = self.get_contact_by_email(partner_id.email)
         if not contact_items:
             return []
         deal_filters = [
             DealsFilter(
-                property_name='associations.contact',
-                operator='IN',
+                property_name="associations.contact",
+                operator="IN",
                 values=[item.id for item in contact_items],
             )
         ]
-        order_number_field = self._sale_order_field_map().get('order_number')
+        order_number_field = self._sale_order_field_map().get("order_number")
         if order_number_field:
             deal_filters.append(
                 DealsFilter(
                     property_name=order_number_field,
-                    operator='NOT_HAS_PROPERTY',
+                    operator="NOT_HAS_PROPERTY",
                 )
             )
         response = self._client.crm.deals.search_api.do_search(
             public_object_search_request=DealsSearchRequest(
                 filter_groups=[DealsFilterGroup(deal_filters)],
                 limit=limit,
-                properties=properties
+                properties=properties,
             )
         )
         return response.results
@@ -98,9 +96,7 @@ class HubSpotConfig(models.Model):
                     ContactFilterGroup(
                         filters=[
                             ContactFilter(
-                                property_name='email',
-                                operator='EQ',
-                                value=email
+                                property_name="email", operator="EQ", value=email
                             )
                         ]
                     )
@@ -115,13 +111,12 @@ class HubSpotConfig(models.Model):
             deal_id=deal_object_id,
             simple_public_object_input=DealInput(
                 properties=self._hubspot_field_convert(values)
-            )
+            ),
         )
 
     def read_deal(self, deal_object_id: int, properties: List[str] = None):
         return self._client.crm.deals.basic_api.get_by_id(
-            deal_id=deal_object_id,
-            properties=properties
+            deal_id=deal_object_id, properties=properties
         )
 
     @staticmethod
@@ -131,15 +126,15 @@ class HubSpotConfig(models.Model):
         return int(value.timestamp() * 1000)
 
     @staticmethod
-    def notification(message: str, message_type: str = 'success'):
+    def notification(message: str, message_type: str = "success"):
         return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('HubSpot'),
-                'message': message,
-                'type': message_type,
-                'sticky': False,
-                'next': {'type': 'ir.actions.act_window_close'},
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": _("HubSpot"),
+                "message": message,
+                "type": message_type,
+                "sticky": False,
+                "next": {"type": "ir.actions.act_window_close"},
             },
         }

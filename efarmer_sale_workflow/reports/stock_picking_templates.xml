@@ -2,7 +2,7 @@
 <odoo>
     <data>
 
-        <template id="report_delivery_document2_inherit" inherit_id="delivery.report_delivery_document2">
+        <template id="report_delivery_document2_inherit" inherit_id="stock_delivery.report_delivery_document2">
             <xpath expr="//div[@t-if='o.shipping_weight']" position="replace"/>
         </template>
 
@@ -35,13 +35,11 @@
                                 <li><t t-esc="o.user_id.name"/></li>
                                 <li><t t-esc="o.user_id.email"/></li>
                                 <li><t t-esc="o.user_id.phone"/></li>
-                                <li><t t-esc="o.user_id.mobile"/></li>
                             </t>
                             <t t-else="">
                                 <li><t t-esc="o.sale_id.warehouse_id.user_id.name"/></li>
                                 <li><t t-esc="o.sale_id.warehouse_id.user_id.email"/></li>
                                 <li><t t-esc="o.sale_id.warehouse_id.user_id.phone"/></li>
-                                <li><t t-esc="o.sale_id.warehouse_id.user_id.mobile"/></li>
                             </t>
                         </ul>
                     </div>
@@ -53,7 +51,7 @@
             </xpath>
             <xpath expr="//table[@name='stock_move_line_table']" position="after">
                 <t t-set="weight_sum" t-value="0"/>
-                <t t-set="lines" t-value="o.move_lines.filtered(lambda x: x.product_uom_qty)"/>
+                <t t-set="lines" t-value="o.move_ids.filtered(lambda x: x.product_uom_qty)"/>
                 <t t-foreach="lines" t-as="line">
                     <t t-set="weight_sum" t-value="weight_sum + line.product_id.weight * line.product_uom_qty"/>
                 </t>

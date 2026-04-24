@@ -1,85 +1,266 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <odoo>
     <data>
         <!-- Product Template Fields -->
-        <record id="shopify_ecommerce_field_title" model="product.ecommerce.field">
-            <field name="name">Product Title</field>
+        <record id="shopify_ecommerce_field_title_name" model="product.ecommerce.field">
+            <field name="name">Product Title (name)</field>
             <field name="technical_name">title</field>
             <field name="type_api">shopify</field>
-            <field name="value_converter">python_method</field>
             <field name="odoo_model_id" ref="product.model_product_template"/>
-            <field name="send_method">send_integration_name</field>
-            <field name="receive_method">receive_integration_name</field>
+            <field name="odoo_field_id" ref="product.field_product_template__name"/>
+            <field name="mapping_active_by_default" eval="True"/>
+            <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="False"/>
             <field name="default_for_import" eval="False"/>
             <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_template__name'), ref('integration.field_product_template__website_product_name'),))]"/>
+            <field name="is_translatable_field" eval="True"/>
+            <field name="export_field_type">string</field>
+            <field name="import_script"/>
+            <field name="export_script"/>
+        </record>
+
+        <record id="shopify_ecommerce_field_title_website_product_name" model="product.ecommerce.field">
+            <field name="name">Product Title (website_product_name)</field>
+            <field name="technical_name">title</field>
+            <field name="type_api">shopify</field>
+            <field name="odoo_model_id" ref="product.model_product_template"/>
+            <field name="odoo_field_id" ref="integration.field_product_template__website_product_name"/>
+            <field name="mapping_active_by_default" eval="False"/>
+            <field name="is_default" eval="True"/>
+            <field name="default_for_update" eval="False"/>
+            <field name="default_for_import" eval="False"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_template__name'), ref('integration.field_product_template__website_product_name'),))]"/>
+            <field name="is_translatable_field" eval="True"/>
+            <field name="export_field_type">string</field>
+            <field name="import_script"/>
+            <field name="export_script"/>
         </record>
 
         <record id="shopify_ecommerce_field_description" model="product.ecommerce.field">
             <field name="name">Product Description</field>
-            <field name="technical_name">body_html</field>
+            <field name="technical_name">descriptionHtml</field>
             <field name="type_api">shopify</field>
-            <field name="value_converter">translatable_field</field>
-            <field name="odoo_model_id" ref="product.model_product_template" />
+            <field name="odoo_model_id" ref="product.model_product_template"/>
             <field name="odoo_field_id" ref="integration.field_product_template__website_description"/>
+            <field name="mapping_active_by_default" eval="True"/>
+            <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="False"/>
             <field name="default_for_import" eval="False"/>
             <field name="trackable_fields_ids" eval="[(6, 0, (ref('integration.field_product_template__website_description'),))]"/>
+            <field name="is_translatable_field" eval="True"/>
+            <field name="translation_key">body_html</field>
+            <field name="export_field_type">string</field>
+            <field name="import_script"/>
+            <field name="export_script"/>
+        </record>
+
+        <record id="shopify_ecommerce_field_meta_title" model="product.ecommerce.field">
+            <field name="name">Product Meta Title</field>
+            <field name="technical_name">metafields.global.title_tag</field>
+            <field name="shopify_metafield_type">single_line_text_field</field>
+            <field name="type_api">shopify</field>
+            <field name="odoo_model_id" ref="product.model_product_template" />
+            <field name="odoo_field_id" ref="integration.field_product_template__website_seo_metatitle"/>
+            <field name="is_default" eval="True"/>
+            <field name="default_for_update" eval="False"/>
+            <field name="default_for_import" eval="False"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('integration.field_product_template__website_seo_metatitle'),))]"/>
+            <field name="is_translatable_field" eval="True"/>
+            <field name="translation_key">meta_title</field>
+            <field name="export_field_type">string</field>
+            <field name="import_script"/>
+            <field name="export_script"/>
+        </record>
+
+        <record id="shopify_ecommerce_field_meta_description" model="product.ecommerce.field">
+            <field name="name">Product Meta Description</field>
+            <field name="technical_name">metafields.global.description_tag</field>
+            <field name="shopify_metafield_type">multi_line_text_field</field>
+            <field name="type_api">shopify</field>
+            <field name="odoo_model_id" ref="product.model_product_template" />
+            <field name="odoo_field_id" ref="integration.field_product_template__website_seo_description"/>
+            <field name="is_default" eval="True"/>
+            <field name="default_for_update" eval="False"/>
+            <field name="default_for_import" eval="False"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('integration.field_product_template__website_seo_description'),))]"/>
+            <field name="is_translatable_field" eval="True"/>
+            <field name="translation_key">meta_description</field>
+            <field name="export_field_type">string</field>
+            <field name="import_script"/>
+            <field name="export_script"/>
         </record>
 
         <record id="shopify_ecommerce_field_status" model="product.ecommerce.field">
             <field name="name">Product Status</field>
             <field name="technical_name">status</field>
             <field name="type_api">shopify</field>
-            <field name="value_converter">python_method</field>
-            <field name="odoo_model_id" ref="product.model_product_template" />
-            <field name="send_method">send_product_status_spf</field>
-            <field name="receive_method">receive_product_status_spf</field>
+            <field name="odoo_model_id" ref="product.model_product_template"/>
+            <field name="mapping_active_by_default" eval="True"/>
+            <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="True"/>
             <field name="default_for_import" eval="True"/>
-            <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_template__active'), ref('product.field_product_template__sale_ok'),))]"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_template__active'), ref('product.field_product_template__sale_ok'), ref('stock.field_product_template__is_storable'),))]"/>
+            <field name="export_field_type">string</field>
+            <field name="import_script">
+template_data, _ = external_data
+product = integration.adapter.gql.Product.set(**template_data)
+
+value = {
+    'sale_ok': product.is_active,
+    'active': not product.is_archived,
+}
+
+if FIRST_TIME_IMPORT:
+    value.update(
+        active=True,
+        is_storable=True,
+    )
+            </field>
+            <field name="export_script">
+ProductStatus = integration.adapter.gql.ProductStatus
+
+send_inactive_product = integration.send_inactive_product and not EXTERNAL_CODE
+
+if send_inactive_product or not template.sale_ok:
+    value_ = ProductStatus.draft.value
+else:
+    value_ = ProductStatus.from_odoo(template.active)
+
+api_name = field.get_api_field_name()
+
+value = {
+    api_name: value_,
+}
+            </field>
         </record>
 
         <record id="shopify_ecommerce_field_collections" model="product.ecommerce.field">
             <field name="name">Product Collections</field>
             <field name="technical_name">collections</field>
             <field name="type_api">shopify</field>
-            <field name="value_converter">python_method</field>
-            <field name="odoo_model_id" ref="product.model_product_template" />
-            <field name="odoo_field_id" ref="integration.field_product_template__public_categ_ids" />
-            <field name="send_method">send_categories</field>
-            <field name="receive_method">receive_categories</field>
+            <field name="odoo_model_id" ref="product.model_product_template"/>
+            <field name="odoo_field_id" ref="integration.field_product_template__public_categ_ids"/>
+            <field name="mapping_active_by_default" eval="True"/>
+            <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="False"/>
             <field name="default_for_import" eval="False"/>
             <field name="trackable_fields_ids" eval="[(6, 0, (ref('integration.field_product_template__public_categ_ids'),))]"/>
-        </record>
+            <field name="export_field_type">integer</field>
+            <field name="import_script">
+template_data, _ = external_data
+product = integration.adapter.gql.Product.set(**template_data)
+collections = product.collections
 
-        <record id="shopify_ecommerce_field_template_price" model="product.ecommerce.field">
-            <field name="name">Product Price</field>
-            <field name="technical_name">price</field>
-            <field name="type_api">shopify</field>
-            <field name="value_converter">python_method</field>
-            <field name="odoo_model_id" ref="product.model_product_template" />
-            <field name="odoo_field_id" ref="product.field_product_template__list_price" />
-            <field name="send_method">send_list_price</field>
-            <field name="receive_method">receive_list_price</field>
-            <field name="default_for_update" eval="True"/>
-            <field name="default_for_import" eval="True"/>
-            <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_template__list_price'),))]"/>
+ProductPublicCategory = env['product.public.category']
+value_ = ProductPublicCategory.browse()
+
+for collection in collections:
+    value_ |= ProductPublicCategory \
+        .from_external(integration, collection.id_str)
+
+odoo_name = field.get_odoo_field_name()
+
+value = {
+    odoo_name: [(6, 0, value_.ids)],
+}
+            </field>
+            <field name="export_script">
+collection_ids = template.get_categories(integration.id)
+
+if not EXTERNAL_CODE:
+    key = 'collections'
+else:
+    key = 'collectionsToJoin'
+
+Collection = integration.adapter.gql.Collection
+
+value = {
+    key: [Collection.create_gid(x) for x in collection_ids],
+}
+            </field>
         </record>
 
         <record id="shopify_ecommerce_product_tags" model="product.ecommerce.field">
             <field name="name">Product Tags</field>
             <field name="technical_name">tags</field>
             <field name="type_api">shopify</field>
-            <field name="value_converter">python_method</field>
-            <field name="odoo_model_id" ref="product.model_product_template" />
-            <field name="odoo_field_id" ref="integration.field_product_template__feature_line_ids" />
-            <field name="send_method">send_product_tags</field>
-            <field name="receive_method">receive_product_tags</field>
+            <field name="odoo_model_id" ref="product.model_product_template"/>
+            <field name="odoo_field_id" ref="integration.field_product_template__external_tag_group_ids"/>
+            <field name="mapping_active_by_default" eval="False"/>
+            <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="True"/>
             <field name="default_for_import" eval="True"/>
-            <field name="trackable_fields_ids" eval="[(6, 0, (ref('integration.field_product_template__feature_line_ids'),))]"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('integration.field_product_template__external_tag_group_ids'),))]"/>
+            <field name="export_field_type">string</field>
+            <field name="import_script">
+template_data, _ = external_data
+product = integration.adapter.gql.Product.set(**template_data)
+
+tag_ids = [
+    env['external.integration.tag']._get_or_create_external_tag(name, 'product', integration_id=integration.id).id
+    for name in product.tags
+]
+
+odoo_name = field.get_odoo_field_name()
+
+if template:
+    group = template.get_or_create_tag_group(integration.id)
+    commands = [(1, group.id, {'tag_ids': [(6, 0, tag_ids)]})]
+else:
+    commands = [(0, 0, {'integration_id': integration.id, 'tag_ids': [(6, 0, tag_ids)]})]
+
+value = {odoo_name: commands}
+            </field>
+            <field name="export_script">
+api_name = field.get_api_field_name()
+
+tag_names = template.external_tag_group_ids.filtered(
+    lambda g: g.integration_id.id == integration.id
+).mapped('tag_ids').mapped('name')
+
+value = {
+    api_name: tag_names,
+}
+            </field>
+        </record>
+
+        <record id="shopify_ecommerce_field_template_price" model="product.ecommerce.field">
+            <field name="name">Product Price</field>
+            <field name="technical_name">price</field>
+            <field name="type_api">shopify</field>
+            <field name="odoo_model_id" ref="product.model_product_template"/>
+            <field name="odoo_field_id" ref="product.field_product_template__list_price"/>
+            <field name="mapping_active_by_default" eval="True"/>
+            <field name="is_default" eval="True"/>
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_template__list_price'),))]"/>
+            <field name="import_script">
+# TODO price_including_taxes
+
+if integration.integration_pricelist_id and not FIRST_TIME_IMPORT:
+    value = {}
+else:
+    prices = []
+    template_data, _ = external_data
+
+    for variant_data in template_data['variants']:
+        v = integration.adapter.gql.ProductVariant.set(**variant_data)
+        has_pricelist_ = bool(integration.integration_sale_pricelist_id)
+
+        price = v.get_price(has_integration_pricelist=has_pricelist_)
+        prices.append(price)
+
+    odoo_name = field.get_odoo_field_name()
+
+    value = {
+        odoo_name: min(prices),
+    }
+            </field>
+            <field name="export_script">
+value = {}
+            </field>
         </record>
 
         <!-- Product Variant Fields -->
@@ -87,82 +268,404 @@
             <field name="name">Product Variant Barcode</field>
             <field name="technical_name">barcode</field>
             <field name="type_api">shopify</field>
-            <field name="value_converter">simple</field>
-            <field name="odoo_model_id" ref="product.model_product_product" />
-            <field name="odoo_field_id" ref="product.field_product_product__barcode" />
+            <field name="odoo_model_id" ref="product.model_product_product"/>
+            <field name="odoo_field_id" ref="product.field_product_product__barcode"/>
+            <field name="mapping_active_by_default" eval="True"/>
+            <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="True"/>
             <field name="default_for_import" eval="True"/>
             <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_product__barcode'),))]"/>
+            <field name="export_field_type">string</field>
+            <field name="import_script"/>
+            <field name="export_script"/>
         </record>
 
         <record id="shopify_ecommerce_field_variant_weight" model="product.ecommerce.field">
             <field name="name">Product Variant Weight</field>
             <field name="technical_name">weight</field>
             <field name="type_api">shopify</field>
-            <field name="value_converter">python_method</field>
-            <field name="odoo_model_id" ref="product.model_product_product" />
-            <field name="odoo_field_id" ref="product.field_product_product__weight" />
-            <field name="send_method">send_weight</field>
-            <field name="receive_method">receive_weight</field>
+            <field name="odoo_model_id" ref="product.model_product_product"/>
+            <field name="odoo_field_id" ref="product.field_product_product__weight"/>
+            <field name="mapping_active_by_default" eval="True"/>
+            <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="True"/>
             <field name="default_for_import" eval="True"/>
             <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_product__weight'),))]"/>
+            <field name="export_field_type">float</field>
+            <field name="import_script">
+_, variant_data = external_data
+product_variant = integration.adapter.gql.ProductVariant.set(**variant_data)
+inventory_item = product_variant.inventory_item
+
+if not inventory_item:
+    value = {}
+else:
+    value_ = env['uom.uom']._convert_external_weight_uom(
+        inventory_item.weight,
+        inventory_item.weight_unit,
+    )
+
+    odoo_name = field.get_odoo_field_name()
+
+    value = {
+        odoo_name: value_,
+    }
+
+            </field>
+            <field name="export_script">
+value_ = variant.weight
+
+if not value_:
+    value = {}
+else:
+    WeightUnit = integration.adapter.gql.WeightUnit
+
+    api_name = field.get_api_field_name()
+
+    value = {
+        'inventoryItem': {
+            'measurement': {
+                api_name: {
+                    'value': value_,
+                    'unit': WeightUnit.convert_weight_unit_out(variant.weight_uom_name),
+                }
+            }
+        }
+    }
+            </field>
         </record>
 
         <record id="shopify_ecommerce_field_variant_default_code" model="product.ecommerce.field">
             <field name="name">Product Variant SKU</field>
             <field name="technical_name">sku</field>
             <field name="type_api">shopify</field>
-            <field name="value_converter">simple</field>
-            <field name="odoo_model_id" ref="product.model_product_product" />
-            <field name="odoo_field_id" ref="product.field_product_product__default_code" />
+            <field name="odoo_model_id" ref="product.model_product_product"/>
+            <field name="odoo_field_id" ref="product.field_product_product__default_code"/>
+            <field name="mapping_active_by_default" eval="True"/>
+            <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="True"/>
             <field name="default_for_import" eval="True"/>
             <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_product__default_code'),))]"/>
+            <field name="export_field_type">string</field>
+            <field name="import_script"/>
+            <field name="export_script">
+value_ = field \
+    .with_context(integration_force_product_export=FORCE_PRODUCT_EXPORT) \
+    ._build_export_field_dict(integration.id, variant.id)
+
+value = {
+    'inventoryItem': value_,
+}
+            </field>
         </record>
 
         <record id="shopify_ecommerce_field_variant_price" model="product.ecommerce.field">
             <field name="name">Product Variant Price</field>
             <field name="technical_name">price</field>
             <field name="type_api">shopify</field>
-            <field name="value_converter">python_method</field>
-            <field name="odoo_model_id" ref="product.model_product_product" />
-            <field name="odoo_field_id" ref="integration.field_product_product__variant_extra_price" />
-            <field name="send_method">send_lst_price</field>
-            <field name="receive_method">receive_lst_price</field>
+            <field name="odoo_model_id" ref="product.model_product_product"/>
+            <field name="odoo_field_id" ref="integration.field_product_product__variant_extra_price"/>
+            <field name="mapping_active_by_default" eval="True"/>
+            <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="True"/>
             <field name="default_for_import" eval="True"/>
-            <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_product__lst_price'),))]"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('integration.field_product_product__variant_extra_price'), ref('product.field_product_product__lst_price'),))]"/>
+            <field name="export_field_type">string</field>
+            <field name="import_script">
+# TODO price_including_taxes
+
+if integration.integration_pricelist_id and not FIRST_TIME_IMPORT:
+    value = {}
+else:
+    _, variant_data = external_data
+    v = integration.adapter.gql.ProductVariant.set(**variant_data)
+    has_pricelist_ = bool(integration.integration_sale_pricelist_id)
+
+    price = v.get_price(has_integration_pricelist=has_pricelist_)
+
+    odoo_name = field.get_odoo_field_name()
+    value_ = price - (variant.lst_price - variant.variant_extra_price)
+
+    value = {
+        odoo_name: value_,
+    }
+            </field>
+            <field name="export_script">
+pricelist = integration.integration_pricelist_id
+sale_pricelist = integration.integration_sale_pricelist_id
+
+base_price = variant.lst_price
+api_name = field.get_api_field_name()
+
+# Override with pricelist price if configured
+if pricelist:
+    regular_price = pricelist._get_product_price(variant, 0)
+
+# Handle sale pricelist logic
+if sale_pricelist:
+    sale_price, rule_id = sale_pricelist._get_product_price_rule(variant, 0)
+
+    if rule_id and sale_price != regular_price:
+        # Variant is in sale pricelist with active discount - swap prices
+        final_price = sale_price
+        compare_at_price = base_price
+    else:
+        # Variant not in sale pricelist or no discount - explicitly clear compare_at_price
+        final_price = base_price
+        compare_at_price = None
+
+    # Apply tax adjustments
+    final_price = variant.get_price_by_send_tax_incl(integration.id, final_price)
+    if compare_at_price is not None:
+        compare_at_price = variant.get_price_by_send_tax_incl(integration.id, compare_at_price)
+
+    value = {
+        api_name: final_price,
+        'compareAtPrice': compare_at_price,
+    }
+else:
+    # No sale pricelist - only send regular price, don't touch compareAtPrice
+    final_price = variant.get_price_by_send_tax_incl(integration.id, base_price)
+
+    value = {
+        api_name: final_price,
+    }
+            </field>
         </record>
 
         <record id="shopify_ecommerce_field_variant_cost_price" model="product.ecommerce.field">
             <field name="name">Product Variant Cost Price</field>
             <field name="technical_name">cost</field>
             <field name="type_api">shopify</field>
-            <field name="value_converter">python_method</field>
-            <field name="odoo_model_id" ref="product.model_product_product" />
-            <field name="odoo_field_id" ref="product.field_product_product__standard_price" />
-            <field name="send_method">send_integration_cost_price</field>
-            <field name="receive_method">receive_integration_cost_price</field>
+            <field name="odoo_model_id" ref="product.model_product_product"/>
+            <field name="odoo_field_id" ref="product.field_product_product__standard_price"/>
+            <field name="mapping_active_by_default" eval="True"/>
+            <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="True"/>
             <field name="default_for_import" eval="True"/>
             <field name="trackable_fields_ids" eval="[(6, 0, (ref('product.field_product_product__standard_price'),))]"/>
-            <field name="is_default" eval="True"/>
+            <field name="export_field_type">string</field>
+            <field name="import_script">
+_, variant_data = external_data
+product_variant = integration.adapter.gql.ProductVariant.set(**variant_data)
+inventory_item = product_variant.inventory_item
+
+if inventory_item:
+    value_ = inventory_item.cost
+
+    odoo_name = field.get_odoo_field_name()
+
+    value = {
+        odoo_name: value_,
+    }
+else:
+    value = {}
+            </field>
+            <field name="export_script">
+value_ = variant._get_integration_cost_price(integration.id)
+
+api_name = field.get_api_field_name()
+
+value = {
+    'inventoryItem': {
+        api_name: value_,
+    }
+}
+            </field>
         </record>
 
         <record id="shopify_ecommerce_field_variant_taxable_flag" model="product.ecommerce.field">
             <field name="name">Product Variant Taxable Flag</field>
             <field name="technical_name">taxable</field>
             <field name="type_api">shopify</field>
-            <field name="value_converter">python_method</field>
-            <field name="odoo_model_id" ref="product.model_product_product" />
-            <field name="odoo_field_id" ref="account.field_product_product__taxes_id" />
-            <field name="send_method">send_taxable_flag</field>
-            <field name="receive_method">receive_taxable_flag</field>
+            <field name="odoo_model_id" ref="product.model_product_product"/>
+            <field name="odoo_field_id" ref="account.field_product_product__taxes_id"/>
+            <field name="mapping_active_by_default" eval="True"/>
+            <field name="is_default" eval="True"/>
             <field name="default_for_update" eval="True"/>
             <field name="default_for_import" eval="True"/>
-            <field name="is_default" eval="True"/>
             <field name="trackable_fields_ids" eval="[(6, 0, (ref('account.field_product_product__taxes_id'),))]"/>
+            <field name="export_field_type">boolean</field>
+            <field name="import_script">
+_, variant_data = external_data
+product_variant = integration.adapter.gql.ProductVariant.set(**variant_data)
+
+taxable = product_variant.taxable
+
+if taxable:
+    value = {}
+else:
+    odoo_name = field.get_odoo_field_name()
+
+    value = {
+        odoo_name: False,
+    }
+            </field>
+            <field name="export_script">
+api_name = field.get_api_field_name()
+
+value = {
+    api_name: bool(template.taxes_id),
+}
+            </field>
+        </record>
+
+        <!-- Shipping / Customs Fields (InventoryItem) -->
+        <record id="shopify_ecommerce_field_variant_hs_code" model="product.ecommerce.field">
+            <field name="name">Product Variant HS Code</field>
+            <field name="technical_name">harmonizedSystemCode</field>
+            <field name="type_api">shopify</field>
+            <field name="odoo_model_id" ref="product.model_product_product"/>
+            <field name="odoo_field_id" ref="stock_delivery.field_product_product__hs_code"/>
+            <field name="mapping_active_by_default" eval="False"/>
+            <field name="is_default" eval="True"/>
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('stock_delivery.field_product_template__hs_code'),))]"/>
+            <field name="export_field_type">string</field>
+            <field name="import_script">
+_, variant_data = external_data
+product_variant = integration.adapter.gql.ProductVariant.set(**variant_data)
+inventory_item = product_variant.inventory_item
+
+odoo_name = field.get_odoo_field_name()
+
+if inventory_item and inventory_item['harmonizedSystemCode']:
+    value = {
+        odoo_name: inventory_item['harmonizedSystemCode'],
+    }
+else:
+    value = {
+        odoo_name: '',
+    }
+            </field>
+            <field name="export_script">
+value_ = variant.hs_code.strip() if variant.hs_code else None
+
+value = {
+    'inventoryItem': {
+        'harmonizedSystemCode': value_,
+    }
+}
+            </field>
+        </record>
+
+        <record id="shopify_ecommerce_field_variant_country_of_origin" model="product.ecommerce.field">
+            <field name="name">Product Variant Country of Origin</field>
+            <field name="technical_name">countryCodeOfOrigin</field>
+            <field name="type_api">shopify</field>
+            <field name="odoo_model_id" ref="product.model_product_product"/>
+            <field name="odoo_field_id" ref="stock_delivery.field_product_product__country_of_origin"/>
+            <field name="mapping_active_by_default" eval="False"/>
+            <field name="is_default" eval="True"/>
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('stock_delivery.field_product_template__country_of_origin'),))]"/>
+            <field name="export_field_type">string</field>
+            <field name="import_script">
+_, variant_data = external_data
+product_variant = integration.adapter.gql.ProductVariant.set(**variant_data)
+inventory_item = product_variant.inventory_item
+
+odoo_name = field.get_odoo_field_name()
+
+if inventory_item and inventory_item['countryCodeOfOrigin']:
+    country_of_origin_code = inventory_item['countryCodeOfOrigin']
+    country = env['res.country'].search([('code', '=', country_of_origin_code)], limit=1)
+
+    value = {
+        odoo_name: country.id if country else False,
+    }
+else:
+    value = {
+        odoo_name: False,
+    }
+            </field>
+            <field name="export_script">
+value_ = variant.country_of_origin.code if variant.country_of_origin else None
+
+value = {
+    'inventoryItem': {
+        'countryCodeOfOrigin': value_,
+    }
+}
+            </field>
+        </record>
+
+        <record id="shopify_ecommerce_field_variant_is_storable" model="product.ecommerce.field">
+            <field name="name">Product Variant Is Storable</field>
+            <field name="technical_name">tracked</field>
+            <field name="type_api">shopify</field>
+            <field name="odoo_model_id" ref="product.model_product_product"/>
+            <field name="odoo_field_id" ref="stock.field_product_product__is_storable"/>
+            <field name="mapping_active_by_default" eval="False"/>
+            <field name="is_default" eval="True"/>
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('stock.field_product_template__is_storable'),))]"/>
+            <field name="export_field_type">boolean</field>
+            <field name="import_script">
+_, variant_data = external_data
+product_variant = integration.adapter.gql.ProductVariant.set(**variant_data)
+inventory_item = product_variant.inventory_item
+
+odoo_name = field.get_odoo_field_name()
+
+if inventory_item:
+    value = {
+        odoo_name: inventory_item['tracked'],
+    }
+else:
+    value = {}
+            </field>
+            <field name="export_script">
+value_ = variant.is_storable
+
+value = {
+    'inventoryItem': {
+        'tracked': value_,
+    }
+}
+            </field>
+        </record>
+
+        <record id="shopify_ecommerce_field_variant_continue_selling_without_stock" model="product.ecommerce.field">
+            <field name="name">Product Variant Continue Selling Without Stock</field>
+            <field name="technical_name">inventoryPolicy</field>
+            <field name="type_api">shopify</field>
+            <field name="odoo_model_id" ref="product.model_product_product"/>
+            <field name="odoo_field_id" ref="integration_shopify.field_product_product__continue_selling_without_stock"/>
+            <field name="mapping_active_by_default" eval="False"/>
+            <field name="is_default" eval="True"/>
+            <field name="default_for_update" eval="True"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('integration_shopify.field_product_template__continue_selling_without_stock'), ref('integration_shopify.field_product_product__continue_selling_without_stock'),))]"/>
+            <field name="export_field_type">string</field>
+            <field name="import_script">
+_, variant_data = external_data
+product_variant = integration.adapter.gql.ProductVariant.set(**variant_data)
+
+odoo_name = field.get_odoo_field_name()
+
+inventory_policy = product_variant.inventory_policy if product_variant else None
+
+if not inventory_policy:
+    value = {
+        odoo_name: inventory_policy,
+    }
+else:
+    value = {}
+            </field>
+            <field name="export_script">
+inventory_policy = variant.continue_selling_without_stock
+
+if inventory_policy == 'from_template':
+    inventory_policy = template.continue_selling_without_stock
+
+value = {
+    'inventoryPolicy': inventory_policy,
+}
+            </field>
         </record>
 
         <!-- Private Fields -->
@@ -170,20 +673,22 @@
             <field name="name">DEFAULT SKU</field>
             <field name="technical_name">sku</field>
             <field name="type_api">shopify</field>
-            <field name="value_converter">simple</field>
+            <field name="mapping_active_by_default" eval="True"/>
+            <field name="is_default" eval="True"/>
             <field name="odoo_model_id" ref="product.model_product_template"/>
             <field name="odoo_field_id" ref="product.field_product_template__default_code"/>
-            <field name="is_private">True</field>
+            <field name="is_private" eval="True"/>
         </record>
 
         <record id="shopify_template_barcode_private" model="product.ecommerce.field">
             <field name="name">DEFAULT BARCODE</field>
             <field name="technical_name">barcode</field>
             <field name="type_api">shopify</field>
-            <field name="value_converter">simple</field>
+            <field name="mapping_active_by_default" eval="True"/>
+            <field name="is_default" eval="True"/>
             <field name="odoo_model_id" ref="product.model_product_template"/>
-            <field name="odoo_field_id" ref="product.field_product_template__barcode" />
-            <field name="is_private">True</field>
+            <field name="odoo_field_id" ref="product.field_product_template__barcode"/>
+            <field name="is_private" eval="True"/>
         </record>
 
     </data>

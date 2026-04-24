@@ -1,0 +1,729 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+  <record id="jpk_vat_7m_view_form" model="ir.ui.view">
+    <field name="name">jpk.vat.7m.form</field>
+    <field name="model">jpk.vat.7m</field>
+    <field name="priority">1</field>
+    <field name="type">form</field>
+    <field name="arch" type="xml">
+      <form string="JPK VAT V7M" create="False" class="jpk-7m-form">
+        <header invisible="context.get('active_model')"> <!-- Hide header in wizard -->
+          <button name="action_generate_xml" string="Export XML" class="oe_highlight" type="object"/>
+          <button name="action_generate_pdf" string="Export PDF" class="oe_highlight" type="object"/>
+        </header>
+        <sheet col="1" class="p-0">
+
+            <group colspan="4">
+              <field name="version" readonly="True"/>
+              <field name="month" readonly="True"/>
+              <field name="year" readonly="True" widget="text"/>
+            </group>
+            <group invisible="cel_zlozenia == 1" colspan="8">
+              <label for="cel_zlozenia" string="Cel złożenia"/>
+              <div class="o_row">
+                <field name="cel_zlozenia" readonly="True" invisible="True" force_save="True"/>
+                Korekta
+              </div>
+              <field name="czesc_deklaracyjna"/>
+              <field name="czesc_ewidencyjna"/>
+              <field name="p_ordzu" string="Przyczyna złożenia korekty"/>
+            </group>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <separator string="Rozliczenie podatku należnego"/>
+              </div>
+              <div class="col-2">
+                <separator string="podstawa" class="text-end"/>
+              </div>
+              <div class="col-2">
+                <separator string="podatek" class="text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_10"
+                       string="dostawa towarów oraz świadczenia usług na terytorium kraju, zwolnione od podatku"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                10.
+              </div>
+              <div class="col-1">
+                <field name="p_10" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_11" string="dostawa towarów oraz świadczenia usług poza terytorium kraju"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                11.
+              </div>
+              <div class="col-1">
+                <field name="p_11" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_12" string="w tym świadczenie usług, o których mowa w art. 100 ust. 1 pkt 4 ustawy"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                12.
+              </div>
+              <div class="col-1">
+                <field name="p_12" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_13"
+                       string="dostawa towarów oraz świadczenia usług na terytorium kraju, opodatkowanych stawką 0%"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                13.
+              </div>
+              <div class="col-1">
+                <field name="p_13" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_14" string="w tym dostawa towarów, o których mowa w art. 129 ustawy"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                14.
+              </div>
+              <div class="col-1">
+                <field name="p_14" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_15"
+                       string="dostawa towarów oraz świadczenia usług na terytorium kraju, opodatkowanych stawką 5%"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                15.
+              </div>
+              <div class="col-1">
+                <field name="p_15" nolabel="1" class="oe_inline text-end"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                16.
+              </div>
+              <div class="col-1">
+                <field name="p_16" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_17"
+                       string="dostawa towarów oraz świadczenia usług na terytorium kraju, opodatkowanych stawką 7% albo 8%"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                17.
+              </div>
+              <div class="col-1">
+                <field name="p_17" nolabel="1" class="oe_inline text-end"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                18.
+              </div>
+              <div class="col-1">
+                <field name="p_18" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_19"
+                       string="dostawa towarów oraz świadczenia usług na terytorium kraju, opodatkowanych stawką 22% albo 23%"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                19.
+              </div>
+              <div class="col-1">
+                <field name="p_19" nolabel="1" class="oe_inline text-end"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                20.
+              </div>
+              <div class="col-1">
+                <field name="p_20" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_21" string="wewnątrzwspólnotowa dostawa towarów"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                21.
+              </div>
+              <div class="col-1">
+                <field name="p_21" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_22" string="eksport towarów"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                22.
+              </div>
+              <div class="col-1">
+                <field name="p_22" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_23" string="wewnątrzwspólnotowe nabycie towarów"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                23.
+              </div>
+              <div class="col-1">
+                <field name="p_23" nolabel="1" class="oe_inline text-end"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                24.
+              </div>
+              <div class="col-1">
+                <field name="p_24" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_25" string="import towarów rozliczany zgodnie z art. 33a ustawy"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                25.
+              </div>
+              <div class="col-1">
+                <field name="p_25" nolabel="1" class="oe_inline text-end"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                26.
+              </div>
+              <div class="col-1">
+                <field name="p_26" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_27"
+                       string="import usług, zwyłączeniem usług nabywanych od podatników podatku od wartości dodanej, do których stosuje się art. 28b ustawy"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                27.
+              </div>
+              <div class="col-1">
+                <field name="p_27" nolabel="1" class="oe_inline text-end"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                28.
+              </div>
+              <div class="col-1">
+                <field name="p_28" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_29"
+                       string="import usług nabywanych od podatników podatku od wartości dodanej, do których stosuje się art. 28b ustawy"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                29.
+              </div>
+              <div class="col-1">
+                <field name="p_29" nolabel="1" class="oe_inline text-end"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                30.
+              </div>
+              <div class="col-1">
+                <field name="p_30" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_31"
+                       string="dostawy towarów, dla których podatnikiem jest nabywca zgodnie z art. 17 ust. 1 pkt 5 ustawy"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                31.
+              </div>
+              <div class="col-1">
+                <field name="p_31" nolabel="1" class="oe_inline text-end"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                32.
+              </div>
+              <div class="col-1">
+                <field name="p_32" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_33"
+                       string="wysokość podatku należnego od towarów objętych spisem z natury, o którym mowa w art. 14 ust. 5 ustawy"/>
+              </div>
+              <div class="col-1 offset-2 text-muted text-small text-sm-end">
+                33.
+              </div>
+              <div class="col-1">
+                <field name="p_33" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_34"
+                       string="wysokość zwrotu odliczonej lub zwróconej kwoty wydanej na zakup kas rejestrujących, o którym mowa w art. 111 ust. 6 ustawy"/>
+              </div>
+              <div class="col-1 offset-2 text-muted text-small text-sm-end">
+                34.
+              </div>
+              <div class="col-1">
+                <field name="p_34" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_35"
+                       string="wysokość podatku należnego od wewnątrzwspólnotowego nabycia środków transportu, wykazana w wysokości podatku należnego z tytułu określonego w P_24, podlegająca wpłacie w terminie, o którym mowa w art. 103 ust. 3, w związku z ust. 4 ustawy"/>
+              </div>
+              <div class="col-1 offset-2 text-muted text-small text-sm-end">
+                35.
+              </div>
+              <div class="col-1">
+                <field name="p_35" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_36"
+                       string="wysokość podatku należnego od wewnątrzwspólnotowego nabycia towarów, o których mowa w art. 103 ust. 5aa ustawy, podlegająca wpłacie w terminach, o których mowa w art. 103 ust. 5a i 5b ustawy"/>
+              </div>
+              <div class="col-1 offset-2 text-muted text-small text-sm-end">
+                36.
+              </div>
+              <div class="col-1">
+                <field name="p_36" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 border-top border-bottom mb-16 bg-secondary bg-opacity-25">
+              <div class="col-8">
+                razem podatek należny
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                37.
+              </div>
+              <div class="col-1">
+                <field name="p_37" nolabel="1" class="oe_inline d-block text-end fw-bolder"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                38.
+              </div>
+              <div class="col-1 text-end">
+                <field name="p_38" nolabel="1" class="oe_inline d-block text-end fw-bolder"/>
+              </div>
+            </div>
+
+            <div class="mb10"></div>
+
+            <div class="row gx-1 jpk-section">
+              <div class="col-8">
+                <separator string="Rozliczenie podatku naliczonego"/>
+              </div>
+              <div class="col-2">
+                <separator string="podstawa" class="text-end"/>
+              </div>
+              <div class="col-2">
+                <separator string="podatek" class="text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_39" string="wysokość nadwyżki podatku naliczonego nad należnym z poprzedniej deklaracji"/>
+              </div>
+              <div class="col-1 offset-2 text-muted text-small text-sm-end">
+                39.
+              </div>
+              <div class="col-1">
+                <field name="p_39" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_40"
+                       string="wartość netto z tytułu nabycia towarów i usług zaliczanych upodatnika do środków trwałych"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                40.
+              </div>
+              <div class="col-1">
+                <field name="p_40" nolabel="1" class="oe_inline text-end"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                41.
+              </div>
+              <div class="col-1">
+                <field name="p_41" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_42" string="wartość netto z tytułu nabycia pozostałych towarów i usług"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                42.
+              </div>
+              <div class="col-1">
+                <field name="p_42" nolabel="1" class="oe_inline text-end"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                43.
+              </div>
+              <div class="col-1">
+                <field name="p_43" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_44"
+                       string="wysokość podatku naliczonego z tytułu korekty podatku naliczonego od nabycia towarów i usług zaliczanych u podatnika do środków trwałych"/>
+              </div>
+              <div class="col-1 offset-2 text-muted text-small text-sm-end">
+                44.
+              </div>
+              <div class="col-1">
+                <field name="p_44" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_45"
+                       string="wysokość podatku naliczonego z tytułu korekty podatku naliczonego od nabycia pozostałych towarów i usług"/>
+              </div>
+              <div class="col-1 offset-2 text-muted text-small text-sm-end">
+                45.
+              </div>
+              <div class="col-1">
+                <field name="p_45" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_46"
+                       string="wysokość podatku naliczonego z tytułu korekty podatku naliczonego, o której mowa w art. 89b ust. 1 ustawy"/>
+              </div>
+              <div class="col-1 offset-2 text-muted text-small text-sm-end">
+                46.
+              </div>
+              <div class="col-1">
+                <field name="p_46" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_47"
+                       string="wysokość podatku naliczonego z tytułu korekty podatku naliczonego, o której mowa w art. 89b ust. 4 ustawy"/>
+              </div>
+              <div class="col-1 offset-2 text-muted text-small text-sm-end">
+                47.
+              </div>
+              <div class="col-1">
+                <field name="p_47" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_48" string="łączna wysokość podatku naliczonego do odliczenia"/>
+              </div>
+              <div class="col-1 offset-2 text-muted text-small text-sm-end">
+                48.
+              </div>
+              <div class="col-1">
+                <field name="p_48" nolabel="1" class="oe_inline d-block text-end fw-bolder"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_49"
+                       string="kwota wydana na zakup kas rejestrujących, do odliczenia w danym okresie rozliczeniowym pomniejszająca wysokość podatku należnego"/>
+              </div>
+              <div class="col-1 offset-2 text-muted text-small text-sm-end">
+                49.
+              </div>
+              <div class="col-1">
+                <field name="p_49" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_50" string="wysokość podatku objęta zaniechaniem poboru"/>
+              </div>
+              <div class="col-1 offset-2 text-muted text-small text-sm-end">
+                50.
+              </div>
+              <div class="col-1">
+                <field name="p_50" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_51" string="wysokość podatku podlegająca wpłacie do urzędu skarbowego"/>
+              </div>
+              <div class="col-1 offset-2 text-muted text-small text-sm-end">
+                51.
+              </div>
+              <div class="col-1">
+                <field name="p_51" nolabel="1" class="oe_inline d-block text-end fw-bolder"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_52" string="kwota wydana na zakup kas rejestrujących"/>
+              </div>
+              <div class="col-1 offset-2 text-muted text-small text-sm-end">
+                52.
+              </div>
+              <div class="col-1">
+                <field name="p_52" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_53" string="wysokość nadwyżki podatku naliczonego nad należnym"/>
+              </div>
+              <div class="col-1 offset-2 text-muted text-small text-sm-end">
+                53.
+              </div>
+              <div class="col-1">
+                <field name="p_53" nolabel="1" class="oe_inline d-block text-end fw-bolder"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_54" string="wysokość nadwyżki podatku naliczonego nad należnym do zwrotu"/>
+              </div>
+              <div class="col-1 offset-2 text-muted text-small text-sm-end">
+                54.
+              </div>
+              <div class="col-1">
+                <field name="p_54" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <field name="system_code" invisible="True"/>
+            <div class="row gx-1" invisible="system_code == 'JPK_V7M (3)'">
+              <div class="col-6">
+                <label for="p_55_58" string="deklaracja zwrotu"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                55-58.
+              </div>
+              <div class="col-5">
+                <field name="p_55_58" nolabel="1" class=" text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1" invisible="system_code != 'JPK_V7M (3)'">
+              <div class="col-6">
+                <label for="p_55_58_v3" string="deklaracja zwrotu"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                55-58.
+              </div>
+              <div class="col-5">
+                <field name="p_55_58_v3" nolabel="1" class=" text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_59" string="zaliczenie zwrotu podatku na poczet przyszłych zobowiązań podatkowych"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                59.
+              </div>
+              <div class="col-1 ps-3">
+                <field name="p_59" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_60" string="wysokość zwrotu do zaliczenia na poczet przyszłych zobowiązań podatkowych"/>
+              </div>
+              <div class="col-1 offset-2 text-muted text-small text-sm-end">
+                60.
+              </div>
+              <div class="col-1">
+                <field name="p_60" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_61" string="rodzaj przyszłego zobowiązania podatkowego"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                61.
+              </div>
+              <div class="col-3">
+                <field name="p_61" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_62"
+                       string="wysokość nadwyżki podatku naliczonego nad należnym do przeniesienia na następny okres rozliczeniowy"/>
+              </div>
+              <div class="col-1 offset-2 text-muted text-small text-sm-end">
+                62.
+              </div>
+              <div class="col-1">
+                <field name="p_62" nolabel="1" class="oe_inline d-block text-end fw-bolder"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_63"
+                       string="podatnik wykonywał w okresie rozliczeniowym czynności, o których mowa w art. 119 ustawy"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                63.
+              </div>
+              <div class="col-1 ps-3">
+                <field name="p_63" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_64"
+                       string="podatnik wykonywał w okresie rozliczeniowym czynności, o których mowa w art. 120 ust. 4 lub 5 ustawy"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                64.
+              </div>
+              <div class="col-1 ps-3">
+                <field name="p_64" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_65"
+                       string="podatnik wykonywał w okresie rozliczeniowym czynności, o których mowa w art. 122 ustawy"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                65.
+              </div>
+              <div class="col-1 ps-3">
+                <field name="p_65" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_66"
+                       string="podatnik wykonywał w okresie rozliczeniowym czynności, o których mowa w art. 136 ustawy"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                66.
+              </div>
+              <div class="col-1 ps-3">
+                <field name="p_66" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_67"
+                       string="podatnik korzysta z obniżenia zobowiązania podatkowego, o którym mowa w art. 108d ustawy"/>
+              </div>
+              <div class="col-1 text-muted text-small text-sm-end">
+                67.
+              </div>
+              <div class="col-1 ps-3">
+                <field name="p_67" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1">
+              <div class="col-8">
+                <label for="p_68"
+                       string="wysokość korekty podstawy opodatkowania, o której mowa w art. 89a ust. 1 ustawy"/>
+              </div>
+              <div class="col-1 offset-2 text-muted text-small text-sm-end">
+                68.
+              </div>
+              <div class="col-1">
+                <field name="p_68" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+            <div class="row gx-1 bg-light">
+              <div class="col-8">
+                <label for="p_69" string="wysokość korekty podatku należnego, o której mowa w art. 89a ust. 1 ustawy"/>
+              </div>
+              <div class="col-1 offset-2 text-muted text-small text-sm-end">
+                69.
+              </div>
+              <div class="col-1">
+                <field name="p_69" nolabel="1" class="oe_inline text-end"/>
+              </div>
+            </div>
+
+        </sheet>
+        <footer>
+          <!-- Post -->
+          <field name="is_jpk_transfer_installed" invisible="True"/>
+          <button name="action_generate_xml" string="Export XML" class="oe_highlight" type="object"/>
+          <button name="action_transfer_xml" string="Export XML and send" class="oe_highlight" type="object"
+                  invisible="not is_jpk_transfer_installed"/>
+          <button name="action_generate_pdf" string="Export PDF" class="oe_highlight" type="object"/>
+          <button name="action_cancel" string="Cancel" type="object"/>
+        </footer>
+
+      </form>
+    </field>
+  </record>
+
+</odoo>

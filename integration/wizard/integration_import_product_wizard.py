@@ -1,13 +1,15 @@
 # See LICENSE file for full copyright and licensing details.
 import json
 import traceback
-from io import StringIO
 
 from odoo import models, fields, api, _
-from odoo.tools import unsafe_eval
 from odoo.exceptions import ValidationError
 
+from ..api.abstract_apiclient import AbsApiClient
 from ..exceptions import ApiImportError, NoExternal
+
+# eval to compile generated string python code into binary code, used in `_compile`
+unsafe_eval = eval
 
 
 DRAFT_STATE = 'draft'
@@ -17,14 +19,24 @@ DONE_STATE = 'done'
 
 
 def catch_exception(func):
+    """
+    A decorator to catch exceptions and raise a detailed ValidationError if the
+    'integration_catch_exception' context flag is set.
+
+    If the flag is not set, the exception will be re-raised as is.
+    """
     def _catch_exception(self, *args, **kw):
         try:
             return func(self, *args, **kw)
         except Exception as ex:
-            if self._context.get('integration_catch_exception'):
-                buff = StringIO()
-                traceback.print_exc(file=buff)
-                raise ValidationError(f'{ex.args[0]} -->\n\n{buff.getvalue()}')
+            if self.env.context.get('integration_catch_exception'):
+                traceback_details = traceback.format_exc()
+                msg_error = ex.args[0] if getattr(ex, 'args', None) and len(ex.args) else str(ex)
+                raise ValidationError(_(
+                    'An error occurred during the operation: %s\n\n'
+                    'Traceback details:\n%s'
+                ) % (msg_error, traceback_details))
+
             raise ex
     return _catch_exception
 
@@ -55,7 +67,6 @@ class IntegrationImportProductWizard(models.TransientModel):
 
     import_images = fields.Boolean(
         string='Import Images',
-        default=True,
     )
 
     external_template_id = fields.Many2one(
@@ -64,7 +75,14 @@ class IntegrationImportProductWizard(models.TransientModel):
         required=True,
     )
 
+    product_template_id = fields.Many2one(
+        comodel_name='product.template',
+        string='Product Template',
+        compute='_compute_product_template',
+    )
+
     integration_id = fields.Many2one(
+        string='E-Commerce Store',
         comodel_name='sale.integration',
         related='external_template_id.integration_id',
     )
@@ -91,6 +109,11 @@ class IntegrationImportProductWizard(models.TransientModel):
         string='Raw Data',
     )
 
+    @api.depends('external_template_id', 'state')
+    def _compute_product_template(self):
+        for rec in self:
+            rec.product_template_id = rec.external_template_id.odoo_record.id
+
     @api.depends('line_ids')
     def _compute_lines(self):
         for rec in self:
@@ -106,7 +129,7 @@ class IntegrationImportProductWizard(models.TransientModel):
         return self.operation_mode == 'try_map'
 
     def has_conflicts(self):
-        assert self.state == CHECKED_STATE, _(f'The "{CHECKED_STATE}" state is required.')
+        assert self.state == CHECKED_STATE, _('The "%s" state is required.', CHECKED_STATE)
 
         if set(self.internal_line_ids.mapped('code')).issubset(
             set(self.incoming_line_ids.mapped('code'))
@@ -118,53 +141,63 @@ class IntegrationImportProductWizard(models.TransientModel):
     def set_state(self, name):
         self.state = name
 
+    def save_raw_data(self, data):
+        self.raw_data = json.dumps(data, indent=8)
+
+    def read_raw_data(self):
+        return json.loads(self.raw_data)
+
     @catch_exception
     def check(self, external_data=None):
+        """
+        Method to check the product template and external data, either by mapping or importing.
+        This method will also handle incoming lines creation and ensure proper error handling.
+        """
         code = self.external_template_id.code
 
+        # Case 1: Try to map
         if self.operation_try_map:
             if not external_data:
-                data = self.adapter.get_product_templates([code])
+                data, __, __ = self.adapter.get_product_templates([code])
 
                 if not data:
-                    raise ApiImportError(_('Product (code=%s) not found!') % code)
+                    raise ApiImportError(_('Product with code "%s" not found in the e-commerce system!') % code)
 
                 external_data = data.get(code, {})
 
+            # Create incoming lines based on external data
             self._create_incoming_lines(external_data)
             raw_data = external_data
 
+        # Case 2: Full product import
         else:
             if not external_data:
-                external_data = self.adapter.get_product_for_import(code, import_images=self.import_images)
+                external_data = self.adapter.get_product_for_import(code)
 
-            template_data, variants_data, bom_data, image_data = external_data
+            template_data, variants_data, bom_data, external_images = external_data
 
+            # Create incoming lines based on the raw template and variant data
             self._create_incoming_lines_raw(template_data, variants_data)
 
+            # Helper function to convert external data to dictionary format
             def _convert_to_dict(value):
                 if hasattr(value, 'to_dict'):
-                    # For Shopify because of we are getting the classes of PythonShopify library
-                    return value.to_dict()
+                    return value.to_dict()  # Convert objects that have `to_dict` method (e.g., from Python, Shopify)
                 if not isinstance(value, dict):
-                    return dict()
+                    return {}
                 return value
 
             raw_data = dict(
                 TEMPLATE=_convert_to_dict(template_data),
                 VARIANTS=[_convert_to_dict(x) for x in variants_data],
-                KITS=_convert_to_dict(bom_data),
-                IMAGES={
-                    'image_ids': list(image_data.get('images', {}).keys()),
-                    'variants': image_data.get('variants', {}),
-                },
+                KITS=[_convert_to_dict(x) for x in bom_data],
+                IMAGES=[_convert_to_dict(x) for x in external_images],
             )
 
         if not self.incoming_line_ids:
-            raise ApiImportError(_('External data import error!'))
+            raise ApiImportError(_('Error importing external data: No incoming lines created.'))
 
-        self.raw_data = json.dumps(raw_data, indent=4)
-
+        self.save_raw_data(raw_data)
         self.set_state(CHECKED_STATE)
 
         return self.open_form()
@@ -173,13 +206,15 @@ class IntegrationImportProductWizard(models.TransientModel):
     def approve(self, force=True):
         if not force:
             if self.has_conflicts():
-                raise ValidationError(
-                    _('Mapping conflicts found. Make manual import.\n\n%s --> %s')
-                    % (
-                        self.incoming_line_ids.format_recordset(),
-                        self.internal_line_ids.format_recordset(),
-                    )
-                )
+                raise ValidationError(_(
+                    'Mapping conflicts were found between the incoming data and existing records.\n\n'
+                    'Manual resolution is required before proceeding with the approval process. '
+                    'Please review the following conflicting records:\n\n'
+                    'Incoming lines:\n%s\n\nInternal lines:\n%s'
+                ) % (
+                    self.incoming_line_ids.format_recordset(),
+                    self.internal_line_ids.format_recordset(),
+                ))
 
         incoming_codes = self.incoming_line_ids.mapped('code')
         for rec in self.internal_line_ids.filtered(lambda x: x.code not in incoming_codes):
@@ -224,14 +259,18 @@ class IntegrationImportProductWizard(models.TransientModel):
 
     @catch_exception
     def perform(self):
-        assert self.state == APPROVED_STATE, _(f'The "{APPROVED_STATE}" state is required.')
+        assert self.state == APPROVED_STATE, _('The "%s" state is required.', APPROVED_STATE)
 
         if self.operation_try_map:
             self.external_template_id._try_to_map_template_and_variants()
 
         else:
-            self.integration_id.with_context(skip_mapping_validation=True)\
-                .import_product(self.external_template_id.id, import_images=self.import_images)
+            self.integration_id\
+                .with_context(skip_mapping_validation=True) \
+                .import_product(
+                    self.external_template_id.id,
+                    import_images=self.import_images,
+                )
 
         self._create_internal_lines()
 
@@ -252,6 +291,11 @@ class IntegrationImportProductWizard(models.TransientModel):
 
         return self.internal_line_ids
 
+    def to_export_format_template(self):
+        export = self.product_template_id.to_export_format(self.integration_id)
+        self.raw_data = json.dumps(export, indent=8)
+        return self.open_form()
+
     def to_draft(self):
         self.incoming_line_ids.unlink()
         self._create_internal_lines()
@@ -260,25 +304,30 @@ class IntegrationImportProductWizard(models.TransientModel):
         self.raw_data = False
         return self.open_form()
 
-    def _create_incoming_lines_raw(self, template, variants_data):
+    def _create_incoming_lines_raw(self, template_data, variants_data):
         self.incoming_line_ids.unlink()
-        self_ = self.with_context(
-            default_wizard_id=self.id,
-            default_name=self.external_template_id.name,
+        vals = dict(
+            wizard_id=self.id,
+            name=self.external_template_id.name,
         )
 
-        t_converter = self_.integration_id\
-            .init_receive_field_converter(self_.env['product.template'], template)
-
-        main_line = t_converter._create_product_incoming_line()
+        main_line = self._create_template_incoming_line(
+            self.integration_id.id,
+            self.external_template_id.code,
+            (template_data, {})
+        )
+        main_line.write(vals)
 
         if not variants_data:
             main_line._create_default_variant_line()
 
-        for data in variants_data:
-            converter = self_.integration_id\
-                .init_receive_field_converter(self_.env['product.product'], data)
-            converter._create_product_incoming_line()
+        for variant_data in variants_data:
+            line = self._create_variant_incoming_line(
+                self.integration_id.id,
+                self.external_template_id.code,
+                (template_data, variant_data),
+            )
+            line.write(vals)
 
         return self.incoming_line_ids
 
@@ -313,18 +362,97 @@ class IntegrationImportProductWizard(models.TransientModel):
 
         return self.incoming_line_ids
 
+    def _create_template_incoming_line(
+        self,
+        integration_id: int,
+        external_template_code: str,
+        data: tuple,
+    ) -> models.Model:
+        integration = self.env['sale.integration'].browse(integration_id)
+
+        reference_mapping = integration.template_reference_id \
+            ._get_mapping_for_integration(integration_id)
+
+        if reference_mapping:
+            reference_dict = reference_mapping.calculate_import_value(*data)
+            reference = reference_dict.popitem()[1]
+        else:
+            reference = None
+
+        barcode_mapping = integration.template_barcode_id \
+            ._get_mapping_for_integration(integration_id)
+
+        if barcode_mapping:
+            barcode_dict = barcode_mapping.calculate_import_value(*data)
+            barcode = barcode_dict.popitem()[1]
+        else:
+            barcode = None
+
+        vals = {
+            'code': external_template_code,
+            'model_name': 'product.template',
+            'type': 'incoming',
+            'reference': reference,
+            'barcode': barcode,
+        }
+
+        return self.env['import.product.line'].create(vals)
+
+    def _create_variant_incoming_line(
+        self,
+        integration_id: int,
+        external_template_code: str,
+        data: tuple,
+    ) -> models.Model:
+        integration = self.env['sale.integration'].browse(integration_id)
+
+        reference_mapping = integration.product_reference_id \
+            ._get_mapping_for_integration(integration_id)
+
+        if reference_mapping:
+            reference_dict = reference_mapping.calculate_import_value(*data)
+            reference = reference_dict.popitem()[1]
+        else:
+            reference = None
+
+        barcode_mapping = integration.product_barcode_id \
+            ._get_mapping_for_integration(integration_id)
+
+        if barcode_mapping:
+            barcode_dict = barcode_mapping.calculate_import_value(*data)
+            barcode = barcode_dict.popitem()[1]
+        else:
+            barcode = None
+
+        __, variant_data = data
+
+        vals = {
+            'model_name': 'product.product',
+            'type': 'incoming',
+            'reference': reference,
+            'barcode': barcode,
+            'attribute_list': str(variant_data['_attribute_value_ids']),
+            'code': AbsApiClient._build_product_external_code(
+                external_template_code,
+                variant_data['id'],
+            ),
+        }
+
+        return self.env['import.product.line'].create(vals)
+
     def open_form(self):
+        # self.read()
         return {
             'type': 'ir.actions.act_window',
             'name': (
-                f'{self.integration_id.name}: {self._description} [{self.external_template_id.id}]'
+                f'({self.id}) {self.integration_id.name}: {self._description} [{self.external_template_id.id}]'
             ),
             'res_model': self._name,
             'res_id': self.id,
             'view_mode': 'form',
-            'view_id': self.env.ref('integration.integration_import_import_product_wizard_form').id,
+            'view_id': self.env.ref('integration.integration_import_product_wizard_form').id,
             'target': 'new',
-            'context': self._context,
+            'context': self.env.context,
         }
 
 
@@ -396,6 +524,7 @@ class ImportProductLine(models.TransientModel):
     )
 
     integration_id = fields.Many2one(
+        string='E-Commerce Store',
         comodel_name='sale.integration',
         related='wizard_id.integration_id',
     )
@@ -470,7 +599,14 @@ class ImportProductLine(models.TransientModel):
 
             if not record:
                 raise NoExternal(
-                    _('Cannot find external record'), AttributeValue._name, code, integration
+                    _(
+                        '\nCannot find external attribute value for code "%s".\n'
+                        'Please ensure that all relevant attribute values are imported from the '
+                        'e-commerce system for the integration "%s" (ID: %s).'
+                    ) % (code, integration.name, integration.id),
+                    model_name=AttributeValue._name,
+                    code=code,
+                    integration=integration,
                 )
 
             value_ids |= record
@@ -487,3 +623,52 @@ class ImportProductLine(models.TransientModel):
             'wizard_id': self.wizard_id.id,
             'type': 'incoming',
         })
+
+
+class ImportProductField(models.TransientModel):
+    _name = 'integration.import.product.field'
+    _description = 'Import Product Field'
+
+    mapping_ecommerce_field_id = fields.Many2one(
+        comodel_name='product.ecommerce.field.mapping',
+        string='Mapping Ecommerce Field',
+    )
+
+    name = fields.Char(
+        related='mapping_ecommerce_field_id.name',
+    )
+
+    import_script = fields.Text(
+        related='mapping_ecommerce_field_id.import_script',
+    )
+
+    memo_in = fields.Char(
+        string='Memo In',
+    )
+
+    export_script = fields.Text(
+        related='mapping_ecommerce_field_id.export_script',
+    )
+
+    memo_out = fields.Char(
+        string='Memo Out',
+    )
+
+    import_wizard_id = fields.Many2one(
+        comodel_name='integration.import.product.wizard',
+        string='Import Wizard',
+        ondelete='cascade',
+    )
+
+    state = fields.Selection(
+        related='import_wizard_id.state',
+    )
+
+    operation_mode = fields.Selection(
+        related='import_wizard_id.operation_mode',
+    )
+
+    product_template_id = fields.Many2one(
+        comodel_name='product.template',
+        related='import_wizard_id.product_template_id',
+    )

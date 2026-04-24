@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="lot_label_layout_form_picking" model="ir.ui.view">
+        <field name="name">lot.label.layout.form</field>
+        <field name="model">lot.label.layout</field>
+        <field name="inherit_id" ref="stock.lot_label_layout_form_picking"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='print_format']" position="after">
+                <field name="zld_label_id" widget="zld_label_radio" invisible="print_format != 'zld_label'" />
+            </xpath>
+        </field>
+    </record>
+</odoo>

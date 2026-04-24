@@ -11,7 +11,7 @@
                     <header>
                     </header>
                     <group>
-                        <field name="id" invisible="1"/>
+                        <field name="id" invisible="1"/> <!-- Required because it is used in the invisible condition above -->
                         <field name="printnode_id" />
                         <field name="active" widget="boolean_toggle" />
                         <field name="online" widget="boolean_toggle" />
@@ -24,28 +24,28 @@
             </field>
         </record>
 
-        <record id="printnode_scales_tree" model="ir.ui.view">
-            <field name="name">printnode_scales.tree</field>
+        <record id="printnode_scales_list" model="ir.ui.view">
+            <field name="name">printnode_scales.list</field>
             <field name="model">printnode.scales</field>
-            <field name="type">tree</field>
+            <field name="type">list</field>
             <field name="arch" type="xml">
-                <tree string="Scales" create="false" edit="false" delete="false">
+                <list string="Scales" create="false" edit="false" delete="false">
                     <field name="name" />
                     <field name="device_num" />
                     <field name="computer_id" />
                     <field name="account_id" />
-                    <field name="status" invisible="1" />
+                    <field name="status" invisible="1" /> <!-- Required because it is used in the invisible condition above -->
                     <field name="active" widget="boolean_toggle" />
                     <field name="online" widget="boolean_toggle" />
-                </tree>
+                </list>
             </field>
         </record>
 
         <record id="printnode_scales_action" model="ir.actions.act_window">
             <field name="name">Scales</field>
             <field name="res_model">printnode.scales</field>
-            <field name="view_mode">tree,form</field>
-            <field name="view_id" ref="printnode_scales_tree" />
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="printnode_scales_list" />
             <field name="context">{"active_test": False}</field>
         </record>
 

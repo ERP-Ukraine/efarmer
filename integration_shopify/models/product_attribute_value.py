@@ -7,18 +7,20 @@ class ProductAttributeValue(models.Model):
     _name = 'product.attribute.value'
     _inherit = ['product.attribute.value', 'integration.model.mixin']
 
+    def to_export_format_gql(self, integration_id: int):
+        self.ensure_one()
+        return {
+            'name': self.get_field_value_in_store_language(integration_id, 'name'),
+        }
+
     def to_export_format(self, integration):
         self.ensure_one()
 
-        if integration.is_shopify():
+        if integration.is_integration_shopify:
             return {
-                'key': integration.convert_translated_field_to_integration_format(
-                    self.attribute_id, 'name',
-                ),
-                'value': integration.convert_translated_field_to_integration_format(
-                    self, 'name',
-                ),
-                'external_id': self.try_to_external(integration),
+                'key': self.attribute_id.get_field_value_in_store_language(integration.id, 'name'),
+                'value': self.get_field_value_in_store_language(integration.id, 'name'),
+                'external_id': self.get_external_code(integration.id),
             }
 
         return super(ProductAttributeValue, self).to_export_format(integration)
@@ -26,7 +28,7 @@ class ProductAttributeValue(models.Model):
     def export_with_integration(self, integration):
         self.ensure_one()
 
-        if integration.is_shopify():
+        if integration.is_integration_shopify:
             return
 
         return super(ProductAttributeValue, self).export_with_integration(integration)

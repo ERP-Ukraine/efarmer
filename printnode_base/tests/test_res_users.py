@@ -16,14 +16,14 @@ class TestPrintNodeUsers(TestPrintNodeCommon):
     def setUp(self):
         super(TestPrintNodeUsers, self).setUp()
 
-        self.label_printer = self.env['printnode.printer'].create({
-            'name': 'Local Label Printer',
+        self.report_printer = self.env['printnode.printer'].create({
+            'name': 'Report Printer',
             'status': 'online',
             'computer_id': self.computer.id,
         })
 
-        self.report_printer = self.env['printnode.printer'].create({
-            'name': 'Report Printer',
+        self.label_printer = self.env['printnode.printer'].create({
+            'name': 'Local Label Printer',
             'status': 'online',
             'computer_id': self.computer.id,
         })
@@ -120,6 +120,7 @@ class TestPrintNodeUsers(TestPrintNodeCommon):
         """
         Test for the correct assignment of scales for user
         """
+
         self.user.printnode_scales = self.scales
         test_scales = self.user.get_scales()
         self.assertEqual(test_scales.id, self.scales.id, "Wrong assignment of scales for user")
@@ -136,6 +137,7 @@ class TestPrintNodeUsers(TestPrintNodeCommon):
         """
         Test to check printer selection
         """
+
         # Set Up
         user = self.user
         company = self.env.company
@@ -158,7 +160,7 @@ class TestPrintNodeUsers(TestPrintNodeCommon):
         printer, printer_bin = user.get_report_printer(self.so_report.id)
         self.assertEqual(printer.id, user.printnode_printer.id)
 
-        # Expected Company's Printer
+        # Expected Company Printer
         self.user.printnode_printer = False
         printer, printer_bin = user.get_report_printer(self.so_report.id)
         self.assertEqual(printer.id, company.printnode_printer.id)

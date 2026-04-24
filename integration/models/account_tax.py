@@ -9,5 +9,5 @@ class AccountTax(models.Model):
 
     integration_id = fields.Many2one(
         comodel_name='sale.integration',
-        string='e-Commerce Integration',
+        string='E-Commerce Store',
     )

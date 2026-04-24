@@ -5,17 +5,15 @@
             <field name="model">import.customers.wizard</field>
             <field name="arch" type="xml">
                 <form string="Import Initial Stock to Odoo">
-                    <group colspan="4"> 
-                        <div class="alert alert-info" role="alert">
-                            <p>This wizard will:</p>
-                            <ul>
-                                <li>Create "Import Customer" job for every Customer from external system updated after the specified date.</li>
-                                <li>Attempt to auto-match Customers by name and address with existing Odoo Customers and update them.</li>
-                                <li>For Customers that we were not able to auto-match Odoo Customers will be created.</li>
-                                <li>If "Enable Manual Customer Mapping" is enabled, the system will create a new open mapping for each Customer without attempting auto-matching, allowing you to manually map them to existing Odoo Customers or create new ones.</li>
-                            </ul>
-                        </div>
-                    </group>
+                    <div class="alert alert-info" role="alert" >
+                        <p>This wizard will:</p>
+                        <ul>
+                            <li>Create "Import Customer" job for every Customer from external system updated after the specified date.</li>
+                            <li>Attempt to auto-match Customers by name and address with existing Odoo Customers and update them.</li>
+                            <li>For Customers that we were not able to auto-match Odoo Customers will be created.</li>
+                            <li>If "Enable Manual Customer Mapping" is enabled, the system will create a new open mapping for each Customer without attempting auto-matching, allowing you to manually map them to existing Odoo Customers or create new ones.</li>
+                        </ul>
+                    </div>
                     <group>
                         <field name="date_since"/>
                     </group>
@@ -29,6 +27,7 @@
 
         <record id="import_customers_wizard_action" model="ir.actions.act_window">
             <field name="name">Import Customers Wizard</field>
+            <field name="path">eci-import-customers-wizard</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">import.customers.wizard</field>
             <field name="view_mode">form</field>

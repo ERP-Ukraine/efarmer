@@ -8,14 +8,14 @@
             <form>
                 <group>
                     <field name="attach_line_ids" nolabel="1" colspan="2">
-                        <tree string="Attachments to print" editable="bottom" create="false">
+                        <list string="Attachments to print" editable="bottom" create="false">
                             <field name="name" readonly="1"/>
                             <field name="mimetype" readonly="1"/>
                             <field name="date" readonly="1"/>
                             <field name="bin_data" readonly="1"/>
-                            <field name="with_custom_qty" invisible="1"/>
-                            <field name="quantity" attrs="{'readonly': [('with_custom_qty', '!=', True)]}"/>
-                        </tree>
+                            <field name="with_custom_qty" invisible="1"/> <!-- Required because it is used in the invisible condition above -->
+                            <field name="quantity" readonly="with_custom_qty != True"/>
+                        </list>
                     </field>
                 </group>
 
@@ -23,7 +23,7 @@
                     <field name="with_custom_qty" />
                 </group>
 
-                <group attrs="{'invisible': [('with_custom_qty', '=', True)]}">
+                <group invisible="with_custom_qty == True">
                     <field name="number_copy" required="1"/>
                 </group>
 

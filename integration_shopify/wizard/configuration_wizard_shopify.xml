@@ -8,89 +8,44 @@
             <field name="inherit_id" ref="integration.view_configuration_wizard"/>
             <field name="arch" type="xml">
                 <xpath expr="//sheet" position="inside">
-                    <field name="is_valid_access_scopes" invisible="1"/>
-                    <field name="configuration_shopify_line_ids" invisible="1"/>
-                    <group name="step_url" states="step_url">
-                        <field name="url" required="1"/>
-                        <field name="api_version" required="1"/>
-                        <field name="key" required="1"/>
-                        <field name="secret_key" required="1" password="True"/>
-                    </group>
-                    <group name="step_access_scopes" states="step_access_scopes">
-                        <group colspan="4">
-                            <div class="alert alert-info" role="alert" attrs="{'invisible': [('is_valid_access_scopes', '=', True)]}">
-                                Listed below permissions needed to be enabled on Shopify side, so connector will work properly. 
-                                If you see some "red lines" below, then listed permission were not granted. 
-                                <a href="https://help.shopify.com/en/manual/apps/private-apps" target="_blank">
-                                    Here you can find document on how to grant permission.
-                                </a>
-                            </div>
-                        </group>
-                        <field name="configuration_scope_ids" nolabel="1">
-                            <tree create="0" edit="0" delete="0" editable="bottom"
-                                  decoration-danger="is_missed == True" decoration-success="is_missed == False">
-                                <field name="configuration_wizard_id" invisible="1"/>
-                                <field name="is_scope" invisible="1"/>
-                                <field name="name" readonly="1"/>
-                                <field name="is_missed" readonly="1"/>
-                            </tree>
-                        </field>
-                    </group>
-                    <div name="step_sale_channels" states="step_sale_channels">
-                        <group>
-                            <field name="configuration_integration_channel_ids" widget="many2many_tags" options="{'no_create': True, 'no_edit': True}"/>
-                        </group>
-                    </div>
-                    <group name="step_order_status" states="step_order_status">
+                    <field name="configuration_shopify_line_ids" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                    <div name="step_order_status" invisible="state != 'step_order_status'">
                         <field name="configuration_order_status_ids" nolabel="1">
-                            <tree create="0" edit="0" delete="0" editable="bottom">
-                                <field name="configuration_wizard_id" invisible="1"/>
+                            <list create="0" edit="0" delete="0" editable="bottom">
+                                <field name="configuration_wizard_id" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
                                 <field name="activate" widget="boolean_toggle"/>
                                 <field name="name" readonly="1"/>
-                                <field name="code" invisible="1"/>
+                                <field name="code" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
                                 <field name="info" readonly="1"/>
-                            </tree>
+                            </list>
                         </field>
-                    </group>
-                    <group name="step_order_financial_status" states="step_order_financial_status">
+                    </div>
+                    <div name="step_order_financial_status" invisible="state != 'step_order_financial_status'">
                         <field name="configuration_order_financial_status_ids" nolabel="1">
-                            <tree create="0" edit="0" delete="0" editable="bottom">
-                                <field name="configuration_wizard_id" invisible="1"/>
+                            <list create="0" edit="0" delete="0" editable="bottom">
+                                <field name="configuration_wizard_id" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
                                 <field name="activate" widget="boolean_toggle"/>
                                 <field name="name" readonly="1"/>
-                                <field name="code" invisible="1"/>
+                                <field name="code" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
                                 <field name="info" readonly="1"/>
-                            </tree>
+                            </list>
                         </field>
-                    </group>
-                    <group name="step_order_fulfillment_status" states="step_order_fulfillment_status">
+                    </div>
+                    <div name="step_order_fulfillment_status" invisible="state != 'step_order_fulfillment_status'">
                         <field name="configuration_order_fulfillment_status_ids" nolabel="1">
-                            <tree create="0" edit="0" delete="0" editable="bottom">
-                                <field name="configuration_wizard_id" invisible="1"/>
+                            <list create="0" edit="0" delete="0" editable="bottom">
+                                <field name="configuration_wizard_id" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
                                 <field name="activate" widget="boolean_toggle"/>
                                 <field name="name" readonly="1"/>
-                                <field name="code" invisible="1"/>
+                                <field name="code" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
                                 <field name="info" readonly="1"/>
-                            </tree>
+                            </list>
                         </field>
-                    </group>
+                    </div>
                 </xpath>
-                <xpath expr="//footer/button[@name='action_next_step']" position="attributes">
-                    <attribute name="attrs">
-                        {'invisible': ['|', ('show_next', '!=', True), '&amp;', ('state', '=', 'step_access_scopes'), ('is_valid_access_scopes', '=', False)]}
-                    </attribute>
-                </xpath>
-                <xpath expr="//footer/button[@name='action_next_step']" position="after">
-                    <button name="action_next_step"
-                            string="Next"
-                            type="object"
-                            disabled="disabled"
-                            class="btn-primary"
-                            attrs="{'invisible': ['|', ('show_next', '!=', True), '|', ('state', '!=', 'step_access_scopes'), ('is_valid_access_scopes', '=', True)]}"/>
-                    <button name="refresh_scopes"
-                            string="Refresh"
-                            type="object"
-                            attrs="{'invisible': ['|', ('state', '!=', 'step_access_scopes'), ('is_valid_access_scopes', '=', True)]}"/>
+                <xpath expr="//field[@name='language_default_id']" position="attributes">
+                    <attribute name="string">Primary Language</attribute>
+                    <attribute name="readonly">1</attribute>
                 </xpath>
             </field>
         </record>

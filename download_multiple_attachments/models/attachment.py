@@ -17,19 +17,19 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 ######################################################################################################
-from odoo import api, exceptions, fields, models, _
+from odoo import _, models
 
 
 class IrAttachment(models.Model):
-    _inherit = 'ir.attachment'
+    _inherit = "ir.attachment"
 
     def action_download_attachment(self):
         tab_id = []
         for attachment in self:
             tab_id.append(attachment.id)
-        url = '/web/binary/download_document?tab_id=%s' % tab_id
+        url = "/web/binary/download_document?tab_id=%s" % tab_id
         return {
-            'type': 'ir.actions.act_url',
-            'url': url,
-            'target': 'new',
+            "type": "ir.actions.act_url",
+            "url": url,
+            "target": "new",
         }

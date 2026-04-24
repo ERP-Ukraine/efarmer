@@ -5,9 +5,9 @@ from odoo import fields, models, _
 
 
 class ResCompany(models.Model):
-    _inherit = 'res.company'
+    _inherit = "res.company"
 
     fin_manager_id = fields.Many2one(
-        comodel_name='res.users',
-        string='Financial Manager',
+        comodel_name="res.users",
+        string="Financial Manager",
     )

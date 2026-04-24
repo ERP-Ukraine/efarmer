@@ -1,10 +1,14 @@
 # See LICENSE file for full copyright and licensing details.
 
 import re
-from odoo import models, fields, api, _
-from odoo.addons.queue_job.job import FAILED
-from odoo.exceptions import UserError
 
+from odoo import api, models, fields, _
+from odoo.exceptions import UserError
+from odoo.addons.queue_job import job as job_class
+from odoo.addons.queue_job.job import Job
+
+
+job_class.DEFAULT_PRIORITY = 20
 
 MODELS_WITH_IMPORT_AVAILABLE = [
     'product.attribute.value',
@@ -20,7 +24,6 @@ MODELS_WITH_IMPORT_AVAILABLE = [
     'account.tax.group',
     'sale.order.sub.status',
     'product.attribute',
-    'product.feature',
 ]
 
 
@@ -28,22 +31,28 @@ class QueueJob(models.Model):
     _inherit = 'queue.job'
     _removal_interval = 15
 
+    parent_id = fields.Many2one(
+        comodel_name='queue.job',
+        string='Parent Job',
+        ondelete='cascade',
+    )
+
     integration_exception_name = fields.Selection(
         selection=[
             (
                 'NotMappedFromExternal',
-                'e-Commerce System object not mapped with Odoo. Try to import external records '
-                'from e-Commerce System, map it by hands or import into Odoo.'
+                'E-Commerce System object not mapped with Odoo. Try to import external records '
+                'from E-Commerce System, map it by hands or import into Odoo.'
             ),
             (
                 'NotMappedToExternal',
-                'Odoo object not mapped with e-Commerce System. Try to import external records '
-                'from e-Commerce System and map it.'
+                'Odoo object not mapped with E-Commerce System. Try to import external records '
+                'from E-Commerce System and map it.'
             ),
             (
                 'NoExternal',
                 'External record doesn\'t exist. Try to import external records '
-                'from e-Commerce System.'
+                'from E-Commerce System.'
             ),
         ],
         string='Exception Name',
@@ -60,7 +69,7 @@ class QueueJob(models.Model):
     )
     integration_id = fields.Many2one(
         comodel_name='sale.integration',
-        string='Sale Integration',
+        string='E-Commerce Store',
     )
     integration_external_id = fields.Text(
         string='External ID',
@@ -89,7 +98,7 @@ class QueueJob(models.Model):
         string='Import from External Available',
         compute='_compute_is_import_from_external_available',
         help=(
-            'Indicates whether the "Import External Records From e-Commerce System" button '
+            'Indicates whether the "Import External Records From E-Commerce System" button '
             'should be visible.'
         ),
     )
@@ -124,8 +133,13 @@ class QueueJob(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        if not vals_list:
+            # Fix for badly written parent method - it will raise an error
+            return self.browse()
+
         records = super(QueueJob, self).create(vals_list)
         records._set_integration()
+
         return records
 
     def write(self, vals):
@@ -167,7 +181,7 @@ class QueueJob(models.Model):
     @api.model
     def requeue_integration_jobs(self, exception_name, model_name, key):
         jobs = self.sudo().search([
-            ('state', '=', FAILED),
+            ('state', '=', job_class.FAILED),
             ('integration_exception_name', '=', exception_name),
             ('integration_model_name', '=', model_name),
             ('integration_key', '=', key),
@@ -235,6 +249,11 @@ class QueueJob(models.Model):
             job.integration_external_name = external_name
             job.integration_odoo_name = odoo_name
 
+    def _subscribe_users_domain(self):
+        domain = super()._subscribe_users_domain()
+        domain.append(('notify_failed_jobs', '=', True))
+        return domain
+
     def action_open_mapping_view(self):
         model = self.get_model_from_integration_model_name()
 
@@ -253,47 +272,47 @@ class QueueJob(models.Model):
 
     def action_import_from_external_system(self):
         """
-        The `Import External Records From e-Commerce System` button.
+        The `Import External Records From E-Commerce System` button.
         """
         model = self.get_model_from_integration_model_name()
         external_model_name = 'integration.%s.external' % model
         external_model = self.env[external_model_name]
 
+        # Fetch the old records before the import
         external_old = external_model.search([
             ('integration_id', '=', self.integration_id.id)
         ])
 
-        if model == 'product.attribute.value':
-            self.integration_id.integrationApiImportAttributeValues()
-        elif model == 'res.country':
-            self.integration_id.integrationApiImportCountries()
-        elif model == 'account.tax':
-            self.integration_id.integrationApiImportTaxes()
-        elif model == 'res.lang':
-            self.integration_id.integrationApiImportLanguages()
-        elif model == 'sale.order.payment.method':
-            self.integration_id.integrationApiImportPaymentMethods()
-        elif model == 'product.product':
-            self.integration_id.integrationApiImportProducts()
-        elif model == 'product.public.category':
-            self.integration_id.integrationApiImportCategories()
-        elif model == 'product.template':
-            self.integration_id.integrationApiImportProducts()
-        elif model == 'delivery.carrier':
-            self.integration_id.integrationApiImportDeliveryMethods()
-        elif model == 'res.country.state':
-            self.integration_id.integrationApiImportStates()
-        elif model == 'account.tax.group':
-            self.integration_id.integrationApiImportAccountTaxGroups()
-        elif model == 'sale.order.sub.status':
-            self.integration_id.integrationApiImportSaleOrderStatuses()
-        elif model == 'product.attribute':
-            self.integration_id.integrationApiImportAttributes()
-        elif model == 'product.feature':
-            self.integration_id.integrationApiImportFeatures()
-        else:
-            raise UserError(_('Can`t run import for model "%s"') % model)
+        # Map models to their corresponding import methods
+        import_methods = {
+            'product.attribute.value': self.integration_id.integrationApiImportAttributeValues,
+            'res.country': self.integration_id.integrationApiImportCountries,
+            'account.tax': self.integration_id.integrationApiImportTaxes,
+            'res.lang': self.integration_id.integrationApiImportLanguages,
+            'sale.order.payment.method': self.integration_id.integrationApiImportPaymentMethods,
+            'product.product': self.integration_id.integrationApiImportProducts,
+            'product.public.category': self.integration_id.integrationApiImportCategories,
+            'product.template': self.integration_id.integrationApiImportProducts,
+            'delivery.carrier': self.integration_id.integrationApiImportDeliveryMethods,
+            'res.country.state': self.integration_id.integrationApiImportStates,
+            'sale.order.sub.status': self.integration_id.integrationApiImportSaleOrderStatuses,
+            'product.attribute': self.integration_id.integrationApiImportAttributes,
+        }
 
+        # Run the corresponding import method based on the model
+        import_method = import_methods.get(model)
+        if import_method:
+            import_method()
+        else:
+            raise UserError(_(
+                'The model "%s" is not supported for direct import.\n\n'
+                'It is possible that this model can only be imported as part of the "Import Master Data" process.\n\n'
+                'Please try running "Import Master Data" from the "Initial Import" tab in '
+                'the "%s" integration settings. '
+                'If you encounter this error, please contact our support team: https://support.ventor.tech/'
+            ) % (model, self.integration_id.name))
+
+        # Fetch new records after the import
         external_new = external_model.search([
             ('integration_id', '=', self.integration_id.id)
         ])
@@ -301,17 +320,20 @@ class QueueJob(models.Model):
         external_delta = external_new - external_old
         message = _('"%s" import has been completed.') % external_model._description
 
+        # If old records were updated, show a message with the count
         if external_old:
-            message = _('Updated records: ') + str(len(external_old))
+            message += _('\nUpdated records: %s') % len(external_old)
 
+        # If new records were imported, show a detailed message with record codes and names
         if external_delta:
             if message:
                 message += '\n\n'
 
-            message += _('Imported new external records: ') + str(len(external_delta))
+            message += _('\nImported new external records: %s') % len(external_delta)
             for external in external_delta:
                 message += '\n\t%s\t%s' % (str(external.code), external.name)
 
+        # Display the message in a wizard form
         message_id = self.env['message.wizard'].create({'message': message})
 
         return {
@@ -322,6 +344,20 @@ class QueueJob(models.Model):
             'res_id': message_id.id,
             'target': 'new'
         }
+
+    def action_run_now(self):
+        """Run the job synchronously in real time (debug tool)."""
+        self.ensure_one()
+        job = Job.load(self.env, self.uuid)
+        job.set_started()
+        job.store()
+        try:
+            result = job.perform()
+            job.set_done(result=result)
+            job.enqueue_waiting()
+            job.store()
+        except Exception as e:
+            raise UserError(_('Job failed:\n\n%s') % str(e))
 
     def action_toggle_exc(self):
         self.toggle_exc = not self.toggle_exc

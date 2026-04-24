@@ -14,7 +14,7 @@ NOT_DONE = (WAIT_DEPENDENCIES, PENDING, ENQUEUED, STARTED, FAILED)
 _logger = logging.getLogger(__name__)
 
 
-class PriorityQueue(object):
+class PriorityQueue:
     """A priority queue that supports removing arbitrary objects.
 
     Adding an object already in the queue is a no op.
@@ -75,8 +75,7 @@ class PriorityQueue(object):
     def add(self, o):
         if o is None:
             raise ValueError()
-        if o in self._removed:
-            self._removed.remove(o)
+        self._removed.discard(o)
         if o in self._known:
             return
         self._known.add(o)
@@ -87,8 +86,7 @@ class PriorityQueue(object):
             raise ValueError()
         if o not in self._known:
             return
-        if o not in self._removed:
-            self._removed.add(o)
+        self._removed.add(o)
 
     def pop(self):
         while True:
@@ -104,26 +102,8 @@ class PriorityQueue(object):
                 return o
 
 
-class SafeSet(set):
-    """A set that does not raise KeyError when removing non-existent items.
-
-    >>> s = SafeSet()
-    >>> s.remove(1)
-    >>> len(s)
-    0
-    >>> s.remove(1)
-    """
-
-    def remove(self, o):
-        # pylint: disable=missing-return,except-pass
-        try:
-            super().remove(o)
-        except KeyError:
-            pass
-
-
 @total_ordering
-class ChannelJob(object):
+class ChannelJob:
     """A channel job is attached to a channel and holds the properties of a
     job that are necessary to prioritise them.
 
@@ -203,7 +183,7 @@ class ChannelJob(object):
         self.eta = eta
 
     def __repr__(self):
-        return "<ChannelJob %s>" % self.uuid
+        return f"<ChannelJob {self.uuid}>"
 
     def __eq__(self, other):
         return id(self) == id(other)
@@ -225,7 +205,7 @@ class ChannelJob(object):
         return self.sorting_key() < other.sorting_key()
 
 
-class ChannelQueue(object):
+class ChannelQueue:
     """A channel queue is a priority queue for jobs.
 
     Jobs with an eta are set aside until their eta is past due, at
@@ -354,7 +334,7 @@ class ChannelQueue(object):
         return wakeup_time
 
 
-class Channel(object):
+class Channel:
     """A channel for jobs, with a maximum capacity.
 
     When jobs are created by queue_job modules, they may be associated
@@ -408,8 +388,8 @@ class Channel(object):
             self.parent.children[name] = self
         self.children = {}
         self._queue = ChannelQueue()
-        self._running = SafeSet()
-        self._failed = SafeSet()
+        self._running = set()
+        self._failed = set()
         self._pause_until = 0  # utc seconds since the epoch
         self.capacity = capacity
         self.throttle = throttle  # seconds
@@ -463,8 +443,8 @@ class Channel(object):
     def remove(self, job):
         """Remove a job from the channel."""
         self._queue.remove(job)
-        self._running.remove(job)
-        self._failed.remove(job)
+        self._running.discard(job)
+        self._failed.discard(job)
         if self.parent:
             self.parent.remove(job)
 
@@ -484,8 +464,8 @@ class Channel(object):
         """
         if job not in self._queue:
             self._queue.add(job)
-            self._running.remove(job)
-            self._failed.remove(job)
+            self._running.discard(job)
+            self._failed.discard(job)
             if self.parent:
                 self.parent.remove(job)
             _logger.debug("job %s marked pending in channel %s", job.uuid, self)
@@ -498,7 +478,7 @@ class Channel(object):
         if job not in self._running:
             self._queue.remove(job)
             self._running.add(job)
-            self._failed.remove(job)
+            self._failed.discard(job)
             if self.parent:
                 self.parent.set_running(job)
             _logger.debug("job %s marked running in channel %s", job.uuid, self)
@@ -507,7 +487,7 @@ class Channel(object):
         """Mark the job as failed."""
         if job not in self._failed:
             self._queue.remove(job)
-            self._running.remove(job)
+            self._running.discard(job)
             self._failed.add(job)
             if self.parent:
                 self.parent.remove(job)
@@ -601,7 +581,7 @@ def split_strip(s, sep, maxsplit=-1):
     return [x.strip() for x in s.split(sep, maxsplit)]
 
 
-class ChannelManager(object):
+class ChannelManager:
     """High level interface for channels
 
     This class handles:
@@ -866,7 +846,7 @@ class ChannelManager(object):
             name = config_items[0]
             if not name:
                 raise ValueError(
-                    "Invalid channel config %s: missing channel name" % config_string
+                    f"Invalid channel config {config_string}: missing channel name"
                 )
             config["name"] = name
             if len(config_items) > 1:
@@ -875,8 +855,8 @@ class ChannelManager(object):
                     config["capacity"] = int(capacity)
                 except Exception as ex:
                     raise ValueError(
-                        "Invalid channel config %s: "
-                        "invalid capacity %s" % (config_string, capacity)
+                        f"Invalid channel config {config_string}: "
+                        f"invalid capacity {capacity}"
                     ) from ex
                 for config_item in config_items[2:]:
                     kv = split_strip(config_item, "=")
@@ -886,13 +866,13 @@ class ChannelManager(object):
                         k, v = kv
                     else:
                         raise ValueError(
-                            "Invalid channel config %s: "
-                            "incorrect config item %s" % (config_string, config_item)
+                            f"Invalid channel config {config_string}: "
+                            f"incorrect config item {config_item}"
                         )
                     if k in config:
                         raise ValueError(
-                            "Invalid channel config %s: "
-                            "duplicate key %s" % (config_string, k)
+                            f"Invalid channel config {config_string}: "
+                            f"duplicate key {k}"
                         )
                     config[k] = v
             else:
@@ -993,7 +973,7 @@ class ChannelManager(object):
         if channel_name in self._channels_by_name:
             return self._channels_by_name[channel_name]
         if not autocreate and not parent_fallback:
-            raise ChannelNotFound("Channel %s not found" % channel_name)
+            raise ChannelNotFound(f"Channel {channel_name} not found")
         parent = self._root_channel
         if parent_fallback:
             # Look for first direct parent w/ config.

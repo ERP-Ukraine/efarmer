@@ -5,7 +5,7 @@ from odoo.exceptions import UserError
 
 
 FIELDS_TO_EXPORT = [
-    'name', 'type_api', 'state', 'use_async',
+    'name', 'type_api', 'state',
     # The list of fields below is not complete. We avoid to export some fields because
     # - they can lead to errors when importing (i.e. x2many or x2one fields)
     # - they can lead to unwanted changes (i.e. run crons, update orders, etc.)
@@ -24,8 +24,8 @@ class ImportExportIntegrationWizard(models.TransientModel):
     _description = 'Import/Export Integration Wizard'
 
     integration_id = fields.Many2one(
+        string='E-Commerce Store',
         comodel_name='sale.integration',
-        string='Integration',
         default=lambda self: self.env.context.get('active_id'),
     )
 
@@ -76,37 +76,37 @@ class ImportExportIntegrationWizard(models.TransientModel):
 
     def import_data(self):
         """
-            Import data from provided JSON. This will replace all existing parameters
-            of the integration.
+        Import data from provided JSON input. This will replace all existing parameters
+        and fields of the current integration.
         """
         if not self.input:
-            raise UserError(_('No data to import.'))
+            raise UserError(_(
+                'No data to import.\n\n'
+                'Please upload a JSON file containing the integration data before proceeding.'
+            ))
 
-        # TODO: Import data
         try:
             data = json.loads(self.input)
         except json.JSONDecodeError:
-            raise UserError(_('Invalid JSON data.'))
+            raise UserError(_(
+                'Invalid JSON data.\n\n'
+                'Please ensure the uploaded file contains valid JSON and try again.'
+            ))
 
         if data.get('type_api') != self.integration_id.type_api:
-            raise UserError(
-                _(
-                    'The integration type doesn\'t match the type from uploaded data. '
-                    'Please run import on the integration with the correct type ({})'
-                ).format(data.get('type_api')))
+            raise UserError(_(
+                'The integration type from the uploaded data ("%s") does not match the current integration type.\n\n'
+                'Please ensure you are importing data to the correct integration. Expected integration type: "%s".'
+            ) % (data.get('type_api'), self.integration_id.type_api))
 
-        # Update integration
         for field in FIELDS_TO_EXPORT:
             if field in data:
                 setattr(self.integration_id, field, data[field])
 
-        # Update integration fields
         fields = data.get('fields', {})
 
-        # Delete existing fields
         self.integration_id.field_ids.unlink()
 
-        # Create new fields
         fields_data = []
         for field in fields.values():
             field['sia_id'] = self.integration_id.id

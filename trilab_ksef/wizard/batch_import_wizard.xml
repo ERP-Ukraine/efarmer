@@ -14,8 +14,8 @@
                                options="{'no_create': True, 'no_open': True}"/>
                     </group>
                     <group>
-                        <field name="date_from" widget="daterange" options="{'related_end_date': 'date_to'}"/>
-                        <field name="date_to" widget="daterange" options="{'related_start_date': 'date_from'}"/>
+                        <field name="date_from" widget="daterange" options="{'end_date_field': 'date_to'}"/>
+                        <field name="date_to" invisible="True"/>
                     </group>
                 </group>
                 <footer>
@@ -36,7 +36,7 @@
     <menuitem
             id="menu_ksef_batch_import_wizard"
             name="KSeF Batch Import"
-            parent="account.menu_finance_entries_actions"
+            parent="account.menu_finance_entries"
             action="action_ksef_batch_import_wizard"
             sequence="100"
             groups="account.group_account_manager"/>

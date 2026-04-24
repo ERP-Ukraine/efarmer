@@ -1,16 +1,14 @@
 # noinspection PyStatementEffect
 {
     'name': 'Trilab JPK Base',
-    'summary': """
-        Base module used by all Trilab JPK modules.
-    """,
+    'summary': 'Base module used by all Trilab JPK modules.',
     'description': """
     Base module used by all Trilab JPK modules, provides basic data dictionaries and necessary extensions.
-""",
+    """,
     'author': 'Trilab',
     'website': 'https://trilab.pl',
     'category': 'Accounting',
-    'version': '15.0.38.1.1',
+    'version': '18.0.6.3.1',
     'depends': ['account'],
     'data': [
         'security/security.xml',
@@ -20,13 +18,16 @@
         'views/menu.xml',
         'views/jpk_document_type.xml',
         'views/jpk_gtu.xml',
-        'views/res_company_views.xml',
+        'views/res_company.xml',
         'views/account_tag.xml',
         'views/account_move.xml',
         'views/account_journal.xml',
-        'views/product.xml',
-        'views/res_partner_views.xml',
+        'views/product_template.xml',
+        'views/res_partner.xml',
+        'views/layouts.xml',
+        'wizard/move_resequence.xml',
     ],
+    'assets': {'web.assets_backend': ['trilab_jpk_base/static/src/js/*']},
     'demo': [],
     'images': ['static/description/banner.png'],
     'installable': True,

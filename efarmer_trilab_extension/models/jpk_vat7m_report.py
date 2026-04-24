@@ -2,7 +2,7 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
 import re
-from odoo.addons.trilab_jpk_vat.models.jpk_vat7m_report import JpkReport
+from odoo.addons.trilab_jpk_vat.reports.jpk_vat7m import JpkVat7MReport
 
 
 def extract_kwota_expression(sql: str) -> str:
@@ -16,7 +16,7 @@ def extract_kwota_expression(sql: str) -> str:
     return "0"
 
 
-original_get_query = JpkReport._get_query
+original_get_query = JpkVat7MReport._get_query
 
 
 def patched_get_query():
@@ -28,4 +28,4 @@ def patched_get_query():
     )
     return query
 
-JpkReport._get_query = staticmethod(patched_get_query)
+JpkVat7MReport._get_query = staticmethod(patched_get_query)

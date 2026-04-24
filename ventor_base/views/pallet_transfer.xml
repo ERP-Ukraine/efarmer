@@ -2,15 +2,15 @@
 
 <odoo>
     <record id="ventor_base_pallet_transfer_tree" model="ir.ui.view">
-        <field name="name">ventor.base.pallet.transfer.tree</field>
+        <field name="name">ventor.base.pallet.transfer.list</field>
         <field name="model">pallet.transfer</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name"/>
                 <field name="pallet_name"/>
                 <field name="source_location_id"/>
                 <field name="destination_location_id"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -94,7 +94,7 @@
         <field name="name">All Pallet Transfers</field>
         <field name="res_model">pallet.transfer</field>
         <field name="usage">menu</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="view_id" ref="ventor_base.ventor_base_pallet_transfer_tree"/>
         <field name="target">current</field>
     </record>

@@ -12,10 +12,10 @@ _logger = logging.getLogger(__name__)
 
 class PrintNodeRelease(models.Model):
     """
-    PrintNode Release entity
+    Direct Print Release entity
     """
     _name = 'printnode.release'
-    _description = 'PrintNode Release'
+    _description = 'Direct Print Release'
 
     version = fields.Char(
         string="Module Version",

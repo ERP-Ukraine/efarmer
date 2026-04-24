@@ -1,0 +1,1179 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* trilab_pl_partners_sync
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-27 09:57+0000\n"
+"PO-Revision-Date: 2025-01-27 09:57+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "%s i. %s"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.krd_result
+msgid "&amp;nbsp;"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/account_move.py:0
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid ", id: %s"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.krd_result
+msgid "<strong>Response from the KRD</strong>"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.res_config_settings_view_form_inherit
+msgid "API Key"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_wl_partner_bank__acc_number
+msgid "Account Number"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__active
+msgid "Active"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.trilab_check_partner_details_form
+msgid "Add. addr"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid ""
+"An error was encountered either at the network level or the Web application "
+"level."
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/gus_regon.py:0
+msgid "At least one parameter is required."
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/gus_regon.py:0
+msgid "Authentication Failed (Check API Key)"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.krd_result
+msgid "Average number of days: due date vs. due date"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.krd_result
+msgid "Average value of paid debts"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.trilab_check_partner_details_form
+msgid "Back to the list"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "Bank account added from Whitelist of Ministry of Finance: %s"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/wizard/whitelist_accounts.py:0
+msgid "Bank accounts added from Whitelist of Ministry of Finance: %s"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_wl_wizard__banks_ids
+msgid "Banks"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_partner__x_pl_business_type
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_users__x_pl_business_type
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__x_pl_business_type
+msgid "Business Type"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:res.groups,name:trilab_pl_partners_sync.group_allow_duplicate_vat
+msgid "Can Create Partners with duplicate VAT"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.select_wl_bank_accounts_form
+msgid "Cancel"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner__check_ids
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__check_id
+msgid "Check"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.view_partner_form_pl_sync
+msgid "Check KRD"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.actions.server,name:trilab_pl_partners_sync.check_nip_act
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.view_partner_form_pl_sync
+msgid "Check VAT"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.actions.server,name:trilab_pl_partners_sync.check_vies_act
+#: model:ir.actions.server,name:trilab_pl_partners_sync.check_vies_cron_ir_actions_server
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.view_move_form_pl_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.view_partner_form_pl_sync
+msgid "Check VIES"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,help:trilab_pl_partners_sync.field_trilab_check_partner_details__is_company
+msgid "Check if the contact is a company, otherwise it is a person"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__city
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__city
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.trilab_check_partner_details_form
+msgid "City"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.check_nip_gus_form
+msgid "Close"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model,name:trilab_pl_partners_sync.model_res_company
+msgid "Companies"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__company_id
+msgid "Company"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model,name:trilab_pl_partners_sync.model_res_config_settings
+msgid "Config Settings"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model,name:trilab_pl_partners_sync.model_res_partner
+msgid "Contact"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__country_id
+msgid "Country"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-javascript
+#: code:addons/trilab_pl_partners_sync/static/src/xml/partner_autocomplete.xml:0
+msgid "Create Company from GUS data:"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner__create_uid
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__create_uid
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__create_uid
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_wl_partner_bank__create_uid
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_wl_wizard__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner__create_date
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__create_date
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__create_date
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_wl_partner_bank__create_date
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_wl_wizard__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.trilab_check_partner_details_form
+msgid "Current Company Data"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "Customer must be from Poland"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.krd_result
+msgid "DEBTS PAID:"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "Data successfully fetched from GUS"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__details_id
+msgid "Details"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.trilab_check_partner_details_form
+msgid "Discard"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner__display_name
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__display_name
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__display_name
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_wl_partner_bank__display_name
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_wl_wizard__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__email
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__email
+msgid "Email"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.res_config_settings_view_form_inherit
+msgid "Environment"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.check_nip_gus_form
+msgid "Error"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__error_message
+msgid "Error Message"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__error_type
+msgid "Error Type"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "Error from API: %s"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "Error occurred: %s"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "Error while checking VIES: %s"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner__errors_count
+msgid "Errors Count"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields.selection,name:trilab_pl_partners_sync.selection__trilab_check_partner__mode__gus
+msgid "GUS"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_config_settings__x_pl_gus_api_key
+msgid "GUS API Key"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/gus_regon.py:0
+msgid "GUS API error: %s"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_partner__x_pl_gus_inactive_date
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_users__x_pl_gus_inactive_date
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__x_pl_gus_inactive_date
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__x_pl_gus_inactive_date
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.trilab_check_partner_details_form
+msgid "GUS Business Inactive Date"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_partner__x_pl_gus_update_date
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_users__x_pl_gus_update_date
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__x_pl_gus_update_date
+msgid "GUS Update Date"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-javascript
+#: code:addons/trilab_pl_partners_sync/static/src/js/autocomplete_core.js:0
+msgid "GUS autocomplete error"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.view_partner_form_pl_sync
+msgid "Get Accounts from Whitelist"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__gus_selected_id
+msgid "Gus Selected"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__gus_selection_ids
+msgid "Gus Selection"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.res_config_settings_view_form_inherit
+msgid "Główny Urząd Statystyczny"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner__id
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__id
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__id
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_wl_partner_bank__id
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_wl_wizard__id
+msgid "ID"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields.selection,name:trilab_pl_partners_sync.selection__res_partner__x_pl_vies_state__invalid
+msgid "Invalid"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/gus_regon.py:0
+msgid "Invalid REGON length"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "Invalid VAT number"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "Invalid VAT number %(vat)s for %(partner)s"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/account_move.py:0
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "Invalid VIES"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "Invalid VIES state"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "Invalid data for VAT (%s)"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/gus_regon.py:0
+msgid "Invalid length for %s"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__is_error
+msgid "Is Error"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__is_multi_mode
+msgid "Is Multi Mode"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__is_warning
+msgid "Is Warning"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__is_company
+msgid "Is a Company"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields.selection,name:trilab_pl_partners_sync.selection__res_partner__x_pl_business_type__lf
+msgid "Jednostka lokalna osoby fizycznej"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields.selection,name:trilab_pl_partners_sync.selection__res_partner__x_pl_business_type__lp
+msgid "Jednostka lokalna osoby prawnej"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model,name:trilab_pl_partners_sync.model_account_move
+msgid "Journal Entry"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_company__x_pl_krd_login
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_config_settings__x_pl_krd_login
+msgid "KRD Login"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_company__x_pl_krd_pass
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_config_settings__x_pl_krd_pass
+msgid "KRD Password"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_company__x_pl_krd_env
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_config_settings__x_pl_krd_env
+msgid "KRD env"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__krs
+msgid "KRS"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_partner__krs
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_users__krs
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.view_partner_form_pl_sync
+msgid "KRS/NR Ew."
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.trilab_check_partner_details_form
+msgid "KRS/No. Evidence"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__krs
+msgid "KRS/Reg. No"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.res_config_settings_view_form_inherit
+msgid "Krajowy Rejestr Długów"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__lang
+msgid "Language"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner__write_uid
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__write_uid
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__write_uid
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_wl_partner_bank__write_uid
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_wl_wizard__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner__write_date
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__write_date
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__write_date
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_wl_partner_bank__write_date
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_wl_wizard__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.res_config_settings_view_form_inherit
+msgid "Login"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "MF VAT Validation Results"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/gus_regon.py:0
+msgid "Maximum number of identifiers is 20"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "Ministry of Finance VAT Validity checked (%(code)s: %(description)s)"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid ""
+"Ministry of Finance VAT Validity checked (%(code)s: %(description)s, id: "
+"%(rid)s)"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "Missing VAT"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner__mode
+msgid "Mode"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "Multiple records found in GUS please select correct one."
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields.selection,name:trilab_pl_partners_sync.selection__trilab_check_partner__mode__nip
+msgid "NIP"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__name
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__name
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.check_nip_gus_form
+msgid "Name"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__x_city
+msgid "New City"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__x_email
+msgid "New Email"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__x_x_pl_gus_inactive_date
+msgid "New GUS Business Inactive Date"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__x_krs
+msgid "New KRS"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__x_name
+msgid "New Name"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__x_phone
+msgid "New Phone"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__x_regon
+msgid "New REGON"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__x_state_id
+msgid "New State"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__x_street
+msgid "New Street"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__x_street2
+msgid "New Street2"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__x_vat
+msgid "New VAT"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__x_zip
+msgid "New Zip"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "No bank accounts found for VAT id: %s"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "No data from MF API"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields.selection,name:trilab_pl_partners_sync.selection__res_partner__x_pl_vies_state__no_info
+msgid "No information"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.krd_result
+msgid "Number of creditors of the counterparty"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.krd_result
+msgid "Number of creditors of the debtor"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.krd_result
+msgid "Number of negative liability cases"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.krd_result
+msgid "Number of uses of a forged document"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields.selection,name:trilab_pl_partners_sync.selection__res_partner__x_pl_business_type__f
+msgid "Osoba fizyczna"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields.selection,name:trilab_pl_partners_sync.selection__res_partner__x_pl_business_type__p
+msgid "Osoba prawna"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_partner__pesel
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_users__pesel
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.view_partner_form_pl_sync
+msgid "PESEL"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "PESEL is required"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__partner_id
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__partner_id
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_wl_wizard__partner_id
+msgid "Partner"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/wizard/partner_check.py:0
+msgid "Partner data updated from GUS."
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "Partner's %(partner)s country (%(country)s) is not in EU"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.res_config_settings_view_form_inherit
+msgid "Password"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__phone
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__phone
+msgid "Phone"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "Please provide VAT"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "Please select partner"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "Please set GUS API key in General Settings"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "Please set KRD login and password in company settings"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields.selection,name:trilab_pl_partners_sync.selection__res_company__x_pl_krd_env__prod
+msgid "Production"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_partner__regon
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_users__regon
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__regon
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__regon
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.trilab_check_partner_details_form
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.view_partner_form_pl_sync
+msgid "REGON"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__parent_id
+msgid "Related Company"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__user_id
+msgid "Salesperson"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.select_wl_bank_accounts_form
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.trilab_check_partner_details_form
+msgid "Save"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-javascript
+#: code:addons/trilab_pl_partners_sync/static/src/js/fieldchar.js:0
+#: code:addons/trilab_pl_partners_sync/static/src/js/many_to_one.js:0
+msgid "Searching GUS..."
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_wl_partner_bank__select
+msgid "Select"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_wl_wizard__select_all
+msgid "Select All"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.trilab_check_partner_details_form
+msgid "Select GUS Company"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.select_wl_bank_accounts_form
+msgid "Select Whitelist Bank Accounts To Save"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__state_id
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__state_id
+msgid "State"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,help:trilab_pl_partners_sync.field_res_partner__x_pl_nip_state
+#: model:ir.model.fields,help:trilab_pl_partners_sync.field_res_users__x_pl_nip_state
+#: model:ir.model.fields,help:trilab_pl_partners_sync.field_trilab_check_partner_details__x_pl_nip_state
+msgid ""
+"Status odpowiada poniższej liście:\n"
+"N - Podmiot o podanym identyfikatorze podatkowym NIP nie jest zarejestrowany jako podatnik VAT\n"
+"C - Podmiot o podanym identyfikatorze podatkowym NIP jest zarejestrowany jako podatnik VAT czynny\n"
+"Z - Podmiot o podanym identyfikatorze podatkowym NIP jest zarejestrowany jako podatnik VAT zwolniony\n"
+"I - Błąd zapytania - Nieprawidłowy Numer Identyfikacji Podatkowej\n"
+"D - Błąd zapytania - Data spoza ustalonego zakresu\n"
+"X - Usługa nieaktywna"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__street
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__street
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.trilab_check_partner_details_form
+msgid "Street"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__street2
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__street2
+msgid "Street2"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.krd_result
+msgid "Sum of paid debts"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__category_id
+msgid "Tags"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields.selection,name:trilab_pl_partners_sync.selection__res_company__x_pl_krd_env__test
+msgid "Testing"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,help:trilab_pl_partners_sync.field_trilab_check_partner_details__vat
+msgid ""
+"The Tax Identification Number. Values here will be validated based on the "
+"country format. You can use '/' to indicate that the partner is not subject "
+"to tax."
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.krd_result
+msgid "The amount of economic information"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "The application at the Member State is not replying or not available."
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid ""
+"The application did not receive a reply within the allocated time period."
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "The company/customer must be registered in Poland"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,help:trilab_pl_partners_sync.field_trilab_check_partner_details__user_id
+msgid "The internal user in charge of this contact."
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "The provided CountryCode is invalid or the VAT number is empty."
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:res.groups,comment:trilab_pl_partners_sync.group_allow_duplicate_vat
+msgid ""
+"The user will be able to create new Partners with VAT that is already "
+"assigned to other partners."
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "This VAT is already assigned to another partner"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.krd_result
+msgid "Total amount of debts"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.krd_result
+msgid "Total number of negative commitments"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.krd_result
+msgid "Total number of positive commitments"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model,name:trilab_pl_partners_sync.model_trilab_check_partner_gus
+msgid "Trilab Check GUS Partner"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model,name:trilab_pl_partners_sync.model_trilab_check_partner_details
+msgid "Trilab Check Partner Details Wizard"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model,name:trilab_pl_partners_sync.model_trilab_check_partner
+msgid "Trilab Check Partner Wizard"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.res_config_settings_view_form_inherit
+msgid "Trilab Partners Sync (GUS/REGON/KRS/KRD/Vies)"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model,name:trilab_pl_partners_sync.model_trilab_wl_partner_bank
+msgid "Trilab Whitelist Partner Bank Account Wizard"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model,name:trilab_pl_partners_sync.model_trilab_wl_wizard
+msgid "Trilab Whitelist Wizard"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.krd_result
+msgid "UNPAID DEBTS:"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.view_partner_form_pl_sync
+msgid "Update Data from GUS"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__x_pl_gus_update_date
+msgid "Update Date"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.actions.server,name:trilab_pl_partners_sync.check_gus_act
+msgid "Update data from GUS"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.check_nip_gus_form
+msgid "Update valid records"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.trilab_check_partner_details_form
+msgid "Updated Company Data"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+#: code:addons/trilab_pl_partners_sync/wizard/partner_check.py:0
+msgid "Updated data from GUS"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.check_nip_gus_form
+msgid "Updates"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__vat
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__vat
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.trilab_check_partner_details_form
+msgid "VAT"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_partner__x_pl_nip_check_date
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_users__x_pl_nip_check_date
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__x_pl_nip_check_date
+msgid "VAT Check Date"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_partner__x_pl_nip_state
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_users__x_pl_nip_state
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__x_pl_nip_state
+msgid "VAT Status"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "VAT is not valid"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "VAT is required"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields.selection,name:trilab_pl_partners_sync.selection__trilab_check_partner__mode__vies
+msgid "VIES"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_partner__x_pl_vies_check_date
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_users__x_pl_vies_check_date
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__x_pl_vies_check_date
+msgid "VIES Check Date"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_partner__x_pl_vies_state
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_users__x_pl_vies_state
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__x_pl_vies_state
+msgid "VIES Status"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "VIES Validation Results"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields.selection,name:trilab_pl_partners_sync.selection__res_partner__x_pl_vies_state__valid
+msgid "Valid"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/account_move.py:0
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "Valid VIES"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_company__x_pl_validate_vat
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_config_settings__x_pl_validate_vat
+msgid "Validate VAT"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.res_config_settings_view_form_inherit
+msgid "Validate VAT and block duplicate VAT numbers"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,help:trilab_pl_partners_sync.field_res_company__x_pl_validate_vat
+#: model:ir.model.fields,help:trilab_pl_partners_sync.field_res_config_settings__x_pl_validate_vat
+msgid "Validate and block duplicate VAT"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__website
+msgid "Website"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_wl_partner_bank__wl_wizard_id
+msgid "Wl Wizard"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_company__x_pl_enable_gus
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_config_settings__x_pl_enable_gus
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_partner__x_pl_enable_gus
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_users__x_pl_enable_gus
+msgid "X Pl Enable Gus"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_company__x_pl_enable_krd
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_config_settings__x_pl_enable_krd
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_partner__x_pl_enable_krd
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_users__x_pl_enable_krd
+msgid "X Pl Enable Krd"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_account_bank_statement_line__x_partner_is_europe
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_account_move__x_partner_is_europe
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_partner__x_pl_is_europe
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_users__x_pl_is_europe
+msgid "X Pl Is Europe"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_partner__x_pl_is_poland
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_res_users__x_pl_is_poland
+msgid "X Pl Is Poland"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid ""
+"Your Request for VAT validation has not been processed. The maximum number "
+"of concurrent requests has been reached."
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid ""
+"Your request cannot be processed due to high traffic towards the Member "
+"State you are trying to reach. Please try again later."
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_details__zip
+#: model:ir.model.fields,field_description:trilab_pl_partners_sync.field_trilab_check_partner_gus__zip
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.trilab_check_partner_details_form
+msgid "Zip"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/gus_regon.py:0
+msgid "api_key is required in production environment."
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#: model_terms:ir.ui.view,arch_db:trilab_pl_partners_sync.view_partner_form_pl_sync
+msgid "enter name or VAT"
+msgstr ""
+
+#. module: trilab_pl_partners_sync
+#. odoo-python
+#: code:addons/trilab_pl_partners_sync/models/res_partner.py:0
+msgid "invalid combination of Type(%s) and SilosID(%s)"
+msgstr ""

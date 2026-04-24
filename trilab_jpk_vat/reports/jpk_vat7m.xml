@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <template id="trilab_jpk_vat.jpk_vat7m_report">
+        <t t-call="web.html_container">
+            <t t-call="trilab_jpk_base.internal_layout">
+                <t t-call="trilab_jpk_vat.report_jpk_vat7m_report_base"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="trilab_jpk_vat.jpk_vat7m_v2_report">
+        <t t-call="web.html_container">
+            <t t-call="trilab_jpk_base.internal_layout">
+                <t t-call="trilab_jpk_vat.report_jpk_vat7m_report_base"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="sub_report_child_section">
+        <td class="act_as_cell left">
+            <t t-out="c_row['flags']"/>
+        </td>
+        <td class="act_as_cell left">
+            <t t-out="c_row['gtu']"/>
+        </td>
+        <td class="act_as_cell left">
+            <t t-out="c_row['jpkmarkup']"/>
+        </td>
+        <td class="act_as_cell left">
+            <t t-out="c_row['jpkgroup']"/>
+        </td>
+        <td class="act_as_cell amount">
+            <t t-out="c_row['kwota']"/>
+        </td>
+    </template>
+
+    <template id="sub_report_section">
+        <t t-set="data" t-value="row['data']"/>
+        <t t-set="child_count" t-value="len(row['children'])"/>
+
+        <tr class="act_as_row" t-att-class="is_odd and 'x_bg_secondary' or ''">
+            <td class="act_as_cell right" t-att-rowspan="child_count">
+                <t t-out="row['counter']"/>
+            </td>
+            <td class="act_as_cell left" t-att-rowspan="child_count">
+                <t t-out="data['nrkontrahenta'] or ''"/>
+            </td>
+            <td class="act_as_cell left" t-att-rowspan="child_count">
+                <t t-out="data['nazwakontrahenta']"/>
+            </td>
+            <td class="act_as_cell left" t-att-rowspan="child_count">
+                <t t-out="data['dowodsprzedazyzakupu']"/>
+            </td>
+            <td class="act_as_cell left text-nowrap" t-att-rowspan="child_count">
+                <t t-out="data['datawystawienia']"/>
+            </td>
+            <td class="act_as_cell left text-nowrap" t-att-rowspan="child_count">
+                <t t-out="data['datasprzedazy']"/>
+            </td>
+            <td class="act_as_cell left text-nowrap" t-att-rowspan="child_count">
+                <t t-out="data['datazakupu']"/>
+            </td>
+            <td class="act_as_cell left text-nowrap" t-att-rowspan="child_count">
+                <t t-out="data['datawplywu']"/>
+            </td>
+            <td class="act_as_cell left text-nowrap" t-att-rowspan="child_count">
+                <t t-out="data['terminplatnosci']"/>
+            </td>
+            <td class="act_as_cell left" t-att-rowspan="child_count">
+                <t t-out="data['typdokumentu']"/>
+            </td>
+            <t t-foreach="row['children'][:1]" t-as="c_row">
+                <t t-call="trilab_jpk_vat.sub_report_child_section"/>
+            </t>
+        </tr>
+
+        <tr class="act_as_row" t-foreach="row['children'][1:]" t-as="c_row"
+            t-att-class="is_odd and 'x_bg_secondary' or ''">
+            <t t-call="trilab_jpk_vat.sub_report_child_section"/>
+        </tr>
+    </template>
+
+    <template id="report_jpk_vat7m_report_base">
+        <t t-set="title">VAT Report -<t t-out="company_name"/>-<t t-out="currency_name"/></t>
+        <t t-set="company_name" t-value="company_name"/>
+        <div class="page">
+            <div class="row">
+                <h4
+                        class="mt0"
+                        t-out="title or 'Odoo Report'"
+                        style="text-align: center;"
+                />
+            </div>
+            <!-- Display filters -->
+            <!--            <t t-call="trilab_jpk_vat.report_jpk_vat7m_report_filters" />-->
+            <div class="page_break"/>
+            <div class="act_as_table data_table" style="width: 100%;">
+                <table class="table act_as_table">
+                    <thead>
+                        <tr class="act_as_row" t-translation="off">
+                            <th>#</th>
+                            <th>Nr kontrahenta</th>
+                            <th>Nazwa kontrahenta</th>
+                            <th>Dowód zakupu</th>
+                            <th>Data wystawienia</th>
+                            <th>Data sprzedaży</th>
+                            <th>Data zakupu</th>
+                            <th>Data wpływu</th>
+                            <th>Termin płatności</th>
+                            <th name="th_typ_dokumentu">Typ dokumentu</th>
+                            <th>Procedury</th>
+                            <th>GTU</th>
+                            <th>Kod JPK</th>
+                            <th>Grupa JPK</th>
+                            <th>Kwota</th>
+                        </tr>
+                    </thead>
+
+                    <t t-set="th_colspan" t-value="15"/>
+
+                    <tbody>
+                        <tr>
+                            <th t-att-colspan="th_colspan" class="x_bg_secondary" t-translation="off">
+                                Sprzedaż
+                            </th>
+                        </tr>
+                        <t t-foreach="doc['SprzedazWiersz']" t-as="row">
+                            <t t-call="trilab_jpk_vat.sub_report_section">
+                                <t t-set="is_odd" t-value="row_index % 2 != 0"/>
+                            </t>
+                        </t>
+                    </tbody>
+
+                    <tbody>
+                        <tr>
+                            <th t-att-colspan="th_colspan" class="x_bg_secondary" t-translation="off">
+                                Zakupy
+                            </th>
+                        </tr>
+                        <t t-foreach="doc['ZakupWiersz']" t-as="row">
+                            <t t-call="trilab_jpk_vat.sub_report_section">
+                                <t t-set="is_odd" t-value="row_index % 2 != 0"/>
+                            </t>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </template>
+
+    <template id="report_jpk_vat7m_report_filters">
+        <div class="act_as_table data_table" style="width: 100%;">
+            <div class="act_as_row labels">
+                <div class="act_as_cell">Date From</div>
+                <div class="act_as_cell">Date To</div>
+                <div class="act_as_cell">Based On</div>
+            </div>
+            <div class="act_as_row">
+                <div class="act_as_cell">
+                    <span t-out="date_from"/>
+                </div>
+                <div class="act_as_cell">
+                    <span t-out="date_to"/>
+                </div>
+                <div class="act_as_cell">
+                    <span t-out="based_on"/>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <record id="action_print_report_jpk_vat7m_report_qweb" model="ir.actions.report">
+        <field name="name">VAT 7M</field>
+        <field name="model">jpk.vat7m.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">trilab_jpk_vat.jpk_vat7m_report</field>
+        <field name="report_file">trilab_jpk_vat.jpk_vat7m_report</field>
+        <field name="paperformat_id" ref="trilab_jpk_base.paperformat_euro_landscape"/>
+    </record>
+
+    <record id="action_print_report_jpk_vat7m_v2_report_qweb" model="ir.actions.report">
+        <field name="name">VAT 7M 1-0E</field>
+        <field name="model">jpk.vat7m.v2.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">trilab_jpk_vat.jpk_vat7m_v2_report</field>
+        <field name="report_file">trilab_jpk_vat.jpk_vat7m_v2_report</field>
+        <field name="paperformat_id" ref="trilab_jpk_base.paperformat_euro_landscape"/>
+    </record>
+
+    <record id="action_print_report_jpk_vat7m_v3_report_qweb" model="ir.actions.report">
+        <field name="name">VAT 7M (3) 1-0E</field>
+        <field name="model">jpk.vat7m.v3.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">trilab_jpk_vat.jpk_vat7m_v3_report</field>
+        <field name="report_file">trilab_jpk_vat.jpk_vat7m_v3_report</field>
+        <field name="paperformat_id" ref="trilab_jpk_base.paperformat_euro_landscape"/>
+    </record>
+
+    <record id="action_print_report_jpk_vat7m_report_html" model="ir.actions.report">
+        <field name="name">VAT 7M</field>
+        <field name="model">jpk.vat7m.report.wizard</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">trilab_jpk_vat.jpk_vat7m_report</field>
+        <field name="report_file">trilab_jpk_vat.jpk_vat7m_report</field>
+    </record>
+
+    <record id="action_print_report_jpk_vat7m_v2_report_html" model="ir.actions.report">
+        <field name="name">VAT 7M 1-0E</field>
+        <field name="model">jpk.vat7m.v2.report.wizard</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">trilab_jpk_vat.jpk_vat7m_v2_report</field>
+        <field name="report_file">trilab_jpk_vat.jpk_vat7m_v2_report</field>
+    </record>
+
+    <record id="action_print_report_jpk_vat7m_v3_report_html" model="ir.actions.report">
+        <field name="name">VAT 7M (3) 1-0E</field>
+        <field name="model">jpk.vat7m.v3.report.wizard</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">trilab_jpk_vat.jpk_vat7m_v3_report</field>
+        <field name="report_file">trilab_jpk_vat.jpk_vat7m_v3_report</field>
+    </record>
+
+    <record id="action_print_report_jpk_vat7m_report_xlsx" model="ir.actions.report">
+        <field name="name">VAT 7M XLSX</field>
+        <field name="model">jpk.vat7m.report.wizard</field>
+        <field name="report_type">jpk_xlsx</field>
+        <field name="report_name">trilab_jpk_vat.jpk_vat7m_report</field>
+        <field name="report_file">trilab_jpk_vat.jpk_vat7m_report</field>
+    </record>
+
+    <record id="action_print_report_jpk_vat7m_v2_report_xlsx" model="ir.actions.report">
+        <field name="name">VAT 7M 1-0E XLSX</field>
+        <field name="model">jpk.vat7m.v2.report.wizard</field>
+        <field name="report_type">jpk_xlsx</field>
+        <field name="report_name">trilab_jpk_vat.jpk_vat7m_v2_report</field>
+        <field name="report_file">trilab_jpk_vat.jpk_vat7m_v2_report</field>
+    </record>
+
+    <record id="action_print_report_jpk_vat7m_v3_report_xlsx" model="ir.actions.report">
+        <field name="name">VAT 7M (3) 1-0E XLSX</field>
+        <field name="model">jpk.vat7m.v3.report.wizard</field>
+        <field name="report_type">jpk_xlsx</field>
+        <field name="report_name">trilab_jpk_vat.jpk_vat7m_v3_report</field>
+        <field name="report_file">trilab_jpk_vat.jpk_vat7m_v3_report</field>
+    </record>
+
+    <record id="action_print_report_jpk_vat7m_report_xml" model="ir.actions.report">
+        <field name="name">VAT 7M XML</field>
+        <field name="model">jpk.vat7m.report.wizard</field>
+        <field name="report_type">jpk_xml</field>
+        <field name="report_name">trilab_jpk_vat.jpk_vat7m_report</field>
+        <field name="report_file">trilab_jpk_vat.jpk_vat7m_report</field>
+    </record>
+
+    <record id="action_print_report_jpk_vat7m_v2_report_xml" model="ir.actions.report">
+        <field name="name">VAT 7M 1-0E XML</field>
+        <field name="model">jpk.vat7m.v2.report.wizard</field>
+        <field name="report_type">jpk_xml</field>
+        <field name="report_name">trilab_jpk_vat.jpk_vat7m_v2_report</field>
+        <field name="report_file">trilab_jpk_vat.jpk_vat7m_v2_report</field>
+    </record>
+
+    <record id="action_print_report_jpk_vat7m_v3_report_xml" model="ir.actions.report">
+        <field name="name">VAT 7M (3) 1-0E XML</field>
+        <field name="model">jpk.vat7m.v3.report.wizard</field>
+        <field name="report_type">jpk_xml</field>
+        <field name="report_name">trilab_jpk_vat.jpk_vat7m_v3_report</field>
+        <field name="report_file">trilab_jpk_vat.jpk_vat7m_v3_report</field>
+    </record>
+
+    <record id="action_print_report_jpk_vat7m_report_pdf" model="ir.actions.report">
+        <field name="name">JPK VAT7M</field>
+        <field name="model">jpk.vat.7m</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">trilab_jpk_vat.report_jpk_vat_7m</field>
+        <field name="report_file">trilab_jpk_vat.report_jpk_vat_7m</field>
+        <field name="print_report_name">object.get_print_report_name()</field>
+    </record>
+
+</odoo>

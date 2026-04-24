@@ -37,7 +37,7 @@
                 <div class="row">
                     <div class="col-6">
                         <xsl:if test="tns:PrzyczynaKorekty|tns:TypKorekty">
-                            <h6 class="font-weight-bold">Dane faktury korygowanej</h6>
+                            <h6 class="fw-bold">Dane faktury korygowanej</h6>
 
                             <xsl:if test="tns:PrzyczynaKorekty">
                                 <p class="mb-0">
@@ -75,9 +75,9 @@
                         </xsl:if>
                     </div>
 
-                    <div class="col-6">
+                    <div class="col-6 ps-3">
                         <xsl:if test="tns:DaneFaKorygowanej">
-                            <h6 class="font-weight-bold">Dane identyfikacyjne faktury korygowanej</h6>
+                            <h6 class="fw-bold">Dane identyfikacyjne faktury korygowanej</h6>
                             <xsl:for-each select="tns:DaneFaKorygowanej">
                                 <p class="mb-0">
                                     <strong>
@@ -114,16 +114,16 @@
     <xsl:template name="SprzedawcaNabywca">
         <div class="row">
             <div class="col-6">
-                <h6 class="font-weight-bold">Sprzedawca</h6>
+                <h6 class="fw-bold">Sprzedawca</h6>
                 <xsl:apply-templates select="tns:Podmiot1"/>
-                <p class="mt-3 mb-0 font-weight-bold">
+                <p class="mt-3 mb-0 fw-bold">
                     <xsl:text>Adres</xsl:text>
                 </p>
 
                 <xsl:apply-templates select="tns:Podmiot1/tns:Adres"/>
 
                 <xsl:if test="tns:Podmiot1/tns:AdresKoresp">
-                    <p class="mt-3 mb-0 font-weight-bold">
+                    <p class="mt-3 mb-0 fw-bold">
                         <xsl:text>Adres do korespondencji</xsl:text>
                     </p>
 
@@ -131,7 +131,7 @@
                 </xsl:if>
 
                 <xsl:if test="tns:Podmiot1/tns:DaneKontaktowe/node()">
-                    <p class="mt-3 mb-0 font-weight-bold">Dane kontaktowe</p>
+                    <p class="mt-3 mb-0 fw-bold">Dane kontaktowe</p>
                     <xsl:apply-templates select="tns:Podmiot1/tns:DaneKontaktowe"/>
                 </xsl:if>
 
@@ -164,18 +164,18 @@
                 </xsl:if>
             </div>
 
-            <div class="col-6">
-                <h6 class="font-weight-bold">Nabywca</h6>
+            <div class="col-6 ps-3">
+                <h6 class="fw-bold">Nabywca</h6>
                 <xsl:apply-templates select="tns:Podmiot2"/>
 
-                <p class="mt-3 mb-0 font-weight-bold">
+                <p class="mt-3 mb-0 fw-bold">
                     <xsl:text>Adres</xsl:text>
                 </p>
 
                 <xsl:apply-templates select="tns:Podmiot2/tns:Adres"/>
 
                 <xsl:if test="tns:Podmiot2/tns:AdresKoresp">
-                    <p class="mt-3 mb-0 font-weight-bold">
+                    <p class="mt-3 mb-0 fw-bold">
                         <xsl:text>Adres do korespondencji</xsl:text>
                     </p>
 
@@ -183,7 +183,7 @@
                 </xsl:if>
 
                 <xsl:if test="(tns:Podmiot2/tns:DaneKontaktowe|tns:Podmiot2/tns:NrKlienta)/node()">
-                    <p class="mt-3 mb-0 font-weight-bold">Dane kontaktowe</p>
+                    <p class="mt-3 mb-0 fw-bold">Dane kontaktowe</p>
                     <xsl:apply-templates select="tns:Podmiot2/tns:DaneKontaktowe"/>
 
                     <xsl:if test="tns:Podmiot2/tns:NrKlienta">
@@ -196,6 +196,46 @@
                         </p>
                     </xsl:if>
                 </xsl:if>
+
+                <xsl:if test="tns:Podmiot2/tns:JST|tns:Podmiot2/tns:GV">
+                    <div class="mt-3">
+                        <xsl:if test="tns:Podmiot2/tns:JST">
+                            <p class="mb-0">
+                                <strong>
+                                    <xsl:text>Faktura dotyczy jednostki podrzędnej JST: </xsl:text>
+                                </strong>
+
+                                <xsl:choose>
+                                    <xsl:when test="tns:Podmiot2/tns:JST = '1'">
+                                        TAK
+                                    </xsl:when>
+
+                                    <xsl:otherwise>
+                                        NIE
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </p>
+                        </xsl:if>
+
+                        <xsl:if test="tns:Podmiot2/tns:GV">
+                            <p class="mb-0">
+                                <strong>
+                                    <xsl:text>Faktura dotyczy członka grupy GV: </xsl:text>
+                                </strong>
+
+                                <xsl:choose>
+                                    <xsl:when test="tns:Podmiot2/tns:GV = '1'">
+                                        TAK
+                                    </xsl:when>
+
+                                    <xsl:otherwise>
+                                        NIE
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </p>
+                        </xsl:if>
+                    </div>
+                </xsl:if>
             </div>
         </div>
         <hr/>
@@ -203,7 +243,7 @@
 
     <xsl:template name="InnyPodmiot">
         <xsl:for-each select="tns:Podmiot3">
-            <h6 class="font-weight-bold">Podmiot inny
+            <h6 class="fw-bold">Podmiot inny
                 <xsl:number/>
             </h6>
 
@@ -212,9 +252,9 @@
                     <xsl:apply-templates select="."/>
                 </div>
 
-                <div class="col-6">
+                <div class="col-6 ps-3">
                     <xsl:if test="tns:Adres">
-                        <p class="mb-0 font-weight-bold">
+                        <p class="mb-0 fw-bold">
                             <xsl:text>Adres</xsl:text>
                         </p>
 
@@ -222,7 +262,7 @@
                     </xsl:if>
 
                     <xsl:if test="tns:AdresKoresp">
-                        <p class="mt-3 mb-0 font-weight-bold">
+                        <p class="mt-3 mb-0 fw-bold">
                             <xsl:text>Adres do korespondencji</xsl:text>
                         </p>
 
@@ -230,7 +270,7 @@
                     </xsl:if>
 
                     <xsl:if test="(tns:DaneKontaktowe|tns:NrKlienta)/node()">
-                        <p class="mt-3 mb-0 font-weight-bold">Dane kontaktowe</p>
+                        <p class="mt-3 mb-0 fw-bold">Dane kontaktowe</p>
                         <xsl:apply-templates select="tns:DaneKontaktowe"/>
 
                         <xsl:if test="tns:NrKlienta">
@@ -304,12 +344,7 @@
                     </item>
                 </xsl:if>
 
-                <xsl:if test="not (//tns:Fa/tns:FaWiersz or //tns:Fa/tns:Zamowienie/tns:ZamowienieWiersz)">
-                    <item>
-                        <label>Faktura wystawiona w cenach: </label>
-                        <value>brutto</value>
-                    </item>
-
+                <xsl:if test="//tns:Fa/tns:KodWaluty">
                     <item>
                         <label>Kod waluty: </label>
                         <value><xsl:value-of select="tns:Fa/tns:KodWaluty"/></value>
@@ -322,15 +357,14 @@
                     </item>
                 </xsl:if>
 
-
-                <xsl:if test="tns:Fa/tns:FaWiersz[1]/tns:KursWaluty and not(tns:Fa/tns:FaWiersz/tns:KursWaluty != tns:Fa/tns:FaWiersz[1]/tns:KursWaluty)">
+                <xsl:if test="tns:Fa/tns:FaWiersz/tns:KursWaluty and not(tns:Fa/tns:FaWiersz/tns:KursWaluty != tns:Fa/tns:FaWiersz[1]/tns:KursWaluty) or tns:Fa/tns:KursWalutyZ">
                     <item>
                         <label>Kurs waluty wspólny dla wszystkich wierszy faktury</label>
                     </item>
 
                     <item>
                         <label>Kurs waluty: </label>
-                        <value><xsl:value-of select="format-number(number(//tns:Fa/tns:FaWiersz[1]/tns:KursWaluty), '0.000000')"/></value>
+                        <value><xsl:value-of select="format-number(number(tns:Fa/tns:FaWiersz[1]/tns:KursWaluty|tns:Fa/tns:KursWalutyZ), '0.000000')"/></value>
                     </item>
                 </xsl:if>
             </root>
@@ -338,7 +372,7 @@
 
         <xsl:variable name="SzczegolyNodes" select="exsl:node-set($SzczegolyElementy)/root/item"/>
 
-        <h6 class="font-weight-bold">Szczegóły</h6>
+        <h6 class="fw-bold">Szczegóły</h6>
         <div class="row">
             <div class="col-6">
                 <xsl:for-each select="$SzczegolyNodes[position() mod 2 = 1]">
@@ -347,9 +381,58 @@
                     <span class="text-nowrap"><xsl:value-of select="value"/></span>
                   </p>
                 </xsl:for-each>
+
+                <xsl:if test="tns:Fa/tns:FakturaZaliczkowa">
+                    <table class="table table-sm table-bordered w-auto">
+                        <tr class="bg-100 fw-bold text-nowrap">
+                            <td>Numery wcześniejszych faktur zaliczkowych</td>
+                        </tr>
+
+                        <xsl:for-each select="tns:Fa/tns:FakturaZaliczkowa">
+                            <tr>
+                                <td>
+                                    <xsl:value-of select="tns:NrKSeFFaZaliczkowej|tns:NrFaZaliczkowej"/>
+                                </td>
+                            </tr>
+                        </xsl:for-each>
+                    </table>
+                </xsl:if>
+
+                <xsl:if test="tns:Fa/tns:ZaliczkaCzesciowa">
+                    <xsl:variable name="KursWalutyZW" select="tns:Fa/tns:ZaliczkaCzesciowa[tns:KursWalutyZW]"/>
+                    <table class="table table-sm table-bordered w-auto">
+                        <tr class="bg-100 fw-bold text-nowrap">
+                            <td>Data otrzymania płatności</td>
+                            <td>Kwota płatności</td>
+                            <xsl:if test="$KursWalutyZW">
+                                <td>Kurs waluty</td>
+                            </xsl:if>
+                        </tr>
+
+                        <xsl:for-each select="tns:Fa/tns:ZaliczkaCzesciowa">
+                            <tr>
+                                <td>
+                                    <xsl:value-of select="tns:P_6Z"/>
+                                </td>
+
+                                <td>
+                                    <xsl:value-of select="tns:P_15Z"/>
+                                </td>
+
+                                <xsl:if test="$KursWalutyZW">
+                                    <td class="text-end">
+                                        <xsl:if test="tns:KursWalutyZW">
+                                            <xsl:value-of select="format-number(number(tns:KursWalutyZW), '0.000000')"/>
+                                        </xsl:if>
+                                    </td>
+                                </xsl:if>
+                            </tr>
+                        </xsl:for-each>
+                    </table>
+                </xsl:if>
             </div>
 
-            <div class="col-6">
+            <div class="col-6 ps-3">
                 <xsl:for-each select="$SzczegolyNodes[position() mod 2 = 0]">
                   <p class="mb-0">
                     <strong><xsl:value-of select="label"/></strong>
@@ -363,18 +446,6 @@
 
     <xsl:template name="FakturaWiersze">
         <xsl:if test="tns:Fa/tns:FaWiersz|tns:Fa/tns:Zamowienie">
-            <xsl:variable name="TypCen">
-                <xsl:choose>
-                    <xsl:when test="tns:Fa/tns:FaWiersz[tns:P_11]">
-                        <xsl:text>netto</xsl:text>
-                    </xsl:when>
-
-                    <xsl:otherwise>
-                        <xsl:text>brutto</xsl:text>
-                    </xsl:otherwise>
-                </xsl:choose>
-            </xsl:variable>
-
             <xsl:variable name="UnikalnyNumerWiersza" select="tns:Fa/tns:FaWiersz[tns:UU_ID]|tns:Fa/tns:Zamowienie/tns:ZamowienieWiersz[tns:UU_ID]"/>
             <xsl:variable name="NazwaTowaru" select="tns:Fa/tns:FaWiersz[tns:P_7]|tns:Fa/tns:Zamowienie/tns:ZamowienieWiersz[tns:P_7Z]"/>
             <xsl:variable name="CenaJednostkowaNetto" select="tns:Fa/tns:FaWiersz[tns:P_9A]|tns:Fa/tns:Zamowienie/tns:ZamowienieWiersz[tns:P_9AZ]"/>
@@ -392,7 +463,7 @@
             <xsl:variable name="KursWaluty" select="tns:Fa/tns:FaWiersz/tns:KursWaluty != tns:Fa/tns:FaWiersz[1]/tns:KursWaluty"/>
             <xsl:variable name="StanPrzed" select="tns:Fa/tns:FaWiersz[tns:StanPrzed = '1']"/>
 
-            <h6 class="font-weight-bold">
+            <h6 class="fw-bold">
                 <xsl:choose>
                     <xsl:when test="tns:Fa/tns:Zamowienie">
                         <xsl:text>Zamówienie</xsl:text>
@@ -403,22 +474,26 @@
                     </xsl:otherwise>
                 </xsl:choose>
             </h6>
-            <p class="mb-0">
-                Faktura wystawiona w cenach
-                <xsl:value-of select="$TypCen"/>
-                w walucie
-                <xsl:value-of select="tns:Fa/tns:KodWaluty"/>
-            </p>
+
+            <xsl:if test="tns:Fa/tns:KodWaluty">
+                <p class="mb-0 fw-bold">
+                    Faktura wystawiona w walucie
+                    <xsl:value-of select="tns:Fa/tns:KodWaluty"/>
+                </p>
+            </xsl:if>
 
             <xsl:if test="tns:Fa/tns:Zamowienie/tns:WartoscZamowienia">
                 <p class="mb-0">
-                    Wartość zamówienia lub umowy z uwzględnieniem kwoty podatku:
+                    <strong>
+                        Wartość zamówienia lub umowy z uwzględnieniem kwoty podatku:
+                    </strong>
+
                     <xsl:value-of select="format-number(number(tns:Fa/tns:Zamowienie/tns:WartoscZamowienia), '0.00')"/>
                 </p>
             </xsl:if>
 
             <table class="table table-sm table-bordered mt-3" style="table-layout: auto;">
-                <tr class="bg-100 font-weight-bold text-nowrap">
+                <tr class="bg-100 fw-bold text-nowrap">
                     <td>Lp.</td>
 
                     <xsl:if test="$UnikalnyNumerWiersza">
@@ -437,16 +512,16 @@
                         <td>Cena jedn. brutto</td>
                     </xsl:if>
 
-                    <xsl:if test="$Rabat">
-                        <td>Rabat</td>
-                    </xsl:if>
-
                     <xsl:if test="$Ilosc">
                         <td>Ilość</td>
                     </xsl:if>
 
                     <xsl:if test="$Miara">
                         <td>Miara</td>
+                    </xsl:if>
+
+                    <xsl:if test="$Rabat">
+                        <td>Rabat</td>
                     </xsl:if>
 
                     <xsl:if test="$StawkaPodatku">
@@ -503,7 +578,7 @@
                         </xsl:if>
 
                         <xsl:if test="$CenaJednostkowaNetto">
-                            <td class="text-right">
+                            <td class="text-end">
                                 <xsl:choose>
                                     <xsl:when test="../tns:ZamowienieWiersz">
                                         <xsl:value-of select="format-number(number(tns:P_9AZ), '0.00')"/>
@@ -517,14 +592,13 @@
                         </xsl:if>
 
                         <xsl:if test="$CenaJednostkowaBrutto">
-                            <td class="text-right">
+                            <td class="text-end">
                                 <xsl:value-of select="format-number(number(tns:P_9B), '0.00')"/>
                             </td>
                         </xsl:if>
 
-
                         <xsl:if test="$Ilosc">
-                            <td class="text-right">
+                            <td class="text-end">
                                 <xsl:choose>
                                     <xsl:when test="../tns:ZamowienieWiersz">
                                         <xsl:value-of select="tns:P_8BZ"/>
@@ -552,7 +626,7 @@
                         </xsl:if>
 
                         <xsl:if test="$Rabat">
-                            <td class="text-right">
+                            <td class="text-end">
                                 <xsl:value-of select="tns:P_10"/>
                             </td>
                         </xsl:if>
@@ -637,7 +711,7 @@
                         </xsl:if>
 
                         <xsl:if test="$WartoscSprzedazyNetto">
-                            <td class="text-right">
+                            <td class="text-end">
                                 <xsl:choose>
                                     <xsl:when test="../tns:ZamowienieWiersz">
                                         <xsl:value-of select="format-number(number(tns:P_11NettoZ), '0.00')"/>
@@ -651,25 +725,25 @@
                         </xsl:if>
 
                         <xsl:if test="$WartoscSprzedazyBrutto">
-                            <td class="text-right">
+                            <td class="text-end">
                                 <xsl:value-of select="format-number(number(tns:P_11A), '0.00')"/>
                             </td>
                         </xsl:if>
 
                         <xsl:if test="$WartoscSprzedazyVat">
-                            <td class="text-right">
+                            <td class="text-end">
                                 <xsl:value-of select="format-number(number(tns:P_11Vat), '0.00')"/>
                             </td>
                         </xsl:if>
 
                         <xsl:if test="$KwotaPodatku">
-                            <td class="text-right">
+                            <td class="text-end">
                                 <xsl:value-of select="format-number(number(tns:P_11VatZ), '0.00')"/>
                             </td>
                         </xsl:if>
 
                         <xsl:if test="$KursWaluty">
-                            <td class="text-right">
+                            <td class="text-end">
                                 <xsl:value-of select="format-number(number(tns:KursWaluty), '0.000000')"/>
                             </td>
                         </xsl:if>
@@ -687,7 +761,7 @@
 
             <xsl:call-template name="SzczegolyPozycji"/>
 
-            <h6 class="font-weight-bold text-right">
+            <h6 class="fw-bold text-end">
                 <xsl:choose>
                     <xsl:when test="tns:Fa/tns:RodzajFaktury = 'VAT' or tns:Fa/tns:RodzajFaktury = 'KOR' or tns:Fa/tns:RodzajFaktury = 'UPR'">
                         <xsl:text>Kwota należności ogółem: </xsl:text>
@@ -724,7 +798,7 @@
 
         <xsl:if test="$NumerUmowy|$GTIN|$PKWiU|$CN|$PKOB|$KwotaAkcyzy|$GTU|$Procedura|$DataDostawy|$Indeks|$StanPrzedZ">
             <table class="table table-sm table-bordered w-auto">
-                <tr class="bg-100 font-weight-bold text-nowrap">
+                <tr class="bg-100 fw-bold text-nowrap">
                     <td>Lp.</td>
 
                     <xsl:if test="$NumerUmowy">
@@ -809,7 +883,7 @@
                         </xsl:if>
 
                         <xsl:if test="$KwotaAkcyzy">
-                            <td class="text-right">
+                            <td class="text-end">
                                 <xsl:choose>
                                     <xsl:when test="../tns:ZamowienieWiersz">
                                         <xsl:value-of select="format-number(number(tns:KwotaAkcyzyZ), '0.00')"/>
@@ -866,10 +940,10 @@
                       select="tns:Fa/tns:P_14_1W|tns:Fa/tns:P_14_2W|tns:Fa/tns:P_14_3W|tns:Fa/tns:P_14_4W"/>
 
         <xsl:if test="$Podatki">
-            <h6 class="font-weight-bold">Podsumowanie stawek podatku</h6>
+            <h6 class="fw-bold">Podsumowanie stawek podatku</h6>
 
             <table class="table table-sm table-bordered" style="table-layout: auto;">
-                <tr class="bg-100 font-weight-bold text-nowrap">
+                <tr class="bg-100 fw-bold text-nowrap">
                     <td>Lp.</td>
                     <td>Stawka podatku</td>
                     <td>Kwota netto</td>
@@ -921,11 +995,11 @@
                             </xsl:choose>
                         </td>
 
-                        <td class="text-right">
+                        <td class="text-end">
                             <xsl:value-of select="format-number(number(.), '0.00')"/>
                         </td>
 
-                        <td class="text-right">
+                        <td class="text-end">
                             <xsl:choose>
                                 <xsl:when test="self::tns:P_13_1">
                                     <xsl:value-of select="format-number(number(../tns:P_14_1), '0.00')"/>
@@ -933,6 +1007,10 @@
 
                                 <xsl:when test="self::tns:P_13_2">
                                     <xsl:value-of select="format-number(number(../tns:P_14_2), '0.00')"/>
+                                </xsl:when>
+
+                                <xsl:when test="self::tns:P_13_3">
+                                    <xsl:value-of select="format-number(number(../tns:P_14_3), '0.00')"/>
                                 </xsl:when>
 
                                 <xsl:when test="self::tns:P_13_5">
@@ -945,7 +1023,7 @@
                             </xsl:choose>
                         </td>
 
-                        <td class="text-right">
+                        <td class="text-end">
                             <xsl:choose>
                                 <xsl:when test="self::tns:P_13_1">
                                     <xsl:value-of
@@ -962,6 +1040,11 @@
                                             select="format-number(number(../tns:P_13_3) + number(../tns:P_14_3), '0.00')"/>
                                 </xsl:when>
 
+                                <xsl:when test="self::tns:P_13_4">
+                                    <xsl:value-of
+                                            select="format-number(number(../tns:P_13_4) + number(../tns:P_14_4), '0.00')"/>
+                                </xsl:when>
+
                                 <xsl:when test="self::tns:P_13_5">
                                     <xsl:value-of
                                             select="format-number(number(../tns:P_13_5) + number(../tns:P_14_5), '0.00')"/>
@@ -974,7 +1057,7 @@
                         </td>
 
                         <xsl:if test="$PodatekPln">
-                            <td class="text-right">
+                            <td class="text-end">
                                 <xsl:value-of select="format-number(number(../tns:P_14_1W), '0.00')"/>
                             </td>
                         </xsl:if>
@@ -986,7 +1069,7 @@
 
     <xsl:template name="Adnotacje">
         <xsl:if test="(tns:Fa/tns:Adnotacje/*[not(*)]|tns:Fa/tns:Adnotacje/tns:Zwolnienie/tns:P_19|tns:Fa/tns:Adnotacje/tns:PMarzy/tns:P_PMarzy) = '1'">
-            <h6 class="font-weight-bold">Adnotacje</h6>
+            <h6 class="fw-bold">Adnotacje</h6>
             <div class="row">
                 <div class="col-6">
                     <xsl:if test="tns:Fa/tns:Adnotacje/tns:Zwolnienie/tns:P_19 = '1'">
@@ -1077,7 +1160,7 @@
                     </xsl:if>
                 </div>
 
-                <div class="col-6">
+                <div class="col-6 ps-3">
                     <xsl:if test="tns:Fa/tns:Adnotacje/tns:Zwolnienie/tns:P_19">
                         <p class="mb-0">
                             <strong>Podstawa zwolnienia od podatku: </strong>
@@ -1114,7 +1197,7 @@
     <xsl:template name="DodatkowyOpis">
         <xsl:if test="tns:Fa/tns:DodatkowyOpis|tns:Fa[tns:TP|tns:FP|tns:ZwrotAkcyzy]">
             <hr/>
-            <h6 class="font-weight-bold">Dodatkowe informacje</h6>
+            <h6 class="fw-bold">Dodatkowe informacje</h6>
 
             <xsl:if test="(tns:Fa/tns:TP|tns:Fa/tns:FP|tns:Fa/tns:ZwrotAkcyzy) = '1'">
                 <div class="mb-2">
@@ -1139,10 +1222,10 @@
 
             <xsl:if test="tns:Fa/tns:DodatkowyOpis">
                 <xsl:variable name="NumerWiersza" select="tns:Fa/tns:DodatkowyOpis[tns:NrWiersza]"/>
-                <p class="mb-0 font-weight-bold">Dodatkowy opis</p>
+                <p class="mb-0 fw-bold">Dodatkowy opis</p>
 
                 <table class="table table-sm table-bordered" style="table-layout: auto;">
-                    <tr class="bg-100 font-weight-bold text-nowrap">
+                    <tr class="bg-100 fw-bold text-nowrap">
                         <td>Lp.</td>
 
                         <xsl:if test="$NumerWiersza">
@@ -1184,13 +1267,13 @@
     <xsl:template name="Rozliczenie">
         <xsl:if test="tns:Fa/tns:Rozliczenie/tns:Obciazenia|tns:Fa/tns:Rozliczenie/tns:Odliczenia">
             <hr/>
-            <h6 class="font-weight-bold">Rozliczenie</h6>
+            <h6 class="fw-bold">Rozliczenie</h6>
             <div class="row">
                 <div class="col-6">
                     <xsl:if test="tns:Fa/tns:Rozliczenie/tns:Obciazenia">
                         <strong>Obciążenia</strong>
                         <table class="table table-sm table-bordered">
-                            <tr class="bg-100 font-weight-bold text-nowrap">
+                            <tr class="bg-100 fw-bold text-nowrap">
                                 <td>Powód obciązenia</td>
                                 <td>Kwota obciązenia</td>
                             </tr>
@@ -1201,7 +1284,7 @@
                                         <xsl:value-of select="tns:Powod"/>
                                     </td>
 
-                                    <td class="text-right">
+                                    <td class="text-end">
                                         <xsl:value-of select="format-number(number(tns:Kwota), '0.00')"/>
                                     </td>
                                 </tr>
@@ -1209,7 +1292,7 @@
                         </table>
 
                         <xsl:if test="tns:Fa/tns:Rozliczenie/tns:SumaObciazen">
-                            <p class="text-right">
+                            <p class="text-end">
                                 <strong>Suma kwot obciążenia: </strong>
                                 <xsl:value-of select="format-number(number(tns:Fa/tns:Rozliczenie/tns:SumaObciazen), '0.00')"/>
                             </p>
@@ -1217,11 +1300,11 @@
                     </xsl:if>
                 </div>
 
-                <div class="col-6">
+                <div class="col-6 ps-3">
                     <xsl:if test="tns:Fa/tns:Rozliczenie/tns:Odliczenia">
                         <strong>Odliczenia</strong>
                         <table class="table table-sm table-bordered">
-                            <tr class="bg-100 font-weight-bold text-nowrap">
+                            <tr class="bg-100 fw-bold text-nowrap">
                                 <td>Powód odliczenia</td>
                                 <td>Kwota odliczenia</td>
                             </tr>
@@ -1232,7 +1315,7 @@
                                         <xsl:value-of select="tns:Powod"/>
                                     </td>
 
-                                    <td class="text-right">
+                                    <td class="text-end">
                                         <xsl:value-of select="format-number(number(tns:Kwota), '0.00')"/>
                                     </td>
                                 </tr>
@@ -1240,7 +1323,7 @@
                         </table>
 
                         <xsl:if test="tns:Fa/tns:Rozliczenie/tns:SumaOdliczen">
-                            <p class="text-right">
+                            <p class="text-end">
                                 <strong>Suma kwot odliczenia: </strong>
                                 <xsl:value-of
                                         select="format-number(number(tns:Fa/tns:Rozliczenie/tns:SumaOdliczen), '0.00')"/>
@@ -1250,7 +1333,7 @@
                 </div>
             </div>
 
-            <h6 class="font-weight-bold text-right" style="color: #434A50;">
+            <h6 class="fw-bold text-end" style="color: #434A50;">
                 <xsl:if test="tns:Fa/tns:Rozliczenie/tns:DoZaplaty">
                     Do zapłaty:
                     <xsl:value-of select="format-number(number(tns:Fa/tns:Rozliczenie/tns:DoZaplaty), '0.00')"/>
@@ -1270,7 +1353,7 @@
     <xsl:template name="Platnosc">
         <xsl:for-each select="tns:Fa/tns:Platnosc">
             <hr/>
-            <h6 class="font-weight-bold">Płatność</h6>
+            <h6 class="fw-bold">Płatność</h6>
             <strong>Informacja o płatności: </strong>
 
             <xsl:choose>
@@ -1326,7 +1409,18 @@
 
             <xsl:if test="tns:OpisPlatnosci">
                 <p class="mb-0">
-                    <strong>Opis płatności: </strong>
+                    <strong>
+                        <xsl:choose>
+                            <xsl:when test="tns:PlatnoscInna = '1'">
+                                <xsl:text>Opis płatności innej: </xsl:text>
+                            </xsl:when>
+
+                            <xsl:otherwise>
+                                <xsl:text>Opis płatności: </xsl:text>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </strong>
+
                     <xsl:value-of select="tns:OpisPlatnosci"/>
                 </p>
             </xsl:if>
@@ -1347,11 +1441,11 @@
                 </p>
             </xsl:if>
 
-            <div class="row">
+            <div class="row mb-3">
                 <div class="col-6">
                     <xsl:if test="tns:ZaplataCzesciowa">
                         <table class="table table-sm table-bordered mt-3">
-                            <tr class="bg-100 font-weight-bold">
+                            <tr class="bg-100 fw-bold">
                                 <td>Data zapłaty częściowej</td>
                                 <td>Kwota zapłaty częściowej</td>
                                 <td>Forma płatności</td>
@@ -1363,7 +1457,7 @@
                                         <xsl:value-of select="tns:DataZaplatyCzesciowej"/>
                                     </td>
 
-                                    <td class="text-right">
+                                    <td class="text-end">
                                         <xsl:value-of
                                                 select="format-number(number(tns:KwotaZaplatyCzesciowej), '0.00')"/>
                                     </td>
@@ -1377,10 +1471,10 @@
                     </xsl:if>
                 </div>
 
-                <div class="col-6">
+                <div class="col-6 ps-3">
                     <xsl:if test="tns:TerminPlatnosci">
                         <table class="table table-sm table-bordered mt-3">
-                            <tr class="bg-100 font-weight-bold text-nowrap">
+                            <tr class="bg-100 fw-bold text-nowrap">
                                 <td>Termin płatności</td>
                                 <xsl:if test="tns:TerminPlatnosci/tns:TerminOpis">
                                     <td>Opis płatności</td>
@@ -1409,14 +1503,14 @@
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row mb-3">
                 <div class="col-6">
                     <xsl:if test="tns:RachunekBankowy">
-                        <h6 class="font-weight-bold">Numer rachunku bankowego</h6>
+                        <h6 class="fw-bold">Numer rachunku bankowego</h6>
                         <table class="table table-sm table-bordered">
                             <xsl:for-each select="tns:RachunekBankowy">
                                 <tr>
-                                    <td class="bg-100 font-weight-bold text-nowrap">Pełny numer rachunku</td>
+                                    <td class="bg-100 fw-bold text-nowrap">Pełny numer rachunku</td>
                                     <td>
                                         <xsl:value-of select="tns:NrRB"/>
                                     </td>
@@ -1424,7 +1518,7 @@
 
                                 <xsl:if test="tns:SWIFT">
                                     <tr>
-                                        <td class="bg-100 font-weight-bold text-nowrap">Kod SWIFT</td>
+                                        <td class="bg-100 fw-bold text-nowrap">Kod SWIFT</td>
                                         <td>
                                             <xsl:value-of select="tns:SWIFT"/>
                                         </td>
@@ -1432,7 +1526,7 @@
                                 </xsl:if>
 
                                 <tr>
-                                    <td class="bg-100 font-weight-bold text-nowrap">Rachunek własny banku</td>
+                                    <td class="bg-100 fw-bold text-nowrap">Rachunek własny banku</td>
                                     <td>
                                         <xsl:choose>
                                             <xsl:when test="tns:RachunekWlasnyBanku = '1'">
@@ -1464,14 +1558,14 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="bg-100 font-weight-bold text-nowrap">Nazwa banku</td>
+                                    <td class="bg-100 fw-bold text-nowrap">Nazwa banku</td>
                                     <td>
                                         <xsl:value-of select="tns:NazwaBanku"/>
                                     </td>
                                 </tr>
 
                                 <tr>
-                                    <td class="bg-100 font-weight-bold text-nowrap">Opis rachunku</td>
+                                    <td class="bg-100 fw-bold text-nowrap">Opis rachunku</td>
                                     <td>
                                         <xsl:value-of select="tns:OpisRachunku"/>
                                     </td>
@@ -1481,14 +1575,14 @@
                     </xsl:if>
                 </div>
 
-                <div class="col-6">
+                <div class="col-6 ps-3">
                     <xsl:if test="tns:RachunekBankowyFaktora">
-                        <h6 class="font-weight-bold">Numer rachunku bankowego faktora</h6>
+                        <h6 class="fw-bold">Numer rachunku bankowego faktora</h6>
 
                         <table class="table table-sm table-bordered">
                             <xsl:for-each select="tns:RachunekBankowyFaktora">
                                 <tr>
-                                    <td class="bg-100 font-weight-bold text-nowrap">Pełny numer rachunku</td>
+                                    <td class="bg-100 fw-bold text-nowrap">Pełny numer rachunku</td>
                                     <td>
                                         <xsl:value-of select="tns:NrRB"/>
                                     </td>
@@ -1496,7 +1590,7 @@
 
                                 <xsl:if test="tns:SWIFT">
                                     <tr>
-                                        <td class="bg-100 font-weight-bold text-nowrap">Kod SWIFT</td>
+                                        <td class="bg-100 fw-bold text-nowrap">Kod SWIFT</td>
                                         <td>
                                             <xsl:value-of select="tns:SWIFT"/>
                                         </td>
@@ -1504,7 +1598,7 @@
                                 </xsl:if>
 
                                 <tr>
-                                    <td class="bg-100 font-weight-bold text-nowrap">Rachunek własny banku</td>
+                                    <td class="bg-100 fw-bold text-nowrap">Rachunek własny banku</td>
                                     <td>
                                         <xsl:choose>
                                             <xsl:when test="tns:RachunekWlasnyBanku = '1'">
@@ -1537,14 +1631,14 @@
                                 </tr>
 
                                 <tr>
-                                    <td class="bg-100 font-weight-bold text-nowrap">Nazwa banku</td>
+                                    <td class="bg-100 fw-bold text-nowrap">Nazwa banku</td>
                                     <td>
                                         <xsl:value-of select="tns:NazwaBanku"/>
                                     </td>
                                 </tr>
 
                                 <tr>
-                                    <td class="bg-100 font-weight-bold text-nowrap">Opis rachunku</td>
+                                    <td class="bg-100 fw-bold text-nowrap">Opis rachunku</td>
                                     <td>
                                         <xsl:value-of select="tns:OpisRachunku"/>
                                     </td>
@@ -1556,25 +1650,27 @@
             </div>
 
             <xsl:if test="tns:Skonto">
-                <h6 class="font-weight-bold">Skonto</h6>
+                <div class="mb-3">
+                    <h6 class="fw-bold">Skonto</h6>
 
-                <xsl:if test="tns:Skonto/tns:WarunkiSkonta">
-                    <p class="mb-0">
-                        <strong>
-                            <xsl:text>Warunki skonta: </xsl:text>
-                        </strong>
-                        <xsl:value-of select="tns:Skonto/tns:WarunkiSkonta"/>
-                    </p>
-                </xsl:if>
+                    <xsl:if test="tns:Skonto/tns:WarunkiSkonta">
+                        <p class="mb-0">
+                            <strong>
+                                <xsl:text>Warunki skonta: </xsl:text>
+                            </strong>
+                            <xsl:value-of select="tns:Skonto/tns:WarunkiSkonta"/>
+                        </p>
+                    </xsl:if>
 
-                <xsl:if test="tns:Skonto/tns:WysokoscSkonta">
-                    <p class="mb-0">
-                        <strong>
-                            <xsl:text>Wysokość skonta: </xsl:text>
-                        </strong>
-                        <xsl:value-of select="tns:Skonto/tns:WysokoscSkonta"/>
-                    </p>
-                </xsl:if>
+                    <xsl:if test="tns:Skonto/tns:WysokoscSkonta">
+                        <p class="mb-0">
+                            <strong>
+                                <xsl:text>Wysokość skonta: </xsl:text>
+                            </strong>
+                            <xsl:value-of select="tns:Skonto/tns:WysokoscSkonta"/>
+                        </p>
+                    </xsl:if>
+                </div>
             </xsl:if>
         </xsl:for-each>
     </xsl:template>
@@ -1582,7 +1678,7 @@
     <xsl:template name="WarunkiTransakcji">
         <xsl:if test="tns:Fa/tns:WarunkiTransakcji">
             <hr/>
-            <h6 class="font-weight-bold">Warunki transakcji</h6>
+            <h6 class="fw-bold">Warunki transakcji</h6>
             <div class="row">
                 <div class="col-6">
                     <xsl:if test="tns:Fa/tns:WarunkiTransakcji/tns:Umowy">
@@ -1591,7 +1687,7 @@
 
                         <strong>Umowa</strong>
                         <table class="table table-sm table-bordered">
-                            <tr class="bg-100 font-weight-bold text-nowrap">
+                            <tr class="bg-100 fw-bold text-nowrap">
                                 <xsl:if test="$DataUmowy">
                                     <td>Data umowy</td>
                                 </xsl:if>
@@ -1615,14 +1711,14 @@
                     </xsl:if>
                 </div>
 
-                <div class="col-6">
+                <div class="col-6 ps-3">
                     <xsl:if test="tns:Fa/tns:WarunkiTransakcji/tns:Zamowienia">
                         <xsl:variable name="DataZamowienia"
                                       select="boolean(tns:Fa/tns:WarunkiTransakcji/tns:Zamowienia/tns:DataZamowienia)"/>
                         <strong>Zamówienie</strong>
 
                         <table class="table table-sm table-bordered">
-                            <tr class="bg-100 font-weight-bold text-nowrap">
+                            <tr class="bg-100 fw-bold text-nowrap">
                                 <xsl:if test="$DataZamowienia">
                                     <td>Data zamówienia</td>
                                 </xsl:if>
@@ -1650,7 +1746,7 @@
 
             <xsl:if test="tns:Fa/tns:WarunkiTransakcji/tns:WarunkiDostawy">
                 <xsl:if test="tns:Fa/tns:WarunkiTransakcji/tns:KursUmowny">
-                    <h6 class="font-weight-bold">Waluta umowna i kurs umowny</h6>
+                    <h6 class="fw-bold mt-3">Waluta umowna i kurs umowny</h6>
 
                     <p class="mb-0">
                         <strong>
@@ -1678,11 +1774,19 @@
                         <xsl:with-param name="text" select="tns:Fa/tns:WarunkiTransakcji/tns:WarunkiDostawy"/>
                     </xsl:call-template>
                 </p>
+
+                <xsl:if test="tns:Fa/tns:WarunkiTransakcji/tns:PodmiotPosredniczacy = '1'">
+                     <p class="mb-0 fw-bold">
+                         Dostawa dokonana przez podmiot, o którym mowa w art. 22 ust. 2d ustawy. Pole dotyczy sytuacji,
+                         w której podmiot uczestniczy w transakcji łańcuchowej innej niż procedura trójstronna
+                         uproszczona, o której mowa w art. 135 ust. 1 pkt 4 ustawy
+                     </p>
+                </xsl:if>
             </xsl:if>
             <hr/>
 
             <xsl:for-each select="tns:Fa/tns:WarunkiTransakcji/tns:Transport">
-                <h6 class="font-weight-bold">Transport
+                <h6 class="fw-bold">Transport
                     <xsl:number/>
                 </h6>
 
@@ -1740,7 +1844,7 @@
                         </xsl:if>
                     </div>
 
-                    <div class="col-6">
+                    <div class="col-6 ps-3">
                         <p class="mb-0">
                             <strong>Dane transportu</strong>
                         </p>
@@ -1878,13 +1982,13 @@
                 </div>
 
                 <xsl:if test="tns:Przewoznik">
-                    <h6 class="font-weight-bold mt-3">Przewoźnik</h6>
+                    <h6 class="fw-bold mt-3">Przewoźnik</h6>
                     <div class="row">
                         <div class="col-6">
                             <xsl:apply-templates select="tns:Przewoznik"/>
                         </div>
 
-                        <div class="col-6">
+                        <div class="col-6 ps-3">
                             <xsl:if test="tns:Przewoznik/tns:AdresPrzewoznika">
                                 <p class="mb-0">
                                     <strong>Adres przewoźnika</strong>
@@ -1897,7 +2001,7 @@
                 </xsl:if>
 
                 <xsl:if test="tns:WysylkaZ|tns:WysylkaPrzez|tns:WysylkaDo">
-                    <h6 class="font-weight-bold mt-3">Wysyłka</h6>
+                    <h6 class="fw-bold mt-3">Wysyłka</h6>
                     <div class="row">
                         <div class="col-6">
                             <xsl:if test="tns:WysylkaZ">
@@ -1917,7 +2021,7 @@
                             </xsl:if>
                         </div>
 
-                        <div class="col-6">
+                        <div class="col-6 ps-3">
                             <xsl:if test="tns:WysylkaDo">
                                 <p class="mb-0">
                                     <strong>Adres miejsca docelowego, do którego został zlecony transport</strong>
@@ -1935,10 +2039,10 @@
     <xsl:template name="WZ">
         <xsl:if test="tns:Fa/tns:WZ">
             <hr/>
-            <h6 class="font-weight-bold">Numery dokumentów magazynowych WZ</h6>
+            <h6 class="fw-bold">Numery dokumentów magazynowych WZ</h6>
             <table class="table table-sm table-bordered w-50">
                 <tr>
-                    <td class="bg-100 font-weight-bold text-nowrap">Numer WZ</td>
+                    <td class="bg-100 fw-bold text-nowrap">Numer WZ</td>
                 </tr>
 
                 <xsl:for-each select="tns:Fa/tns:WZ">
@@ -1961,9 +2065,9 @@
                 <xsl:variable name="Regon" select="boolean(tns:Stopka/tns:Rejestry/tns:REGON)"/>
                 <xsl:variable name="Bdo" select="boolean(tns:Stopka/tns:Rejestry/tns:BDO)"/>
 
-                <h6 class="font-weight-bold">Rejestry</h6>
+                <h6 class="fw-bold">Rejestry</h6>
                 <table class="table table-sm table-bordered">
-                    <tr class="bg-100 font-weight-bold text-nowrap">
+                    <tr class="bg-100 fw-bold text-nowrap">
                         <xsl:if test="$PelnaNazwa">
                             <td>Pełna nazwa</td>
                         </xsl:if>
@@ -2012,9 +2116,9 @@
             </xsl:if>
 
             <xsl:if test="tns:Stopka/tns:Informacje/tns:StopkaFaktury">
-                <h6 class="font-weight-bold">Pozostałe informacje</h6>
+                <h6 class="fw-bold">Pozostałe informacje</h6>
                 <table class="table table-sm table-bordered">
-                    <tr class="bg-100 font-weight-bold text-nowrap">
+                    <tr class="bg-100 fw-bold text-nowrap">
                         <td>Stopka faktury</td>
                     </tr>
 

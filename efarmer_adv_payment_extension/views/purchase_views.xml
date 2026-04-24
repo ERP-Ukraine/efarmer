@@ -19,7 +19,7 @@
             <field name="inherit_id" ref="purchase.purchase_order_form"/>
             <field name="arch" type="xml">
                 <field name="date_order" position="before">
-                    <field name="pay_deadline_date" attrs="{'required': [('state', 'not in', ('draft','sent'))]}"/>
+                    <field name="pay_deadline_date" required="state not in ('draft', 'sent')"/>
                 </field>
             </field>
         </record>
@@ -31,10 +31,10 @@
             <field name="arch" type="xml">
                 <field name="user_id" position="after">
                     <field name="pay_deadline_date"
-                           optional="show"
-                           decoration-danger="pay_deadline_date &lt; context_today().strftime('%Y-%m-%d')"
-                           decoration-warning="pay_deadline_date &gt;= context_today().strftime('%Y-%m-%d') and pay_deadline_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')"
-                           attrs="{'invisible': ['|', '|', ('amount_residual', '&lt;=', 0), ('state', '=', 'done'), ('state', '=', 'cancel')]}"
+                        optional="show"
+                        decoration-danger="pay_deadline_date &lt; context_today().strftime('%Y-%m-%d')"
+                        decoration-warning="pay_deadline_date &gt;= context_today().strftime('%Y-%m-%d') and pay_deadline_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')"
+                        invisible="amount_residual &lt;= 0 or state == 'done' or state == 'cancel'"
                     />
                 </field>
             </field>
@@ -47,14 +47,14 @@
             <field name="arch" type="xml">
                 <field name="user_id" position="after">
                     <field name="pay_deadline_date"
-                           optional="show"
-                           decoration-danger="pay_deadline_date &lt; context_today().strftime('%Y-%m-%d')"
-                           decoration-warning="pay_deadline_date &gt;= context_today().strftime('%Y-%m-%d') and pay_deadline_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')"
-                           attrs="{'invisible': ['|', '|', ('amount_residual', '&lt;=', 0), ('state', '=', 'done'), ('state', '=', 'cancel')]}"
+                        optional="show"
+                        decoration-danger="pay_deadline_date &lt; context_today().strftime('%Y-%m-%d')"
+                        decoration-warning="pay_deadline_date &gt;= context_today().strftime('%Y-%m-%d') and pay_deadline_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')"
+                        invisible="amount_residual &lt;= 0 or state == 'done' or state == 'cancel'"
                     />
                 </field>
             </field>
         </record>
-    
+
     </data>
 </odoo>

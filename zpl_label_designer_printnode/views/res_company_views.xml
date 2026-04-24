@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_company_form" model="ir.ui.view">
+            <field name="name">Settings</field>
+            <field name="model">res.company</field>
+            <field name="priority" eval="40" />
+            <field name="inherit_id" ref="printnode_base.view_company_form" />
+            <field name="arch" type="xml">
+            <xpath expr="//group[@name='product_labels_settings']" position="after">
+                <group invisible="print_labels_format != 'zld_label'">
+                    <field name="print_product_zld_label_id"
+                            class="oe_inline mt-2"
+                            options="{'no_create': True, 'no_edit': True, 'no_open': True}"
+                            required="print_labels_format == 'zld_label'" />
+                    <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                    <p class="mb-0 mt-0">
+                        <small>
+                            This product label will be used in scenarios where you need to print a label for a product.
+                            Note that you can use only Product Variant (product.product) labels.
+                        </small>
+                    </p>
+                </group>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

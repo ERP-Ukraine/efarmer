@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 15.0+e\n"
+"Project-Id-Version: Odoo Server 18.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-11 18:12+0000\n"
-"PO-Revision-Date: 2024-07-11 18:12+0000\n"
+"POT-Creation-Date: 2026-04-16 11:11+0000\n"
+"PO-Revision-Date: 2026-04-16 11:11+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,36 +16,85 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: trilab_invoice
-#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
-msgid "&amp;bull;&amp;nbsp;BIC/SWIFT:"
-msgstr ""
-
-#. module: trilab_invoice
-#: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
-msgid ""
-"<span class=\"fa fa-lg fa-building-o\" title=\"Values set here are company-"
-"specific.\" groups=\"base.group_multi_company\"/>"
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/invoice.py:0
+msgid "%s has been created"
 msgstr ""
 
 #. module: trilab_invoice
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
-msgid ""
-"<span groups=\"account.group_show_line_subtotals_tax_excluded\">NET Amount</span>\n"
-"                <span groups=\"account.group_show_line_subtotals_tax_included\">GROSS Amount</span>"
+msgid "&amp;bull;&amp;nbsp;"
 msgstr ""
 
 #. module: trilab_invoice
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
-msgid ""
-"<span groups=\"account.group_show_line_subtotals_tax_excluded\">NET Amount</span>\n"
-"              <span groups=\"account.group_show_line_subtotals_tax_included\">GROSS Amount</span>"
+msgid "&amp;bull;&amp;nbsp;BIC/SWIFT:&amp;nbsp;"
 msgstr ""
 
 #. module: trilab_invoice
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
 msgid ""
-"<span groups=\"account.group_show_line_subtotals_tax_excluded\">NET Amount</span>\n"
-"        <span groups=\"account.group_show_line_subtotals_tax_included\">GROSS Amount</span>"
+".\n"
+"                Currency:"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.document_tax_totals
+msgid "1.05"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "11.05"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "20.00"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "2021-09-19"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_saleorder_document_inherit
+msgid "<br/>&amp;bull;&amp;nbsp;BIC/SWIFT:"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_invoice_wizard
+msgid ""
+"<span invisible=\"not display_invoice_amount_warning\" class=\"oe_inline text-danger\">\n"
+"                        <i class=\"fa fa-warning\"/>\n"
+"                        The Down Payment total amount is greater than the amount remaining to be invoiced\n"
+"                    </span>"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "<span> = </span>"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "<span>&amp;nbsp;</span>"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "<span>1 </span>"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Amount</span>"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_invoice_wizard
+msgid "<span>Convert to</span>"
 msgstr ""
 
 #. module: trilab_invoice
@@ -95,12 +144,22 @@ msgstr ""
 
 #. module: trilab_invoice
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Tax Amount</span>"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
 msgid "<span>Taxes</span>"
 msgstr ""
 
 #. module: trilab_invoice
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
 msgid "<span>Unit Price NET</span>"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<span>Unit price NET<br/>after disc.</span>"
 msgstr ""
 
 #. module: trilab_invoice
@@ -115,17 +174,22 @@ msgstr ""
 
 #. module: trilab_invoice
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
-msgid "<strong class=\"mt-4\">Sale Order Summary:</strong>"
-msgstr ""
-
-#. module: trilab_invoice
-#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
 msgid "<strong class=\"mt-4\">Total after taking into account advances:</strong>"
 msgstr ""
 
 #. module: trilab_invoice
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
 msgid "<strong>Advance Invoice Summary / Amount To Pay:</strong>"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<strong>Connected Final Invoices:</strong>"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "<strong>Corrected invoice date:</strong>"
 msgstr ""
 
 #. module: trilab_invoice
@@ -139,20 +203,25 @@ msgid "<strong>Correction reason:</strong>"
 msgstr ""
 
 #. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.document_tax_totals
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
-#: model_terms:ir.ui.view,arch_db:trilab_invoice.tax_summary
 msgid "<strong>GROSS Amount</strong>"
 msgstr ""
 
 #. module: trilab_invoice
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
-#: model_terms:ir.ui.view,arch_db:trilab_invoice.tax_summary
+msgid "<strong>Invoice Correction Date:</strong>"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.document_tax_totals
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
 msgid "<strong>NET Amount</strong>"
 msgstr ""
 
 #. module: trilab_invoice
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
-msgid "<strong>Original invoice date:</strong>"
+msgid "<strong>Previous corrections:</strong>"
 msgstr ""
 
 #. module: trilab_invoice
@@ -173,27 +242,25 @@ msgid "<strong>Shipping Address:</strong>"
 msgstr ""
 
 #. module: trilab_invoice
-#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
-#: model_terms:ir.ui.view,arch_db:trilab_invoice.tax_summary
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.document_tax_totals
 msgid "<strong>Total</strong>"
 msgstr ""
 
 #. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.document_tax_totals
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
-#: model_terms:ir.ui.view,arch_db:trilab_invoice.tax_summary
-msgid "<strong>VAT Amount in PLN</strong>"
-msgstr ""
-
-#. module: trilab_invoice
-#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
-#: model_terms:ir.ui.view,arch_db:trilab_invoice.tax_summary
 msgid "<strong>VAT Amount</strong>"
 msgstr ""
 
 #. module: trilab_invoice
-#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
-#: model_terms:ir.ui.view,arch_db:trilab_invoice.tax_summary
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.document_tax_totals
 msgid "<strong>VAT Rate</strong>"
+msgstr ""
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+msgid "A line of this move is using a deprecated account, you cannot post it."
 msgstr ""
 
 #. module: trilab_invoice
@@ -202,7 +269,7 @@ msgid "Account Move Reversal"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_partner_bank_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__partner_bank_id
 msgid "Account Number"
 msgstr ""
 
@@ -227,66 +294,74 @@ msgid "Add a section"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields.selection,name:trilab_invoice.selection__sale_advance_payment_inv__advance_payment_method_2__advance
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#: model:ir.model.fields.selection,name:trilab_invoice.selection__trilab_invoice_wizard__invoice_type__advance
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
 msgid "Advance Invoice"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__advance_invoices_ids
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__advance_invoices_ids
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__advance_invoices_ids
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_order__advance_invoices
-msgid "Advance Invoices"
-msgstr ""
-
-#. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__advance_lines
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__advance_line_ids
 msgid "Advance Lines"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__advance_source_id
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__advance_source_id
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__advance_source_id
-msgid "Advance Source"
-msgstr ""
-
-#. module: trilab_invoice
-#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
-#, python-format
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/invoice.py:0
 msgid "Advance line value is bigger than order value"
 msgstr ""
 
 #. module: trilab_invoice
-#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
-#, python-format
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/invoice.py:0
 msgid "Advance line value must be positive"
 msgstr ""
 
 #. module: trilab_invoice
-#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
-#, python-format
-msgid "Advance payment"
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_invoice_wizard
+msgid "Advance lines"
 msgstr ""
 
 #. module: trilab_invoice
-#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
-#, python-format
-msgid "Advance payment [%s]"
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__allowed_partner_bank_ids
+msgid "Allowed Partner Bank"
 msgstr ""
 
 #. module: trilab_invoice
-#: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
-msgid ""
-"An invoice cannot be modified if it is associated with corrections.\n"
-"Delete corrections or create a new correction to an existing correction"
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__amount_invoiced
+msgid "Already invoiced"
 msgstr ""
 
 #. module: trilab_invoice
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
-msgid "Bank Account Number:"
+msgid "Amount Due"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard_line__amount_total
+msgid "Amount [GROSS]"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard_line__amount
+msgid "Amount [NET]"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__amount_to_invoice
+msgid "Amount to invoice"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_saleorder_document_inherit
+msgid "Bank Account Number:<br/>"
+msgstr ""
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+msgid "Bank settings"
 msgstr ""
 
 #. module: trilab_invoice
@@ -295,25 +370,34 @@ msgid "Buyer:"
 msgstr ""
 
 #. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_invoice_wizard
+msgid "Cancel"
+msgstr ""
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
 msgid "Cancelled Advance Invoice"
 msgstr ""
 
 #. module: trilab_invoice
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Cancelled Correction Invoice"
+msgstr ""
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
 msgid "Cancelled Final Invoice"
 msgstr ""
 
 #. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
 msgid "Cancelled Invoice"
-msgstr ""
-
-#. module: trilab_invoice
-#: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
-msgid ""
-"Change currency rate for invoices in foreign currencies according to sale "
-"date."
 msgstr ""
 
 #. module: trilab_invoice
@@ -327,18 +411,41 @@ msgid "Companies"
 msgstr ""
 
 #. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__company_id
+msgid "Company"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__company_currency_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard_line__company_currency_id
+msgid "Company Currency"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_order__x_company_partner_bank_id
+msgid "Company Partner Bank"
+msgstr ""
+
+#. module: trilab_invoice
 #: model:ir.model,name:trilab_invoice.model_res_config_settings
 msgid "Config Settings"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_convert_rate
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__consolidated_billing
+msgid "Consolidated Billing"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__convert_rate_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard_line__convert_rate_id
 msgid "Convert Rate"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_convert_to_pln
-msgid "Convert To PLN"
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__convert_to_local
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard_line__convert_to_local
+msgid "Convert To Local Currency"
 msgstr ""
 
 #. module: trilab_invoice
@@ -347,22 +454,9 @@ msgid "Corrected Invoice"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__corrected_invoice_line_ids
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__corrected_invoice_line_ids
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__corrected_invoice_line_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_corrected_invoice_line_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_corrected_invoice_line_ids
 msgid "Corrected Invoice lines"
-msgstr ""
-
-#. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__corrected_line
-msgid "Corrected Line"
-msgstr ""
-
-#. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_corrected_tax_totals_json
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_corrected_tax_totals_json
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_corrected_tax_totals_json
-msgid "Corrected Tax amount summary"
 msgstr ""
 
 #. module: trilab_invoice
@@ -371,25 +465,22 @@ msgid "Corrected invoice number"
 msgstr ""
 
 #. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
 msgid "Correction Invoice"
 msgstr ""
 
 #. module: trilab_invoice
+#. odoo-python
 #: code:addons/trilab_invoice/models/account_move.py:0
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__correction_invoices_ids
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__correction_invoices_ids
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__correction_invoices_ids
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
-#, python-format
 msgid "Correction Invoices"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__correction_invoices_len
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__correction_invoices_len
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__correction_invoices_len
-msgid "Correction Invoices Len"
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_invoice_wizard
+msgid "Create Draft Invoice"
 msgstr ""
 
 #. module: trilab_invoice
@@ -398,44 +489,69 @@ msgid "Create Invoice PL"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.actions.act_window,name:trilab_invoice.action_view_sale_advance_payment_inv_pl
+#: model:ir.actions.act_window,name:trilab_invoice.action_view_invoice_wizard
 msgid "Create invoices PL"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__create_uid
+#: model:ir.model.fields,help:trilab_invoice.field_trilab_invoice_wizard__consolidated_billing
+msgid ""
+"Create one invoice for all orders related to same customer and same "
+"invoicing address"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__create_uid
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard_line__create_uid
 msgid "Created by"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__create_date
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__create_date
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard_line__create_date
 msgid "Created on"
 msgstr ""
 
 #. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/invoice.py:0
+msgid "Creating single invoice for multiple partners is not supoprted."
+msgstr ""
+
+#. module: trilab_invoice
+#. odoo-python
 #: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
 msgid "Credit Note"
 msgstr ""
 
 #. module: trilab_invoice
+#. odoo-python
 #: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
 msgid "Credit Note PL"
 msgstr ""
 
 #. module: trilab_invoice
 #: model:ir.model,name:trilab_invoice.model_res_currency
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__currency_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__currency_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard_line__currency_id
 msgid "Currency"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model,name:trilab_invoice.model_res_currency_rate
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_currency_rate
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_currency_rate
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_currency_rate
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
 msgid "Currency Rate"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,help:trilab_invoice.field_account_bank_statement_line__x_invoice_currency_rate
+#: model:ir.model.fields,help:trilab_invoice.field_account_move__x_invoice_currency_rate
+msgid "Currency rate from document currency to company currency."
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,help:trilab_invoice.field_res_company__x_sale_down_payment_product_id
+#: model:ir.model.fields,help:trilab_invoice.field_res_config_settings__x_sale_down_payment_product_id
+msgid "Default product used for down payments"
 msgstr ""
 
 #. module: trilab_invoice
@@ -444,29 +560,80 @@ msgid "Description"
 msgstr ""
 
 #. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_res_company__x_no_reverse_moves_reconcile
+#: model:ir.model.fields,field_description:trilab_invoice.field_res_config_settings__x_no_reverse_moves_reconcile
+msgid "Disable Reversed Moves Automatic Reconciliation"
+msgstr ""
+
+#. module: trilab_invoice
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
 msgid "Disc.%"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__display_name
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__display_draft_invoice_warning
+msgid "Display Draft Invoice Warning"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__display_invoice_amount_warning
+msgid "Display Invoice Amount Warning"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__display_name
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard_line__display_name
 msgid "Display Name"
 msgstr ""
 
 #. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/invoice.py:0
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
+msgid "Down Payments"
+msgstr ""
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/invoice.py:0
+msgid "Down payment product is not configured."
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_res_company__x_sale_down_payment_product_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_res_config_settings__x_sale_down_payment_product_id
+msgid "Downpayment Product"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Draft Correction Invoice"
+msgstr ""
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
 msgid "Draft Final Invoice"
 msgstr ""
 
 #. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
 msgid "Draft Invoice"
 msgstr ""
 
 #. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/invoice.py:0
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_invoice_wizard
+msgid "Draft Invoices"
+msgstr ""
+
+#. module: trilab_invoice
 #: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_invoice_duplicate_date
 #: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_invoice_duplicate_date
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_invoice_duplicate_date
 msgid "Duplicate Date"
 msgstr ""
 
@@ -476,24 +643,20 @@ msgid "Duplicate on"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_res_company__x_enable_invoice_rate_change
-#: model:ir.model.fields,field_description:trilab_invoice.field_res_config_settings__x_enable_invoice_rate_change
-msgid "Enable Invoice Rate Change"
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
+msgid "Enable use of Trilab Invoice module for this company"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__final_invoice_ids
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__final_invoice_ids
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__final_invoice_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__date_end_invoice_timesheet
+msgid "End Date"
+msgstr ""
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
 msgid "Final Invoice"
-msgstr ""
-
-#. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__final_source_id
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__final_source_id
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__final_source_id
-msgid "Final Source"
 msgstr ""
 
 #. module: trilab_invoice
@@ -502,13 +665,13 @@ msgid "Force Print"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__has_advances
-msgid "Has Advances"
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__has_down_payments
+msgid "Has down payments"
 msgstr ""
 
 #. module: trilab_invoice
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
-msgid "Hide Invoice lines on the report with zero price."
+msgid "Hide Invoice lines with zero price"
 msgstr ""
 
 #. module: trilab_invoice
@@ -518,8 +681,14 @@ msgid "Hide Zero Price AML on Invoices"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__id
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__id
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard_line__id
 msgid "ID"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "INV/2023/0001"
 msgstr ""
 
 #. module: trilab_invoice
@@ -528,19 +697,15 @@ msgid "In words:"
 msgstr ""
 
 #. module: trilab_invoice
-#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
-#, python-format
-msgid "Invalid advance invoice lines"
-msgstr ""
-
-#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
 msgid "Invoice"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__invoice_lines
-msgid "Invoice Lines"
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__invoice_line_ids
+msgid "Invoice Line"
 msgstr ""
 
 #. module: trilab_invoice
@@ -549,8 +714,23 @@ msgid "Invoice Number"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__advance_payment_method_2
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_invoice_wizard
+msgid "Invoice Sales Order"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__invoice_type
 msgid "Invoice Type"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_trilab_invoice_wizard
+msgid "Invoice Wizard"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_invoice_wizard
+msgid "Invoice lines"
 msgstr ""
 
 #. module: trilab_invoice
@@ -559,26 +739,18 @@ msgid "Invoiced Products:"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_is_convertible
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__invoicing_timesheet_enabled
+msgid "Invoicing Timesheet Enabled"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__is_convertible
 msgid "Is Convertible"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__is_downpayment
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__is_downpayment
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__is_downpayment
-msgid "Is Downpayment"
-msgstr ""
-
-#. module: trilab_invoice
+#. odoo-python
 #: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
-msgid "It is not possible to issue two direct corrections for one correction."
-msgstr ""
-
-#. module: trilab_invoice
-#: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
 msgid "It is not possible to issue two direct corrections for one invoice."
 msgstr ""
 
@@ -598,17 +770,14 @@ msgid "Journal Items"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line____last_update
-msgid "Last Modified on"
-msgstr ""
-
-#. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__write_uid
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__write_uid
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard_line__write_uid
 msgid "Last Updated by"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__write_date
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__write_date
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard_line__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -623,19 +792,25 @@ msgid "Lines Before"
 msgstr ""
 
 #. module: trilab_invoice
-#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
-#, python-format
-msgid "Missing sale order"
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/account_move_reversal.py:0
+msgid "Mixed purchase and sale documents cannot be reversed"
 msgstr ""
 
 #. module: trilab_invoice
-#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
-#, python-format
-msgid "No delivered lines to invoice"
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+msgid "Mixed purchase and sale moves"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields.selection,name:trilab_invoice.selection__sale_advance_payment_inv__advance_payment_method_2__normal
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+msgid "Multiple or missing taxes for lines"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields.selection,name:trilab_invoice.selection__trilab_invoice_wizard__invoice_type__normal
 msgid "Normal Invoice"
 msgstr ""
 
@@ -645,49 +820,55 @@ msgid "Note"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__order_ids
-msgid "Order"
+#: model:ir.model.fields,help:trilab_invoice.field_trilab_invoice_wizard__amount_invoiced
+msgid "Only confirmed down payments are considered."
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__order_line
-msgid "Order Lines"
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+msgid "Only draft invoice can be recalculated!"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_orders_currency_id
-msgid "Orders Currency"
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+msgid "Only one draft invoice can be recalculated!"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__original_invoice_line_ids
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__original_invoice_line_ids
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__original_invoice_line_ids
+#: model:ir.model.fields,help:trilab_invoice.field_trilab_invoice_wizard__date_end_invoice_timesheet
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_invoice_wizard
+msgid ""
+"Only timesheets not yet invoiced (and validated, if applicable) from this "
+"period will be invoiced. If the period is not indicated, all timesheets not "
+"yet invoiced (and validated, if applicable) will be invoiced without "
+"distinction."
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,help:trilab_invoice.field_trilab_invoice_wizard__date_start_invoice_timesheet
+msgid ""
+"Only timesheets not yet invoiced (and validated, if applicable) from this "
+"period will be invoiced. If the period is not indicated, all timesheets not "
+"yet invoiced (and validated, if applicable)will be invoiced without "
+"distinction."
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__sale_order_count
+msgid "Order Count"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_original_invoice_line_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_original_invoice_line_ids
 msgid "Original Invoice Lines"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__original_subtotal
-msgid "Original Subtotal"
-msgstr ""
-
-#. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__original_total
-msgid "Original Total"
-msgstr ""
-
-#. module: trilab_invoice
-#: code:addons/trilab_invoice/models/account_move.py:0
-#: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
-msgid "Outstanding credits"
-msgstr ""
-
-#. module: trilab_invoice
-#: code:addons/trilab_invoice/models/account_move.py:0
-#: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
-msgid "Outstanding debits"
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "PROFORMA"
 msgstr ""
 
 #. module: trilab_invoice
@@ -696,14 +877,14 @@ msgid "Paid on"
 msgstr ""
 
 #. module: trilab_invoice
-#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
-#, python-format
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/invoice.py:0
 msgid "Percent Value cannot be greater than 100%"
 msgstr ""
 
 #. module: trilab_invoice
-#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
-#, python-format
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/invoice.py:0
 msgid "Percent Value must be positive"
 msgstr ""
 
@@ -713,8 +894,15 @@ msgid "Price"
 msgstr ""
 
 #. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
 msgid "Pro Forma Invoice"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
+msgid "Product used for down payments"
 msgstr ""
 
 #. module: trilab_invoice
@@ -723,10 +911,8 @@ msgid "Quantity"
 msgstr ""
 
 #. module: trilab_invoice
-#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
-#: code:addons/trilab_invoice/models/sale_order.py:0
-#: code:addons/trilab_invoice/models/sale_order.py:0
-#, python-format
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/invoice.py:0
 msgid "Rate %s with effective date: %s"
 msgstr ""
 
@@ -737,14 +923,12 @@ msgstr ""
 
 #. module: trilab_invoice
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
-msgid "Reference"
+msgid "Recalculate Downpayment"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__refund_invoice_id
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__refund_invoice_id
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__refund_invoice_id
-msgid "Refund Invoice"
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Reference"
 msgstr ""
 
 #. module: trilab_invoice
@@ -753,24 +937,39 @@ msgid "Reverse"
 msgstr ""
 
 #. module: trilab_invoice
-#: code:addons/trilab_invoice/models/account_move_reversal.py:0
-#, python-format
-msgid "Reverse Moves"
-msgstr ""
-
-#. module: trilab_invoice
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
-msgid "SPLIT PAYMENT MECHANISM"
+msgid "Reverse Charge"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model,name:trilab_invoice.model_sale_advance_line
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
+msgid ""
+"Reversed Moves will not be automatically reconciled with original invoice"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard_line__so_amount_total
+msgid "SO Amount [GROSS]"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard_line__so_amount
+msgid "SO Amount [NET]"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model,name:trilab_invoice.model_trilab_invoice_wizard_line
 msgid "Sale Advance Line"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_journal_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__journal_id
 msgid "Sale Journal"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__sale_order_ids
+msgid "Sale Order"
 msgstr ""
 
 #. module: trilab_invoice
@@ -779,15 +978,21 @@ msgid "Sale Order Data ("
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_invoice_sale_date
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_invoice_sale_date
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_invoice_sale_date
-msgid "Sale/Currency Date"
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/invoice.py:0
+msgid "Sale orders from multiple companies!"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model,name:trilab_invoice.model_sale_advance_payment_inv
-msgid "Sales Advance Payment Invoice"
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/invoice.py:0
+msgid "Sale orders with multiple currencies!"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_invoice_sale_date
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_invoice_sale_date
+msgid "Sale/Currency Date"
 msgstr ""
 
 #. module: trilab_invoice
@@ -806,17 +1011,36 @@ msgid "Section"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__selected_correction_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__selected_correction_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_reversal__selected_correction_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__selected_correction_invoice
-msgid "Selected Correction Invoice"
+#: model:ir.model.fields,field_description:trilab_invoice.field_res_company__x_company_partner_bank_on_proforma
+#: model:ir.model.fields,field_description:trilab_invoice.field_res_config_settings__x_company_partner_bank_on_proforma
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_order__x_company_partner_bank_on_proforma
+msgid "Show Company Partner Bank on Pro-Forma"
 msgstr ""
 
 #. module: trilab_invoice
-#: code:addons/trilab_invoice/models/account_move_reversal.py:0
-#, python-format
-msgid "Single invoice only"
+#: model:ir.model.fields,field_description:trilab_invoice.field_res_company__x_show_price_before_discount
+#: model:ir.model.fields,field_description:trilab_invoice.field_res_config_settings__x_show_price_before_discount
+msgid "Show Price Before Discount on Invoices"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
+msgid "Show bank details on sale orders and pro-forma invoices"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
+msgid "Show price before discount on Customer Invoices"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Split Payment Mechanism"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard__date_start_invoice_timesheet
+msgid "Start Date"
 msgstr ""
 
 #. module: trilab_invoice
@@ -825,59 +1049,119 @@ msgid "Subtotal"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__tax_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard_line__tax_id
 msgid "Tax"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_is_poland
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_is_poland
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_reversal__x_is_poland
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_is_poland
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_order__x_is_poland
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.document_tax_totals
+msgid "Tax 15%"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Tax excl."
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
+msgid "Tax incl."
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_use_ti
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_use_ti
 msgid "Technical Field: Is Poland"
 msgstr ""
 
 #. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_sale_order__x_use_ti
+msgid "Technical Field: Use Trilab Invoice"
+msgstr ""
+
+#. module: trilab_invoice
+#. odoo-python
 #: code:addons/trilab_invoice/models/account_move.py:0
-#: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
 msgid "The Bill/Refund date is required to validate this document."
 msgstr ""
 
 #. module: trilab_invoice
-#: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
-msgid "The entry %s (id %s) is already posted."
+#: model:ir.model.fields,help:trilab_invoice.field_trilab_invoice_wizard__amount_to_invoice
+msgid "The amount to invoice = Sale Order Total - Confirmed Down Payments."
 msgstr ""
 
 #. module: trilab_invoice
+#. odoo-python
 #: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
+msgid ""
+"The bank account of your company is not trusted. Please ask an admin or "
+"someone with approval rights to check it."
+msgstr ""
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+msgid ""
+"The company bank account (%(account_number)s) linked to this invoice is not "
+"trusted. Go to the Bank Settings, double-check that it is yours or correct "
+"the number, and click on Send Money to trust it."
+msgstr ""
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+msgid ""
+"The current total is %(current_total)s but the expected total is "
+"%(expected_total)s. In order to post the invoice/bill, you can adjust its "
+"lines or the expected Total (tax inc.)."
+msgstr ""
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+msgid "The entry %(name)s (id %(id)s) must be in draft."
+msgstr ""
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+msgid ""
+"The entry is using accounts (%(accounts_codes_names)s) from a different "
+"company."
+msgstr ""
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
 msgid ""
 "The field 'Customer' is required, please complete it to validate the "
 "Customer Invoice."
 msgstr ""
 
 #. module: trilab_invoice
+#. odoo-python
 #: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
 msgid ""
 "The field 'Vendor' is required, please complete it to validate the Vendor "
 "Bill."
 msgstr ""
 
 #. module: trilab_invoice
-#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
-#, python-format
-msgid ""
-"The product used to invoice a down payment should be of type 'Service'. "
-"lease use another product or update this product."
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_invoice_wizard
+msgid "The new invoice will deduct draft invoices linked to this sale order."
 msgstr ""
 
 #. module: trilab_invoice
-#: code:addons/trilab_invoice/models/sale_advance_payment_inv.py:0
-#, python-format
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/invoice.py:0
+msgid ""
+"The product used to invoice a down payment should be of type 'Service'. "
+"Please use another product or update this product."
+msgstr ""
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/invoice.py:0
 msgid ""
 "The product used to invoice a down payment should have an invoice policy set"
 " to \"Ordered quantities\". Please update your deposit product to be able to"
@@ -885,23 +1169,39 @@ msgid ""
 msgstr ""
 
 #. module: trilab_invoice
+#. odoo-python
 #: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
 msgid ""
-"The recipient bank account link to this invoice is archived.\n"
+"The recipient bank account linked to this invoice is archived.\n"
 "So you cannot confirm the invoice."
 msgstr ""
 
 #. module: trilab_invoice
-#: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
-msgid "This move is configured to be auto-posted on %s"
+#. odoo-python
+#: code:addons/trilab_invoice/wizard/invoice.py:0
+msgid "The value of the down payment amount must be positive."
 msgstr ""
 
 #. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_invoice_wizard
+msgid "There are existing"
+msgstr ""
+
+#. module: trilab_invoice
+#. odoo-python
 #: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
+msgid "This move is configured to be auto-posted on %(date)s"
+msgstr ""
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
 msgid "This move will be posted at the accounting date: %(date)s"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_invoice_wizard
+msgid "Timesheets Period"
 msgstr ""
 
 #. module: trilab_invoice
@@ -911,26 +1211,28 @@ msgid "To Pay in Currency"
 msgstr ""
 
 #. module: trilab_invoice
-#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_move_form
-msgid "Total"
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_invoice_wizard
+msgid "Total [GROSS]"
 msgstr ""
 
 #. module: trilab_invoice
-#: code:addons/trilab_invoice/models/sale_order.py:0
-#, python-format
-msgid ""
-"Total value of advance invoices (%02f) is greater than order value (%02f)"
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_invoice_wizard
+msgid "Total [NET]"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__x_move_type
-msgid "Type"
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.res_config_settings_view_form
+msgid "Trilab Invoice"
 msgstr ""
 
 #. module: trilab_invoice
-#: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
-msgid "Untaxed Amount"
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Unit Price NET"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "Unit Price NET<br/>before disc."
 msgstr ""
 
 #. module: trilab_invoice
@@ -939,127 +1241,170 @@ msgid "UoM"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__percent
+#: model:ir.model.fields,field_description:trilab_invoice.field_res_company__x_use_ti
+#: model:ir.model.fields,field_description:trilab_invoice.field_res_config_settings__x_use_trilab_invoice
+msgid "Use Trilab Invoice Module"
+msgstr ""
+
+#. module: trilab_invoice
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.document_tax_totals
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
+msgid "VAT Amount in"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard_line__percent
 msgid "Value Percent"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__value_total
-msgid "Value [GROSS]"
+#. odoo-python
+#: code:addons/trilab_invoice/models/sale_order.py:0
+msgid "Value in advance invoices is greater than order value"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__value
-msgid "Value [NET]"
-msgstr ""
-
-#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
 msgid "Vendor Bill"
 msgstr ""
 
 #. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
 #: model_terms:ir.ui.view,arch_db:trilab_invoice.report_invoice_document
 msgid "Vendor Correction Invoice"
 msgstr ""
 
 #. module: trilab_invoice
+#. odoo-python
 #: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
 msgid "Vendor invoice number is required"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_line__wizard_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_trilab_invoice_wizard_line__wizard_id
 msgid "Wizard"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.constraint,message:trilab_invoice.constraint_account_move_line_check_credit_debit
-msgid "Wrong credit or debit value in accounting entry!"
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_advance_invoices_ids
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_advance_invoices_ids
+msgid "X Advance Invoices"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_sale_advance_payment_inv__x_allowed_partner_bank_ids
-msgid "X Allowed Partner Bank"
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_advance_source_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_advance_source_id
+msgid "X Advance Source"
 msgstr ""
 
 #. module: trilab_invoice
 #: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_amount_residual
 #: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_amount_residual
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_amount_residual
 msgid "X Amount Due"
 msgstr ""
 
 #. module: trilab_invoice
 #: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_corrected_amount_total
 #: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_corrected_amount_total
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_corrected_amount_total
 msgid "X Corrected Amount Total"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_invoice_sign
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_invoice_sign
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_invoice_sign
-msgid "X Invoice Sign"
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_correction_invoices_len
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_correction_invoices_len
+msgid "X Correction Invoices Len"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__x_price_subtotal_reverse
-msgid "X Price Subtotal Reverse"
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_invoice_currency_rate
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_invoice_currency_rate
+msgid "X Currency Rate"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__x_price_total_reverse
-msgid "X Price Total Reverse"
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_final_source_id
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_final_source_id
+msgid "X Final Source"
 msgstr ""
 
 #. module: trilab_invoice
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__x_quantity_reverse
-msgid "X Quantity Reverse"
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__x_is_corrected_line
+msgid "X Is Corrected Line"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__x_price_subtotal
+msgid "X Price Subtotal"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__x_price_total
+msgid "X Price Total"
+msgstr ""
+
+#. module: trilab_invoice
+#: model:ir.model.fields,field_description:trilab_invoice.field_account_move_line__x_quantity
+msgid "X Quantity"
 msgstr ""
 
 #. module: trilab_invoice
 #: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_show_currency_rate
 #: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_show_currency_rate
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_show_currency_rate
 msgid "X Show Currency Rate"
 msgstr ""
 
 #. module: trilab_invoice
 #: model:ir.model.fields,field_description:trilab_invoice.field_account_bank_statement_line__x_amount_total
 #: model:ir.model.fields,field_description:trilab_invoice.field_account_move__x_amount_total
-#: model:ir.model.fields,field_description:trilab_invoice.field_account_payment__x_amount_total
 msgid "X Total in Currency"
 msgstr ""
 
 #. module: trilab_invoice
+#. odoo-python
 #: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
 msgid "You cannot post an entry in an archived journal (%(journal)s)"
 msgstr ""
 
 #. module: trilab_invoice
+#. odoo-python
 #: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
-msgid "You cannot validate an invoice with an inactive currency: %s"
+msgid "You cannot post an entry with an archived analytic account: %s"
 msgstr ""
 
 #. module: trilab_invoice
+#. odoo-python
 #: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
+msgid "You cannot validate a document with an inactive currency: %s"
+msgstr ""
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
+msgid ""
+"You cannot validate an invoice with a negative total amount. You should "
+"create a credit note instead. Use the action menu to transform it into a "
+"credit note or refund."
+msgstr ""
+
+#. module: trilab_invoice
+#. odoo-python
+#: code:addons/trilab_invoice/models/account_move.py:0
 msgid "You don't have the access rights to post an invoice."
 msgstr ""
 
 #. module: trilab_invoice
+#. odoo-python
 #: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
 msgid "You need to add a line before posting."
 msgstr ""
 
 #. module: trilab_invoice
-#: code:addons/trilab_invoice/models/account_move.py:0
-#, python-format
-msgid "unsupported object %s"
+#: model_terms:ir.ui.view,arch_db:trilab_invoice.view_invoice_wizard
+msgid ""
+"for this\n"
+"                        Sale\n"
+"                        Order."
 msgstr ""

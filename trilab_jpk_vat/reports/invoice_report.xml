@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <template id="trilab_jpk_vat.invoice_report">
+        <t t-call="web.html_container">
+            <t t-call="trilab_jpk_base.internal_layout">
+            </t>
+        </t>
+    </template>
+
+    <record id="action_export_invoices_report_xlsx" model="ir.actions.report">
+        <field name="name">Export Invoices XLSX</field>
+        <field name="model">account.move</field>
+        <field name="report_type">jpk_xlsx</field>
+        <field name="report_name">trilab_jpk_vat.invoice_report</field>
+        <field name="report_file">trilab_jpk_vat.invoice_report</field>
+    </record>
+  
+</odoo>

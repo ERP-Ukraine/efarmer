@@ -1,93 +1,97 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+
 <odoo>
 
-    <record id="trilab_pl_CIT" model="account.financial.html.report">
+    <record id="trilab_pl_CIT" model="account.report">
         <field name="name">PL CIT</field>
-        <field name='parent_id' ref='trilab_pl_reports.menu_report_polish_accounting'/>
-        <field name="date_range" eval="True"/>
-        <field name="analytic" eval="True"/>
-        <field name="comparison" eval="True"/>
-        <field name="unfold_all_filter" eval="True"/>
-    </record>
+        <field name="root_report_id" ref="account_reports.profit_and_loss"/>
+        <field name="country_id" ref="base.pl"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_analytic_groupby" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_journals" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="default_opening_date_filter">this_year</field>
+        <field name="column_ids">
+            <record id="trilab_pl_CIT_balance" model="account.report.column">
+                <field name="name">Balance</field>
+                <field name="expression_label">balance</field>
+            </record>
+        </field>
 
-    <record id="trilab_pl_CIT_income" model="account.financial.html.report.line">
-        <field name="name">Przychód</field>
-        <field name="code">INC_ALL</field>
-        <field name="sequence" eval="1"/>
-        <field name="level" eval="0"/>
-        <field name="formulas">INC_TAX + INC_NTAX</field>
-        <field name="financial_report_id" ref="trilab_pl_CIT"/>
-    </record>
+        <field name="line_ids">
+            <record id="trilab_pl_CIT_income" model="account.report.line">
+                <field name="name">Income</field>
+                <field name="code">INC_ALL</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">INC_TAX.balance + INC_NTAX.balance</field>
+            </record>
 
-    <record id="trilab_pl_CIT_income_tax" model="account.financial.html.report.line">
-        <field name="name">Przychód podatkowy</field>
-        <field name="code">INC_TAX</field>
-        <field name="sequence" eval="1"/>
-        <field name="parent_id" ref="trilab_pl_CIT_income"/>
-        <field name="level" eval="2"/>
-        <field name="formulas">-sum</field>
-        <field name="domain" eval="[('account_id.user_type_id', 'in', [ref('account.data_account_type_revenue'), ref('account.data_account_type_other_income')]), ('analytic_tag_ids', '!=', ref('trilab_pl_reports.trilab_analytic_tag_NKUP'))]"/>
-        <field name="groupby">account_id</field>
-    </record>
+            <record id="trilab_pl_CIT_income_tax" model="account.report.line">
+                <field name="name">Taxable Income</field>
+                <field name="code">INC_TAX</field>
+                <field name="parent_id" ref="trilab_pl_CIT_income"/>
+                <field name="hierarchy_level" eval="1"/>
+                <field name="domain_formula">-sum([('account_id.account_type', 'in', ('income', 'income_other')), ('analytic_distribution', '!=', 'NKUP')])
+                </field>
+                <field name="groupby">account_id</field>
+                <field name="foldable" eval="True"/>
+            </record>
 
-    <record id="trilab_pl_CIT_income_ntax" model="account.financial.html.report.line">
-        <field name="name">Przychód niepodatkowy</field>
-        <field name="code">INC_NTAX</field>
-        <field name="sequence" eval="2"/>
-        <field name="parent_id" ref="trilab_pl_CIT_income"/>
-        <field name="level" eval="2"/>
-        <field name="formulas">-sum</field>
-        <field name="domain" eval="[('account_id.user_type_id', 'in', [ref('account.data_account_type_revenue'), ref('account.data_account_type_other_income')]), ('analytic_tag_ids', '=', ref('trilab_pl_reports.trilab_analytic_tag_NKUP'))]"/>
-        <field name="groupby">account_id</field>
-    </record>
+            <record id="trilab_pl_CIT_income_ntax" model="account.report.line">
+                <field name="name">Non Taxable Income</field>
+                <field name="code">INC_NTAX</field>
+                <field name="parent_id" ref="trilab_pl_CIT_income"/>
+                <field name="hierarchy_level" eval="1"/>
+                <field name="domain_formula">-sum([('account_id.account_type', 'in', ('income', 'income_other')), ('analytic_distribution', '=', 'NKUP')])
+                </field>
+                <field name="groupby">account_id</field>
+                <field name="foldable" eval="True"/>
+            </record>
 
-    <record id="trilab_pl_CIT_expenses" model="account.financial.html.report.line">
-        <field name="name">Wydatki</field>
-        <field name="code">EX_ALL</field>
-        <field name="sequence" eval="2"/>
-        <field name="level" eval="0"/>
-        <field name="formulas">EX_TAX + EX_NTAX</field>
-        <field name="financial_report_id" ref="trilab_pl_CIT"/>
-    </record>
+            <record id="trilab_pl_CIT_expenses" model="account.report.line">
+                <field name="name">Costs</field>
+                <field name="code">EX_ALL</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">EX_TAX.balance + EX_NTAX.balance</field>
+            </record>
 
-    <record id="trilab_pl_CIT_expenses_tax" model="account.financial.html.report.line">
-        <field name="name">Wydatki podatkowe</field>
-        <field name="code">EX_TAX</field>
-        <field name="sequence" eval="1"/>
-        <field name="parent_id" ref="trilab_pl_CIT_expenses"/>
-        <field name="level" eval="2"/>
-        <field name="formulas">sum</field>
-        <field name="domain" eval="[('account_id.user_type_id', 'in', [ref('account.data_account_type_expenses'), ref('account.data_account_type_depreciation'), ref('account.data_account_type_direct_costs')]),('analytic_tag_ids','!=', ref('trilab_pl_reports.trilab_analytic_tag_NKUP'))]"/>
-        <field name="groupby">account_id</field>
-    </record>
+            <record id="trilab_pl_CIT_expenses_tax" model="account.report.line">
+                <field name="name">Tax Deductible Costs</field>
+                <field name="code">EX_TAX</field>
+                <field name="parent_id" ref="trilab_pl_CIT_expenses"/>
+                <field name="hierarchy_level" eval="1"/>
+                <field name="domain_formula">sum([('account_id.account_type', 'in', ('expense', 'expense_direct_cost', 'expense_depreciation')), ('analytic_distribution', '!=', 'NKUP')])
+                </field>
+                <field name="groupby">account_id</field>
+                <field name="foldable" eval="True"/>
+            </record>
 
-    <record id="trilab_pl_CIT_expenses_ntax" model="account.financial.html.report.line">
-        <field name="name">Wydatki nie podatkowe</field>
-        <field name="code">EX_NTAX</field>
-        <field name="sequence" eval="2"/>
-        <field name="parent_id" ref="trilab_pl_CIT_expenses"/>
-        <field name="level" eval="2"/>
-        <field name="formulas">sum</field>
-        <field name="domain" eval="[('account_id.user_type_id', 'in', [ref('account.data_account_type_expenses'), ref('account.data_account_type_depreciation'), ref('account.data_account_type_direct_costs')]),('analytic_tag_ids','=', ref('trilab_pl_reports.trilab_analytic_tag_NKUP'))]"/>
-        <field name="groupby">account_id</field>
-    </record>
+            <record id="trilab_pl_CIT_expenses_ntax" model="account.report.line">
+                <field name="name">Tax Non Deductible Costs</field>
+                <field name="code">EX_NTAX</field>
+                <field name="parent_id" ref="trilab_pl_CIT_expenses"/>
+                <field name="hierarchy_level" eval="1"/>
+                <field name="domain_formula">sum([('account_id.account_type', 'in', ('expense', 'expense_direct_cost', 'expense_depreciation')), ('analytic_distribution', '=', 'NKUP')])
+                </field>
+                <field name="groupby">account_id</field>
+                <field name="foldable" eval="True"/>
+            </record>
 
-    <record id="trilab_pl_CIT_revenue" model="account.financial.html.report.line">
-        <field name="name">Zysk netto</field>
-        <field name="code">REV_ALL</field>
-        <field name="sequence" eval="3"/>
-        <field name="formulas">INC_ALL - EX_ALL</field>
-        <field name="level" eval="0"/>
-        <field name="financial_report_id" ref="trilab_pl_CIT"/>
-    </record>
+            <record id="trilab_pl_CIT_revenue_tax" model="account.report.line">
+                <field name="name">CIT Tax Base</field>
+                <field name="code">REV_TAX</field>
+                <field name="aggregation_formula">INC_TAX.balance - EX_TAX.balance</field>
+                <field name="hierarchy_level" eval="0"/>
+            </record>
 
-    <record id="trilab_pl_CIT_revenue_tax" model="account.financial.html.report.line">
-        <field name="name">Zysk netto podatkowy</field>
-        <field name="code">REV_TAX</field>
-        <field name="sequence" eval="4"/>
-        <field name="formulas">INC_TAX - EX_TAX</field>
-        <field name="level" eval="0"/>
-        <field name="financial_report_id" ref="trilab_pl_CIT"/>
+            <record id="trilab_pl_CIT_revenue" model="account.report.line">
+                <field name="name">Net Profit</field>
+                <field name="code">REV_ALL</field>
+                <field name="aggregation_formula">INC_ALL.balance - EX_ALL.balance</field>
+                <field name="hierarchy_level" eval="0"/>
+            </record>
+        </field>
     </record>
 
 </odoo>

@@ -1,11 +1,15 @@
 # See LICENSE file for full copyright and licensing details.
 
+import logging
+
 from odoo import fields, models, api, _
 
+_logger = logging.getLogger(__name__)
 
-_region_specific_vat_codes = {
-    'xi',
-}
+try:
+    import stdnum
+except (ImportError, IOError) as ex:
+    _logger.error(ex)
 
 
 class ResPartner(models.Model):
@@ -24,7 +28,7 @@ class ResPartner(models.Model):
         default=False,
     )
     integration_id = fields.Many2one(
-        string='e-Commerce Integration',
+        string='E-Commerce Store',
         comodel_name='sale.integration',
         required=False,
         ondelete='set null',
@@ -44,16 +48,7 @@ class ResPartner(models.Model):
 
     @api.model
     def _commercial_fields(self):
-        return super(ResPartner, self)._commercial_fields() + \
-            ['integration_id']
-
-    def _get_contact_name(self, partner, name):
-        # Redefined the standart method inside the `name_get` calling in order to add
-        # the `external_company_name` char field to PDF report.
-        partner_sudo = partner.sudo()
-        if partner_sudo.parent_id and partner_sudo.external_company_name:
-            return f'{partner_sudo.external_company_name}, {name}'
-        return super(ResPartner, self)._get_contact_name(partner, name)
+        return super(ResPartner, self)._commercial_fields() + ['integration_id']
 
     def _validate_integration_vat(self, vat, country_id):
         """
@@ -74,9 +69,8 @@ class ResPartner(models.Model):
 
         # Split the VAT number and check if it has a legitimate country code
         vat_country_code, vat_number_split = self._split_vat(vat)
-        vat_has_legit_country_code = self.env['res.country'].search([
-            ('code', '=', vat_country_code.upper()),
-        ])
+        vat_has_legit_country_code = self.env['res.country'].search_count([
+            ('code', '=', vat_country_code.upper())]) > 0
 
         # Invalid country code
         if not vat_has_legit_country_code:
@@ -85,42 +79,14 @@ class ResPartner(models.Model):
         # Determine the VAT check function
         eu_countries = self.env.ref('base.europe').country_ids
         if country_id in eu_countries:
-            check_func = self.vies_vat_check
+            is_valid = stdnum.eu.vat.check_vies(vat, timeout=10).valid
         else:
-            check_func = self.simple_vat_check
-
-        # Validate the VAT number using the determined check function
-        is_valid = check_func(vat_country_code, vat_number_split)
+            is_valid = self.simple_vat_check(vat_country_code, vat_number_split)
 
         if not is_valid:
             return False, _prepare_error_message()
 
         return True, False
-
-    @api.model
-    def _run_vies_test(self, vat_number, default_country):  # Copied from Odoo-16
-        """ Validate a VAT number using the VIES VAT validation. """
-        check_result = None
-
-        # First check with country code as prefix of the TIN
-        vat_country_code, vat_number_split = self._split_vat(vat_number)
-        vat_has_legit_country_code = self.env['res.country'].search([
-            ('code', '=', vat_country_code.upper()),
-        ])
-        if not vat_has_legit_country_code:
-            vat_has_legit_country_code = vat_country_code.lower() in _region_specific_vat_codes
-        if vat_has_legit_country_code:
-            check_result = self.vies_vat_check(vat_country_code, vat_number_split)
-            if check_result:
-                return vat_country_code
-
-        # If it fails, check with default_country (if it exists)
-        if default_country:
-            check_result = self.vies_vat_check(default_country.code.lower(), vat_number)
-            if check_result:
-                return default_country.code.lower()
-
-        return check_result
 
     def _link_external_partner(self, integration: models.Model, external_id: str) -> bool:
         """

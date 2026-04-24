@@ -3,7 +3,6 @@
 
 <record id="group_can_edit_product_cost" model="res.groups">
     <field name="name">Can Edit Product Cost</field>
-    <field name="category_id" ref="base.module_category_hidden"/>
 </record>
 
 </odoo>

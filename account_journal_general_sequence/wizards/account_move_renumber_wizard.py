@@ -29,7 +29,8 @@ class AccountMoveRenumberWizard(models.TransientModel):
         required=True,
         default=lambda self: self._default_entry_number_sequence(),
         domain="[('id', 'in', available_sequence_ids)]",
-        help="Sequence to use for renumbering. Affects all journals that use this sequence.",
+        help="Sequence to use for renumbering. "
+        "Affects all journals that use this sequence.",
     )
 
     @api.model
@@ -41,13 +42,21 @@ class AccountMoveRenumberWizard(models.TransientModel):
     def _default_entry_number_sequence(self):
         """Get default sequence if it exists."""
         return self.env["ir.sequence"].search(
-            [("code", "=", "account_journal_general_sequence.default")]
+            [
+                "&",
+                ("code", "=", "account_journal_general_sequence.default"),
+                ("company_id", "in", self.env.companies.ids),
+            ]
         )
 
     @api.model
     def _default_available_sequence_ids(self):
         """Let view display only journal-related sequences."""
-        return self.env["account.journal"].search([]).mapped("entry_number_sequence_id")
+        return (
+            self.env["account.journal"]
+            .search([("company_id", "in", self.env.companies.ids)])
+            .mapped("entry_number_sequence_id")
+        )
 
     def action_renumber(self):
         """Renumber moves.
@@ -78,6 +87,7 @@ class AccountMoveRenumberWizard(models.TransientModel):
         current_range.sudo().number_next = self.starting_number
         self.sequence_id.sudo().number_next = self.starting_number
         # Renumber the moves
+        moves = moves.with_context(skip_invoice_sync=True)
         moves.entry_number = False
-        moves.flush(["entry_number"])
+        moves.flush_recordset(["entry_number"])
         moves._compute_entry_number()

@@ -6,7 +6,7 @@
 {
     "name": "Stock picking lines with sequence number",
     "summary": "Manages the order of stock moves by displaying its sequence",
-    "version": "15.0.1.0.2",
+    "version": "18.0.1.0.0",
     "category": "Warehouse Management",
     "author": "Camptocamp, "
     "Eficent, "
@@ -14,12 +14,9 @@
     "Odoo Community Association (OCA), "
     "ArcheTI",
     "website": "https://github.com/OCA/stock-logistics-workflow",
-    "depends": ["stock", "sale", "sale_stock"],
+    "depends": ["base"],
     "data": [
-        "views/stock_view.xml",
-        "report/report_deliveryslip.xml",
     ],
-    "post_init_hook": "post_init_hook",
     "installable": True,
     "auto_install": False,
     "license": "AGPL-3",

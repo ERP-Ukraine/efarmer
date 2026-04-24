@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_bank_statement_line_tree_bank_rec_widget_inherit" model="ir.ui.view">
+        <field name="name">bank.statement.line.tree.inherit</field>
+        <field name="model">account.bank.statement.line</field>
+        <field name="inherit_id" ref="account_accountant.view_bank_statement_line_tree_bank_rec_widget"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="inside">
+                <field name="x_can_edit_valuation" column_invisible="True"/>
+
+                <field name="x_is_valuation_line" optional="hide" readonly="not x_can_edit_valuation"/>
+                <field name="x_is_valuation_used" optional="hide"/>
+                <field name="x_valuation_remaining_amount" optional="hide" readonly="not x_can_edit_valuation"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="x_action_post_moves" model="ir.actions.server">
+        <field name="name">Post Moves</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="account.model_account_bank_statement_line"/>
+        <field name="binding_model_id" ref="account.model_account_bank_statement_line"/>
+        <field name="binding_type">action</field>
+        <field name="code">action = records.x_action_post_move()</field>
+    </record>
+</odoo>

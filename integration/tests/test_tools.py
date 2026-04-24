@@ -1,11 +1,12 @@
 # See LICENSE file for full copyright and licensing details.
 
-from odoo.tests import TransactionCase
+from odoo.tests import TransactionCase, tagged
 
 from .config.integration_init import OdooIntegrationInit
 from ...integration import tools
 
 
+@tagged('post_install', '-at_install', 'test_integration_core')
 class TestTools(OdooIntegrationInit, TransactionCase):
 
     def setUp(self):

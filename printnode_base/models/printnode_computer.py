@@ -5,12 +5,12 @@ from odoo import models, fields
 
 
 class PrintNodeComputer(models.Model):
-    """ PrintNode Computer entity
+    """ Direct Print Computer entity
     """
     _name = 'printnode.computer'
-    _description = 'PrintNode Computer'
+    _description = 'Direct Print Computer'
 
-    printnode_id = fields.Integer('Direct Print ID')
+    printnode_id = fields.Integer('Computer ID')
 
     active = fields.Boolean(
         'Active',

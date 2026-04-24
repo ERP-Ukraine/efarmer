@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <template id="internal_layout" inherit_id="trilab_jpk_base.internal_layout" primary="True">
+        <xpath expr="//div[hasclass('article')]" position="attributes">
+            <attribute name="class" remove="o_account_financial_reports_page" separator=" "/>
+            <attribute name="style">font-family: Helvetica, Arial</attribute>
+        </xpath>
+    </template>
+
+    <template id="pl_journal_report">
+        <t t-set="data_report_landscape" t-value="True"/>
+        <t t-call="web.html_container">
+            <t t-call="trilab_pl_reports.internal_layout">
+                <div class="page">
+                    <h4 class="text-center" t-out="('PL Journal Report - ' + company_name) or 'Odoo Report'"/>
+                    <table class="table table-sm small">
+                        <thead>
+                            <tr t-translation="off">
+                                <th class="text-end">Numer zapisu</th>
+                                <th>Data zapisu</th>
+                                <th>Księgował</th>
+                                <th>Dokument</th>
+                                <th>Data księgowania</th>
+                                <th>Dziennik</th>
+                                <th>Opis operacji</th>
+                                <th>Treść zapisu</th>
+                                <th>Konto</th>
+                                <th>Nazwa konta</th>
+                                <th class="text-end">Kwota Winien</th>
+                                <th class="text-end">Kwota Ma</th>
+                            </tr>
+                        </thead>
+                        <tbody t-foreach="docs" t-as="move">
+                            <t t-foreach="move.line_ids" t-as="line">
+                                <tr class="page_break">
+                                    <td class="text-end"><span t-out="move_index + 1"/></td>
+                                    <td><span t-field="line.date"/></td>
+                                    <td><span t-field="move.write_uid"/></td>
+                                    <td><span t-field="move.name"/></td>
+                                    <td><span t-field="line.date"/></td>
+                                    <td><span t-field="line.journal_id"/></td>
+                                    <td><span t-field="line.ref"/></td>
+                                    <td><span t-field="line.name"/></td>
+                                    <td><span t-field="line.account_id.code"/></td>
+                                    <td><span t-field="line.account_id.name" class="text-nowrap"/></td>
+                                    <td class="text-end"><span t-field="line.debit"/></td>
+                                    <td class="text-end"><span t-field="line.credit"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="10" class="text-end"><strong t-translation="off">Suma:</strong></td>
+                                <td class="text-end">
+                                    <strong t-out="sum(docs.line_ids.mapped('debit'))"
+                                            t-options="{'widget': 'monetary', 'display_currency': currency_id}"/>
+                                </td>
+                                <td class="text-end">
+                                    <strong t-out="sum(docs.line_ids.mapped('credit'))"
+                                            t-options="{'widget': 'monetary', 'display_currency': currency_id}"/>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_print_report_pl_journal_html" model="ir.actions.report">
+        <field name="name">PL Journal Report</field>
+        <field name="model">pl.journal.report.wizard</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">trilab_pl_reports.pl_journal_report</field>
+        <field name="report_file">trilab_pl_reports.pl_journal_report</field>
+    </record>
+
+    <record id="action_print_report_pl_journal_pdf" model="ir.actions.report">
+        <field name="name">PL Journal Report PDF</field>
+        <field name="model">pl.journal.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">trilab_pl_reports.pl_journal_report</field>
+        <field name="report_file">trilab_pl_reports.pl_journal_report</field>
+    </record>
+
+    <record id="action_print_report_pl_journal_xlsx" model="ir.actions.report">
+        <field name="name">PL Journal Report XLSX</field>
+        <field name="model">account.move</field>
+        <field name="report_type">jpk_xlsx</field>
+        <field name="report_name">trilab_pl_reports.pl_journal_report</field>
+        <field name="report_file">trilab_pl_reports.pl_journal_report</field>
+    </record>
+</odoo>

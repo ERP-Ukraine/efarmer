@@ -24,34 +24,24 @@ class ProductAttribute(models.Model):
 
         return {
             'id': self.id,
-            'name': integration.convert_translated_field_to_integration_format(
-                self, 'name'
-            ),
+            'name': self.convert_field_translations_to_external(integration.id, 'name'),
         }
-
-    def _fill_sequence(self):
-        self.ensure_one()
-
-        values_without_sequence = self.value_ids.filtered(lambda v: not v.sequence)
-        if not values_without_sequence:
-            return
-
-        next_sequence = self._get_next_sequence()
-        for rec in values_without_sequence.sorted('id'):
-            rec.write({'sequence': next_sequence})
-            next_sequence += 1
 
     @api.constrains('exclude_from_synchronization')
     def _check_product_attribute_values(self):
         for attribute in self.filtered(lambda x: x.exclude_from_synchronization):
-            attribute_line = attribute.attribute_line_ids.filtered(lambda l: l.value_count > 1)
+            attribute_line = attribute.attribute_line_ids.filtered(lambda line: line.value_count > 1)
             if attribute_line:
                 template_names = attribute_line.mapped('product_tmpl_id.display_name')
-                raise ValidationError(
-                    _('Attribute "%s" cannot be excluded from synchronization as it is used '
-                      'in products with more than one value: %s') %
-                    (attribute.name, ', '.join(template_names))
-                )
+                raise ValidationError(_(
+                    'The attribute "%s" cannot be excluded from synchronization because it is used in products '
+                    'that have more than one value.\n\n'
+                    'This attribute is used in the following product templates:\n%s'
+                ) % (attribute.name, ', '.join(template_names)))
+
+    def _get_next_sequence(self):
+        sequence_list = self.value_ids.mapped('sequence')
+        return max(sequence_list, default=0) + 1
 
 
 class ProductTemplateAttributeLine(models.Model):
@@ -72,26 +62,12 @@ class ProductTemplateAttributeLine(models.Model):
         for line in self:
             line.is_dynamic_creation_mode = line.attribute_id.create_variant == 'dynamic'
 
-    def _update_attribute_value_sequence(self):
-        for rec in self.mapped('attribute_id'):
-            rec._fill_sequence()
-
-    def write(self, vals):
-        res = super(ProductTemplateAttributeLine, self).write(vals)
-        self._update_attribute_value_sequence()
-        return res
-
-    @api.model_create_multi
-    def create(self, vals):
-        res = super(ProductTemplateAttributeLine, self).create(vals)
-        res._update_attribute_value_sequence()
-        return res
-
     @api.constrains('value_ids')
     def _check_exclude_attribute_values(self):
         for record in self.filtered(lambda x: x.exclude_from_synchronization):
             if len(record.value_ids) > 1:
-                raise ValidationError(
-                    _('Attribute "%s" cannot have multiple values as it is marked as excluded '
-                      'from synchronization.') % (record.attribute_id.name,)
-                )
+                raise ValidationError(_(
+                    'The attribute "%s" cannot have multiple values because it is marked as excluded '
+                    'from synchronization.\n\n'
+                    'Please ensure that attributes marked for exclusion only have a single value.'
+                ) % (record.attribute_id.name,))

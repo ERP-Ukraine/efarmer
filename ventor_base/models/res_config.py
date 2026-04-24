@@ -1,7 +1,7 @@
 ﻿# Copyright 2020 VentorTech OU
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
 
-from odoo import models, fields, api
+from odoo import _, models, fields, api
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -46,6 +46,22 @@ class VentorConfigSettings(models.TransientModel):
         string='Custom package name',
         config_parameter='ventor_base.custom_package_name',
     )
+
+    @api.onchange('module_outgoing_routing')
+    def _onchange_module_outgoing_routing(self):
+        if self.module_outgoing_routing:
+            outgoing_routing_module = self.env['ir.module.module'].search([(
+                'name', '=', 'outgoing_routing'
+            )], limit=1)
+            if not outgoing_routing_module:
+                return {
+                    'warning': {
+                        'title': _("Warning"),
+                        'message': _("The module cannot be installed. "
+                                    "To install the Outgoing Routing module, please add it to your server.\n\n"
+                                    "Our repository: https://github.com/ventor-tech/merp")
+                    }
+                }
 
     @api.depends('company_id')
     def _compute_base_version(self):
@@ -142,29 +158,12 @@ class VentorConfigSettings(models.TransientModel):
             )
             ventor_owner_settings.value = self.env.ref('ventor_base.bool_true') if self.group_stock_tracking_owner else self.env.ref('ventor_base.bool_false')
 
-    def _update_display_wave_picking_menu(self, previous_group):
-        group_stock_picking_wave = previous_group.get('group_stock_picking_wave')
-
-        if group_stock_picking_wave != self.group_stock_picking_wave:
-            merp_wave_picking_menu = self.env.ref('ventor_base.merp_wave_picking_menu')
-            users = self.env['res.users'].with_context(active_test=False).search([
-                ('share', '=', False)
-            ])
-            merp_wave_picking_menu.write(
-                {
-                    'users': [(6, 0, users.ids)]
-                    if self.group_stock_picking_wave
-                    else [(5, 0, 0)],
-                }
-            )
-
     def set_values(self):
         previous_group = self.default_get(
             [
                 'group_stock_tracking_lot',
                 'group_stock_tracking_owner',
                 'group_stock_production_lot',
-                'group_stock_picking_wave',
             ]
         )
         res = super(VentorConfigSettings, self).set_values()
@@ -177,6 +176,4 @@ class VentorConfigSettings(models.TransientModel):
         self.sudo()._set_packages_fields(previous_group)
         self.sudo()._set_manage_product_owner(previous_group)
 
-        # Updating the menu display in Ventor for users
-        self.sudo()._update_display_wave_picking_menu(previous_group)
         return res

@@ -9,8 +9,8 @@ class ImportStockLevelsWizard(models.TransientModel):
 
     integration_id = fields.Many2one(
         comodel_name='sale.integration',
-        string='Sale Integration',
-        default=lambda self: self._context.get('active_id'),
+        string='E-Commerce Store',
+        default=lambda self: self.env.context.get('active_id'),
         required=True,
     )
     company_id = fields.Many2one(
@@ -71,7 +71,10 @@ class ImportStockLevelsWizard(models.TransientModel):
 
         for idx, line in enumerate(location_lines, start=1):
             job_kwargs = integration._job_kwargs_import_stock_from_location(line, block=idx)
-            job = integration.with_delay(**job_kwargs).import_stock_levels_integration(line)
+
+            job = integration \
+                .with_delay(**job_kwargs) \
+                .import_stock_levels_integration(line)
 
             integration.job_log(job)
 
