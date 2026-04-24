@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="view_whitelist_history_form" model="ir.ui.view">
+        <field name="name">whitelist.history.form</field>
+        <field name="model">whitelist.history</field>
+        <field name="arch" type="xml">
+            <form string="White List History">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="message"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="account_id" string="Reference"/>
+                            <field name="partner_id"/>
+                            <field name="partner_bank_acc"/>
+                        </group>
+                        <group>
+                            <field name="create_date"/>
+                            <field name="write_uid"/>
+                            <field name="token"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_whitelist_history_tree" model="ir.ui.view">
+        <field name="name">whitelist.history.tree</field>
+        <field name="model">whitelist.history</field>
+        <field name="arch" type="xml">
+            <list string="White List History">
+                <field name="name"/>
+                <field name="create_date" optional="show"/>
+                <field name="write_uid" optional="hide"/>
+                <field name="token"/>
+                <field name="invoice_number"/>
+
+                <field name="partner_id"/>
+                <field name="partner_bank_acc"/>
+                <field name="message"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_whitelist_history_search" model="ir.ui.view">
+        <field name="name">whitelist.history.search</field>
+        <field name="model">whitelist.history</field>
+        <field name="arch" type="xml">
+            <search string="White List History">
+                <field name="name"/>
+                <field name="token"/>
+                <field name="invoice_number"/>
+                <field name="partner_id"/>
+                <field name="message"/>
+                <group expand="0" string="Group By...">
+                        <filter string="INV/BILL" name="month" context="{'group_by':'account_id'}"/>
+                        <filter string="Partner" name="partner" context="{'group_by':'partner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_view_whitelist_history" model="ir.actions.act_window">
+        <field name="name">White List History</field>
+        <field name="res_model">whitelist.history</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_whitelist_history_search" />
+    </record>
+
+    <menuitem
+            id="menu_action_whitelist_history"
+            name="White List History"
+            action="action_view_whitelist_history"
+            parent="account.menu_finance_entries"
+            sequence="56"
+            groups="account.group_account_manager"/>
+
+</odoo>

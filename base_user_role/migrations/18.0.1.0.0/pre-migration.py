@@ -28,15 +28,6 @@ MODULES = [
     "sale_order_line_sequence",
     "stock_picking_line_sequence",
     "sale_delivery_state",
-    "trilab_jpk_vat",
-    "trilab_pl_reports",
-    "trilab_whitelist-15.0.2.5",
-    "trilab_ksef",
-    "trilab_invoice",
-    "trilab_jpk_base",
-    "efarmer_trilab_extension",
-    "efarmer_whitelist_history",
-    "integration",
 ]
 
 ACTION_MODELS = [

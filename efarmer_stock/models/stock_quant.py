@@ -7,7 +7,7 @@ from odoo import api, models
 class StockQuant(models.Model):
     _inherit = "stock.quant"
 
-    @api.model
+    @api.model_create_multi
     def create(self, vals):
         res = super(StockQuant, self).create(vals)
         for record in res:
