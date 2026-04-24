@@ -9,29 +9,14 @@
             <field name="arch" type="xml">
                 <form string="Label View" js_class="zld_label_form_view">
                     <header groups="zpl_label_designer.zld_security_group_manager">
-                        <button name="open_in_designer" string="Open in Designer" type="object" attrs="{'invisible': [('designer_label_id', '=', False)]}" />
-                        <button name="publish" string="Publish" type="object" class="oe_highlight" attrs="{'invisible': [('action_report_id', '!=', False)]}" />
-                        <button name="unpublish" string="Unpublish" type="object" attrs="{'invisible': [('action_report_id', '=', False)]}"/>
-                        <button name="open_view" string="Open Label View" type="object" groups="base.group_no_one" attrs="{'invisible': [('view_id', '=', False)]}"/>
+                        <button name="open_in_designer" string="Open in Designer" type="object" invisible="designer_label_id == False" />
+                        <button name="publish" string="Publish" type="object" class="oe_highlight" invisible="action_report_id != False" />
+                        <button name="unpublish" string="Unpublish" type="object" invisible="action_report_id == False" />
+                        <button name="open_view" string="Open Label View" type="object" groups="base.group_no_one" invisible="view_id == False" />
                     </header>
 
                     <sheet>
-                        <div class="alert alert-warning text-center pt-4 pb-4" role="alert" groups="zpl_label_designer.zld_security_group_manager" attrs="{'invisible': [('designer_label_id', '!=', False)]}">
-                            <p>
-                                Due to Odoo UI limitations, we created a special service to edit labels: <a href="http://labels.ventor.tech">labels.ventor.tech</a>.
-                                It provides easy-to-use interface and more features. Use "Create" button to create new labels.
-                            </p>
-                            <p>
-                                You still can use labels created with previous versions of our module but only in readonly mode. We apologize for the inconvenience.
-                            </p>
-                            <p>
-                                <strong>
-                                    Note: <a href="http://labels.ventor.tech">labels.ventor.tech</a> won’t get access to any sensitive information
-                                    (e.g. password, information about orders and products, etc.) Designer will have access only to models and its fields you want to use in labels.
-                                </strong>
-                            </p>
-                        </div>
-                        <div class="alert alert-info text-center pt-4 pb-4" role="alert" attrs="{'invisible': ['|', ['is_published', '=', False], ['is_modified', '=', False]]}">
+                        <div class="alert alert-info text-center pt-4 pb-4" role="alert" invisible="is_published == False or is_modified == False">
                             You made a change to the ZPL label design. In order to apply them
                             you need to click “Update Published Label“ button.
                         </div>
@@ -39,10 +24,11 @@
                         <div class="oe_title">
                             <h1>
                                 <field name="name" placeholder="Label Name" class="oe_inline me-3" />
-                                <field name="is_published" invisible="1" />
+                                <field name="is_published" invisible="1" /> <!-- Required because it is used in the invisible condition above -->
+
+                                <span class="badge bg-success rounded-pill o_field_badge bg-opacity-50" invisible="is_published == False">Published</span>
+                                <span class="badge bg-secondary rounded-pill o_field_badge bg-opacity-50" invisible="is_published != False">Not Published</span>
                             </h1>
-                            <span class="badge bg-success border-primary rounded-pill o_field_badge bg-opacity-50" attrs="{'invisible': [['is_published', '=', False]]}">Published</span>
-                            <span class="badge bg-secondary border-secondary rounded-pill o_field_badge bg-opacity-50" attrs="{'invisible': [['is_published', '!=', False]]}">Not Published</span>
                         </div>
 
                         <group>
@@ -53,10 +39,10 @@
                                 <field name="height" />
                                 <field name="orientation" />
 
-                                <field name="view_id" invisible="1" />
-                                <field name="action_report_id" invisible="1" />
-                                <field name="is_modified" invisible="1" />
-                                <field name="designer_label_id" invisible="1" />
+                                <field name="view_id" invisible="1" /> <!-- Required because it is used in the invisible condition above -->
+                                <field name="action_report_id" invisible="1" /> <!-- Required because it is used in the invisible condition above -->
+                                <field name="is_modified" invisible="1" /> <!-- Required because it is used in the invisible condition above -->
+                                <field name="designer_label_id" invisible="1" /> <!-- Required because it is used in the invisible condition above -->
                             </group>
                             <group groups="base.group_no_one">
                                 <field name="print_report_name" />
@@ -71,9 +57,8 @@
                         </div>
 
                         <group string="Preview">
-                            <field name="preview" nolabel="1" widget="zld_label_preview" colspan="2" />
+                            <field name="preview" nolabel="1" readonly="1" widget="zld_label_preview" colspan="2" />
                         </group>
-
                         <div>
                             <small>
                                 The preview may have inaccuracies in the display of elements due
@@ -89,22 +74,22 @@
             </field>
         </record>
 
-        <record id="zpl_label_designer_label_tree" model="ir.ui.view">
+        <record id="zpl_label_designer_label_list" model="ir.ui.view">
             <field name="name">zld.label.view</field>
             <field name="model">zld.label</field>
             <field name="arch" type="xml">
-                <tree js_class="zld_label_list_view" import="false">
+                <list js_class="zld_label_list_view" import="false">
                     <field name="name" />
                     <field name="model_id" />
                     <field name="is_published" />
-                </tree>
+                </list>
             </field>
         </record>
 
         <record id="zld_label_action" model="ir.actions.act_window">
             <field name="name">Labels</field>
             <field name="res_model">zld.label</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
 
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">

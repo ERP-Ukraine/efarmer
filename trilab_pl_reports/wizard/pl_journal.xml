@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="journal_wizard" model="ir.ui.view">
+        <field name="name">journal.entries.form</field>
+        <field name="model">pl.journal.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="PL Journal Report Options">
+                <div class="row gx-1">
+                    <div class="col-6">
+                        <group name="main_info">
+                            <field name="company_id" options="{'no_create': True}"/>
+                        </group>
+                        <group name="filters">
+                            <field name="date_from" string="Dates" required="True" widget="daterange"
+                                   options="{'end_date_field': 'date_to'}"/>
+                            <field name="date_to" required="True" invisible="True"/>
+                        </group>
+                    </div>
+                    <div class="col-6">
+                        <group name="other_filters">
+                            <field name="target_move" widget="radio"/>
+                            <field name="journal_ids" widget="many2many_tags"/>
+                        </group>
+                    </div>
+                </div>
+                <footer>
+                    <button string="View Report" name="button_export_html" type="object" class="btn-primary"
+                            data-hotkey="v"/>
+                    <button string="Export PDF" name="button_export_pdf" type="object" data-hotkey="p"/>
+                    <button string="Export XLSX" name="button_export_xlsx" type="object" data-hotkey="x"/>
+                    <button string="Cancel" special="cancel" data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_view_pl_journal_wizard" model="ir.actions.act_window">
+        <field name="name">PL Journal Report</field>
+        <field name="res_model">pl.journal.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="journal_wizard"/>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_pl_journal" name="Journals" parent="account.menu_finance_reports">
+        <menuitem
+                id="menu_action_pl_journal_report"
+                action="trilab_pl_reports.action_view_pl_journal_wizard"
+                groups="account.group_account_readonly"/>
+    </menuitem>
+
+</odoo>

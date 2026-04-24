@@ -7,36 +7,45 @@ DOWN_PAYMENT_SECTION_NAME = '*down-payment-section*'
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-    advance_invoices = fields.Many2many('account.move', compute='compute_advance_invoices', store=False)
-    x_is_poland = fields.Boolean(compute='_x_compute_is_poland', string='Technical Field: Is Poland')
+    x_use_ti = fields.Boolean(related='company_id.x_use_ti', string='Technical Field: Use Trilab Invoice')
+    x_company_partner_bank_on_proforma = fields.Boolean(related='company_id.x_company_partner_bank_on_proforma')
+    x_company_partner_bank_id = fields.Many2one(
+        'res.partner.bank',
+        'Company Partner Bank',
+        compute='_x_compute_company_partner_bank_id',
+        domain="[('currency_id', '=', currency_id), '|', ('company_id', '=', False), ('company_id', '=', company_id)]",
+        store=True,
+    )
 
-    @api.depends('company_id')
-    def _x_compute_is_poland(self):
-        for rec in self:
-            rec.x_is_poland = rec.company_id.country_id.id == rec.env.ref('base.pl').id
-
-    def compute_advance_invoices(self):
-        for sale in self:
-            sale.advance_invoices = (
-                sale.order_line.filtered(lambda line: line.is_downpayment)
-                .mapped('invoice_lines')
-                .filtered(lambda line: line.currency_id.compare_amounts(line.credit, 0.0) == 1)
-                .mapped('move_id')
+    @api.depends('currency_id', 'company_id')
+    def _x_compute_company_partner_bank_id(self):
+        for order_id in self:
+            order_id.x_company_partner_bank_id = fields.first(
+                order_id.company_id.partner_id.bank_ids.filtered(
+                    lambda bank_id: (
+                        bank_id.currency_id == order_id.currency_id
+                        and (not bank_id.company_id or bank_id.company_id == order_id.company_id)
+                    )
+                )
             )
 
-    def get_taxes_groups(self):
-        taxes_groups = dict()
-        for line in self.order_line.filtered(lambda lne: not lne.is_downpayment and not lne.display_type):
+    def x_get_advance_invoices(self):
+        return (
+            self.order_line.filtered('is_downpayment')
+            .invoice_lines.filtered(lambda line: line.currency_id.compare_amounts(line.credit, 0.0) == 1)
+            .move_id
+        )
+
+    def x_get_taxes_groups(self):
+        taxes_groups = {}
+        for line_id in self.order_line.filtered(lambda lne: not lne.is_downpayment and not lne.display_type):
             taxes_groups.setdefault(
-                line.tax_id.tax_group_id.name,
-                {'base': 0.0, 'tax': 0.0, 'total': 0.0, 'tax_percent': (line.tax_id.amount / 100.0)},
+                line_id.tax_id.tax_group_id.name,
+                {'base': 0.0, 'tax': 0.0, 'total': 0.0, 'tax_percent': (line_id.tax_id.amount / 100.0)},
             )
 
-            group = taxes_groups[line.tax_id.tax_group_id.name]
-            group['base'] += line.price_subtotal
-            # group['base'] += line.price_subtotal
-            # group['tax'] += line.price_tax
-            # group['total'] += line.price_subtotal + line.price_tax
+            group = taxes_groups[line_id.tax_id.tax_group_id.name]
+            group['base'] += line_id.price_subtotal
 
         # rounding
         for tax_name in taxes_groups:
@@ -50,72 +59,51 @@ class SaleOrder(models.Model):
 
     def x_get_taxes_summary(self):
         summary = {'base': 0.0, 'tax': 0.0, 'total': 0.0}
-        for group in self.get_taxes_groups().values():
+        for group in self.x_get_taxes_groups().values():
             for key, value in group.items():
                 summary[key] += value
 
         return summary
 
     def check_advance_invoice_values(self):
-        taxes = self.order_line.mapped('tax_id')
-        for tax in taxes:
-            lines = self.order_line.filtered(lambda line: line.tax_id.id == tax.id)
-            order_value = sum(lines.filtered(lambda _l: not _l.is_downpayment).mapped('price_total'))
-
-            invoice_lines = (
-                lines.filtered(lambda _l: _l.is_downpayment)
-                .mapped('invoice_lines')
-                .filtered(lambda _l: _l.currency_id.compare_amounts(_l.credit, 0.0) == 1)
+        for tax_id in self.order_line.mapped('tax_id'):
+            line_ids = self.order_line.filtered(lambda l_id: l_id.tax_id.id == tax_id.id)
+            order_value = sum(line_ids.filtered(lambda l_id: not l_id.is_downpayment).mapped('price_total'))
+            advance_value = sum(
+                line_ids.filtered('is_downpayment')
+                .invoice_lines.filtered(lambda l_id: l_id.currency_id.compare_amounts(l_id.credit, 0) == 1)
+                .mapped('price_total')
             )
 
-            advance_value = sum(invoice_lines.mapped('price_total'))
-
-            move_id = invoice_lines.mapped('move_id')[0]
-
-            if move_id.currency_id != self.currency_id:
-                exchange_rate = None
-
-                if 'x_trilab_force_currency_rate' in self._context:
-                    exchange_rate = 1 / self._context.get('x_trilab_force_currency_rate')
-
-                if not exchange_rate:
-                    if 'x_convert_rate' in self._context:
-                        exchange_rate = (
-                            self.env['res.currency.rate'].browse(self.env.context.get('x_convert_rate', 0)).rate
-                        )
-                    else:
-                        exchange_rate = move_id.x_currency_rate
-
-                advance_value = move_id.currency_id.round(advance_value * exchange_rate)
-
-            if self.currency_id.compare_amounts(advance_value - order_value, 0.05) == 1:
-                raise UserError(
-                    _(
-                        'Total value of advance invoices (%02f) is greater than order value (%02f)',
-                        advance_value,
-                        order_value,
-                    )
-                )
+            if advance_value - order_value > 0.05:
+                raise UserError(_('Value in advance invoices is greater than order value'))
 
     def _get_invoiceable_lines(self, final=False):
-        if any(self.mapped('x_is_poland')) and 'selected_invoice_lines' in self.env.context:
-            return self.order_line.filtered(lambda _l: _l.id in self.env.context['selected_invoice_lines'])
+        # todo handle sections
+        line_ids = super()._get_invoiceable_lines(final)
 
-        return super()._get_invoiceable_lines(final)
+        if any(self.mapped('x_use_ti')) and (lines := self.env.context.get('selected_invoice_lines', [])):
+            return line_ids.filtered(lambda l_id: l_id.id in lines)
+
+        return line_ids
 
     def _create_invoices(self, grouped=False, final=False, date=None):
         invoice_ids = super(
-            SaleOrder, self.with_context(x_disable_refund_switch=any(self.mapped('x_is_poland')))
+            SaleOrder, self.with_context(x_disable_refund_switch=any(self.mapped('x_use_ti')))
         )._create_invoices(grouped, final, date)
 
-        if self.env.company.country_id.id == self.env.ref('base.pl').id:
+        if ti_invoice_ids := invoice_ids.filtered('x_use_ti'):
             # remove downpayment section name
-            invoice_ids.line_ids.filtered(lambda rec: rec.name == DOWN_PAYMENT_SECTION_NAME).unlink()
+            ti_invoice_ids.line_ids.filtered(lambda l_id: l_id.name == DOWN_PAYMENT_SECTION_NAME).with_context(
+                check_move_validity=False, skip_invoice_sync=True
+            ).unlink()
 
-            currency_rate = self.env['res.currency.rate'].browse(self.env.context.get('x_convert_rate', 0))
+            currency_rate = self.env['res.currency.rate'].browse(self.env.context.get('x_convert_rate_id'))
 
             if currency_rate:
-                invoice_ids.write(
+                # noinspection PyUnusedLocal
+                context = {'lang': self.partner_id.lang}
+                ti_invoice_ids.write(
                     {
                         'narration': _(
                             'Rate %s with effective date: %s',
@@ -127,27 +115,31 @@ class SaleOrder(models.Model):
 
         return invoice_ids
 
-    @api.depends_context('x_convert_rate', 'x_partner_bank_id')
+    @api.depends_context('x_convert_rate_id', 'x_partner_bank_id')
     def _prepare_invoice(self):
-        # noinspection PyProtectedMember
+        context = {'lang': self.partner_id.lang}
+        self = self.with_context(**context)
+
         invoice_vals = super()._prepare_invoice()
 
         if not invoice_vals.get('x_invoice_sale_date'):
             invoice_vals['x_invoice_sale_date'] = fields.Date.context_today(self)
 
-        if self.env.context.get('x_convert_rate'):
-            currency_rate = self.env['res.currency.rate'].browse(self.env.context.get('x_convert_rate', 0))
-            if currency_rate:
-                invoice_vals['currency_id'] = self.env.ref('base.PLN').id
-                invoice_vals['x_currency_rate'] = currency_rate.inverse_company_rate
-                invoice_vals['narration'] = _(
-                    'Rate %s with effective date: %s', f'{currency_rate.inverse_company_rate:.4f}', currency_rate.name
-                )
+        if (rate := self.env.context.get('x_convert_rate_id')) and (
+            currency_rate := self.env['res.currency.rate'].browse(rate)
+        ):
+            invoice_vals['currency_id'] = self.company_id.currency_id.id
+            invoice_vals['invoice_currency_rate'] = currency_rate.company_rate
+            invoice_vals['narration'] = _(
+                'Rate %s with effective date: %s',
+                f'{currency_rate.inverse_company_rate:.4f}',
+                currency_rate.name,
+            )
 
         elif invoice_vals.get('currency_id') != self.company_id.currency_id.id:
-            invoice_vals['x_currency_rate'] = self.env['res.currency']._get_conversion_rate(
-                self.currency_id,
+            invoice_vals['invoice_currency_rate'] = self.env['res.currency']._get_conversion_rate(
                 self.company_id.currency_id,
+                self.currency_id,
                 self.company_id or self.env.company,
                 invoice_vals.get('x_invoice_sale_date')
                 or invoice_vals.get('invoice_date')
@@ -155,13 +147,12 @@ class SaleOrder(models.Model):
                 or fields.Date.context_today(self),
             )
 
-        if 'x_partner_bank_id' in self.env.context:
-            invoice_vals['partner_bank_id'] = self.env.context['x_partner_bank_id']
+        if x_partner_bank_id := self.env.context.get('x_partner_bank_id'):
+            invoice_vals['partner_bank_id'] = x_partner_bank_id
 
         return invoice_vals
 
-    @api.model
     def _prepare_down_payment_section_line(self, **optional_values):
-        if self.env.company.country_id.id == self.env.ref('base.pl').id:
+        if self.x_use_ti:
             optional_values['name'] = DOWN_PAYMENT_SECTION_NAME
         return super()._prepare_down_payment_section_line(**optional_values)

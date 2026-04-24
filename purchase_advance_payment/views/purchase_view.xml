@@ -11,7 +11,7 @@
                     string="Pay purchase advanced"
                     type="action"
                     groups="account.group_account_invoice"
-                    attrs="{'invisible': ['|',('state', 'in', ['done','cancel']),('amount_residual', '=', 0)]}"
+                    invisible="state in ['done', 'cancel'] or not amount_residual"
                 />
             </button>
             <notebook position="inside">
@@ -24,7 +24,10 @@
                     />
                 </page>
             </notebook>
-            <field name="tax_totals_json" position="after">
+            <field name="tax_totals" position="attributes">
+                <attribute name="colspan">2</attribute>
+            </field>
+            <field name="tax_totals" position="after">
                 <div class="oe_subtotal_footer_separator oe_inline o_td_label">
                     <label for="amount_residual" />
                 </div>
@@ -92,5 +95,4 @@
             </field>
         </field>
     </record>
-
 </odoo>

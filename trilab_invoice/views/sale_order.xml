@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_order_form" model="ir.ui.view">
+        <field name="name">trilab_invoice sale.order.form.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- hide standard buttons -->
+            <xpath expr="//button[@id='create_invoice']" position="attributes">
+                <attribute name="invisible" add="x_use_ti" separator=" or "/>
+            </xpath>
+
+            <xpath expr="//button[@id='create_invoice_percentage']" position="attributes">
+                <attribute name="invisible" add="x_use_ti" separator=" or "/>
+            </xpath>
+
+            <!-- add trilab wizard -->
+            <xpath expr="//button[@id='create_invoice_percentage']" position="after">
+                <field name="x_use_ti" invisible="True"/>
+                <button name="%(trilab_invoice.action_view_invoice_wizard)d" string="Create Invoice PL"
+                        type="action" class="btn-primary"
+                        invisible="invoice_status not in ('no', 'to invoice') or  not x_use_ti"/>
+            </xpath>
+
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="x_company_partner_bank_on_proforma" invisible="True"/>
+                <field name="x_company_partner_bank_id" invisible="not x_company_partner_bank_on_proforma"
+                       readonly="False"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

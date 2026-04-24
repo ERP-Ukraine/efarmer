@@ -2,14 +2,11 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html)
 
 import functools
-import logging
 
 from odoo import api, models
 
-from ..delay import Delayable
-from ..job import DelayableRecordset
-
-_logger = logging.getLogger(__name__)
+from ..delay import Delayable, DelayableRecordset
+from ..utils import must_run_without_delay
 
 
 class Base(models.AbstractModel):
@@ -171,9 +168,6 @@ class Base(models.AbstractModel):
         method named after the name of the method suffixed by ``_job_options``
         which takes the same parameters as the initial method.
 
-        It is still possible to force synchronous execution of the method by
-        setting a key ``_job_force_sync`` to True in the environment context.
-
         Example patching the "foo" method to be automatically delayed as job
         (the job options method is optional):
 
@@ -216,17 +210,14 @@ class Base(models.AbstractModel):
             if (
                 self.env.context.get("job_uuid")
                 or not context_delay
-                or self.env.context.get("_job_force_sync")
-                or self.env.context.get("test_queue_job_no_delay")
+                or must_run_without_delay(self.env)
             ):
                 # we are in the job execution
                 return auto_delay_wrapper.origin(self, *args, **kwargs)
             else:
                 # replace the synchronous call by a job on itself
                 method_name = auto_delay_wrapper.origin.__name__
-                job_options_method = getattr(
-                    self, "{}_job_options".format(method_name), None
-                )
+                job_options_method = getattr(self, f"{method_name}_job_options", None)
                 job_options = {}
                 if job_options_method:
                     job_options.update(job_options_method(*args, **kwargs))
@@ -257,9 +248,7 @@ class Base(models.AbstractModel):
         """Keys to keep in context of stored jobs
         Empty by default for backward compatibility.
         """
-        # TODO: when migrating to 16.0, active the base context keys:
-        # return ("tz", "lang", "allowed_company_ids", "force_company", "active_test")
-        return ()
+        return ("tz", "lang", "allowed_company_ids", "force_company", "active_test")
 
     def _job_prepare_context_before_enqueue(self):
         """Return the context to store in the jobs
@@ -270,3 +259,12 @@ class Base(models.AbstractModel):
             for key, value in self.env.context.items()
             if key in self._job_prepare_context_before_enqueue_keys()
         }
+
+    @classmethod
+    def _patch_method(cls, name, method):
+        origin = getattr(cls, name)
+        method.origin = origin
+        # propagate decorators from origin to method, and apply api decorator
+        wrapped = api.propagate(origin, method)
+        wrapped.origin = origin
+        setattr(cls, name, wrapped)

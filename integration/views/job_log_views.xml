@@ -3,10 +3,10 @@
     <data>
 
         <record id="integration_job_log_view_tree" model="ir.ui.view">
-            <field name="name">job.log.view.tree</field>
+            <field name="name">job.log.view.list</field>
             <field name="model">job.log</field>
             <field name="arch" type="xml">
-                <tree editable="bottom" create="0" delete="0"
+                <list editable="bottom" create="0" delete="0"
                       decoration-danger="state == 'failed'"
                       decoration-muted="state == 'done'"
                       decoration-warning="state in ('enqueued', 'started')"
@@ -16,16 +16,16 @@
                     <field name="job_id" readonly="1"/>
                     <field name="exc_info_lite" readonly="1" optional="hide"/>
                     <button name="action_open_job_lite_info"
-                            string="Job Info" 
+                            string="Job Info"
                             type="object"
-                            attrs="{'invisible': [('name', 'in', (False, ''))]}"
+                            invisible="name in (False, '')"
                     />
                     <field name="state"/>
                     <button name="action_open_odoo"
                             title="Related Object"
                             icon="fa-external-link"
                             type="object"
-                            attrs="{'invisible': [('name', 'in', (False, ''))]}"
+                            invisible="name in (False, '')"
                     />
                     <field name="input_file_id" readonly="1"/>
                     <field name="order_id" readonly="1"/>
@@ -35,16 +35,16 @@
                     <field name="res_id" readonly="1" optional="hide"/>
                     <field name="date_created"/>
                     <button name="action_requeue_job"
-                        states="failed"
-                        string="Requeue" 
+                        invisible="state not in ['failed']"
+                        string="Requeue"
                         type="object"
                     />
                     <button name="action_set_job_done"
-                            states="pending,enqueued,failed"
-                            string="Done" 
+                            invisible="state not in ['pending','enqueued','failed']"
+                            string="Done"
                             type="object"
                     />
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -59,7 +59,7 @@
                     <field name="template_id"/>
                     <field name="integration_id"/>
                     <field name="exc_info_lite"/>
-                    
+
                     <filter name="order"
                             string="Show Order Related Logs"
                             domain="['|', ('order_id', '!=', False), ('input_file_id', '!=', False)]"/>
@@ -88,19 +88,19 @@
 
                     <filter string="Sales Order"
                             name="group_sales_order"
-                            domain="[]" 
+                            domain="[]"
                             context="{'group_by': 'order_id'}"/>
-                    <filter string="Product" 
-                            name="group_product" 
-                            domain="[]" 
+                    <filter string="Product"
+                            name="group_product"
+                            domain="[]"
                             context="{'group_by': 'template_id'}"/>
-                    <filter string="Integration" 
-                            name="group_integration" 
+                    <filter string="E-Commerce Store"
+                            name="group_integration"
                             domain="[]"
                             context="{'group_by': 'integration_id'}"/>
                     <separator/>
-                    <filter string="Job" 
-                            name="group_job" 
+                    <filter string="Job"
+                            name="group_job"
                             domain="[]"
                             context="{'group_by': 'job_id'}"/>
 
@@ -110,8 +110,9 @@
 
         <record id="integration_job_log_action" model="ir.actions.act_window">
             <field name="name">Job Logs</field>
+            <field name="path">eci-job-logs</field>
             <field name="res_model">job.log</field>
-            <field name="view_mode">tree</field>
+            <field name="view_mode">list</field>
             <field name="context">
                 {
                     'search_default_pending': 1,
@@ -124,6 +125,7 @@
 
         <record id="action_set_related_jobs_done" model="ir.actions.act_window">
             <field name="name">Set jobs to done</field>
+            <field name="path">eci-set-jobs-done</field>
             <field name="res_model">queue.jobs.to.done</field>
             <field name="view_mode">form</field>
             <field name="view_id" ref="queue_job.view_set_jobs_done"/>
@@ -134,6 +136,7 @@
 
         <record id="action_requeue_related_job" model="ir.actions.act_window">
             <field name="name">Requeue Jobs</field>
+            <field name="path">eci-requeue-jobs</field>
             <field name="res_model">queue.requeue.job</field>
             <field name="view_mode">form</field>
             <field name="view_id" ref="queue_job.view_requeue_job"/>

@@ -32,8 +32,6 @@ class TestPrintNodeIrCron(TestPrintNodeCommon):
             'code': 'model.search([("name", "=", "Test Stock Picking")]).button_validate()',
             'interval_number': 1,
             'interval_type': 'days',
-            'numbercall': 1,
-            'doall': False,
         })
 
         # Create Mock objects
@@ -51,7 +49,7 @@ class TestPrintNodeIrCron(TestPrintNodeCommon):
     def _set_up_stock_move(self):
         self.stock_move._action_confirm()
         self.stock_move._action_assign()
-        self.stock_move.move_line_ids.qty_done = 2
+        self.stock_move.move_line_ids.quantity = 2
 
     def test_run_print_scenario_from_cron_case_1(self):
         """ Test to check run/skip print scenario from cron
@@ -60,14 +58,14 @@ class TestPrintNodeIrCron(TestPrintNodeCommon):
         # Set Up
         self._set_up_stock_move()
 
-        # Printnode is disabled at company level - print scenario won't run.
+        # Direct Print is disabled at company level - print scenario won't run.
         # Transaction will be completed.
         self.company.printnode_enabled = False
         self.cron.active = True
 
         self.assertFalse(self.product_id.stock_quant_ids)
 
-        self.cron._callback(self.cron.name, self.cron.ir_actions_server_id.id, "New_job_id")
+        self.cron._callback(self.cron.name, self.cron.ir_actions_server_id.id)
 
         self.assertEqual(
             self.product_id.stock_quant_ids.filtered(
@@ -96,7 +94,7 @@ class TestPrintNodeIrCron(TestPrintNodeCommon):
 
         self.assertFalse(self.product_id.stock_quant_ids)
 
-        self.cron._callback(self.cron.name, self.cron.ir_actions_server_id.id, "New_job_id")
+        self.cron._callback(self.cron.name, self.cron.ir_actions_server_id.id)
 
         self.assertEqual(
             self.product_id.stock_quant_ids.filtered(
@@ -121,7 +119,7 @@ class TestPrintNodeIrCron(TestPrintNodeCommon):
 
         self.assertFalse(self.product_id.stock_quant_ids)
 
-        self.cron._callback(self.cron.name, self.cron.ir_actions_server_id.id, "New_job_id")
+        self.cron._callback(self.cron.name, self.cron.ir_actions_server_id.id)
 
         self.assertEqual(
             self.product_id.stock_quant_ids.filtered(
@@ -148,7 +146,7 @@ class TestPrintNodeIrCron(TestPrintNodeCommon):
 
         self.assertFalse(self.product_id.stock_quant_ids)
 
-        self.cron._callback(self.cron.name, self.cron.ir_actions_server_id.id, "New_job_id")
+        self.cron._callback(self.cron.name, self.cron.ir_actions_server_id.id)
 
         self.assertEqual(
             self.product_id.stock_quant_ids.filtered(

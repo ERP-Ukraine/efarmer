@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="report_saleorder_document_inherit" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//p[@t-if='not is_html_empty(doc.payment_term_id.note)']" position="after">
+            <p t-if="doc.x_company_partner_bank_on_proforma
+                     and doc.x_company_partner_bank_id
+                     and (env.context.get('proforma') or is_pro_forma)"
+               class="col-auto col-4 mw-100 mb-2">
+                Bank Account Number:<br/>
+                <span class="m-0" t-field="doc.x_company_partner_bank_id.acc_number"/>
+                <span t-if="doc.currency_id != doc.company_id.currency_id and doc.x_company_partner_bank_id.bank_bic">
+                    <br/>&amp;bull;&amp;nbsp;BIC/SWIFT:
+                    <span t-field="doc.x_company_partner_bank_id.bank_bic"/>
+                </span>
+            </p>
+        </xpath>
+    </template>
+</odoo>

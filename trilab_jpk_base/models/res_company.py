@@ -20,17 +20,17 @@ class Company(models.Model):
 
     @api.depends('street', 'street2')
     def _x_split_street_no(self):
-        for company in self.sudo():
-            street = ' '.join((company.street or '', company.street2 or '')).strip()
+        for company_id in self.sudo():
+            street = ' '.join((company_id.street or '', company_id.street2 or '')).strip()
             parts = re.split(r'\s(?=\d)', street)
-            company.x_street_short = parts[0]
-            company.x_street_short_number = parts[1] if len(parts) > 1 else None
+            company_id.x_street_short = parts[0]
+            company_id.x_street_short_number = parts[1] if len(parts) > 1 else None
 
     def x_is_jpk_transfer_installed(self):
         return bool(
             self.env['ir.module.module']
             .sudo()
-            .search([('name', '=', 'trilab_jpk_transfer'), ('state', '=', 'installed')], count=True)
+            .search_count([('name', '=', 'trilab_jpk_transfer'), ('state', '=', 'installed')])
         )
 
     def x_get_jpk_email(self):

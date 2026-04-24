@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="product.product_attribute_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='create_variant']" position="after">
-                <field name="exclude_from_synchronization" />
+                <field name="exclude_from_synchronization"/>
             </xpath>
         </field>
     </record>

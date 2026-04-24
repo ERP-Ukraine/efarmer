@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="sub_report_section_v3" inherit_id="sub_report_section" primary="True">
+        <xpath expr="//t[@t-out=&quot;data['typdokumentu']&quot;]/.." position="after">
+            <td class="act_as_cell left" t-att-rowspan="child_count">
+                <t t-out="data['ksefdowod']"/>
+            </td>
+        </xpath>
+    </template>
+
+    <template id="report_jpk_vat7m_report_v3" inherit_id="report_jpk_vat7m_report_base" primary="True">
+        <xpath expr="//th[@name='th_typ_dokumentu']" position="after">
+            <th>Typ dowodu faktury</th>
+        </xpath>
+
+        <xpath expr="//t[@t-set='th_colspan']" position="after">
+            <t t-set="th_colspan" t-value="th_colspan + 1"/>
+        </xpath>
+
+        <xpath expr="//t[@t-foreach=&quot;doc['SprzedazWiersz']&quot;]//t" position="attributes">
+            <attribute name="t-call">trilab_jpk_vat.sub_report_section_v3</attribute>
+        </xpath>
+
+        <xpath expr="//t[@t-foreach=&quot;doc['ZakupWiersz']&quot;]//t" position="attributes">
+            <attribute name="t-call">trilab_jpk_vat.sub_report_section_v3</attribute>
+        </xpath>
+    </template>
+
+    <template id="trilab_jpk_vat.jpk_vat7m_v3_report">
+        <t t-call="web.html_container">
+            <t t-call="trilab_jpk_base.internal_layout">
+                <t t-call="trilab_jpk_vat.report_jpk_vat7m_report_v3"/>
+            </t>
+        </t>
+    </template>
+</odoo>

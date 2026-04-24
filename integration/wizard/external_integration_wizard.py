@@ -77,8 +77,8 @@ class ExternalIntegrationLine(models.TransientModel):
         string='Wizard',
     )
     integration_id = fields.Many2one(
+        string='E-Commerce Store',
         comodel_name='sale.integration',
-        string='Sale integration',
         readonly=True,
     )
     name = fields.Char(

@@ -14,12 +14,9 @@
     'demo': [],
 
     'depends': [
-        'sale',
-        'sale_margin',
+        'base',
     ],
 
     'data': [
-        'security/ir.model.access.csv',
-        'reports/efarmer_sale_report.xml',
     ],
 }

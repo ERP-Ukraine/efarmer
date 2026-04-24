@@ -3,25 +3,36 @@
 
 {
     'name': 'Odoo Direct Print PRO',
-    'summary': """
-        Print any reports or shipping labels directly to any local,
-        Wi-Fi or Bluetooth printer without downloading PDF or ZPL!
-    """,
-    'version': '15.0.2.6.5',
+    'summary': '''
+        Print any Odoo report, document, or shipping label directly to your local, Wi-Fi,
+        or Bluetooth printer - no PDF download required. Supports ZPL and PDF formats,
+        automations, and cloud-based print routing.
+
+        Keywords: Odoo Direct Print | Odoo Print Module | Print Directly from Odoo |
+        Odoo Printing Solution | Local Printer Integration | Bluetooth Printer Odoo |
+        Wi-Fi Printer Odoo | ZPL Print Odoo | Print Shipping Labels Odoo | Cloud Printing Odoo |
+        Print Reports from Odoo | Barcode Printing Odoo | PDF Printing Odoo |
+        ERP Printing Solution | Odoo Print Automation | PrintNode Alternative |
+        Seamless Printing in Odoo | Direct Printing in Odoo | Print Custom Labels Odoo |
+        Print Without Downloading | Automatic Printing Odoo | Fast Printing from Odoo |
+        Thermal Printer Odoo | ZPL Printer Support
+    ''',
+    'version': '18.0.2.8.0',
     'category': 'Tools',
-    "images": ["static/description/images/logo.gif"],
+    "images": ["static/description/images/banner-birthday.gif"],
     'author': 'VentorTech',
-    'website': 'https://ventor.tech',
+    'website': 'https://ecosystem.ventor.tech/product/direct-print-pro-one-time-payment/',
     'support': 'support@ventor.tech',
     'license': 'OPL-1',
     'live_test_url': 'https://odoo.ventor.tech/',
-    'price': 299.00,
+    'price': 199.00,
     'currency': 'EUR',
     'depends': [
         'web',
         'account',
         'stock',
         'delivery',
+        'stock_delivery',
         'sale',
         'purchase',
     ],
@@ -31,6 +42,7 @@
         'security/ir.model.access.csv',
         # Printed Reports Data
         'reports/package_zpl_template.xml',
+        'reports/printnode_test_report.xml',
         # Initial Data
         'data/ir_actions_server_data.xml',
         'data/ir_cron_data.xml',
@@ -43,8 +55,8 @@
         'data/printnode_action_button_data.xml',
         'data/printnode_scenario_data.xml',
         'data/printnode_map_action_server_data.xml',
-        'data/printnode_log_type_data.xml',
         'data/printnode_release_data.xml',
+        'data/printnode_log_type_data.xml',
         # Root menus
         'views/printnode_menus.xml',
         # Wizards
@@ -52,6 +64,7 @@
         'wizard/product_label_layout.xml',
         'wizard/printnode_attach_universal_wizard.xml',
         'wizard/printnode_print_reports_universal_wizard.xml',
+        'wizard/stock_lot_label_layout.xml',
         'wizard/printnode_print_line_reports_wizard/abstract.xml',
         'wizard/printnode_print_line_reports_wizard/stock_move.xml',
         'wizard/printnode_print_line_reports_wizard/sale_order_line.xml',
@@ -76,25 +89,33 @@
         'views/stock_picking_views.xml',
         'views/delivery_carrier_views.xml',
         'views/printnode_scales_views.xml',
+        'views/res_company_views.xml',
         'views/res_config_settings_views.xml',
         'views/res_users_views.xml',
         'views/printnode_logging_views.xml',
     ],
     'assets': {
         'web.assets_backend': [
-            'printnode_base/static/src/css/status_menu.css',
-            'printnode_base/static/src/js/status_menu.js',
-            'printnode_base/static/src/js/download_menu.js',
+            'printnode_base/static/src/js/constants.js',
             'printnode_base/static/src/js/action_service.js',
-            'printnode_base/static/src/js/misc.js',
+            'printnode_base/static/src/components/*/*.js',
+            'printnode_base/static/src/components/*/*.css',
+            'printnode_base/static/src/components/*/*.xml',
         ],
-        'web.assets_qweb': [
-            'printnode_base/static/src/xml/*.xml',
+        'web.qunit_suite_tests': [
+            'printnode_base/static/tests/printnode_base_mock_server.js',
+        ],
+        'web.qunit_mobile_suite_tests': [
+            'printnode_base/static/tests/printnode_base_mock_server.js',
         ],
     },
     'installable': True,
     'application': True,
     "cloc_exclude": [
-        "**/*",
+        "data/*",
+        "models/*",
+        "controllers/*",
+        "reports/*",
+        "wizard/*",
     ]
 }

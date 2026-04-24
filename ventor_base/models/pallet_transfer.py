@@ -29,9 +29,9 @@ class PalletTransfer(models.Model):
         )
         self.pallet_id.location_id = self.destination_location_id
 
-    @api.model
-    def create(self, vals):
-        res = super().create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        res = super().create(vals_list)
         if res:
             res.update_value()
         return res

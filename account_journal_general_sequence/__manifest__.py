@@ -3,7 +3,7 @@
 {
     "name": "General sequence in account journals",
     "summary": "Add configurable sequence to account moves, per journal",
-    "version": "15.0.1.1.0",
+    "version": "18.0.1.0.1",
     "category": "Accounting/Accounting",
     "website": "https://github.com/OCA/account-financial-tools",
     "author": "Moduon, Odoo Community Association (OCA)",
@@ -21,4 +21,3 @@
         "wizards/account_move_renumber_wizard_views.xml",
     ],
 }
-

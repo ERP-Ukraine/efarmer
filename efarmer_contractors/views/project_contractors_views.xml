@@ -17,16 +17,16 @@
                 <header>
                     <field name="is_generate" invisible="1"/>
                     <button name="generate_report" string="Generate Report" type="object" class="oe_highlight"
-                    attrs="{'invisible': [('state', 'in', ['in_progress','done'])]}"/>
+                    invisible="state in ('in_progress','done')"/>
                     <button name="generate_invoice" string="Generate Invoices" type="object" class="oe_highlight"
-                    attrs="{'invisible': ['|', ('state', 'in', ['in_progress','done']), ('is_generate', '=', False)]}"/>
+                    invisible="state in ('in_progress','done') or is_generate == False"/>
                     <field name="state" widget="statusbar" statusbar_visible="new,in_progress,done"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button class="oe_stat_button" name="open_analytic_lines" string="REPORT" type="object" icon="fa-bars">
                         </button>
-                        <button class="oe_stat_button" name="open_vendor_bills" string="Vendor Bills" type="object" icon="fa-edit" attrs="{'invisible': [('state', 'in', ['new'])]}">
+                        <button class="oe_stat_button" name="open_vendor_bills" string="Vendor Bills" type="object" icon="fa-edit" invisible="state in ['new']">
                         </button>
                     </div>
                     <div class="oe_title">
@@ -36,11 +36,11 @@
                         </h1>
                     </div>
                     <group>
-                        <field name="company_id"/>
+                        <field name="company_id" readonly="state in ('in_progress', 'done')"/>
                     </group>
                     <group>
-                        <field name="start_date"/>
-                        <field name="end_date"/>
+                        <field name="start_date" readonly="state in ('in_progress', 'done')"/>
+                        <field name="end_date" readonly="state in ('in_progress', 'done')"/>
                     </group>
                     <group>
                         <field name="employee_type"/>
@@ -48,15 +48,15 @@
                     </group>
                     <notebook>
                         <page string="Invoice to">
-                            <field name="contractors_line_ids" nolabel="1">
-                                <tree editable="top">
+                            <field name="contractors_line_ids" nolabel="1" readonly="state in ('in_progress', 'done')">
+                                <list editable="top">
                                     <field name="employee_id"/>
                                     <field name="description"/>
                                     <field name="hours_spent"/>
                                     <field name="contract_pay_rate"/>
                                     <field name="bamboo_currency_id"/>
                                     <field name="amount"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                     </notebook>
@@ -70,20 +70,20 @@
         <field name="name">project.contractors.tree</field>
         <field name="model">project.contractors</field>
         <field name="arch" type="xml">
-            <tree string="Project Contractors">
+            <list string="Project Contractors">
                 <field name="name"/>
                 <field name="company_id"/>
                 <field name="start_date"/>
                 <field name="end_date"/>
                 <field name="state"/>
-            </tree>
+            </list>
         </field>
     </record>
 
     <record id="action_view_project_contractors" model="ir.actions.act_window">
         <field name="name">B2B Invoice</field>
         <field name="res_model">project.contractors</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="help" type="html">
             <p class="oe_view_nocontent_create">
                 Click to create a new B2B Invoice

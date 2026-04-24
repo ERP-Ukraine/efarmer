@@ -53,18 +53,18 @@
         </record>
 
         <record id="efarmer_purchase_allow_confirm_rfq" model="res.groups">
-            <field name="category_id" ref="module_category_purchase_other"/>
             <field name="name">Allow "Confirm RFQ" for Purchases</field>
+            <field name="category_id" ref="module_category_purchase_other"/>
         </record>
 
         <record id="efarmer_purchase_allow_confirm_demand" model="res.groups">
-            <field name="category_id" ref="module_category_purchase_other"/>
             <field name="name">Allow "Confirm Demand" for Purchases</field>
+            <field name="category_id" ref="module_category_purchase_other"/>
         </record>
 
         <record id="efarmer_purchase_allow_confirm_demand_all" model="res.groups">
-            <field name="category_id" ref="module_category_purchase_other"/>
             <field name="name">Allow “Confirm Demand“ for all departments</field>
+            <field name="category_id" ref="module_category_purchase_other"/>
         </record>
 
         <record id="group_allow_purchase_order_lines" model="res.groups">

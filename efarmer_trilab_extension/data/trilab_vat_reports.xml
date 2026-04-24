@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo noupdate="0">
+<odoo noupdate="1">
 
     <record id="pl_jpk_K_46_K_47" model="account.account.tag">
         <field name="name">P_Z_POZ-bad-debt</field>

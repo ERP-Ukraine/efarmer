@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="message_valuation_consumed" name="message_valuation_consumed">
+        <p><span t-field="self.journal_id.x_cash_valuation_method"/> Valuation:</p>
+        <br/>
+        <ul>
+            <t t-foreach="message_stmt_line_id_consumed_map" t-as="stmt_line_id">
+                <li>
+                    <ul>
+                        <li>Consumed from:
+                            <span t-out="stmt_line_id.name" t-if="stmt_line_id"/>
+                            <span t-else="">Currency Table</span>
+                        </li>
+                        <li>Amount: <span
+                                t-out="message_stmt_line_id_consumed_map[stmt_line_id]['amount_consumed']"/></li>
+                        <li>Currency rate date: <span
+                                t-out="message_stmt_line_id_consumed_map[stmt_line_id]['date']"/></li>
+                        <li>Currency rate: <span
+                                t-out="message_stmt_line_id_consumed_map[stmt_line_id]['currency_rate']"/></li>
+                        <li>Amount in company currency: <span
+                                t-out="message_stmt_line_id_consumed_map[stmt_line_id]['amount_company_currency']"/></li>
+                    </ul>
+                </li>
+            </t>
+        </ul>
+    </template>
+</odoo>

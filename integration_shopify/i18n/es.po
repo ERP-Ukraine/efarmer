@@ -1,0 +1,2601 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* integration_shopify
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-05 10:52+0000\n"
+"PO-Revision-Date: 2026-01-03 12:04+0000\n"
+"Last-Translator: Alexander Pashuk <alexander@ventor.tech>\n"
+"Language-Team: Spanish <https://translate.ventor.tech/projects/e-commerce-"
+"connectors/e-commerce-connectors-integration_shopify/es/>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.15.1\n"
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_external_order_risk__recommendation
+msgid ""
+"\n"
+"            Accept: Low risk - proceed with order fulfillment as normal\n"
+"            Investigate: Medium risk - review order details before "
+"processing\n"
+"            Cancel: High risk - cancel order due to suspected fraud\n"
+"        "
+msgstr ""
+"\n"
+"            Aceptar: Riesgo bajo: continuar con el despacho del pedido con "
+"normalidad\n"
+"            Investigar: Riesgo medio: revisar los detalles del pedido antes "
+"de procesarlo\n"
+"            Cancelar: Riesgo alto: cancelar el pedido por sospecha de "
+"fraude\n"
+"        "
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_sale_integration__customer_metafield_mapping_ids
+msgid ""
+" Defines the mappings between the customer metafields in the external system "
+"and the fields in Odoo."
+msgstr ""
+" Establece la correspondencia entre los metafields (campos personalizados) "
+"del cliente en el sistema externo y los campos de Odoo."
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/models/external/integration_catalog_external_line.py:0
+msgid "%s: Pricelist data not found for the: \"%s\" catalog."
+msgstr ""
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/models/external/integration_catalog_external_line.py:0
+msgid "%s: Publication data not found for the: \"%s\" catalog."
+msgstr ""
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/models/sale_integration.py:0
+msgid "%ss metafields were successfully updated"
+msgstr ""
+"%ss Se actualizaron correctamente los metafields (campos personalizados)"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.sale_order_cancel_integration_shopify_view_form
+msgid ""
+"<i class=\"fa fa-check\"/> Since the e-commerce order contains fulfilled "
+"products, in some cases, fulfillment cancellations may be required."
+msgstr ""
+"<i class=\"fa fa-check\"/> Dado que el pedido de e-commerce tiene productos "
+"ya entregados, en algunos casos puede ser necesario cancelar las entregas.."
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid "<i class=\"fa fa-check-circle me-2\"/> Step 2: Review Connection Status"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid "<i class=\"fa fa-check-circle me-2\"/> Step 3: Review Connection Status"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid "<i class=\"fa fa-cog me-2\"/> Step 1: Create Shopify App"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid ""
+"<i class=\"fa fa-exclamation-triangle me-2\" title=\"OAuth in Progress\"/>\n"
+"                            <strong>OAuth in Progress</strong> - You've been "
+"redirected to Shopify in another tab\n"
+"                            to complete authentication. This tab may now be "
+"outdated - please close it or refresh\n"
+"                            to see the latest status."
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid ""
+"<i class=\"fa fa-gear\" title=\"Invalid Location Mapping\"/> Invalid "
+"Location Mapping"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid ""
+"<i class=\"fa fa-info-circle me-2\" title=\"Information\"/> Authentication "
+"Method"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid "<i class=\"fa fa-key me-2\"/> Step 1: Enter Credentials"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid "<i class=\"fa fa-key me-2\"/> Step 2: Enter Credentials"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.sale_order_cancel_integration_shopify_view_form
+msgid "<i class=\"fa fa-star\"/> E-commerce order already cancelled!"
+msgstr "<i class=\"fa fa-star\"/> El pedido de e-commerce ya fue cancelado!"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid ""
+"<small>\n"
+"                                                If enabled, Odoo will "
+"automatically calculate and export Pricelist Prices once per day.\n"
+"                                                If disabled, no prices will "
+"be exported automatically, but you can still use the \"Send Prices” button "
+"on catalogs lines for manual updates.\n"
+"                                            </small>"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid ""
+"<span class=\"badge rounded-pill d-inline-flex align-items-center "
+"integration-api-badge-button\" invisible=\"not access_granted\" title=\"API "
+"Access Granted\">\n"
+"                                <i class=\"fa fa-check-circle me-2\" "
+"style=\"font-size: 1.1rem;\" title=\"API Access Granted\"/>\n"
+"                                <span>API Access Granted</span>\n"
+"                            </span>\n"
+"                            <span class=\"badge rounded-pill d-inline-flex "
+"align-items-center integration-api-badge-button api-access-not-granted\" "
+"invisible=\"access_granted or not use_oauth\" title=\"API Access Not "
+"Granted\">\n"
+"                                <i class=\"fa fa-exclamation-circle me-2\" "
+"style=\"font-size: 1.1rem;\" title=\"API Access Not Granted\"/>\n"
+"                                <span>API Access Not Granted</span>\n"
+"                            </span>\n"
+"                            <span class=\"badge rounded-pill d-inline-flex "
+"align-items-center integration-api-badge-button api-access-not-granted\" "
+"invisible=\"access_granted or use_oauth\" title=\"API Access Not Granted\">\n"
+"                                <i class=\"fa fa-exclamation-circle me-2\" "
+"style=\"font-size: 1.1rem;\" title=\"API Access Not Granted\"/>\n"
+"                                <span>API Access Not Granted</span>\n"
+"                            </span>"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid ""
+"<span class=\"border-start border-warning border-2 d-block ps-2 sale-"
+"pricelist-warning\" invisible=\"not is_integration_shopify\">\n"
+"                        <strong>Note:</strong> This pricelist is used for "
+"export only - its price goes to Shopify as the Price,\n"
+"                        and the regular Odoo price becomes the "
+"<strong>Compare at Price</strong>.<br/>\n"
+"                        On import, if <strong>Compare at Price</strong> is "
+"set in Shopify, it will override the regular price in Odoo.\n"
+"                        Shopify's <strong>Price</strong> or <strong>Compare "
+"at Price</strong> are never imported into this pricelist.\n"
+"                    </span>"
+msgstr ""
+"<span class=\"border-start border-warning border-2 d-block ps-2 sale-"
+"pricelist-warning\" invisible=\"not is_integration_shopify\">\n"
+"                        <strong>Nota:</strong> Esta lista de precios se usa "
+"solo para exportación: su precio se envía a Shopify como Precio,\n"
+"                        y el precio normal de Odoo pasa a ser el "
+"<strong>Precio de Comparacion</strong>.<br/>\n"
+"                        Al importar, si <strong>Precio de Comparacion</"
+"strong> está configurado en Shopify, sobrescribirá el precio normal en "
+"Odoo.\n"
+"                        Shopify's <strong>Precio</strong> o <strong>Precio "
+"de Comparación</strong> nunca se importan en esta lista de precios.\n"
+"                    </span>"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid "<strong>About Webhook HMAC Validation</strong>"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid "<strong>An error occurred</strong>"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid "<strong>Authentication Successful!</strong>"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid "<strong>Error Message:</strong>"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid ""
+"<strong>Important:</strong> Shopify always signs webhooks using the\n"
+"                                <em>oldest unrevoked Client Secret</em>. If "
+"you have multiple active secrets,\n"
+"                                webhooks will be signed with the oldest one "
+"until you explicitly revoke it."
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid ""
+"<strong>Recommendation:</strong> If you experience webhook validation "
+"failures after\n"
+"                                rotating your secret, you may temporarily "
+"disable validation below. Re-enable it after\n"
+"                                1 hour when Shopify completes the "
+"transition.\n"
+"                                <br/>"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid ""
+"<strong>We recommend using OAuth</strong> for new integrations.\n"
+"                            Shopify has deprecated legacy custom apps and "
+"replaced them with a new approach\n"
+"                            using their Dev Dashboard. We maintain support "
+"for legacy applications\n"
+"                            to ensure existing customers can continue using "
+"their current setup without reconnecting.\n"
+"                            However, for new integrations or when possible, "
+"we strongly recommend using\n"
+"                            the OAuth option."
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.constraint,message:integration_shopify.constraint_integration_metafield_mapping_unique_metafield_mapping
+msgid ""
+"A mapping for this metafield already exists with the selected Odoo field."
+msgstr ""
+"Ya existe un mapeo para este metafield (campo personalizado) con el campo de "
+"Odoo seleccionado."
+
+#. module: integration_shopify
+#: model:ir.model.constraint,message:integration_shopify.constraint_external_metafield_unique_metafield
+msgid "A metafield already exists."
+msgstr "Ya existe un campo personalizado (metafield)."
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_sale_order_cancel__staff_note
+msgid ""
+"A staff-facing note about the order cancellation. This is not visible to the "
+"customer"
+msgstr ""
+"Una nota interna (para el staff) sobre la cancelación del pedido. No es "
+"visible para el cliente"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external__type_api
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_integration__type_api
+msgid "API Service"
+msgstr "API Servicio"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__access_granted
+msgid "Access Granted"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authorization
+msgid "Access Permissions"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__access_scopes
+msgid "Access Scopes"
+msgstr "Alcances de acceso"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__configuration_scope_ids
+msgid "Access Scopes Lines"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_risk__recommendation
+msgid "Action Recommendation"
+msgstr "Recomendación de acción"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify_line__activate
+msgid "Activate"
+msgstr "Activar"
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__integration_catalog_external__status__active
+msgid "Active"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_integration__shopify_personal_id_additional_field_name
+msgid "Additional Details Key for Personal ID"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_integration__shopify_vat_number_additional_field_name
+msgid "Additional Details Key for VAT Number"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid ""
+"After revoking an old secret, it may take <strong>up to 1 hour</strong> for\n"
+"                                Shopify to start signing webhooks with the "
+"new secret. During this transition\n"
+"                                period, webhook validation may fail if your "
+"connector only has the new secret\n"
+"                                configured."
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid ""
+"All e-commerce locations must be mapped to unique Odoo warehouses. Duplicate "
+"warehouse mappings are not allowed.\n"
+"                        Please ensure that each e-commerce location is "
+"associated with a distinct Odoo warehouse to avoid configuration issue."
+msgstr ""
+"Todas las ubicaciones del e-commerce deben mapearse a almacenes de Odoo "
+"únicos. No se permiten mapeos duplicados al mismo almacén.\n"
+"                        Asegurate de que cada ubicación del e-commerce esté "
+"asociada a un almacén distinto de Odoo para evitar problemas de "
+"configuración."
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__integration_catalog_external__catalog_type__app
+msgid "App Catalog"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__application_name
+msgid "Application Name"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__integration_catalog_external__status__archived
+msgid "Archived"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_external_order_risk__erp_order_id
+msgid "Associated Odoo sales order"
+msgstr "Pedido de venta de Odoo asociado"
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_external_order_source_name__integration_id
+msgid "Associated e-commerce platform integration"
+msgstr "Integración de plataforma de e-commerce asociada"
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_product_attribute_value
+msgid "Attribute Value"
+msgstr "Valor del atributo"
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__integration_auth_shopify__state__authentication
+msgid "Authentication"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__integration_auth_shopify__state__authorization
+msgid "Authorization"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_product_pricelist_batch__batch
+msgid "Batch"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_product_pricelist_batch__batch_count
+msgid "Batch Count"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_product_pricelist_batch__batch_number
+msgid "Batch Number"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__product_ecommerce_field__shopify_metafield_type__boolean
+msgid "Boolean"
+msgstr "Booleano"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_order_cancel__do_cancel_order_fulfillments
+#: model_terms:ir.ui.view,arch_db:integration_shopify.sale_order_cancel_integration_shopify_view_form
+msgid "Cancel E-Commerce Fulfillments"
+msgstr "Cancelar despachos del e-commerce"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.sale_order_cancel_integration_shopify_view_form
+msgid "Cancel E-Commerce Order"
+msgstr "Cancelar pedido del e-commerce"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.sale_order_cancel_integration_shopify_view_form
+msgid "Cancel E-Commerce Order: options"
+msgstr "Cancelar pedido del e-commerce: opciones"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external_line__catalog_id
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_product_pricelist_batch__catalog_id
+msgid "Catalog"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_product_pricelist_batch__catalog_external_line_id
+msgid "Catalog External Line"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_integration__catalog_line_ids
+msgid "Catalog Lines"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external__catalog_type
+msgid "Catalog Type"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_integration_catalog_external__market_data
+msgid "Catalog market data from external system"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.ui.menu,name:integration_shopify.menu_integration_catalog_external
+msgid "Catalogs"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.sale_order_cancel_integration_shopify_view_form
+msgid ""
+"Changes in this section affect the Shopify order only. If you refund an "
+"order here (\"Refund\" checkbox),\n"
+"                            it'll only be refunded within Shopify. You'll "
+"still have to handle the refund separately in Odoo.<br/>\n"
+"                            Why? Odoo offers lots of different ways to "
+"manage refunds, so connector let you choose what works best for your business"
+msgstr ""
+"Los cambios en esta sección afectan solo al pedido en Shopify. Si reembolsás "
+"un pedido aquí (casilla “Refund”),\n"
+"                            solo se reembolsará en Shopify. Igual vas a "
+"tener que gestionar el reembolso por separado en Odoo.<br/>\n"
+"                            ¿Por qué? Odoo ofrece muchas formas distintas de "
+"gestionar reembolsos, así que el conector te permite elegir la que mejor se "
+"adapte a tu negocio"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid "Check Access Permissions →"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.actions.act_window,name:integration_shopify.action_view_shopify_integration_authorization
+msgid "Check Shopify Permissions"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_sale_integration__use_customer_currency
+msgid ""
+"Check this option to ensure that imported orders is recorded using the "
+"customer's currency, preserving the original currency used during the sale."
+msgstr ""
+"Marcá esta opción para que los pedidos importados se registren usando la "
+"moneda del cliente, conservando la moneda original utilizada en la venta."
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__client_id
+msgid "Client ID"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify_line__code
+#: model:ir.model.fields,field_description:integration_shopify.field_external_metafield__metafield_code
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external__code
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_metafield_mapping__metafield_code
+msgid "Code"
+msgstr "Código"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external__company_id
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_product_pricelist_batch__company_id
+msgid "Company"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__integration_catalog_external__catalog_type__company_location
+msgid "Company Location Catalog"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external__company_location_catalogs
+msgid "Company Location Catalogs"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_integration_catalog_external__company_location_catalogs
+msgid "Company Location Catalogs from external system"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__configuration_shopify_line_ids
+msgid "Configuration Shopify Lines"
+msgstr "Líneas de configuración de Shopify"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify_line__configuration_wizard_id
+msgid "Configuration Wizard"
+msgstr "Asistente de configuración"
+
+#. module: integration_shopify
+#: model:ir.actions.act_window,name:integration_shopify.action_view_shopify_integration_authentication
+msgid "Connect to Shopify"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid "Connect to Shopify →"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid "Connection Authentication"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_product_ecommerce_field__type_api
+msgid "Connector Type"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_integration_catalog_external__name
+msgid "Contains name of the External Object in selected Integration"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_integration_catalog_external__external_reference
+msgid ""
+"Contains unique code of the External Object in the external system. Used for "
+"automated mapping"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__product_product__continue_selling_without_stock__continue
+#: model:ir.model.fields.selection,name:integration_shopify.selection__product_template__continue_selling_without_stock__continue
+msgid "Continue"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_product_product__continue_selling_without_stock
+#: model:ir.model.fields,field_description:integration_shopify.field_product_template__continue_selling_without_stock
+msgid "Continue Selling Without Stock"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_product_product__continue_selling_without_stock
+#: model:ir.model.fields,help:integration_shopify.field_product_template__continue_selling_without_stock
+msgid "Continue selling the product even if it is out of stock."
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authorization
+msgid "Continue to Configuration →"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_product_pricelist_batch_view_list
+msgid "Created At"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__create_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify_line__create_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_external_metafield__create_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_risk__create_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_source_name__create_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_external_sale_channel__create_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__create_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external__create_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external_line__create_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_metafield_mapping__create_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_product_pricelist_batch__create_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_shopify_access_scope_line__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__create_date
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify_line__create_date
+#: model:ir.model.fields,field_description:integration_shopify.field_external_metafield__create_date
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_risk__create_date
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_source_name__create_date
+#: model:ir.model.fields,field_description:integration_shopify.field_external_sale_channel__create_date
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__create_date
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external__create_date
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external_line__create_date
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_metafield_mapping__create_date
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_product_pricelist_batch__create_date
+#: model:ir.model.fields,field_description:integration_shopify.field_shopify_access_scope_line__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external__currency_code
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external_line__currency_code
+msgid "Currency Code"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_integration_catalog_external__currency_code
+#: model:ir.model.fields,help:integration_shopify.field_integration_catalog_external_line__currency_code
+msgid "Currency code from external system"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__external_metafield__type__customer
+msgid "Customer"
+msgstr "Cliente"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_res_partner_proxy__customer_locale
+msgid "Customer Locale"
+msgstr "Idioma del cliente"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_integration__customer_metafield_mapping_ids
+msgid "Customer Metafield Mappings"
+msgstr "Mapeos de campos personalizados (metafields) del cliente"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid "Customer Metafields Mappings"
+msgstr "Mapeos de campos personalizados (metafields) del cliente"
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__product_ecommerce_field__shopify_metafield_type__date
+msgid "Date"
+msgstr "Fecha"
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__product_ecommerce_field__shopify_metafield_type__date_time
+msgid "DateTime"
+msgstr "Fecha y hora"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_integration__shopify_customer_language
+msgid "Default Customer Language"
+msgstr "Idioma predeterminado del cliente"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__language_integration_id
+msgid "Default Odoo Language for E-Commerce Store"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__language_default_id
+msgid "Default Shop Language"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_sale_integration__order_metafield_mapping_ids
+msgid ""
+"Defines the mappings between the order metafields in the external system and "
+"the fields in Odoo."
+msgstr ""
+"Define los mapeos entre los campos personalizados (metafields) del pedido en "
+"el sistema externo y los campos en Odoo."
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__product_product__continue_selling_without_stock__deny
+#: model:ir.model.fields.selection,name:integration_shopify.selection__product_template__continue_selling_without_stock__deny
+msgid "Deny"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_external_order_risk__message
+msgid "Detailed description of the identified risk or fraud indicator"
+msgstr ""
+"Descripción detallada del riesgo identificado o del indicador de fraude"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__display_name
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify_line__display_name
+#: model:ir.model.fields,field_description:integration_shopify.field_external_metafield__display_name
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_risk__display_name
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_source_name__display_name
+#: model:ir.model.fields,field_description:integration_shopify.field_external_sale_channel__display_name
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__display_name
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external__display_name
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external_line__display_name
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_metafield_mapping__display_name
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_product_pricelist_batch__display_name
+#: model:ir.model.fields,field_description:integration_shopify.field_shopify_access_scope_line__display_name
+msgid "Display Name"
+msgstr "Nombre para mostrar"
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__integration_catalog_external__status__draft
+msgid "Draft"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_source_name__integration_id
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_delivery_carrier_shopify_form
+msgid "E-Commerce Integration"
+msgstr "Integración de e-commerce"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_order__integration_order_source_name_id
+msgid "E-Commerce Order Source Name"
+msgstr "Nombre de origen del pedido del e-commerce"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_order__payment_method_ids
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_order_from_inherit_shopify
+msgid "E-Commerce Payment Methods"
+msgstr "Métodos de pago del e-commerce"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_order__integration_sale_channel_id
+msgid "E-Commerce Sales Channel"
+msgstr "Canal de ventas del e-commerce"
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_sale_integration
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__integration_id
+#: model:ir.model.fields,field_description:integration_shopify.field_external_metafield__integration_id
+#: model:ir.model.fields,field_description:integration_shopify.field_external_sale_channel__integration_id
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external__integration_id
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external_line__integration_id
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_metafield_mapping__integration_id
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_product_pricelist_batch__integration_id
+#: model_terms:ir.ui.view,arch_db:integration_shopify.external_order_source_name_view_search
+#: model_terms:ir.ui.view,arch_db:integration_shopify.external_sale_channel_view_search
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_external_integration_tag_search
+msgid "E-Commerce Store"
+msgstr "Tienda de e-commerce"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_order_cancel__sub_state_external_ids
+msgid "E-Commerce Store Order Status(es)"
+msgstr "Estado(s) del pedido en la tienda de e-commerce"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.external_order_risk_view_search
+msgid "ERP Order"
+msgstr "Orden ERP"
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_product_ecommerce_field
+msgid "Ecommerce field depending on integration type"
+msgstr "Campo de e-commerce según el tipo de integración"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid "Enable Pricelist Prices Calculation & Export"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_integration__enable_webhook_hmac_validation
+msgid "Enable Webhook HMAC Validation"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_external_metafield__metafield_name
+#: model:ir.model.fields,help:integration_shopify.field_integration_metafield_mapping__metafield_name
+msgid ""
+"Enter the name of the metafield. This name will be used to identify the "
+"metafield in Odoo."
+msgstr ""
+"Ingresá el nombre del campo personalizado (metafield). Este nombre se usará "
+"para identificar el metafield en Odoo."
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid ""
+"Enter your store's name found in your Shopify admin URL.\n"
+"                            For example, if your URL is <i>https://"
+"admin.shopify.com/store/awesome-shop</i>,\n"
+"                            enter <i>awesome-shop</i> here."
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__error_message
+msgid "Error Message"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__error_traceback
+msgid "Error Traceback"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_product_ecommerce_field__type_api
+msgid ""
+"Every field exists only together with it's e-commerce system. So here we "
+"define which e-commerce system this field is related to. This should be "
+"updated for every new integration."
+msgstr ""
+"Cada campo existe únicamente junto con su sistema de e-commerce. Por eso, "
+"acá definimos a qué sistema de e-commerce está asociado este campo. Esto "
+"debe actualizarse para cada nueva integración."
+
+#. module: integration_shopify
+#: model:ir.actions.act_window,name:integration_shopify.integration_catalog_external_action
+msgid "External Catalogs"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_sale_order_factory__external_order_financial_status
+msgid "External Financial Status"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_sale_order_factory__external_order_fulfillment_status
+msgid "External Fulfillment Status"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_external_sale_channel__external_id
+msgid "External ID"
+msgstr "ID externo"
+
+#. module: integration_shopify
+#: model:ir.model.constraint,message:integration_shopify.constraint_external_sale_channel_external_id_uniq
+msgid "External ID must be unique per integration"
+msgstr "El ID externo debe ser único por integración"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external__name
+msgid "External Name"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_sale_integration_input_file
+msgid "External Order"
+msgstr "Pedido externo"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_risk__external_order_str_id
+msgid "External Order ID"
+msgstr "ID de pedido externo"
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_external_order_transaction
+msgid "External Order Payment Transaction"
+msgstr "Transacción de pago del pedido externo"
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_external_order_risk
+msgid "External Order Risk"
+msgstr "Riesgo del pedido externo"
+
+#. module: integration_shopify
+#: model:ir.actions.act_window,name:integration_shopify.external_order_risk_action
+msgid "External Order Risks"
+msgstr "Riesgos del pedido externo"
+
+#. module: integration_shopify
+#: model:ir.actions.act_window,name:integration_shopify.external_order_source_name_action
+msgid "External Order Source Name"
+msgstr "Nombre de origen del pedido externo"
+
+#. module: integration_shopify
+#: model:ir.actions.act_window,name:integration_shopify.action_external_integration_shopify_order_tag
+msgid "External Order Tags (Shopify)"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.actions.act_window,name:integration_shopify.action_external_integration_shopify_product_tag
+msgid "External Product Tags (Shopify)"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external__external_reference
+msgid "External Reference"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_risk__external_str_id
+msgid "External Risk ID"
+msgstr "ID de riesgo externo"
+
+#. module: integration_shopify
+#: model:ir.actions.act_window,name:integration_shopify.external_sale_channel_action
+msgid "External Sale Channel"
+msgstr "Canal de venta externo"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_source_name__external_name
+msgid "External Source Name"
+msgstr "Nombre de origen externo"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_order__external_tag_ids
+msgid "External Tags"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_input_file_form_shopify
+msgid "Fetch Full Order"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_metafield_mapping__filtered_odoo_fields
+msgid "Filtered Odoo Fields"
+msgstr "Campos de Odoo filtrados"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.external_order_risk_view_search
+#: model_terms:ir.ui.view,arch_db:integration_shopify.external_order_source_name_view_search
+#: model_terms:ir.ui.view,arch_db:integration_shopify.external_sale_channel_view_search
+#: model_terms:ir.ui.view,arch_db:integration_shopify.sale_order_view_search
+msgid "Group By"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid "Help &amp; Support"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authorization
+msgid "Here you can find document on how to grant permission."
+msgstr "Aquí podés encontrar un documento sobre cómo otorgar permisos."
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid "How Pricelists and Catalogs work"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__id
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify_line__id
+#: model:ir.model.fields,field_description:integration_shopify.field_external_metafield__id
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_risk__id
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_source_name__id
+#: model:ir.model.fields,field_description:integration_shopify.field_external_sale_channel__id
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__id
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external__id
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external_line__id
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_metafield_mapping__id
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_product_pricelist_batch__id
+#: model:ir.model.fields,field_description:integration_shopify.field_shopify_access_scope_line__id
+msgid "ID"
+msgstr "IDd"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid "Import Markets and Catalogs"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_integration__use_customer_currency
+msgid "Import Orders in Customer Currency"
+msgstr "Importar pedidos en la moneda del cliente"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid "Import Sale Channels"
+msgstr "Importar canales de venta"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify_line__info
+msgid "Info"
+msgstr "Informacion"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__integration_id
+msgid "Integration"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_shopify_access_scope_line__integration_auth_shopify_id
+msgid "Integration Auth Shopify"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_integration_catalog_external
+msgid "Integration Catalog External"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_integration_catalog_external_line
+msgid "Integration Catalog External Line"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_integration_product_template_external
+msgid "Integration Product Template External"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_integration_product_template_mapping
+msgid "Integration Product Template Mapping"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_integration_res_partner_proxy
+msgid "Integration Res Partner Proxy"
+msgstr "Proxy de contactos (res.partner) de la integración"
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_integration_sale_order_factory
+msgid "Integration Sale Order Factory"
+msgstr "Generador de pedidos de venta de la integración"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_integration__invalid_location_mapping
+msgid "Invalid Location Mapping"
+msgstr "Mapeo de ubicación no válido"
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/models/sale_integration.py:0
+msgid ""
+"Invalid configuration: Financial status filter is not configured. Please "
+"configure \"Order financial statuses\" in the integration settings."
+msgstr ""
+"Configuración no válida: el filtro de estado financiero no está configurado. "
+"Configurá “Estados financieros del pedido” en la configuración de la "
+"integración."
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/models/sale_integration.py:0
+msgid ""
+"Invalid configuration: Fulfillment status filter is not configured. Please "
+"configure \"Order fulfillment statuses\" in the integration settings."
+msgstr ""
+"Configuración no válida: el filtro de estado de cumplimiento (fulfillment) "
+"no está configurado. Configurá “Estados de cumplimiento del pedido” en la "
+"configuración de la integración."
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify_line__is_order_financial_status
+msgid "Is Order Financial Status"
+msgstr "El estado financiero del pedido es"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify_line__is_order_fulfillment_status
+msgid "Is Order Fullfillment Status"
+msgstr "El estado de cumplimiento del Pedido es"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify_line__is_order_status
+msgid "Is Order Status"
+msgstr "Estado del Pedido es"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_product_pricelist_batch__job_id
+msgid "Job"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_product_ecommerce_field__translation_key
+msgid ""
+"Key used for translations. If not set, the key will be the same as the field "
+"name."
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__language_mapping_ids
+msgid "Languages Mapping"
+msgstr "Mapeo de idiomas"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__write_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify_line__write_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_external_metafield__write_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_risk__write_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_source_name__write_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_external_sale_channel__write_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__write_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external__write_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external_line__write_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_metafield_mapping__write_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_product_pricelist_batch__write_uid
+#: model:ir.model.fields,field_description:integration_shopify.field_shopify_access_scope_line__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__write_date
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify_line__write_date
+#: model:ir.model.fields,field_description:integration_shopify.field_external_metafield__write_date
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_risk__write_date
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_source_name__write_date
+#: model:ir.model.fields,field_description:integration_shopify.field_external_sale_channel__write_date
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__write_date
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external__write_date
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external_line__write_date
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_metafield_mapping__write_date
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_product_pricelist_batch__write_date
+#: model:ir.model.fields,field_description:integration_shopify.field_shopify_access_scope_line__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authorization
+msgid ""
+"Listed below permissions needed to be enabled on Shopify side, so connector "
+"will work properly.\n"
+"                            If you see some \"red lines\" below, then listed "
+"permission were not granted."
+msgstr ""
+"A continuación se listan los permisos que deben habilitarse del lado de "
+"Shopify para que el conector funcione correctamente.\n"
+"                            Si ves algunas “líneas rojas” abajo, significa "
+"que esos permisos no fueron otorgados."
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_integration_metafield_mapping
+msgid "Mapping between metafields in an external system and fields in Odoo"
+msgstr ""
+"Mapeo entre campos personalizados (metafields) en un sistema externo y "
+"campos en Odoo"
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__integration_catalog_external__catalog_type__market
+msgid "Market Catalog"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external__market_data
+msgid "Market Data"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external__markets
+msgid "Markets"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid "Markets & Catalogs"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_integration_catalog_external__markets
+msgid "Markets from external system"
+msgstr ""
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/shopify_api.py:0
+msgid "Media file may not be created: %s"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_metafield_mapping__metafield_id
+#: model:ir.model.fields,field_description:integration_shopify.field_product_ecommerce_field__is_shopify_metafield
+#: model_terms:ir.ui.view,arch_db:integration_shopify.product_ecommerce_field_view_form_shopify_inherit
+msgid "Metafield"
+msgstr "Campo personalizado (metafield)"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_external_metafield__metafield_key
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_metafield_mapping__metafield_key
+msgid "Metafield Key"
+msgstr "Clave del campo personalizado (metafield)"
+
+#. module: integration_shopify
+#: model:ir.actions.act_window,name:integration_shopify.integration_metafield_mapping_action
+msgid "Metafield Mappings"
+msgstr "Mapeos de campos personalizados (metafields)"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_external_metafield__metafield_name
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_metafield_mapping__metafield_name
+msgid "Metafield Name"
+msgstr "Nombre del campo personalizado (metafield)"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_external_metafield__metafield_type
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_metafield_mapping__metafield_type
+#: model:ir.model.fields,field_description:integration_shopify.field_product_ecommerce_field__shopify_metafield_type
+#: model_terms:ir.ui.view,arch_db:integration_shopify.product_ecommerce_field_view_form_shopify_inherit
+msgid "Metafield Type"
+msgstr "Tipo de campo personalizado (metafield)"
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/shopify_api.py:0
+msgid ""
+"Mismatch in attribute values for Shopify variant with reference \"%s\": "
+"Shopify values: %s; Odoo values: %s. Products with the same reference must "
+"have identical attribute combinations in Shopify and Odoo."
+msgstr ""
+"Incompatibilidad en los valores de atributos de la variante de Shopify con "
+"referencia “%s”: valores en Shopify: %s; valores en Odoo: %s. Los productos "
+"con la misma referencia deben tener combinaciones de atributos idénticas en "
+"Shopify y en Odoo."
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_shopify_access_scope_line__is_missed
+msgid "Missed"
+msgstr "Perdido"
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/models/sale_integration.py:0
+msgid ""
+"Missing required context variable: \"external_entity\". This is a technical "
+"error. Please contact our support team at https://support.ventor.tech/ if "
+"the issue persists"
+msgstr ""
+"Falta la variable de contexto obligatoria: \"external_entity\". Este es un "
+"error técnico. Si el problema persiste, contactá a nuestro equipo de soporte "
+"en  https://support.ventor.tech/"
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__product_ecommerce_field__shopify_metafield_type__multi_line_text_field
+msgid "Multi Line Text Field"
+msgstr "Campo de texto multilínea"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify_line__name
+#: model:ir.model.fields,field_description:integration_shopify.field_external_sale_channel__name
+#: model:ir.model.fields,field_description:integration_shopify.field_shopify_access_scope_line__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_external_metafield__metafield_namespace
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_metafield_mapping__metafield_namespace
+msgid "Namespace"
+msgstr "Espacio de nombres"
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/shopify_api.py:0
+msgid ""
+"No Odoo variant found with reference \"%s\" matching Shopify product ID %s."
+msgstr ""
+"No se encontró ninguna variante de Odoo con referencia “%s” que coincida con "
+"el ID de producto de Shopify %s."
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__product_ecommerce_field__shopify_metafield_type__number_decimal
+msgid "Number Decimal"
+msgstr "Número decimal"
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__product_ecommerce_field__shopify_metafield_type__number_integer
+msgid "Number Integer"
+msgstr "Numero entero"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__authentication_redirected
+msgid "OAuth Redirect Triggered"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_metafield_mapping__odoo_field_id
+msgid "Odoo Field"
+msgstr "Campo de Odoo"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid "Odoo becomes the master source for all pricing in Shopify."
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_product_pricelist_batch_view_list
+msgid "Open Job"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.sale_order_cancel_integration_shopify_view_form
+msgid "Open in Shopify"
+msgstr "Abrir en Shopify"
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__external_metafield__type__order
+msgid "Order"
+msgstr "Pedido"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__configuration_order_financial_status_ids
+msgid "Order Financial Statuses"
+msgstr "Estados financieros del pedido"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__configuration_order_fulfillment_status_ids
+msgid "Order Fulfillment Statuses"
+msgstr "Estados de cumplimiento del pedido"
+
+#. module: integration_shopify
+#: model:ir.ui.menu,name:integration_shopify.menu_order_fulfillments
+msgid "Order Fulfillments"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_integration__order_metafield_mapping_ids
+msgid "Order Metafield Mappings"
+msgstr "Mapeos de campos personalizados (metafields) del pedido"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_order_from_inherit_shopify
+msgid "Order Risk Assessment"
+msgstr "Evaluación de riesgo del pedido"
+
+#. module: integration_shopify
+#: model:ir.ui.menu,name:integration_shopify.menu_order_risk
+msgid "Order Risks"
+msgstr "Riesgos del pedido"
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_external_order_source_name
+msgid "Order Source Mapping"
+msgstr "Mapeo de origen del pedido"
+
+#. module: integration_shopify
+#: model:ir.ui.menu,name:integration_shopify.menu_order_source_name
+msgid "Order Source Names"
+msgstr "Nombres de origen del pedido"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__configuration_order_status_ids
+msgid "Order Statuses"
+msgstr "Estados de pedido"
+
+#. module: integration_shopify
+#: model:ir.ui.menu,name:integration_shopify.menu_shopify_order_tag_external
+msgid "Order Tags"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_external_order_risk__external_order_str_id
+msgid "Order identifier from the external e-commerce system"
+msgstr "Identificador del pedido del sistema de e-commerce externo"
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_external_order_source_name__external_name
+msgid ""
+"Order source identifier from the external system (e.g., \"web\", "
+"\"mobile_app\", \"pos\")"
+msgstr ""
+"Identificador del origen del pedido en el sistema externo (p. ej., “web”, "
+"“mobile_app”, “pos”)"
+
+#. module: integration_shopify
+#: model:ir.model.constraint,message:integration_shopify.constraint_external_order_source_name_external_name_uniq
+msgid "Order source names must be unique per integration"
+msgstr "Los nombres de origen del pedido deben ser únicos por integración"
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_external_order_risk__source
+msgid ""
+"Origin or system that identified this risk (e.g., Shopify Fraud Analysis, "
+"third-party service)"
+msgstr ""
+"Origen o sistema que identificó este riesgo (p. ej., Análisis de fraude de "
+"Shopify, un servicio de terceros)"
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__sale_order_cancel__reason_type__declined
+msgid "Payment was declined"
+msgstr "El pago fue rechazado"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid ""
+"Please review the error details below and correct your credentials if needed."
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid "Preview"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external_line__pricelist_id
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_product_pricelist_batch__pricelist_id
+msgid "Pricelist"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.actions.act_window,name:integration_shopify.integration_product_pricelist_batch_action
+msgid "Pricelist Batches"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external_line__pricelist_compare_at_id
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_product_pricelist_batch__pricelist_compare_at_id
+msgid "Pricelist Compare At"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external__pricelist_data
+msgid "Pricelist Data"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid "Pricelist and Catalog Mappings"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_integration_catalog_external__pricelist_data
+msgid "Pricelist data from external system"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_product_pricelist_batch__prices_data
+msgid "Prices Data"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid "Prices are generated based on Odoo Pricelists."
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_order_from_inherit_shopify
+msgid "Primary E-Commerce Payment Method"
+msgstr "Método de pago principal del e-commerce"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_configuration_wizard
+msgid "Primary Language"
+msgstr "Idioma principal"
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_product_ecommerce_field_mapping
+msgid "Product Fields Integration Mapping"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.ui.menu,name:integration_shopify.menu_shopify_product_tag_external
+msgid "Product Tags"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_product_template
+msgid "Product Template"
+msgstr "Plantilla de producto"
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_product_template_attribute_line
+msgid "Product Template Attribute Line"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_product_product
+msgid "Product Variant"
+msgstr "Variante de producto"
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/shopify_api.py:0
+msgid ""
+"Product reference(s) \"%s\" were found in multiple Shopify Products: %s. "
+"This is not allowed as in Odoo, these references already belong to a single "
+"product template and its variants. Ensure the structure of products in "
+"Shopify matches the Odoo product template structure."
+msgstr ""
+"Las referencias de producto “%s” se encontraron en varios productos de "
+"Shopify: %s. Esto no está permitido, ya que en Odoo esas referencias "
+"pertenecen a una única plantilla de producto y sus variantes. Asegurate de "
+"que la estructura de productos en Shopify coincida con la estructura de "
+"plantilla de producto de Odoo."
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/shopify_api.py:0
+msgid ""
+"Product with ID \"%s\" lacks references for all combinations. Add the "
+"missing references and retry the export process."
+msgstr ""
+"El producto con ID “%s” no tiene referencias para todas las combinaciones. "
+"Agregá las referencias faltantes y volvé a intentar el proceso de "
+"exportación."
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/shopify_api.py:0
+msgid ""
+"Product with id \"%s\" does not exist in Shopify. Please verify the product "
+"ID and ensure it is available in your Shopify store."
+msgstr ""
+"El producto con ID “%s” no existe en Shopify. Verificá el ID del producto y "
+"asegurate de que esté disponible en tu tienda de Shopify."
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__is_valid_access_scopes
+msgid "Proven Access Scopes"
+msgstr "Alcances de acceso verificados"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external__publication_data
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_product_pricelist_batch__publication_data
+msgid "Publication Data"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_integration_catalog_external__publication_data
+msgid "Publication data from external system"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_configuration_wizard_shopify_line
+msgid "Quick Configuration Shopify Line"
+msgstr "Línea de configuración rápida de Shopify"
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_configuration_wizard_shopify
+msgid "Quick Configuration for Shopify"
+msgstr "Configuración rápida para Shopify"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_catalog_external_view_form
+msgid "Raw Data"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_order_cancel__reason_type
+msgid "Reason for Cancellation"
+msgstr "Motivo de cancelación"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authorization
+msgid "Recheck Access Permissions"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__redirect_url
+msgid "Redirect URL"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_order_cancel__do_refund
+msgid "Refund"
+msgstr "Reembolso"
+
+#. module: integration_shopify
+#: model:ir.actions.server,name:integration_shopify.integration_product_pricelist_batch_action_report
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_product_pricelist_batch_view_list
+msgid "Report"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_external_metafield
+msgid ""
+"Represents the metafields in an external system that can be synced with Odoo"
+msgstr ""
+"Representa los campos personalizados (metafields) de un sistema externo que "
+"pueden sincronizarse con Odoo"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid "Reset Credentials"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_order_cancel__do_restock
+msgid "Restock Inventory"
+msgstr "Reponer inventario"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_risk__message
+msgid "Risk Description"
+msgstr "Descripción del riesgo"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_risk__score
+msgid "Risk Score"
+msgstr "Puntaje de riesgo"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_risk__source
+msgid "Risk Source"
+msgstr "Origen del riesgo"
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_external_order_risk__score
+msgid ""
+"Risk assessment score between 0 and 1. Higher scores indicate greater fraud "
+"risk."
+msgstr ""
+"Puntaje de evaluación de riesgo entre 0 y 1. A mayor puntaje, mayor riesgo "
+"de fraude."
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_order__order_risk_ids
+msgid "Risks"
+msgstr "Riesgos"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_order__is_risky_sale
+msgid "Risky Order"
+msgstr "Pedido riesgoso"
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_external_sale_channel
+#: model_terms:ir.ui.view,arch_db:integration_shopify.sale_order_view_search
+msgid "Sale Channel"
+msgstr "Canal de venta"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_integration__integration_channel_ids
+msgid "Sale Channels"
+msgstr "Canales de venta"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid "Sale Order Metafields Mappings"
+msgstr "Mapeos de campos personalizados (metafields) del pedido de venta"
+
+#. module: integration_shopify
+#: model:ir.ui.menu,name:integration_shopify.menu_sale_channel
+msgid "Sales Channels"
+msgstr "Canales de venta"
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_sale_order
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_risk__erp_order_id
+msgid "Sales Order"
+msgstr "Pedido de venta"
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_sale_order_cancel
+#, fuzzy
+msgid "Sales Order Cancel"
+msgstr "Pedido de venta"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__secret_key
+msgid "Secret Key"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid "See full traceback"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_integration_metafield_mapping__odoo_field_id
+msgid ""
+"Select a unique Odoo field for this metafield. Avoid selecting a field that "
+"is already mapped to another metafield in this integration. You can find "
+"existing mappings in the table below."
+msgstr ""
+"Seleccioná un campo único de Odoo para este campo personalizado (metafield). "
+"Evitá elegir un campo que ya esté mapeado a otro metafield en esta "
+"integración. Podés ver los mapeos existentes en la tabla de abajo."
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_integration_catalog_external__type_api
+#: model:ir.model.fields,help:integration_shopify.field_sale_integration__type_api
+msgid ""
+"Select the API service type for the current Sales Integration. This setting "
+"should be configured initially and must remain unchanged after the initial "
+"setup to ensure proper integration functionality."
+msgstr ""
+"Seleccioná el tipo de servicio de API para la integración de ventas actual. "
+"Esta configuración debe definirse inicialmente y debe mantenerse sin cambios "
+"después de la configuración inicial para asegurar el correcto funcionamiento "
+"de la integración."
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_sale_integration__shopify_customer_language
+msgid ""
+"Select the default language for partners. This language will be used when "
+"creating new partners in Odoo."
+msgstr ""
+"Seleccioná el idioma predeterminado para los contactos. Este idioma se usará "
+"al crear nuevos contactos en Odoo."
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_integration_metafield_mapping__metafield_id
+msgid ""
+"Select the metafield that you want to map to an Odoo field. The selected "
+"metafield must belong to the same integration as this mapping."
+msgstr ""
+"Seleccioná el campo personalizado (metafield) que querés mapear a un campo "
+"de Odoo. El metafield seleccionado debe pertenecer a la misma integración "
+"que este mapeo."
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_sale_integration__integration_channel_ids
+msgid ""
+"Select the sales channels you want to import orders from in this e-commerce "
+"store. Leave this field empty if you want to import orders from all sales "
+"channels. A special \"No Channel\" option is available to include orders "
+"that are not associated with any specific sales channel. This can be useful "
+"for capturing orders that may have been created outside of the normal "
+"channel structure."
+msgstr ""
+"Seleccioná los canales de venta desde los que querés importar pedidos en "
+"esta tienda de e-commerce. Dejá este campo vacío si querés importar pedidos "
+"de todos los canales de venta.\n"
+"Hay una opción especial “Sin canal” para incluir pedidos que no estén "
+"asociados a ningún canal de venta específico. Esto puede ser útil para "
+"capturar pedidos que se hayan creado fuera de la estructura normal de "
+"canales."
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_external_metafield__type
+#: model:ir.model.fields,help:integration_shopify.field_integration_metafield_mapping__type
+msgid ""
+"Select the type of the metafield. This information is used to map the "
+"metafield to the appropriate Odoo model."
+msgstr ""
+"Seleccioná el tipo de campo personalizado (metafield). Esta información se "
+"usa para mapear el metafield al modelo de Odoo correspondiente."
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_sale_integration__translations_sync
+msgid "Select this option to enable the synchronization of translations "
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_product_pricelist_batch_view_list
+msgid "Send"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid "Send Prices"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_delivery_carrier__integration_send_tracking_url
+msgid "Send Tracking URL"
+msgstr "Enviar URL de seguimiento"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_order_cancel__do_notify_customer
+msgid "Send a Notification to the Customer"
+msgstr "Enviar una notificación al cliente"
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_integration_auth_shopify__authentication_redirected
+msgid "Set to True when the user is redirected to Shopify for authentication."
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_delivery_carrier
+msgid "Shipping Methods"
+msgstr "Métodos de envío"
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__product_ecommerce_field__type_api__shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__sale_integration__type_api__shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_delivery_carrier_shopify_form
+msgid "Shopify"
+msgstr "Tienda Shopify"
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_shopify_access_scope_line
+msgid "Shopify Access Scope Line"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_delivery_carrier__shopify_code
+msgid "Shopify Code"
+msgstr "Codigo Shopify"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_order__shopify_fulfilment_status
+msgid "Shopify Fulfillment Status"
+msgstr "Estado de cumplimiento (fulfillment) de Shopify"
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_integration_auth_shopify
+msgid "Shopify Integration Authentication"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid "Shopify Secret Rotation Documentation"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.product_normal_form_view_integration
+#: model_terms:ir.ui.view,arch_db:integration_shopify.product_product_view_form_easy_inherit_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.product_template_form_shopify_inherit
+msgid "Shopify Specific Settings"
+msgstr ""
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/models/sale_integration.py:0
+msgid "Shopify Webhook Error: %s"
+msgstr "Error de webhook de Shopify: %s"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid "Shopify Webhook Verification Documentation"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_product_ecommerce_field__is_shopify_metafield
+msgid ""
+"Shopify metafield have to be formatted as <Namespace>.<Key>\n"
+"Metafield type is required for metafield to be synced."
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid ""
+"Shopify signs all webhook requests using HMAC-SHA256 with your app's Client "
+"Secret.\n"
+"                                This validation ensures webhooks are "
+"genuinely from Shopify and haven't been tampered with."
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__show_initial_import
+msgid "Show Initial Import"
+msgstr "Mostrar importación inicial"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__show_next
+msgid "Show Next"
+msgstr "Mostrar siguiente"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__show_previous
+msgid "Show Previous"
+msgstr "Mostrar anterior"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__show_start
+msgid "Show Start"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__product_ecommerce_field__shopify_metafield_type__single_line_text_field
+msgid "Single Line Text Field"
+msgstr "Campo de texto de una línea"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.sale_order_cancel_integration_shopify_view_form
+msgid "Skip"
+msgstr "Omitir"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.external_order_risk_view_search
+msgid "Source"
+msgstr "Origen"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_external_order_source_name__name
+#, fuzzy
+msgid "Source Name"
+msgstr "Nombres de origen del pedido"
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_sale_integration__shopify_vat_number_additional_field_name
+msgid ""
+"Specify the name of the additional info field that contains the VAT number "
+"for customers."
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_sale_integration__shopify_personal_id_additional_field_name
+msgid ""
+"Specify the name of the additional info field that contains the personal ID "
+"number for customers."
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_order_cancel__staff_note
+msgid "Staff Note"
+msgstr "Nota interna"
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__sale_order_cancel__reason_type__staff
+msgid "Staff made an error"
+msgstr "El personal cometió un error"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__state
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__state
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_product_pricelist_batch__state
+msgid "State"
+msgstr "Estado"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__state_index
+msgid "State Index"
+msgstr "Índice de estado"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_configuration_wizard_shopify__state_name
+msgid "State Name"
+msgstr "Nombre del estado"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_catalog_external__status
+msgid "Status"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__url
+msgid "Store URL"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid ""
+"Synchronization runs once per day (if enabled), but you can also trigger it "
+"manually."
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_account_tax_group
+msgid "Tax Group"
+msgstr "Grupo de impuestos"
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_integration_metafield_mapping__filtered_odoo_fields
+msgid "Technical field used to filter odoo fields based on the metafield type."
+msgstr ""
+"Campo técnico usado para filtrar los campos de Odoo según el tipo de campo "
+"personalizado (metafield)."
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_integration_product_pricelist_batch
+msgid ""
+"Temporary storage of calculated product prices before export to Shopify "
+"system"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid "Test Connection"
+msgstr ""
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/shopify/resources/base.py:0
+msgid "The \"%s\" resource was not found in the external system!"
+msgstr ""
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/models/delivery_carrier.py:0
+msgid ""
+"The \"Shopify Code\" field is not set for the carrier \"%s\". Please specify "
+"it to enable sending the tracking number from Odoo to Shopify. You can "
+"configure this field in the menu: \"Inventory → Configuration → Shipping "
+"Methods\". "
+msgstr ""
+"El campo “Código de Shopify” no está configurado para el transportista “%s”. "
+"Especificálo para habilitar el envío del número de seguimiento desde Odoo a "
+"Shopify. Podés configurar este campo en el menú: “Inventario → Configuración "
+"→ Métodos de envío”. "
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/tools.py:0
+msgid ""
+"The Shopify API scope \"%s\" is not permitted for your app.\n"
+"\n"
+"Please update your app permissions in the Shopify Admin panel to include "
+"this scope.\n"
+"To do this, go to: Settings → Apps and sales channels → Develop apps → [Your "
+"App] → Configuration → Admin API integration → Edit, enable the missing "
+"permission, and save changes.\n"
+"\n"
+"After that, return to Odoo and click the \"Refresh\" button in the Quick "
+"Configuration wizard.\n"
+"\n"
+"For a detailed step-by-step guide, see our article:\n"
+"https://ecosystem.ventor.tech/faq/e-commerce-connectors/shopify/placeholder-"
+"for-how-to-fix-missing-permissions-for-the-shopify-connector/"
+msgstr ""
+"El alcance (scope) de la API de Shopify “%s” no está permitido para tu app.\n"
+"\n"
+"Actualizá los permisos de tu app en el panel de administración de Shopify "
+"para incluir este alcance.\n"
+"Para hacerlo, andá a: Configuración → Apps y canales de venta → Desarrollar "
+"apps → [Tu app] → Configuración → Integración de Admin API → Editar, "
+"habilitá el permiso faltante y guardá los cambios.\n"
+"\n"
+"Después, volvés a Odoo y hacés clic en el botón “Actualizar” en el asistente "
+"de Configuración rápida.\n"
+"\n"
+"Para una guía detallada paso a paso, consultá nuestro artículo:\n"
+"https://ecosystem.ventor.tech/faq/e-commerce-connectors/shopify/placeholder-"
+"for-how-to-fix-missing-permissions-for-the-shopify-connector/"
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/shopify_api.py:0
+msgid ""
+"The Shopify export method \"%s\" is not yet implemented. Please contact "
+"VentorTech support at support@ventor.tech to report this issue. When "
+"contacting support, provide the following:\n"
+"1. The exact status value: \"%s\".\n"
+"2. The Shopify instance URL (e.g., \"xxx.myshopify.com\").\n"
+"\n"
+"For secure sharing of sensitive information, use https://share.ventor.tech."
+msgstr ""
+"El método de exportación de Shopify “%s” aún no está implementado. Contactá "
+"al soporte de VentorTech en support@ventor.tech para reportar este problema. "
+"Al contactar a soporte, incluí lo siguiente:\n"
+"1. El valor exacto del estado: “%s”.\n"
+"2. La URL de la instancia de Shopify (e.g., \"xxx.myshopify.com\").\n"
+"\n"
+"Para compartir información sensible de forma segura, usá https://"
+"share.ventor.tech."
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_integration_product_pricelist_batch__catalog_external_line_id
+msgid "The catalog external line associated with this price calculation."
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__sale_order_cancel__reason_type__customer
+msgid "The customer wanted to cancel the order"
+msgstr "El cliente quiso cancelar el pedido"
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_integration_res_partner_proxy__customer_locale
+msgid "The locale of the customer, e.g., \"en-US\"."
+msgstr "El locale (idioma/región) del cliente, por ejemplo “en-US”."
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_sale_order__integration_order_source_name_id
+msgid "The name of the source associated with the order."
+msgstr "El nombre del origen asociado al pedido."
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/shopify_api.py:0
+msgid ""
+"The number of combinations in Shopify (%d) does not match Odoo (%d). Check "
+"the product with ID %s in Shopify and ensure the combination count matches "
+"the variant count in Odoo (Integration: \"%s\")."
+msgstr ""
+"La cantidad de combinaciones en Shopify (%d) no coincide con la de Odoo "
+"(%d). Revisá el producto con ID %s en Shopify y asegurate de que la cantidad "
+"de combinaciones coincida con la cantidad de variantes en Odoo (Integración: "
+"“%s”)."
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__sale_order_cancel__reason_type__other
+msgid "The order was canceled for an unlisted reason"
+msgstr "El pedido se canceló por un motivo no especificado"
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__sale_order_cancel__reason_type__fraud
+msgid "The order was fraudulent"
+msgstr "El pedido era fraudulento"
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_sale_order_cancel__reason_type
+msgid "The reason for canceling the order"
+msgstr "Motivo de la cancelación del pedido"
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_sale_order__integration_sale_channel_id
+msgid ""
+"The specific sales channel (e.g., Online Store, POS, Facebook) where this "
+"Shopify order originated."
+msgstr ""
+"El canal de ventas específico (p. ej., Tienda online, POS, Facebook) donde "
+"se originó este pedido de Shopify."
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__sale_order_cancel__reason_type__inventory
+msgid "There was insufficient inventory"
+msgstr "No había inventario suficiente"
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_external_metafield__metafield_type
+#: model:ir.model.fields,help:integration_shopify.field_integration_metafield_mapping__metafield_type
+msgid ""
+"This determines the data type of the value that will be stored in the "
+"metafield."
+msgstr ""
+"Esto determina el tipo de dato del valor que se almacenará en el campo "
+"personalizado (metafield)."
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_external_metafield__metafield_namespace
+#: model:ir.model.fields,help:integration_shopify.field_integration_metafield_mapping__metafield_namespace
+msgid "This is the namespace of the metafield in the external system."
+msgstr ""
+"Este es el espacio de nombres (namespace) del campo personalizado "
+"(metafield) en el sistema externo."
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_external_metafield__metafield_code
+#: model:ir.model.fields,help:integration_shopify.field_integration_metafield_mapping__metafield_code
+msgid ""
+"This is the unique identifier (gid) of the metafield in the external system."
+msgstr ""
+"Este es el identificador único (gid) del campo personalizado (metafield) en "
+"el sistema externo."
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_external_metafield__metafield_key
+#: model:ir.model.fields,help:integration_shopify.field_integration_metafield_mapping__metafield_key
+msgid ""
+"This key will be used to reference the metafield in the external system."
+msgstr ""
+"Esta clave se usará para referenciar el campo personalizado (metafield) en "
+"el sistema externo."
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__key
+msgid "Token"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_stock_picking
+msgid "Transfer"
+msgstr "Traslado"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_product_ecommerce_field__translation_key
+#: model_terms:ir.ui.view,arch_db:integration_shopify.product_ecommerce_field_view_form_shopify_inherit
+msgid "Translation Key"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_sale_integration__translations_sync
+msgid "Translations Synchronization"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_external_metafield__type
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_metafield_mapping__type
+msgid "Type"
+msgstr "Tipo"
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_external_order_risk__external_str_id
+msgid "Unique identifier for this risk assessment in the external system"
+msgstr "Identificador único de esta evaluación de riesgo en el sistema externo"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid "Update Metafields"
+msgstr "Actualizar campos personalizados (metafields)"
+
+#. module: integration_shopify
+#: model:ir.model.fields,field_description:integration_shopify.field_integration_auth_shopify__use_oauth
+msgid "Use OAuth"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields.selection,name:integration_shopify.selection__product_product__continue_selling_without_stock__from_template
+msgid "Use Value From Template"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid ""
+"Use the table below to setup mappings between Shopify customer metafields "
+"and fields on res.partner model in Odoo."
+msgstr ""
+"Usá la tabla de abajo para configurar los mapeos entre los campos "
+"personalizados (metafields) de clientes en Shopify y los campos del modelo "
+"res.partner en Odoo."
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid ""
+"Use the table below to setup mappings between Shopify order metafields and "
+"fields on sale.order model in Odoo."
+msgstr ""
+"Usá la tabla de abajo para configurar los mapeos entre los campos "
+"personalizados (metafields) de pedidos en Shopify y los campos del modelo "
+"sale.order en Odoo."
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid ""
+"Use these values when creating your app in the Shopify Dev Dashboard.\n"
+"                            Copy each value to use in your app configuration."
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_external_order_source_name__name
+msgid "User-friendly name for this order source in Odoo"
+msgstr "Nombre amigable para este origen de pedido en Odoo"
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid "Watch video tutorial: How to create application and get credentials"
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid "Webhook Security (Advanced)"
+msgstr ""
+
+#. module: integration_shopify
+#: model:ir.model,name:integration_shopify.model_product_public_category
+#, fuzzy
+msgid "Website Product Category"
+msgstr "Categoría de producto del e-commerce"
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_delivery_carrier__integration_send_tracking_url
+msgid ""
+"When checkbox is enabled, connector should send tracking URL (if carrier "
+"provides information about the URL)."
+msgstr ""
+"Cuando esta casilla está habilitada, el conector debe enviar la URL de "
+"seguimiento (si el transportista provee esa información)."
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_sale_integration__enable_webhook_hmac_validation
+msgid ""
+"When enabled, all incoming webhooks from Shopify will be verified using HMAC-"
+"SHA256 signature. Disable only temporarily if you experience validation "
+"issues after rotating your API secret key. Shopify may take up to 1 hour to "
+"start signing webhooks with a new secret after rotation."
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_sale_integration_form
+msgid ""
+"When synchronization runs, all Prices in Shopify will be overwritten with "
+"values generated from Odoo."
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.view_delivery_carrier_shopify_form
+msgid "Where can I find Shopify code for my carrier?"
+msgstr "¿Dónde puedo encontrar el código de Shopify de mi transportista?"
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_sale_order_cancel__do_refund
+msgid "Whether to refund the amount paid by the customer"
+msgstr "Si se debe reembolsar el importe pagado por el cliente"
+
+#. module: integration_shopify
+#: model:ir.model.fields,help:integration_shopify.field_sale_order_cancel__do_restock
+msgid "Whether to restock the inventory committed to the order"
+msgstr "Si se debe reponer el inventario comprometido para el pedido"
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/wizard/configuration_wizard_shopify.py:0
+msgid "You have to select at least one order financial status to be imported."
+msgstr ""
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/wizard/configuration_wizard_shopify.py:0
+msgid ""
+"You have to select at least one order fulfillment status to be imported."
+msgstr ""
+
+#. module: integration_shopify
+#. odoo-python
+#: code:addons/integration_shopify/wizard/configuration_wizard_shopify.py:0
+msgid "You have to select at least one order status to be imported."
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authentication
+msgid ""
+"Your Shopify connection has been established successfully.\n"
+"                                You can now proceed to check access "
+"permissions or test the connection."
+msgstr ""
+
+#. module: integration_shopify
+#: model_terms:ir.ui.view,arch_db:integration_shopify.integration_auth_shopify_form_authorization
+msgid "← Back"
+msgstr ""
+
+#~ msgid "Cancel Sale Order In E-Commerce Store"
+#~ msgstr "Cancelar pedido de venta en la tienda de e-commerce"
+
+#~ msgid ""
+#~ "To fix this:\n"
+#~ "\t1. Run an initial import: This will refresh the list of sales channels "
+#~ "in your connector.\n"
+#~ "\t2. Check connector permissions: Make sure your connector has the "
+#~ "\"read_publications\" permission in Shopify. You can check and adjust "
+#~ "permissions in the Quick Configuration wizard within the connector's "
+#~ "connection settings.\n"
+#~ "\n"
+#~ "Need more help?\n"
+#~ "Learn more about adding permissions here: https://t.ly/NDWIw or contact "
+#~ "our support team: https://support.ventor.tech/"
+#~ msgstr ""
+#~ "Para solucionarlo:\n"
+#~ "\t1. Ejecutá una importación inicial: esto actualizará la lista de "
+#~ "canales de venta en tu conector.\n"
+#~ "\t2. Verificá los permisos del conector: asegurate de que el conector "
+#~ "tenga el permiso “read_publications” en Shopify. Podés revisar y ajustar "
+#~ "los permisos en el asistente de Configuración rápida dentro de los "
+#~ "ajustes de conexión del conector..\n"
+#~ "\n"
+#~ "¿Necesitás más ayuda?\n"
+#~ "Más info sobre cómo agregar permisos: https://t.ly/NDWIw o contactá a "
+#~ "nuestro equipo de soporte: https://support.ventor.tech/"
+
+#~ msgid " Metafield Type"
+#~ msgstr " Tipo de metafield (campo personalizado)"
+
+#~ msgid "<i class=\"fa fa-gear\"/> Invalid Location Mapping"
+#~ msgstr "<i class=\"fa fa-gear\"/> Mapeo de ubicación no válido"
+
+#~ msgid "API Version"
+#~ msgstr "API Version"
+
+#~ msgid "API secret key"
+#~ msgstr "API clave secreta"
+
+#~ msgid "Admin API access token"
+#~ msgstr "Token de acceso a la API de administración"
+
+#~ msgid "Advanced Synchronization Settings"
+#~ msgstr "Configuración avanzada de sincronización"
+
+#~ msgid "Api service"
+#~ msgstr "Servicio de API"
+
+#~ msgid "Contact Support"
+#~ msgstr "Contactar al soporte"
+
+#~ msgid "Disable Translations Synchronization"
+#~ msgstr "Desactivar sincronización de traducciones"
+
+#~ msgid ""
+#~ "Enter your store's unique ID found in your Shopify admin URL.\n"
+#~ "                                For example, if your URL is <i>https://"
+#~ "admin.shopify.com/store/awesome-shop</i>,\n"
+#~ "                                enter <i>awesome-shop</i> here."
+#~ msgstr ""
+#~ "Ingresá el ID único de tu tienda que aparece en la URL del panel de "
+#~ "administración de Shopify.\n"
+#~ "                                Por ejemplo, si tu URL es <i>https://"
+#~ "admin.shopify.com/store/awesome-shop</i>,\n"
+#~ "                                ingresa <i>awesome-shop</i> aqui."
+
+#~ msgid "External product \"%s\" does not exist"
+#~ msgstr "El producto externo \"%s\" no existe"
+
+#~ msgid ""
+#~ "Failed to export metafield \"%s\" for resource \"%s\". Please ensure the "
+#~ "following:\n"
+#~ "1. The \"Technical Name\" is correctly defined.\n"
+#~ "2. The \"Metafield Type\" is properly configured.\n"
+#~ "\n"
+#~ "You can verify and update these settings in the menu:\n"
+#~ "\"E-Commerce Integrations → Product Fields → All Product Fields\"."
+#~ msgstr ""
+#~ "No se pudo exportar el campo personalizado (metafield) \"%s\" para el "
+#~ "recurso \"%s\". Asegurese de lo siguiente:\n"
+#~ "1. Que el “Nombre técnico” esté definido correctamente.\n"
+#~ "2. Que el “Tipo de metafield o campo personalizado” esté configurado "
+#~ "correctamente.\n"
+#~ "\n"
+#~ "Podés verificar y actualizar estos ajustes en el menú:\n"
+#~ "\"Integraciones de e-commerce → Campos del producto → Todos los campos de "
+#~ "producto\"."
+
+#~ msgid ""
+#~ "Failed to export product translations to Shopify.\n"
+#~ "\n"
+#~ "Errors:\n"
+#~ "%s"
+#~ msgstr ""
+#~ "No se pudieron exportar las traducciones del producto a Shopify.\n"
+#~ "\n"
+#~ "Errores:\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Failed to remove product translations to Shopify.\n"
+#~ "\n"
+#~ "Fields: %s\n"
+#~ "Locale: %s\n"
+#~ "\n"
+#~ "Errors:\n"
+#~ "%s"
+#~ msgstr ""
+#~ "No se pudieron eliminar las traducciones del producto en Shopify.\n"
+#~ "\n"
+#~ "Campos: %s\n"
+#~ "Idioma: %s\n"
+#~ "\n"
+#~ "Errores:\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Failed to update the inventory level for product variant '%s'. The "
+#~ "specified Shopify location (ID: %s) may not exist or may be deactivated. "
+#~ "Please ensure this location is valid and active in your Shopify Admin."
+#~ msgstr ""
+#~ "No se pudo actualizar el nivel de inventario de la variante de producto "
+#~ "'%s'. Es posible que la ubicación de Shopify especificada (ID: %s) no "
+#~ "exista o esté desactivada. Verificá que esta ubicación sea válida y esté "
+#~ "activa en tu panel de administración de Shopify."
+
+#~ msgid ""
+#~ "If you have questions or encounter any issues, please reach out to our "
+#~ "support portal for assistance."
+#~ msgstr ""
+#~ "Si tenés preguntas o encontrás algún problema, contactá nuestro portal de "
+#~ "soporte para recibir ayuda."
+
+#~ msgid "Important: Migration from Shopify REST API to Shopify GraphQL"
+#~ msgstr "Importante: migración de la API REST de Shopify a Shopify GraphQL"
+
+#~ msgid "Integration ID is required in the context."
+#~ msgstr "Se requiere el ID de integración en el contexto."
+
+#~ msgid "Integration Language"
+#~ msgstr "Idioma de la integración"
+
+#~ msgid ""
+#~ "Invalid Shopify Metafield format. The metafield must follow the format "
+#~ "\"%s.<Namespace>.<Key>\". Provided: \"%s\". Please ensure the technical "
+#~ "name matches this format and try again."
+#~ msgstr ""
+#~ "Formato de metafield de Shopify no válido. El metafield debe seguir el "
+#~ "formato \"%s.<Namespace>.<Key>\". Proporcionado: \"%s\". Asegurate de que "
+#~ "el nombre técnico coincida con este formato y volvé a intentarlo."
+
+#~ msgid ""
+#~ "Invalid configuration: Financial status filter is not configured. Please "
+#~ "configure 'Order financial statuses' in the integration settings."
+#~ msgstr ""
+#~ "Configuración no válida: el filtro de estado financiero no está "
+#~ "configurado. Configurá “Estados financieros del pedido” en la "
+#~ "configuración de la integración."
+
+#~ msgid ""
+#~ "Invalid order status: Shopify integration requires both financial and "
+#~ "fulfillment status. Please provide a valid status pair."
+#~ msgstr ""
+#~ "Estado de pedido no válido: la integración con Shopify requiere tanto el "
+#~ "estado financiero como el estado de cumplimiento (fulfillment). Indicá un "
+#~ "par de estados válido."
+
+#~ msgid "Inventory management for product \"%s\" was not saved"
+#~ msgstr "No se guardó la gestión de inventario del producto “%s”"
+
+#~ msgid "Is Scope"
+#~ msgstr "El Alcance es"
+
+#~ msgid ""
+#~ "Marking \"Partially Paid\" orders as fully paid is not supported. Please "
+#~ "resolve this issue in Shopify directly and then reattempt the operation."
+#~ msgstr ""
+#~ "No se admite marcar pedidos “Parcialmente pagados” como totalmente "
+#~ "pagados. Resolvé esto directamente en Shopify y luego volvé a intentar la "
+#~ "operación."
+
+#~ msgid "Next"
+#~ msgstr "Siguiente"
+
+#~ msgid ""
+#~ "Our next release will switch from the Shopify REST API to the new Shopify "
+#~ "GraphQL API.\n"
+#~ "                            Shopify has announced the deprecation of its "
+#~ "REST API (effective March 2025),\n"
+#~ "                            which means they may remove or stop "
+#~ "supporting it at any time.\n"
+#~ "                            This change affects nearly all connector "
+#~ "functionality, so we strongly recommend\n"
+#~ "                            testing the release on a staging server "
+#~ "before deploying it to production."
+#~ msgstr ""
+#~ "Nuestra próxima versión cambiará de la API REST de Shopify a la nueva API "
+#~ "GraphQL de Shopify.\n"
+#~ "                            Shopify anunció la deprecación de su API REST "
+#~ "(vigente desde marzo de 2025),\n"
+#~ "                            lo que significa que podrían eliminarla o "
+#~ "dejar de soportarla en cualquier momento.\n"
+#~ "                            Este cambio afecta a casi toda la "
+#~ "funcionalidad del conector, por lo que recomendamos encarecidamente\n"
+#~ "                            probar la versión en un servidor de staging "
+#~ "antes de implementarla en producción."
+
+#~ msgid "Refresh"
+#~ msgstr "Actualizar"
+
+#~ msgid "Select this option to disable the synchronization of translations "
+#~ msgstr ""
+#~ "Seleccioná esta opción para desactivar la sincronización de traducciones. "
+
+#~ msgid "Shop ID or URL"
+#~ msgstr "ID o URL de la tienda"
+
+#~ msgid "Shop Language"
+#~ msgstr "Idioma de la tienda"
+
+#~ msgid ""
+#~ "Shopify Metafield \"%s\" is missing a type. Please select a Metafield "
+#~ "Type before proceeding."
+#~ msgstr ""
+#~ "Al metafield de Shopify “%s” le falta el tipo. Seleccioná un Tipo de "
+#~ "metafield antes de continuar."
+
+#~ msgid ""
+#~ "The \"Shopify Weight Unit\" setting is not configured in the Sale "
+#~ "Integration. To resolve this, deactivate and then reactivate the Sale "
+#~ "Integration. This will populate the required weight unit setting "
+#~ "automatically."
+#~ msgstr ""
+#~ "La configuración “Unidad de peso de Shopify” no está configurada en la "
+#~ "integración de ventas. Para resolverlo, desactivá y luego reactivá la "
+#~ "integración de ventas. Esto completará automáticamente la unidad de peso "
+#~ "requerida."
+
+#~ msgid ""
+#~ "The attribute \"%s\" does not exist or is unsupported for import. Please "
+#~ "verify the attribute name and try again."
+#~ msgstr ""
+#~ "El atributo “%s” no existe o no es compatible para la importación. "
+#~ "Verificá el nombre del atributo y volvé a intentarlo."
+
+#~ msgid ""
+#~ "The primary Shop Location is not specified in your store's admin "
+#~ "settings. Please go to your store's admin panel and set the primary "
+#~ "location for this shop. This is required to proceed with integration "
+#~ "operations."
+#~ msgstr ""
+#~ "La ubicación principal de la tienda no está especificada en la "
+#~ "configuración de administración de tu tienda. Entrá al panel de "
+#~ "administración de la tienda y configurá la ubicación principal. Esto es "
+#~ "necesario para continuar con las operaciones de la integración."
+
+#~ msgid ""
+#~ "To export the metafield \"%s\", the \"namespace\" and \"type\" must be "
+#~ "specified. Please, go to \"E-Commerce Integrations → Product Fields → All "
+#~ "Product Fields\" and ensure these fields are filled in. Refer to Shopify "
+#~ "Settings → Custom Data → Products for guidance."
+#~ msgstr ""
+#~ "Para exportar el campo personalizado (metafield) “%s”, deben "
+#~ "especificarse el “namespace” y el “tipo”. Andá a “Integraciones de e-"
+#~ "commerce → Campos de producto → Todos los campos de producto” y asegurate "
+#~ "de que esos campos estén completados. Como guía, consultá Configuración "
+#~ "de Shopify → Datos personalizados → Productos."
+
+#~ msgid ""
+#~ "To export the metafield \"%s\", the \"namespace\" must be specified. "
+#~ "Please, go to \"e-Commerce Integration → Product Fields → All Product "
+#~ "Fields\" and ensure these fields are filled in. Refer to Shopify Settings "
+#~ "→ Custom Data → Products for guidance."
+#~ msgstr ""
+#~ "Para exportar el campo personalizado (metafield) “%s”, debe especificarse "
+#~ "el “namespace”. Andá a “Integración de e-commerce → Campos de producto → "
+#~ "Todos los campos de producto” y asegurate de que este campo esté "
+#~ "completado. Como guía, consultá Configuración de Shopify → Datos "
+#~ "personalizados → Productos."
+
+#~ msgid ""
+#~ "Unsupported Shopify client model name: \"%s\". This is a technical error, "
+#~ "and it must be resolved by a developer. Please contact the support team "
+#~ "or your system administrator for assistance."
+#~ msgstr ""
+#~ "Nombre de modelo de cliente de Shopify no compatible: “%s”. Este es un "
+#~ "error técnico y debe ser resuelto por un desarrollador. Contactá al "
+#~ "equipo de soporte o a tu administrador del sistema para recibir ayuda."
+
+#~ msgid ""
+#~ "We do not support yet marking as paid for \"Partially Refunded\" orders"
+#~ msgstr ""
+#~ "Todavía no se admite marcar como pagados los pedidos “Parcialmente "
+#~ "reembolsados”"
+
+#~ msgid "key"
+#~ msgstr "llave"

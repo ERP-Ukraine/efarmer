@@ -8,7 +8,7 @@
         Module is designed to change and improve
         the functionality of the Trilab Modules
     """,
-    'version': '15.0.1.1.0',
+    'version': '18.0.1.0.0',
     'category': 'Other',
     'author': 'VentorTech',
     'website': 'https://ventor.tech',

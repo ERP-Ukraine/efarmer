@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="res_config_settings_view_form_inherit" model="ir.ui.view">
+        <field name="name">res_config_settings_view_form_inherit</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <div id="contacts_settings" position="inside">
+                <block id="trilab_pl_partners_sync" title="Trilab Partners Sync (GUS/REGON/KRS/KRD/Vies)">
+
+                    <setting id="x_pl_gus">
+                        <field name="x_pl_enable_gus" string="Główny Urząd Statystyczny"/>
+                        <div class="content-group">
+                            <div class="row mt16">
+                                <label for="x_pl_gus_api_key" class="col-lg-3" string="API Key"/>
+                                <field name="x_pl_gus_api_key" password="True" required="x_pl_enable_gus"/>
+                            </div>
+                        </div>
+                    </setting>
+
+                    <setting id="x_pl_krd">
+                        <field name="x_pl_enable_krd" string="Krajowy Rejestr Długów"/>
+                        <div class="content-group" invisible="not x_pl_enable_krd">
+                            <div class="row mt16">
+                                <label class="col-lg-3" for="x_pl_krd_env" string="Environment"/>
+                                <field name="x_pl_krd_env" required="x_pl_enable_krd"/>
+                            </div>
+                            <div class="row">
+                                <label class="col-lg-3" for="x_pl_krd_login" string="Login"/>
+                                <field name="x_pl_krd_login" required="x_pl_enable_krd"/>
+                            </div>
+                            <div class="row">
+                                <label class="col-lg-3" for="x_pl_krd_pass" string="Password"/>
+                                <field name="x_pl_krd_pass" password="True" required="x_pl_enable_krd"/>
+                            </div>
+                        </div>
+                    </setting>
+
+                    <setting id="x_pl_validate_vat" help="Validate VAT and block duplicate VAT numbers">
+                        <field name="x_pl_validate_vat"/>
+                    </setting>
+                </block>
+            </div>
+        </field>
+    </record>
+
+</odoo>

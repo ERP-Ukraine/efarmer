@@ -33,7 +33,7 @@ class KsefBatchImportWizard(models.TransientModel):
 
     @api.model
     def _default_company_ids(self):
-        return self.env['account.edi.format']._x_ksef_get_invoice_batch_import_eligible_company_ids()
+        return self.env['account.move']._x_ksef_get_invoice_batch_import_eligible_company_ids()
 
     @api.model
     def _default_date_from(self):
@@ -45,9 +45,7 @@ class KsefBatchImportWizard(models.TransientModel):
 
     @api.depends('company_ids')
     def _compute_allowed_company_ids(self):
-        self.allowed_company_ids = self.env[
-            'account.edi.format'
-        ]._x_ksef_get_invoice_batch_import_eligible_company_ids()
+        self.allowed_company_ids = self.env['account.move']._x_ksef_get_invoice_batch_import_eligible_company_ids()
 
     def action_start_batch_import(self):
         self.ensure_one()
@@ -55,7 +53,7 @@ class KsefBatchImportWizard(models.TransientModel):
         if not self.company_ids:
             raise UserError(_('Please select at least one company.'))
 
-        self.env['account.edi.format']._x_ksef_start_invoice_batch_import(
+        self.env['account.move']._x_ksef_start_invoice_batch_import(
             company_ids=self.company_ids,
             date_from=self.date_from,
             date_to=self.date_to,

@@ -4,6 +4,7 @@ import datetime
 
 from odoo import fields
 from odoo.exceptions import AccessError
+from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
 
@@ -16,6 +17,7 @@ class TestUserRole(TransactionCase):
         )
         cls.user_model = cls.env["res.users"]
         cls.role_model = cls.env["res.users.role"]
+        cls.wiz_model = cls.env["wizard.groups.into.role"]
 
         cls.company1 = cls.env.ref("base.main_company")
         cls.company2 = cls.env["res.company"].create({"name": "company2"})
@@ -182,14 +184,14 @@ class TestUserRole(TransactionCase):
         self.assertLessEqual(role2_groups, self.user_id.groups_id)
         # Remove role2 from the user
         self.user_id.role_line_ids.filtered(
-            lambda l: l.role_id.id == self.role2_id.id
+            lambda rl: rl.role_id.id == self.role2_id.id
         ).unlink()
         # Check user has groups from only role1
         self.assertLessEqual(role1_groups, self.user_id.groups_id)
         self.assertFalse(role2_groups <= self.user_id.groups_id)
         # Remove role1 from the user
         self.user_id.role_line_ids.filtered(
-            lambda l: l.role_id.id == self.role1_id.id
+            lambda rl: rl.role_id.id == self.role1_id.id
         ).unlink()
         # Check user has no groups from role1 and role2
         self.assertFalse(role1_groups <= self.user_id.groups_id)
@@ -226,6 +228,62 @@ class TestUserRole(TransactionCase):
         # Check that the user cannot read multicompany data again since it lost
         # its admin privileges
         with self.assertRaisesRegex(
-            AccessError, "You are not allowed to access 'User role'"
+            AccessError, "You are not allowed to access 'User Role'"
         ):
             role.read()
+
+    @tagged("-at_install", "post_install")
+    def test_notification_type_not_reset(self):
+        """Test that roles don't reset notification settings."""
+        if self.env["ir.module.module"]._get("mail").state != "installed":
+            self.skipTest("Mail module is not installed.")
+        notification_group = self.env.ref("mail.group_mail_notification_type_inbox")
+        self.assertNotIn(notification_group, self.user_id.groups_id)
+        self.user_id.notification_type = "inbox"
+        self.assertIn(notification_group, self.user_id.groups_id)
+        self.user_id.write({"role_line_ids": [(0, 0, {"role_id": self.role1_id.id})]})
+        self.assertIn(notification_group, self.user_id.groups_id)
+
+    def test_create_role_from_user(self):
+        # Use a wizard instance to create a new role based on the user.
+        # We use assign_to_user = False, as otherwise this module forcibly
+        # assigns the role's groups to the user, which would make this
+        # test useless.
+        wizard = self.env["wizard.create.role.from.user"].create(
+            {
+                "name": "Role for user (without assign)",
+                "assign_to_user": False,
+            }
+        )
+        result = wizard.with_context(active_ids=[self.user_id.id]).create_from_user()
+
+        # Check that the role has the same groups as the user
+        role_id = result["res_id"]
+        role = self.role_model.browse([role_id])
+        user_group_ids = sorted(set(self.user_id.groups_id.ids))
+        role_group_ids = sorted(set(role.trans_implied_ids.ids))
+        self.assertEqual(user_group_ids, role_group_ids)
+
+    def test_show_alert_computation(self):
+        """Test the computation of the `show_alert` field."""
+        self.user_id.write({"role_line_ids": [(0, 0, {"role_id": self.role1_id.id})]})
+        self.assertTrue(self.user_id.show_alert)
+
+        # disable role
+        self.user_id.role_line_ids.unlink()
+        self.assertFalse(self.user_id.show_alert)
+
+    def test_group_groups_into_role(self):
+        user_group_ids = self.user_id.groups_id.ids
+        # Check that there is not a role with name: Test Role
+        self.assertFalse(self.role_model.search([("name", "=", "Test Role")]))
+        # Call create_role function to group groups into a role
+        wizard = self.wiz_model.with_context(active_ids=user_group_ids).create(
+            {"name": "Test Role"}
+        )
+        res = wizard.create_role()
+        # Check that a role with name: Test Role has been created
+        new_role = self.env[res["res_model"]].browse(res["res_id"])
+        self.assertEqual(new_role.name, "Test Role")
+        # Check that the role has the correct groups (even if the order is not equal)
+        self.assertEqual(set(new_role.implied_ids.ids), set(user_group_ids))

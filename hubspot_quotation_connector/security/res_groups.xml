@@ -3,19 +3,19 @@
     Copyright 2023 Solvve, Inc. <sales@solvve.com>
 -->
 <odoo>
-    <record id="hubspot_category" model="ir.module.category">
+    <!-- <record id="hubspot_category" model="ir.module.category">
         <field name="name">Hubspot</field>
-    </record>
+    </record> -->
 
     <record id="hubspot_user" model="res.groups">
-        <field name="name">User</field>
-        <field name="category_id" ref="hubspot_quotation_connector.hubspot_category"/>
+        <field name="name">Hubspot User</field>
+        <!-- <field name="category_id" ref="hubspot_quotation_connector.hubspot_category"/> -->
         <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
     </record>
 
     <record id="hubspot_manager" model="res.groups">
-        <field name="name">Manager</field>
-        <field name="category_id" ref="hubspot_quotation_connector.hubspot_category"/>
+        <field name="name">Hubspot Manager</field>
+        <!-- <field name="category_id" ref="hubspot_quotation_connector.hubspot_category"/> -->
         <field name="implied_ids" eval="[(4, ref('hubspot_quotation_connector.hubspot_user'))]"/>
     </record>
 </odoo>

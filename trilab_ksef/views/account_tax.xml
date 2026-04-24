@@ -5,8 +5,8 @@
         <field name="model">account.tax</field>
         <field name="inherit_id" ref="account.view_tax_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='description']" position="after">
-                <field name="x_ksef_amount" readonly="0"/>
+            <xpath expr="//field[@name='invoice_label']" position="after">
+                <field name="x_ksef_amount" readonly="False"/>
             </xpath>
         </field>
     </record>

@@ -1,7 +1,7 @@
 # Copyright 2021 VentorTech OU
 # See LICENSE file for full copyright and licensing details.
 
-from odoo import fields, models
+from odoo import _, api, fields, models
 
 
 REPORT_DOMAIN = [
@@ -15,13 +15,13 @@ class Company(models.Model):
     _inherit = 'res.company'
 
     printnode_enabled = fields.Boolean(
-        string='Enable Direct Printing',
+        string='Enable Direct Printing for company',
         default=False,
     )
 
     printnode_printer = fields.Many2one(
         'printnode.printer',
-        string='Printer',
+        string='Default Printer',
     )
 
     print_labels_format = fields.Selection(
@@ -40,30 +40,48 @@ class Company(models.Model):
     printnode_recheck = fields.Boolean(
         string='Mandatory check Printing Status',
         default=False,
+        help='If this checkbox is set the printer status is verified'
+             'when documents are set in printing Wizard',
+    )
+
+    printnode_account_id = fields.Many2one(
+        comodel_name='printnode.account',
+        compute='_compute_printnode_account_id',
+        readonly=True,
     )
 
     company_label_printer = fields.Many2one(
         'printnode.printer',
-        string='Shipping Label Printer',
+        string='Default Shipping Label Printer',
+    )
+
+    company_sl_keyword = fields.Char(
+        string='Keyword',
     )
 
     auto_send_slp = fields.Boolean(
-        string='Auto-send to Shipping Label Printer',
+        string='Automatically Print Shipping Labels',
         default=False,
     )
 
     print_sl_from_attachment = fields.Boolean(
-        string='Use Attachments Printing for Shipping Label(s)',
+        string='Enable Fallback Attachment Search',
+        default=False,
+    )
+
+    print_sl_by_keyword = fields.Boolean(
+        string='Shipping Label Search Keyword',
         default=False,
     )
 
     im_a_teapot = fields.Boolean(
         string='Show success notifications',
         default=True,
+        help='Shows message that report was successfully sent to Direct Print service',
     )
 
     print_package_with_label = fields.Boolean(
-        string='Print Package just after Shipping Label',
+        string='Print Package Label Immediately After Shipping Label',
         default=False,
     )
 
@@ -99,13 +117,13 @@ class Company(models.Model):
     printnode_fit_to_page = fields.Boolean(
         string='Disable fit to the page size',
         default=False,
+        help='Set this checkbox to disable automatic scaling of the document to fit the page',
     )
 
     debug_logging = fields.Boolean(
-        string='Debug logging',
+        string='Requests Debug logging',
         default=False,
-        help='By enabling this feature, all requests will be logged. '
-             'You can find them in "Settings - Technical - Logging" menu.',
+        help='By enabling this feature, all requests will be logged',
     )
 
     log_type_ids = fields.Many2many(
@@ -117,9 +135,61 @@ class Company(models.Model):
     printing_scenarios_from_crons = fields.Boolean(
         string='Allow to execute printing scenarios from crons',
         default=True,
+        help='Set this checkbox to allow to execute printing scenarios from crons',
     )
 
     secure_printing = fields.Boolean(
         string='Printing without sending documents to the print server',
         default=False,
+        help='This checkbox will enable Secure Printing Mode. In this mode, instead of sending '
+             'the document\'s content to print, the print server receives a special download link '
+             'for the document. This link is then passed to the client application, which downloads '
+             'the document and sends it to print. This means that your documents content is never '
+             'sent to the Direct Print server.',
     )
+
+    prevent_duplicate_printing = fields.Boolean(
+        string='Prevent duplicate printing',
+        default=True,
+        help='Prevent dublicate printing',
+    )
+
+    def _compute_printnode_account_id(self):
+        account = self.env['printnode.account'].get_main_printnode_account()
+        for company in self:
+            company.printnode_account_id = account
+
+    @api.onchange('auto_send_slp')
+    def _onchange_auto_send_slp(self):
+        if not self.auto_send_slp:
+            self.print_sl_by_keyword = False
+
+    @api.onchange('debug_logging', 'log_type_ids')
+    def _check_debug_logging(self):
+        if not self.debug_logging:
+            self.log_type_ids = [(5, 0, 0)]
+        elif not self.log_type_ids:
+            log_types = self.env[self.log_type_ids._name].search([('active', '=', True)])
+            self.log_type_ids = [(4, log_type.id) for log_type in log_types]
+
+    @api.onchange('print_package_with_label', 'print_sl_from_attachment')
+    def _onchange_print_package_with_label(self):
+        if self.print_package_with_label:
+            self.print_sl_from_attachment = False
+
+            group_settings = self.env['res.config.settings'].default_get(
+                ['group_stock_tracking_lot']
+            )
+            if not group_settings.get('group_stock_tracking_lot'):
+                self.print_package_with_label = False
+                return {
+                    "warning": {
+                        "title": _("Configuration Error"),
+                        "message": _(
+                            "This setting cannot be enabled. "
+                            "Please enable the use of Packages in Odoo settings."
+                        ),
+                    }
+                }
+        if self.print_sl_from_attachment:
+            self.print_package_with_label = False

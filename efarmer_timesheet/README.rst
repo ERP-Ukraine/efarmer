@@ -4,6 +4,9 @@ Timesheet eFarmer module
 Change Log
 ##########
 
+* 18.0.1.0.0 (2026-02-25)
+    - Migrated to ODOO 18
+
 * 2.1.2 (2023-04-19)
     - Fixed grouping of Timesheets
     - Added migration script to update Rate per Hour for existing Timesheets

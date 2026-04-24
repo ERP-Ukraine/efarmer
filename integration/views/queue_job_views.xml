@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_queue_job_list" model="ir.ui.view">
+        <field name="name">queue.job.list</field>
+        <field name="model">queue.job</field>
+        <field name="inherit_id" ref="queue_job.view_queue_job_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="width">400</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_queue_job_form" model="ir.ui.view">
+        <field name="name">queue.job.form</field>
+        <field name="model">queue.job</field>
+        <field name="priority">99</field>
+        <field name="inherit_id" ref="queue_job.view_queue_job_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='requeue']" position="after">
+                <button name="action_run_now"
+                        type="object"
+                        string="Run Now"
+                        groups="base.group_no_one"
+                        invisible="state not in ('pending', 'enqueued', 'failed')"
+                        confirm="This will run the job synchronously in the current process. Proceed?"
+                        class="btn-outline-secondary"/>
+            </xpath>
+            <xpath expr="//group[@name='result']" position="before">
+                <group name="integration">
+                    <field name="integration_id" readonly="1"/>
+                    <field name="parent_id" readonly="1"/>
+                </group>
+            </xpath>
+            <xpath expr="//group[@name='exc_info']" position="before">
+                <group
+                    name="integration_exception"
+                    string="Integration Exception"
+                    invisible="not integration_model_view_name or state != 'failed'">
+                    <group>
+                        <field name="integration_exception_name" readonly="1"/>
+                        <field name="integration_model_view_name" readonly="1"/>
+                        <field name="is_import_from_external_available" invisible="1"/> <!-- Required because it is used in invisible condition below -->
+                        <field name="integration_external_id" invisible="integration_exception_name == 'NotMappedToExternal'"/>
+                        <field name="integration_odoo_id" invisible="integration_exception_name != 'NotMappedToExternal'"/>
+                        <field name="integration_external_name" invisible="integration_exception_name == 'NotMappedToExternal'"/>
+                        <field name="integration_odoo_name" invisible="integration_exception_name != 'NotMappedToExternal'"/>
+                    </group>
+                    <group>
+                        <button name="action_open_external_view"
+                                type="object"
+                                string="Open External"
+                                colspan="12"/>
+                        <button name="action_open_mapping_view"
+                                type="object"
+                                string="Open Mappings"
+                                colspan="12"/>
+                        <button name="action_import_from_external_system"
+                                type="object"
+                                string="Import External Records From E-Commerce System"
+                                colspan="12"
+                                invisible="is_import_from_external_available == False"/>
+                    </group>
+                </group>
+            </xpath>
+            <xpath expr="//field[@name='exc_info']" position="replace">
+                <field name="exc_info"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_queue_job_lite_info_form" model="ir.ui.view">
+        <field name="name">queue.job.lite.info.form</field>
+        <field name="model">queue.job</field>
+        <field name="arch" type="xml">
+            <form string="Integration Workflow Pipeline Form" create="0" edit="0" delete="0">
+                <group name="job_info">
+                    <field name="integration_id" readonly="1"/>
+                    <field name="model_name"/>
+                    <field name="method_name"/>
+                    <field name="state" readonly="1"/>
+                </group>
+
+                <div class="alert alert-warning" role="alert" invisible="state != 'failed'">
+                    <h5 style="color: inherit">Error!</h5>
+                    <p>
+                        <field name="exc_info_lite" width="100px"/>
+                    </p>
+                </div>
+                <button name="action_toggle_exc"
+                        type="object"
+                        string="Full Traceback"
+                        colspan="12"
+                        invisible="exc_info in ('', False)"/>
+                <field name="toggle_exc" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                <field name="exc_info" readonly="1" invisible="not toggle_exc"/>
+                <field name="result" readonly="1"/>
+
+                <group
+                    name="integration_exception"
+                    string="Integration Exception"
+                    invisible="integration_model_view_name == False or state != 'failed'">
+                    <group>
+                        <field name="integration_exception_name" readonly="1"/>
+                        <field name="integration_model_view_name" readonly="1"/>
+                        <field name="is_import_from_external_available" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                        <field name="integration_external_id" invisible="integration_exception_name == 'NotMappedToExternal'"/>
+                        <field name="integration_odoo_id" invisible="integration_exception_name != 'NotMappedToExternal'"/>
+                        <field name="integration_external_name" invisible="integration_exception_name == 'NotMappedToExternal'"/>
+                        <field name="integration_odoo_name" invisible="integration_exception_name != 'NotMappedToExternal'"/>
+                    </group>
+                    <group>
+                        <button name="action_open_external_view"
+                                type="object"
+                                string="Open External"
+                                colspan="12"/>
+                        <button name="action_open_mapping_view"
+                                type="object"
+                                string="Open Mappings"
+                                colspan="12"/>
+                        <button name="action_import_from_external_system"
+                                type="object"
+                                string="Import External Records From E-Commerce System"
+                                colspan="12"
+                                invisible="is_import_from_external_available == False"/>
+                    </group>
+                </group>
+
+            </form>
+        </field>
+    </record>
+
+</odoo>

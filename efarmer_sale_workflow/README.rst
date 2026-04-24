@@ -3,6 +3,10 @@ Efarmer Sale Workflow
 
 Change Log
 ##########
+
+* 18.0.1.0.0 (2026-10-02)
+    - Migrated to ODOO 18
+
 * 1.39 (2025-07-29)
     -  Add Stock Label (without qty) print to 'stock.production.lot'
     -  Add Unused filter in 'stock.production.lot' 

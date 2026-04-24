@@ -11,12 +11,22 @@ class ResUsers(models.Model):
         inverse_name="user_id",
         string="Role lines",
         default=lambda self: self._default_role_lines(),
+        groups="base.group_erp_manager",
     )
+
+    show_alert = fields.Boolean(compute="_compute_show_alert")
+
+    @api.depends("role_line_ids")
+    def _compute_show_alert(self):
+        for user in self:
+            user.show_alert = user.role_line_ids.filtered(lambda rec: rec.is_enabled)
+
     role_ids = fields.One2many(
         comodel_name="res.users.role",
-        string="Roles",
+        string="User Roles",
         compute="_compute_role_ids",
         compute_sudo=True,
+        groups="base.group_erp_manager",
     )
 
     @api.model
@@ -40,19 +50,26 @@ class ResUsers(models.Model):
         for user in self:
             user.role_ids = user.role_line_ids.mapped("role_id")
 
-    @api.model
-    def create(self, vals):
-        new_record = super(ResUsers, self).create(vals)
-        new_record.set_groups_from_roles()
-        return new_record
+    @api.model_create_multi
+    def create(self, vals_list):
+        new_records = super().create(vals_list)
+        new_records.set_groups_from_roles()
+        return new_records
 
     def write(self, vals):
-        res = super(ResUsers, self).write(vals)
+        res = super().write(vals)
         self.sudo().set_groups_from_roles()
         return res
 
     def _get_enabled_roles(self):
         return self.role_line_ids.filtered(lambda rec: rec.is_enabled)
+
+    @api.model
+    def _get_self_writable_groups(self):
+        group = self.env.ref(
+            "mail.group_mail_notification_type_inbox", raise_if_not_found=False
+        )
+        return group or self.env["res.groups"]
 
     def set_groups_from_roles(self, force=False):
         """Set (replace) the groups following the roles defined on users.
@@ -70,16 +87,17 @@ class ResUsers(models.Model):
                     + role.trans_implied_ids.ids
                 )
             )
+        self_writable_group_ids = self._get_self_writable_groups().ids
         for user in self:
             if not user.role_line_ids and not force:
                 continue
-            group_ids = []
+            user_group_ids = set(user.groups_id.ids).difference(self_writable_group_ids)
+            group_ids = set()
             for role_line in user._get_enabled_roles():
                 role = role_line.role_id
-                group_ids += role_groups[role]
-            group_ids = list(set(group_ids))  # Remove duplicates IDs
-            groups_to_add = list(set(group_ids) - set(user.groups_id.ids))
-            groups_to_remove = list(set(user.groups_id.ids) - set(group_ids))
+                group_ids.update(role_groups[role])
+            groups_to_add = group_ids - user_group_ids
+            groups_to_remove = user_group_ids - group_ids
             to_add = [(4, gr) for gr in groups_to_add]
             to_remove = [(3, gr) for gr in groups_to_remove]
             groups = to_remove + to_add

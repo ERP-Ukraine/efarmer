@@ -6,7 +6,7 @@ class JPKTDocumentType(models.Model):
     _name = 'jpk.document.type'
     _description = 'JPK Document Type'
 
-    name = fields.Char(required=1, size=100)
+    name = fields.Char(required=True, size=100)
     active = fields.Boolean(default=True)
     jpk_type = fields.Selection(
         [
@@ -14,10 +14,10 @@ class JPKTDocumentType(models.Model):
             ('JPKAH', 'JPKAH - ad-hoc sending of documents during inspection'),
         ],
         default='JPK',
-        required=1,
+        required=True,
     )
-    system_code = fields.Char(required=1, size=100)
-    schema_version = fields.Char(required=1, size=100)
+    system_code = fields.Char(required=True, size=100)
+    schema_version = fields.Char(required=True, size=100)
     description = fields.Text()
 
     gate_type = fields.Selection(
@@ -27,26 +27,25 @@ class JPKTDocumentType(models.Model):
         required=True,
     )
 
-    # xsd do sprawdzania poprawnosci zalaczonego pliku
+    # xsd to validate attached file
     xsd_id = fields.Many2one('ir.attachment')
-    xsd_id_name = fields.Char(related='xsd_id.name', readonly=0, string='XSD Filename')
-    xsd_id_datas = fields.Binary(related='xsd_id.datas', readonly=0, string='XSD File')
+    xsd_id_name = fields.Char(related='xsd_id.name', readonly=False, string='XSD Filename')
+    xsd_id_datas = fields.Binary(related='xsd_id.datas', readonly=False, string='XSD File')
 
     @api.constrains('system_code', 'schema_version', 'name')
     def constrains_unique_values(self):
-        for record in self:
-            # using odoo constrains instead of sql constrains because sql constrains is not removed automatically
+        for type_id in self:
+            # using odoo constrains instead of sql constraints because sql constrains is not removed automatically
             # when removed from odoo, causing problems
             if (
-                self.search(
-                    [('system_code', '=', record.system_code), ('schema_version', '=', record.schema_version)],
-                    count=True,
+                self.search_count(
+                    [('system_code', '=', type_id.system_code), ('schema_version', '=', type_id.schema_version)]
                 )
                 > 1
             ):
                 raise ValidationError(_('System Code & Schema Version must be unique'))
 
-            if self.search([('name', '=', record.name)], count=True) > 1:
+            if self.search_count([('name', '=', type_id.name)]) > 1:
                 raise ValidationError(_('Name must be unique'))
 
     @api.onchange('xsd_id_datas')

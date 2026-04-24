@@ -100,6 +100,9 @@ class ShippingLabel(models.Model):
                 continue
 
             for ascii_data, params in attachment_list:
+                # Add source document to params
+                params['source_document'] = shipping_label.mapped('display_name')
+
                 printer.printnode_print_b64(ascii_data, params)
                 if params.get('package_id') and self.env.company.print_package_with_label:
                     report_id = self.env.company.printnode_package_report
@@ -109,4 +112,8 @@ class ShippingLabel(models.Model):
                             'define "Package Report to Print" in Direct Print / Settings menu'
                         ))
 
-                    printer.printnode_print(report_id, params.get('package_id'))
+                    printer.printnode_print(
+                        report_id,
+                        params.get('package_id'),
+                        data={'source_document': params.get('source_document', {})},
+                    )

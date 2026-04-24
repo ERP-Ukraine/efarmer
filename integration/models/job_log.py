@@ -34,8 +34,8 @@ class JobLog(models.Model):
         ondelete='cascade',
     )
     integration_id = fields.Many2one(
+        string='E-Commerce Store',
         comodel_name='sale.integration',
-        string='Integration',
     )
     state = fields.Selection(
         related='job_id.state',
@@ -115,7 +115,7 @@ class JobLog(models.Model):
             'type': 'ir.actions.act_window',
             'name': 'Job Logs',
             'res_model': self._name,
-            'view_mode': 'tree',
+            'view_mode': 'list',
             'view_id': self.env.ref('integration.integration_job_log_view_tree').id,
             'domain': [('id', 'in', self.ids)],
             'target': 'current',

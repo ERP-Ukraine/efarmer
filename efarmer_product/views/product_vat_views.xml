@@ -20,9 +20,9 @@
         <field name="name">view.product.vat.tree</field>
         <field name="model">product.vat</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -30,7 +30,7 @@
         <field name="name">Product Vat</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">product.vat</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
     <menuitem id="menu_product_vat"

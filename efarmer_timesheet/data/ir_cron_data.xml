@@ -9,9 +9,8 @@
             <field name="user_id" ref="base.user_root"/>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
-            <field name="doall" eval="False" />
             <field name="model_id" ref="model_hr_employee" />
+            <field name="state">code</field>
             <field name="code">model.with_delay().compute_timesheet_cost()</field>
         </record>
 

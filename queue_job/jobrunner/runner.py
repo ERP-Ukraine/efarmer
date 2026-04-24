@@ -142,10 +142,12 @@ Caveat
 import datetime
 import logging
 import os
+import random
 import selectors
 import threading
 import time
 from contextlib import closing, contextmanager
+from email.utils import parsedate_to_datetime
 
 import psycopg2
 import requests
@@ -159,10 +161,15 @@ from .channels import ENQUEUED, NOT_DONE, PENDING, ChannelManager
 
 SELECT_TIMEOUT = 60
 ERROR_RECOVERY_DELAY = 5
+PG_ADVISORY_LOCK_ID = 2293787760715711918
 
 _logger = logging.getLogger(__name__)
 
 select = selectors.DefaultSelector
+
+
+class MasterElectionLost(Exception):
+    pass
 
 
 # Unfortunately, it is not possible to extend the Odoo
@@ -192,12 +199,47 @@ def _odoo_now():
     return _datetime_to_epoch(dt)
 
 
+def _parse_retry_after(retry_after_value):
+    """
+    Parse Retry-After header value which can be either:
+    - A number of seconds (integer)
+    - An HTTP-date (RFC 7231 format)
+
+    Returns the number of seconds to wait, or None if parsing fails.
+    """
+    if not retry_after_value:
+        return None
+
+    # Try parsing as integer (seconds)
+    try:
+        seconds = int(retry_after_value)
+        return max(0, seconds)  # Ensure non-negative
+    except (ValueError, TypeError):
+        pass
+
+    # Try parsing as HTTP-date
+    try:
+        # Parse the HTTP-date format (e.g., "Wed, 21 Oct 2015 07:28:00 GMT")
+        retry_datetime = parsedate_to_datetime(retry_after_value)
+        if retry_datetime:
+            now = datetime.datetime.utcnow()
+            # Calculate seconds until the retry time
+            delta = retry_datetime - now
+            seconds = int(delta.total_seconds())
+            return max(0, seconds)  # Ensure non-negative
+    except (ValueError, TypeError, AttributeError):
+        pass
+
+    # If all parsing attempts fail, return None
+    return None
+
+
 def _connection_info_for(db_name):
     db_or_uri, connection_info = odoo.sql_db.connection_info_for(db_name)
 
     for p in ("host", "port", "user", "password"):
         cfg = os.environ.get(
-            "ODOO_QUEUE_JOB_JOBRUNNER_DB_%s" % p.upper()
+            f"ODOO_QUEUE_JOB_JOBRUNNER_DB_{p.upper()}"
         ) or queue_job_config.get("jobrunner_db_" + p)
 
         if cfg:
@@ -208,34 +250,55 @@ def _connection_info_for(db_name):
 
 def _async_http_get(scheme, host, port, user, password, db_name, job_uuid):
     # Method to set failed job (due to timeout, etc) as pending,
-    # to avoid keeping it as enqueued.
-    def set_job_pending():
+    # with optional delay using eta field
+    def set_job_pending(delay_seconds=None):
         connection_info = _connection_info_for(db_name)
         conn = psycopg2.connect(**connection_info)
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         with closing(conn.cursor()) as cr:
-            cr.execute(
-                "UPDATE queue_job SET state=%s, "
-                "date_enqueued=NULL, date_started=NULL "
-                "WHERE uuid=%s and state=%s "
-                "RETURNING uuid",
-                (PENDING, job_uuid, ENQUEUED),
-            )
+            if delay_seconds:
+                # Set eta to now + delay_seconds
+                cr.execute(
+                    """
+                    UPDATE queue_job
+                    SET state=%s,
+                        date_enqueued=NULL,
+                        date_started=NULL,
+                        eta = (now() at time zone 'utc') + make_interval(secs => %s)
+                    WHERE uuid=%s AND state=%s
+                    RETURNING uuid
+                    """,
+                    (PENDING, delay_seconds, job_uuid, ENQUEUED),
+                )
+            else:
+                # Original behavior - no delay
+                cr.execute(
+                    """
+                    UPDATE queue_job
+                    SET state=%s,
+                        date_enqueued=NULL,
+                        date_started=NULL,
+                        eta=NULL
+                    WHERE uuid=%s AND state=%s
+                    RETURNING uuid
+                    """,
+                    (PENDING, job_uuid, ENQUEUED),
+                )
             if cr.fetchone():
+                delay_msg = f" with {delay_seconds}s delay" if delay_seconds else ""
                 _logger.warning(
-                    "state of job %s was reset from %s to %s",
+                    "state of job %s was reset from %s to %s%s",
                     job_uuid,
                     ENQUEUED,
                     PENDING,
+                    delay_msg,
                 )
 
     # TODO: better way to HTTP GET asynchronously (grequest, ...)?
     #       if this was python3 I would be doing this with
     #       asyncio, aiohttp and aiopg
     def urlopen():
-        url = "{}://{}:{}/queue_job/runjob?db={}&job_uuid={}".format(
-            scheme, host, port, db_name, job_uuid
-        )
+        url = f"{scheme}://{host}:{port}/queue_job/runjob?db={db_name}&job_uuid={job_uuid}"
         try:
             auth = None
             if user:
@@ -243,31 +306,54 @@ def _async_http_get(scheme, host, port, user, password, db_name, job_uuid):
             # we are not interested in the result, so we set a short timeout
             # but not too short so we trap and log hard configuration errors
             response = requests.get(url, timeout=1, auth=auth)
-
-            # raise_for_status will result in either nothing, a Client Error
-            # for HTTP Response codes between 400 and 500 or a Server Error
-            # for codes between 500 and 600
             response.raise_for_status()
         except requests.Timeout:
-            set_job_pending()
+            # Back off on timeouts to avoid tight loops
+            delay_seconds = random.randint(3, 8)  # Random delay between 3-8 seconds
+            _logger.warning("timeout requesting job %s, retrying in %ds", job_uuid, delay_seconds)
+            set_job_pending(delay_seconds=delay_seconds)
+        except requests.HTTPError as e:
+            if e.response is not None and e.response.status_code == 429:
+                # Handle rate limiting with proper backoff
+                retry_after = e.response.headers.get('Retry-After')
+                delay = _parse_retry_after(retry_after)
+                if delay is None:
+                    delay = 30  # Default fallback
+                # Cap the delay to reasonable maximum (e.g., 5 minutes)
+                delay = min(delay, 300)
+                _logger.warning(
+                    "rate limited (429) for job %s, retrying in %ds",
+                    job_uuid, delay
+                )
+                set_job_pending(delay_seconds=delay)
+            else:
+                _logger.exception("HTTP error in GET %s", url)
+                delay_seconds = random.randint(3, 8)  # Random delay between 3-8 seconds
+                set_job_pending(delay_seconds=delay_seconds)
         except Exception:
             _logger.exception("exception in GET %s", url)
-            set_job_pending()
+            delay_seconds = random.randint(3, 8)  # Random delay between 3-8 seconds
+            set_job_pending(delay_seconds=delay_seconds)
 
     thread = threading.Thread(target=urlopen)
     thread.daemon = True
     thread.start()
 
 
-class Database(object):
+class Database:
     def __init__(self, db_name):
         self.db_name = db_name
         connection_info = _connection_info_for(db_name)
         self.conn = psycopg2.connect(**connection_info)
-        self.conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-        self.has_queue_job = self._has_queue_job()
-        if self.has_queue_job:
-            self._initialize()
+        try:
+            self.conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+            self.has_queue_job = self._has_queue_job()
+            if self.has_queue_job:
+                self._acquire_master_lock()
+                self._initialize()
+        except BaseException:
+            self.close()
+            raise
 
     def close(self):
         # pylint: disable=except-pass
@@ -279,6 +365,14 @@ class Database(object):
         except Exception:
             pass
         self.conn = None
+
+    def _acquire_master_lock(self):
+        """Acquire the master runner lock or raise MasterElectionLost"""
+        with closing(self.conn.cursor()) as cr:
+            cr.execute("SELECT pg_try_advisory_lock(%s)", (PG_ADVISORY_LOCK_ID,))
+            if not cr.fetchone()[0]:
+                msg = f"could not acquire master runner lock on {self.db_name}"
+                raise MasterElectionLost(msg)
 
     def _has_queue_job(self):
         with closing(self.conn.cursor()) as cr:
@@ -322,7 +416,7 @@ class Database(object):
         query = (
             "SELECT channel, uuid, id as seq, date_created, "
             "priority, EXTRACT(EPOCH FROM eta), state "
-            "FROM queue_job WHERE %s" % (where,)
+            f"FROM queue_job WHERE {where}"
         )
         with closing(self.conn.cursor("select_jobs", withhold=True)) as cr:
             cr.execute(query, args)
@@ -344,7 +438,7 @@ class Database(object):
             )
 
 
-class QueueJobRunner(object):
+class QueueJobRunner:
     def __init__(
         self,
         scheme="http",
@@ -415,7 +509,8 @@ class QueueJobRunner(object):
         self.db_by_name = {}
 
     def initialize_databases(self):
-        for db_name in self.get_db_names():
+        for db_name in sorted(self.get_db_names()):
+            # sorting is important to avoid deadlocks in acquiring the master lock
             db = Database(db_name)
             if db.has_queue_job:
                 self.db_by_name[db_name] = db
@@ -423,6 +518,8 @@ class QueueJobRunner(object):
                     for job_data in cr:
                         self.channel_manager.notify(db_name, *job_data)
                 _logger.info("queue job runner ready for db %s", db_name)
+            else:
+                db.close()
 
     def run_jobs(self):
         now = _odoo_now()
@@ -509,7 +606,7 @@ class QueueJobRunner(object):
         while not self._stop:
             # outer loop does exception recovery
             try:
-                _logger.info("initializing database connections")
+                _logger.debug("initializing database connections")
                 # TODO: how to detect new databases or databases
                 #       on which queue_job is installed after server start?
                 self.initialize_databases()
@@ -524,6 +621,14 @@ class QueueJobRunner(object):
             except InterruptedError:
                 # Interrupted system call, i.e. KeyboardInterrupt during select
                 self.stop()
+            except MasterElectionLost as e:
+                _logger.debug(
+                    "master election lost: %s, sleeping %ds and retrying",
+                    e,
+                    ERROR_RECOVERY_DELAY,
+                )
+                self.close_databases()
+                time.sleep(ERROR_RECOVERY_DELAY)
             except Exception:
                 _logger.exception(
                     "exception: sleeping %ds and retrying", ERROR_RECOVERY_DELAY

@@ -12,14 +12,3 @@ class SaleOrderLine(models.Model):
         store=True,
         index=True,
     )
-    account_analytic_id = fields.Many2one(
-        related="order_id.analytic_account_id",
-        readonly=True,
-        store=True,
-        index=True,
-    )
-    tag_ids = fields.Many2many(
-        'crm.tag',
-        related='order_id.tag_ids',
-        string='Tags'
-    )

@@ -9,7 +9,7 @@
                     Krajowy System <b><font class="text-danger">e</font>-Faktur</b>
                 </div>
 
-                <div t-if="o and o.id and data" class="col-6 text-right">
+                <div t-if="o and o.id and data" class="col-6 text-end">
                     <p class="mb-0">Numer faktury:</p>
                     <h3 class="mb-0" t-out="data[o.id].get('number')"/>
                     <p class="mb-0" t-out="data[o.id].get('type')"/>
@@ -21,13 +21,13 @@
             <hr/>
         </div>
 
-        <div class="article small ksef" t-att-data-oe-model="o and o._name"
+        <div class="article smaller ksef" t-att-data-oe-model="o and o._name"
              t-att-data-oe-id="o and o.id" t-att-data-oe-lang="o and o.env.context.get('lang')">
 
             <div class="page mb-4 clearfix">
-                <t t-if="data" t-out="data[o.id].get('html')"/>
+                <t t-if="data" t-out="data[o.id].get('html')" t-options="{'widget': 'html'}"/>
                 <hr />
-                <h6 class="font-weight-bold">Sprawdź, czy Twoja faktura znajduje się w KSeF!</h6>
+                <h6 class="fw-bold">Sprawdź, czy Twoja faktura znajduje się w KSeF!</h6>
                 <t t-call="trilab_ksef.ksef_qrcode" t-lang="lang"/>
             </div>
 
@@ -38,10 +38,10 @@
             </p>
         </div>
 
-        <div t-if="report_type == 'pdf'" class="footer mt-5 small ksef">
+        <div t-if="report_type == 'pdf'" class="footer mt-5 smaller ksef">
             <hr/>
             <div class="row">
-                <div class="offset-6 col-6 text-right">
+                <div class="offset-6 col-6 text-end">
                     <strong>Strona:</strong> <span class="page"/> / <span class="topage"/>
                 </div>
             </div>

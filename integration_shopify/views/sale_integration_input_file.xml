@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="view_sale_integration_input_file_form_shopify" model="ir.ui.view">
+        <field name="name">sale.integration.input.file.form.shopify</field>
+            <field name="model">sale.integration.input.file</field>
+            <field name="inherit_id" ref="integration.view_sale_integration_input_file_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header/button[@name='process']" position="before">
+                    <button name="fetch_full_order"
+                            type="object"
+                            string="Fetch Full Order"
+                            class="btn btn-outline-primary"
+                            invisible="type_api != 'shopify'"
+                    />
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

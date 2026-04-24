@@ -5,13 +5,13 @@
         <field name="inherit_id" ref="account.account_tag_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//sheet[1]" position="inside">
-                <field name="jpk_account_tag_ids" widget="one2many_list" nolabel="1" mode="tree">
-                    <tree editable="bottom">
+                <field name="jpk_account_tag_ids" nolabel="1">
+                    <list editable="bottom">
                         <field name="jpk_document_type"/>
                         <field name="jpk_markup"/>
                         <field name="jpk_section"/>
                         <field name="jpk_v7_group"/>
-                    </tree>
+                    </list>
                 </field>
             </xpath>
         </field>

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="jpk_vat_eu_report">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page" t-translation="off">
+                        <h2>JPK VAT UE</h2>
+                        <t t-set="transfer_info" t-value="doc.get_transfer_info()"/>
+                        <p t-if="transfer_info"><span>Numer referencyjny UPO:</span> <span
+                                t-out="transfer_info['reference_number']"/></p>
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <th>
+                                        <b>Wersja:</b> <t t-out="doc.version"/>
+                                    </th>
+                                    <th>
+                                        <b>Miesiąc:</b> <t t-out="doc.month"/>
+                                    </th>
+                                    <th>
+                                        <b>Rok:</b> <t t-out="doc.year"/>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th colspan="3">
+                                        <b>Cel Złożenia:</b>
+                                        <t t-if="doc.cel_zlozenia == 1">Nowa Deklaracja</t>
+                                        <t t-else="">Korekta Deklaracji</t>
+                                    </th>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th colspan="4"><h3>C. Informacja o Wewnątrzwspólnotowych Dostawach
+                                        Towarów</h3></th>
+                                </tr>
+                                <tr>
+                                    <th>Kod kraju</th>
+                                    <th>Numer identyfikacyjny VAT kontrahenta</th>
+                                    <th>Kwota transakcji w zł</th>
+                                    <th>Transakcje trójstronne</th>
+                                </tr>
+                            </thead>
+                            <tbody t-if="doc.original_vat_ue_id">
+                                <tr>
+                                    <td colspan="4">
+                                        <h4>Przed</h4>
+                                    </td>
+                                </tr>
+                                <tr t-foreach="doc.original_group1_line_ids" t-as="original_group_line">
+                                    <td t-out="original_group_line.country_code"/>
+                                    <td t-out="original_group_line.nip"/>
+                                    <td class="text-end" t-out="original_group_line.amount"
+                                        t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                    <td t-out="original_group_line.tt"/>
+                                </tr>
+                            </tbody>
+                            <tbody>
+                                <tr t-if="doc.original_vat_ue_id">
+                                    <td colspan="4">
+                                        <h4>Po</h4>
+                                    </td>
+                                </tr>
+                                <tr t-foreach="doc.group1_line_ids" t-as="group_line">
+                                    <td t-out="group_line.country_code"/>
+                                    <td t-out="group_line.nip"/>
+                                    <td class="text-end" t-out="group_line.amount"
+                                        t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                    <td t-out="group_line.tt"/>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th colspan="4"><h3>D. Informacja o Wewnątrzwspólnotowych Nabyciach
+                                        Towarów</h3></th>
+                                </tr>
+                                <tr>
+                                    <th>Kod kraju</th>
+                                    <th>Numer identyfikacyjny VAT kontrahenta</th>
+                                    <th>Kwota transakcji w zł</th>
+                                    <th>Transakcje trójstronne</th>
+                                </tr>
+                            </thead>
+                            <tbody t-if="doc.original_vat_ue_id">
+                                <tr>
+                                    <td colspan="4">
+                                        <h4>Przed</h4>
+                                    </td>
+                                </tr>
+                                <tr t-foreach="doc.original_group2_line_ids" t-as="original_group_line">
+                                    <td t-out="original_group_line.country_code"/>
+                                    <td t-out="original_group_line.nip"/>
+                                    <td class="text-end" t-out="original_group_line.amount"
+                                        t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                    <td t-out="original_group_line.tt"/>
+                                </tr>
+                            </tbody>
+                            <tbody>
+                                <tr t-if="doc.original_vat_ue_id">
+                                    <td colspan="4">
+                                        <h4>Po</h4>
+                                    </td>
+                                </tr>
+                                <tr t-foreach="doc.group2_line_ids" t-as="group_line">
+                                    <td t-out="group_line.country_code"/>
+                                    <td t-out="group_line.nip"/>
+                                    <td class="text-end" t-out="group_line.amount"
+                                        t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                    <td t-out="group_line.tt"/>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <td colspan="3"><h3>E. Informacja o Wewnątrzwspólnotowym Świadczeniu Usług</h3></td>
+                                </tr>
+                                <tr>
+                                    <th>Kod kraju</th>
+                                    <th>Numer identyfikacyjny VAT kontrahenta</th>
+                                    <th>Kwota transakcji w zł</th>
+                                </tr>
+                            </thead>
+
+                            <tbody t-if="doc.original_vat_ue_id">
+                                <tr>
+                                    <td colspan="4">
+                                        <h4>Przed</h4>
+                                    </td>
+                                </tr>
+                                <tr t-foreach="doc.original_group3_line_ids" t-as="original_group_line">
+                                    <td t-out="original_group_line.country_code"/>
+                                    <td t-out="original_group_line.nip"/>
+                                    <td class="text-end" t-out="original_group_line.amount"
+                                        t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                </tr>
+                            </tbody>
+
+                            <tbody>
+                                <tr t-if="doc.original_vat_ue_id">
+                                    <td colspan="4">
+                                        <h4>Po</h4>
+                                    </td>
+                                </tr>
+                                <tr t-foreach="doc.group3_line_ids" t-as="group_line">
+                                    <td t-out="group_line.country_code"/>
+                                    <td t-out="group_line.nip"/>
+                                    <td class="text-end" t-out="group_line.amount"
+                                        t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_print_report_jpk_vat_ue_report_xml" model="ir.actions.report">
+        <field name="name">VAT UE XML</field>
+        <field name="model">jpk.vat7m.report.wizard</field>
+        <field name="report_type">jpk_xml</field>
+        <field name="report_name">trilab_jpk_vat.jpk_vat_eu_report</field>
+        <field name="report_file">trilab_jpk_vat.jpk_vat_eu_report</field>
+    </record>
+
+    <record id="report_vat_ue_pdf" model="ir.actions.report">
+        <field name="name">VAT UE</field>
+        <field name="model">jpk.vat.ue</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">trilab_jpk_vat.jpk_vat_eu_report</field>
+        <field name="report_file">trilab_jpk_vat.jpk_vat_eu_report</field>
+        <field name="print_report_name">object.get_print_report_name()</field>
+    </record>
+
+</odoo>

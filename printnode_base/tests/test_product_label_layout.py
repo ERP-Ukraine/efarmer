@@ -66,7 +66,7 @@ class TestProductLabelLayout(TestPrintNodeCommon):
         for i in range(1, 6):
             product = self.env['product.product'].create({
                 'name': f'product_{i}',
-                'type': 'product',
+                'is_storable': True,
             })
             qty = randint(1, 5)
             total_qty += qty
@@ -83,7 +83,7 @@ class TestProductLabelLayout(TestPrintNodeCommon):
         ctx = action['context'].copy()
         form_wizard = Form(self.env['product.label.layout'].with_context(**ctx))
         wiz = form_wizard.save()
-        self.assertEqual(wiz.picking_quantity, 'picking')
+        self.assertEqual(wiz.move_quantity, 'move')
         self.assertEqual(self.env.user.printnode_printer.id, wiz.printer_id.id)
         self.assertEqual(
             sorted(wiz.product_line_ids.mapped('product_id.id')),

@@ -1,38 +1,30 @@
 # See LICENSE file for full copyright and licensing details.
 
-from functools import reduce
-
 from odoo import models
-from odoo.tools.misc import groupby
 
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
-    def _run_integration_picking_hooks(self):
-        """
-        Redefined method for Shopify in order to perform
-        partial validation (integration_send_picking)
-        """
-        for order, picking_list in groupby(self, key=lambda x: x.sale_id):
-            integration = order.integration_id
-            if not integration:
-                continue
+    @property
+    def carrier_tracking_url_prop(self):
+        self.ensure_one()
+        return self.carrier_id.integration_send_tracking_url and self.carrier_tracking_url or False
 
-            if not integration.is_shopify():
-                pickings = reduce(lambda x, y: x + y, picking_list)
-                super(StockPicking, pickings)._run_integration_picking_hooks()
-                continue
+    def to_export_format(self, integration):
+        result = super().to_export_format(integration)
 
-            # A: send full delivery validation and continue
-            if order.check_is_order_shipped():
-                order._integration_shipped_order_hook()
-                order.order_export_tracking()
-                continue
+        if integration.is_integration_shopify:
+            result['carrier_tracking_url'] = self.carrier_tracking_url_prop
 
-            # B: send partial delivery validation or awaiting full Odoo validation (case A)
-            if not order.is_procurement_grouped:
-                continue
+        return result
 
-            for rec in [x for x in picking_list if x.no_kits]:
-                rec.integration_send_picking()
+    def to_export_format_multi(self, integration):
+        result = super().to_export_format_multi(integration)
+
+        if integration.is_integration_shopify:
+
+            for data, picking in zip(result, self):
+                data['carrier_tracking_url'] = picking.carrier_tracking_url_prop
+
+        return result

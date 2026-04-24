@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <!-- This group is allowed to create duplicate VAT records -->
+    <record id="group_allow_duplicate_vat" model="res.groups">
+        <field name="name">Can Create Partners with duplicate VAT</field>
+        <field name="users" eval="[Command.link(ref('base.user_root')), Command.link(ref('base.user_admin'))]"/>
+        <field name="comment">The user will be able to create new Partners with VAT that is already assigned to other partners.</field>
+    </record>
+
+</odoo>
