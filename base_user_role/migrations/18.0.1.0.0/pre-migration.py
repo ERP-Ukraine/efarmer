@@ -288,7 +288,7 @@ def migrate(cr, version):
         return
 
     _logger.info("START CLEANUP (SAFE MODE)")
-    clean_specific_views(cr)
+    # clean_specific_views(cr)
     
     # =====================================================
     # CLEAN CONFIG PARAMETERS (avoid duplicate key error)
