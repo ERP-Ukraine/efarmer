@@ -10,8 +10,8 @@ class SetJobsToCancelled(models.TransientModel):
     _description = "Cancel all selected jobs"
 
     def set_cancelled(self):
-        # Only jobs with state WAIT_DEPENDENCIES, PENDING, FAILED, ENQUEUED
-        # will change to CANCELLED
-        jobs = self.job_ids
+        jobs = self.job_ids.filtered(
+            lambda x: x.state in ("pending", "failed", "enqueued")
+        )
         jobs.button_cancelled()
         return {"type": "ir.actions.act_window_close"}
