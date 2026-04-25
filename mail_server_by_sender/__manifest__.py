@@ -10,7 +10,7 @@
     'description': """
 Select Mail Server by Sender address.
 """,
-    'depends': ['base', 'mail'],
+    'depends': ['base'],
     'installable': True,
     'auto_install': False
 }

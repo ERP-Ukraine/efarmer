@@ -28,8 +28,7 @@ class QueueJobFunction(models.Model):
         "related_action_enable "
         "related_action_func_name "
         "related_action_kwargs "
-        "job_function_id "
-        "allow_commit",
+        "job_function_id ",
     )
 
     def _default_channel(self):
@@ -79,12 +78,6 @@ class QueueJobFunction(models.Model):
         "to the job. Configured as a dictionary with optional keys: "
         "enable, func_name, kwargs.\n"
         "See the module description for details.",
-    )
-    allow_commit = fields.Boolean(
-        help="Allows the job to commit transactions during execution. "
-        "Under the hood, this executes the job in a new database cursor, "
-        "which incurs an overhead as it requires an extra connection to "
-        "the database. "
     )
 
     @api.depends("model_id.model", "method")
@@ -156,7 +149,6 @@ class QueueJobFunction(models.Model):
             related_action_func_name=None,
             related_action_kwargs={},
             job_function_id=None,
-            allow_commit=False,
         )
 
     def _parse_retry_pattern(self):
@@ -192,7 +184,6 @@ class QueueJobFunction(models.Model):
             related_action_func_name=config.related_action.get("func_name"),
             related_action_kwargs=config.related_action.get("kwargs", {}),
             job_function_id=config.id,
-            allow_commit=config.allow_commit,
         )
 
     def _retry_pattern_format_error_message(self):

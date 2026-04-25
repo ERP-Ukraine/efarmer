@@ -42,7 +42,6 @@ class TestJobFunction(common.TransactionCase):
                     ' "func_name": "related_action_foo",'
                     ' "kwargs": {"b": 1}}'
                 ),
-                "allow_commit": True,
             }
         )
         self.assertEqual(
@@ -54,6 +53,5 @@ class TestJobFunction(common.TransactionCase):
                 related_action_func_name="related_action_foo",
                 related_action_kwargs={"b": 1},
                 job_function_id=job_function.id,
-                allow_commit=True,
             ),
         )

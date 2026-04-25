@@ -4,7 +4,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 18.0\n"
+"Project-Id-Version: Odoo Server 15.0\n"
 "Report-Msgid-Bugs-To: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -16,13 +16,13 @@ msgstr ""
 #. module: queue_job
 #: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_form
 msgid ""
-"<br/>\n"
-"                            <span class=\"oe_grey oe_inline\"> If the max. retries is 0, the number of retries is infinite.</span>"
+"<span class=\"oe_grey oe_inline\"> If the max. retries is 0, the number of "
+"retries is infinite.</span>"
 msgstr ""
 
 #. module: queue_job
-#. odoo-python
 #: code:addons/queue_job/controllers/main.py:0
+#, python-format
 msgid "Access Denied"
 msgstr ""
 
@@ -52,19 +52,6 @@ msgid "Activity Type Icon"
 msgstr ""
 
 #. module: queue_job
-#: model:ir.model.fields,field_description:queue_job.field_queue_job_function__allow_commit
-msgid "Allow Commit"
-msgstr ""
-
-#. module: queue_job
-#: model:ir.model.fields,help:queue_job.field_queue_job_function__allow_commit
-msgid ""
-"Allows the job to commit transactions during execution. Under the hood, this"
-" executes the job in a new database cursor, which incurs an overhead as it "
-"requires an extra connection to the database. "
-msgstr ""
-
-#. module: queue_job
 #: model:ir.model.fields,field_description:queue_job.field_queue_job__args
 msgid "Args"
 msgstr ""
@@ -76,6 +63,8 @@ msgstr ""
 
 #. module: queue_job
 #: model:ir.actions.server,name:queue_job.ir_cron_autovacuum_queue_jobs_ir_actions_server
+#: model:ir.cron,cron_name:queue_job.ir_cron_autovacuum_queue_jobs
+#: model:ir.cron,name:queue_job.ir_cron_autovacuum_queue_jobs
 msgid "AutoVacuum Job Queue"
 msgstr ""
 
@@ -114,20 +103,20 @@ msgid "Cancelled"
 msgstr ""
 
 #. module: queue_job
-#. odoo-python
 #: code:addons/queue_job/models/queue_job.py:0
-msgid "Cancelled by {}"
+#, python-format
+msgid "Cancelled by %s"
 msgstr ""
 
 #. module: queue_job
-#. odoo-python
 #: code:addons/queue_job/models/queue_job_channel.py:0
+#, python-format
 msgid "Cannot change the root channel"
 msgstr ""
 
 #. module: queue_job
-#. odoo-python
 #: code:addons/queue_job/models/queue_job_channel.py:0
+#, python-format
 msgid "Cannot remove the root channel"
 msgstr ""
 
@@ -175,7 +164,6 @@ msgstr ""
 
 #. module: queue_job
 #: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__create_uid
-#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__create_uid
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled__create_uid
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done__create_uid
 #: model:ir.model.fields,field_description:queue_job.field_queue_requeue_job__create_uid
@@ -183,13 +171,7 @@ msgid "Created by"
 msgstr ""
 
 #. module: queue_job
-#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
-msgid "Created date"
-msgstr ""
-
-#. module: queue_job
 #: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__create_date
-#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__create_date
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled__create_date
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done__create_date
 #: model:ir.model.fields,field_description:queue_job.field_queue_requeue_job__create_date
@@ -236,7 +218,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:queue_job.field_queue_job__display_name
 #: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__display_name
 #: model:ir.model.fields,field_description:queue_job.field_queue_job_function__display_name
-#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__display_name
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled__display_name
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done__display_name
 #: model:ir.model.fields,field_description:queue_job.field_queue_requeue_job__display_name
@@ -367,7 +348,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:queue_job.field_queue_job__id
 #: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__id
 #: model:ir.model.fields,field_description:queue_job.field_queue_job_function__id
-#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__id
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled__id
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done__id
 #: model:ir.model.fields,field_description:queue_job.field_queue_requeue_job__id
@@ -390,7 +370,14 @@ msgid "Identity Key"
 msgstr ""
 
 #. module: queue_job
+#: code:addons/queue_job/models/queue_job.py:0
+#, python-format
+msgid "If both parameters are 0, ALL jobs will be requeued!"
+msgstr ""
+
+#. module: queue_job
 #: model:ir.model.fields,help:queue_job.field_queue_job__message_needaction
+#: model:ir.model.fields,help:queue_job.field_queue_job__message_unread
 msgid "If checked, new messages require your attention."
 msgstr ""
 
@@ -400,8 +387,8 @@ msgid "If checked, some messages have a delivery error."
 msgstr ""
 
 #. module: queue_job
-#. odoo-python
 #: code:addons/queue_job/models/queue_job_function.py:0
+#, python-format
 msgid "Invalid job function: {}"
 msgstr ""
 
@@ -453,6 +440,12 @@ msgid "Job failed"
 msgstr ""
 
 #. module: queue_job
+#: code:addons/queue_job/controllers/main.py:0
+#, python-format
+msgid "Job interrupted and set to Done: nothing to do."
+msgstr ""
+
+#. module: queue_job
 #: model:ir.actions.act_window,name:queue_job.action_queue_job
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled__job_ids
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done__job_ids
@@ -466,8 +459,15 @@ msgid "Jobs"
 msgstr ""
 
 #. module: queue_job
-#. odoo-python
+#: model:ir.actions.server,name:queue_job.ir_cron_queue_job_garbage_collector_ir_actions_server
+#: model:ir.cron,cron_name:queue_job.ir_cron_queue_job_garbage_collector
+#: model:ir.cron,name:queue_job.ir_cron_queue_job_garbage_collector
+msgid "Jobs Garbage Collector"
+msgstr ""
+
+#. module: queue_job
 #: code:addons/queue_job/models/queue_job.py:0
+#, python-format
 msgid "Jobs for graph %s"
 msgstr ""
 
@@ -477,23 +477,17 @@ msgid "Kwargs"
 msgstr ""
 
 #. module: queue_job
-#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
-msgid "Last 24 hours"
-msgstr ""
-
-#. module: queue_job
-#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
-msgid "Last 30 days"
-msgstr ""
-
-#. module: queue_job
-#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
-msgid "Last 7 days"
+#: model:ir.model.fields,field_description:queue_job.field_queue_job____last_update
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_channel____last_update
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_function____last_update
+#: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled____last_update
+#: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done____last_update
+#: model:ir.model.fields,field_description:queue_job.field_queue_requeue_job____last_update
+msgid "Last Modified on"
 msgstr ""
 
 #. module: queue_job
 #: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__write_uid
-#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__write_uid
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled__write_uid
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done__write_uid
 #: model:ir.model.fields,field_description:queue_job.field_queue_requeue_job__write_uid
@@ -502,7 +496,6 @@ msgstr ""
 
 #. module: queue_job
 #: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__write_date
-#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__write_date
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled__write_date
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done__write_date
 #: model:ir.model.fields,field_description:queue_job.field_queue_requeue_job__write_date
@@ -510,9 +503,14 @@ msgid "Last Updated on"
 msgstr ""
 
 #. module: queue_job
-#. odoo-python
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__message_main_attachment_id
+msgid "Main Attachment"
+msgstr ""
+
+#. module: queue_job
 #: code:addons/queue_job/models/queue_job.py:0
-msgid "Manually set to done by {}"
+#, python-format
+msgid "Manually set to done by %s"
 msgstr ""
 
 #. module: queue_job
@@ -548,8 +546,8 @@ msgid "Model"
 msgstr ""
 
 #. module: queue_job
-#. odoo-python
 #: code:addons/queue_job/models/queue_job_function.py:0
+#, python-format
 msgid "Model {} not found"
 msgstr ""
 
@@ -580,14 +578,14 @@ msgid "Next Activity Type"
 msgstr ""
 
 #. module: queue_job
-#. odoo-python
 #: code:addons/queue_job/models/queue_job.py:0
+#, python-format
 msgid "No action available for this job"
 msgstr ""
 
 #. module: queue_job
-#. odoo-python
 #: code:addons/queue_job/models/queue_job.py:0
+#, python-format
 msgid "Not allowed to change field(s): {}"
 msgstr ""
 
@@ -603,7 +601,7 @@ msgstr ""
 
 #. module: queue_job
 #: model:ir.model.fields,help:queue_job.field_queue_job__message_needaction_counter
-msgid "Number of messages requiring action"
+msgid "Number of messages which requires an action"
 msgstr ""
 
 #. module: queue_job
@@ -612,13 +610,18 @@ msgid "Number of messages with delivery error"
 msgstr ""
 
 #. module: queue_job
+#: model:ir.model.fields,help:queue_job.field_queue_job__message_unread_counter
+msgid "Number of unread messages"
+msgstr ""
+
+#. module: queue_job
 #: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__parent_id
 msgid "Parent Channel"
 msgstr ""
 
 #. module: queue_job
-#. odoo-python
 #: code:addons/queue_job/models/queue_job_channel.py:0
+#, python-format
 msgid "Parent channel required."
 msgstr ""
 
@@ -639,7 +642,6 @@ msgstr ""
 
 #. module: queue_job
 #: model:ir.model.fields,field_description:queue_job.field_queue_job__priority
-#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
 msgid "Priority"
 msgstr ""
 
@@ -650,13 +652,18 @@ msgstr ""
 
 #. module: queue_job
 #: model:ir.model,name:queue_job.model_queue_job
-#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__queue_job_id
 msgid "Queue Job"
 msgstr ""
 
 #. module: queue_job
-#: model:ir.model,name:queue_job.model_queue_job_lock
-msgid "Queue Job Lock"
+#: code:addons/queue_job/models/queue_job.py:0
+#, python-format
+msgid "Queue jobs must be created by calling 'with_delay()'."
+msgstr ""
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__record_ids
+msgid "Record"
 msgstr ""
 
 #. module: queue_job
@@ -680,14 +687,14 @@ msgid "Related Action (serialized)"
 msgstr ""
 
 #. module: queue_job
-#. odoo-python
 #: code:addons/queue_job/models/queue_job.py:0
+#, python-format
 msgid "Related Record"
 msgstr ""
 
 #. module: queue_job
-#. odoo-python
 #: code:addons/queue_job/models/queue_job.py:0
+#, python-format
 msgid "Related Records"
 msgstr ""
 
@@ -774,10 +781,10 @@ msgid "Single shared identifier of a Graph. Empty for a single job."
 msgstr ""
 
 #. module: queue_job
-#. odoo-python
 #: code:addons/queue_job/models/queue_job.py:0
+#, python-format
 msgid ""
-"Something bad happened during the execution of the job. More details in the "
+"Something bad happened during the execution of job %s. More details in the "
 "'Exception Information' section."
 msgstr ""
 
@@ -852,11 +859,6 @@ msgid "Time required to execute this job in seconds. Average when grouped."
 msgstr ""
 
 #. module: queue_job
-#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
-msgid "Tried many times"
-msgstr ""
-
-#. module: queue_job
 #: model:ir.model.fields,help:queue_job.field_queue_job__activity_exception_decoration
 msgid "Type of the exception activity on record."
 msgstr ""
@@ -867,8 +869,8 @@ msgid "UUID"
 msgstr ""
 
 #. module: queue_job
-#. odoo-python
 #: code:addons/queue_job/models/queue_job_function.py:0
+#, python-format
 msgid ""
 "Unexpected format of Related Action for {}.\n"
 "Example of valid format:\n"
@@ -876,13 +878,22 @@ msgid ""
 msgstr ""
 
 #. module: queue_job
-#. odoo-python
 #: code:addons/queue_job/models/queue_job_function.py:0
+#, python-format
 msgid ""
 "Unexpected format of Retry Pattern for {}.\n"
-"Example of valid formats:\n"
-"{{1: 300, 5: 600, 10: 1200, 15: 3000}}\n"
-"{{1: (1, 10), 5: (11, 20), 10: (21, 30), 15: (100, 300)}}"
+"Example of valid format:\n"
+"{{1: 300, 5: 600, 10: 1200, 15: 3000}}"
+msgstr ""
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__message_unread
+msgid "Unread Messages"
+msgstr ""
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__message_unread_counter
+msgid "Unread Messages Counter"
 msgstr ""
 
 #. module: queue_job

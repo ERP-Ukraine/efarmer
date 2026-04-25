@@ -59,19 +59,6 @@ msgid "Activity Type Icon"
 msgstr "活动类型图标"
 
 #. module: queue_job
-#: model:ir.model.fields,field_description:queue_job.field_queue_job_function__allow_commit
-msgid "Allow Commit"
-msgstr ""
-
-#. module: queue_job
-#: model:ir.model.fields,help:queue_job.field_queue_job_function__allow_commit
-msgid ""
-"Allows the job to commit transactions during execution. Under the hood, this "
-"executes the job in a new database cursor, which incurs an overhead as it "
-"requires an extra connection to the database. "
-msgstr ""
-
-#. module: queue_job
 #: model:ir.model.fields,field_description:queue_job.field_queue_job__args
 msgid "Args"
 msgstr "位置参数"
@@ -182,7 +169,6 @@ msgstr "创建日期"
 
 #. module: queue_job
 #: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__create_uid
-#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__create_uid
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled__create_uid
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done__create_uid
 #: model:ir.model.fields,field_description:queue_job.field_queue_requeue_job__create_uid
@@ -196,7 +182,6 @@ msgstr ""
 
 #. module: queue_job
 #: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__create_date
-#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__create_date
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled__create_date
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done__create_date
 #: model:ir.model.fields,field_description:queue_job.field_queue_requeue_job__create_date
@@ -243,7 +228,6 @@ msgstr "说明"
 #: model:ir.model.fields,field_description:queue_job.field_queue_job__display_name
 #: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__display_name
 #: model:ir.model.fields,field_description:queue_job.field_queue_job_function__display_name
-#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__display_name
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled__display_name
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done__display_name
 #: model:ir.model.fields,field_description:queue_job.field_queue_requeue_job__display_name
@@ -374,7 +358,6 @@ msgstr "有消息"
 #: model:ir.model.fields,field_description:queue_job.field_queue_job__id
 #: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__id
 #: model:ir.model.fields,field_description:queue_job.field_queue_job_function__id
-#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__id
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled__id
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done__id
 #: model:ir.model.fields,field_description:queue_job.field_queue_requeue_job__id
@@ -397,12 +380,19 @@ msgid "Identity Key"
 msgstr "身份密钥"
 
 #. module: queue_job
+#. odoo-python
+#: code:addons/queue_job/models/queue_job.py:0
+msgid "If both parameters are 0, ALL jobs will be requeued!"
+msgstr "如果两个参数都为0，所有任务都将被重新排队！"
+
+#. module: queue_job
 #: model:ir.model.fields,help:queue_job.field_queue_job__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr "确认后, 出现提示消息。"
 
 #. module: queue_job
 #: model:ir.model.fields,help:queue_job.field_queue_job__message_has_error
+#: model:ir.model.fields,help:queue_job.field_queue_job__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "如果勾选此项， 某些消息将会产生传递错误。"
 
@@ -473,6 +463,11 @@ msgid "Jobs"
 msgstr "作业"
 
 #. module: queue_job
+#: model:ir.actions.server,name:queue_job.ir_cron_queue_job_garbage_collector_ir_actions_server
+msgid "Jobs Garbage Collector"
+msgstr "作业垃圾收集器"
+
+#. module: queue_job
 #. odoo-python
 #: code:addons/queue_job/models/queue_job.py:0
 msgid "Jobs for graph %s"
@@ -500,7 +495,6 @@ msgstr ""
 
 #. module: queue_job
 #: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__write_uid
-#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__write_uid
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled__write_uid
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done__write_uid
 #: model:ir.model.fields,field_description:queue_job.field_queue_requeue_job__write_uid
@@ -509,7 +503,6 @@ msgstr "最后更新者"
 
 #. module: queue_job
 #: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__write_date
-#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__write_date
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled__write_date
 #: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done__write_date
 #: model:ir.model.fields,field_description:queue_job.field_queue_requeue_job__write_date
@@ -654,7 +647,6 @@ msgstr "等待"
 
 #. module: queue_job
 #: model:ir.model.fields,field_description:queue_job.field_queue_job__priority
-#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
 msgid "Priority"
 msgstr "优先级"
 
@@ -665,14 +657,14 @@ msgstr "队列"
 
 #. module: queue_job
 #: model:ir.model,name:queue_job.model_queue_job
-#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__queue_job_id
 msgid "Queue Job"
 msgstr "队列作业"
 
 #. module: queue_job
-#: model:ir.model,name:queue_job.model_queue_job_lock
-msgid "Queue Job Lock"
-msgstr ""
+#. odoo-python
+#: code:addons/queue_job/models/queue_job.py:0
+msgid "Queue jobs must be created by calling 'with_delay()'."
+msgstr "队列任务必须通过调用'with_delay()'方法来创建。"
 
 #. module: queue_job
 #: model:ir.model.fields,field_description:queue_job.field_queue_job__records
@@ -757,6 +749,11 @@ msgstr "重试模式"
 #: model:ir.model.fields,field_description:queue_job.field_queue_job_function__retry_pattern
 msgid "Retry Pattern (serialized)"
 msgstr "重试模式（已序列化）"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "短信传递错误"
 
 #. module: queue_job
 #: model:ir.model,name:queue_job.model_queue_jobs_to_done
@@ -879,11 +876,6 @@ msgid "Time required to execute this job in seconds. Average when grouped."
 msgstr "以秒为单位执行此任务所需的时间。分组时为平均值。"
 
 #. module: queue_job
-#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
-msgid "Tried many times"
-msgstr ""
-
-#. module: queue_job
 #: model:ir.model.fields,help:queue_job.field_queue_job__activity_exception_decoration
 msgid "Type of the exception activity on record."
 msgstr "记录的异常活动的类型。"
@@ -899,13 +891,13 @@ msgstr "UUID"
 msgid ""
 "Unexpected format of Related Action for {}.\n"
 "Example of valid format:\n"
-"{{\"enable\": True, \"func_name\": \"related_action_foo\", \"kwargs\" "
-"{{\"limit\": 10}}}}"
+"{{\"enable\": True, \"func_name\": \"related_action_foo\", "
+"\"kwargs\" {{\"limit\": 10}}}}"
 msgstr ""
 "对于 {}，关联操作的格式不符合预期。 \n"
 "有效格式的示例：\n"
-"{{\"enable\": True, \"func_name\": \"related_action_foo\", \"kwargs\" "
-"{{\"limit\": 10}}}}"
+"{{\"enable\": True, \"func_name\": \"related_action_foo\", "
+"\"kwargs\" {{\"limit\": 10}}}}"
 
 #. module: queue_job
 #. odoo-python
@@ -937,18 +929,6 @@ msgstr "重新排队向导所选的作业"
 #: model:ir.model.fields,field_description:queue_job.field_queue_job__worker_pid
 msgid "Worker Pid"
 msgstr "工作进程PID"
-
-#~ msgid "If both parameters are 0, ALL jobs will be requeued!"
-#~ msgstr "如果两个参数都为0，所有任务都将被重新排队！"
-
-#~ msgid "Jobs Garbage Collector"
-#~ msgstr "作业垃圾收集器"
-
-#~ msgid "Queue jobs must be created by calling 'with_delay()'."
-#~ msgstr "队列任务必须通过调用'with_delay()'方法来创建。"
-
-#~ msgid "SMS Delivery error"
-#~ msgstr "短信传递错误"
 
 #, python-format
 #~ msgid "Cancelled by %s"
