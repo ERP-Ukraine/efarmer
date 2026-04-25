@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <menuitem id="menu_auto_workflow"
+                  name="Auto-Workflow"
+                  parent="configuration_menu"
+                  sequence="1"/>
+
+        <menuitem id="menu_auto_workflow_sub_statuses"
+                  name="Order Statuses"
+                  parent="menu_auto_workflow"
+                  action="integration_sale_order_sub_status_external_auto_workflow_action"/>
+
+        <menuitem id="menu_auto_workflow_payment_methods"
+                  name="Payment Methods"
+                  parent="menu_auto_workflow"
+                  action="integration_sale_order_payment_method_external_auto_workflow_action"/>
+
+    </data>
+</odoo>

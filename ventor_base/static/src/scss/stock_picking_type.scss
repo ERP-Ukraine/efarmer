@@ -1,0 +1,17 @@
+.custom-control.custom-checkbox.o_field_boolean.o_field_widget.o_readonly_modifier{
+    pointer-events: none;
+}
+
+.ventor_base_tree {
+	& > .table-responsive {
+		& > .table {
+			& > thead {
+				& > tr {
+					& > :not(:empty) {
+						white-space: pre-wrap;
+					}
+				}
+			}
+		}
+	}
+}

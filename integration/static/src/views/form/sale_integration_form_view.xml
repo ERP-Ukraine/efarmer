@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="integration.SaleIntegrationControlPanel" t-inherit="web.ControlPanel" t-inherit-mode="primary" owl="1">
+        <xpath expr="//div[hasclass('o_control_panel_main_buttons')]" position="inside">
+            <a href="https://ecosystem.ventor.tech/frequently-asked-questions/" class="btn btn-outline-info" target="_blank">Docs</a>
+            <a href="https://support.ventor.tech/" class="btn btn-outline-info" target="_blank">Support</a>
+        </xpath>
+    </t>
+
+</templates>

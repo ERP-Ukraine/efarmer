@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <menuitem id="menu_product_fields"
+                  name="Product Fields"
+                  parent="configuration_menu"
+                  sequence="3"/>
+
+        <menuitem id="menu_product_ecommerce_fields_mapping"
+                  name="Field Synchronization"
+                  parent="menu_product_fields"
+                  action="product_ecommerce_field_mapping_action"/>
+
+        <menuitem id="menu_product_ecommerce_fields"
+                  name="Field Definitions"
+                  parent="menu_product_fields"
+                  action="product_ecommerce_field_action"/>
+    </data>
+</odoo>
