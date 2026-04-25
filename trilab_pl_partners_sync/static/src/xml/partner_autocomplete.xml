@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="trilab_pl_partners_sync.CharFieldDropdownOption" owl="1">
+      <div class="o_partner_autocomplete_narration">Create Company from GUS data:</div>
+      <div class="o_partner_autocomplete_info">
+          <strong t-esc="option.label or '&#160;'"/>
+          <div t-esc="option.description"/>
+      </div>
+    </t>
+
+</templates>
