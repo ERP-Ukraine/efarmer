@@ -5421,4 +5421,1541 @@ Jeśli dowód został sporządzony pod datą dokonania operacji gospodarczej i b
 			</xsd:enumeration>
 			<xsd:enumeration value="RS_VIII2">
 				<xsd:annotation>
-					<xsd:documentation>RZIS | Zrealizowany wynik z aktywów finansowych i zobowiązań finansowych innych niż wyceniane w wartości godziwej przez wynik finansowy or
+					<xsd:documentation>RZIS | Zrealizowany wynik z aktywów finansowych i zobowiązań finansowych innych niż wyceniane w wartości godziwej przez wynik finansowy oraz innych niż przeznaczone do obrotu – netto | Aktywa finansowe utrzymywane do terminu wymagalności</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_VIII3">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Zrealizowany wynik z aktywów finansowych i zobowiązań finansowych innych niż wyceniane w wartości godziwej przez wynik finansowy oraz innych niż przeznaczone do obrotu – netto | Kredyty i pożyczki oraz inne należności</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_VIII4">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Zrealizowany wynik z aktywów finansowych i zobowiązań finansowych innych niż wyceniane w wartości godziwej przez wynik finansowy oraz innych niż przeznaczone do obrotu – netto | Zobowiązania finansowe wyceniane metodą skorygowanej ceny nabycia</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_VIII5">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Zrealizowany wynik z aktywów finansowych i zobowiązań finansowych innych niż wyceniane w wartości godziwej przez wynik finansowy oraz innych niż przeznaczone do obrotu – netto | Pozostałe zrealizowane zyski (straty)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_IX1">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Wynik z tytułu aktywów finansowych i zobowiązań finansowych wycenianych w wartości godziwej przez wynik finansowy, w tym przeznaczonych do obrotu | Przychody z tytułu aktywów finansowych i zobowiązań finansowych wycenianych w wartości godziwej przez wynik finansowy, w tym przeznaczonych do obrotu</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_IX2">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Wynik z tytułu aktywów finansowych i zobowiązań finansowych wycenianych w wartości godziwej przez wynik finansowy, w tym przeznaczonych do obrotu | Koszty z tytułu aktywów finansowych i zobowiązań finansowych wycenianych w wartości godziwej przez wynik finansowy, w tym przeznaczonych do obrotu</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_X1">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Wynik z tytułu różnic kursowych | Przychody z tytułu różnic kursowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_X2">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Wynik z tytułu różnic kursowych | Koszty z tytułu różnic kursowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_XII1">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Pozostałe przychody operacyjne | Rozwiązane odpisy aktualizujące z tytułu utraty wartości aktywów niefinansowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_XII2">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Pozostałe przychody operacyjne | Pozostałe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_XIII1">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Pozostałe koszty operacyjne | Odpisy aktualizujące z tytułu utraty wartości aktywów niefinansowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_XIII2">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Pozostałe koszty operacyjne | Pozostałe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_XIV1">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Koszty działania kasy | Amortyzacja</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_XIV2">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Koszty działania kasy | Zużycie materiałów i energii</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_XIV3">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Koszty działania kasy | Usługi obce</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_XIV4">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Koszty działania kasy | Bieżące wpłaty na fundusz stabilizacyjny</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_XIV5">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Koszty działania kasy | Podatki i opłaty</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_XIV6">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Koszty działania kasy | Wynagrodzenia oraz ubezpieczenia społeczne i inne świadczenia</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_XIV7">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Koszty działania kasy | Pozostałe koszty rodzajowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_XV1">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Rezerwy i rozwiązane rezerwy – netto | Na zobowiązania pozabilansowe finansowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_XV2">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Rezerwy i rozwiązane rezerwy – netto | Pozostałe rezerwy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_XVI1">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Odpisy aktualizujące z tytułu utraty wartości i rozwiązane odpisy aktualizujące z tytułu utraty wartości aktywów finansowych – netto | Aktywa finansowe dostępne do sprzedaży</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_XVI2">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Odpisy aktualizujące z tytułu utraty wartości i rozwiązane odpisy aktualizujące z tytułu utraty wartości aktywów finansowych – netto | Aktywa finansowe utrzymywane do terminu wymagalności</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_XVI3">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Odpisy aktualizujące z tytułu utraty wartości i rozwiązane odpisy aktualizujące z tytułu utraty wartości aktywów finansowych – netto | Kredyty i pożyczki oraz inne należności</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_XVIII1">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Wynik operacji nadzwyczajnych | Zyski nadzwyczajne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_XVIII2">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Wynik operacji nadzwyczajnych | Straty nadzwyczajne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_XX_PD">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Podatek dochodowy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RS_XXI">
+				<xsd:annotation>
+					<xsd:documentation>RZIS | Pozostałe obowiązkowe zmniejszenie zysku (zmniejszenie straty)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="INNE">
+				<xsd:annotation>
+					<xsd:documentation>Inne, niewskazane w słowniku</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="TMapKontaPOZ">
+		<xsd:annotation>
+			<xsd:documentation>Zestawienie znaczników kont - Jednostki pozostałe</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="BAAI1_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Wartości niematerialne i prawne | Koszty zakończonych prac rozwojowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAI1_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Wartości niematerialne i prawne | Koszty zakończonych prac rozwojowych | Odpisy aktualizujące wartość kosztów zakończonych prac rozwojowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAI1_U">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Wartości niematerialne i prawne | Koszty zakończonych prac rozwojowych | Umorzenie zakończonych prac rozwojowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAI2_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Wartości niematerialne i prawne | Wartość firmy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAI2_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Wartości niematerialne i prawne | Wartość firmy | Odpisy aktualizujące wartość firmy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAI2_U">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Wartości niematerialne i prawne | Wartość firmy | Umorzenie wartości firmy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAI3_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Wartości niematerialne i prawne | Inne wartości niematerialne i prawne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAI3_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Wartości niematerialne i prawne | Inne wartości niematerialne i prawne | Odpisy aktualizujące inne wartości niematerialne i prawne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAI3_U">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Wartości niematerialne i prawne | Inne wartości niematerialne i prawne | Umorzenie innych wartości niematerialnych i prawnych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAI4_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Wartości niematerialne i prawne | Zaliczki na wartości niematerialne i prawne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAI4_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Wartości niematerialne i prawne | Zaliczki na wartości niematerialne i prawne | Odpisy aktualizujące zaliczki na wartości niematerialne i prawne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAII1a_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Rzeczowe aktywa trwałe | Środki trwałe | Grunty (w tym prawo użytkowania wieczystego gruntu)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAII1a_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Rzeczowe aktywa trwałe | Środki trwałe | Grunty (w tym prawo użytkowania wieczystego gruntu) | Odpisy aktualizujące wartość gruntów (w tym prawa użytkowania wieczystego gruntu)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAII1a_U">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Rzeczowe aktywa trwałe | Środki trwałe | Grunty (w tym prawo użytkowania wieczystego gruntu) | Umorzenie gruntów (w tym prawa użytkowania wieczystego gruntu)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAII1b_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Rzeczowe aktywa trwałe | Środki trwałe | Budynki, lokale i obiekty inżynierii lądowej i wodnej</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAII1b_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Rzeczowe aktywa trwałe | Środki trwałe | Budynki, lokale i obiekty inżynierii lądowej i wodnej | Odpisy aktualizujące wartość budynków, lokali i obiektów inżynierii lądowej i wodnej</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAII1b_U">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Rzeczowe aktywa trwałe | Środki trwałe | Budynki, lokale i obiekty inżynierii lądowej i wodnej | Umorzenie budynków, lokali i obiektów inżynierii lądowej i wodnej</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAII1c_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Rzeczowe aktywa trwałe | Środki trwałe | Urządzenia techniczne i maszyny</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAII1c_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Rzeczowe aktywa trwałe | Środki trwałe | Urządzenia techniczne i maszyny | Odpisy aktualizujące wartość urządzeń technicznych i maszyn</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAII1c_U">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Rzeczowe aktywa trwałe | Środki trwałe | Urządzenia techniczne i maszyny | Umorzenie urządzeń technicznych i maszyn</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAII1d_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Rzeczowe aktywa trwałe | Środki trwałe | Środki transportu</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAII1d_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Rzeczowe aktywa trwałe | Środki trwałe | Środki transportu | Odpisy aktualizujące wartość środków transportu</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAII1d_U">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Rzeczowe aktywa trwałe | Środki trwałe | Środki transportu | Umorzenie środków transportu</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAII1e_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Rzeczowe aktywa trwałe | Środki trwałe | Inne środki trwałe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAII1e_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Rzeczowe aktywa trwałe | Środki trwałe | Inne środki trwałe | Odpisy aktualizujące wartość innych środków trwałych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAII1e_U">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Rzeczowe aktywa trwałe | Środki trwałe | Inne środki trwałe | Umorzenie innych środków trwałych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAII2_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Rzeczowe aktywa trwałe | Środki trwałe w budowie</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAII2_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Rzeczowe aktywa trwałe | Środki trwałe w budowie | Odpisy aktualizujące wartość środków trwałych w budowie</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAII3_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Rzeczowe aktywa trwałe | Zaliczki na środki trwałe w budowie</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAII3_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Rzeczowe aktywa trwałe | Zaliczki na środki trwałe w budowie | Odpisy aktualizujące wartość zaliczek na środki trwałe w budowie</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIII1_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Należności długoterminowe | Od jednostek powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIII1_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Należności długoterminowe | Od jednostek powiązanych | Odpisy aktualizujące wartość należności od jednostek powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIII2_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Należności długoterminowe | Od pozostałych jednostek, w których jednostka posiada zaangażowanie w kapitale</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIII2_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Należności długoterminowe | Od pozostałych jednostek, w których jednostka posiada zaangażowanie w kapitale | Odpisy aktualizujące wartość należności od pozostałych jednostek, w których jednostka posiada zaangażowanie w kapitale</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIII3_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Należności długoterminowe | Od pozostałych jednostek</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIII3_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Należności długoterminowe | Od pozostałych jednostek | Odpisy aktualizujące wartość należności od pozostałych jednostek</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV1_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Nieruchomości</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV1_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Nieruchomości | Odpisy aktualizujące wartość inwestycji długoterminowych w nieruchomości</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV1_U">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Nieruchomości | Umorzenie inwestycji długoterminowych w nieruchomości</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV2_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Wartości niematerialne i prawne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV2_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Wartości niematerialne i prawne | Odpisy aktualizujące wartość inwestycji długoterminowych w wartości niematerialne i prawne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV2_U">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Wartości niematerialne i prawne | Umorzenie wartości inwestycji długoterminowych w wartości niematerialne i prawne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3a_ULA_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W jednostkach powiązanych | Udziały lub akcje</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3a_ULA_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W jednostkach powiązanych | Udziały lub akcje | Odpisy aktualizujące wartość udziałów lub akcji w jednostkach powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3a_IPW_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W jednostkach powiązanych | Inne papiery wartościowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3a_IPW_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W jednostkach powiązanych | Inne papiery wartościowe | Odpisy aktualizujące wartość innych papierów wartościowych w jednostkach powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3a_UP_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W jednostkach powiązanych | Udzielone pożyczki</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3a_UP_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W jednostkach powiązanych | Udzielone pożyczki | Odpisy aktualizujące wartość udzielonych pożyczek w jednostkach powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3a_IDAF_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W jednostkach powiązanych | Inne długoterminowe aktywa finansowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3a_IDAF_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W jednostkach powiązanych | Inne długoterminowe aktywa finansowe | Odpisy aktualizujące wartość innych długoterminowych aktywów finansowych w jednostkach powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3b_ULA_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W pozostałych jednostkach, w których jednostka posiada zaangażowanie w kapitale | Udziały lub akcje</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3b_ULA_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W pozostałych jednostkach, w których jednostka posiada zaangażowanie w kapitale | Udziały lub akcje | Odpisy aktualizujące wartość udziałów lub akcji w pozostałych jednostkach, w których jednostka posiada zaangażowanie w kapitale</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3b_IPW_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W pozostałych jednostkach, w których jednostka posiada zaangażowanie w kapitale | Inne papiery wartościowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3b_IPW_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W pozostałych jednostkach, w których jednostka posiada zaangażowanie w kapitale | Inne papiery wartościowe | Odpisy aktualizujące wartość innych papierów wartościowych w pozostałych jednostkach, w których jednostka posiada zaangażowanie w kapitale</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3b_UP_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W pozostałych jednostkach, w których jednostka posiada zaangażowanie w kapitale | Udzielone pożyczki</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3b_UP_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W pozostałych jednostkach, w których jednostka posiada zaangażowanie w kapitale | Udzielone pożyczki | Odpisy aktualizujące wartość udzielonych pożyczek w pozostałych jednostkach, w których jednostka posiada zaangażowanie w kapitale</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3b_IDAF_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W pozostałych jednostkach, w których jednostka posiada zaangażowanie w kapitale | Inne długoterminowe aktywa finansowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3b_IDAF_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W pozostałych jednostkach, w których jednostka posiada zaangażowanie w kapitale | Inne długoterminowe aktywa finansowe | Odpisy aktualizujące wartość innych długoterminowych aktywów finansowych w pozostałych jednostkach, w których jednostka posiada zaangażowanie w kapitale</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3c_ULA_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W pozostałych jednostkach | Udziały lub akcje</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3c_ULA_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W pozostałych jednostkach | Udziały lub akcje | Odpisy aktualizujące wartość udziałów lub akcji w pozostałych jednostkach</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3c_IPW_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W pozostałych jednostkach | Inne papiery wartościowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3c_IPW_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W pozostałych jednostkach | Inne papiery wartościowe | Odpisy aktualizujące wartość innych papierów wartościowych w pozostałych jednostkach</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3c_UP_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W pozostałych jednostkach | Udzielone pożyczki</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3c_UP_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W pozostałych jednostkach | Udzielone pożyczki | Odpisy aktualizujące wartość udzielonych pożyczek w pozostałych jednostkach</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3c_IDAF_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W pozostałych jednostkach | Inne długoterminowe aktywa finansowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV3c_IDAF_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Długoterminowe aktywa finansowe | W pozostałych jednostkach | Inne długoterminowe aktywa finansowe | Odpisy aktualizujące wartość innych długoterminowych aktywów finansowych w pozostałych jednostkach</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV4_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Inne inwestycje długoterminowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAIV4_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Inwestycje długoterminowe | Inne inwestycje długoterminowe | Odpisy aktualizujące wartość innych inwestycji długoterminowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAV1_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Długoterminowe rozliczenia międzyokresowe | Aktywa z tytułu odroczonego podatku dochodowego</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAV1_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Długoterminowe rozliczenia międzyokresowe | Aktywa z tytułu odroczonego podatku dochodowego | Odpisy aktualizujące aktywa z tytułu odroczonego podatku dochodowego</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAV2_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Długoterminowe rozliczenia międzyokresowe | Inne rozliczenia międzyokresowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAAV2_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa trwałe | Długoterminowe rozliczenia międzyokresowe | Inne rozliczenia międzyokresowe | Odpisy aktualizujące inne rozliczenia międzyokresowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABI1">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Zapasy | Materiały</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABI1_O">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Zapasy | Materiały | Odchylenia od cen ewidencyjnych materiałów</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABI1_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Zapasy | Materiały | Odpisy aktualizujące wartość materiałów</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABI2">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Zapasy | Półprodukty i produkty w toku</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABI2_O">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Zapasy | Półprodukty i produkty w toku | Odchylenia od cen ewidencyjnych półproduktów i produktów w toku</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABI2_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Zapasy | Półprodukty i produkty w toku | Odpisy aktualizujące wartość półproduktów i produktów w toku</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABI3">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Zapasy | Produkty gotowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABI3_O">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Zapasy | Produkty gotowe | Odchylenia od cen ewidencyjnych produktów gotowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABI3_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Zapasy | Produkty gotowe | Odpisy aktualizujące wartość produktów gotowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABI4">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Zapasy | Towary</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABI4_O">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Zapasy | Towary | Odchylenia od cen ewidencyjnych towarów</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABI4_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Zapasy | Towary | Odpisy aktualizujące wartość towarów</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABI5">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Zapasy | Zaliczki na dostawy i usługi</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABI5_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Zapasy | Zaliczki na dostawy i usługi | Odpisy aktualizujące zaliczki na dostawy i usługi</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII1a_D12">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od jednostek powiązanych | Z tytułu dostaw i usług | o okresie spłaty do 12 miesięcy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII1a_D12_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od jednostek powiązanych | Z tytułu dostaw i usług | o okresie spłaty do 12 miesięcy | Odpisy aktualizujące wartość należności z tytułu dostaw i usług od jednostek powiązanych w okresie spłaty do 12 miesięcy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII1a_P12">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od jednostek powiązanych | Z tytułu dostaw i usług | o okresie spłaty powyżej 12 miesięcy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII1a_P12_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od jednostek powiązanych | Z tytułu dostaw i usług | o okresie spłaty powyżej 12 miesięcy | Odpisy aktualizujące wartość należności z tytułu dostaw i usług od jednostek powiązanych w okresie spłaty powyżej 12 miesięcy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII1b">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od jednostek powiązanych | Inne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII1b_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od jednostek powiązanych | Inne | Odpisy aktualizujące wartość innych należności od jednostek powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII2a_D12">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od pozostałych jednostek, w których jednostka posiada zaangażowanie w kapitale | Z tytułu dostaw i usług | o okresie spłaty do 12 miesięcy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII2a_D12_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od pozostałych jednostek, w których jednostka posiada zaangażowanie w kapitale | Z tytułu dostaw i usług | o okresie spłaty do 12 miesięcy | Odpisy aktualizujące wartość należności z tytułu dostaw i usług od pozostałych jednostek, w których jednostka posiada zaangażowanie w kapitale, o okresie spłaty do 12 miesięcy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII2a_P12">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od pozostałych jednostek, w których jednostka posiada zaangażowanie w kapitale | Z tytułu dostaw i usług | o okresie spłaty powyżej 12 miesięcy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII2a_P12_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od pozostałych jednostek, w których jednostka posiada zaangażowanie w kapitale | Z tytułu dostaw i usług | o okresie spłaty powyżej 12 miesięcy | Odpisy aktualizujące wartość należności z tytułu dostaw i usług od pozostałych jednostek, w których jednostka posiada zaangażowanie w kapitale, o okresie spłaty powyżej 12 miesięcy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII2b">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od pozostałych jednostek, w których jednostka posiada zaangażowanie w kapitale | Inne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII2b_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od pozostałych jednostek, w których jednostka posiada zaangażowanie w kapitale | Inne | Odpisy aktualizujące wartość innych należności od pozostałych jednostek, w których jednostka posiada zaangażowanie w kapitale</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII3a_D12">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od pozostałych jednostek | Z tytułu dostaw i usług | o okresie spłaty do 12 miesięcy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII3a_D12_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od pozostałych jednostek | Z tytułu dostaw i usług | o okresie spłaty do 12 miesięcy | Odpisy aktualizujące wartość należności z tytułu dostaw i usług od pozostałych jednostek o okresie spłaty do 12 miesięcy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII3a_P12">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od pozostałych jednostek | Z tytułu dostaw i usług | o okresie spłaty powyżej 12 miesięcy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII3a_P12_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od pozostałych jednostek | Z tytułu dostaw i usług | o okresie spłaty powyżej 12 miesięcy | Odpisy aktualizujące wartość należności z tytułu dostaw i usług od pozostałych jednostek o okresie spłaty powyżej 12 miesięcy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII3b">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od pozostałych jednostek | Z tytułu podatków, dotacji, ceł, ubezpieczeń społecznych i zdrowotnych oraz innych świadczeń</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII3b_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od pozostałych jednostek | Z tytułu podatków, dotacji, ceł, ubezpieczeń społecznych i zdrowotnych oraz innych świadczeń | Odpisy aktualizujące wartość należności z tytułu podatków, dotacji, ceł, ubezpieczeń, społecznych i zdrowotnych oraz innych świadczeń</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII3c_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od pozostałych jednostek | Inne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII3c_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od pozostałych jednostek | Inne | Odpisy aktualizujące wartość innych należności</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII3d_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od pozostałych jednostek | Dochodzone na drodze sądowej</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABII3d_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Należności krótkoterminowe | Należności od pozostałych jednostek | Dochodzone na drodze sądowej | Odpisy aktualizujące wartość należności dochodzonych na drodze sądowej</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1a1_ULA_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | W jednostkach powiązanych | Udziały lub akcje</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1a1_ULA_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | W jednostkach powiązanych | Udziały lub akcje | Odpisy aktualizujące wartość udziałów lub akcji w jednostkach powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1a2_IPW_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | W jednostkach powiązanych | Inne papiery wartościowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1a2_IPW_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | W jednostkach powiązanych | Inne papiery wartościowe | Odpisy aktualizujące wartość innych papierów wartościowych w jednostkach powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1a3_UP_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | W jednostkach powiązanych | Udzielone pożyczki</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1a3_UP_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | W jednostkach powiązanych | Udzielone pożyczki | Odpisy aktualizujące wartość udzielonych pożyczek w jednostkach powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1a4_IKAF_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | W jednostkach powiązanych | Inne krótkoterminowe aktywa finansowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1a4_IKAF_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | W jednostkach powiązanych | Inne krótkoterminowe aktywa finansowe | Odpisy aktualizujące wartość innych krótkoterminowych aktywów finansowych w jednostkach powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1b1_ULA_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | W pozostałych jednostkach | Udziały lub akcje</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1b1_ULA_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | W pozostałych jednostkach | Udziały lub akcje | Odpisy aktualizujące wartość udziałów lub akcji w pozostałych jednostkach</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1b2_IPW_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | W pozostałych jednostkach | Inne papiery wartościowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1b2_IPW_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | W pozostałych jednostkach | Inne papiery wartościowe | Odpisy aktualizujące wartość innych papierów wartościowych w pozostałych jednostkach</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1b3_UP_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | W pozostałych jednostkach | Udzielone pożyczki</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1b3_UP_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | W pozostałych jednostkach | Udzielone pożyczki | Odpisy aktualizujące wartość udzielonych pożyczek w pozostałych jednostkach</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1b4_IKAF_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | W pozostałych jednostkach | Inne krótkoterminowe aktywa finansowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1b4_IKAF_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | W pozostałych jednostkach | Inne krótkoterminowe aktywa finansowe | Odpisy aktualizujące wartość innych krótkoterminowych aktywów finansowych w pozostałych jednostkach</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1c1_SPKR">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | Środki pieniężne i inne aktywa pieniężne | Środki pieniężne w kasie i na rachunkach</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1c2_ISP">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | Środki pieniężne i inne aktywa pieniężne | Inne środki pieniężne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1c2_ISP_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | Środki pieniężne i inne aktywa pieniężne | Inne środki pieniężne | Odpisy aktualizujące wartość innych środków pieniężnych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1c3_IAP">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | Środki pieniężne i inne aktywa pieniężne | Inne aktywa pieniężne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII1c3_IAP_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Krótkoterminowe aktywa finansowe | Środki pieniężne i inne aktywa pieniężne | Inne aktywa pieniężne | Odpisy aktualizujące wartość innych aktywów pieniężnych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII2_W">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Inne inwestycje krótkoterminowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIII2_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Inwestycje krótkoterminowe | Inne inwestycje krótkoterminowe | Odpisy aktualizujące wartość innych inwestycji krótkoterminowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIV">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Krótkoterminowe rozliczenia międzyokresowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BABIV_A">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Aktywa obrotowe | Krótkoterminowe rozliczenia międzyokresowe | Odpisy aktualizujące wartość krótkoterminowych rozliczeń międzyokresowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAC">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Należne wpłaty na kapitał (fundusz) podstawowy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BAD">
+				<xsd:annotation>
+					<xsd:documentation>AKTYWA | Udziały (akcje) własne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPAI">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Kapitał (fundusz) własny | Kapitał (fundusz) podstawowy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPAIIWS">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Kapitał (fundusz) własny | Kapitał (fundusz) zapasowy | Z nadwyżki wartości sprzedaży (wartości emisyjnej) nad wartością nominalną udziałów (akcji)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPAII_INN">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Kapitał (fundusz) własny | Kapitał (fundusz) zapasowy | Z innych źródeł</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPAII_ES_ZP">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Kapitał (fundusz) własny | Kapitał (fundusz) zapasowy | Kwota zysku wypracowanego w latach przed opodatkowaniem ryczałtem od dochodów spółek</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPAII_ES_ZR">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Kapitał (fundusz) własny | Kapitał (fundusz) zapasowy | Kwota zysku wypracowanego w latach opodatkowania ryczałtem od dochodów spółek</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPAIIIAWG">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Kapitał (fundusz) własny | Kapitał (fundusz) z aktualizacji wyceny | Z tytułu aktualizacji wartości godziwej</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPAIII_INN">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Kapitał (fundusz) własny | Kapitał (fundusz) z aktualizacji wyceny | Z innego tytułu</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPAIVU">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Kapitał (fundusz) własny | Pozostałe kapitały (fundusze) rezerwowe | Tworzone zgodnie z umową (ze statutem)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPAIVUW">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Kapitał (fundusz) własny | Pozostałe kapitały (fundusze) rezerwowe | Na udziały (akcje) własne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPAIV_INN">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Kapitał (fundusz) własny | Pozostałe kapitały (fundusze) rezerwowe | Inne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPAIV_ES_ZP">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Kapitał (fundusz) własny | Pozostałe kapitały (fundusze) rezerwowe | Kwota zysku wypracowanego w latach przed opodatkowaniem ryczałtem od dochodów spółek</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPAIV_ES_ZR">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Kapitał (fundusz) własny | Pozostałe kapitały (fundusze) rezerwowe | Kwota zysku wypracowanego w latach opodatkowania ryczałtem od dochodów spółek</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPAV">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Kapitał (fundusz) własny | Zysk (strata) z lat ubiegłych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPAV_ES_NZP">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Kapitał (fundusz) własny | Zysk (strata) z lat ubiegłych | Kwota niepodzielonych zysków wypracowanych w latach przed opodatkowaniem ryczałtem od dochodów spółek</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPAV_ES_NPR">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Kapitał (fundusz) własny | Zysk (strata) z lat ubiegłych | Kwota niepodzielonych zysków wypracowanych w latach opodatkowania ryczałtem od dochodów spółek</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPAV_ES_NSP">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Kapitał (fundusz) własny | Zysk (strata) z lat ubiegłych | Kwota niepokrytych strat poniesionych w latach przed opodatkowaniem ryczałtem od dochodów spółek</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPAV_ES_NSR">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Kapitał (fundusz) własny | Zysk (strata) z lat ubiegłych | Kwota niepokrytych strat poniesionych w latach opodatkowania ryczałtem od dochodów spółek</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPAVI">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Kapitał (fundusz) własny | Zysk (strata) netto</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPAVII">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Kapitał (fundusz) własny | Odpisy z zysku netto w ciągu roku obrotowego (wielkość ujemna)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBI1">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Rezerwy na zobowiązania | Rezerwa z tytułu odroczonego podatku dochodowego</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBI2_D">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Rezerwy na zobowiązania | Rezerwa na świadczenia emerytalne i podobne | Długoterminowa</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBI2_K">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Rezerwy na zobowiązania | Rezerwa na świadczenia emerytalne i podobne | Krótkoterminowa</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBI3_D">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Rezerwy na zobowiązania | Pozostałe rezerwy | Długoterminowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBI3_K">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Rezerwy na zobowiązania | Pozostałe rezerwy | Krótkoterminowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBII1">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania długoterminowe | Wobec jednostek powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBII2">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania długoterminowe | Wobec pozostałych jednostek, w których jednostka posiada zaangażowanie w kapitale</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBII3a">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania długoterminowe | Wobec pozostałych jednostek | Kredyty i pożyczki</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBII3b">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania długoterminowe | Wobec pozostałych jednostek | Z tytułu emisji dłużnych papierów wartościowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBII3c">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania długoterminowe | Wobec pozostałych jednostek | Inne zobowiązania finansowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBII3d">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania długoterminowe | Wobec pozostałych jednostek | Zobowiązania wekslowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBII3e">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania długoterminowe | Wobec pozostałych jednostek | Inne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBIII1a_D12">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania krótkoterminowe | Wobec jednostek powiązanych | Z tytułu dostaw i usług | O okresie wymagalności do 12 miesięcy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBIII1a_P12">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania krótkoterminowe | Wobec jednostek powiązanych | Z tytułu dostaw i usług | O okresie wymagalności powyżej 12 miesięcy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBIII1b">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania krótkoterminowe | Wobec jednostek powiązanych | Inne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBIII2a_D12">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania krótkoterminowe | Wobec pozostałych jednostek, w których jednostka posiada zaangażowanie w kapitale | Z tytułu dostaw i usług | O okresie wymagalności do 12 miesięcy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBIII2a_P12">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania krótkoterminowe | Wobec pozostałych jednostek, w których jednostka posiada zaangażowanie w kapitale | Z tytułu dostaw i usług | O okresie wymagalności powyżej 12 miesięcy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBIII2b">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania krótkoterminowe | Wobec pozostałych jednostek, w których jednostka posiada zaangażowanie w kapitale | Inne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBIII3a">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania krótkoterminowe | Wobec pozostałych jednostek | Kredyty i pożyczki</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBIII3b">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania krótkoterminowe | Wobec pozostałych jednostek | Z tytułu emisji dłużnych papierów wartościowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBIII3c">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania krótkoterminowe | Wobec pozostałych jednostek | Inne zobowiązania finansowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBIII3d_D12">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania krótkoterminowe | Wobec pozostałych jednostek | Z tytułu dostaw i usług | O okresie wymagalności do 12 miesięcy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBIII3d_P12">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania krótkoterminowe | Wobec pozostałych jednostek | Z tytułu dostaw i usług | O okresie wymagalności powyżej 12 miesięcy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBIII3e">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania krótkoterminowe | Wobec pozostałych jednostek | Zaliczki otrzymane na dostawy i usługi</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBIII3f">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania krótkoterminowe | Wobec pozostałych jednostek | Zobowiązania wekslowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBIII3g">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania krótkoterminowe | Wobec pozostałych jednostek | Z tytułu podatków, ceł, ubezpieczeń i innych świadczeń</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBIII3h">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania krótkoterminowe | Wobec pozostałych jednostek | Z tytułu wynagrodzeń</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBIII3i">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania krótkoterminowe | Wobec pozostałych jednostek | Inne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBIII4">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Zobowiązania krótkoterminowe | Fundusze specjalne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBIV1">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Rozliczenia międzyokresowe | Ujemna wartość firmy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBIV2_D">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Rozliczenia międzyokresowe | Inne rozliczenia międzyokresowe | Długoterminowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BPBIV2_K">
+				<xsd:annotation>
+					<xsd:documentation>PASYWA | Zobowiązania i rezerwy na zobowiązania | Rozliczenia międzyokresowe | Inne rozliczenia międzyokresowe | Krótkoterminowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPAI_RKAI_POW">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Przychody netto ze sprzedaży i zrównane z nimi / przychody netto ze sprzedaży produktów, towarów i materiałów | Przychody netto ze sprzedaży produktów | Od jednostek powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPAI_RKAI_POZ">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Przychody netto ze sprzedaży i zrównane z nimi / przychody netto ze sprzedaży produktów, towarów i materiałów | Przychody netto ze sprzedaży produktów | Od pozostałych jednostek</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPAII">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Przychody netto ze sprzedaży i zrównane z nimi | Zmiana stanu produktów</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPAIII">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Przychody netto ze sprzedaży i zrównane z nimi | Koszt wytworzenia produktów na własne potrzeby</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPAIV_RKAII_POW">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Przychody netto ze sprzedaży i zrównane z nimi / przychody netto ze sprzedaży produktów, towarów i materiałów | Przychody netto ze sprzedaży towarów i materiałów | Od jednostek powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPAIV_RKAII_POZ">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Przychody netto ze sprzedaży i zrównane z nimi / przychody netto ze sprzedaży produktów, towarów i materiałów | Przychody netto ze sprzedaży towarów i materiałów | Od pozostałych jednostek</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPBI">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty działalności operacyjnej | Amortyzacja</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPBII">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty działalności operacyjnej | Zużycie materiałów i energii</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPBIII">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty działalności operacyjnej | Usługi obce</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPBIV_AKC">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty działalności operacyjnej | Podatki i opłaty | Podatek akcyzowy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPBIV_POZ">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty działalności operacyjnej | Podatki i opłaty | Pozostałe podatki i opłaty</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPBV">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty działalności operacyjnej | Wynagrodzenia</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPBVI">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty działalności operacyjnej | Ubezpieczenia społeczne i inne świadczenia</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPBVI_E">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty działalności operacyjnej | Ubezpieczenia społeczne i inne świadczenia | Emerytalne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPBVII">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty działalności operacyjnej | Pozostałe koszty rodzajowe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPBVIII_RKBII_POW">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty działalności operacyjnej / koszty sprzedanych produktów, towarów i materiałów | Wartość sprzedanych towarów i materiałów | Dla jednostek powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPBVIII_RKBII_POZ">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty działalności operacyjnej / koszty sprzedanych produktów, towarów i materiałów | Wartość sprzedanych towarów i materiałów | Dla pozostałych jednostek</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RKBI_POW">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty sprzedanych produktów, towarów i materiałów | Koszt wytworzenia sprzedanych produktów | Jednostkom powiązanym</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RKBI_POZ">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty sprzedanych produktów, towarów i materiałów | Koszt wytworzenia sprzedanych produktów | Pozostałym jednostkom</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RKD">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty sprzedaży</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RKE">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty ogólnego zarządu</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPDI_RKGI_POW">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Pozostałe przychody operacyjne | Przychody ze zbycia niefinansowych aktywów trwałych | Od jednostek powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPDI_RKGI_POZ">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Pozostałe przychody operacyjne | Przychody ze zbycia niefinansowych aktywów trwałych | Od pozostałych jednostek</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPDII_RKGII">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Pozostałe przychody operacyjne | Dotacje</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPDIII_RKGIII">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Pozostałe przychody operacyjne | Aktualizacja wartości aktywów niefinansowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPDIV_RKGIV">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Pozostałe przychody operacyjne | Inne pozostałe przychody operacyjne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPDIV_RKGIV_ZCP">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Pozostałe przychody operacyjne | Inne pozostałe przychody operacyjne | Ze zbycia zorganizowanej części przedsiębiorstwa</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPDIV_RKGIV_WF">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Pozostałe przychody operacyjne | Inne pozostałe przychody operacyjne | Odpis ujemnej wartości firmy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPDIV_RKGIV_P">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Pozostałe przychody operacyjne | Inne pozostałe przychody operacyjne | Pozostałe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPEI_RKHI_POW">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Pozostałe koszty operacyjne | Koszty zbycia niefinansowych aktywów trwałych | Dla jednostek powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPEI_RKHI_POZ">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Pozostałe koszty operacyjne | Koszty zbycia niefinansowych aktywów trwałych | Dla pozostałych jednostek</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPEII_RKHII">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Pozostałe koszty operacyjne | Aktualizacja wartości aktywów niefinansowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPEIII_RKHIII">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Pozostałe koszty operacyjne | Inne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPEIII_RKHIII_ZCP">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Pozostałe koszty operacyjne | Inne | Koszty zbycia zorganizowanej części przedsiębiorstwa</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPEIII_RKHIII_WF">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Pozostałe koszty operacyjne | Inne | Odpis wartości firmy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPEIII_RKHIII_P">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Pozostałe koszty operacyjne | Inne | Pozostałe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPGIa_RKJIa_POW_k">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Przychody finansowe | Dywidendy i udziały w zyskach | Od jednostek powiązanych | W których jednostka posiada zaangażowanie w kapitale</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPGIa_RKJIa_POW_p">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Przychody finansowe | Dywidendy i udziały w zyskach | Od jednostek powiązanych | W innych jednostkach powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPGIb_RKJIb_POZ_k">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Przychody finansowe | Dywidendy i udziały w zyskach | Od pozostałych jednostek | W których jednostka posiada zaangażowanie w kapitale</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPGIb_RKJIb_POZ_p">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Przychody finansowe | Dywidendy i udziały w zyskach | Od pozostałych jednostek | W innych pozostałych jednostkach</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPGII_RKJII_POW">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Przychody finansowe | Odsetki | Od jednostek powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPGII_RKJII_POZ">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Przychody finansowe | Odsetki | Od pozostałych jednostek</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPGIII_RKJIII_POW">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Przychody finansowe | Przychód z tytułu rozchodu aktywów finansowych | W jednostkach powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPGIII_RKJIII_POZ">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Przychody finansowe | Przychód z tytułu rozchodu aktywów finansowych | W pozostałych jednostkach</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPGIV_RKJIV">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Przychody finansowe | Aktualizacja wartości aktywów finansowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPGV_RKJV_RK">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Przychody finansowe | Inne | Przychody z tytułu dodatnich różnic kursowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPGV_RKJV_POZ">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Przychody finansowe | Inne | Pozostałe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPHI_RKKI_POW">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty finansowe | Odsetki | Dla jednostek powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPHI_RKKI_POZ">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty finansowe | Odsetki | Dla pozostałych jednostek</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPHII_RKKII_POW">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty finansowe | Koszty z tytułu rozchodu aktywów finansowych | W jednostkach powiązanych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPHII_RKKII_POZ">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty finansowe | Koszty z tytułu rozchodu aktywów finansowych | W pozostałych jednostkach</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPHIII_RKKIII">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty finansowe | Aktualizacja wartości aktywów finansowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPHIV_RKKIV_RK">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty finansowe | Inne | Koszty z tytułu ujemnych różnic kursowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPHIV_RKKIV_POZ">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Koszty finansowe | Inne | Pozostałe</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPJ_RKM_B">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Podatek dochodowy | Bieżący</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPJ_RKM_O">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Podatek dochodowy | Odroczony</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="RPK_RKN">
+				<xsd:annotation>
+					<xsd:documentation>WYNIKOWE | Pozostałe obowiązkowe zmniejszenia zysku (zwiększenia straty)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="INNE">
+				<xsd:annotation>
+					<xsd:documentation>Inne, niewskazane w słowniku</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="TMapKontaPD">
+		<xsd:annotation>
+			<xsd:documentation>Zestawienie znaczników kont PD</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="PD1">
+				<xsd:annotation>
+					<xsd:documentation>Przychody zwolnione z opodatkowania (trwałe różnice pomiędzy zyskiem/stratą dla celów rachunkowych a dochodem/stratą dla celów podatkowych)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD1_1">
+				<xsd:annotation>
+					<xsd:documentation>Przychody zwolnione z opodatkowania (trwałe różnice pomiędzy zyskiem/stratą dla celów rachunkowych a dochodem/stratą dla celów podatkowych) | Przychody, w stosunku do których nie stosuje się przepisów ustawy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD1_2">
+				<xsd:annotation>
+					<xsd:documentation>Przychody zwolnione z opodatkowania (trwałe różnice pomiędzy zyskiem/stratą dla celów rachunkowych a dochodem/stratą dla celów podatkowych) | Przychody, które nie są zaliczane do przychodów podatkowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD1_3">
+				<xsd:annotation>
+					<xsd:documentation>Przychody zwolnione z opodatkowania (trwałe różnice pomiędzy zyskiem/stratą dla celów rachunkowych a dochodem/stratą dla celów podatkowych) | Dochody (przychody) wolne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD2">
+				<xsd:annotation>
+					<xsd:documentation>Przychody niepodlegające opodatkowaniu w roku bieżącym</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD4">
+				<xsd:annotation>
+					<xsd:documentation>Koszty niestanowiące kosztów uzyskania przychodów (trwałe różnice pomiędzy zyskiem/stratą dla celów rachunkowych a dochodem/stratą dla celów podatkowych)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD4_1">
+				<xsd:annotation>
+					<xsd:documentation>Koszty niestanowiące kosztów uzyskania przychodów (trwałe różnice pomiędzy zyskiem/stratą dla celów rachunkowych a dochodem/stratą dla celów podatkowych) | Koszty związane z przychodami w stosunku do których przepisów ustawy o podatku dochodowym nie stosuje się</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD4_2">
+				<xsd:annotation>
+					<xsd:documentation>Koszty niestanowiące kosztów uzyskania przychodów (trwałe różnice pomiędzy zyskiem/stratą dla celów rachunkowych a dochodem/stratą dla celów podatkowych) | Koszty związane z przychodami, które nie są zaliczane do przychodów podatkowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD4_3">
+				<xsd:annotation>
+					<xsd:documentation>Koszty niestanowiące kosztów uzyskania przychodów (trwałe różnice pomiędzy zyskiem/stratą dla celów rachunkowych a dochodem/stratą dla celów podatkowych) | Koszty związane z dochodami (przychodami) wolnymi</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD5">
+				<xsd:annotation>
+					<xsd:documentation>Koszty nieuznawane za koszty uzyskania przychodów w bieżącym roku</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD7">
+				<xsd:annotation>
+					<xsd:documentation>Koszty uzyskania przychodów poniesione na działalność badawczo-rozwojową (ulga B+R)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD8_1">
+				<xsd:annotation>
+					<xsd:documentation>Kwalifikowane prawa własności intelektualnej (IP Box) – przychody będące przychodami podatkowymi</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD8_2">
+				<xsd:annotation>
+					<xsd:documentation>Kwalifikowane prawa własności intelektualnej (IP Box) – koszty stanowiące koszty uzyskania przychodu</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD1_PB">
+				<xsd:annotation>
+					<xsd:documentation>POZABILANSOWE | Przychody zwolnione z opodatkowania (trwałe różnice pomiędzy zyskiem/stratą dla celów rachunkowych a dochodem/stratą dla celów podatkowych)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD1_PB_1">
+				<xsd:annotation>
+					<xsd:documentation>POZABILANSOWE | Przychody zwolnione z opodatkowania (trwałe różnice pomiędzy zyskiem/stratą dla celów rachunkowych a dochodem/stratą dla celów podatkowych) | Przychody, w stosunku do których nie stosuje się przepisów ustawy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD1_PB_2">
+				<xsd:annotation>
+					<xsd:documentation>POZABILANSOWE | Przychody zwolnione z opodatkowania (trwałe różnice pomiędzy zyskiem/stratą dla celów rachunkowych a dochodem/stratą dla celów podatkowych) | Przychody, które nie są zaliczane do przychodów podatkowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD1_PB_3">
+				<xsd:annotation>
+					<xsd:documentation>POZABILANSOWE | Przychody zwolnione z opodatkowania (trwałe różnice pomiędzy zyskiem/stratą dla celów rachunkowych a dochodem/stratą dla celów podatkowych) | Dochody (przychody) wolne</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD2_PB">
+				<xsd:annotation>
+					<xsd:documentation>POZABILANSOWE | Przychody niepodlegające opodatkowaniu w roku bieżącym</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD3_PB">
+				<xsd:annotation>
+					<xsd:documentation>POZABILANSOWE | Przychody podlegające opodatkowaniu w roku bieżącym, ujęte w księgach rachunkowych lat ubiegłych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD4_PB">
+				<xsd:annotation>
+					<xsd:documentation>POZABILANSOWE | Koszty niestanowiące kosztów uzyskania przychodów (trwałe różnice pomiędzy zyskiem/stratą dla celów rachunkowych a dochodem/stratą dla celów podatkowych)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD4_PB_1">
+				<xsd:annotation>
+					<xsd:documentation>POZABILANSOWE | Koszty niestanowiące kosztów uzyskania przychodów (trwałe różnice pomiędzy zyskiem/stratą dla celów rachunkowych a dochodem/stratą dla celów podatkowych) | Koszty związane z przychodami, w stosunku do których nie stosuje się przepisów ustawy</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD4_PB_2">
+				<xsd:annotation>
+					<xsd:documentation>POZABILANSOWE | Koszty niestanowiące kosztów uzyskania przychodów (trwałe różnice pomiędzy zyskiem/stratą dla celów rachunkowych a dochodem/stratą dla celów podatkowych) | Koszty związane z przychodami, które nie są zaliczane do przychodów podatkowych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD4_PB_3">
+				<xsd:annotation>
+					<xsd:documentation>POZABILANSOWE | Koszty niestanowiące kosztów uzyskania przychodów (trwałe różnice pomiędzy zyskiem/stratą dla celów rachunkowych a dochodem/stratą dla celów podatkowych) | Koszty związane z dochodami (przychodami) wolnymi</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD5_PB">
+				<xsd:annotation>
+					<xsd:documentation>POZABILANSOWE | Koszty nieuznawane za koszty uzyskania przychodów w bieżącym roku</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD6_PB">
+				<xsd:annotation>
+					<xsd:documentation>POZABILANSOWE | Koszty uznawane za koszty uzyskania przychodów w roku bieżącym, ujęte w księgach lat ubiegłych</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD7_PB">
+				<xsd:annotation>
+					<xsd:documentation>POZABILANSOWE | Koszty uzyskania przychodów poniesione na działalność badawczo-rozwojową (ulga B+R)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD8_PB_1">
+				<xsd:annotation>
+					<xsd:documentation>POZABILANSOWE | Kwalifikowane prawa własności intelektualnej (IP Box) – przychody będące przychodami podatkowymi</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PD8_PB_2">
+				<xsd:annotation>
+					<xsd:documentation>POZABILANSOWE | Kwalifikowane prawa własności intelektualnej (IP Box) – koszty stanowiące koszty uzyskania przychodu</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="TZnakowyJPK">
+		<xsd:annotation>
+			<xsd:documentation>Typ znakowy ograniczony do 256 znaków</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:token">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="256"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="TZnakowy512">
+		<xsd:annotation>
+			<xsd:documentation>Typ znakowy ograniczony do 512 znaków</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:token">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="512"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:schema>
