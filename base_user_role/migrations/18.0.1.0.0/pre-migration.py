@@ -322,6 +322,18 @@ def migrate(cr, version):
     _logger.info("START CLEANUP (SAFE MODE)")
     # clean_specific_views(cr)
     clean_whitelist_history_view(cr)
+    cr.execute("""
+        DELETE FROM ir_model_data
+        WHERE module = 'efarmer_whitelist_history'
+        AND model = 'ir.ui.view'
+        AND name = 'view_move_whitelist_history_form_inherit'
+    """)
+    cr.execute("""
+        DELETE FROM ir_ui_view
+        WHERE model = 'account.move'
+        AND arch_db::text ILIKE '%whitelist_history%'
+    """)
+
     # =====================================================
     # CLEAN CONFIG PARAMETERS (avoid duplicate key error)
     # =====================================================
