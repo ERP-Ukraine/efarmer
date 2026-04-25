@@ -384,7 +384,7 @@ def migrate(cr, version):
         WHERE key IN ({placeholders})
     """, tuple(keys))
     _logger.info(f"  Deleted {cr.rowcount} config param records")
-
+    delete_crons(cr, MODULES)
     # =====================================================
     # DELETE IN STRICT ORDER (FK SAFE)
     # =====================================================
