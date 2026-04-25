@@ -283,13 +283,45 @@ def clean_specific_views(cr):
             except Exception as e:
                 _logger.warning(f"  ⚠️ Failed to clean view id={view_id}: {e}")
 
+def clean_whitelist_history_view(cr):
+    _logger.info("🧹 Cleaning whitelist history view token reference from DB...")
+    import json
+    import re
+
+    pattern = re.compile(
+        r'<field[^>]*name="token"[^>]*/>'
+        r'|<field[^>]*name="token"[^>]*>.*?</field>',
+        re.I | re.S
+    )
+
+    cr.execute("""
+        SELECT id, arch_db FROM ir_ui_view
+        WHERE arch_db::text ILIKE '%"token"%'
+        AND model = 'account.move'
+    """)
+
+    rows = cr.fetchall()
+    for view_id, arch_db in rows:
+        try:
+            if isinstance(arch_db, dict):
+                cleaned = {lang: pattern.sub("", content) for lang, content in arch_db.items()}
+                cr.execute("UPDATE ir_ui_view SET arch_db = %s::jsonb WHERE id = %s",
+                           (json.dumps(cleaned), view_id))
+            elif isinstance(arch_db, str):
+                cleaned = pattern.sub("", arch_db)
+                cr.execute("UPDATE ir_ui_view SET arch_db = %s WHERE id = %s",
+                           (cleaned, view_id))
+            _logger.info(f"  ✅ Cleaned token from view id={view_id}")
+        except Exception as e:
+            _logger.warning(f"  ⚠️ Failed view id={view_id}: {e}")
+
 def migrate(cr, version):
     if not version:
         return
 
     _logger.info("START CLEANUP (SAFE MODE)")
     # clean_specific_views(cr)
-    
+    clean_whitelist_history_view(cr)
     # =====================================================
     # CLEAN CONFIG PARAMETERS (avoid duplicate key error)
     # =====================================================
