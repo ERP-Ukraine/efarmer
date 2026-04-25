@@ -68,6 +68,36 @@ def delete_by_model(cr, model, table):
         _logger.error(f"Failed deleting {model}: {e}")
         cr.execute("ROLLBACK TO SAVEPOINT delete_savepoint")
 
+def delete_crons(cr, modules):
+    _logger.info("🧹 Deleting cron jobs from removed modules...")
+
+    cr.execute("""
+        SELECT res_id
+        FROM ir_model_data
+        WHERE module = ANY(%s)
+        AND model = 'ir.cron'
+        AND EXISTS (
+            SELECT 1 FROM ir_cron WHERE id = res_id
+        )
+    """, (modules,))
+
+    cron_ids = [row[0] for row in cr.fetchall()]
+    if not cron_ids:
+        _logger.info("  No cron jobs found, skipping")
+        return
+
+    _logger.info(f"  Found {len(cron_ids)} cron jobs to delete")
+
+    try:
+        cr.execute("""
+            DELETE FROM ir_cron
+            WHERE id = ANY(%s)
+        """, (cron_ids,))
+        _logger.info(f"  ✅ Deleted {cr.rowcount} cron jobs")
+    except Exception as e:
+        _logger.error(f"  Failed deleting crons: {e}")
+        cr.execute("ROLLBACK TO SAVEPOINT delete_savepoint")
+
 def delete_views_recursive(cr, modules):
     """
     Delete views registered by modules recursively.
