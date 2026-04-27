@@ -20,10 +20,10 @@
           </t>
         </xpath>
         <!-- Print `Payment terms: <the payment term name>` instead of the payment term note. -->
-        <xpath expr="//span[@t-field='doc.payment_term_id.note']" position="replace"/>
-        <!-- Don't print the payment term below after the total block on pro-forma docs. -->
-        <xpath expr="//p[@t-if='not is_html_empty(doc.payment_term_id.note)']" position="attributes">
-            <attribute name="t-if">not is_html_empty(doc.payment_term_id.note) and not (is_pro_forma or env.context.get('proforma'))</attribute>
+        <xpath expr="//p[@t-if='not is_html_empty(doc.payment_term_id.note)']" position="replace">
+            <p t-if="not is_html_empty(doc.payment_term_id.note) and not (is_pro_forma or env.context.get('proforma'))">
+                <span t-field="doc.payment_term_id.note"/>
+            </p>
         </xpath>
         <!-- Print the payment term before the total block on pro-forma docs. -->
         <xpath expr="//div[@id='total']/*[1]" position="attributes">
