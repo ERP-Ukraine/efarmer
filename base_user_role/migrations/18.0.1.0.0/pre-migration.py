@@ -352,13 +352,17 @@ def migrate(cr, version):
     _logger.info("START CLEANUP (SAFE MODE)")
     # clean_specific_views(cr)
     cr.execute("""
-        SELECT id, name FROM ir_ui_view
-        WHERE model = 'account.move'
-        AND arch_db::text ILIKE '%pl_vat%'
+        DELETE FROM ir_model_data
+        WHERE module = 'trilab_ksef'
+        AND model = 'ir.ui.view'
+        AND name = 'view_move_form_inherit'
     """)
-    rows = cr.fetchall()
-    for row in rows:
-        _logger.info(f"BEFORE: pl_vat view id={row[0]} name={row[1]}")
+    cr.execute("""
+        DELETE FROM ir_ui_view
+        WHERE model = 'account.move'
+        AND arch_db::text ILIKE '%x_ksef%'
+    """)
+    _logger.info("🧹 Deleted trilab_ksef account.move view for clean reload")
 
     clean_whitelist_history_view(cr)
     cr.execute("""
@@ -448,15 +452,6 @@ def migrate(cr, version):
         _logger.error(f"Failed cleaning ir_model_data: {e}")
 
     _logger.info("✅ CLEANUP FINISHED")
-    
-    cr.execute("""
-        SELECT id, name FROM ir_ui_view
-        WHERE model = 'account.move'
-        AND arch_db::text ILIKE '%pl_vat%'
-    """)
-    rows = cr.fetchall()
-    for row in rows:
-        _logger.info(f"AFTER: pl_vat view id={row[0]} name={row[1]}")
 
 # # -*- coding: utf-8 -*-
 
