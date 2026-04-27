@@ -345,51 +345,96 @@ def clean_whitelist_history_view(cr):
         except Exception as e:
             _logger.warning(f"  ⚠️ Failed view id={view_id}: {e}")
 
+def delete_trilab_jpk_base_move_view(cr):
+    _logger.info("🧹 Deleting old trilab_jpk_base account.move view recursively...")
+
+    # Find the view id
+    cr.execute("""
+        SELECT res_id FROM ir_model_data
+        WHERE module = 'trilab_jpk_base'
+        AND model = 'ir.ui.view'
+        AND name = 'view_move_form_trilab'
+    """)
+    row = cr.fetchone()
+    if not row:
+        _logger.info("  View not found, skipping")
+        return
+
+    initial_id = row[0]
+    _logger.info(f"  Found view id={initial_id}")
+
+    # Collect all children recursively
+    all_ids = {initial_id}
+    current_level = {initial_id}
+
+    depth = 0
+    while current_level:
+        depth += 1
+        cr.execute("""
+            SELECT id FROM ir_ui_view
+            WHERE inherit_id = ANY(%s)
+            AND id != ANY(%s)
+        """, (list(current_level), list(all_ids)))
+
+        children = set(row[0] for row in cr.fetchall())
+        if not children:
+            break
+
+        _logger.info(f"  Found {len(children)} child views at depth {depth}")
+        all_ids.update(children)
+        current_level = children
+
+    _logger.info(f"  Total views to delete: {len(all_ids)}")
+
+    # Delete xmlids
+    cr.execute("""
+        DELETE FROM ir_model_data
+        WHERE model = 'ir.ui.view'
+        AND res_id = ANY(%s)
+    """, (list(all_ids),))
+
+    # Delete views
+    cr.execute("""
+        DELETE FROM ir_ui_view
+        WHERE id = ANY(%s)
+    """, (list(all_ids),))
+
+    _logger.info(f"  ✅ Deleted {cr.rowcount} views")
+
 def migrate(cr, version):
     if not version:
         return
 
     _logger.info("START CLEANUP (SAFE MODE)")
     # clean_specific_views(cr)
-    cr.execute("""
-        DELETE FROM ir_model_data
-        WHERE module = 'trilab_ksef'
-        AND model = 'ir.ui.view'
-        AND name = 'view_move_form_inherit'
-    """)
-    cr.execute("""
-        DELETE FROM ir_ui_view
-        WHERE model = 'account.move'
-        AND arch_db::text ILIKE '%x_ksef%'
-    """)
-    _logger.info("🧹 Deleted trilab_ksef account.move view for clean reload")
+    delete_trilab_jpk_base_move_view(cr)
 
     clean_whitelist_history_view(cr)
-    cr.execute("""
-        DELETE FROM ir_model_data
-        WHERE module = 'efarmer_whitelist_history'
-        AND model = 'ir.ui.view'
-        AND name = 'view_move_whitelist_history_form_inherit'
-    """)
-    cr.execute("""
-        DELETE FROM ir_ui_view
-        WHERE model = 'account.move'
-        AND arch_db::text ILIKE '%whitelist_history%'
-    """)
-    cr.execute("""
-        DELETE FROM ir_model_data
-        WHERE module = 'trilab_ksef'
-        AND model = 'ir.ui.view'
-        AND name = 'view_move_form_inherit'
-    """)
-    cr.execute("""
-        DELETE FROM ir_ui_view
-        WHERE id IN (
-            SELECT id FROM ir_ui_view
-            WHERE model = 'account.move'
-            AND arch_db::text ILIKE '%x_invoice_sale_date%'
-        )
-    """)
+    # cr.execute("""
+    #     DELETE FROM ir_model_data
+    #     WHERE module = 'efarmer_whitelist_history'
+    #     AND model = 'ir.ui.view'
+    #     AND name = 'view_move_whitelist_history_form_inherit'
+    # """)
+    # cr.execute("""
+    #     DELETE FROM ir_ui_view
+    #     WHERE model = 'account.move'
+    #     AND arch_db::text ILIKE '%whitelist_history%'
+    # """)
+    # cr.execute("""
+    #     DELETE FROM ir_model_data
+    #     WHERE module = 'trilab_ksef'
+    #     AND model = 'ir.ui.view'
+    #     AND name = 'view_move_form_inherit'
+    # """)
+    # cr.execute("""
+    #     DELETE FROM ir_ui_view
+    #     WHERE id IN (
+    #         SELECT id FROM ir_ui_view
+    #         WHERE model = 'account.move'
+    #         AND arch_db::text ILIKE '%x_invoice_sale_date%'
+    #     )
+    # """)
     # =====================================================
     # CLEAN CONFIG PARAMETERS (avoid duplicate key error)
     # =====================================================
