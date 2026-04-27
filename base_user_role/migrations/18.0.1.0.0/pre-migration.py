@@ -401,6 +401,58 @@ def delete_trilab_jpk_base_move_view(cr):
 
     _logger.info(f"  ✅ Deleted {cr.rowcount} views")
 
+def delete_view_recursive_by_xmlid(cr, module, xmlid):
+    _logger.info(f"🧹 Deleting view {module}.{xmlid} recursively...")
+
+    cr.execute("""
+        SELECT res_id FROM ir_model_data
+        WHERE module = %s
+        AND model = 'ir.ui.view'
+        AND name = %s
+    """, (module, xmlid))
+    row = cr.fetchone()
+    if not row:
+        _logger.info(f"  View {module}.{xmlid} not found, skipping")
+        return
+
+    initial_id = row[0]
+    _logger.info(f"  Found view id={initial_id}")
+
+    all_ids = {initial_id}
+    current_level = {initial_id}
+
+    depth = 0
+    while current_level:
+        depth += 1
+        cr.execute("""
+            SELECT id FROM ir_ui_view
+            WHERE inherit_id = ANY(%s)
+            AND id != ANY(%s)
+        """, (list(current_level), list(all_ids)))
+
+        children = set(row[0] for row in cr.fetchall())
+        if not children:
+            break
+
+        _logger.info(f"  Found {len(children)} child views at depth {depth}")
+        all_ids.update(children)
+        current_level = children
+
+    _logger.info(f"  Total views to delete: {len(all_ids)}")
+
+    cr.execute("""
+        DELETE FROM ir_model_data
+        WHERE model = 'ir.ui.view'
+        AND res_id = ANY(%s)
+    """, (list(all_ids),))
+
+    cr.execute("""
+        DELETE FROM ir_ui_view
+        WHERE id = ANY(%s)
+    """, (list(all_ids),))
+
+    _logger.info(f"  ✅ Deleted {cr.rowcount} views")
+
 def migrate(cr, version):
     if not version:
         return
@@ -408,6 +460,7 @@ def migrate(cr, version):
     _logger.info("START CLEANUP (SAFE MODE)")
     # clean_specific_views(cr)
     delete_trilab_jpk_base_move_view(cr)
+    delete_view_recursive_by_xmlid(cr, 'efarmer_sale_workflow', 'proforma_report_saleorder_document')
 
     clean_whitelist_history_view(cr)
     # cr.execute("""
