@@ -427,14 +427,14 @@ def migrate(cr, version):
     #     AND model = 'ir.ui.view'
     #     AND name = 'view_move_form_inherit'
     # """)
-    # cr.execute("""
-    #     DELETE FROM ir_ui_view
-    #     WHERE id IN (
-    #         SELECT id FROM ir_ui_view
-    #         WHERE model = 'account.move'
-    #         AND arch_db::text ILIKE '%x_invoice_sale_date%'
-    #     )
-    # """)
+    cr.execute("""
+        DELETE FROM ir_ui_view
+        WHERE id IN (
+            SELECT id FROM ir_ui_view
+            WHERE model = 'account.move'
+            AND arch_db::text ILIKE '%x_invoice_sale_date%'
+        )
+    """)
     # =====================================================
     # CLEAN CONFIG PARAMETERS (avoid duplicate key error)
     # =====================================================
