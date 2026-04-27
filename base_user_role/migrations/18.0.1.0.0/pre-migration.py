@@ -363,7 +363,20 @@ def migrate(cr, version):
         WHERE model = 'account.move'
         AND arch_db::text ILIKE '%whitelist_history%'
     """)
-
+    cr.execute("""
+        DELETE FROM ir_model_data
+        WHERE module = 'trilab_ksef'
+        AND model = 'ir.ui.view'
+        AND name = 'view_move_form_inherit'
+    """)
+    cr.execute("""
+        DELETE FROM ir_ui_view
+        WHERE id IN (
+            SELECT id FROM ir_ui_view
+            WHERE model = 'account.move'
+            AND arch_db::text ILIKE '%x_invoice_sale_date%'
+        )
+    """)
     # =====================================================
     # CLEAN CONFIG PARAMETERS (avoid duplicate key error)
     # =====================================================
