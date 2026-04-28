@@ -81,7 +81,7 @@ class AccountMove(models.Model):
                 return
 
             account_payment_ids = self.env["account.payment"].search(
-                [("ref", "=", move.payment_reference)]
+                [("move_id", "=", move.id)]
             )
             if move.invoice_date:
                 invoice_date_rate_id = currency_pln.rate_ids.filtered(
