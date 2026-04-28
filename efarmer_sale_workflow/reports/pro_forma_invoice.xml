@@ -22,7 +22,7 @@
         <!-- Print `Payment terms: <the payment term name>` instead of the payment term note. -->
         <xpath expr="//p[@t-if='not is_html_empty(doc.payment_term_id.note)']" position="replace">
             <p t-if="not is_html_empty(doc.payment_term_id.note) and not (is_pro_forma or env.context.get('proforma'))">
-                <span t-field="doc.payment_term_id.note"/>
+                <!-- <span t-field="doc.payment_term_id.note"/> -->
             </p>
         </xpath>
         <!-- Print the payment term before the total block on pro-forma docs. -->

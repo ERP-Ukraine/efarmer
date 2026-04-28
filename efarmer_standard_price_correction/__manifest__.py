@@ -11,7 +11,7 @@
     "website": "https://ventor.tech",
     "license": "LGPL-3",
     "depends": [
-        "product", "stock_account",
+        "base",
     ],
     "description": "",
     "data": [],
