@@ -20,9 +20,9 @@
         Print Barcode | Print Picking | Print Package | Print Lot | Print Serial | Auto Print |
         Auto Printing | Print Scenario | Warehouse Printing | Remote Printing | Network Printing |
         Print Agent | Print Assistant | Advanced Printing | POS | Multi Printing | Print Attachment |
-        POS Print | Print Serial Number
+        POS Print | Print Serial Number | Direct Print POS | Odoo POS Printing Solution | Print POS
     ''',
-    'version': '19.0.2.8.0',
+    'version': '19.0.2.8.1',
     'category': 'Tools',
     "images": ["static/description/images/banner.gif"],
     'author': 'VentorTech',
@@ -103,9 +103,11 @@
         'web.assets_backend': [
             'printnode_base/static/src/js/constants.js',
             'printnode_base/static/src/js/action_service.js',
+            'printnode_base/static/src/js/attachment_list.js',
             'printnode_base/static/src/components/*/*.js',
             'printnode_base/static/src/components/*/*.css',
             'printnode_base/static/src/components/*/*.xml',
+            'printnode_base/static/src/xml/attachment_list.xml',
         ],
         'web.qunit_suite_tests': [
             'printnode_base/static/tests/printnode_base_mock_server.js',

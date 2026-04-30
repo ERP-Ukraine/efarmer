@@ -7,17 +7,14 @@ msgstr ""
 "Project-Id-Version: Odoo Server 19.0+e\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-05 10:13+0000\n"
-"PO-Revision-Date: 2026-04-11 08:32+0000\n"
-"Last-Translator: Mikhail Karalevich <mikhail.karalevich@ventor.tech>\n"
-"Language-Team: Russian <https://translate.ventor.tech/projects/e-commerce-"
-"connectors/19-0-e-commerce-connectors-core/ru/>\n"
-"Language: ru\n"
+"PO-Revision-Date: 2026-03-05 10:13+0000\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.15.1\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
 
 #. module: integration
 #. odoo-python
@@ -107,9 +104,6 @@ msgid ""
 "\n"
 "Error %(err_code)s:\n"
 msgstr ""
-"\n"
-"\n"
-"Ошибка %(err_code)s:\n"
 
 #. module: integration
 #. odoo-python
@@ -120,10 +114,6 @@ msgid ""
 "Error %(err_code)s:\n"
 "%(err_msg)s\n"
 msgstr ""
-"\n"
-"\n"
-"Ошибка %(err_code)s:\n"
-"%(err_msg)s\n"
 
 #. module: integration
 #. odoo-python
@@ -692,7 +682,7 @@ msgstr ""
 #. module: integration
 #: model_terms:ir.ui.view,arch_db:integration.product_ecommerce_field_test_wizard_view_form
 msgid "<b>Error Message:</b>"
-msgstr "<b>Сообщение о ошибке:</b>"
+msgstr ""
 
 #. module: integration
 #. odoo-python

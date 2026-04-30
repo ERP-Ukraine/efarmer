@@ -10,9 +10,6 @@ This Shopify connector simplifies multi-channel e-commerce by automating data tr
 between your Shopify store and Odoo. Reduce manual work, eliminate errors, and improve efficiency
 with real-time synchronization of products, stock levels, and orders.
 
-We also offer integrations with other popular e-commerce platforms, including Magento 2,
-PrestaShop, and WooCommerce.
-
 Keywords: Shopify, Shopify Odoo Integration, Sync Shopify with Odoo, Shopify Inventory Sync,
 Shopify Order Import, Shopify Product Sync, Odoo Shopify Connector, Shopify Integration,
 E-commerce Integration, Multi-Channel Selling, Seamless E-commerce Integration,
@@ -21,7 +18,7 @@ Connect Shopify to Odoo, Shopify Odoo Bridge, Odoo Shopify Bridge''',
     'category': 'Sales',
     'version': '19.0.2.1.3',
     'images': [
-        'static/description/images/banner_600.gif',
+        'static/description/images/banner.gif',
     ],
     'author': 'VentorTech',
     'website': 'https://ecosystem.ventor.tech/product/odoo-shopify-connector-pro/',

@@ -9,8 +9,28 @@
             <field name="arch" type="xml">
                 <xpath expr="//notebook/page[last()]" position="after">
                     <page name="printnode" string="Direct Print">
-                        <group>
-                            <field name="autoprint_paperformat_id" />
+                        <group colspan="2">
+                            <field name="autoprint_paperformat_id"/>
+                            <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                            <p class="mb-2">
+                                <small>
+                                    This settings defines which paper format should be chosen for printing labels of this carrier.
+                                </small>
+                            </p>
+                        </group>
+
+                        <group colspan="2">
+                            <field name="exclude_invoice_printing"/>
+                            <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                            <p class="mb-2">
+                                <small>
+                                    Some carriers, when generating shipping labels, may also generate additional documents such as
+                                    commercial invoices. If you enable automatic printing of shipping labels and want to ignore
+                                    these additional documents, please activate this option and specify keywords in the field above.
+                                    The module will use these keywords to detect such documents and exclude them from printing.
+                                </small>
+                            </p>
+                            <field name="exclusion_marker" invisible="exclude_invoice_printing==False" required="exclude_invoice_printing==True"/>
                         </group>
                     </page>
                 </xpath>

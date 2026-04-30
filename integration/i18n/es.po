@@ -7,10 +7,10 @@ msgstr ""
 "Project-Id-Version: Odoo Server 19.0+e\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-05 10:13+0000\n"
-"PO-Revision-Date: 2026-01-03 12:04+0000\n"
-"Last-Translator: Alexander Pashuk <alexander@ventor.tech>\n"
+"PO-Revision-Date: 2026-04-25 18:32+0000\n"
+"Last-Translator: Denys Amitsy <denis.amitsy@ventor.tech>\n"
 "Language-Team: Spanish <https://translate.ventor.tech/projects/e-commerce-"
-"connectors/e-commerce-connectors-integration/es/>\n"
+"connectors/19-0-e-commerce-connectors-core/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -2497,7 +2497,7 @@ msgstr "Aplicar"
 #. module: integration
 #: model:ir.model.fields,field_description:integration.field_sale_integration__apply_company_on_product
 msgid "Apply Company on Product"
-msgstr ""
+msgstr "Asignar empresa al producto"
 
 #. module: integration
 #: model_terms:ir.ui.view,arch_db:integration.view_configuration_wizard
@@ -2607,7 +2607,7 @@ msgstr "Atributos"
 #. module: integration
 #: model_terms:ir.ui.view,arch_db:integration.view_sale_integration_form
 msgid "Authenticate Your Connection"
-msgstr ""
+msgstr "Autenticar la conexión"
 
 #. module: integration
 #: model:ir.model.fields,field_description:integration.field_sale_integration__apply_external_fulfillments
@@ -2644,7 +2644,7 @@ msgstr "Exportar automáticamente productos nuevos"
 #: model:ir.actions.server,name:integration.integration_product_template_mapping_action_try_map_products
 #: model_terms:ir.ui.view,arch_db:integration.integration_product_template_mapping_view_tree
 msgid "Auto-Link"
-msgstr ""
+msgstr "Vincular automáticamente"
 
 #. module: integration
 #: model:ir.ui.menu,name:integration.menu_auto_workflow
@@ -3594,7 +3594,7 @@ msgstr "Asistente de configuración"
 #. module: integration
 #: model_terms:ir.ui.view,arch_db:integration.view_sale_integration_form
 msgid "Configure Connection"
-msgstr ""
+msgstr "Configurar Conexión"
 
 #. module: integration
 #: model_terms:ir.ui.view,arch_db:integration.view_sale_integration_form
@@ -3653,12 +3653,12 @@ msgstr "Confirmar factura"
 #. module: integration
 #: model:ir.model.fields,field_description:integration.field_integration_sale_order_sub_status_external__validate_order
 msgid "Confirm Sales Order"
-msgstr "¡Felicitaciones! Completaste el asistente de configuración 🎉"
+msgstr "Confirmar Pedido de Venta"
 
 #. module: integration
 #: model:ir.model.fields.selection,name:integration.selection__integration_configuration_wizard__state__step_8
 msgid "Congratulations! You've Completed the Setup Wizard 🎉"
-msgstr "Conectá Odoo con tu tienda online en unos pocos pasos simples"
+msgstr "¡Felicidades! Has completado el asistente de configuración 🎉"
 
 #. module: integration
 #. odoo-python

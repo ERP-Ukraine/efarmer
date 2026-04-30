@@ -33,7 +33,7 @@
         Custom Labels in Odoo | Direct Print Integration | ZPL Print Odoo | Label Generator for Odoo |
         Odoo Warehouse Labels | ZPL Designer | Create Label | Stock Label | Lot Label | Serial Label |
         Odoo ZPL | Designer Label | Creating Label | Create ZPL | Document Label | Package Label |
-        Packaging Label | Price Label
+        Packaging Label | Price Label | Label Builder
     """,
     'version': '19.0.1.2.0',
     'category': 'Tools',

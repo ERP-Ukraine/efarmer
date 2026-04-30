@@ -16,6 +16,20 @@ class DeliveryCarrier(models.Model):
         ),
     )
 
+    exclude_invoice_printing = fields.Boolean(
+        string='Exclude Invoice Printing',
+        help=(
+            'If this option is enabled, the invoice will not be printed automatically after '
+            'the delivery order is validated. Ensure that a keyword is set in the "Exclusion Marker" '
+            'field, which should be present in the invoice name to exclude it from printing.'
+        ),
+    )
+
+    exclusion_marker = fields.Char(
+        string='Exclusion Marker',
+        help='Enter a text marker to identify invoices that should be excluded from printing.',
+    )
+
     printer_id = fields.Many2one(
         comodel_name='printnode.printer',
         string='Printer',

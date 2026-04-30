@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="printnode_base.AttachmentListPrintButton"
+       t-inherit="mail.AttachmentList"
+       t-inherit-mode="extension">
+
+        <xpath expr="//button[@t-on-click.stop='() => this.onClickDownload(attachment)']" position="replace">
+            <t t-elif="canDownload(attachment)">
+                <button t-if="canPrint()"
+                        class="btn bg-500 w-100 h-100 o-p-1_5 d-flex justify-content-center align-items-center shadow-sm me-2"
+                        t-on-click.stop="() => this.onClickPrint(attachment)"
+                        title="Print">
+                    <i class="fa fa-print o-text-white"/>
+                </button>
+
+                <button class="btn bg-500 w-100 h-100 o-p-1_5 d-flex justify-content-center align-items-center shadow-sm"
+                        t-on-click.stop="() => this.onClickDownload(attachment)"
+                        title="Download">
+                    <i class="fa fa-download o-text-white"/>
+                </button>
+            </t>
+        </xpath>
+
+    </t>
+</templates>

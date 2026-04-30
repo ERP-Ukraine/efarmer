@@ -3,6 +3,7 @@
 
 import math
 import re
+import time
 
 from datetime import timedelta
 from collections import defaultdict
@@ -233,24 +234,31 @@ class StockPicking(models.Model):
 
     def _get_label_attachments(self, message):
         label_attachments = []
+        attachment_ids = message.attachment_ids
         packages = self.move_line_ids.result_package_id
 
-        if len(packages) == len(message.attachment_ids):
+        # Exclude attachments with marker in the name if carrier has exclusion marker
+        # and exclude_invoice_printing enabled
+        if self.carrier_id.exclude_invoice_printing:
+            marker = (self.carrier_id.exclusion_marker or '').lower().strip()
+            if marker:
+                attachment_ids = attachment_ids.filtered(lambda a: marker not in (a.name or '').lower())
+
+        # If the number of attachments is equal to the number of packages and
+        # "Print Package Label Immediately After Shipping Label" is enabled at the company level,
+        # the system will automatically print the package label right after the shipping label.
+        # This requires using the "Put In Pack" feature for every delivery order.
+        if len(packages) == len(attachment_ids):
             for index in range(len(packages)):
                 vals = {
-                    'document_id': message.attachment_ids[-index - 1].id,
+                    'document_id': attachment_ids[-index - 1].id,
                     'package_id': packages[index].id
                 }
                 label_attachments.append((0, 0, vals))
+
         else:
-            for attach in message.attachment_ids:
-                if (
-                    self.carrier_id.delivery_type in ['sendcloud', 'ups'] and
-                    'label' not in attach.name.lower()
-                ):
-                    continue
-                else:
-                    label_attachments.append((0, 0, {'document_id': attach.id}))
+            for attach in attachment_ids:
+                label_attachments.append((0, 0, {'document_id': attach.id}))
 
         return label_attachments
 
@@ -481,6 +489,11 @@ class StockPicking(models.Model):
         self, report_id, printer_id, number_of_copies=1, **kwargs
     ):
         print_options = kwargs.get('options', {})
+
+        # Small delay to allow Odoo to update delivered qty before printing.
+        # Without this delay the print may start before the values are updated,
+        # and can show 0 in delivered qty even if products were picked, task RDPS-476
+        time.sleep(1)
 
         printed = printer_id.printnode_print(
             report_id,
