@@ -25,6 +25,7 @@ LIMITS_RESPONSE = {
     },
     'status_code': 200,
 }
+MAX_RETRIES = 3
 PRINTNODE_STATISTICS = {"current": {"prints": 10, }, }
 PRINTNODE_BILLING_PLAN = {"current": {"printCurve": '("{0,5000}","{0,0}",0.0018)', }, }
 
@@ -145,27 +146,24 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
         })
 
         self.printer.status = 'online'
-        with self.cr.savepoint(), patch.object(requests, 'get', return_value=get_result, ) \
-                as mock_requests_get:
+        with self.cr.savepoint(), patch.object(requests, 'get', return_value=get_result) as mock_requests_get:
             mock_requests_get.side_effect = requests.exceptions.ConnectionError('ConnectionError')
 
             json_response = self.account._send_printnode_request('something')
             self.assertEqual(self.account.status, 'ConnectionError')
             self.assertIsNone(json_response)
             self.assertEqual(self.printer.status, 'offline')
-            mock_requests_get.assert_called_once()
+            self.assertEqual(mock_requests_get.call_count, MAX_RETRIES + 1)
 
         self.printer.status = 'online'
-        with self.cr.savepoint(), patch.object(requests, 'get', return_value=get_result, ) \
-                as mock_requests_get:
+        with self.cr.savepoint(), patch.object(requests, 'get', return_value=get_result) as mock_requests_get:
             mock_requests_get.side_effect = requests.exceptions.RequestException('RequestException')
 
             json_response = self.account._send_printnode_request('something')
             self.assertEqual(self.account.status, 'RequestException')
             self.assertIsNone(json_response)
             self.assertEqual(self.printer.status, 'offline')
-            # The following check is to ensure that mock_requests_get() was only run once
-            mock_requests_get.assert_called_once()
+            self.assertEqual(mock_requests_get.call_count, MAX_RETRIES + 1)
 
     def test_create_or_update_scales(self):
         """
@@ -334,7 +332,7 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
 
         with self.cr.savepoint(), patch.object(type(self.account), '_send_printnode_request') as \
                 mock_account_send_printnode_request:
-            def side_effect_send_printnode_request(uri: str):
+            def side_effect_send_printnode_request(uri: str, params=None):
                 if uri == 'computers':
                     return test_computers
 
@@ -392,7 +390,7 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
 
         with self.cr.savepoint(), patch.object(type(self.account), '_send_printnode_request') as \
                 mock_send_printnode_request:
-            def side_effect_send_printnode_request(uri: str):
+            def side_effect_send_printnode_request(uri: str, params=None):
                 if uri == 'computers':
                     return TEST_COMPUTERS_FROM_PRINTNODE
 
@@ -565,7 +563,7 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
 
         with self.cr.savepoint(), patch.object(type(self.account), '_send_printnode_request', ) \
                 as mock_send_printnode_request:
-            def side_effect_send_printnode_request(uri: str):
+            def side_effect_send_printnode_request(uri: str, params=None):
                 vals = {
                     'billing/statistics': PRINTNODE_STATISTICS,
                     'billing/plan': PRINTNODE_BILLING_PLAN

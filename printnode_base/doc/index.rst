@@ -14,6 +14,11 @@ Change Log
 
 |
 
+* 2.6.6 (2026-04-30)
+    - [NEW] Added a new trial welcome plan that allows users to start printing for free during the first 3 months, including up to 15,000 prints
+    - [FIX] Removed the limit on the number of imported printers
+    - [FIX] Other improvements and fixes implemented to boost overall performance, stability, and reliability
+
 * 2.6.5 (2024-08-14)
     - Fixed issue with scenario
 

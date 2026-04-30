@@ -3,10 +3,16 @@
 
 import re
 import requests
+import time
 
 from odoo import api, exceptions, fields, models, _
 
 from .constants import Constants
+
+
+# Retry configuration for PrintNode API rate limiting
+MAX_RETRIES = 3
+RETRY_DELAY_BASE = 1  # Base delay in seconds for exponential backoff
 
 # Copied from request library to provide compatibility with the library
 try:
@@ -36,7 +42,7 @@ class PrintNodeAccount(models.Model):
         string='Endpoint',
         required=True,
         readonly=True,
-        default='https://api.printnode.com/'
+        default='https://api.printnode.com'
     )
 
     limits = fields.Integer(
@@ -88,16 +94,28 @@ class PrintNodeAccount(models.Model):
         ('api_key', 'unique(api_key)', 'API Key (token) must be unique.'),
     ]
 
-    @api.model_create_multi
-    def create(self, vals):
-        account = super(PrintNodeAccount, self).create(vals)
+    @staticmethod
+    def _normalize_endpoint(endpoint):
+        return endpoint.rstrip('/') if endpoint else endpoint
 
-        account.import_devices()
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if 'endpoint' in vals:
+                vals['endpoint'] = self._normalize_endpoint(vals['endpoint'])
+
+        account = super(PrintNodeAccount, self).create(vals_list)
+
+        if account:
+            account.import_devices()
 
         return account
 
     def write(self, vals):
         activate_account = False
+
+        if 'endpoint' in vals:
+            vals['endpoint'] = self._normalize_endpoint(vals['endpoint'])
 
         if 'api_key' in vals:
             # When API Key changed - activate the account
@@ -210,16 +228,16 @@ class PrintNodeAccount(models.Model):
     def import_devices(self):
         """ Re-import list of printers into OpenERP.
         """
-        computers = self._send_printnode_request('computers') or []
+        computers = self._get_all_computers()
 
         self._deactivate_devices()
 
         for computer in computers:
             odoo_computer = self._get_node('computer', computer, self.id)
-            get_printers_url = f"computers/{computer['id']}/printers"
+            computer_printers = self._get_all_printers(computer['id'])
 
             # Downloading printers with tray bins
-            for printer in self._send_printnode_request(get_printers_url):
+            for printer in computer_printers:
                 odoo_printer = self._get_node('printer', printer, odoo_computer.id)
 
                 # Splitted to 2 checks because capabilities can include None values in some cases
@@ -384,74 +402,147 @@ class PrintNodeAccount(models.Model):
 
         return node
 
-    def _send_printnode_request(self, uri):
+    def _get_all_computers(self):
+        computers = []
+
+        params = {'limit': 100}
+
+        while True:
+            resp = self._send_printnode_request('computers', params=params)
+
+            if not resp or not isinstance(resp, list):
+                break
+
+            computers += resp
+
+            if len(resp) < params['limit']:
+                # No more computers
+                break
+
+            # Fetch next page
+            params['after'] = resp[-1]['id']
+
+        return computers
+
+    def _get_all_printers(self, computer_id):
+        printers = []
+
+        params = {'limit': 100}
+
+        while True:
+            resp = self._send_printnode_request(
+                f'computers/{computer_id}/printers',
+                params=params)
+
+            if not resp or not isinstance(resp, list):
+                break
+
+            printers += resp
+
+            if len(resp) < params['limit']:
+                # No more printers
+                break
+
+            # Fetch next page
+            params['after'] = resp[-1]['id']
+
+        return printers
+
+    def _handle_retry(self, attempt, reason):
+        """
+        Log retry reason and wait before the next attempt.
+        """
+        delay = RETRY_DELAY_BASE * (2 ** attempt)
+        self.printnode_logger(
+            Constants.REQUESTS_LOG_TYPE,
+            f'{reason}. Retrying in {delay} seconds '
+            f'(retry {attempt + 1}/{MAX_RETRIES})'
+        )
+        time.sleep(delay)
+
+    def _send_printnode_request(self, uri, params=None, method='GET'):
         """
         Send request with basic authentication and API key
         """
         auth = requests.auth.HTTPBasicAuth(self.api_key, self.password or '')
-        if self.endpoint.endswith('/'):
-            self.endpoint = self.endpoint[:-1]
+        request_url = f'{self.endpoint}/{uri}'
 
-        try:
-            request_url = f'{self.endpoint}/{uri}'
-            self.printnode_logger(Constants.REQUESTS_LOG_TYPE, f'GET request: {request_url}')
-            resp = requests.get(request_url, auth=auth, timeout=20)
+        for attempt in range(MAX_RETRIES + 1):
+            try:
+                self.printnode_logger(
+                    Constants.REQUESTS_LOG_TYPE,
+                    f'{method} request: {request_url}'
+                )
 
-            # 403 is a HTTP status code which can be returned for child accounts in some cases
-            # like checking printing limits on PrintNode
-            if resp.status_code not in (200, 403):
-                resp.raise_for_status()
+                resp = self._get_requests_method(method)(
+                    request_url, params=params, auth=auth, timeout=20
+                )
 
-            if self.status != 'OK':
-                self.status = 'OK'
+                # Retry logic for rate limiting
+                if resp.status_code == 429:
+                    if attempt < MAX_RETRIES:
+                        self._handle_retry(attempt, 'Rate limited (429)')
+                        continue
+                    return
 
-            json_response = resp.json()
-            self.printnode_logger(
-                Constants.REQUESTS_LOG_TYPE,
-                f'Response from ({request_url}): {json_response}'
-            )
+                # 403 is a HTTP status code which can be returned for child accounts in some cases
+                # like checking printing limits on Direct Print
+                if resp.status_code not in (200, 204, 403):
+                    resp.raise_for_status()
 
-            return json_response
+                if self.status != 'OK':
+                    self.status = 'OK'
 
-        except requests.exceptions.Timeout as err:
-            # Deactivate printers only from current account
-            self._deactivate_printers()
+                if not resp.text:
+                    # Some requests return empty response, it's not an error
+                    self.printnode_logger(
+                        Constants.REQUESTS_LOG_TYPE,
+                        f'Response from ({request_url}): {resp.status_code}'
+                    )
+                    return
 
-            self.status = err
-            self.printnode_logger(Constants.REQUESTS_LOG_TYPE, 'Request timed out')
+                json_response = resp.json()
 
-        except requests.exceptions.ConnectionError as err:
-            # Deactivate printers only from current account
-            self._deactivate_printers()
+                self.printnode_logger(
+                    Constants.REQUESTS_LOG_TYPE,
+                    f'Response from ({request_url}): {json_response}'
+                )
 
-            self.status = err
-            self.printnode_logger(Constants.REQUESTS_LOG_TYPE, f'ConnectionError: {err}')
-        except requests.exceptions.RequestException as err:
-            # Deactivate printers only from current account
-            self._deactivate_printers()
+                return json_response
 
-            self.status = err
-            self.printnode_logger(Constants.REQUESTS_LOG_TYPE, f'RequestException: {err}')
+            except (
+                requests.exceptions.Timeout,
+                requests.exceptions.ConnectionError,
+                requests.exceptions.RequestException,
+            ) as err:
+                # Deactivate printers only from current account
+                self._deactivate_printers()
 
-        return None
+                self.status = err
+
+                if isinstance(err, requests.exceptions.Timeout):
+                    error_message = 'Request timed out'
+                elif isinstance(err, requests.exceptions.ConnectionError):
+                    error_message = f'ConnectionError: {err}'
+                else:
+                    error_message = f'RequestException: {err}'
+
+                self.printnode_logger(Constants.REQUESTS_LOG_TYPE, error_message)
+
+                if attempt < MAX_RETRIES:
+                    self._handle_retry(attempt, error_message)
+                    continue
+
+            return None
 
     def _send_dpc_request(self, method, uri, **kwargs):
         """
         Send request to DPC API with API key
         """
-        methods = {
-            'GET': requests.get,
-            'POST': requests.post,
-            'PUT': requests.put,
-        }
-
-        if method not in methods:
-            raise ValueError('Bad HTTP method')
-
         dpc_url = self.env['ir.config_parameter'].sudo().get_param('printnode_base.dpc_api_url')
 
         try:
-            resp = methods[method](f'{dpc_url}/{uri}', **kwargs)
+            resp = self._get_requests_method(method)(f'{dpc_url}/{uri}', **kwargs)
 
             if self.status != 'OK':
                 self.status = 'OK'
@@ -479,6 +570,18 @@ class PrintNodeAccount(models.Model):
             self.printnode_logger(Constants.REQUESTS_LOG_TYPE, f'JSONDecodeError: {err}')
 
         return None
+
+    def _get_requests_method(self, method):
+        methods = {
+            'GET': requests.get,
+            'POST': requests.post,
+            'PUT': requests.put,
+        }
+
+        if method not in methods:
+            raise ValueError('Bad HTTP method')
+
+        return methods[method]
 
     def _is_correct_dpc_api_key(self):
         """
@@ -596,7 +699,7 @@ class PrintNodeAccount(models.Model):
         # Step 1: Find computers that are not in Printnode and delete them.
         list_printnode_computer_ids = list(map(
             lambda pc: pc.get('id'),
-            self._send_printnode_request('computers') or []
+            self._get_all_computers()
         ))
         odoo_computer_ids = self.with_context(active_test=False).computer_ids
 
