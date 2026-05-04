@@ -33,42 +33,44 @@ class SaleOrder(models.Model):
             user_ids = self.env['portal.wizard'].browse(action.get("res_id", None)).user_ids
             user_ids = user_ids.filtered(lambda u: u.partner_id.id == self.partner_id.id)
             for user in user_ids:
-                if user.is_internal:
+                if user.is_internal or user.is_portal:
                     continue
-                elif user.is_portal:
-                    self._send_email_portal_reminder(user)
+                # EF-409 Disable mail sending on the SO status change from To Payment to To Confirm
+                # elif user.is_portal:
+                #     self._send_email_portal_reminder(user)
                 else:
                     user.action_grant_access()
         else:
             for user in related_user_id:
-                if user.has_group('base.group_user'):
+                if user.has_group('base.group_user') or user.has_group('base.group_portal'):
                     continue
-                elif user.has_group('base.group_portal'):
-                    self._send_email_portal_reminder(user)
+                # EF-409 Disable mail sending on the SO status change from To Payment to To Confirm
+                # elif user.has_group('base.group_portal'):
+                #     self._send_email_portal_reminder(user)
                 else:
                     portal_wizard = self.env['portal.wizard'].with_context(active_ids=[self.partner_id.id]).create({})
                     user_ids = portal_wizard.user_ids.filtered(lambda u: u.partner_id.id == self.partner_id.id)
                     for user in user_ids:
-                        if user.is_internal:
+                        if user.is_internal or user.is_portal:
                             continue
-                        elif user.is_portal:
-                            self._send_email_portal_reminder(user)
+                        # elif user.is_portal:
+                        #     self._send_email_portal_reminder(user)
                         else:
                             user.action_grant_access()
 
-    def _send_email_portal_reminder(self, user_id):
-        """ send notification email to a portal user """
-        self.ensure_one()
-        template = self.env.ref('efarmer_sale_customer_mail.mail_template_data_portal_reminder')
-        if not template:
-            raise UserError(_('The template "Portal User Reminder" not found for sending email to the portal user.'))
-        lang = user_id.sudo().lang
-        partner = user_id.sudo().partner_id
-        partner.signup_prepare()
-        self.with_context(signup_force_type_in_url='', lang=lang).message_post_with_template(
-            template.id,
-            composition_mode="comment",
-            email_layout_xmlid="mail.mail_notification_light",
-        )
-        return True
+    # def _send_email_portal_reminder(self, user_id):
+    #     """ send notification email to a portal user """
+    #     self.ensure_one()
+    #     template = self.env.ref('efarmer_sale_customer_mail.mail_template_data_portal_reminder')
+    #     if not template:
+    #         raise UserError(_('The template "Portal User Reminder" not found for sending email to the portal user.'))
+    #     lang = user_id.sudo().lang
+    #     partner = user_id.sudo().partner_id
+    #     partner.signup_prepare()
+    #     self.with_context(signup_force_type_in_url='', lang=lang).message_post_with_template(
+    #         template.id,
+    #         composition_mode="comment",
+    #         email_layout_xmlid="mail.mail_notification_light",
+    #     )
+    #     return True
 
