@@ -26,8 +26,8 @@ class SaleOrderLine(models.Model):
             line = line.with_company(line.company_id)
             fpos = (
                 line.order_id.fiscal_position_id
-                or line.order_id.fiscal_position_id.get_fiscal_position(
-                    line.order_partner_id.id
+                or line.order_id.fiscal_position_id._get_fiscal_position(
+                    line.order_partner_id
                 )
             )
             # This filter need for search goods products in SO and set all taxes like a goods product
