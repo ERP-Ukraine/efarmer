@@ -13,7 +13,7 @@ class IntegrationProductPricelistMapping(models.Model):
     pricelist_id = fields.Many2one(
         string='Odoo Pricelist',
         comodel_name='product.pricelist',
-        ondelete='cascade',
+        ondelete='set null',
     )
     external_pricelist_id = fields.Many2one(
         string='External Pricelist',
@@ -40,7 +40,7 @@ class IntegrationProductPricelistMapping(models.Model):
             'tag': 'display_notification',
             'params': {
                 'title': _('%s: Import Special Prices') % external.name,
-                'message': '%s: Queue Jobs "Import Special Prices" were created' % external.name,
+                'message': _('%s: Queue Jobs "Import Special Prices" were created') % external.name,
                 'type': 'success',
                 'sticky': False,
             },

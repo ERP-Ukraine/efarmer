@@ -27,16 +27,10 @@ class IntegrationMappingMixin(models.AbstractModel):
     )
 
     def show_unmapped_object(self):
-        internal_field_name, external_field_name = self._mapping_fields
-        external_obj = getattr(self, external_field_name)
-        name_list = external_obj.mapped('name')
-        odoo_object_names = self.odoo_model.search([
-            ('name', 'in', name_list),
-        ]).mapped('name')
+        internal_field_id, external_field_id = self._mapping_fields
 
         unmapped_ids = self.search([
-            (internal_field_name, '=', False),
-            (external_field_name, 'in', odoo_object_names),
+            (internal_field_id, '=', False),
         ])
 
         return {

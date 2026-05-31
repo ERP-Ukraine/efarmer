@@ -11,7 +11,6 @@ from . import integration_res_partner_proxy
 from . import metafield_mapping
 
 from . import ecommerce_product_category
-from . import product_template_attribute_line
 from . import product_attribute_value
 from . import account_tax_group
 from . import sale_order

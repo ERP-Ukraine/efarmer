@@ -33,7 +33,13 @@ class ProductTemplate(models.Model):
         help='The taxonomy category of the product in the external E-Commerce Store.',
     )
 
-    def to_export_format(self, integration):
+    shopify_sale_channel_ids = fields.Many2many(
+        comodel_name='external.sale.channel',
+        string='Sales Channels',
+        help='The sale channels in the external E-Commerce Store where the product is available.',
+    )
+
+    def to_export_format(self, integration: 'models.Model'):
         result = super().to_export_format(integration)
 
         if integration.is_integration_shopify:
@@ -80,9 +86,10 @@ class ProductTemplate(models.Model):
     def export_template_hook(self, integration_id: int, force_export: bool = False) -> None:
         integration = self.env['sale.integration'].browse(integration_id)
 
-        if integration.is_integration_shopify and (
-            integration.is_translations_needed(force_export=force_export)
-        ):
+        if not integration.is_integration_shopify:
+            return
+
+        if integration.is_translations_needed(force_export=force_export):
             job_kwargs = self._job_kwargs_export_template_translations(integration_id)
             self \
                 .with_context(

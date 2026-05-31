@@ -18,7 +18,7 @@ _lt = LazyTranslate(__name__)
 class NotMappedFromExternal(Exception):
 
     def __init__(self, msg, model_name=None, code=None, integration=None):
-        if model_name and code:
+        if model_name and code and integration:
             msg = '%s → %s(code=%s, integration=%s) \n%s' % (integration.name, model_name, code, integration.id, msg)
 
         super(NotMappedFromExternal, self).__init__(msg)
@@ -152,7 +152,7 @@ class IntegrationNotImplementedError(NotImplementedError):
             'investigation by our developers. '
             'If you encounter this error, please contact our support team: https://support.ventor.tech/'
         ) % {'method_name': method_name, 'msg': msg}
-        msg = str(_lt(formatted_msg))
+        formatted_msg = str(_lt(formatted_msg))
 
         super(IntegrationNotImplementedError, self).__init__(formatted_msg)
 
@@ -263,7 +263,7 @@ class ErrorStore:
     OperationalError = OperationalError
 
     _error_codes = {
-        'E000': ErrorInfo(),  # Common error code for raise non-standart integration errors
+        'E000': ErrorInfo(),  # Common error code for raise non-standard integration errors
         'E001': ErrorInfo(),  # Unknown error code provided to ErrorStore.raise_error
         'E002': ErrorInfo(
             error_type=UserError,
@@ -356,6 +356,10 @@ class ErrorStore:
             ],
         ),
         'E111': ErrorInfo(
+            error_type=NotImplementedError,
+            format_method='format_not_implemented',
+        ),
+        'E112': ErrorInfo(
             format_method='format_related_product_not_imported',
             format_method_params=[
                 'unmapped_codes',
@@ -420,6 +424,15 @@ class ErrorStore:
     @classmethod
     def format_message(cls, err_code: str, support_contact: bool = False, raise_from_none: bool = False, **kwargs):
         error_info = cls._error_codes.get(err_code, None)
+        if not error_info:
+            cls.raise_error(
+                err_code='E001',
+                err_msg=_('Unknown error code provided to ErrorStore.raise_error: %(err_code)s.') % {
+                    'err_code': err_code,
+                },
+                support_contact=True,
+            )
+
         if error_info.format_method:
             return _(
                 '%(gap)sError %(err_code)s:\n'
@@ -429,17 +442,18 @@ class ErrorStore:
             } + getattr(cls, error_info.format_method)(**kwargs) \
                 + (cls.format_support_contact_string() if support_contact else '')
 
-        cls.raise_error(
-            err_code='E001',
-            err_msg=_('Unknown error code provided to ErrorStore.raise_error: %(err_code)s.') % {
-                'err_code': err_code,
-            },
-            support_contact=True,
-        )
+        cls.raise_error(err_code='E000', err_msg=_('Error code %(err_code)s does not have a format method defined.') % {
+            'err_code': err_code,
+        })
 
     @staticmethod
     def format_support_contact_string():
-        return str(_lt('\n\nIf you need assistance, please contact our support team: https://support.ventor.tech/'))
+        return str(
+            _lt(
+                '\n\nIf you need assistance, please contact your Odoo partner '
+                'or our support team: https://support.ventor.tech/'
+            )
+        )
 
     @classmethod
     def format_unique_violation_error_message(
@@ -472,13 +486,15 @@ class ErrorStore:
     @staticmethod
     def format_not_mapped_from_external(msg, model_name=None, code=None, integration=None):
         if model_name and code:
-            return '%(integration)s → %(model)s(code=%(code)s, integration=%(integration_id)s) \n%(msg)s' % {
-                'integration': integration.name,
-                'model': model_name,
-                'code': code,
-                'integration_id': integration.id,
-                'msg': msg,
-            }
+            return _(
+                '%(integration)s → %(model)s(code=%(code)s, integration=%(integration_id)s) \n%(msg)s' % {
+                    'integration': integration.name,
+                    'model': model_name,
+                    'code': code,
+                    'integration_id': integration.id,
+                    'msg': msg,
+                }
+            )
         return msg
 
     @staticmethod
@@ -674,3 +690,9 @@ class ErrorStore:
             '→ Data Import → Open Import Wizard button.\n\n'
             'Unmapped optional product IDs:\n%s'
         ) % '\n'.join(f'\t- {code}' for code in unmapped_codes)
+
+    @staticmethod
+    def format_not_implemented():
+        return _(
+            'This functionality is not yet implemented.'
+        )

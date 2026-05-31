@@ -10,6 +10,7 @@ class Product(ShopifyResourceUpdate, ProductMixin):
     _request_name = 'product'
     _body = ShopifyResourceUpdate._tmpl.PRODUCT_BODY
 
+    PRODUCT_GET_VARIANTS_BODY = ShopifyResourceUpdate._tmpl.PRODUCT_GET_VARIANTS_BODY
     PRODUCT_GET_ATTRIBUTES_BODY = ShopifyResourceUpdate._tmpl.PRODUCT_GET_ATTRIBUTES_BODY
 
     MUTATION_CREATE = ShopifyResourceUpdate._tmpl.MUTATION_CREATE_PRODUCT_ASYNCHRONOUS
@@ -55,6 +56,11 @@ class Product(ShopifyResourceUpdate, ProductMixin):
         return self['hasOnlyDefaultVariant']
 
     @property
+    def variants_count(self):
+        self.ensure_one()
+        return self['variantsCount'] and self['variantsCount']['count']
+
+    @property
     def has_only_one_variant(self):
         # Template with only one variant no matter if it has options or not.
         return len(self.variants) == 1
@@ -82,6 +88,11 @@ class Product(ShopifyResourceUpdate, ProductMixin):
             self.raise_if_no_key('collections')
 
         return [self._env.Collection.set(**vals) for vals in (self['collections'] or [])]
+
+    @property
+    def publications(self):
+        self.ensure_one()
+        return [self._env.Publication.set(**pub['publication']) for pub in (self['resourcePublications'] or [])]
 
     @property
     def category(self):
@@ -126,6 +137,70 @@ class Product(ShopifyResourceUpdate, ProductMixin):
             self.raise_if_no_key('tags')
 
         return self['tags'] or []
+
+    @property
+    def variants_cursor(self):
+        return self.ctx('variants.pageInfo.hasNextPage', bool) and self.ctx('variants.pageInfo.endCursor', str)
+
+    def read(self, *args, **kwargs):
+        result = super().read(*args, **kwargs)
+
+        if not self.variants_cursor:
+            return result
+
+        # Fetch all the variants according to the saved variants-cursor
+        query = 'query { %s(id: "%s") { %s } }' % (
+            self._request_name,
+            self.gid,
+            self.PRODUCT_GET_VARIANTS_BODY,
+        )
+        query_ = query.replace('variants(first: 250', 'variants(first: 250%s')
+
+        variant_list = []
+        while self.variants_cursor:
+            query = query_ % f', after: "{self.variants_cursor}"'
+            response = self.execute(query)
+            result_ = self._extract_response(response, key=self._request_name)
+
+            variant_list.extend(result_['variants'])
+
+        self['variants'].extend(variant_list)
+
+        return result
+
+    def _base_extract(self, *args, **kwargs):
+        """Redefined to save cursor for variants"""
+        result = super()._base_extract(*args, **kwargs)
+
+        self._save_variants_cursor(result)
+
+        return result
+
+    def _save_variants_cursor(self, data: dict):
+        if not isinstance(data, dict) or 'variants' not in data:
+            return
+
+        value = data['variants'].pop('pageInfo', False) or {}
+
+        if value:
+            self._add_variants_context(pageInfo=value)
+        else:
+            self._reset_variants_context('pageInfo')
+
+    def _add_variants_context(self, **kwargs):
+        if 'variants' not in self._ctx:
+            self._ctx['variants'] = {}
+
+        self._ctx['variants'].update(kwargs)
+
+    def _reset_variants_context(self, key: str = None):
+        if key:
+            if 'variants' not in self._ctx:
+                return
+
+            self._ctx['variants'].pop(key, None)
+        else:
+            self._ctx.pop('variants', None)
 
     def to_dict(self, simple_identifier: bool = False):
         result = super().to_dict()
@@ -269,16 +344,21 @@ class Product(ShopifyResourceUpdate, ProductMixin):
         self.detach_images_from_variants([x['variantId'] for x in variant_media])
 
         # 2. Append new media to variants
-        response = self.execute(
-            self.MUTATION_PRODUCT_VARIANT_APPEND_MEDIA,
-            variables={
-                'productId': self.gid,
-                'variantMedia': variant_media,
-            },
-            user_errors_path='data.productVariantAppendMedia.userErrors',
-        )
+        result = []
+        for chunk in (variant_media[i:i + 100] for i in range(0, len(variant_media), 100)):
+            response = self.execute(
+                self.MUTATION_PRODUCT_VARIANT_APPEND_MEDIA,
+                variables={
+                    'productId': self.gid,
+                    'variantMedia': chunk,
+                },
+                user_errors_path='data.productVariantAppendMedia.userErrors',
+            )
+            result.extend(
+                self._extract(response, 'data.productVariantAppendMedia.productVariants', list)
+            )
 
-        return self._extract(response, 'data.productVariantAppendMedia', dict)
+        return result
 
     def detach_images_from_variants(self, variant_ids: list):
         self.ensure_one()
@@ -296,16 +376,22 @@ class Product(ShopifyResourceUpdate, ProductMixin):
         if not variant_media:
             return {}
 
-        response = self.execute(
-            self.MUTATION_PRODUCT_VARIANT_DETACH_MEDIA,
-            variables={
-                'productId': self.gid,
-                'variantMedia': variant_media,
-            },
-            user_errors_path='data.productVariantDetachMedia.userErrors',
-        )
+        result = []
+        for chunk in (variant_media[i:i + 100] for i in range(0, len(variant_media), 100)):
+            response = self.execute(
+                self.MUTATION_PRODUCT_VARIANT_DETACH_MEDIA,
+                variables={
+                    'productId': self.gid,
+                    'variantMedia': chunk,
+                },
+                user_errors_path='data.productVariantDetachMedia.userErrors',
+            )
 
-        return self._extract(response, 'data.productVariantDetachMedia', dict)
+            result.extend(
+                self._extract(response, 'data.productVariantDetachMedia.productVariants', list)
+            )
+
+        return result
 
     def set_image_as_cover(self, image_id: str):
         self.ensure_one()

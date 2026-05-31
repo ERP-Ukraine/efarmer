@@ -128,8 +128,8 @@ class IntegrationProductExternalMixin(models.AbstractModel):
             mapping.mark_assign()
             return ExternalImage.from_mapping(mapping)
 
-        # 4. MINIMAL_MATCH_LEVEL: mapping found by checksum amount all existing mappings
-        # (not only in the `in_pending` status). Highly likely it is the mapping previously founded in
+        # 4. MINIMAL_MATCH_LEVEL: mapping found by checksum among all existing mappings
+        # (not only in the `in_pending` status). Highly likely it is the mapping previously found in
         # HIGH, MIDDLE, LOW levels so make a copy, update with actual values and mark as `assign`.
         # In most cases it means that one variant has the same image as another variant.
         mapping = self._find_suitable_mapping_out(checksum, image_id=image_id, match_level=MINIMAL_MATCH_LEVEL)

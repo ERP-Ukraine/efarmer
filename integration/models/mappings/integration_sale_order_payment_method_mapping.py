@@ -13,7 +13,7 @@ class IntegrationSaleOrderPaymentMethodMapping(models.Model):
     payment_method_id = fields.Many2one(
         string='Odoo Payment Method',
         comodel_name='sale.order.payment.method',
-        ondelete='cascade',
+        ondelete='set null',
     )
     external_payment_method_id = fields.Many2one(
         string='External Payment Method',

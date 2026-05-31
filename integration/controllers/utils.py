@@ -93,6 +93,7 @@ def with_webhook_context(method):
     """
     Decorator to add webhook context to methods.
     """
+    @wraps(method)
     def wrapper(self, integration, external_id, *args, **kwargs):
         _logger.info(f'Applying webhook context to {method.__name__} for {integration.name}')
 

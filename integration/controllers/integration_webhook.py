@@ -96,7 +96,11 @@ class IntegrationWebhook:
         return request.httprequest.headers
 
     def _get_post_data(self):
-        return json.loads(request.httprequest.data)
+        try:
+            return json.loads(request.httprequest.data)
+        except (json.JSONDecodeError) as e:
+            _logger.warning('Invalid JSON data: %s', e)
+            raise ValueError(_('Invalid JSON data'))
 
     def _check_webhook_digital_sign(self, integration):
         raise NotImplementedError
@@ -182,7 +186,7 @@ class IntegrationWebhook:
     # Handle orders
     @with_webhook_context
     def _process_create_order(self, integration, external_order_id):
-        """"
+        """
         Process create order event
         """
         _logger.info(f'Call {integration.name} webhook controller: _process_create_order')
@@ -247,12 +251,47 @@ class IntegrationWebhook:
         """
         raise NotImplementedError(_('%s: Method "_get_product_name" not implemented!') % integration.name)
 
+    def _check_importable_product(self, integration, external_product_id):
+        """
+        Check whether the product from the webhook passes the import filter.
+
+        Returns:
+            bool: True if the product is importable, False otherwise.
+        """
+        try:
+            product_data = self._get_post_data()
+        except Exception:
+            # If we can't parse the data, let it through — the actual handler
+            # will raise a proper error with full context.
+            return True
+
+        if integration.is_importable_product(product_data):
+            return True
+
+        message = (
+            f'Product with code={external_product_id} does not match '
+            'the import products filter. Webhook skipped.'
+        )
+        integration.env['integration.logging'].write_log(
+            integration,
+            'webhook',
+            'product_filtered',
+            message,
+            log_level='info',
+        )
+        return False
+
     @with_webhook_context
     def _process_create_product(self, integration, external_product_id):
         """
         Process create product event
         """
         _logger.info(f'Call {integration.name} webhook controller: _process_create_product')
+
+        if not self._check_importable_product(integration, external_product_id):
+            return Response(
+                f'Product with code={external_product_id} filtered out. Action: create product'
+            )
 
         name = self._get_product_name(integration)
 
@@ -269,6 +308,11 @@ class IntegrationWebhook:
         Process update product event
         """
         _logger.info(f'Call {integration.name} webhook controller: _process_update_product')
+
+        if not self._check_importable_product(integration, external_product_id):
+            return Response(
+                f'Product with code={external_product_id} filtered out. Action: update product'
+            )
 
         name = self._get_product_name(integration)
 

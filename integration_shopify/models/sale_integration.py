@@ -11,8 +11,6 @@ from ..shopify_api import ShopifyAPIClient, SHOPIFY
 from ..shopify.connection import _SHOPIFY_BATCH_LIMIT
 
 
-SHOPIFY_DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
-
 _logger = logging.getLogger(__name__)
 
 
@@ -64,7 +62,7 @@ class SaleIntegration(models.Model):
 
     integration_channel_ids = fields.Many2many(
         comodel_name='external.sale.channel',
-        string='Sale Channels',
+        string='Sales Channels',
         domain='[("integration_id", "=", id)]',
         help=(
             'Select the sales channels you want to import orders from in this e-commerce store. '
@@ -136,12 +134,19 @@ class SaleIntegration(models.Model):
         self.ensure_one()
         return self.type_api == SHOPIFY
 
+    @property
+    def datetime_format(self):
+        self.ensure_one()
+        if not self.is_integration_shopify:
+            return super(SaleIntegration, self).datetime_format
+        return '%Y-%m-%dT%H:%M:%SZ'
+
     @api.depends('last_receive_orders_datetime')
     def _compute_last_receive_orders_datetime_str(self):
         for integration in self:
             if integration.is_integration_shopify and integration.last_receive_orders_datetime:
                 integration.last_receive_orders_datetime_str = \
-                    integration.last_receive_orders_datetime.strftime(SHOPIFY_DATETIME_FORMAT)
+                    integration.last_receive_orders_datetime.strftime(integration.datetime_format)
                 continue
 
             super(SaleIntegration, integration)._compute_last_receive_orders_datetime_str()
@@ -151,7 +156,7 @@ class SaleIntegration(models.Model):
         for integration in self:
             if integration.is_integration_shopify and integration.orders_cut_off_datetime:
                 integration.orders_cut_off_datetime_str = \
-                    integration.orders_cut_off_datetime.strftime(SHOPIFY_DATETIME_FORMAT)
+                    integration.orders_cut_off_datetime.strftime(integration.datetime_format)
                 continue
 
             super(SaleIntegration, integration)._compute_orders_cut_off_datetime_str()
@@ -278,7 +283,6 @@ class SaleIntegration(models.Model):
 
     def get_class(self):
         self.ensure_one()
-
         if self.is_shopify():
             return ShopifyAPIClient
 
@@ -465,6 +469,37 @@ class SaleIntegration(models.Model):
             )
 
         return (financial_statuses_list, fulfillment_statuses_list)
+
+    def is_importable_product(self, product_data: dict) -> bool:
+        """Check if a product from webhook data passes the Shopify import filter.
+
+        The filter setting (eval=True) is a Python dict where keys are product
+        fields and values are comma-separated lists of allowed values.
+
+        Examples of import_products_filter setting::
+
+            {"status": "active"}
+            {"status": "active,draft"}
+
+        Args:
+            product_data: Raw product data from the webhook POST body.
+
+        Returns:
+            True if the product passes the filter (or no filter is set),
+            False otherwise.
+        """
+        if not self.is_integration_shopify:
+            return super().is_importable_product(product_data)
+
+        filter_dict = self.get_settings_value('import_products_filter') or {}
+
+        for key, allowed_values_str in filter_dict.items():
+            allowed_values = [v.strip() for v in str(allowed_values_str).split(',') if v.strip()]
+            product_value = str(product_data.get(key, ''))
+            if allowed_values and product_value not in allowed_values:
+                return False
+
+        return True
 
     def _handle_mapping_data(self, template_id: int, t_mapping: dict, v_mapping_list: list) -> tuple:
         result = super(SaleIntegration, self) \

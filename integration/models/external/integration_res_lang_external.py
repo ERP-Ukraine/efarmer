@@ -1,6 +1,6 @@
 # See LICENSE file for full copyright and licensing details.
 
-from odoo import models
+from odoo import api, models
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -12,6 +12,7 @@ class IntegrationResLangExternal(models.Model):
     _description = 'Integration Res Lang External'
     _odoo_model = 'res.lang'
 
+    @api.depends('name')
     def _compute_display_name(self):
         """That method redefined in parent class"""
         for record in self:

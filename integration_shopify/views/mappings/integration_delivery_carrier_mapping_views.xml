@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="view_delivery_carrier_mapping_shopify_code" model="ir.ui.view">
+            <field name="name">integration.delivery.carrier.mapping.shopify.code</field>
+            <field name="model">integration.delivery.carrier.mapping</field>
+            <field name="inherit_id" ref="integration.integration_delivery_carrier_mapping_view_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//list" position="inside">
+                    <field name="type_api" column_invisible="1"/>
+                    <field name="shopify_code"
+                           optional="show"
+                           readonly="type_api != 'shopify'"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

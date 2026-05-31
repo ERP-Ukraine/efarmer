@@ -75,7 +75,7 @@ class EcommerceProductCategory(models.Model):
         self.ensure_one()
         return integration.export_category(self)
 
-    def to_export_format(self, integration):
+    def to_export_format(self, integration: 'models.Model'):
         self.ensure_one()
 
         parent_id = None

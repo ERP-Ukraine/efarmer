@@ -13,7 +13,7 @@ class IntegrationSaleOrderSubStatusMapping(models.Model):
     odoo_id = fields.Many2one(
         string='Odoo E-Commerce Order Status',
         comodel_name='sale.order.sub.status',
-        ondelete='cascade',
+        ondelete='set null',
     )
 
     external_id = fields.Many2one(

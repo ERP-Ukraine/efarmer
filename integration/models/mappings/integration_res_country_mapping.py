@@ -25,5 +25,5 @@ class IntegrationResCountryMapping(models.Model):
 
     _uniq_mapping = models.Constraint(
         'unique(integration_id, external_country_id)',
-        'State mapping should be unique per integration',
+        'Country mapping should be unique per integration',
     )

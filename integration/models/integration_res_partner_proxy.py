@@ -4,7 +4,7 @@ import logging
 
 from typing import Any, Dict, List, Tuple
 
-from odoo import api, fields, models, tools
+from odoo import api, fields, models, tools, _
 from odoo.modules.registry import Registry
 from odoo.tools import escape_psql
 
@@ -143,6 +143,8 @@ class IntegrationResPartnerProxy(models.TransientModel):
             'Technical field for storing the current company.'
         ),
     )
+
+    is_vat_verified = fields.Boolean(string='Is Verified VAT', default=True)
 
     # Fields for customer
     external_id = fields.Char(string='External ID')
@@ -626,6 +628,16 @@ class IntegrationResPartnerProxy(models.TransientModel):
         Apply final configuration to the partner.
         """
         self.partner_id = partner
+
+        if not self.is_vat_verified and self.company_reg_number and not partner.is_company:
+            self._log_message(
+                partner,
+                _('VAT validation was not completed'),
+                _(
+                    'VAT number "%s" could not be validated because the VIES service was '
+                    'temporarily unavailable. Please verify it manually.'
+                ) % self.company_reg_number,
+            )
 
         # Set up external mapping
         if self.external_id:
@@ -1274,19 +1286,29 @@ class IntegrationResPartnerProxy(models.TransientModel):
         if company_reg_number:
             company_reg_number = company_reg_number.replace(' ', '').replace('-', '')
 
+        if not company_vat_field or not company_reg_number:
+            return vals
+
         country = self._find_odoo_country()
 
-        if company_vat_field and company_reg_number:
-            is_valid_vat, error_msg = self._validate_vat(company_reg_number, country)
+        is_valid_vat, error_msg = self._validate_vat(company_reg_number, country)
 
-            partner = self.factory_id.customer_id
-            if is_valid_vat:
-                vals[company_vat_field.name] = company_reg_number
+        if is_valid_vat is True:
+            vals[company_vat_field.name] = company_reg_number
+            return vals
 
-            # Log validation failure message if applicable
-            elif error_msg and partner:
-                message = f'VAT validation failed for "{company_reg_number}". Error: {error_msg}.'
-                self._log_message(partner, 'Issue with VAT number', message)
+        if is_valid_vat is None:
+            self.is_vat_verified = False
+            return vals
+
+        # Log validation failure message if applicable
+        partner = self.factory_id.customer_id
+        if error_msg and partner:
+            self._log_message(
+                partner,
+                _('Issue with VAT number'),
+                _('VAT validation failed for "%s". Error: %s.') % (company_reg_number, error_msg),
+            )
 
         return vals
 

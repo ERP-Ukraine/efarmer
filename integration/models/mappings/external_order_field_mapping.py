@@ -107,6 +107,7 @@ class ExternalOrderFieldMapping(models.Model):
                 domain = [
                     ('integration_id', '=', rec.integration_id.id),
                     ('odoo_order_field_id', '=', rec.odoo_order_field_id.id),
+                    ('active', 'in', (True, False)),
                 ]
                 if self.search_count(domain) > 1:
                     raise ValidationError(_('Sales Order Field must be unique within the same integration.'))
@@ -118,6 +119,7 @@ class ExternalOrderFieldMapping(models.Model):
                 domain = [
                     ('integration_id', '=', rec.integration_id.id),
                     ('odoo_picking_field_id', '=', rec.odoo_picking_field_id.id),
+                    ('active', 'in', (True, False)),
                 ]
                 if self.search_count(domain) > 1:
                     raise ValidationError(_('Transfer Field must be unique within the same integration.'))

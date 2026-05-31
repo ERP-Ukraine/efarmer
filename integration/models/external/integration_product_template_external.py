@@ -5,7 +5,7 @@ from datetime import datetime
 from time import time
 from typing import List, Dict
 
-from odoo import models, fields, _
+from odoo import api, models, fields, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools.sql import escape_psql
 from odoo.tools.misc import clean_context
@@ -46,6 +46,7 @@ class IntegrationProductTemplateExternal(models.Model):
         compute='_compute_timestamp_export_datetime',
     )
 
+    @api.depends('timestamp_export')
     def _compute_timestamp_export_datetime(self):
         for rec in self:
             rec.timestamp_export_datetime = datetime.fromtimestamp(rec.timestamp_export)
@@ -122,14 +123,17 @@ class IntegrationProductTemplateExternal(models.Model):
                     trigger_export_other=trigger_export_other,
                 )
 
-        plural = ('', 'is') if len(self) == 1 else ('s', 'are')
+        if len(self) == 1:
+            message = _('Queue Job "Product Import" is created')
+        else:
+            message = _('Queue Jobs "Product Import" are created')
 
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'title': _('Import Product'),
-                'message': 'Queue Job%s "Product Import" %s created' % plural,
+                'message': message,
                 'type': 'success',
                 'sticky': False,
             }
@@ -217,7 +221,7 @@ class IntegrationProductTemplateExternal(models.Model):
                     .with_context(integration_first_time_import=first_time_template_import) \
                     .calculate_import_fields_data(integration.id, template_data, variant_data)
             else:
-                # 3.2.1 Create the new variant if Odoo didn't creat it automatically because of
+                # 3.2.1 Create the new variant if Odoo didn't create it automatically because of
                 # the dynamic-attributes and the `integration_first_time_import` context variable
                 variant = self.env['product.product'] \
                     .with_context(integration_first_time_import=True) \
@@ -418,7 +422,8 @@ class IntegrationProductTemplateExternal(models.Model):
                 .filtered(lambda x: x.attribute_id.id == attr_id)
 
             if existing_line:
-                existing_line.value_ids = [(6, 0, value_ids)]
+                if set(existing_line.value_ids.ids) != set(value_ids):
+                    existing_line.value_ids = [(6, 0, value_ids)]
             else:
                 template.attribute_line_ids = [(0, 0, {
                     'attribute_id': attr_id,
@@ -855,7 +860,7 @@ class IntegrationProductTemplateExternal(models.Model):
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'message': 'No external product code found.',
+                    'message': _('No external product code found.'),
                     'type': 'warning',
                     'sticky': False,
                 }

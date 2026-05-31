@@ -13,6 +13,7 @@ from ..tools import prepare_shopify_url
 class ShopifyAccessScopeLine(models.TransientModel):
     _name = 'shopify.access.scope.line'
     _description = 'Shopify Access Scope Line'
+    _order = 'name asc'
 
     name = fields.Char(
         string='Name',

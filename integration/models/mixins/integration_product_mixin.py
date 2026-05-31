@@ -119,7 +119,7 @@ class IntegrationProductMixin(models.AbstractModel):
 
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Product Mappings',
+            'name': _('Product Mappings'),
             'res_model': mapping_ids._name,
             'view_mode': 'list',
             'domain': [('id', 'in', mapping_ids.ids)],

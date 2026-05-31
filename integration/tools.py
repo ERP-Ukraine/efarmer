@@ -3,13 +3,14 @@
 import base64
 import logging
 import hashlib
+import html
 import json
 import io
 import inspect
 import mimetypes
 import os
 import re
-import time
+import traceback
 
 from collections import defaultdict, namedtuple
 from copy import deepcopy
@@ -29,6 +30,7 @@ from psycopg2 import OperationalError
 from PIL import Image, UnidentifiedImageError
 
 from odoo import models, _
+from odoo.exceptions import UserError, ValidationError
 from odoo.service.model import PG_CONCURRENCY_ERRORS_TO_RETRY
 from odoo.tools.image import IMAGE_MAX_RESOLUTION
 from odoo.tools.safe_eval import safe_eval
@@ -186,10 +188,7 @@ def parse_translated_value(value: dict, lang: str):
 
 def not_implemented(method):
     def wrapper(self, *args, **kw):
-        raise NotImplementedError(_(
-            'This functionality is not yet implemented. Please contact our support team (%(support_url)s) or '
-            'your Odoo partner for further details.'
-        ) % 'https://support.ventor.tech/')
+        es.raise_error(err_code='E111')
     return wrapper
 
 
@@ -296,7 +295,7 @@ def escape_trash(value, allowed_chars=None, max_length=None, lowercase=False):
     """
     if allowed_chars:
         # Use a regular expression to match characters not in allowed_chars
-        pattern = r'[^{re.escape(allowed_chars)}]+'
+        pattern = rf'[^{re.escape(allowed_chars)}]+'
     else:
         # If allowed_chars is not provided, replace all non-alphanumeric characters
         pattern = r'[^0-9a-zA-Z]+'
@@ -814,7 +813,11 @@ class Adapter:
 
 
 class AdapterHub:
-
+    """
+    Thread-unsafe by design. Assumes multi-process concurrency model where each
+    process has independent class variable storage. Process isolation via
+    os.getpid() in key prevents cross-process key collisions.
+    """
     _adapter_hub = dict()
 
     @staticmethod
@@ -940,7 +943,7 @@ class PriceList:
         for item_id, ext_item_id in self.result:
             if not ext_item_id:
                 continue
-            self._drop_legasy(item_id)
+            self._drop_legacy(item_id)
             vals = {
                 'item_id': item_id,
                 'external_item_id': ext_item_id,
@@ -960,7 +963,7 @@ class PriceList:
         records = self.proxy_cls.search(domain)
         return records.unlink()
 
-    def _drop_legasy(self, item_id):
+    def _drop_legacy(self, item_id):
         # Drop records relates to certain `item_id`
         domain = self._default_domain()
         domain.append(('item_id', '=', item_id))
@@ -1002,7 +1005,7 @@ class ProductTuple(PTuple):
         return f'{name}  [Code: {self.format_id}, Sku: {self.ref or False}]'
 
     @property
-    def format_sipmle_name(self):
+    def format_simple_name(self):
         return f'{self.name or False}  [Code: {self.id}, Sku: {self.ref or False}]'
 
 
@@ -1203,6 +1206,11 @@ class PickingLine(PLine):
     """
     Class for assisting in serializing single stock.move
     during export to an e-commerce API system.
+
+    `qty_demand` is the parent sale.order.line `qty_delivered`
+    (already collapsed in the kit case), `qty_done` is the move-level
+    "what physically moved" quantity. The two diverge for kit components,
+    which is why `get_qty()` picks one or the other based on context.
     """
 
     @property
@@ -1210,6 +1218,9 @@ class PickingLine(PLine):
         return self.qty_demand == self.get_qty()
 
     def get_qty(self):
+        # For kit components in the tracking-export flow we report the parent
+        # SKU's quantity, not the component count -- the external system only
+        # knows the parent. Outside that case, the move's own qty is correct.
         if self.is_kit and self.multi_serialization:
             return self.qty_demand
         return self.qty_done
@@ -1519,7 +1530,7 @@ class HtmlWrapper:
         for record, value in dct_.items():
             pattern = self.adapter._get_url_pattern(wrap_li=False)
             args = self.adapter._prepare_url_args(record)
-            link = pattern % (*args[:-1], record.format_sipmle_name)
+            link = pattern % (*args[:-1], record.format_simple_name)
             format_string += f'<li>{link}<ul>{self._wrap_external_product_list(value)}</ul></li>'
         return format_string
 
@@ -1585,40 +1596,12 @@ class HtmlWrapper:
 
     def _build_internal_link(self, id_, model_, name):
         pattern = self._internal_pattern()
-        return pattern % (self.base_url, id_, model_, name)
-
-
-class MeasureTime:
-    def __init__(self, description=None):
-        self.description = description
-
-        # Set up a dedicated logger for the execution time
-        self.logger = logging.getLogger('execution_time_logger')
-        self.logger.setLevel(logging.INFO)
-
-        # Make sure we don't propagate to root logger or any other logger
-        self.logger.propagate = False
-
-        # Create a file handler to log to a specific file
-        file_handler = logging.FileHandler('/tmp/execution_times.log')
-        file_handler.setFormatter(logging.Formatter('%(message)s'))
-
-        # Clear existing handlers and add the new file handler
-        self.logger.handlers = []
-        self.logger.addHandler(file_handler)
-
-    def __enter__(self):
-        self.start = time.time()
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.end = time.time()
-        self.interval = self.end - self.start
-        if self.description:
-            self.logger.info(
-                f'[{self.description}] Code block executed in: {self.interval:.4f} seconds')
-        else:
-            self.logger.info(f'Code block executed in: {self.interval:.4f} seconds')
+        return pattern % (
+            html.escape(str(self.base_url), quote=True),
+            html.escape(str(id_), quote=True),
+            html.escape(str(model_), quote=True),
+            html.escape(str(name), quote=True),
+        )
 
 
 class MergeableDict:
@@ -1737,16 +1720,92 @@ class ExtractNode:
         return cls(key_string, return_type, raise_error)(lambda: json_data)()
 
 
+# Standard Python builtins that Odoo's `safe_eval` does not expose by default but
+# are frequently useful in field-mapping preprocessing scripts. Injected into the
+# script execution context alongside caller-provided variables.
+SCRIPT_EXTRA_BUILTINS = {
+    'next': next,
+    'iter': iter,
+    'reversed': reversed,
+    'type': type,
+    'hasattr': hasattr,
+    'getattr': getattr,
+    'format': format,
+    'frozenset': frozenset,
+    'slice': slice,
+}
+
+
+def _format_script_error(exc: Exception, script: str) -> str:
+    """Extract a human-friendly error message with source line from a safe_eval failure.
+
+    When safe_eval wraps the original exception, the real traceback (with line
+    numbers inside the compiled script) is attached as ``__context__``.  We walk
+    the chained traceback to find the frame that executed the script code and
+    return an error string like::
+
+        Line 23: raise Exception('boom')
+        Exception: boom
+    """
+    # Walk the exception chain to find the innermost (original) exception.
+    original = exc
+    while original.__context__ is not None:
+        original = original.__context__
+
+    # Try to locate the script frame in the original traceback.
+    script_lines = script.strip().splitlines()
+    lineno = None
+    if original.__traceback__ is not None:
+        for frame_summary in traceback.extract_tb(original.__traceback__):
+            # safe_eval compiles with filename="" (or the filename kwarg);
+            # script frames have an empty or "<preprocessing_script>" filename.
+            if frame_summary.filename in ('', '<preprocessing_script>'):
+                lineno = frame_summary.lineno
+                break
+
+    parts = []
+    if lineno is not None and 1 <= lineno <= len(script_lines):
+        # Show a few surrounding lines for context.
+        start = max(lineno - 2, 1)
+        end = min(lineno + 2, len(script_lines))
+        parts.append('Script error near line %d:' % lineno)
+        parts.append('')
+        # Right-align line numbers so the ">>" marker and the colons line up
+        # regardless of how many digits the surrounding line numbers have.
+        width = len(str(end))
+        for i in range(start, end + 1):
+            marker = '>>' if i == lineno else '  '
+            parts.append('%s %*d: %s' % (marker, width, i, script_lines[i - 1]))
+        parts.append('')
+    else:
+        parts.append('Script error:')
+        parts.append('')
+
+    parts.append('%s: %s' % (type(original).__name__, original))
+    return '\n'.join(parts)
+
+
 def run_preprocessing_script(script: str, context: dict, raise_error: bool = False) -> str:
     """
     Executes the preprocessing script in a controlled environment.
     """
+    context = {**SCRIPT_EXTRA_BUILTINS, **context}
     try:
-        safe_eval(script.strip(), context=context, mode='exec')
-    except Exception as e:
+        safe_eval(
+            script.strip(),
+            context=context,
+            mode='exec',
+            filename='<preprocessing_script>',
+        )
+    except (UserError, ValidationError):
         if raise_error:
             raise
-        _logger.warning('Preprocess script execution failed: %s', e)
+        _logger.warning('Preprocess script execution failed:', exc_info=True)
+        return ''
+    except Exception as e:
+        if raise_error:
+            raise ValueError(_format_script_error(e, script)) from e
+        _logger.warning('Preprocess script execution failed:\n%s', _format_script_error(e, script))
         return ''
 
     try:

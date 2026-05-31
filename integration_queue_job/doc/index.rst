@@ -40,6 +40,9 @@ You can postpone method calls to be executed asynchronously:
 
 Release Notes
 -------------
+* 1.0.5 (2026-05-21)
+    - Fixed job runner retry loop on HTTP 429 responses by postponing rate-limited jobs according to Retry-After.
+
 * 1.0.4 (2026-13-02)
     - Added automatic requeuing of stuck jobs (5 min enqueued, 15 min started).
 

@@ -10,6 +10,15 @@ Having trouble or want to explore detailed documentation? Visit our support port
 Release Notes
 -------------
 
+* 2.1.4 (2026-05-27)
+    - [IMP] Added "Auto-Link" button for attribute values, allowing users to quickly map external attribute values to existing Odoo attribute values — particularly useful when working with custom attribute mappings.
+    - [IMP] Improved VIES VAT validation handling when the service is temporarily unavailable or overloaded. The connector now automatically retries the request up to 3 times before proceeding — and if the service remains unavailable, the order is imported successfully with a note added to the contact's chatter to flag the unvalidated VAT number.
+    - [FIX] Fixed an issue where product export used incorrect company context in multi-company setups. When a product was shared between multiple companies, the connector could export data (such as taxes and cost price) from the wrong company instead of the one associated with the integration, resulting in incorrect values being sent to the e-commerce store.
+    - [FIX] Fixed an issue where external records created during product export were assigned the name "False" instead of the actual product name from the e-commerce store. This occurred when the connector detected an existing matching product and switched to import mode — the product name is now correctly retrieved and stored on the external record.
+    - [FIX] Fixed an issue where product webhooks did not respect the product import filters configured in the integration settings (e.g. "import active products only"). Products received via webhooks are now validated against the same filters as the regular import process, preventing unwanted products from being created in Odoo.
+    - [FIX] Fixed an issue where product export failed with a "Duplicate internal reference" error in multi-company setups when two companies had products with the same SKU. The connector now correctly scopes the duplicate SKU check to the integration's company, allowing products with identical SKUs across different companies to be exported without conflict.
+    - [FIX] Other improvements and fixes implemented to boost overall performance, stability, and reliability.
+
 * 2.1.3 (2026-04-08)
     - [IMP] The Transaction Date imported from the e-commerce store is now used as the Payment Date when creating payments in Odoo, ensuring payment records accurately reflect the original transaction date rather than the date of import.
     - [IMP] The "Allow Multi-Company Inventory Calculation" setting has been removed. Multi-company stock calculation per location is now always enabled automatically with the correct company context applied, simplifying configuration.

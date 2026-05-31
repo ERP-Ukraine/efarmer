@@ -3,12 +3,22 @@
 from odoo import models, fields, _
 from odoo.exceptions import UserError
 
+from ..shopify.resources import (
+    SHOPIFY_TRACKING_COMPANY_SELECTION,
+    normalize_shopify_tracking_company,
+)
+
 
 class DeliveryCarrier(models.Model):
     _inherit = 'delivery.carrier'
 
-    shopify_code = fields.Char(
+    shopify_code = fields.Selection(
+        selection=SHOPIFY_TRACKING_COMPANY_SELECTION,
         string='Shopify Code',
+        help=(
+            'Tracking company name recognized by Shopify. '
+            'See: https://shopify.dev/docs/api/admin-graphql/latest/objects/FulfillmentTrackingInfo'
+        ),
     )
 
     integration_send_tracking_url = fields.Boolean(
@@ -36,8 +46,14 @@ class DeliveryCarrier(models.Model):
 
     def _get_carrier_by_external_name(self, integration: 'models.Model', external_name: str):
         if integration.is_integration_shopify:
-            return self.env['delivery.carrier'].search([
-                ('shopify_code', '=ilike', external_name),
-            ], limit=1)
+            shopify_code = normalize_shopify_tracking_company(external_name)
+
+            if shopify_code:
+                carrier = self.env['delivery.carrier'].search([
+                    ('shopify_code', '=', shopify_code),
+                ], limit=1)
+
+                if carrier:
+                    return carrier
 
         return super(DeliveryCarrier, self)._get_carrier_by_external_name(integration, external_name)

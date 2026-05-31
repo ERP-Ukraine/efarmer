@@ -2,6 +2,7 @@
 
 from odoo.tests import TransactionCase, tagged
 
+from .config.integration_init import OdooIntegrationInit
 from ..tools import PickingLine, PickingSerializer, SaleTransferSerializer
 
 
@@ -378,3 +379,137 @@ class TestTransfer(TransactionCase):
 
         self.assertEqual(line3['qty'], 2)
         self.assertEqual(line3['id'], 'external_id3')
+
+
+@tagged('post_install', '-at_install', 'test_integration_core')
+class TestPickingExportFormat(OdooIntegrationInit):
+    """Regression tests for `stock.picking._to_export_format` (RDSE-102).
+
+    When an order contains a kit (phantom BoM) line alongside regular lines,
+    the kit's external line was reported with a stale `qty_demand` borrowed
+    from the last move processed in the aggregation loop, so Shopify saw the
+    kit as under-fulfilled.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # Cache the kit fixture across tests — it does not depend on any
+        # per-test records, so it is safe to create once at class level.
+        cls.component = cls.env['product.product'].create({
+            'name': 'Kit Component',
+            'type': 'consu',
+            'is_storable': True,
+        })
+        cls.kit_product = cls.env['product.product'].create({
+            'name': 'Kit Parent',
+            'type': 'consu',
+            'is_storable': True,
+            'default_code': 'KIT_RDSE102',
+        })
+        # Phantom BoM: 1 kit = 2 components.
+        cls.env['mrp.bom'].create({
+            'product_tmpl_id': cls.kit_product.product_tmpl_id.id,
+            'type': 'phantom',
+            'product_qty': 1,
+            'bom_line_ids': [
+                (0, 0, {'product_id': cls.component.id, 'product_qty': 2}),
+            ],
+        })
+
+    def setUp(self):
+        super().setUp()
+
+        self.warehouse = self.env['stock.warehouse'].search(
+            [('company_id', '=', self.company_id_1.id)], limit=1,
+        )
+        self.stock_location = self.warehouse.lot_stock_id
+        self.partner = self.env.ref('integration.test_main_partner')
+
+        # External mapping for the kit; product_pp_1 / product_pp_2 are already
+        # mapped via OdooIntegrationInit. Must be in setUp because
+        # integration_no_api_1 is re-created per test.
+        kit_external = self._create_external(
+            self.kit_product, self.integration_no_api_1, 'EXT_KIT_RDSE102',
+        )
+        self._create_mapping(
+            self.kit_product, kit_external, self.integration_no_api_1,
+        )
+
+        # Stock so the picking can be validated.
+        for product in (self.component, self.product_pp_1, self.product_pp_2):
+            self.env['stock.quant']._update_available_quantity(
+                product, self.stock_location, 100,
+            )
+
+    def _create_order(self, line_specs):
+        """`line_specs`: list of (product, qty, integration_external_id)."""
+        return self.env['sale.order'].with_company(self.company_id_1).create({
+            'partner_id': self.partner.id,
+            'warehouse_id': self.warehouse.id,
+            'integration_id': self.integration_no_api_1.id,
+            'order_line': [
+                (0, 0, {
+                    'product_id': product.id,
+                    'product_uom_qty': qty,
+                    'price_unit': 10,
+                    'integration_external_id': ext_id,
+                })
+                for product, qty, ext_id in line_specs
+            ],
+        })
+
+    def _confirm_and_validate(self, order):
+        order.action_confirm()
+        self.assertEqual(len(order.picking_ids), 1)
+        picking = order.picking_ids
+        for move in picking.move_ids:
+            move.quantity = move.product_uom_qty
+        picking.button_validate()
+        return picking
+
+    def test_kit_reports_parent_qty_when_followed_by_regular_lines(self):
+        """Kit first, regular lines after.
+
+        Pre-fix this returned qty=1 for 'ext-kit' (the qty_demand leaking from
+        the last regular line) instead of qty=2.
+        """
+        order = self._create_order([
+            (self.kit_product, 2, 'ext-kit'),
+            (self.product_pp_1, 1, 'ext-p1'),
+            (self.product_pp_2, 1, 'ext-p2'),
+        ])
+        picking = self._confirm_and_validate(order)
+
+        serializer = picking._to_export_format(
+            self.integration_no_api_1, multi_serialization=True,
+        )
+        qty_by_ext = {
+            line.external_id: line.get_qty() for line in serializer.approved_lines
+        }
+
+        self.assertEqual(qty_by_ext['ext-kit'], 2)
+        self.assertEqual(qty_by_ext['ext-p1'], 1)
+        self.assertEqual(qty_by_ext['ext-p2'], 1)
+
+    def test_kit_reports_parent_qty_regardless_of_line_order(self):
+        """Same assertion, kit line created last so it is also processed last
+        in the move loop; the fix must hold either way.
+        """
+        order = self._create_order([
+            (self.product_pp_1, 1, 'ext-p1'),
+            (self.product_pp_2, 1, 'ext-p2'),
+            (self.kit_product, 2, 'ext-kit'),
+        ])
+        picking = self._confirm_and_validate(order)
+
+        serializer = picking._to_export_format(
+            self.integration_no_api_1, multi_serialization=True,
+        )
+        qty_by_ext = {
+            line.external_id: line.get_qty() for line in serializer.approved_lines
+        }
+
+        self.assertEqual(qty_by_ext['ext-kit'], 2)
+        self.assertEqual(qty_by_ext['ext-p1'], 1)
+        self.assertEqual(qty_by_ext['ext-p2'], 1)

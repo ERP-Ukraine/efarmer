@@ -58,13 +58,15 @@ def validate_integration_dashboard_args(start_date, end_date, integration_ids):
 
 
 def cached(func):
-
     @wraps(func)
-    def wrapper(self_, *args, **kw):
-        _args = kw.get('start_date'), kw.get('end_date'), kw.get('integration_ids')
-        validate_integration_dashboard_args(*_args)
+    def wrapper(self, *args, **kw):
+        start_date = kw.get('start_date')
+        end_date = kw.get('end_date')
+        integration_ids = kw.get('integration_ids')
 
-        tag = prepare_cache_tag(*_args)
+        validate_integration_dashboard_args(start_date, end_date, integration_ids)
+
+        tag = prepare_cache_tag(start_date, end_date, integration_ids)
         timestamp = get_timestamp_key()
         ttype = request.httprequest.path.rsplit('/', 1)[-1]
 
@@ -74,7 +76,7 @@ def cached(func):
             if cache_data and is_one_hour_timedelta(timestamp, cache_data['timestamp']):
                 return cache_data['data']
 
-        result = func(self_, *_args)
+        result = func(self, start_date, end_date, integration_ids)
 
         request.env['integration.dashboard.cache'].create({
             'tag': tag,

@@ -22,6 +22,10 @@ from .order_transaction_kind import OrderTransactionKind
 from .order_transaction_status import OrderTransactionStatus
 from .fulfillment_order_status import FulfillmentOrderStatus
 from .fulfillment_status import FulfillmentStatus
+from .fulfillment_tracking_info import (
+    SHOPIFY_TRACKING_COMPANY_SELECTION,
+    normalize_shopify_tracking_company,
+)
 from .order_display_financial_status import OrderDisplayFinancialStatus
 from .order_display_fulfillment_status import OrderDisplayFulfillmentStatus
 from .order_return_status import OrderReturnStatus

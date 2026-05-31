@@ -160,6 +160,7 @@ class OrderLineItem(LineItem):
                     'discount_amount': round(alloc_amount * requested_quantity / current_quantity, 4),
                     'discount_amount_tax_incl': 0,
                 })
-            result['discount']['discount_allocations'] = discount_allocations_data
+            if discount_allocations_data:
+                result['discount']['discount_allocations'] = discount_allocations_data
 
         return result

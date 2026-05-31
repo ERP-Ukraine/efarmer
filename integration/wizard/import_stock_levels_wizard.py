@@ -90,7 +90,7 @@ class ImportStockLevelsWizard(models.TransientModel):
             'tag': 'display_notification',
             'params': {
                 'title': _('Import Stock Levels'),
-                'message': 'Queue Jobs "Import Stock Levels" are created',
+                'message': _('Queue Jobs "Import Stock Levels" are created'),
                 'type': 'success',
                 'sticky': False,
             },

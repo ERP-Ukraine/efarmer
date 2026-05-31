@@ -234,9 +234,9 @@ class ShopifyAPIClient(AbsApiClient):
 
         product_ids = [x.product.id_str for x in product_variants]
 
-        # If nothing found, then just return False
+        # If nothing found, then just return None
         if not product_ids:
-            return False
+            return None
 
         # If more than one product id found - then we found references,
         # but they all belong to different products and we need to inform user about it
@@ -257,6 +257,7 @@ class ShopifyAPIClient(AbsApiClient):
 
         # Check if products in Odoo has the same amount of variants as in Shopify
         product = self.gql.Product.get_by_pk(external_product_id)
+        external_product_name = product.title
         variants = product.variants
         # counting expected variants excluding "virtual" variant
         # template_variants_count = len([x for x in variants if x['attribute_values']])
@@ -308,7 +309,10 @@ class ShopifyAPIClient(AbsApiClient):
                     )
                 )
 
-        return external_product_id
+        return {
+            'id': external_product_id,
+            'name': external_product_name,
+        }
 
     def create_webhooks_from_routes(self, routes_dict):
         result = dict()
@@ -334,6 +338,8 @@ class ShopifyAPIClient(AbsApiClient):
 
         external_id = data['gid']
 
+        sale_channels = data['fields'].pop('sale_channels', None)
+
         if external_id:
             product = self._update_product(external_id, data)
         else:
@@ -341,7 +347,24 @@ class ShopifyAPIClient(AbsApiClient):
 
         mappings = product._serialize_to_mappings(data)
 
+        self._update_product_sale_channels(product, sale_channels)
+
         return mappings
+
+    def _update_product_sale_channels(self, product, sale_channels) -> None:
+        if sale_channels is None:
+            return
+
+        desired = set(sale_channels)
+        current = {pub.id_str for pub in product.publications}
+
+        publication_cls = self.gql.Publication
+        product_ids = [product.id_str]
+
+        for pub_to_add in desired - current:
+            publication_cls.set(id=pub_to_add).update(product_ids_to_include=product_ids)
+        for pub_to_remove in current - desired:
+            publication_cls.set(id=pub_to_remove).update(product_ids_to_exclude=product_ids)
 
     def _create_product(self, data: dict) -> dict:
         _logger.info('Shopify "%s": _create_product()', self._integration_name)
@@ -604,7 +627,7 @@ class ShopifyAPIClient(AbsApiClient):
         return collection.id_str
 
     @check_scope('write_products', 'write_inventory')
-    def export_inventory(self, inventory: list):
+    def export_inventory(self, inventory: dict):
         _logger.info('Shopify "%s": export_inventory()', self._integration_name)
 
         result, items_activate_tracked = [], []
@@ -715,7 +738,7 @@ class ShopifyAPIClient(AbsApiClient):
             lines_data = []
 
             if force_done:
-                lines_data = fulfill_order._prepare_fulfillment_lines_data(),
+                lines_data = fulfill_order._prepare_fulfillment_lines_data()
             else:
                 for line in picking_data['lines']:
                     data = fulfill_order._prepare_fulfillment_single_line_data(line['id'], line['qty'])

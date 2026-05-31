@@ -7,7 +7,7 @@ class ECommerceProductCategory(models.Model):
     _name = 'ecommerce.product.category'
     _inherit = ['ecommerce.product.category', 'integration.model.mixin']
 
-    def to_export_format(self, integration):
+    def to_export_format(self, integration: 'models.Model'):
         self.ensure_one()
 
         if integration.is_integration_shopify:

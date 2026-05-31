@@ -49,6 +49,9 @@ def update_shopify_graphql_class():
             continue
 
         cls = getattr(resources, name)
+        if not isinstance(cls, type):
+            # Skip module-level constants (e.g. SHOPIFY_TRACKING_COMPANY_SELECTION)
+            continue
 
         try:
             if hasattr(cls, '_gid_name') or issubclass(cls, GQLEnum):

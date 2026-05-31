@@ -108,21 +108,9 @@ class IntegrationAuthAbstract(models.AbstractModel):
             'error_traceback': False,
         })
 
-        try:
-            self.test_connection()
-            return self.open_form()
-        except Exception as e:
-            # Store error information
-            error_msg = str(e)
-            error_tb = traceback.format_exc()
-
-            self.write({
-                'error_message': error_msg,
-                'error_traceback': error_tb,
-            })
-
-            # Return to the same form to show the error
-            return self.open_form()
+        # catch errors inside test_connection method
+        self.test_connection()
+        return self.open_form()
 
     def check_access_permissions(self):
         """

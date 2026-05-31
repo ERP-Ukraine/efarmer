@@ -31,11 +31,6 @@ class SaleOrderPaymentMethod(models.Model):
         # Delete all external payment methods also
         if not self.env.context.get('skip_other_delete', False):
             payment_mapping_model = self.env['integration.sale.order.payment.method.mapping']
-            for odoo_payment_method in self:
-                payment_method_mappings = payment_mapping_model.search([
-                    ('payment_method_id', '=', odoo_payment_method.id)
-                ])
-                for mapping in payment_method_mappings:
-                    mapping.external_payment_method_id.\
-                        with_context(skip_other_delete=True).unlink()
+            mappings = payment_mapping_model.search([('payment_method_id', 'in', self.ids)])
+            mappings.mapped('external_payment_method_id').with_context(skip_other_delete=True).unlink()
         return super(SaleOrderPaymentMethod, self).unlink()

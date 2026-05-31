@@ -40,7 +40,6 @@ class SaleIntegrationFile(models.Model):
         string='E-Commerce Store',
         required=True,
         ondelete='cascade',
-        readonly=True,
     )
     file = fields.Binary(
         string='File',
@@ -161,17 +160,15 @@ class SaleIntegrationInputFile(models.Model):
     @api.depends('raw_data')
     def _compute_order_reference(self):
         for input_file in self:
-            order_reference = input_file._get_external_reference() if self.si_id else ''
+            order_reference = input_file._get_external_reference() if input_file.si_id else ''
             input_file.order_reference = order_reference
 
     @api.depends('file', 'raw_data')
     def _compute_display_data(self):
         for input_file in self:
             try:
-                input_file.display_data = json.dumps(
-                    input_file.with_context(bin_size=False).to_dict(),
-                    indent=4,
-                )
+                data = input_file.with_context(bin_size=False).to_dict()
+                input_file.display_data = json.dumps(data or {}, indent=4)
             except json.decoder.JSONDecodeError:
                 input_file.display_data = '{}'
 
@@ -202,12 +199,16 @@ class SaleIntegrationInputFile(models.Model):
     def to_dict(self):
         self.ensure_one()
 
-        if self.raw_data:
-            json_str = self.raw_data
-        else:
-            json_str = base64.b64decode(self.file)
+        if self.raw_data and self.raw_data.strip():
+            return json.loads(self.raw_data)
 
-        return json.loads(json_str)
+        if self.file:
+            decoded = base64.b64decode(self.file)
+            if not decoded:
+                return {}
+            return json.loads(decoded)
+
+        return {}
 
     def print_parsed_data(self):
         self.ensure_one()
@@ -250,7 +251,14 @@ class SaleIntegrationInputFile(models.Model):
                     'If the issue persists, contact support: https://support.ventor.tech/'
                 ))
 
-        data = self.si_id.adapter.parse_order(self.to_dict())
+        payload = self.to_dict()
+        if not payload or not isinstance(payload, dict):
+            raise ValidationError(_(
+                'The order data contains invalid format.\n\n'
+                'Please ensure the file has the correct format and try again.'
+            ))
+
+        data = self.si_id.adapter.parse_order(payload)
         data['related_input_files'] = [(6, 0, self.ids)]
 
         return data
@@ -351,12 +359,12 @@ class SaleIntegrationInputFile(models.Model):
     def update_current_pipeline(self):
         self.ensure_one()
 
-        pipiline = self.order_id.integration_pipeline
-        if not pipiline:
+        pipeline = self.order_id.integration_pipeline
+        if not pipeline:
             return {}
 
         data = self.parse()
-        pipiline._update_pipeline(
+        pipeline._update_pipeline(
             workflow_states=data.get('integration_workflow_states', []),
             payment_method_code=data.get('payment_method'),
         )
@@ -384,7 +392,7 @@ class SaleIntegrationInputFile(models.Model):
 
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Jobs History',
+            'name': _('Jobs History'),
             'res_model': 'queue.job',
             'view_mode': 'list,form',
             'view_ids': view_ids,

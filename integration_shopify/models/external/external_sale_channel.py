@@ -10,7 +10,7 @@ NO_CHANNEL_EXTERNAL_ID = 'no_channel'
 
 class ExternalSaleChannel(models.Model):
     _name = 'external.sale.channel'
-    _description = 'Sale Channel'
+    _description = 'Sales Channel'
 
     _external_id_uniq = models.Constraint(
         'unique (integration_id, external_id)',

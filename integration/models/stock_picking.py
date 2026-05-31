@@ -101,6 +101,18 @@ class StockPicking(models.Model):
         return job
 
     def _to_export_format(self, integration, multi_serialization=False):
+        """Build a `PickingSerializer` describing this picking for the e-commerce side.
+
+        Stock moves are aggregated by the external sale.order.line id they map to.
+        Kit components (moves with `bom_line_id` set) are collapsed back to the
+        parent product's quantity so the external system, which only knows about
+        the parent SKU, receives a coherent number.
+
+        `multi_serialization` toggles the semantics of the reported "done" qty:
+        - True  -> tracking-export flow: use the parent's `qty_delivered`.
+        - False -> single picking-export flow: fulfill the full ordered qty
+                   (`product_uom_qty`) for the kit.
+        """
         self.ensure_one()
 
         serialized_moves = {}
@@ -118,7 +130,9 @@ class StockPicking(models.Model):
                 continue
 
             related_sale_lines = sale_line._get_related_order_lines()
-            qty_demand = int(sum(related_sale_lines.mapped('qty_delivered')))
+            # `round` before `int` so a float-precision sum like 1.9999999 is not
+            # silently truncated to 1.
+            qty_demand = int(round(sum(related_sale_lines.mapped('qty_delivered'))))
 
             qty_done = int(move.quantity)
             is_kit = getattr(move, 'bom_line_id', False)
@@ -128,10 +142,11 @@ class StockPicking(models.Model):
                     qty_done = qty_demand
                 else:
                     # Fulfill all quantities of the kit
-                    qty_done = int(sum(related_sale_lines.mapped('product_uom_qty')))
+                    qty_done = int(round(sum(related_sale_lines.mapped('product_uom_qty'))))
 
             if external_so_line_id not in serialized_moves:
                 serialized_moves[external_so_line_id] = {
+                    'qty_demand': qty_demand,
                     'qty_done': qty_done,
                     'is_kit': is_kit,
                 }
@@ -148,7 +163,7 @@ class StockPicking(models.Model):
         for external_so_line_id, move_data in serialized_moves.items():
             picking_line = PickingLine(
                 external_so_line_id,
-                qty_demand,
+                move_data['qty_demand'],
                 move_data['qty_done'],
                 move_data['is_kit'],
                 multi_serialization=multi_serialization,
@@ -171,7 +186,10 @@ class StockPicking(models.Model):
         }
         return PickingSerializer(data=_args, lines=serialized_lines)
 
-    def to_export_format(self, integration):
+    def to_export_format(self, integration: 'models.Model'):
+        """Serialize a single picking for the per-picking export flow
+        (e.g. fulfilling a kit entirely on first dispatch).
+        """
         picking_serializer = self._to_export_format(integration)
         data = picking_serializer.serialize()
 
@@ -181,6 +199,13 @@ class StockPicking(models.Model):
         return data
 
     def to_export_format_multi(self, integration):
+        """Serialize a set of pickings for the tracking-export flow.
+
+        Each picking is serialized with `multi_serialization=True`, then
+        `SaleTransferSerializer.squash()` consolidates duplicate lines that
+        appear across backorders/dropships so the external system sees each
+        sale.order.line at most once.
+        """
         tracking_data_list = list()
 
         for rec in self:

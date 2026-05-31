@@ -2,7 +2,7 @@
 
 import base64
 
-from odoo import api, models, fields
+from odoo import api, models, fields, _
 
 from ..tools import safe_json_dumps
 
@@ -55,7 +55,7 @@ class MessageWizard(models.TransientModel):
 
         return {
             'type': 'ir.actions.act_window',
-            'name': 'INFO',
+            'name': _('INFO'),
             'res_model': self._name,
             'res_id': self.id,
             'view_mode': 'form',
@@ -73,7 +73,7 @@ class MessageWizard(models.TransientModel):
         )
         params = {
             'type': 'ir.actions.act_window',
-            'name': 'INFO',
+            'name': _('INFO'),
             'res_model': 'integration.product.template.mapping',
             'view_mode': 'list',
             'view_id': view.id,

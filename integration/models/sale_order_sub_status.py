@@ -32,10 +32,6 @@ class SaleOrderSubStatus(models.Model):
         # Delete all external statuses also
         if not self.env.context.get('skip_other_delete', False):
             sub_status_mapping_model = self.env['integration.sale.order.sub.status.mapping']
-            for odoo_status in self:
-                sub_statuses_mappings = sub_status_mapping_model.search([
-                    ('odoo_id', '=', odoo_status.id)
-                ])
-                for mapping in sub_statuses_mappings:
-                    mapping.external_id.with_context(skip_other_delete=True).unlink()
+            mappings = sub_status_mapping_model.search([('odoo_id', 'in', self.ids)])
+            mappings.mapped('external_id').with_context(skip_other_delete=True).unlink()
         return super(SaleOrderSubStatus, self).unlink()

@@ -13,7 +13,7 @@ class IntegrationSaleOrderMapping(models.Model):
     odoo_id = fields.Many2one(
         string='Odoo Sale Order',
         comodel_name='sale.order',
-        ondelete='cascade',
+        ondelete='set null',
     )
 
     external_id = fields.Many2one(

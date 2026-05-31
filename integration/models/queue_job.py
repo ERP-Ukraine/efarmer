@@ -45,6 +45,7 @@ class QueueJob(models.Model):
     integration_id = fields.Many2one(
         comodel_name='sale.integration',
         string='E-Commerce Store',
+        ondelete='cascade',
     )
 
     integration_job_type = fields.Selection(
@@ -293,6 +294,7 @@ class QueueJob(models.Model):
             job.integration_external_id = external_id
             job.integration_odoo_id = odoo_id
 
+    @api.depends('integration_exception_name', 'integration_id', 'integration_odoo_id', 'integration_external_id')
     def _compute_names(self):
         for job in self:
             external_name = None
@@ -463,7 +465,7 @@ class QueueJob(models.Model):
     def action_open_lite_info(self):
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Job Info',
+            'name': _('Job Info'),
             'res_model': self._name,
             'view_mode': 'form',
             'view_id': self.env.ref('integration.view_queue_job_lite_info_form').id,

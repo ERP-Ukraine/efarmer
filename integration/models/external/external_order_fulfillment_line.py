@@ -1,6 +1,6 @@
 # See LICENSE file for full copyright and licensing details.
 
-from odoo import models, fields
+from odoo import api, models, fields
 
 
 class ExternalOrderFulfillmentLine(models.Model):
@@ -34,6 +34,7 @@ class ExternalOrderFulfillmentLine(models.Model):
         help='Parent fulfillment record',
     )
 
+    @api.depends('external_reference', 'quantity')
     def _compute_display_name(self):
         """Generate a user-friendly display name for the fulfillment line"""
         for rec in self:

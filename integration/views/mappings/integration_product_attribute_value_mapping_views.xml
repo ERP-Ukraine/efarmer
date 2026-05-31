@@ -12,6 +12,13 @@
                     <field name="attribute_id" column_invisible="1"/>  <!-- Required because it is used in the fields domains in the model -->
                     <field name="external_attribute_value_id" domain="[('integration_id', '=', integration_id)]"/>
                     <field name="attribute_value_id" domain="[('attribute_id', '=', attribute_id)]"/>
+                    <button type="object"
+                            name="run_auto_link"
+                            string="Auto-Link"
+                            title="Find an existing Odoo attribute value with the same name (within the parent attribute) and link this mapping to it"
+                            icon="fa-link"
+                            class="btn-outline-primary"
+                            invisible="attribute_value_id"/>
                 </list>
             </field>
         </record>
@@ -48,6 +55,16 @@
             <field name="group_ids" eval="[(4, ref('base.group_no_one'))]"/>
             <field name="state">code</field>
             <field name="code">action = records.show_unmapped_object()</field>
+        </record>
+
+        <record id="integration_product_attribute_value_mapping_action_auto_link" model="ir.actions.server">
+            <field name="name">Auto-Link</field>
+            <field name="model_id" ref="integration.model_integration_product_attribute_value_mapping"/>
+            <field name="binding_model_id" ref="integration.model_integration_product_attribute_value_mapping"/>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="sequence">1</field>
+            <field name="code">action = records.run_auto_link()</field>
         </record>
 
     </data>

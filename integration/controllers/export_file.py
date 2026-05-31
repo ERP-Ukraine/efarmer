@@ -1,6 +1,7 @@
 # See LICENSE file for full copyright and licensing details.
 
 import base64
+import binascii
 
 from odoo import _
 from odoo.http import Controller, route, request, content_disposition
@@ -46,20 +47,10 @@ class ExportFile(Controller):
         if not file_content:
             return request.not_found(_('No %s content available for this record.') % extension)
 
-        # Decode base64 for Binary fields (like PDF)
-        if file_config.get('needs_decode'):
+        if file_config.get('needs_decode') and isinstance(file_content, str):
             try:
-                # Binary fields store base64-encoded strings, decode to get actual bytes
-                if isinstance(file_content, str):
-                    file_content = base64.b64decode(file_content)
-                elif isinstance(file_content, bytes):
-                    # If it's already bytes, it might be double-encoded, try decoding anyway
-                    try:
-                        file_content = base64.b64decode(file_content)
-                    except Exception:
-                        # If decoding fails, assume it's already raw bytes
-                        pass
-            except (TypeError, ValueError) as e:
+                file_content = base64.b64decode(file_content)
+            except (binascii.Error, ValueError, TypeError) as e:
                 return request.not_found(_('Invalid export %s data: %s') % (extension, str(e)))
 
         content_length = len(file_content)

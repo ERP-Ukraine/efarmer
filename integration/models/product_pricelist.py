@@ -79,29 +79,24 @@ class ProductPricelist(models.Model):
                 ('pricelist_id', 'in', active_pricelist_ids),
             ])
 
-            # Skip previously imported items.
-            # Newly created items (create_date == write_date) that already have an external
-            # mapping record were imported from the external system, not created locally, so
-            # we must not re-export them.
-            integration_id = integration.id
-            newly_created_ids = [
-                rec.id for rec in all_item_ids if rec.create_date == rec.write_date
-            ]
+            # Skip previously imported items
+            current_integration_id = integration.id
+            cursor = self.env.cr
 
-            already_mapped_ids = set()
-            if newly_created_ids:
-                self.env.cr.execute("""
-                    SELECT item_id
-                    FROM integration_product_pricelist_item_external
-                    WHERE integration_id = %s
-                      AND item_id = ANY(%s)
-                """, (integration_id, newly_created_ids))
-                already_mapped_ids = {row[0] for row in self.env.cr.fetchall()}
-
-            item_ids = all_item_ids.filtered(
-                lambda rec: rec.id not in already_mapped_ids
-                or rec.create_date != rec.write_date
+            newly_created = all_item_ids.filtered(
+                lambda r: r.create_date == r.write_date
             )
+
+            if newly_created:
+                cursor.execute("""
+                    SELECT item_id FROM integration_product_pricelist_item_external
+                    WHERE integration_id = %s AND item_id IN %s
+                """, (current_integration_id, tuple(newly_created.ids)))
+                imported_ids = {row[0] for row in cursor.fetchall()}
+            else:
+                imported_ids = set()
+
+            item_ids = all_item_ids - newly_created.browse(imported_ids)
 
             if not item_ids:
                 # If not any changed items, try to find at least one product template
@@ -116,7 +111,7 @@ class ProductPricelist(models.Model):
                         AND p.exclude_from_synchronization = false
                 """
 
-                self.env.cr.execute(query, (integration_id,))
+                self.env.cr.execute(query, (current_integration_id,))
                 select = self.env.cr.fetchone()
                 force_sync_pricelist = select and select[0]
 
@@ -152,6 +147,28 @@ class ProductPricelist(models.Model):
             return self._return_display_notification(message)
 
         return self._return_display_notification()
+
+    def _get_applicable_rules_domain(self, products, date, **kwargs):
+        if not self.env.context.get('skip_pricelist_date_validation'):
+            return super(ProductPricelist, self)._get_applicable_rules_domain(products, date, **kwargs)
+
+        # All the code below is the implementation of the super method
+        # The only change was made -- remove date_start from domain to send pricelist if date_start > today
+        self and self.ensure_one()
+        if products._name == 'product.template':
+            templates_domain = ('product_tmpl_id', 'in', products.ids)
+            products_domain = ('product_id.product_tmpl_id', 'in', products.ids)
+        else:
+            templates_domain = ('product_tmpl_id', 'in', products.product_tmpl_id.ids)
+            products_domain = ('product_id', 'in', products.ids)
+
+        return [
+            ('pricelist_id', '=', self.id),
+            '|', ('categ_id', '=', False), ('categ_id', 'parent_of', products.categ_id.ids),
+            '|', ('product_tmpl_id', '=', False), templates_domain,
+            '|', ('product_id', '=', False), products_domain,
+            '|', ('date_end', '=', False), ('date_end', '>=', date),
+        ]
 
     def _create_integration_items(self, integration, key_tuple, item_list):
         template_external_id, variant_external_id = key_tuple
@@ -387,7 +404,7 @@ class ProductPricelistItem(models.Model):
                 }
                 integration.with_context(**context).with_delay(**job_kwargs).export_template(template)
 
-    def to_export_format(self, integration, res_model, raise_error=False):
+    def to_export_format(self, integration: 'models.Model', res_model, raise_error=False):
         is_valid, error = self._validate_for_integration_export()
 
         if not is_valid:
@@ -473,13 +490,16 @@ class ProductPricelistItem(models.Model):
             template = self._get_applied_on_template()
             if not template:
                 return False
-            condition = f'id = {template.id}'
+            condition = 'id = %s'
+            params = (template.id,)
         elif self.applied_on == '2_product_category':
             if not self.categ_id:
                 return False
-            condition = f'categ_id = {self.categ_id.id}'
+            condition = 'categ_id = %s'
+            params = (self.categ_id.id,)
         elif self.applied_on == '3_global':
             condition = ''
+            params = ()
         else:
             return False
 
@@ -487,7 +507,7 @@ class ProductPricelistItem(models.Model):
         if condition:
             query = f'{query} WHERE {condition}'
 
-        self.env.cr.execute(query)
+        self.env.cr.execute(query, params)
 
         return True
 

@@ -30,7 +30,7 @@ class IntegrationProductAttributeValueExternal(models.Model):
     def _fix_unmapped(self, adapter_external_data):
         self._fix_unmapped_element(self.integration_id, 'attribute')
 
-        # After importing new feature values, we need to re-check all mapped features
+        # After importing new attribute values, we need to re-check all mapped attributes
         # to make sure that there is no new unmapped values for them
         self._fix_unmapped_element_values(self.integration_id, 'attribute')
 

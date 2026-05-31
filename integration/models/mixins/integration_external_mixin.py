@@ -138,6 +138,8 @@ class IntegrationExternalMixin(models.AbstractModel):
 
     @property
     def mapping_record(self):
+        if self.mapping_model is None:
+            return self.env['integration.mapping.mixin'].browse()
         return self.mapping_model._search_mapping_from_external(
             self.integration_id,
             self,
@@ -174,7 +176,7 @@ class IntegrationExternalMixin(models.AbstractModel):
         :odoo_id:
             - None - just create mapping-record if not exists
             - False - create mapping-record if not exists, or unmap Odoo ID
-            - int - cretae or update mapping-record + update Odoo ID
+            - int - create or update mapping-record + update Odoo ID
         """
         self.ensure_one()
 
@@ -207,6 +209,7 @@ class IntegrationExternalMixin(models.AbstractModel):
             return record
         return self.create(vals)
 
+    @api.depends('name', 'code', 'external_reference')
     def _compute_display_name(self):
         for rec in self:
             value = f'(ID: {rec.code})'
@@ -300,7 +303,7 @@ class IntegrationExternalMixin(models.AbstractModel):
         return self.odoo_record
 
     def _fix_unmapped(self, adapter_external_data):
-        # Method that should be overriden in needed external models
+        # Method that should be overridden in needed external models
         pass
 
     def action_open_mapping(self):
@@ -350,7 +353,6 @@ class IntegrationExternalMixin(models.AbstractModel):
 
         return external
 
-    @api.model
     def get_original_name(self, value, integration=None):
         integration = integration or self.integration_id
         translations = self.env['integration.res.lang.mapping'] \
@@ -428,7 +430,12 @@ class IntegrationExternalMixin(models.AbstractModel):
         ElementValueMapping = self.env[f'integration.product.{element}.value.mapping']
         ExternalElement = self.env[f'integration.product.{element}.external']
         MappingElement = self.env[f'integration.product.{element}.mapping']
-        ElementValue = self.env[f'product.{element}.value']
+        # Bind the integration language so name comparisons run against the
+        # translation values were stored under at import time. Without this,
+        # the search uses the runtime user's language and silently misses
+        # matches in multi-language setups.
+        ElementValue = self.env[f'product.{element}.value'] \
+            .with_context(lang=integration.get_integration_lang_code())
 
         external_values = getattr(integration.adapter, f'get_{element}_values')()
 
@@ -500,7 +507,9 @@ class IntegrationExternalMixin(models.AbstractModel):
 
         ElementValueMapping = self.env[f'integration.product.{element}.value.mapping']
         ElementMapping = self.env[f'integration.product.{element}.mapping']
-        ElementValue = self.env[f'product.{element}.value']
+        # See _fix_unmapped_element for the rationale on binding the integration language.
+        ElementValue = self.env[f'product.{element}.value'] \
+            .with_context(lang=integration.get_integration_lang_code())
 
         # 1. Find all mapped "Product Attribute/Feature Mapping"
         mapped_elements = ElementMapping.search([
@@ -537,7 +546,7 @@ class IntegrationExternalMixin(models.AbstractModel):
                     sequence_value = getattr(mapped_element, f'{element}_id')._get_next_sequence()
 
                     element_value = self.create_or_update_with_translations(
-                        self.integration_id.id,
+                        integration.id,
                         ElementValue,
                         {
                             'name': name,

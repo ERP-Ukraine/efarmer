@@ -9,6 +9,13 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='technical_name']" position="after">
                     <field name="is_shopify_metafield" string="Metafield" widget="boolean_toggle" invisible="type_api != 'shopify'" readonly="is_default"/>
+                    <div class="row mx-0" colspan="2" invisible="not is_shopify_metafield">
+                        <div class="alert alert-warning" role="alert">
+                            <p class="mb-0">
+                                If you have enabled this checkbox, please be careful, you may need a custom script for the mapping to work properly.
+                            </p>
+                        </div>
+                    </div>
                     <field name="shopify_metafield_type" string="Metafield Type" invisible="type_api != 'shopify' or not is_shopify_metafield" required="is_shopify_metafield" readonly="is_default"/>
                     <field name="translation_key" string="Translation Key" groups="base.group_no_one" invisible="type_api != 'shopify'" readonly="is_default"/>
                 </xpath>

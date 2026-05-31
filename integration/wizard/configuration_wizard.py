@@ -136,7 +136,7 @@ class QuickConfiguration(models.AbstractModel):
 
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Quick Configuration',
+            'name': _('Quick Configuration'),
             'view_mode': 'form',
             'view_id': view.id,
             'res_model': self._name,

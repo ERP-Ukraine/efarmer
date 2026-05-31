@@ -30,7 +30,7 @@
         </record>
 
         <record id="external_sale_channel_action" model="ir.actions.act_window">
-            <field name="name">External Sale Channel</field>
+            <field name="name">External Sales Channel</field>
             <field name="path">eci-external-sale-channels</field>
             <field name="res_model">external.sale.channel</field>
             <field name="view_mode">list</field>

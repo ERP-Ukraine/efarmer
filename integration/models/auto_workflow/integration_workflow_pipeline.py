@@ -2,7 +2,7 @@
 
 import logging
 
-from odoo import models, fields, _
+from odoo import api, models, fields, _
 from odoo.exceptions import UserError, ValidationError
 
 from ...tools import raise_requeue_job_on_concurrent_update
@@ -68,6 +68,7 @@ class IntegrationWorkflowPipelineLine(models.Model):
         related='pipeline_id.skip_dispatch',
     )
 
+    @api.depends('current_step_method')
     def _compute_name(self):
         for rec in self:
             method_name = rec.current_step_method
@@ -219,7 +220,7 @@ class IntegrationWorkflowPipelineLine(models.Model):
         return {
             'priority': 9,
             'channel': self.env.ref('integration.channel_sale_order').complete_name,
-            'identity_key': f'integartion_pipeline_task-{self.integration_id.id}-{self}',
+            'identity_key': f'integration_pipeline_task-{self.integration_id.id}-{self}',
             'description': f'{self.integration_id.name}: Order № "{self.order_id.display_name}" >> {self.name}',
         }
 
@@ -467,7 +468,7 @@ class IntegrationWorkflowPipeline(models.Model):
     def open_form(self):
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Integration Workflow',
+            'name': _('Integration Workflow'),
             'res_model': self._name,
             'view_mode': 'form',
             'view_id': self.env.ref('integration.integration_workflow_pipeline_form_view').id,

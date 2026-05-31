@@ -2,7 +2,7 @@
 
 import json
 
-from odoo import models, fields, _
+from odoo import api, models, fields, _
 from odoo.exceptions import UserError
 from odoo.tools.float_utils import float_round
 
@@ -39,6 +39,7 @@ class IntegrationCatalogExternalLine(models.Model):
         related='catalog_id.currency_code',
     )
 
+    @api.depends('catalog_id.name', 'currency_code')
     def _compute_display_name(self):
         for rec in self:
             rec.display_name = f'{rec.catalog_id.name} [{rec.currency_code}]'

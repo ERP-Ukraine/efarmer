@@ -23,7 +23,7 @@ class ProductProduct(models.Model):
             return self.standard_price
         return self.product_tmpl_id.standard_price
 
-    def to_export_format(self, integration):
+    def to_export_format(self, integration: 'models.Model'):
         result = super().to_export_format(integration)
 
         if integration.is_integration_shopify:

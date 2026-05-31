@@ -6,7 +6,6 @@ from datetime import date, datetime
 from odoo import api, models, fields, _
 from odoo.exceptions import UserError, ValidationError
 
-from ..sale_integration import DATETIME_FORMAT
 from ...api.abstract_apiclient import AbsApiClient
 from ...tools import IS_TRUE, IS_FALSE, run_preprocessing_script, ExtractNode, is_translated_value
 
@@ -560,7 +559,7 @@ class ProductEcommerceField(models.Model):
             'datetime': datetime,
             'UserError': UserError,
             'ValidationError': ValidationError,
-            'DATETIME_FORMAT': DATETIME_FORMAT,
+            'DATETIME_FORMAT': kw['integration'].datetime_format,
             **kw,
         }
 
@@ -771,6 +770,10 @@ class ProductEcommerceField(models.Model):
         odoo_name = self.get_odoo_field_name()
         odoo_record = self.get_odoo_record(odoo_id)
 
+        integration = self.env['sale.integration'].browse(integration_id)
+        company = integration.company_id
+
+        odoo_record = odoo_record.with_company(company)
         value = odoo_record.convert_field_value_to_external(
             integration_id,
             odoo_name,
@@ -789,7 +792,11 @@ class ProductEcommerceField(models.Model):
         """
         self.ensure_one()
 
+        integration = self.env['sale.integration'].browse(integration_id)
+        company = integration.company_id
+
         odoo_record = self.get_odoo_record(odoo_id)
+        odoo_record = odoo_record.with_company(company)
 
         if self.is_template_field:
             template_record = odoo_record
@@ -804,7 +811,7 @@ class ProductEcommerceField(models.Model):
         return self._build_script_context(
             template=template_record,
             variant=variant_record,
-            integration=self.env['sale.integration'].browse(integration_id),
+            integration=integration,
             EXTERNAL_CODE=code,
             VARIANTS_COUNT=len(variants),
             FORCE_PRODUCT_EXPORT=bool(self.env.context.get('integration_force_product_export')),

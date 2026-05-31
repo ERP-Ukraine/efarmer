@@ -1,6 +1,6 @@
 # See LICENSE file for full copyright and licensing details.
 
-from odoo import models, fields
+from odoo import api, models, fields
 
 
 class IntegrationEcommerceProductImageExternal(models.Model):
@@ -45,6 +45,7 @@ class IntegrationEcommerceProductImageExternal(models.Model):
             ('code', '=', self.template_code),
         ])
 
+    @api.depends('code')
     def _compute_display_name(self):
         for rec in self:
             code = rec.code.rsplit('/', 1)[-1] if rec.code else False

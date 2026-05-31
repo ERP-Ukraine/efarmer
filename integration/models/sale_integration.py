@@ -23,7 +23,6 @@ from odoo.tools.misc import clean_context
 
 from odoo.addons.integration_queue_job.job import Job
 
-from ..api.no_api import NoAPIClient
 from ..exceptions import ErrorStore as es
 from ..tools import (
     expose_for_testing,
@@ -57,7 +56,6 @@ SUPPORTED_ECOMMERCE_SYSTEMS = {
     'woocommerce': 'WooCommerce',
 }
 
-DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 EXCLUDED_MAPPING_MODELS = [
     'integration.account.tax.group.mapping',
     'integration.metafield.mapping',
@@ -170,7 +168,7 @@ class SaleIntegration(models.Model):
     )
     location_ids = fields.Many2many(  # TODO: Deprecated. Drop it after 1.12.0 integration release.
         comodel_name='stock.location',
-        string='Depreceted Locations',
+        string='Deprecated Locations',
         domain=[
             ('usage', '=', 'internal'),
         ],
@@ -975,7 +973,7 @@ class SaleIntegration(models.Model):
     so_external_reference_field = fields.Many2one(
         string='Sales Order External Reference Field',
         comodel_name='ir.model.fields',
-        ondelete='cascade',
+        ondelete='set null',
         help=(
             'Specify a Sales Order field (character or text types only) to record an external '
             'sales order number. This is supplementary to the "E-Commerce Order Reference" field '
@@ -990,14 +988,13 @@ class SaleIntegration(models.Model):
     so_delivery_note_field = fields.Many2one(
         string='Sales Order Delivery Note Field',
         comodel_name='ir.model.fields',
-        ondelete='cascade',
+        ondelete='set null',
         help=(
             'Specify the Sales Order field (character or text types only) where the Delivery Note '
             'from the e-commerce system will be recorded. By default, the system uses the field '
             'specified under the e-commerce tab of the Sales Order. However, you can designate '
             'any compatible field, including those from third-party modules.'
         ),
-        required=True,
         default=lambda self: self.env.ref('integration.field_sale_order__integration_delivery_note').id,
         domain='[("store", "=", True), '
                '("model_id.model", "=", "sale.order"), '
@@ -1007,14 +1004,13 @@ class SaleIntegration(models.Model):
     picking_delivery_note_field = fields.Many2one(
         string='Stock Picking Delivery Note Field',
         comodel_name='ir.model.fields',
-        ondelete='cascade',
+        ondelete='set null',
         help=(
             'Specify the Stock Picking field (character or text types only) to capture the '
             'Delivery Note from the e-commerce system. The "Note" field on Stock Picking is used '
             'as the standard field, but you have the flexibility to assign any compatible field, '
             'including those from third-party modules.'
         ),
-        required=True,
         default=lambda self: self.env.ref('stock.field_stock_picking__note').id,
         domain='[("store", "=", True), '
                '("model_id.model", "=", "stock.picking"), '
@@ -1033,21 +1029,21 @@ class SaleIntegration(models.Model):
     )
 
     keep_sales_person_empty = fields.Boolean(
-        string='Keep Sales Person Empty',
+        string='Keep Salesperson Empty',
         default=False,
         help=(
-            'If enabled, the Sales Person field will be left empty for imported orders, '
-            'similar to how eCommerce (website_sale) module works. When enabled, the "Default Sales Person for Orders" '
+            'If enabled, the Salesperson field will be left empty for imported orders, '
+            'similar to how eCommerce (website_sale) module works. When enabled, the "Default Salesperson for Orders" '
             'field below will be ignored and cleared.'
         ),
     )
 
     default_sales_person_id = fields.Many2one(
-        string='Default Sales Person for Orders',
+        string='Default Salesperson for Orders',
         comodel_name='res.users',
         help=(
-            'Select a default Sales Person to be automatically assigned to all Sales Orders imported '
-            'from the e-commerce system. This field will be ignored if the "Keep Sales Person Empty" '
+            'Select a default Salesperson to be automatically assigned to all Sales Orders imported '
+            'from the e-commerce system. This field will be ignored if the "Keep Salesperson Empty" '
             'field is enabled.',
         ),
         check_company=True,
@@ -1057,7 +1053,7 @@ class SaleIntegration(models.Model):
     customer_company_vat_field = fields.Many2one(
         string='VAT/Reg. Number Field',
         comodel_name='ir.model.fields',
-        ondelete='cascade',
+        ondelete='set null',
         help=(
             'Identify the field in the Company record (limited to character type fields) to store '
             'the Company\'s VAT/Registration Number from the e-commerce system. While the default '
@@ -1077,7 +1073,7 @@ class SaleIntegration(models.Model):
     customer_personal_id_field = fields.Many2one(
         string='Personal ID Field',
         comodel_name='ir.model.fields',
-        ondelete='cascade',
+        ondelete='set null',
         help=(
             'Specify the field in the Contact record (limited to character type fields) where the '
             'Personal ID Number from the e-commerce system will be stored. This is particularly '
@@ -1136,11 +1132,6 @@ class SaleIntegration(models.Model):
         ),
     )
 
-    api_access_granted = fields.Boolean(
-        string='API Access Granted',
-        compute='_compute_api_access_granted',
-    )
-
     apply_company_on_product = fields.Boolean(
         string='Apply Company on Product',
         help=(
@@ -1160,6 +1151,12 @@ class SaleIntegration(models.Model):
         help='Select which event types to save in the database. Only relevant when Save Logs is enabled.',
     )
 
+    api_access_granted = fields.Boolean(
+        string='API Access Granted',
+        compute='_compute_api_access_granted',
+    )
+
+    @api.depends('name', 'type_api')
     def _compute_display_name(self):
         for rec in self:
             rec.display_name = f'[{SUPPORTED_ECOMMERCE_SYSTEMS.get(rec.type_api, rec.type_api)}] {rec.name}'
@@ -1169,6 +1166,7 @@ class SaleIntegration(models.Model):
         for rec in self:
             rec.api_access_granted = rec.get_settings_value('access_granted', False)
 
+    @api.depends('type_api')
     def _compute_integration_type(self):
         for rec in self:
             rec.is_integration_shopify = rec.type_api == 'shopify'
@@ -1185,6 +1183,11 @@ class SaleIntegration(models.Model):
     def is_no_api(self):
         self.ensure_one()
         return self.type_api == 'no_api'
+
+    @property
+    def datetime_format(self):
+        self.ensure_one()
+        return '%Y-%m-%d %H:%M:%S'
 
     def is_translations_needed(self, *args, **kw):
         # magento2: True
@@ -1298,8 +1301,8 @@ class SaleIntegration(models.Model):
             if invalid_emails:
                 return {
                     'warning': {
-                        'title': 'Invalid Email Addresses',
-                        'message': f"Invalid email addresses: {', '.join(invalid_emails)}"
+                        'title': _('Invalid Email Addresses'),
+                        'message': _('Invalid email addresses: %s') % ', '.join(invalid_emails)
                     }
                 }
 
@@ -1343,9 +1346,12 @@ class SaleIntegration(models.Model):
             integration.request_order_url = url
 
     def _compute_next_inventory_synchronization_date(self):
-        for integration in self.filtered('inventory_synchronization_cron_id'):
-            cron = integration.inventory_synchronization_cron_id.sudo()
-            integration.next_inventory_synchronization_date = cron.nextcall
+        for integration in self:
+            if integration.inventory_synchronization_cron_id:
+                cron = integration.inventory_synchronization_cron_id.sudo()
+                integration.next_inventory_synchronization_date = cron.nextcall
+            else:
+                integration.next_inventory_synchronization_date = False
 
     def _inverse_next_inventory_synchronization_date(self):
         for integration in self.filtered('inventory_synchronization_cron_id'):
@@ -1397,7 +1403,7 @@ class SaleIntegration(models.Model):
         for integration in self:
             if integration.last_receive_orders_datetime:
                 value = integration.last_receive_orders_datetime.strftime(
-                    DATETIME_FORMAT,
+                    integration.datetime_format,
                 )
             else:
                 value = ''
@@ -1409,7 +1415,7 @@ class SaleIntegration(models.Model):
         for integration in self:
             if integration.orders_cut_off_datetime:
                 value = integration.orders_cut_off_datetime.strftime(
-                    DATETIME_FORMAT,
+                    integration.datetime_format,
                 )
             else:
                 value = ''
@@ -1675,7 +1681,7 @@ class SaleIntegration(models.Model):
     def _get_base_url_or_debug(self):
         debug_url = config.options.get('localhost_debug_url')
         if debug_url:
-            return debug_url  # Fake url, just for localhost coding and bedug
+            return debug_url  # Fake url, just for localhost coding and debug
         return self.get_base_url_config()
 
     def _build_webhook_route(self, controller_method):
@@ -1791,7 +1797,7 @@ class SaleIntegration(models.Model):
         """
         return {
             'type': 'ir.actions.act_window',
-            'name': 'External Orders',
+            'name': _('External Orders'),
             'res_model': 'sale.integration.input.file',
             'view_mode': 'list,form',
             'domain': [('si_id', '=', self.id)],
@@ -1804,7 +1810,7 @@ class SaleIntegration(models.Model):
         """
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Queued or Failed Orders',
+            'name': _('Queued or Failed Orders'),
             'res_model': 'sale.integration.input.file',
             'view_mode': 'list,form',
             'domain': [
@@ -1961,8 +1967,7 @@ class SaleIntegration(models.Model):
                 rec.inventory_synchronization_cron_id.sudo().name = rec._get_cron_name('Periodic Inventory Sync')
 
     def get_class(self):
-        """It's just a stub."""
-        return NoAPIClient
+        return lambda: es.raise_error(err_code='E111')
 
     @api.model
     def get_integrations(self, job_name, company_id=False):
@@ -2267,7 +2272,7 @@ class SaleIntegration(models.Model):
 
     def _convert_settings_fields_to_dict(self):
         # 1. Get default settings fields from adapter class
-        settings_fields = getattr(self.get_class(), 'settings_fields', None)
+        settings_fields = getattr(self.get_class(), 'settings_fields', ())
 
         # 2. Convert settings fields to dict
         return {
@@ -2636,7 +2641,7 @@ class SaleIntegration(models.Model):
             'tag': 'display_notification',
             'params': {
                 'title': _('Initial Import'),
-                'message': 'Import master data jobs are created',
+                'message': _('Import master data jobs are created'),
                 'type': 'success',
                 'sticky': False,
             }
@@ -3296,7 +3301,7 @@ class SaleIntegration(models.Model):
             'tag': 'display_notification',
             'params': {
                 'title': _('Products Validation'),
-                'message': 'No errors found. You can proceed with the import.',
+                'message': _('No errors found. You can proceed with the import.'),
                 'type': 'success',
                 'sticky': False,
             }
@@ -3777,12 +3782,13 @@ class SaleIntegration(models.Model):
         # Now let's check if such product already exist in external system
         # so instead of creating new we can import existing one
         if not template_data['external_id'] and template_data['products']:
-            existing_external_product_id = adapter.find_existing_template(template_data)
+            existing_template = adapter.find_existing_template(template_data)
 
-            if existing_external_product_id:
+            if existing_template:
                 external_record = self.env['integration.product.template.external'].create_or_update({
                     'integration_id': self.id,
-                    'code': existing_external_product_id,
+                    'code': existing_template['id'],
+                    'name': existing_template['name'],
                 })
                 external_record.create_or_update_mapping(odoo_id=template.id)
 
@@ -3792,7 +3798,7 @@ class SaleIntegration(models.Model):
                 return _(
                     'Existing Product found in external system with id %s. Triggering job to '
                     'import product instead of exporting it.'
-                ) % existing_external_product_id
+                ) % existing_template['id']
 
         # 0. START EXPORT
         results_list = []
@@ -4753,6 +4759,24 @@ class SaleIntegration(models.Model):
         """
         raise es.IntegrationNotImplementedError(_('Each connector has its own status filtering mechanism and format.'))
 
+    def is_importable_product(self, product_data: dict) -> bool:
+        """
+        Determines if a product received via webhook should be imported,
+        based on the connector's import_products_filter setting.
+
+        Override in each connector to apply the configured product filter
+        to the raw webhook POST data. The default implementation returns
+        True (no filtering), which is safe for connectors that have no
+        product filter or do not implement webhook product filtering.
+
+        Args:
+            product_data (dict): The raw product data from the webhook POST body.
+
+        Returns:
+            bool: True if the product should be imported, False if it should be skipped.
+        """
+        return True
+
     def is_importable_order_date(self, date_order: str) -> bool:
         """
         Determines if an order should be imported based on its creation date and cut-off date.
@@ -5058,7 +5082,7 @@ class SaleIntegration(models.Model):
         exists = InputFile.search(domain, limit=1)
 
         if exists:
-            return InputFile
+            return exists
 
         vals = {
             **{k: v for k, __, v in domain},
@@ -5902,7 +5926,7 @@ class SaleIntegration(models.Model):
             external_date = external_date.astimezone(pytz.utc).replace(tzinfo=None)
 
         if to_string:
-            return datetime.strftime(external_date, DATETIME_FORMAT)
+            return datetime.strftime(external_date, self.datetime_format)
         return external_date
 
     def _find_max_datetime(self, datetime_list: list):

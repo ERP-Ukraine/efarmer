@@ -3,7 +3,7 @@
     <data>
 
         <record model="integration.import.entity" id="integration_shopify_import_sale_channels">
-            <field name="name">Sale Channels</field>
+            <field name="name">Sales Channels</field>
             <field name="integration_type">shopify</field>
             <field name="method_name">import_sale_channels</field>
             <field name="external_model">external.sale.channel</field>

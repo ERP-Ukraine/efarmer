@@ -8,5 +8,6 @@ class ProductTemplateAttributeValue(models.Model):
 
     def write(self, vals):
         result = super(ProductTemplateAttributeValue, self).write(vals)
-        self.mapped('product_tmpl_id').trigger_export()
+        if not self.env.context.get('skip_product_export'):
+            self.mapped('product_tmpl_id').trigger_export()
         return result

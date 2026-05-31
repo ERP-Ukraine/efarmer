@@ -282,7 +282,7 @@ class ProductTemplate(models.Model):
 
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Jobs History',
+            'name': _('Jobs History'),
             'res_model': 'queue.job',
             'view_mode': 'list,form',
             'view_ids': view_ids,
@@ -363,7 +363,7 @@ class ProductTemplate(models.Model):
             if not template.active:
                 template = template.with_context(active_test=False)
 
-            self._compute_template_field_from_variant_field('integration_ids')
+            template._compute_template_field_from_variant_field('integration_ids')
 
     def _inverse_integration_ids(self):
         self._set_product_variant_field('integration_ids')
@@ -510,6 +510,9 @@ class ProductTemplate(models.Model):
     def change_external_integration_template(self):
         message_pattern = self._get_change_external_message()
         active_ids = self.env.context.get('active_ids')
+        if not active_ids:
+            return
+
         active_model = self.env.context.get('active_model')
         message = message_pattern % len(active_ids)
 
@@ -636,11 +639,12 @@ class ProductTemplate(models.Model):
                 continue
 
             # Additional filtering integrations if template belong specific company
+            template_integrations = integrations
             if template.company_id:
-                integrations = integrations.filtered(lambda x: x.company_id == template.company_id)
+                template_integrations = integrations.filtered(lambda x: x.company_id == template.company_id)
 
             variant_integrations = template.product_variant_ids.mapped('integration_ids')
-            enabled_integrations = integrations.filtered(lambda x: x in variant_integrations)
+            enabled_integrations = template_integrations.filtered(lambda x: x in variant_integrations)
 
             if not enabled_integrations:
                 _logger.info(
@@ -685,6 +689,7 @@ class ProductTemplate(models.Model):
         return True, ''
 
     def validate_in_odoo(self, integration, raise_error=False):
+        self.ensure_one()
 
         def not_valid(message):
             if raise_error:
@@ -699,10 +704,17 @@ class ProductTemplate(models.Model):
                 return not_valid(message)
 
         # 2. Check Internal-references
-        ref_field = integration.product_reference_name
-        internal_references = self.product_variant_ids.filtered(
+        variants = self.product_variant_ids.filtered(
             lambda x: integration.id in x.integration_ids.ids
-        ).mapped(ref_field)
+        )
+        if not variants:
+            message = _(
+                'The product template "%s" has no variants with the integration "%s" set.', self.name, integration.name,
+            )
+            return not_valid(message)
+
+        ref_field = integration.product_reference_name
+        internal_references = variants.mapped(ref_field)
 
         if not all(internal_references):
             message = _(
@@ -712,30 +724,34 @@ class ProductTemplate(models.Model):
             ) % self.name
             return not_valid(message)
 
+        if len(set(internal_references)) < len(internal_references):
+            message = _(
+                'Duplicate internal reference(s) detected: %s.\n\n'
+                'Each variant must have a unique internal reference for the product template to work correctly. '
+                'Please resolve these duplicate references before continuing.'
+            ) % ', '.join(x for x in internal_references if internal_references.count(x) > 1)
+            return not_valid(message)
+
         # 2.1 We also should check if product do not have duplicated internal reference
         # As in Odoo standard duplicated reference is allowed
         # But we do not want to have it in external E-Commerce System
-        grouped_products = self.env['product.product']._read_group(
-            domain=[
-                (ref_field, 'in', internal_references),
-                ('product_tmpl_id.exclude_from_synchronization', '=', False)
-            ],
-            groupby=[ref_field],
-            aggregates=[f'{ref_field}:count'],
-        )
+        records = self.env['product.product'].search([
+            (ref_field, 'in', internal_references),
+            ('product_tmpl_id.exclude_from_synchronization', '=', False),
+            ('company_id', 'in', [False, integration.company_id.id]),
+        ])
 
-        duplicated_refs = [ref for ref, count in grouped_products if count > 1]
-        if duplicated_refs:
+        if len(records) > len(internal_references):
             message = _(
                 'Duplicate internal reference(s) detected: %s.\n\n'
                 'Each product must have a unique internal reference for this integration to work correctly. '
                 'Please resolve these duplicate references before continuing.'
-            ) % ', '.join(duplicated_refs)
+            ) % ', '.join((records - variants).mapped(ref_field))
             return not_valid(message)
 
         return True, ''
 
-    def to_export_format(self, integration):
+    def to_export_format(self, integration: 'models.Model'):
         if not self.active:
             self = self.with_context(active_test=False)
 
@@ -901,11 +917,12 @@ class ProductTemplate(models.Model):
 
     def get_taxes(self, integration_id: int):
         integration = self.env['sale.integration'].browse(integration_id)
+        company = integration.company_id
+        self = self.with_company(company)
 
         result = []
-        integration_company_taxes = self.taxes_id.filtered(
-            lambda x: x.company_id == integration.company_id
-        )
+        integration_company_taxes = self.taxes_id.filtered(lambda x: x.company_id == company)
+
         for tax in integration_company_taxes:
             external_tax = tax.to_external_record(integration)
 
@@ -1078,9 +1095,9 @@ class ProductTemplate(models.Model):
     def _get_template_attribute_values(self, integration_id: int, attribute_value_ids: list):
         ProductAttributeValue = self.env['product.attribute.value']
         ProductTemplateAttributeValue = self.env['product.template.attribute.value']
-        template_attribute_value_ids = ProductTemplateAttributeValue.browse()
         integration = self.env['sale.integration'].browse(integration_id)
 
+        odoo_attribute_value_ids = []
         for ext_attribute_value_id in attribute_value_ids:
             if ext_attribute_value_id == '0':
                 continue
@@ -1089,13 +1106,15 @@ class ProductTemplate(models.Model):
                 integration,
                 ext_attribute_value_id,
             )
+            odoo_attribute_value_ids.append(attribute_value_id.id)
 
-            template_attribute_value_ids |= ProductTemplateAttributeValue.search([
-                ('product_attribute_value_id', '=', attribute_value_id.id),
-                ('product_tmpl_id', '=', self.id),
-            ])
+        if not odoo_attribute_value_ids:
+            return ProductTemplateAttributeValue.browse()
 
-        return template_attribute_value_ids
+        return ProductTemplateAttributeValue.search([
+            ('product_attribute_value_id', 'in', odoo_attribute_value_ids),
+            ('product_tmpl_id', '=', self.id),
+        ])
 
     def _get_kits(self, integration_id: int):
         integration = self.env['sale.integration'].browse(integration_id)

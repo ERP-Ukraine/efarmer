@@ -13,7 +13,7 @@ class IntegrationAccountTaxGroupMapping(models.Model):
     tax_group_id = fields.Many2one(  # TODO: deprecated, hide on the form.
         string='Odoo Tax Group',
         comodel_name='account.tax.group',
-        ondelete='cascade',
+        ondelete='set null',
     )
 
     external_tax_group_id = fields.Many2one(

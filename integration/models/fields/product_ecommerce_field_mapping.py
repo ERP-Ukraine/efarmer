@@ -23,7 +23,7 @@ class ProductEcommerceFieldMapping(models.Model):
 
     integration_id = fields.Many2one(
         comodel_name='sale.integration',
-        string='E-CommerceStore',
+        string='E-Commerce Store',
         required=True,
         ondelete='cascade',
     )
@@ -129,11 +129,18 @@ class ProductEcommerceFieldMapping(models.Model):
         related='ecommerce_field_id.is_scriptable_field',
     )
 
+    @api.depends('integration_id.name', 'name')
     def _compute_display_name(self):
         for rec in self:
             rec.display_name = f'{rec.integration_id.name}: {rec.name}'
 
-    @api.depends('odoo_field_id')
+    @api.depends(
+        'ecommerce_field_id',
+        'integration_id.template_reference_id',
+        'integration_id.product_reference_id',
+        'integration_id.template_barcode_id',
+        'integration_id.product_barcode_id',
+    )
     def _compute_advanced_properties(self):
         for rec in self:
             rec.is_reference = (
@@ -319,10 +326,10 @@ class ProductEcommerceFieldMapping(models.Model):
         """
         Internal method to fetch and calculate import value using external codes.
 
-        :param external_template_code: E-commerce template ID/code
-        :param external_variant_code: Optional e-commerce variant ID/code
+        :param external_template_id: E-commerce template ID/code
+        :param external_variant_id: Optional e-commerce variant ID/code
         :return: Dict with {odoo_field_name: converted_value}
-        :raises UserError: If variant data not found when variant_code is provided
+        :raises UserError: If variant data not found when variant_id is provided
         """
         self.ensure_one()
 

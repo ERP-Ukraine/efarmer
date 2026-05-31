@@ -11,7 +11,6 @@ from odoo.tools.float_utils import float_compare
 from odoo.tools import float_is_zero
 from odoo.exceptions import UserError, ValidationError
 
-from .sale_integration import DATETIME_FORMAT
 from .auto_workflow.integration_workflow_pipeline import SKIP, TO_DO
 from ...integration.exceptions import ApiImportError
 
@@ -226,11 +225,11 @@ class SaleOrder(models.Model):
         assert len(self) <= 1, _('Recordsets not allowed')
         return self.related_input_files[:1].order_reference
 
-    @api.depends('amount_total')
+    @api.depends('amount_total', 'integration_amount_total')
     def _compute_total_amount_difference_error_message(self):
         error_message = _(
             'Warning!\n'
-            'Difference in total order amounts in E-Commerce System and Odoo.'
+            'Difference in total order amounts in E-Commerce System and Odoo.\n'
             'Total order amount in E-Commerce System is %s. Total order amount in Odoo is %s.')
         for order in self:
             if order.is_total_amount_difference:
@@ -290,7 +289,7 @@ class SaleOrder(models.Model):
 
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Jobs History',
+            'name': _('Jobs History'),
             'res_model': 'queue.job',
             'view_mode': 'list,form',
             'view_ids': view_ids,
@@ -375,7 +374,7 @@ class SaleOrder(models.Model):
     @api.depends('order_line.external_location_id')
     def _compute_is_multi_stock(self):
         for rec in self:
-            external_locations = self._integration_external_locations()
+            external_locations = rec._integration_external_locations()
             rec.is_multi_stock = len(external_locations) > 1
 
     @api.depends('amount_total', 'integration_amount_total')
@@ -600,7 +599,7 @@ class SaleOrder(models.Model):
             pickings_done = self.picking_ids.filtered(lambda p: p.state == 'done')
             if pickings_done:
                 last_delivery_date = max(pickings_done.mapped('date_done'))
-                delivery_date = last_delivery_date.strftime(DATETIME_FORMAT)
+                delivery_date = last_delivery_date.strftime(self.integration_id.datetime_format)
 
         return delivery_date
 
@@ -1440,10 +1439,10 @@ class SaleOrder(models.Model):
         date_for_conversion = fields.Date.context_today(self)
 
         # First, group by product and currency
-        products_query = f"""
+        products_query = """
             SELECT
                 pp.id AS product_id,
-                pt.name->>'{lang}' AS product_name,
+                pt.name->>%s AS product_name,
                 pp.default_code,
                 so.currency_id,
                 SUM(sol.product_uom_qty) AS units_sold,
@@ -1452,12 +1451,12 @@ class SaleOrder(models.Model):
             JOIN sale_order so ON so.id = sol.order_id
             JOIN product_product pp ON pp.id = sol.product_id
             JOIN product_template pt ON pt.id = pp.product_tmpl_id
-            WHERE {condition}
+            WHERE """ + condition + """
             GROUP BY pt.name, pp.default_code, pp.id, so.currency_id
             ORDER BY SUM(sol.product_uom_qty * sol.price_unit) DESC
         """
 
-        self.env.cr.execute(products_query, condition_params)
+        self.env.cr.execute(products_query, [lang] + condition_params)
         product_results = self.env.cr.fetchall()
 
         if not product_results:

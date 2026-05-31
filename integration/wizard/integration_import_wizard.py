@@ -513,7 +513,7 @@ class IntegrationImportWizard(models.TransientModel):
         """
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Products Mappings',
+            'name': _('Products Mappings'),
             'res_model': 'integration.product.template.mapping',
             'view_mode': 'list',
             'context': {

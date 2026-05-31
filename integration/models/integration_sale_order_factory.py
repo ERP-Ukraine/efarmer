@@ -728,51 +728,52 @@ class IntegrationSaleOrderFactory(models.TransientModel):
 
     def _create_line_with_price_difference_product(self, order, amount_total):
         integration = self.integration_id
+        currency = order.currency_id
 
         price_difference = float_round(
-            value=amount_total - order.amount_total,
-            precision_digits=self.env['decimal.precision'].precision_get('Product Price'),
+            amount_total - order.amount_total,
+            precision_rounding=currency.rounding,
         )
 
-        if price_difference:
-            if price_difference > 0:
-                difference_product_id = integration.positive_price_difference_product_id
-            else:
-                difference_product_id = integration.negative_price_difference_product_id
+        if currency.is_zero(price_difference):
+            return self.env['sale.order.line']
 
-            if not difference_product_id:
-                raise es.ApiImportError(
-                    _(
-                        'The total amount in the sales order from %s differs from '
-                        'the calculated amount in Odoo, usually due to rounding issues or tax discrepancies.\n'
-                        'Order amounts: %f (Odoo) vs %f (%s)\n\n'
-                        'Odoo and %s calculate taxes differently, which can lead to this issue. '
-                        'To resolve it, you can either:\n'
-                        '1. Go to "E-Commerce Integrations → Stores → %s".\n'
-                        'Navigate to the "Sales Orders" tab, and in the "Order Extras Management" section, '
-                        'configure the products to be used for compensating price differences.\n'
-                        '2. Alternatively, you can disable the "Order Total Difference Correction" checkbox on '
-                        'the same tab if you do not want Odoo to handle price discrepancies.\n\n'
-                        'Once the issue is resolved, requeue the job, and the sales order will '
-                        'be created in Odoo with the correct total.'
-                    ) % (
-                        integration.name,
-                        order.amount_total,
-                        amount_total,
-                        integration.name,
-                        integration.name,
-                        integration.name
-                    )
+        if price_difference > 0:
+            difference_product_id = integration.positive_price_difference_product_id
+        else:
+            difference_product_id = integration.negative_price_difference_product_id
+
+        if not difference_product_id:
+            raise es.ApiImportError(
+                _(
+                    'The total amount in the sales order from %s differs from '
+                    'the calculated amount in Odoo, usually due to rounding issues or tax discrepancies.\n'
+                    'Order amounts: %f (Odoo) vs %f (%s)\n\n'
+                    'Odoo and %s calculate taxes differently, which can lead to this issue. '
+                    'To resolve it, you can either:\n'
+                    '1. Go to "E-Commerce Integrations → Stores → %s".\n'
+                    'Navigate to the "Sales Orders" tab, and in the "Order Extras Management" section, '
+                    'configure the products to be used for compensating price differences.\n'
+                    '2. Alternatively, you can disable the "Order Total Difference Correction" checkbox on '
+                    'the same tab if you do not want Odoo to handle price discrepancies.\n\n'
+                    'Once the issue is resolved, requeue the job, and the sales order will '
+                    'be created in Odoo with the correct total.'
+                ) % (
+                    integration.name,
+                    order.amount_total,
+                    amount_total,
+                    integration.name,
+                    integration.name,
+                    integration.name
                 )
+            )
 
-            return self.env['sale.order.line'].create({
-                'product_id': difference_product_id.id,
-                'order_id': order.id,
-                'price_unit': price_difference,
-                'tax_ids': False,
-            })
-
-        return False
+        return self.env['sale.order.line'].create({
+            'product_id': difference_product_id.id,
+            'order_id': order.id,
+            'price_unit': price_difference,
+            'tax_ids': False,
+        })
 
     def _get_discount_product(self):
         integration = self.integration_id

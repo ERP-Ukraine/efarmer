@@ -2,7 +2,7 @@
 
 from odoo import models, api
 
-from ...exceptions import NotMappedToExternal
+from ...exceptions import ErrorStore as es
 
 
 class IntegrationModelMixin(models.AbstractModel):
@@ -29,31 +29,31 @@ class IntegrationModelMixin(models.AbstractModel):
         self.ensure_one()
         try:
             return self.to_external(integration)
-        except NotMappedToExternal:
+        except es.NotMappedToExternal:
             return self.export_with_integration(integration)
 
     def to_external_record_or_export(self, integration):
         self.ensure_one()
         try:
             return self.to_external_record(integration)
-        except NotMappedToExternal:
+        except es.NotMappedToExternal:
             return self.export_with_integration_to_record(integration)
 
     def to_export_format_or_export(self, integration):
         self.ensure_one()
         try:
             self.to_external(integration)
-        except NotMappedToExternal:
+        except es.NotMappedToExternal:
             self.export_with_integration(integration)
 
         return self.to_export_format(integration)
 
-    def to_export_format(self):
-        raise NotImplementedError
+    def to_export_format(self, integration: 'models.Model'):
+        raise es.raise_error('E111')
 
-    def export_with_integration(self):
+    def export_with_integration(self, integration):
         """Return external code."""
-        raise NotImplementedError
+        raise es.raise_error('E111')
 
     def export_with_integration_to_record(self, integration):
         self.export_with_integration(integration)

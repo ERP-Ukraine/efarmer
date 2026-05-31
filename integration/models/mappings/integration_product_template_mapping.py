@@ -14,10 +14,15 @@ class IntegrationProductTemplateMapping(models.Model):
     _mapping_fields = ('template_id', 'external_template_id')
     _mapping_label = 'Product Template'
 
+    company_id = fields.Many2one(
+        related='integration_id.company_id',
+    )
+
     template_id = fields.Many2one(
         string='Odoo Product',
         comodel_name='product.template',
-        ondelete='cascade',
+        ondelete='set null',
+        domain="[('company_id', 'in', [False, company_id])]",
     )
 
     external_template_id = fields.Many2one(
@@ -29,7 +34,7 @@ class IntegrationProductTemplateMapping(models.Model):
 
     _uniq = models.Constraint(
         'unique(integration_id, template_id, external_template_id)',
-        '',
+        'Product template mapping should be unique per integration',
     )
 
     def run_map_product(self):
@@ -150,7 +155,7 @@ class IntegrationProductTemplateMapping(models.Model):
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'message': 'No external product template found.',
+                    'message': _('No external product template found.'),
                     'type': 'warning',
                     'sticky': False,
                 }

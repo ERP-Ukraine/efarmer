@@ -3600,7 +3600,7 @@ msgstr ""
 
 #. module: integration
 #: model:ir.model.fields,field_description:integration.field_sale_integration__location_ids
-msgid "Depreceted Locations"
+msgid "Deprecated Locations"
 msgstr ""
 
 #. module: integration
@@ -4249,7 +4249,7 @@ msgstr ""
 
 #. module: integration
 #: model:ir.model.fields,field_description:integration.field_product_ecommerce_field_mapping__integration_id
-msgid "E-CommerceStore"
+msgid "E-Commerce Store"
 msgstr ""
 
 #. module: integration
@@ -8682,6 +8682,7 @@ msgstr ""
 
 #. module: integration
 #. odoo-python
+#: code:addons/integration/api/abstract_apiclient.py:0
 #: code:addons/integration/models/sale_integration.py:0
 msgid "Not Implemented!"
 msgstr ""
@@ -12279,7 +12280,7 @@ msgstr ""
 
 #. module: integration
 #. odoo-python
-#: code:addons/integration/api/no_api.py:0 code:addons/integration/tools.py:0
+#: code:addons/integration/tools.py:0
 msgid ""
 "This functionality is not yet implemented. Please contact our support team "
 "(%(support_url)s) or your Odoo partner for further details."

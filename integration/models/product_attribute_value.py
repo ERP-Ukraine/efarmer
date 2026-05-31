@@ -26,7 +26,7 @@ class ProductAttributeValue(models.Model):
 
         return res
 
-    def to_export_format(self, integration):
+    def to_export_format(self, integration: 'models.Model'):
         self.ensure_one()
 
         attribute = self.attribute_id.to_external_record_or_export(integration)

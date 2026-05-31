@@ -12,6 +12,10 @@
                         <field name="continue_selling_without_stock"/>
                         <field name="taxonomy_category_id"
                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                        <field name="shopify_sale_channel_ids"
+                               widget="many2many_tags"
+                               domain="[('integration_id.type_api', '=', 'shopify'), ('external_id', '!=', 'no_channel')]"
+                               options="{'no_create': True, 'no_create_edit': True}"/>
                     </group>
                 </group>
             </xpath>

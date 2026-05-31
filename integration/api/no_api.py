@@ -122,7 +122,7 @@ class NoAPIClient(AbsApiClient):
         return []
 
     def find_existing_template(self, template):
-        return False
+        return None
 
     def export_template(self, template):
         return

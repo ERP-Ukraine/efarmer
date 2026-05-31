@@ -107,18 +107,20 @@ class InventoryItem(ShopifyResourceUpdate):
         payload = {
             'name': 'available',
             'reason': 'correction',
-            'ignoreCompareQuantity': True,
             'quantities': [
                 {
+                    'quantity': int(quantity),
+                    'changeFromQuantity': None,
                     'inventoryItemId': self.create_gid(item_id),
                     'locationId': self._env.Location.create_gid(location_id),
-                    'quantity': int(quantity),
                 } for (item_id, location_id, quantity) in data
             ],
         }
 
+        idempotency_key = self.compute_idempotency_key(payload)
+
         response = self.execute(
-            self.MUTATION_INVENTORY_SET_QTY,
+            self.MUTATION_INVENTORY_SET_QTY % idempotency_key,
             variables={
                 'input': payload,
             },

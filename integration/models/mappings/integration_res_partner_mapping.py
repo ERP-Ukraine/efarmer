@@ -13,7 +13,7 @@ class IntegrationResPartnerMapping(models.Model):
     partner_id = fields.Many2one(
         string='Odoo Contact',
         comodel_name='res.partner',
-        ondelete='cascade',
+        ondelete='set null',
     )
 
     external_partner_id = fields.Many2one(

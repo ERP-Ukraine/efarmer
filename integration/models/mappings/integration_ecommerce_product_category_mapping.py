@@ -13,7 +13,7 @@ class IntegrationECommerceProductCategoryMapping(models.Model):
     category_id = fields.Many2one(
         string='Odoo E-Commerce Category',
         comodel_name='ecommerce.product.category',
-        ondelete='cascade',
+        ondelete='set null',
     )
 
     external_category_id = fields.Many2one(

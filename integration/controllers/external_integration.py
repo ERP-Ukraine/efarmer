@@ -2,6 +2,7 @@
 
 import logging
 import json
+import hmac
 
 from odoo.http import Controller, route, request
 from odoo import SUPERUSER_ID
@@ -48,7 +49,12 @@ class ExternalIntegration(Controller):
             return request.make_response(json.dumps(body), headers=headers)
 
         internal_api_key = integration.get_integration_api_key()
-        if internal_api_key not in [headers_api_key, kwargs_api_key]:
+        if not internal_api_key:
+            body.update({'code': 1, 'message': 'Integration API key not configured.'})
+            return request.make_response(json.dumps(body), headers=headers)
+
+        provided_key = headers_api_key or kwargs_api_key
+        if not hmac.compare_digest(internal_api_key, provided_key):
             body.update({'code': 1, 'message': 'Integration API key is invalid.'})
             return request.make_response(json.dumps(body), headers=headers)
 

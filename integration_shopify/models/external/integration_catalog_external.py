@@ -67,6 +67,7 @@ class ExternalIntegrationCatalog(models.Model):
         store=True,
     )
 
+    @api.depends('name', 'currency_code')
     def _compute_display_name(self):
         for rec in self:
             rec.display_name = f'{rec.name} ({rec.currency_code})'

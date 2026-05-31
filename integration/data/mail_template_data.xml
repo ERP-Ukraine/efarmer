@@ -16,11 +16,11 @@
 
 
                 <b>Contact Details:</b><br/><br/>
-                Name: <t t-out="ctx['person_name']"/><br/><br/>
-                Email: <t t-out="ctx['email']"/> <br/><br/><br/>
+                Name: <t t-out="ctx.get('person_name', 'Empty Name')"/><br/><br/>
+                Email: <t t-out="ctx.get('email', 'Empty Email')"/> <br/><br/><br/>
 
                 <b>Next Steps:</b><br/><br/>
-                - Visit <a t-att-href="ctx['url_menu']">"Contact Mappings"</a> to see this unmapped contact.<br/><br/>
+                - Visit <a t-att-href="ctx.get('url_menu', '#')">"Contact Mappings"</a> to see this unmapped contact.<br/><br/>
                 - Link the contact to an existing customer or create a new one in Odoo.<br/><br/><br/>
 
                 This action is important to ensure accurate order and customer data in your system.<br/><br/>

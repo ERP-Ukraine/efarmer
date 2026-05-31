@@ -22,7 +22,7 @@ class IntegrationResCountryStateExternal(models.Model):
             return state_domain
 
         cleaned_code = re.sub(r'\(.*?\)', '', code)  # for example 'PL_PLL-30(123)' --> skip (123)
-        country_code, state_code = cleaned_code.split('_')
+        country_code, state_code = cleaned_code.split('_', maxsplit=1)
         external_country = self.env['integration.res.country.external'].search([
             ('integration_id', '=', integration.id),
             ('external_reference', '=', country_code),
@@ -64,7 +64,7 @@ class IntegrationResCountryStateExternal(models.Model):
             try_map_by_external_reference(odoo_search_domain=state_domain)
 
     def _fix_unmapped(self, adapter_external_data):
-        # odoo has bug (depending on the version) that they use incorrect ISO Codes fro below states
+        # odoo has bug (depending on the version) that they use incorrect ISO Codes for below states
         # [IN_UT] Uttarakhand -> in Odoo it is IN_UK
         # [IN_CT] Chhattisgarh -> in Odoo it is IN_CG
         # [IN_TG] Telangana -> in Odoo it is IN_TS

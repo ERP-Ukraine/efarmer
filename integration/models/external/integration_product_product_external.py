@@ -84,7 +84,7 @@ class IntegrationProductProductExternal(models.Model):
                 'product_id': variant.id,
             })
 
-        float_qty = float(qty or False)
+        float_qty = float(qty or 0.0)
         inventory_quant.inventory_quantity = float_qty
         inventory_quant.action_apply_inventory()
 

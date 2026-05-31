@@ -147,9 +147,9 @@ class IntegrationEcommerceProductCategoryExternal(models.Model):
 
             if not external_category_data:
                 raise UserError(_(
-                    'No category found in the external system with code "%s" (%s). '
+                    'No category with code "%s" (%s) found in the external system. '
                     'Please verify that the category exists and is correctly imported.'
-                ) % (self.code, self.name))
+                ) % (category.code, category.name))
 
             external_category_data = external_category_data[0]
             name = self.env['integration.res.lang.mapping'] \

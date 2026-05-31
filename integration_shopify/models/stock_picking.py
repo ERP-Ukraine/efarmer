@@ -11,7 +11,12 @@ class StockPicking(models.Model):
         self.ensure_one()
         return self.carrier_id.integration_send_tracking_url and self.carrier_tracking_url or False
 
-    def to_export_format(self, integration):
+    @property
+    def is_done(self):
+        self.ensure_one()
+        return self.state == 'done'
+
+    def to_export_format(self, integration: 'models.Model'):
         result = super().to_export_format(integration)
 
         if integration.is_integration_shopify:
@@ -28,3 +33,15 @@ class StockPicking(models.Model):
                 data['carrier_tracking_url'] = picking.carrier_tracking_url_prop
 
         return result
+
+    def button_validate(self):
+        """
+        Override button_validate method to called method, that check order is shipped or not.
+        """
+        res = super(StockPicking, self).button_validate()
+
+        for record in self:
+            if record.is_done:
+                record._run_integration_picking_hooks()
+
+        return res

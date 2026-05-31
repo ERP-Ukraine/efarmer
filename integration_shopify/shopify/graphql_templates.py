@@ -453,6 +453,10 @@ class GraphQLTemplate:
             nodes {
                 id
             }
+            pageInfo {
+                endCursor
+                hasNextPage
+            }
         }
     """
 
@@ -546,6 +550,19 @@ class GraphQLTemplate:
         MEDIA_BODY,
     )
 
+    PRODUCT_GET_VARIANTS_BODY = """
+        id
+        variants(first: 250) {
+            nodes {
+                %s
+            }
+            pageInfo {
+                endCursor
+                hasNextPage
+            }
+        }
+    """ % PRODUCT_VARIANT_BODY
+
     PRODUCT_VARIANT_MINIMAL_BODY_WITH_INVENTORY = """
         id
         inventoryItem {
@@ -589,9 +606,20 @@ class GraphQLTemplate:
                 %s
             }
         }
+        resourcePublications(first: 50) {
+            nodes {
+                publication {
+                    %s
+                }
+            }
+        }
         variants(first: 250) {
             nodes {
                 %s
+            }
+            pageInfo {
+                endCursor
+                hasNextPage
             }
         }
     """ % (
@@ -600,6 +628,7 @@ class GraphQLTemplate:
         TAXONOMY_CATEGORY_BODY,
         METAFIELD_BODY,
         MEDIA_BODY,
+        PUBLICATION_BODY,
         PRODUCT_VARIANT_BODY,
     )
 
@@ -681,6 +710,7 @@ class GraphQLTemplate:
         id
         title
         code
+        isRemoved
         carrierIdentifier
         originalPriceSet {
             %s
@@ -1476,7 +1506,7 @@ class GraphQLTemplate:
 
     MUTATION_INVENTORY_SET_QTY = """
         mutation InventorySet($input: InventorySetQuantitiesInput!) {
-            inventorySetQuantities(input: $input) {
+            inventorySetQuantities(input: $input) @idempotent(key: "%%s") {
                 inventoryAdjustmentGroup {
                     createdAt
                     reason

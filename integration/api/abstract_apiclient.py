@@ -4,13 +4,12 @@ from __future__ import absolute_import
 
 from odoo.api import Environment
 
-from abc import ABCMeta, abstractmethod
-from six import with_metaclass
+from abc import ABC, abstractmethod
 
 from ..tools import IS_FALSE, is_translated_value, parse_translated_value
 
 
-class AbsApiClient(with_metaclass(ABCMeta)):
+class AbsApiClient(ABC):
 
     settings_fields = (
         ('process_order_delay', 'Process order with delay (min)', '0'),
@@ -248,7 +247,7 @@ class AbsApiClient(with_metaclass(ABCMeta)):
         :param template: serialized template prepared for export to external system
         :return: if of the product in external system (aka. code)
         """
-        return False
+        return None
 
     @abstractmethod
     def export_template(self, template):

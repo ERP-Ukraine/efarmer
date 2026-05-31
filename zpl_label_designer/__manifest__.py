@@ -26,7 +26,7 @@
     'support': 'support@ventor.tech',
     'license': 'OPL-1',
     'live_test_url': 'https://odoo.ventor.tech/',
-    'price': 99.00,
+    'price': 79.20,
     'currency': 'EUR',
     'depends': ['base', 'product', 'stock', 'product_expiry'],
     'data': [

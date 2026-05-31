@@ -225,6 +225,43 @@ value = {
             </field>
         </record>
 
+        <record id="shopify_ecommerce_product_sale_channels" model="product.ecommerce.field">
+            <field name="name">Product Sales Channels</field>
+            <field name="technical_name">sale_channels</field>
+            <field name="type_api">shopify</field>
+            <field name="odoo_model_id" ref="product.model_product_template"/>
+            <field name="odoo_field_id" ref="integration_shopify.field_product_template__shopify_sale_channel_ids"/>
+            <field name="mapping_active_by_default" eval="True"/>
+            <field name="is_default" eval="True"/>
+            <field name="default_for_update" eval="False"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="trackable_fields_ids" eval="[(6, 0, (ref('integration_shopify.field_product_template__shopify_sale_channel_ids'),))]"/>
+            <field name="import_script">
+template_data, _ = external_data
+product = integration.adapter.gql.Product.set(**template_data)
+
+channel_ids = []
+for pub in product.publications:
+    pub_data = pub.to_odoo_format()
+    channel = env['external.sale.channel'].create_or_update(
+        integration.id, pub_data['channel_id'], pub_data['channel_name']
+    )
+    channel_ids.append(channel.id)
+
+odoo_name = field.get_odoo_field_name()
+value = {odoo_name: [(6, 0, channel_ids)]}
+            </field>
+            <field name="export_script">
+desired = template.shopify_sale_channel_ids.filtered(
+    lambda c: c.integration_id.id == integration.id
+).mapped('external_id')
+
+value = {
+    'sale_channels': list(desired),
+}
+            </field>
+        </record>
+
         <record id="shopify_ecommerce_field_taxonomy_category" model="product.ecommerce.field">
             <field name="name">Taxonomy Category</field>
             <field name="technical_name">category</field>

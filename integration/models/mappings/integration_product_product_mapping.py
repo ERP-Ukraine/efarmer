@@ -15,10 +15,15 @@ class IntegrationProductProductMapping(models.Model):
     _mapping_fields = ('product_id', 'external_product_id')
     _mapping_label = 'Product Variant'
 
+    company_id = fields.Many2one(
+        related='integration_id.company_id',
+    )
+
     product_id = fields.Many2one(
         string='Odoo Variant',
         comodel_name='product.product',
-        ondelete='cascade',
+        ondelete='set null',
+        domain="[('company_id', 'in', [False, company_id])]",
     )
 
     external_product_id = fields.Many2one(
@@ -30,7 +35,7 @@ class IntegrationProductProductMapping(models.Model):
 
     _uniq = models.Constraint(
         'unique(integration_id, product_id, external_product_id)',
-        '',
+        'Product variant mapping should be unique per integration',
     )
 
     @api.onchange('product_id')

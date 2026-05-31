@@ -16,12 +16,7 @@ class Publication(ShopifyResourceUpdate):
 
     def _compute_name(self):
         self.ensure_one()
-        catalog = self.catalog
-
-        if catalog['title']:
-            return catalog.title
-
-        return self['name'] or f'Sales Channel {self.id}'
+        return self['name'] or self.catalog['title'] or f'Sales Channel {self.id}'
 
     @property
     def catalog(self):

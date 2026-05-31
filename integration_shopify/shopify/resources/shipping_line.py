@@ -8,6 +8,14 @@ class ShippingLine(GqlDict):
     _gid_name = 'ShippingLine'
     _body = GqlDict._tmpl.SHIPPING_LINE_BODY
 
+    def __bool__(self):
+        # There is a case when id=null but the shipping-line is valid and have to be processed
+        return self.keys_are_present('originalPriceSet', 'currentDiscountedPriceSet') and not self.is_removed
+
+    @property
+    def is_removed(self):
+        return self['isRemoved']
+
     @property
     def original_price_set(self):
         self.ensure_one()
@@ -20,7 +28,6 @@ class ShippingLine(GqlDict):
 
     @property
     def tax_lines(self):
-        self.ensure_one()
         return [self._env.TaxLine.set(**x) for x in (self['taxLines'] or [])]
 
     @property

@@ -2,7 +2,7 @@
 
 import logging
 
-from odoo import models, fields, _
+from odoo import api, models, fields, _
 
 from ...exceptions import ErrorStore as es
 
@@ -96,6 +96,7 @@ class ExternalOrderTransaction(models.Model):
         help='Date when the transaction was processed in the external system',
     )
 
+    @api.depends('erp_order_id.name', 'name')
     def _compute_display_name(self):
         """Generate a user-friendly display name for the transaction"""
         for rec in self:
@@ -250,6 +251,8 @@ class ExternalOrderTransaction(models.Model):
 
     def get_amount(self, no_writeoff: bool = False):
         """Convert external amount to Odoo invoice currency"""
+        if not self.currency:
+            raise es.ValidationError(_('Currency code is missing in the transaction data.'))
         external_currency = self.env['res.currency'].search([
             ('name', '=ilike', self.currency.lower()),
         ], limit=1)

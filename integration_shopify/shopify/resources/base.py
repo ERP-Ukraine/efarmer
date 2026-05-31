@@ -1,6 +1,7 @@
 # See LICENSE file for full copyright and licensing details.
 
 import math
+import uuid
 import json
 import itertools
 from enum import Enum
@@ -151,12 +152,15 @@ class GqlDict:
 
         return key_exist
 
+    def keys_are_present(self, *keys):
+        return all(self.key_exist(key) for key in keys)
+
     def raise_if_no_key(self, key, not_nullable=False):
         if not self.key_exist(key, not_nullable=not_nullable):
             raise self._es.UserError(f'Key "{key}" not found in {self} object')
 
-    def context(self, key):
-        return self._ctx.get(key)
+    def ctx(self, key, return_type):
+        return self._extract(self._ctx, key, return_type)
 
     def add_context(self, **kwargs):
         self._ctx.update(kwargs)
@@ -209,8 +213,11 @@ class GqlDict:
         self._dict['id'] = self.create_gid(value)
         return self['id']
 
-    def _set_pseudo_id(self):
-        self.set(id=f'100500{randint(10000, 99999)}')  # ADD pseudo ID to avoid errorsraise_if_no_key
+    def _set_pseudo_id(self):  # TODO: get rid of that
+        self.set(id=f'100500{randint(10000, 99999)}')  # ADD pseudo ID to avoid errors raise_if_no_key
+
+    def compute_idempotency_key(self, payload: dict) -> str:
+        return uuid.uuid5(uuid.NAMESPACE_URL, json.dumps(payload))
 
 
 class ShopifyResourceBase:
@@ -253,7 +260,7 @@ class ReadMixin:
 
     @property
     def cursor(self):
-        return self.context('hasNextPage') and self.context('endCursor') or ''
+        return self.ctx('hasNextPage', bool) and self.ctx('endCursor', str)
 
     def read(self, body: str = '', add_fields: str = '', return_raw: bool = False) -> dict:
         self.ensure_one()

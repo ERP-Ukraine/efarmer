@@ -14,8 +14,8 @@
                          and the invisible conditions in the Store Specific Fields section. -->
                     <field name="shopify_risk_level" invisible="1"/>
                     <label string="Shopify Risk" for="shopify_risk_recommendation"
-                           invisible="type_api != 'shopify' or not shopify_risk_level"/>
-                    <div invisible="type_api != 'shopify' or not shopify_risk_level">
+                           invisible="type_api != 'shopify' or shopify_risk_level == 'none'"/>
+                    <div invisible="type_api != 'shopify' or shopify_risk_level == 'none'">
                         <span class="text-danger fw-bold" invisible="shopify_risk_level != 'high'">
                             <i class="fa fa-times-circle me-1"/>Chargeback risk is high. Consider canceling this order.
                         </span>
@@ -60,7 +60,7 @@
                 <search>
                     <field name="integration_sale_channel_id"/>
                     <group>
-                        <filter string="Sale Channel" name="group_by_integration_sale_channel_id" context="{'group_by': 'integration_sale_channel_id'}"/>
+                        <filter string="Sales Channel" name="group_by_integration_sale_channel_id" context="{'group_by': 'integration_sale_channel_id'}"/>
                     </group>
                 </search>
             </field>

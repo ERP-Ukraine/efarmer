@@ -10,6 +10,12 @@ class IntegrationEcommerceProductImageMapping(models.Model):
     _inherits = {'integration.ecommerce.product.image.external': 'external_image_id'}
     _description = 'E-Commerce Product Image Mapping'
 
+    image_id = fields.Many2one(
+        string='OdooImage',
+        comodel_name='ecommerce.product.image',
+        ondelete='set null',
+    )
+
     external_image_id = fields.Many2one(
         string='External Image',
         comodel_name='integration.ecommerce.product.image.external',
@@ -30,8 +36,8 @@ class IntegrationEcommerceProductImageMapping(models.Model):
     variant_code = fields.Char(
         string='Variant',
         size=33,
-        # The variant_code field have to be in the mapping class due to
-        # the multiple variant-mappings may reffer to the same external record
+        # The variant_code field has to be in the mapping class due to
+        # the multiple variant-mappings may refer to the same external record
     )
 
     is_cover = fields.Boolean(
@@ -46,11 +52,6 @@ class IntegrationEcommerceProductImageMapping(models.Model):
     res_name = fields.Char(
         string='Name',
         compute='_compute_res_name',
-    )
-
-    image_id = fields.Many2one(
-        string='OdooImage',
-        comodel_name='ecommerce.product.image',
     )
 
     image_db_id = fields.Integer(
@@ -90,7 +91,7 @@ class IntegrationEcommerceProductImageMapping(models.Model):
     def _compute_res_name(self):
         for rec in self:
             record = rec.odoo_record
-            rec.res_name = f'[{record.id}] {record.display_name}'
+            rec.res_name = f'[{record.id}] {record.display_name}' if record else ''
 
     @api.depends('res_id', 'is_cover', 'image_id')
     def _compute_checksum_compute(self):
@@ -98,7 +99,7 @@ class IntegrationEcommerceProductImageMapping(models.Model):
             record = rec.odoo_image_record
             rec.checksum_compute = record.image_checksum if record else False
 
-    @api.depends('checksum', 'checksum_compute')
+    @api.depends('checksum', 'checksum_compute', 'is_cover', 'action_type')
     def _compute_sync_required(self):
         for rec in self:
 
@@ -137,7 +138,7 @@ class IntegrationEcommerceProductImageMapping(models.Model):
 
     @property
     def to_assign(self):
-        return self.write({'action_type': 'assign'})
+        return self.action_type == 'assign'
 
     @property
     def in_pending(self):

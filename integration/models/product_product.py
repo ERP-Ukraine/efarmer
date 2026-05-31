@@ -210,7 +210,7 @@ class ProductProduct(models.Model):
         templates = self.mapped('product_tmpl_id')
         return templates.change_external_integration_template()
 
-    def to_export_format(self, integration):
+    def to_export_format(self, integration: 'models.Model'):
         self.ensure_one()
 
         attribute_values = []
@@ -285,7 +285,7 @@ class ProductProduct(models.Model):
             'tag': 'display_notification',
             'params': {
                 'title': _('Export Stock to Stores'),
-                'message': 'Queue Jobs "Export Stock to Stores" are created',
+                'message': _('Queue Jobs "Export Stock to Stores" are created'),
                 'type': 'success',
                 'sticky': False,
             }
@@ -304,6 +304,7 @@ class ProductProduct(models.Model):
         block_size = int(
             self.env['ir.config_parameter'].sudo().get_param(
                 'integration.export_inventory_block_size',
+                50,
             )
         )
 
