@@ -47,8 +47,11 @@ def validate(func):
             # Most likely that no module installed
             raise NotFound('ZPL Label Designer module is not installed or need to be upgraded')
 
-        key_from_odoo = env['res.config.settings'].get_zld_api_key()
-        key_from_request = request.httprequest.headers.get('ZLD-API-KEY')
+        key_from_odoo = (env['res.config.settings'].get_zld_api_key() or '').strip()
+        key_from_request = (request.httprequest.headers.get('ZLD-API-KEY') or '').strip()
+
+        if not key_from_request or not key_from_odoo:
+            raise Unauthorized('API key is required')
 
         if key_from_odoo != key_from_request:
             raise Unauthorized('Invalid API key')

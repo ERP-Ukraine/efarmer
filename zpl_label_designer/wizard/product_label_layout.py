@@ -7,6 +7,8 @@ PRODUCT_LABEL_MODELS_MAPPING = {
     'stock.picking': 'product.product',
     'picking.label.type': 'product.product',
     'quality.check': 'product.product',
+    'mrp.production': 'product.product',
+    'stock.picking.batch': 'product.product',
 }
 
 
@@ -15,7 +17,7 @@ class ProductLabelLayout(models.TransientModel):
 
     print_format = fields.Selection(
         selection_add=[('zld_label', 'Label From ZPL Designer')],
-        ondelete={'zld_label': 'set default'}
+        ondelete={'zld_label': 'set default'},
     )
 
     zld_label_id = fields.Many2one(
@@ -35,7 +37,7 @@ class ProductLabelLayout(models.TransientModel):
     def _compute_zld_label_ids(self):
         for rec in self:
             # Update domain for zld_label_id field
-            if self.print_format != 'zld_label':
+            if rec.print_format != 'zld_label':
                 rec.zld_label_ids = False
                 return
 

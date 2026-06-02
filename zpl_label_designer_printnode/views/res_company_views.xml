@@ -9,7 +9,8 @@
             <field name="inherit_id" ref="printnode_base.view_company_form" />
             <field name="arch" type="xml">
             <xpath expr="//group[@name='product_labels_settings']" position="after">
-                <group invisible="print_labels_format != 'zld_label'">
+                <!--Default Product Label for scenario-->
+                <group invisible="print_labels_format != 'zld_label'" colspan="2">
                     <field name="print_product_zld_label_id"
                             class="oe_inline mt-2"
                             options="{'no_create': True, 'no_edit': True, 'no_open': True}"
@@ -18,11 +19,106 @@
                     <p class="mb-0 mt-0">
                         <small>
                             This product label will be used in scenarios where you need to print a label for a product.
-                            Note that you can use only Product Variant (product.product) labels.
+                            Note that you can use only Product Variant (product.product) labels
                         </small>
                     </p>
                 </group>
-                </xpath>
+
+                <!-- Default Label for Print Labels Wizard -->
+                <div colspan="2" class="col-12 px-0 mt-5 mb-3">
+                    <div class="bg-secondary bg-opacity-50 px-2 py-1">
+                        <h2 class="m-0">Print Label Wizard Settings</h2>
+                    </div>
+                </div>
+                <group name="wizard_labels_settings" colspan="2">
+                    <field name="print_wizard_label_format"
+                            class="mt-2"
+                            options="{'no_open': [('printnode_enabled', '=', False)], 'avosave': false}"
+                            readonly="printnode_enabled == False" />
+                    <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                    <p class="mb-0 mt-0">
+                        <small>
+                            This option sets the default label format for the Print Labels wizard.
+                            If this field is left blank, the standard Odoo label format '2 x 7 with price' will be used by default
+                        </small>
+                    </p>
+                </group>
+
+                <!--Default Product Template Label for wizard-->
+                <group invisible="print_wizard_label_format != 'zld_label'">
+                    <field name="print_pt_zld_label_id"
+                            class="oe_inline mt-2"
+                            options="{'no_create': True, 'no_edit': True, 'no_open': True}"/>
+                    <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                    <p class="mb-0 mt-0">
+                        <small>
+                            This ZPL label will be used by default when printing labels
+                            for product templates through the Print Labels wizard (Product Template → Actions → Print Labels).
+                            Note that only Product Template (product.template) labels can be used
+                        </small>
+                    </p>
+                </group>
+
+                <!--Default Product Variant Label for wizard-->
+                <group invisible="print_wizard_label_format != 'zld_label'" class="mt-2">
+                    <field name="print_pp_zpl_label_id"
+                            class="oe_inline mt-2"
+                            options="{'no_create': True, 'no_edit': True, 'no_open': True}"/>
+                    <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                    <p class="mb-0 mt-0">
+                        <small>
+                            This ZPL label will be used by default when printing labels
+                            for product variants through the Print Labels wizard (Product Variant → Actions → Print Labels).
+                            Note that only Product Variant (product.product) labels can be used
+                        </small>
+                    </p>
+                </group>
+
+                <!--Default Picking Label for wizard-->
+                <group invisible="print_wizard_label_format != 'zld_label'" class="mt-2">
+                    <field name="print_picking_zld_label_id"
+                            class="oe_inline mt-2"
+                            options="{'no_create': True, 'no_edit': True, 'no_open': True}"/>
+                    <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                    <p class="mb-0 mt-0">
+                        <small>
+                            This ZPL label will be used by default when printing product labels
+                            for transfers through the Print Labels wizard (Transfer → Actions → Print → Labels).
+                            Note that only Product Variant (product.product) labels can be used
+                        </small>
+                    </p>
+                </group>
+
+                <!--Default Batch Picking Label for wizard-->
+                <group invisible="print_wizard_label_format != 'zld_label'" class="mt-2">
+                    <field name="print_batch_zld_label_id"
+                            class="oe_inline mt-2"
+                            options="{'no_create': True, 'no_edit': True, 'no_open': True}"/>
+                    <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                    <p class="mb-0 mt-0">
+                        <small>
+                            This ZPL label will be used by default when printing labels
+                            for batch transfers through the Print Labels wizard (Batch Transfer → Print Labels).
+                            Note that only Product Variant (product.product) labels can be used
+                        </small>
+                    </p>
+                </group>
+
+                <!--Default Manufacturing Order Label for wizard-->
+                <group invisible="print_wizard_label_format != 'zld_label'" class="mt-2">
+                    <field name="print_mrp_zld_label_id"
+                            class="oe_inline mt-2"
+                            options="{'no_create': True, 'no_edit': True, 'no_open': True}"/>
+                    <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
+                    <p class="mb-0 mt-0">
+                        <small>
+                            This ZPL label will be used by default when printing labels
+                            for manufacturing orders through the Print Labels wizard (Manufacturing Order → Actions → Print → Print Labels).
+                            Note that only Product Variant (product.product) labels can be used
+                        </small>
+                    </p>
+                </group>
+            </xpath>
             </field>
         </record>
 

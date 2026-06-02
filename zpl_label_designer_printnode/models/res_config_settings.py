@@ -16,3 +16,28 @@ class ResConfigSettings(models.TransientModel):
         readonly=False,
         related='company_id.print_product_zld_label_id',
     )
+
+    print_pp_zpl_label_id = fields.Many2one(
+        readonly=False,
+        related='company_id.print_pp_zpl_label_id',
+    )
+
+    print_pt_zld_label_id = fields.Many2one(
+        readonly=False,
+        related='company_id.print_pt_zld_label_id',
+    )
+
+    print_picking_zld_label_id = fields.Many2one(
+        readonly=False,
+        related='company_id.print_picking_zld_label_id',
+    )
+
+    print_batch_zld_label_id = fields.Many2one(
+        readonly=False,
+        related='company_id.print_batch_zld_label_id',
+    )
+
+    print_mrp_zld_label_id = fields.Many2one(
+        readonly=False,
+        related='company_id.print_mrp_zld_label_id',
+    )

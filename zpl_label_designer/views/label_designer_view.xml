@@ -32,7 +32,7 @@
                         </div>
 
                         <group>
-                            <group>
+                            <group name="label_main">
                                 <field name="model_id" />
                                 <field name="dpi" />
                                 <field name="width" />
@@ -44,31 +44,36 @@
                                 <field name="is_modified" invisible="1" /> <!-- Required because it is used in the invisible condition above -->
                                 <field name="designer_label_id" invisible="1" /> <!-- Required because it is used in the invisible condition above -->
                             </group>
-                            <group groups="base.group_no_one">
-                                <field name="print_report_name" />
-                                <field name="print_report_name_preview" />
-                                <field name="designer_label_id" />
-                                <field name="write_date" />
-                            </group>
                         </group>
 
                         <div>
                             <small>To change label or its parameters click on "Open in Designer" button</small>
                         </div>
 
-                        <group string="Preview">
-                            <field name="preview" nolabel="1" readonly="1" widget="zld_label_preview" colspan="2" />
-                        </group>
-                        <div>
-                            <small>
-                                The preview may have inaccuracies in the display of elements due
-                                to the difference of the fonts used in the designer and in ZPL
-                            </small>
-                        </div>
-
-                        <div>
-                            <small>Preview provided by <a href="http://labelary.com/" target="_blank">Labelary</a></small>
-                        </div>
+                        <notebook>
+                            <page string="Preview" name="preview">
+                                <group>
+                                    <field name="preview" nolabel="1" readonly="1" widget="zld_label_preview" colspan="2" />
+                                </group>
+                                <div>
+                                    <small>
+                                        The preview may have inaccuracies in the display of elements due
+                                        to the difference of the fonts used in the designer and in ZPL
+                                    </small>
+                                </div>
+                                <div>
+                                    <small>Preview provided by <a href="http://labelary.com/" target="_blank">Labelary</a></small>
+                                </div>
+                            </page>
+                            <page string="Technical Details" name="technical" groups="base.group_no_one">
+                                <group>
+                                    <field name="print_report_name" />
+                                    <field name="print_report_name_preview" />
+                                    <field name="designer_label_id" />
+                                    <field name="write_date" />
+                                </group>
+                            </page>
+                        </notebook>
                     </sheet>
                 </form>
             </field>
