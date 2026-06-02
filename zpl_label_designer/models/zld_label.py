@@ -1,3 +1,5 @@
+import re
+
 from typing import Any, Dict, List, Union
 
 from odoo import api, exceptions, fields, models, _
@@ -6,6 +8,8 @@ from odoo.tools.safe_eval import safe_eval
 
 LABEL_VIEW_XMLID = 'zpl_label_designer.{model}_label_{label_id}'
 LABEL_ACTION_REPORT_XMLID = 'zpl_label_designer.{model}_label_action_{label_id}'
+FORMULA_PREFIX = 'FORMULA:'
+FORMULA_DOC_FIELD_REGEX = re.compile(r'\bdoc\.([a-zA-Z_][a-zA-Z0-9_]*)')
 
 
 class Label(models.Model):
@@ -136,7 +140,8 @@ class Label(models.Model):
     def unlink(self):
         for label in self:
             if label.is_published:
-                raise exceptions.UserError(_('Cannot delete published label'))
+                raise exceptions.UserError(
+                    _('Cannot delete published label. Please, unpublish it in Odoo first'))
 
             if not self.env.is_superuser() and label.designer_label_id:
                 raise exceptions.UserError(_(
@@ -198,6 +203,10 @@ class Label(models.Model):
         self.is_published = False
 
         return True
+
+    def update_published_label(self):
+        self.publish()
+        self.is_modified = False
 
     def open_view(self):
         self.ensure_one()
@@ -262,7 +271,7 @@ class Label(models.Model):
 
         if not label:
             # TODO: Maybe it's better just to return success?
-            raise ValueError(_('Not label with such ID found in Odoo'))
+            raise ValueError(_('No label with such ID found'))
 
         # This will raise exception if label published
         label.unlink()
@@ -275,13 +284,15 @@ class Label(models.Model):
         # Validate fields
         self._validate_label_fields(model_name, fields)
 
+        Model = self.env[model_name]
+
         # Try to find objects with not empty fields
-        domain = [(f, '!=', False) for f in fields.keys()]
-        random_record = self.env[model_name].search(domain, limit=1)
+        domain = [(f, '!=', False) for f in self._get_domain_field_names(Model, fields)]
+        random_record = Model.search(domain, limit=1)
 
         if not random_record:
             # If no object found, try to find any object
-            random_record = self.env[model_name].search([], limit=1)
+            random_record = Model.search([], limit=1)
 
         # Example of fields: [{"order_line": ["product_id.name", "product_uom_qty"]}, "state"]
         # We need to leave only fields that are in fields list
@@ -312,18 +323,19 @@ class Label(models.Model):
         self.is_published = True
 
     def _get_random_record(self, model_name: str, fields: Dict[str, Union[None, List[Any], Dict[str, Any]]]):  # NOQA
-            """
-            This method returns random record from model
-            (tries to find record with fields that are not empty)
-            """
-            domain = [(f, '!=', False) for f in fields.keys()]
-            random_record = self.env[model_name].search(domain, limit=1)
+        """
+        This method returns random record from model
+        (tries to find record with fields that are not empty)
+        """
+        Model = self.env[model_name]
+        domain = [(f, '!=', False) for f in self._get_domain_field_names(Model, fields)]
+        random_record = Model.search(domain, limit=1)
 
-            if not random_record:
-                # If no object found, try to find any object
-                random_record = self.env[model_name].search([], limit=1)
+        if not random_record:
+            # If no object found, try to find any object
+            random_record = Model.search([], limit=1)
 
-            return random_record
+        return random_record
 
     def _create_label_view(self, view_content: str):
         """ This method creates view for current label
@@ -405,6 +417,7 @@ class Label(models.Model):
 
         label_fields = attrs.pop('label_fields', None)
 
+        self._check_formula_support(label_fields)
         self._validate_label_fields(model_name, label_fields)
 
         return qweb_xml, label_fields, attrs
@@ -434,7 +447,10 @@ class Label(models.Model):
         data = {}
 
         for field, subfields in fields.items():
-            if subfields is None:
+            if cls._is_formula_field(field):
+                # Formula field, for example: FORMULA:doc.name[:5]
+                data[field] = cls._get_formula_value(random_record, field)
+            elif subfields is None:
                 # Simple field
                 data[field] = getattr(random_record, field)
             elif isinstance(subfields, dict):
@@ -460,6 +476,27 @@ class Label(models.Model):
         model_label = Model._description
 
         for field, subfields in fields.items():
+            if self._is_formula_field(field):
+                # Formula field, for example: FORMULA:doc.name[:5]
+                if subfields is not None:
+                    raise ValueError('Formula field should not have subfields')
+
+                formula_fields = self._get_formula_field_names(field)
+                if not formula_fields:
+                    raise exceptions.UserError(
+                        _("Formula '{}' does not contain doc fields").format(
+                            self._get_formula_expression(field)
+                        )
+                    )
+
+                for formula_field in formula_fields:
+                    if formula_field not in Model._fields:
+                        raise exceptions.UserError(
+                            _("Field '{}' does not exist in model '{}' ({})").format(formula_field, model_label, model_name)  # NOQA
+                        )
+
+                continue
+
             if field not in Model._fields:
                     raise exceptions.UserError(
                         _("Field '{}' does not exist in model '{}' ({})").format(field, model_label, model_name)  # NOQA
@@ -486,6 +523,112 @@ class Label(models.Model):
                 self._validate_label_fields(Model._fields[field].comodel_name, subfields[0])
             else:
                 raise ValueError('Something is wrong with used fields')
+
+    @staticmethod
+    def _is_formula_field(field):
+        """
+        Check if field is a formula expression.
+        """
+        return isinstance(field, str) and field.startswith(FORMULA_PREFIX)
+
+    @classmethod
+    def _get_formula_expression(cls, formula):
+        """
+        Get formula expression without technical prefix.
+        Example:
+            FORMULA:doc.name[:5]
+            -> doc.name[:5]
+        """
+        if cls._is_formula_field(formula):
+            return formula[len(FORMULA_PREFIX):]
+
+        return formula
+
+    @classmethod
+    def _get_formula_field_names(cls, formula):
+        """
+        Get field names used in formula expression.
+        """
+        formula = cls._get_formula_expression(formula)
+        return list(dict.fromkeys(FORMULA_DOC_FIELD_REGEX.findall(formula)))
+
+    @classmethod
+    def _get_domain_field_names(cls, Model, fields):
+        """
+        Get field names to use in search domain.
+        Non-stored fields are excluded because Odoo builds SQL queries in to_sql()
+        for search, and non-stored fields (store=False) do not exist in the database.
+
+        Example:
+            {
+                "FORMULA:doc.name[:5]": None,
+                "hs_code": None,
+            }
+            -> ["name", "hs_code"]
+        """
+        field_names = []
+
+        for field in fields.keys():
+            if cls._is_formula_field(field):
+                field_names.extend(cls._get_formula_field_names(field))
+            else:
+                field_names.append(field)
+
+        result = []
+        for f in dict.fromkeys(field_names):
+            model_field = Model._fields.get(f)
+            if model_field and model_field.store and model_field.column_type:
+                result.append(f)
+
+        return result
+
+    @classmethod
+    def _get_formula_value(cls, random_record, formula):
+        """
+        Evaluate formula using random record and return result as string.
+
+        Example:
+            random_record.name = "Acoustic Bloc Screens"
+            formula = "FORMULA:doc.name[:5]"
+            result = "Acous"
+        """
+        formula_expression = cls._get_formula_expression(formula)
+
+        try:
+            value = safe_eval(formula_expression, {'doc': random_record})
+        except Exception as e:
+            raise exceptions.UserError(
+                _("Formula '{}' cannot be evaluated: {}").format(formula_expression, e)
+            )
+
+        if value is False or value is None:
+            return ''
+
+        if isinstance(value, models.BaseModel):
+            return value.display_name
+
+        return str(value)
+
+    @api.model
+    def _check_formula_support(self, label_fields):
+        """
+        Raise an error if the label uses formulas while formula support is disabled.
+        Formula fields are stored as keys that start with 'FORMULA:', for example:
+            {
+                "FORMULA:doc.name[:5]": None,
+                "hs_code": None,
+            }
+        """
+        if not label_fields:
+            return
+
+        has_formulas = any(self._is_formula_field(field) for field in label_fields)
+
+        if has_formulas and not self.env.company.sudo().enable_formulas:
+            raise exceptions.UserError(_(
+                "This label contains formulas, but formula support is currently disabled.\n\n"
+                "Please enable formula support in the ZPL Label Designer settings in Odoo."
+            ))
 
     #
     # Method to call from UI

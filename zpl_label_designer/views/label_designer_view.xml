@@ -11,6 +11,7 @@
                     <header groups="zpl_label_designer.zld_security_group_manager">
                         <button name="open_in_designer" string="Open in Designer" type="object" attrs="{'invisible': [('designer_label_id', '=', False)]}" />
                         <button name="publish" string="Publish" type="object" class="oe_highlight" attrs="{'invisible': [('action_report_id', '!=', False)]}" />
+                        <button name="update_published_label" string="Update Published Label" type="object" class="oe_highlight" attrs="{'invisible': ['|', ('is_published', '=', False), ('is_modified', '=', False)]}"/>
                         <button name="unpublish" string="Unpublish" type="object" attrs="{'invisible': [('action_report_id', '=', False)]}"/>
                         <button name="open_view" string="Open Label View" type="object" groups="base.group_no_one" attrs="{'invisible': [('view_id', '=', False)]}"/>
                     </header>

@@ -9,6 +9,12 @@ API_KEY_SIZE = 20  # in bytes
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
+    enable_formulas = fields.Boolean(
+        string='Enable Formulas',
+        related='company_id.enable_formulas',
+        readonly=False,
+    )
+
     zld_allowed_models = fields.Many2many(
         'ir.model',
         readonly=False,

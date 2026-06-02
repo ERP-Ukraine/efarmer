@@ -1,9 +1,11 @@
 import functools
+import traceback
 
 from odoo import api, SUPERUSER_ID
 from odoo.modules.registry import Registry
-from odoo.http import request, db_filter
-from werkzeug.exceptions import BadRequest, NotFound, Unauthorized
+from odoo.http import request, db_list
+
+from .exceptions import BadDatabaseName, InvalidAPIKey, MissedModule, MissedRequiredParameters
 
 
 def add_env(func):
@@ -14,7 +16,10 @@ def add_env(func):
     def wrapper(*args, **kwargs):
         db = kwargs.get('db')
         if not db:
-            raise BadRequest("Database name is required")
+            raise BadDatabaseName()
+
+        if db not in db_list():
+            raise BadDatabaseName()
 
         registry = Registry(db).check_signaling()
         with registry.cursor() as cr:
@@ -35,10 +40,10 @@ def validate(func):
         # Validate database
         db = kwargs.get('db')
         if not db:
-            raise BadRequest("Database name is required")
+            raise BadDatabaseName()
 
-        if not db_filter([db]):
-            raise NotFound('Database not found')
+        if db not in db_list():
+            raise BadDatabaseName()
 
         request.session.db = db
         env = request.env(user=SUPERUSER_ID)
@@ -46,13 +51,16 @@ def validate(func):
         # Validate API Key
         if not hasattr(env['res.config.settings'], 'get_zld_api_key'):
             # Most likely that no module installed
-            raise NotFound('ZPL Label Designer module is not installed or need to be upgraded')
+            raise MissedModule()
 
-        key_from_odoo = env['res.config.settings'].get_zld_api_key()
-        key_from_request = request.httprequest.headers.get('ZLD-API-KEY')
+        key_from_odoo = (env['res.config.settings'].get_zld_api_key() or '').strip()
+        key_from_request = (request.httprequest.headers.get('ZLD-API-KEY') or '').strip()
+
+        if not key_from_request or not key_from_odoo:
+            raise InvalidAPIKey()
 
         if key_from_odoo != key_from_request:
-            raise Unauthorized('Invalid API key')
+            raise InvalidAPIKey()
 
         return func(*args, **kwargs)
     return wrapper
@@ -65,15 +73,40 @@ def required(*arguments):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            if request.httprequest.method == 'GET':
-                data = request.args
-            else:
-                data = request.jsonrequest
+            # Only POST requests are allowed
+            data = request.jsonrequest.get('params', {})
 
             for arg in arguments:
                 if arg not in data:
-                    raise BadRequest(f"Required parameters missed: {arg}")
+                    raise MissedRequiredParameters(arg)
 
             return func(*args, **kwargs)
         return wrapper
     return decorator
+
+
+def catchall(func):
+    """
+    Catch all exceptions and return them in JSON format.
+
+    This decorator allows to avoid logging exceptions in Odoo logs and provides a way to
+    return them in user-friendly format.
+
+    By default, Odoo returns complex error data, including traceback and other information. Also,
+    exceptions will be logged in Odoo logs.
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            return {
+                'error': {
+                    'code': e.code if hasattr(e, 'code') else -1,
+                    'message': str(e),
+                    # Add traceback only for development purposes
+                    # TODO: Add special setting for this?
+                    'traceback': traceback.format_exc(),
+                }
+            }
+    return wrapper

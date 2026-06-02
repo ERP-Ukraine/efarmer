@@ -1,10 +1,10 @@
-import json
-
 from odoo import fields, release
-from odoo.http import Controller, route, request, Response
-from werkzeug.exceptions import NotFound
+from odoo.http import Controller, route, request
 
-from .utils import add_env, required, validate
+from .exceptions import (
+    CreateLabelError, DeleteLabelError, ModelNotAllowed, PreviewError, UpdateLabelError
+)
+from .utils import add_env, catchall, required, validate
 
 
 ALLOWED_FIELDS = [
@@ -16,6 +16,14 @@ ALLOWED_FIELDS = [
     fields.One2many, fields.Many2many,
 ]
 FIELDS_TO_IGNORE = ['create_uid', 'write_uid']
+CREATE_LABEL_REQUIRED_FIELDS = [
+    'name', 'model', 'qweb_xml', 'label_fields',
+    'width', 'height', 'dpi', 'orientation', 'designer_label_id',
+]
+UPDATE_LABEL_REQUIRED_FIELDS = [
+    'name', 'model', 'qweb_xml', 'label_fields',
+    'width', 'height', 'dpi', 'orientation', 'designer_label_id',
+]
 
 RESPONSE_HEADERS = {
     'Content-Type': 'application/json',
@@ -23,7 +31,8 @@ RESPONSE_HEADERS = {
 
 
 class ZLDController(Controller):
-    @route('/zld/<string:db>/ping', type='http', auth='none', methods=['GET'])
+    @route('/zld/<string:db>/ping', type='json', auth='none', csrf=False, methods=['POST'])
+    @catchall
     @add_env
     @validate
     def ping(self, db):
@@ -34,11 +43,15 @@ class ZLDController(Controller):
             [['name', '=', 'zpl_label_designer']]).latest_version
         odoo_version = release.major_version
 
-        return request.make_response(
-            json.dumps({'data': {'odoo_version': odoo_version, 'zld_version': module_version}}),
-            headers=RESPONSE_HEADERS)
+        return {
+            'data': {
+                'odoo_version': odoo_version,
+                'zld_version': module_version,
+            }
+        }
 
-    @route('/zld/<string:db>/models', type='http', auth='none', methods=['GET'])
+    @route('/zld/<string:db>/models', type='json', auth='none', csrf=False, methods=['POST'])
+    @catchall
     @add_env
     @validate
     def get_allowed_models(self, db, *args, **kwargs):
@@ -49,13 +62,15 @@ class ZLDController(Controller):
             {'id': model.id, 'model': model.model, 'name': model.name}
             for model in request.env.company.zld_allowed_models.sudo()]
 
-        return request.make_response(
-            json.dumps({'data': allowed_models}),
-            headers=RESPONSE_HEADERS)
+        return {
+            'data': allowed_models,
+        }
 
-    @route('/zld/<string:db>/fields/<string:model>', type='http', auth='none', methods=['GET'])
+    @route('/zld/<string:db>/fields', type='json', auth='none', csrf=False, methods=['POST'])
+    @catchall
     @add_env
     @validate
+    @required('model')
     def get_allowed_fields(self, db, model, *args, **kwargs):
         """
         Returns list of fields to use in label design (sorted by label)
@@ -63,8 +78,8 @@ class ZLDController(Controller):
 
         :param model: optional str: 'res.company', 'res.partner', ...
         """
-        if model not in request.env:
-            raise NotFound('Model does not found')
+        # We do not check for allowed models here because we need to have possibility
+        # to get fields for any model to use in label design
 
         fields_ = []
 
@@ -82,73 +97,82 @@ class ZLDController(Controller):
 
         fields_.sort(key=lambda d: d['label'])
 
-        return request.make_response(
-            json.dumps({'data': fields_}),
-            headers=RESPONSE_HEADERS)
+        return {
+            'data': fields_,
+        }
 
     @route('/zld/<string:db>/preview', type='json', auth='none', csrf=False, methods=['POST'])
+    @catchall
     @add_env
     @validate
     @required('model', 'fields')
-    def get_preview(self, db, *args, **kwargs):
+    def get_preview(self, db, model, fields, *args, **kwargs):
         """
         Returns preview with demo data.
         """
-        data = request.jsonrequest
-        model = data['model']
-        fields = data['fields']
+        # Check that model is in allowed models
+        allowed_model_names = [m.model for m in request.env.company.zld_allowed_models.sudo()]
+        if model not in allowed_model_names:
+            raise ModelNotAllowed()
 
         try:
             data_for_preview = request.env['zld.label'].get_preview_data(model, fields)
         except Exception as e:
-            return Response(
-                json.dumps({'error': str(e)}),
-                status=400,
-                headers=RESPONSE_HEADERS)
+            raise PreviewError(str(e))
 
-        return data_for_preview
+        return {
+            'data': data_for_preview,
+        }
 
     @route('/zld/<string:db>/labels', type='json', auth='none', csrf=False, methods=['POST'])
+    @catchall
     @add_env
     @validate
-    @required('name', 'model', 'qweb_xml', 'label_fields', 'width', 'height', 'dpi', 'orientation', 'designer_label_id')  # NOQA
+    @required(*CREATE_LABEL_REQUIRED_FIELDS)
     def create_label(self, db, *args, **kwargs):
         """
         Return preview with demo data.
         """
-        data = request.jsonrequest
+        data = {field: kwargs.get(field) for field in CREATE_LABEL_REQUIRED_FIELDS}
+
+        model = data['model']
+
+        # Check that model is in allowed models
+        allowed_model_names = [m.model for m in request.env.company.zld_allowed_models.sudo()]
+        if model not in allowed_model_names:
+            raise ModelNotAllowed()
 
         try:
             label_id = request.env['zld.label'].create_label(data)
         except Exception as e:
-            return Response(
-                json.dumps({'error': str(e)}),
-                status=400,
-                headers=RESPONSE_HEADERS)
+            raise CreateLabelError(str(e))
 
-        return {'label_id': label_id}
+        return {
+            'data': {'label_id': label_id}
+        }
 
-    @route('/zld/<string:db>/labels/<int:label_id>', type='json', auth='none', csrf=False, methods=['PUT'])  # NOQA
+    @route('/zld/<string:db>/labels/<int:label_id>', type='json', auth='none',csrf=False,  methods=['POST'])  # NOQA
+    @catchall
     @add_env
     @validate
-    @required('name', 'qweb_xml', 'label_fields', 'width', 'height', 'dpi', 'orientation', 'designer_label_id')  # NOQA
+    @required(*UPDATE_LABEL_REQUIRED_FIELDS)
     def update_label(self, db, label_id, *args, **kwargs):
         """
         Update label and return label ID.
         """
-        data = request.jsonrequest
+        data = {field: kwargs.get(field) for field in UPDATE_LABEL_REQUIRED_FIELDS}
 
         try:
             label_id = request.env['zld.label'].update_label(label_id, data)
         except Exception as e:
-            return Response(
-                json.dumps({'error': str(e)}),
-                status=400,
-                headers=RESPONSE_HEADERS)
+            raise UpdateLabelError(str(e))
 
-        return {'label_id': label_id}
+        return {
+            'data': {'label_id': label_id},
+        }
 
-    @route('/zld/<string:db>/labels/<int:label_id>', type='http', auth='none', csrf=False, methods=['DELETE'])  # NOQA
+    @route('/zld/<string:db>/labels/<int:label_id>/delete', type='json', auth='none', csrf=False, methods=['POST'])  # NOQA
+    @catchall
     @add_env
     @validate
     def delete_label(self, db, label_id, *args, **kwargs):
@@ -158,11 +182,8 @@ class ZLDController(Controller):
         try:
             request.env['zld.label'].delete_label(label_id)
         except Exception as e:
-            return Response(
-                json.dumps({'error': str(e)}),
-                status=400,
-                headers=RESPONSE_HEADERS)
+            raise DeleteLabelError(str(e))
 
-        return request.make_response(
-            json.dumps({'data': []}),
-            headers=RESPONSE_HEADERS)
+        return {
+            'data': {},
+        }

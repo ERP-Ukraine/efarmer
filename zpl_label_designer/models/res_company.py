@@ -10,8 +10,16 @@ ALLOWED_MODELS_TO_ZLD_LABEL = [
 class Company(models.Model):
     _inherit = 'res.company'
 
+    enable_formulas = fields.Boolean(
+        string='Enable Formulas',
+        default=False,
+    )
+
     zld_allowed_models = fields.Many2many(
         'ir.model',
+        relation='ir_model_res_company_zld_rel',
+        column1='company_id',
+        column2='model_id',
         string='Allowed models to "ZPL Label Designer"',
     )
 

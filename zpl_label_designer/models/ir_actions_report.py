@@ -20,11 +20,12 @@ class IrActionsReport(models.Model):
         the wizard.
         """
         docids = []
-        for p, q in data.get('quantity_by_product', {}).items():
+        quantity_by_product = data.get('quantity_by_product', {})
+        for p, q in quantity_by_product.items():
             docids += [int(p) for i in range(q)]
 
-        # Append custom_barcodes products as well
-        for p, barcodes in data.get('custom_barcodes', {}).items():
-            docids += [int(p) for i in range(barcodes[0][1])]
+        custom_barcodes = data.get('custom_barcodes', {})
+        for barcode, qty in custom_barcodes.items():
+            docids += [docids[0]] * sum(qty.values())
 
         return docids

@@ -16,7 +16,7 @@
         Stock Label | Lot Label | Serial Label | Odoo ZPL | Designer Label | Creating Label | Create ZPL |
         Document Label | Package Label | Packaging Label | Price Label | Label Builder
     """,
-    'version': '15.0.1.3.2',
+    'version': '15.0.2.0.0',
     'category': 'Tools',
     "images": ["static/description/images/banner.gif"],
     'author': 'VentorTech',
