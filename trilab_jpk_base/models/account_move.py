@@ -218,6 +218,12 @@ class AccountMove(models.Model):
 
             move_id.pl_vat_date = date
 
+            if move_id.move_type in ('in_invoice', 'in_refund'):
+                if move_id.x_pl_ksef_invoice_number and move_id.x_pl_ksef_invoice_proof:
+                    move_id.write({'x_pl_ksef_invoice_proof': False})
+                elif not move_id.x_pl_ksef_invoice_number and not move_id.x_pl_ksef_invoice_proof:
+                    move_id.write({'x_pl_ksef_invoice_proof': 'BFK'})
+
         return response
 
     @api.onchange('partner_id')
