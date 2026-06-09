@@ -297,6 +297,7 @@ class AccountMove(models.Model):
 
             if invoice_id.x_ksef_last_invoice_status == KsefStatusCode.OK:
                 invoice_id.x_pl_ksef_invoice_number = invoice_status.ksef_number
+                invoice_id.x_pl_ksef_invoice_proof = False
             elif invoice_id.x_ksef_last_invoice_status > KsefStatusCode.OK:
                 self.company_id.x_ksef_notify_admins(
                     note=invoice_id.x_ksef_format_error_html(
@@ -367,6 +368,7 @@ class AccountMove(models.Model):
                     {
                         'x_ksef_invoice_reference': invoice_status.reference_number,
                         'x_pl_ksef_invoice_number': invoice_status.ksef_number,
+                        'x_pl_ksef_invoice_proof': False,
                         'x_ksef_last_invoice_status': invoice_status.status.code,
                     }
                 )
@@ -619,7 +621,10 @@ class AccountMove(models.Model):
                                 default_journal_id=journal_id,
                                 x_ksef_partner_id=partner_id,
                             )
-                            .create({'x_pl_ksef_invoice_number': filename.removesuffix('.xml')})
+                            .create({
+                                'x_pl_ksef_invoice_number': filename.removesuffix('.xml'),
+                                'x_pl_ksef_invoice_proof': False,
+                            })
                         )
                         attachment_id = (
                             self.sudo()
