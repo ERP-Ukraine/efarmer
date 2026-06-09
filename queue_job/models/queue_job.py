@@ -75,9 +75,6 @@ class QueueJob(models.Model):
 
     model_name = fields.Char(string="Model", readonly=True)
     method_name = fields.Char(readonly=True)
-    # record_ids field is only for backward compatibility (e.g. used in related
-    # actions), can be removed (replaced by "records") in 14.0
-    record_ids = JobSerialized(compute="_compute_record_ids", base_type=list)
     records = JobSerialized(
         string="Record(s)",
         readonly=True,
@@ -104,7 +101,7 @@ class QueueJob(models.Model):
     date_done = fields.Datetime(readonly=True)
     exec_time = fields.Float(
         string="Execution Time (avg)",
-        group_operator="avg",
+        aggregator="avg",
         help="Time required to execute this job in seconds. Average when grouped.",
     )
     date_cancelled = fields.Datetime(readonly=True)
@@ -141,11 +138,6 @@ class QueueJob(models.Model):
                 "ON queue_job (identity_key) WHERE state in ('pending', "
                 "'enqueued', 'wait_dependencies') AND identity_key IS NOT NULL;"
             )
-
-    @api.depends("records")
-    def _compute_record_ids(self):
-        for record in self:
-            record.record_ids = record.records.ids
 
     @api.depends("dependencies")
     def _compute_dependency_graph(self):
@@ -210,10 +202,9 @@ class QueueJob(models.Model):
         }
         return {
             "id": self.id,
-            "title": "<strong>%s</strong><br/>%s"
-            % (
-                html_escape(self.display_name),
-                html_escape(self.func_string),
+            "title": (
+                f"<strong>{html_escape(self.display_name)}</strong><br/>"
+                f"{html_escape(self.func_string)}"
             ),
             "color": colors.get(self.state, default)[0],
             "border": colors.get(self.state, default)[1],
@@ -320,7 +311,7 @@ class QueueJob(models.Model):
             if state == DONE:
                 job_.set_done(result=result)
                 job_.store()
-                record.env["queue.job"].flush()
+                record.env["queue.job"].flush_model()
                 job_.enqueue_waiting()
             elif state == PENDING:
                 job_.set_pending(result=result)
@@ -328,23 +319,25 @@ class QueueJob(models.Model):
             elif state == CANCELLED:
                 job_.set_cancelled(result=result)
                 job_.store()
+                record.env["queue.job"].flush_model()
+                job_.cancel_dependent_jobs()
             else:
-                raise ValueError("State not supported: %s" % state)
+                raise ValueError(f"State not supported: {state}")
 
     def button_done(self):
-        result = _("Manually set to done by %s") % self.env.user.name
+        result = _("Manually set to done by {}").format(self.env.user.name)
         self._change_job_state(DONE, result=result)
         return True
 
     def button_cancelled(self):
-        result = _("Cancelled by %s") % self.env.user.name
+        result = _("Cancelled by {}").format(self.env.user.name)
         self._change_job_state(CANCELLED, result=result)
         return True
 
     def requeue(self):
         jobs_to_requeue = self.filtered(lambda job_: job_.state != WAIT_DEPENDENCIES)
         jobs_to_requeue._change_job_state(PENDING)
-        return jobs_to_requeue
+        return True
 
     def _message_post_on_failure(self):
         # subscribe the users now to avoid to subscribe them
@@ -379,9 +372,8 @@ class QueueJob(models.Model):
         """
         self.ensure_one()
         return _(
-            "Something bad happened during the execution of job %s. "
-            "More details in the 'Exception Information' section.",
-            self.uuid,
+            "Something bad happened during the execution of the job. "
+            "More details in the 'Exception Information' section."
         )
 
     def _needaction_domain_get(self):
@@ -417,23 +409,20 @@ class QueueJob(models.Model):
                     break
         return True
 
-    def requeue_stuck_jobs(self, enqueued_delta=1, started_delta=0):
+    def requeue_stuck_jobs(self, enqueued_delta=5, started_delta=0):
         """Fix jobs that are in a bad states
 
         :param in_queue_delta: lookup time in minutes for jobs
-                               that are in enqueued state,
-                               0 means that it is not checked
+                                that are in enqueued state
 
         :param started_delta: lookup time in minutes for jobs
-                              that are in started state,
-                              0 means that it is not checked,
-                              -1 will use `--limit-time-real` config value
+                                that are in enqueued state,
+                                0 means that it is not checked
         """
-        if started_delta == -1:
-            started_delta = (config["limit_time_real"] // 60) + 1
-        return self._get_stuck_jobs_to_requeue(
+        self._get_stuck_jobs_to_requeue(
             enqueued_delta=enqueued_delta, started_delta=started_delta
         ).requeue()
+        return True
 
     def _get_stuck_jobs_domain(self, queue_dl, started_dl):
         domain = []

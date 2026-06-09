@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<odoo noupdate="0">
+<odoo>
     <record id="GTU_01" model="jpk.gtu">
         <field name="name">GTU_01</field>
         <field name="description">Dostawa napojów alkoholowych - alkoholu etylowego, piwa, wina, napojów fermentowanych i wyrobów pośrednich, w rozumieniu przepisów o podatku akcyzowym.</field>

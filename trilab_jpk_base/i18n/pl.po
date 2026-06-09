@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 15.0+e\n"
+"Project-Id-Version: Odoo Server 18.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-20 10:42+0000\n"
-"PO-Revision-Date: 2026-02-20 10:42+0000\n"
+"POT-Creation-Date: 2026-02-20 13:48+0000\n"
+"PO-Revision-Date: 2026-02-20 13:48+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -37,35 +37,23 @@ msgid "Attachment"
 msgstr "Załącznik"
 
 #. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_b_mpv_prowizja
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_b_mpv_prowizja
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_b_mpv_prowizja
-msgid "B-MPV Prowizja"
-msgstr ""
-
-#. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_b_spv
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_b_spv
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_b_spv
-msgid "B-SPV"
-msgstr ""
-
-#. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_b_spv_dostawa
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_b_spv_dostawa
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_b_spv_dostawa
-msgid "B-SPV Dostawa"
-msgstr ""
-
-#. module: trilab_jpk_base
 #: model:ir.model.fields.selection,name:trilab_jpk_base.selection__account_move__x_pl_ksef_invoice_proof__bfk
 msgid "BFK"
 msgstr ""
 
 #. module: trilab_jpk_base
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_base.move_resequence
+msgid "Cancel"
+msgstr "Anuluj"
+
+#. module: trilab_jpk_base
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_mixin__cel_zlozenia
+msgid "Cel złożenia"
+msgstr ""
+
+#. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_change_jpk_proof
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_change_jpk_proof
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_change_jpk_proof
 msgid "Change JPK Proof Document"
 msgstr "Zmień nr potwierdzenia JPK"
 
@@ -99,6 +87,7 @@ msgstr "Powiat"
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_type__create_uid
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_gtu__create_uid
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_taxoffice__create_uid
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_trilab_jpk_base_move_resequence__create_uid
 msgid "Created by"
 msgstr "Utworzone przez"
 
@@ -107,6 +96,7 @@ msgstr "Utworzone przez"
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_type__create_date
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_gtu__create_date
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_taxoffice__create_date
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_trilab_jpk_base_move_resequence__create_date
 msgid "Created on"
 msgstr "Utworzone"
 
@@ -118,7 +108,6 @@ msgstr ""
 #. module: trilab_jpk_base
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_ksef_invoice_proof
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_pl_ksef_invoice_proof
-#: model:ir.model.fields,help:trilab_jpk_base.field_account_payment__x_pl_ksef_invoice_proof
 msgid ""
 "Dane z faktur lub oznaczenia dotyczące występowania faktur w Krajowym Systemie e-Faktur\n"
 "OFF - Faktura, o której mowa w art. 106nf ust. 1 ustawy, która na dzień złożenia ewidencji nie posiada numeru identyfikującego tę fakturę w Krajowym Systemie e-Faktur\n"
@@ -137,21 +126,18 @@ msgstr "Opis"
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_type__display_name
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_gtu__display_name
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_taxoffice__display_name
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_trilab_jpk_base_move_resequence__display_name
 msgid "Display Name"
 msgstr "Wyświetlana nazwa"
 
 #. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_dokument_zakupu
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_journal__x_pl_vat_dokument_zakupu
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_dokument_zakupu
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_dokument_zakupu
-msgid "Dokument Zakupu"
-msgstr ""
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_mixin__document_type_id
+msgid "Document Type"
+msgstr "Rodzaj dokumentu"
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_b_spv_dostawa
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_pl_vat_b_spv_dostawa
-#: model:ir.model.fields,help:trilab_jpk_base.field_account_payment__x_pl_vat_b_spv_dostawa
 msgid ""
 "Dostawa towarów oraz świadczenie usług, których dotyczy bon jednego "
 "przeznaczenia na rzecz podatnika, który wyemitował bon zgodnie z art. 8a "
@@ -161,7 +147,6 @@ msgstr ""
 #. module: trilab_jpk_base
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_tt_d
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_pl_vat_tt_d
-#: model:ir.model.fields,help:trilab_jpk_base.field_account_payment__x_pl_vat_tt_d
 msgid ""
 "Dostawa towarów poza terytorium kraju dokonana przez drugiego w kolejności "
 "podatnika VAT w ramach transakcji trójstronnej w procedurze uproszczonej, o "
@@ -171,7 +156,6 @@ msgstr ""
 #. module: trilab_jpk_base
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_mr_uz
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_pl_vat_mr_uz
-#: model:ir.model.fields,help:trilab_jpk_base.field_account_payment__x_pl_vat_mr_uz
 msgid ""
 "Dostawa towarów używanych, dzieł sztuki, przedmiotów kolekcjonerskich i "
 "antyków, opodatkowana na zasadach marży zgodnie z art. 120 ustawy."
@@ -180,17 +164,9 @@ msgstr ""
 #. module: trilab_jpk_base
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_sw
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_pl_vat_sw
-#: model:ir.model.fields,help:trilab_jpk_base.field_account_payment__x_pl_vat_sw
 msgid ""
 "Dostawa w ramach sprzedaży wysyłkowej z terytorium kraju, o której mowa w "
 "art. 23 ustawy"
-msgstr ""
-
-#. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_ee
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_ee
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_ee
-msgid "EE"
 msgstr ""
 
 #. module: trilab_jpk_base
@@ -205,39 +181,12 @@ msgid "House Number (short)"
 msgstr "Nr domu (krótki)"
 
 #. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_i42
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_i42
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_i42
-msgid "I42"
-msgstr ""
-
-#. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_i63
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_i63
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_i63
-msgid "I63"
-msgstr ""
-
-#. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_account_tag__id
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_type__id
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_gtu__id
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_taxoffice__id
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_trilab_jpk_base_move_resequence__id
 msgid "ID"
-msgstr ""
-
-#. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_ied
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_ied
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_ied
-msgid "IED"
-msgstr ""
-
-#. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_imp
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_imp
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_imp
-msgid "IMP"
 msgstr ""
 
 #. module: trilab_jpk_base
@@ -248,15 +197,30 @@ msgid ""
 msgstr "Ten e-mail będzie używany do raportu JPK VAT zamiast e-maila firmy."
 
 #. module: trilab_jpk_base
+#: model:ir.model.fields,help:trilab_jpk_base.field_product_product__x_pl_vat_mpp
+#: model:ir.model.fields,help:trilab_jpk_base.field_product_template__x_pl_vat_mpp
+msgid ""
+"Indicates that any product variants based on this template should be treated"
+" under the split payment mechanism (MPP) criteria when invoicing."
+msgstr ""
+"Wskazuje, że wszelkie warianty produktu oparte na tym szablonie powinny być "
+"traktowane zgodnie z kryteriami mechanizmu podzielonej płatności (MPP) przy "
+"wystawianiu faktury."
+
+#. module: trilab_jpk_base
+#. odoo-python
 #: code:addons/trilab_jpk_base/models/res_partner.py:0
-#, python-format
 msgid "Invalid VAT number (missing country code)"
-msgstr "Nieprawidłowy nr VAT (brakuje kodu kraju)"
+msgstr "Niepoprawny numer VAT (brakujący kod kraju)"
+
+#. module: trilab_jpk_base
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_mixin__is_jpk_transfer_installed
+msgid "Is Jpk Transfer Installed"
+msgstr "Czy Jpk Transfer jest zainstalowany"
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_tp
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_pl_vat_tp
-#: model:ir.model.fields,help:trilab_jpk_base.field_account_payment__x_pl_vat_tp
 #: model:ir.model.fields,help:trilab_jpk_base.field_res_partner__x_pl_vat_tp
 #: model:ir.model.fields,help:trilab_jpk_base.field_res_users__x_pl_vat_tp
 msgid ""
@@ -276,7 +240,13 @@ msgstr "JPK - dokumenty wysyłane okresowo"
 
 #. module: trilab_jpk_base
 #: model:ir.model,name:trilab_jpk_base.model_jpk_account_tag
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_account_tag__jpk_account_tag_ids
 msgid "JPK Account Tag"
+msgstr "Znacznik konta JPK"
+
+#. module: trilab_jpk_base
+#: model:ir.model,name:trilab_jpk_base.model_jpk_document_mixin
+msgid "JPK Document Mixin"
 msgstr ""
 
 #. module: trilab_jpk_base
@@ -291,8 +261,11 @@ msgstr ""
 
 #. module: trilab_jpk_base
 #: model:ir.model,name:trilab_jpk_base.model_jpk_gtu
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move_line__x_pl_vat_gtu
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_product_product__x_pl_vat_gtu
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_product_template__x_pl_vat_gtu
 msgid "JPK GTU"
-msgstr ""
+msgstr "GTU"
 
 #. module: trilab_jpk_base
 #: model:ir.model,name:trilab_jpk_base.model_jpk_taxoffice
@@ -301,13 +274,24 @@ msgstr "JPK Urzędy Skarbowe"
 
 #. module: trilab_jpk_base
 #: model:ir.module.category,name:trilab_jpk_base.module_trilab_jpk_transfer_management
+#: model:ir.ui.menu,name:trilab_jpk_base.jpk_main_menu
 msgid "JPK Transfer"
+msgstr "JPK Transfery"
+
+#. module: trilab_jpk_base
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_mixin__version
+msgid "JPK Version"
+msgstr "Wersja JPK"
+
+#. module: trilab_jpk_base
+#: model:ir.model.fields.selection,name:trilab_jpk_base.selection__ir_actions_report__report_type__jpk_xlsx
+msgid "JPK XLSX"
 msgstr ""
 
 #. module: trilab_jpk_base
-#: model:ir.ui.menu,name:trilab_jpk_base.jpk_main_menu
-msgid "JPK Transfers"
-msgstr "JPK Transfery"
+#: model:ir.model.fields.selection,name:trilab_jpk_base.selection__ir_actions_report__report_type__jpk_xml
+msgid "JPK XML"
+msgstr ""
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields.selection,name:trilab_jpk_base.selection__jpk_document_type__jpk_type__jpkah
@@ -325,14 +309,25 @@ msgid "Journal Entry"
 msgstr "Zapis dziennika"
 
 #. module: trilab_jpk_base
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_journal_entry_number
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_journal_entry_number
+msgid "Journal Entry Number"
+msgstr "Pozycja zapisu dziennika"
+
+#. module: trilab_jpk_base
+#: model:ir.model.constraint,message:trilab_jpk_base.constraint_account_move_unique_journal_entry_number
+msgid "Journal Entry Number must be unique."
+msgstr "Pozycja zapisu dziennika musi być unikalna."
+
+#. module: trilab_jpk_base
 #: model:ir.model,name:trilab_jpk_base.model_account_move_line
 msgid "Journal Item"
 msgstr "Pozycja zapisu"
 
 #. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_account_tag__jpk_account_tag_ids
-msgid "Jpk Account Tag"
-msgstr ""
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_trilab_jpk_base_move_resequence__journal_ids
+msgid "Journals"
+msgstr "Dzienniki"
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_account_tag__jpk_document_type
@@ -367,7 +362,6 @@ msgstr "Faktury KSeF"
 #. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_ksef_invoice_number
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_ksef_invoice_number
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_ksef_invoice_number
 #: model_terms:ir.ui.view,arch_db:trilab_jpk_base.view_account_invoice_filter
 msgid "KSeF Invoice Number"
 msgstr "Numer Faktury KSeF"
@@ -375,39 +369,23 @@ msgstr "Numer Faktury KSeF"
 #. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_ksef_invoice_proof
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_ksef_invoice_proof
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_ksef_invoice_proof
 msgid "KSeF Invoice Proof"
 msgstr "Typ Dowodu Faktury"
 
 #. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_korekta_podstawy_opodt
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_korekta_podstawy_opodt
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_korekta_podstawy_opodt
-msgid "Korekta Podstawy Opodatkowania"
-msgstr ""
-
-#. module: trilab_jpk_base
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_korekta_podstawy_opodt
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_pl_vat_korekta_podstawy_opodt
-#: model:ir.model.fields,help:trilab_jpk_base.field_account_payment__x_pl_vat_korekta_podstawy_opodt
 msgid ""
 "Korekta podstawy opodatkowania oraz podatku należnego, o której mowa w art. "
 "89a ust. 1 i 4 ustawy"
 msgstr ""
 
 #. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_account_tag____last_update
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_type____last_update
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_gtu____last_update
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_taxoffice____last_update
-msgid "Last Modified on"
-msgstr "Data ostatniej modyfikacji"
-
-#. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_account_tag__write_uid
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_type__write_uid
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_gtu__write_uid
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_taxoffice__write_uid
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_trilab_jpk_base_move_resequence__write_uid
 msgid "Last Updated by"
 msgstr "Zmodyfikowany przez"
 
@@ -416,28 +394,14 @@ msgstr "Zmodyfikowany przez"
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_type__write_date
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_gtu__write_date
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_taxoffice__write_date
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_trilab_jpk_base_move_resequence__write_date
 msgid "Last Updated on"
 msgstr "Aktualizowany"
 
 #. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_mpp
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_mpp
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_mpp
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_product_product__x_pl_vat_mpp
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_product_template__x_pl_vat_mpp
 msgid "MPP"
-msgstr ""
-
-#. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_mr_t
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_mr_t
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_mr_t
-msgid "MR-T"
-msgstr ""
-
-#. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_mr_uz
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_mr_uz
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_mr_uz
-msgid "MR-UZ"
 msgstr ""
 
 #. module: trilab_jpk_base
@@ -446,10 +410,15 @@ msgid "Manager"
 msgstr "Menedżer"
 
 #. module: trilab_jpk_base
+#. odoo-python
 #: code:addons/trilab_jpk_base/models/res_partner.py:0
-#, python-format
 msgid "Missing VAT number"
-msgstr "Brakuje NIP"
+msgstr "Brakujący numer VAT"
+
+#. module: trilab_jpk_base
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_mixin__month
+msgid "Month"
+msgstr "Miesiąc"
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_type__name
@@ -459,8 +428,8 @@ msgid "Name"
 msgstr "Nazwa"
 
 #. module: trilab_jpk_base
+#. odoo-python
 #: code:addons/trilab_jpk_base/models/jpk_document_type.py:0
-#, python-format
 msgid "Name must be unique"
 msgstr "Nazwa musi być unikalna"
 
@@ -473,14 +442,12 @@ msgstr ""
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_typ_dokumentu
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_journal__x_pl_vat_typ_dokumentu
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_pl_vat_typ_dokumentu
-#: model:ir.model.fields,help:trilab_jpk_base.field_account_payment__x_pl_vat_typ_dokumentu
 msgid "Oznaczenia dowodu sprzedaży"
 msgstr ""
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_imp
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_pl_vat_imp
-#: model:ir.model.fields,help:trilab_jpk_base.field_account_payment__x_pl_vat_imp
 msgid ""
 "Oznaczenie dotyczące podatku naliczonego z tytułu importu towarów, w tym "
 "importu towarów rozliczanego zgodnie z art. 33a ustawy."
@@ -490,13 +457,7 @@ msgstr ""
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_dokument_zakupu
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_journal__x_pl_vat_dokument_zakupu
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_pl_vat_dokument_zakupu
-#: model:ir.model.fields,help:trilab_jpk_base.field_account_payment__x_pl_vat_dokument_zakupu
 msgid "Oznaczenie dowodu zakupu"
-msgstr ""
-
-#. module: trilab_jpk_base
-#: model_terms:ir.ui.view,arch_db:trilab_jpk_base.view_move_form_trilab
-msgid "PL Extra"
 msgstr ""
 
 #. module: trilab_jpk_base
@@ -505,8 +466,14 @@ msgid "PL Tax Office"
 msgstr "Urząd skarbowy"
 
 #. module: trilab_jpk_base
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_base.product_template_form_view
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_base.view_move_form_trilab
+msgid "PL VAT"
+msgstr ""
+
+#. module: trilab_jpk_base
+#. odoo-python
 #: code:addons/trilab_jpk_base/models/res_company.py:0
-#, python-format
 msgid "Please set company email"
 msgstr "Adres email firmy nie jest ustawiony"
 
@@ -517,8 +484,18 @@ msgstr "Poczta"
 
 #. module: trilab_jpk_base
 #: model:ir.model,name:trilab_jpk_base.model_product_template
-msgid "Product Template"
-msgstr "Szablon produktu"
+msgid "Product"
+msgstr "Produkt"
+
+#. module: trilab_jpk_base
+#: model:ir.model,name:trilab_jpk_base.model_ir_actions_report
+msgid "Report Action"
+msgstr "Zgłoś akcję"
+
+#. module: trilab_jpk_base
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_ir_actions_report__report_type
+msgid "Report Type"
+msgstr "Typ raportu"
 
 #. module: trilab_jpk_base
 #: model:ir.ui.menu,name:trilab_jpk_base.jpk_report_menu
@@ -526,23 +503,38 @@ msgid "Reports"
 msgstr "Raporty"
 
 #. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_reverse_charge
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_reverse_charge
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_reverse_charge
-msgid "Reverse charge"
-msgstr "Obciążenie odwrotne"
+#: model:ir.actions.act_window,name:trilab_jpk_base.action_move_resequence
+#: model:ir.ui.menu,name:trilab_jpk_base.menu_move_resequence
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_base.move_resequence
+msgid "Resequence Entries"
+msgstr "Przenumeruj wpisy"
 
 #. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_sw
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_sw
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_sw
-msgid "SW"
-msgstr ""
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_reverse_charge
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_reverse_charge
+msgid "Reverse charge"
+msgstr "Odwrotne obciążenie"
+
+#. module: trilab_jpk_base
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_base.move_resequence
+msgid "Run"
+msgstr "Uruchom"
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_type__schema_version
 msgid "Schema Version"
 msgstr "Wersja schematu"
+
+#. module: trilab_jpk_base
+#: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_journal_entry_number
+#: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_journal_entry_number
+msgid "Sequential journal entry number."
+msgstr "Numer sekwencji wpisów dziennika."
+
+#. module: trilab_jpk_base
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_mixin__source_xml
+msgid "Source Xml"
+msgstr "Źródło XML"
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_res_company__x_street_short
@@ -555,33 +547,10 @@ msgid "System Code"
 msgstr "Kod systemowy"
 
 #. module: trilab_jpk_base
+#. odoo-python
 #: code:addons/trilab_jpk_base/models/jpk_document_type.py:0
-#, python-format
 msgid "System Code & Schema Version must be unique"
 msgstr "Kod systemowy i wersja schemy muszą być unikalne"
-
-#. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_tp
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_tp
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_tp
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_res_partner__x_pl_vat_tp
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_res_users__x_pl_vat_tp
-msgid "TP"
-msgstr ""
-
-#. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_tt_d
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_tt_d
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_tt_d
-msgid "TT-D"
-msgstr ""
-
-#. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_tt_wnt
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_tt_wnt
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_tt_wnt
-msgid "TT-WNT"
-msgstr ""
 
 #. module: trilab_jpk_base
 #: model:ir.model.constraint,message:trilab_jpk_base.constraint_jpk_taxoffice__jpk_tax_office_code_unique_constraint
@@ -589,9 +558,27 @@ msgid "Tax Office code must me unique"
 msgstr "Kod urzędu skarbowego musi być unikalny"
 
 #. module: trilab_jpk_base
+#. odoo-python
+#: code:addons/trilab_jpk_base/models/account_move.py:0
+msgid "The invoice was marked with the split payment mechanism"
+msgstr "Fakturę oznaczono mechanizmem podzielonej płatności"
+
+#. module: trilab_jpk_base
+#: model:ir.model.fields,help:trilab_jpk_base.field_ir_actions_report__report_type
+msgid ""
+"The type of the report that will be rendered, each one having its own "
+"rendering method. HTML means the report will be opened directly in your "
+"browser PDF means the report will be rendered using Wkhtmltopdf and "
+"downloaded by the user."
+msgstr ""
+"Typ raportu, który zostanie wyrenderowany, z których każdy ma własną metodę "
+"renderowania. HTML oznacza, że raport zostanie otwarty bezpośrednio w "
+"przeglądarce PDF oznacza, że raport zostanie wyrenderowany za pomocą "
+"Wkhtmltopdf i pobrany przez użytkownika."
+
+#. module: trilab_jpk_base
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_mpp
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_pl_vat_mpp
-#: model:ir.model.fields,help:trilab_jpk_base.field_account_payment__x_pl_vat_mpp
 msgid ""
 "Transakcja objęta obowiązkiem stosowania mechanizmu podzielonej płatności. "
 "Oznaczenie MPP należy stosować do faktur o kwocie brutto wyższej niż 15 "
@@ -602,23 +589,19 @@ msgstr ""
 #. module: trilab_jpk_base
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_b_spv
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_pl_vat_b_spv
-#: model:ir.model.fields,help:trilab_jpk_base.field_account_payment__x_pl_vat_b_spv
 msgid ""
 "Transfer bonu jednego przeznaczenia dokonany przez podatnika działającego we"
 " własnym imieniu, opodatkowany zgodnie z art. 8a ust. 1 ustawy."
 msgstr ""
 
 #. module: trilab_jpk_base
-#: model:ir.model,name:trilab_jpk_base.model_trilab_xlsx_helper
-msgid "Trilab Xlsx Helper"
-msgstr ""
+#: model:ir.model,name:trilab_jpk_base.model_jpk_trilab_export_helper
+msgid "Trilab Export Helper"
+msgstr "Pomocnik eksportu Trilab"
 
 #. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_typ_dokumentu
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_journal__x_pl_vat_typ_dokumentu
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_typ_dokumentu
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_typ_dokumentu
-msgid "Typ Dokumentu"
+#: model:ir.model,name:trilab_jpk_base.model_trilab_jpk_base_move_resequence
+msgid "Trilab JPK Base Move Resequence Wizard"
 msgstr ""
 
 #. module: trilab_jpk_base
@@ -632,23 +615,8 @@ msgid "User (see all transfers)"
 msgstr "Użytkownik (widzi wszystkie wysyłki)"
 
 #. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__pl_vat_date
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__pl_vat_date
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__pl_vat_date
-msgid "VAT Date"
-msgstr "Data VAT"
-
-#. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_wsto_ee
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_pl_vat_wsto_ee
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_payment__x_pl_vat_wsto_ee
-msgid "WSTO_EE"
-msgstr ""
-
-#. module: trilab_jpk_base
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_i42
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_pl_vat_i42
-#: model:ir.model.fields,help:trilab_jpk_base.field_account_payment__x_pl_vat_i42
 msgid ""
 "Wewnątrzwspólnotowa dostawa towarów następująca po imporcie tych towarów w "
 "ramach procedury celnej 42 (import)."
@@ -657,7 +625,6 @@ msgstr ""
 #. module: trilab_jpk_base
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_i63
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_pl_vat_i63
-#: model:ir.model.fields,help:trilab_jpk_base.field_account_payment__x_pl_vat_i63
 msgid ""
 "Wewnątrzwspólnotowa dostawa towarów następująca po imporcie tych towarów w "
 "ramach procedury celnej 63 (import)."
@@ -666,7 +633,6 @@ msgstr ""
 #. module: trilab_jpk_base
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_tt_wnt
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_pl_vat_tt_wnt
-#: model:ir.model.fields,help:trilab_jpk_base.field_account_payment__x_pl_vat_tt_wnt
 msgid ""
 "Wewnątrzwspólnotowe nabycie towarów dokonane przez drugiego w kolejności "
 "podatnika VAT w ramach transakcji trójstronnej w procedurze uproszczonej, o "
@@ -675,20 +641,13 @@ msgstr ""
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_ir_attachment__x_full_path
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_mrp_document__x_full_path
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_product_document__x_full_path
 msgid "X Full Path"
 msgstr "Pełna ścieżka"
 
 #. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move_line__x_pl_vat_gtu
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_product_product__x_pl_vat_gtu
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_product_template__x_pl_vat_gtu
-msgid "X Pl Vat Gtu"
-msgstr "GTU"
-
-#. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_ir_attachment__x_size
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_mrp_document__x_size
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_product_document__x_size
 msgid "X Size"
 msgstr "Rozmiar"
 
@@ -706,6 +665,12 @@ msgstr "Nazwa pliku XSD"
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_type__xsd_id
 msgid "Xsd"
 msgstr ""
+
+#. module: trilab_jpk_base
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_mixin__year
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_trilab_jpk_base_move_resequence__year
+msgid "Year"
+msgstr "Rok"
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields.selection,name:trilab_jpk_base.selection__account_journal__x_pl_vat_dokument_zakupu__wew
@@ -752,7 +717,6 @@ msgstr ""
 #. module: trilab_jpk_base
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_b_mpv_prowizja
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_pl_vat_b_mpv_prowizja
-#: model:ir.model.fields,help:trilab_jpk_base.field_account_payment__x_pl_vat_b_mpv_prowizja
 msgid ""
 "Świadczenie usług pośrednictwa oraz innych usług dotyczących transferu bonu "
 "różnego przeznaczenia, opodatkowane zgodnie z art. 8b ust. 2 ustawy."
@@ -761,7 +725,6 @@ msgstr ""
 #. module: trilab_jpk_base
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_ee
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_pl_vat_ee
-#: model:ir.model.fields,help:trilab_jpk_base.field_account_payment__x_pl_vat_ee
 msgid ""
 "Świadczenie usług telekomunikacyjnych, nadawczych i elektronicznych, o "
 "których mowa w art. 28k ustawy"
@@ -770,7 +733,6 @@ msgstr ""
 #. module: trilab_jpk_base
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_pl_vat_mr_t
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_pl_vat_mr_t
-#: model:ir.model.fields,help:trilab_jpk_base.field_account_payment__x_pl_vat_mr_t
 msgid ""
 "Świadczenie usług turystyki opodatkowane na zasadach marży zgodnie z art. "
 "119 ustawy."

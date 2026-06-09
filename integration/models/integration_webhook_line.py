@@ -23,8 +23,8 @@ class IntegrationWebhookLine(models.Model):
         required=True,
     )
     integration_id = fields.Many2one(
+        string='E-Commerce Store',
         comodel_name='sale.integration',
-        string='Integration',
     )
     is_active = fields.Boolean(
         string='Mute',

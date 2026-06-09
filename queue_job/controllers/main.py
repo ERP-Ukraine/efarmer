@@ -11,11 +11,12 @@ from io import StringIO
 from psycopg2 import OperationalError, errorcodes
 from werkzeug.exceptions import BadRequest, Forbidden
 
-from odoo import SUPERUSER_ID, _, api, http, registry, tools
+from odoo import SUPERUSER_ID, _, api, http
+from odoo.modules.registry import Registry
 from odoo.service.model import PG_CONCURRENCY_ERRORS_TO_RETRY
 
 from ..delay import chain, group
-from ..exception import FailedJobError, NothingToDoJob, RetryableJobError
+from ..exception import FailedJobError, RetryableJobError
 from ..job import ENQUEUED, Job
 
 _logger = logging.getLogger(__name__)
@@ -36,10 +37,10 @@ class RunJobController(http.Controller):
         job.perform()
         # Triggers any stored computed fields before calling 'set_done'
         # so that will be part of the 'exec_time'
-        env["base"].flush()
+        env.flush_all()
         job.set_done()
         job.store()
-        env["base"].flush()
+        env.flush_all()
         env.cr.commit()
         _logger.debug("%s done", job)
 
@@ -72,14 +73,20 @@ class RunJobController(http.Controller):
             else:
                 break
 
-    @http.route("/queue_job/runjob", type="http", auth="none", save_session=False)
+    @http.route(
+        "/queue_job/runjob",
+        type="http",
+        auth="none",
+        save_session=False,
+        readonly=False,
+    )
     def runjob(self, db, job_uuid, **kw):
         http.request.session.db = db
         env = http.request.env(user=SUPERUSER_ID)
 
         def retry_postpone(job, message, seconds=None):
             job.env.clear()
-            with registry(job.env.cr.dbname).cursor() as new_cr:
+            with Registry(job.env.cr.dbname).cursor() as new_cr:
                 job.env = api.Environment(new_cr, SUPERUSER_ID, {})
                 job.postpone(result=message, seconds=seconds)
                 job.set_pending(reset_retry=False)
@@ -112,18 +119,7 @@ class RunJobController(http.Controller):
                     raise
 
                 _logger.debug("%s OperationalError, postponed", job)
-                raise RetryableJobError(
-                    tools.ustr(err.pgerror, errors="replace"), seconds=PG_RETRY
-                ) from err
-
-        except NothingToDoJob as err:
-            if str(err):
-                msg = str(err)
-            else:
-                msg = _("Job interrupted and set to Done: nothing to do.")
-            job.set_done(msg)
-            job.store()
-            env.cr.commit()
+                raise RetryableJobError(err.pgerror, seconds=PG_RETRY) from err
 
         except RetryableJobError as err:
             # delay the job later, requeue
@@ -136,12 +132,20 @@ class RunJobController(http.Controller):
             return ""
 
         except (FailedJobError, Exception) as orig_exception:
+            try:
+                # Call rollback() to clear the failed transaction
+                env.cr.rollback()
+            except Exception as rollback_err:
+                # Log rollback failure for debugging but continue execution
+                _logger.error('Failed to rollback transaction for job %s: %s', job_uuid, str(rollback_err))
+
             buff = StringIO()
             traceback.print_exc(file=buff)
             traceback_txt = buff.getvalue()
             _logger.error(traceback_txt)
+
             job.env.clear()
-            with registry(job.env.cr.dbname).cursor() as new_cr:
+            with Registry(job.env.cr.dbname).cursor() as new_cr:
                 job.env = job.env(cr=new_cr)
                 vals = self._get_failure_values(job, traceback_txt, orig_exception)
                 job.set_failed(**vals)
@@ -178,16 +182,6 @@ class RunJobController(http.Controller):
         size=1,
         failure_rate=0,
     ):
-        """Create test jobs
-
-        Examples of urls:
-
-        * http://127.0.0.1:8069/queue_job/create_test_job: single job
-        * http://127.0.0.1:8069/queue_job/create_test_job?size=10: a graph of 10 jobs
-        * http://127.0.0.1:8069/queue_job/create_test_job?size=10&failure_rate=0.5:
-          a graph of 10 jobs, half will fail
-
-        """
         if not http.request.env.user.has_group("base.group_erp_manager"):
             raise Forbidden(_("Access Denied"))
 
@@ -257,7 +251,7 @@ class RunJobController(http.Controller):
             )
             ._test_job(failure_rate=failure_rate)
         )
-        return "job uuid: %s" % (delayed.db_record().uuid,)
+        return f"job uuid: {delayed.db_record().uuid}"
 
     TEST_GRAPH_MAX_PER_GROUP = 5
 
@@ -305,6 +299,6 @@ class RunJobController(http.Controller):
 
         root_delayable.delay()
 
-        return "graph uuid: %s" % (
-            list(root_delayable._head())[0]._generated_job.graph_uuid,
+        return (
+            f"graph uuid: {list(root_delayable._head())[0]._generated_job.graph_uuid}"
         )

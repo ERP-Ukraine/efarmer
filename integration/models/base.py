@@ -42,8 +42,8 @@ class Base(models.AbstractModel):
             integration_id=integration_id,
         )
 
-        job_log = self.env['job.log'].sudo()\
-            .with_context(clean_context(self.env.context))\
+        job_log = self.env['job.log'].sudo() \
+            .with_context(clean_context(self.env.context)) \
             .create([{'res_id': x.id, **vals} for x in self])
 
         _logger.info('JobLog was created: %s', str(job_log.loginfo))

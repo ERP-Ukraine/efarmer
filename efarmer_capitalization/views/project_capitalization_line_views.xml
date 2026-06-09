@@ -19,18 +19,18 @@
     <field name="name">project.capitalization.line.tree</field>
     <field name="model">project.capitalization.line</field>
     <field name="arch" type="xml">
-        <tree string="Capitalization Lines">
+        <list string="Capitalization Lines">
             <field name="asset_id"/>
             <field name="account_asset_counterpart_id"/>
             <field name="hours_spent"/>
             <field name="amount"/>
-        </tree>
+        </list>
     </field>
 </record>
     <record id="action_view_project_capitalization_line" model="ir.actions.act_window">
         <field name="name">Capitalization Lines</field>
         <field name="res_model">project.capitalization.line</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="help" type="html">
             <p class="oe_view_nocontent_create">
                 Click to create a new capitalization line.

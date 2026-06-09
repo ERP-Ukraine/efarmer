@@ -37,7 +37,7 @@
         <field name="name">assign_sale_deals_line_wizard_view_tree</field>
         <field name="model">assign.sale.deals.line.wizard</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name"/>
                 <field name="deal_createdate"/>
                 <field name="amount"/>
@@ -45,7 +45,7 @@
                        widget="integer"
                        options="{'format': false}"
                        optional="hide"/>
-            </tree>
+            </list>
         </field>
     </record>
 

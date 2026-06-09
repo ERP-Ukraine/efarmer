@@ -8,15 +8,12 @@ class AccountMove(models.Model):
     _inherit = "account.move.line"
 
     department_id = fields.Many2one(
-        comodel_name='hr.department',
-        string='Department',
-        related='move_id.department_id',
+        comodel_name="hr.department",
+        string="Department",
+        related="move_id.department_id",
         store=True,
         readonly=True,
     )
     posted_uid = fields.Many2one(
-        related='move_id.posted_uid',
-        string='Posted by',
-        store=True,
-        readonly=True
+        related="move_id.posted_uid", string="Posted by", store=True, readonly=True
     )

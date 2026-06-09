@@ -3,150 +3,135 @@
     <data>
 
         <menuitem id="menu_external"
-                  name="External"
+                  name="External Records"
                   parent="menu_sale_integration"
-                  sequence="3"/>
+                  sequence="40"/>
 
         <menuitem id="menu_attributes_external"
                   name="Attributes"
                   parent="menu_external"
                   action="integration_product_attribute_external_action"
-                  sequence="1"/>
+                  sequence="10"/>
 
         <menuitem id="menu_attribute_values_external"
                   name="Attribute Values"
                   parent="menu_external"
                   action="integration_product_attribute_value_external_action"
-                  sequence="2"/>
+                  sequence="20"/>
 
         <menuitem id="menu_categories_external"
                   name="Categories"
                   parent="menu_external"
                   action="integration_product_public_category_external_action"
-                  sequence="3"/>
+                  sequence="30"/>
 
         <menuitem id="menu_contacts_external"
                   name="Contacts"
                   parent="menu_external"
                   action="integration_res_partner_external_action"
-                  sequence="4"/>
+                  sequence="40"/>
 
         <menuitem id="menu_countries_external"
                   name="Countries"
                   parent="menu_external"
                   action="integration_res_country_external_action"
-                  sequence="5"/>
+                  sequence="50"/>
 
-        <menuitem id="menu_tag_external"
-                  name="External Tags"
-                  parent="integration.menu_external"
-                  action="action_external_integration_tag"
+        <menuitem id="menu_images_external"
+                  name="Images"
+                  parent="menu_external"
+                  action="integration_product_image_external_action"
                   groups="base.group_no_one"
-                  sequence="6"/>
-
-        <menuitem id="menu_features_external"
-                  name="Features"
-                  parent="menu_external"
-                  action="integration_product_feature_external_action"
-                  sequence="7"/>
-
-        <menuitem id="menu_feature_values_external"
-                  name="Feature Values"
-                  parent="menu_external"
-                  action="integration_product_feature_value_external_action"
-                  sequence="8"/>
+                  sequence="60"/>
 
         <menuitem id="menu_languages_external"
                   name="Languages"
                   parent="menu_external"
                   action="integration_res_lang_external_action"
-                  sequence="9"/>
+                  sequence="70"/>
 
         <menuitem id="menu_location_external"
                   name="Locations"
                   parent="menu_external"
                   action="integration_stock_location_external_action"
-                  sequence="10"/>
+                  groups="base.group_no_one"
+                  sequence="80"/>
 
-        <menuitem id="menu_orders_external"
-                  name="Orders"
+        <menuitem id="menu_order_statuses_external"
+                  name="Order Statuses"
                   parent="menu_external"
-                  action="integration_sale_order_external_action"
-                  sequence="11"/>
+                  action="integration_sale_order_sub_status_external_action"
+                  sequence="100"/>
+
+        <menuitem id="menu_payment_methods_external"
+                  name="Payment Methods"
+                  parent="menu_external"
+                  action="integration_sale_order_payment_method_external_action"
+                  sequence="110"/>
 
         <menuitem id="menu_external_transactions"
                   name="Payments"
                   parent="menu_external"
                   action="external_order_transaction_action"
                   groups="base.group_no_one"
-                  sequence="12"/>
-
-        <menuitem id="menu_payment_methods_external"
-                  name="Payment Methods"
-                  parent="menu_external"
-                  action="integration_sale_order_payment_method_external_action"
-                  sequence="13"/>
-
-        <menuitem id="menu_pricelist_external"
-                  name="Pricelists"
-                  parent="menu_external"
-                  action="integration_product_pricelist_external_action"
-                  sequence="14"/>
-
-        <menuitem id="menu_pricelist_item_external"
-                  name="Pricelists Items"
-                  parent="menu_external"
-                  action="integration_product_pricelist_item_external_action"
-                  sequence="15"/>
+                  sequence="120"/>
 
         <menuitem id="menu_products_external"
                   name="Products"
                   parent="menu_external"
                   action="integration_product_template_external_action"
-                  sequence="16"/>
+                  sequence="130"/>
 
         <menuitem id="menu_variants_external"
                   name="Product Variants"
                   parent="menu_external"
                   action="integration_product_product_external_action"
-                  sequence="17"/>
+                  sequence="140"/>
 
         <menuitem id="menu_shipping_methods_external"
                   name="Shipping Methods"
                   parent="menu_external"
                   action="integration_delivery_carrier_external_action"
-                  sequence="18"/>
+                  sequence="150"/>
 
         <menuitem id="menu_states_external"
                   name="States"
                   parent="menu_external"
                   action="integration_res_country_state_external_action"
-                  sequence="19"/>
-
-        <menuitem id="menu_sub-statuses_external"
-                  name="Sub-Statuses"
-                  parent="menu_external"
-                  action="integration_sale_order_sub_status_external_action"
-                  sequence="20"/>
+                  sequence="160"/>
 
         <menuitem id="menu_tax_groups_external"
                   name="Tax Groups"
                   parent="menu_external"
                   action="integration_account_tax_group_external_action"
                   groups="base.group_no_one"
-                  sequence="21"/>
+                  sequence="170"/>
 
         <menuitem id="menu_taxes_external"
                   name="Taxes"
                   parent="menu_external"
                   action="integration_account_tax_external_action"
-                  sequence="22"/>
+                  sequence="180"/>
 
-        <menuitem id="menu_order_fulfillments"
-                  name="Order Fulfillments"
-                  parent="integration.menu_external"
-                  action="external_order_fulfillment_tree_action"
-                  groups="base.group_no_one"/>
+        <menuitem id="menu_external_magento2_only"
+                  name="Magento2 Only"
+                  parent="menu_external"
+                  sequence="400"/>
+
+        <menuitem id="menu_external_prestashop_only"
+                  name="Prestashop Only"
+                  parent="menu_external"
+                  sequence="410"/>
+
+        <menuitem id="menu_external_shopify_only"
+                  name="Shopify Only"
+                  parent="menu_external"
+                  sequence="420"/>
+
+        <menuitem id="menu_external_woocommerce_only"
+                  name="WooCommerce Only"
+                  parent="menu_external"
+                  sequence="430"/>
 
     </data>
 </odoo>

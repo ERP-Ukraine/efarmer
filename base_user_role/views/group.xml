@@ -12,9 +12,13 @@
                         name="action_view_roles"
                         type="object"
                         icon="fa-gears"
-                        attrs="{'invisible': [ ('role_count', '=', 0)]}"
+                        invisible="not role_count"
                     >
-                        <field string="Roles" name="role_count" widget="statinfo" />
+                        <field
+                            string="User Roles"
+                            name="role_count"
+                            widget="statinfo"
+                        />
                     </button>
                 </div>
             </xpath>

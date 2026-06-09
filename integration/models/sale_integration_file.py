@@ -9,7 +9,7 @@ from odoo.exceptions import UserError, ValidationError
 
 class SaleIntegrationFile(models.Model):
     _name = 'sale.integration.file'
-    _description = 'Sale Integration File'
+    _description = 'External Order File'
     _order = 'create_date desc'
 
     _sql_constraints = [
@@ -38,12 +38,11 @@ class SaleIntegrationFile(models.Model):
         copy=False,
     )
     si_id = fields.Many2one(
+        string='E-Commerce Store',
         comodel_name='sale.integration',
-        string='Integration',
         required=True,
         ondelete='cascade',
         readonly=True,
-        states={'draft': [('readonly', False)]},
     )
     file = fields.Binary(
         string='File',
@@ -60,6 +59,9 @@ class SaleIntegrationFile(models.Model):
     )
     update_required = fields.Boolean(
         string='Update Required',
+    )
+    type_api = fields.Selection(
+        related='si_id.type_api',
     )
 
     def action_done(self):
@@ -92,10 +94,10 @@ class SaleIntegrationFile(models.Model):
 class SaleIntegrationInputFile(models.Model):
     _name = 'sale.integration.input.file'
     _inherit = 'sale.integration.file'
-    _description = 'Sale Integration Input File'
+    _description = 'External Order'
 
     display_data = fields.Text(
-        string='Display Raw Data',
+        string='External Order Data',
         compute='_compute_display_data',
         inverse='_inverse_display_data',
     )
@@ -180,14 +182,26 @@ class SaleIntegrationInputFile(models.Model):
 
     def _inverse_display_data(self):
         for input_file in self:
+            # Check if display_data is empty
             if not input_file.display_data:
-                raise UserError(_('Empty data'))
+                raise UserError(_(
+                    'No data provided for processing.\n\n'
+                    'The file appears to be empty. Please ensure that the input file contains valid data.'
+                ))
+
             try:
+                # Attempt to load JSON data
                 json.loads(input_file.display_data)
                 input_file.raw_data = input_file.display_data
             except json.decoder.JSONDecodeError as e:
-                raise UserError(_('Incorrect file format:\n\n') + e.msg)
+                # Raise a technical error indicating the file format is incorrect
+                raise UserError(_(
+                    'The file format is incorrect.\n\n'
+                    'An error occurred while processing the file: %s\n'
+                    'Please ensure the file is a valid JSON format and try again.'
+                ) % e.msg)
 
+            # If no errors, assign the raw data
             input_file.raw_data = input_file.display_data
 
     def to_dict(self):
@@ -198,24 +212,36 @@ class SaleIntegrationInputFile(models.Model):
         else:
             json_str = base64.b64decode(self.file)
 
-        data = json.loads(json_str)
-        data['_odoo_id'] = self.id
-
-        return data
+        return json.loads(json_str)
 
     def print_parsed_data(self):
         self.ensure_one()
+
         data = self.parse()
-        raise UserError(str(data))
+
+        return self.env['message.wizard'].create_json_and_run(data)
 
     def parse(self):
         self.ensure_one()
 
         if self.update_required:
             if not self._update_from_external():
-                raise ValidationError(_('Sale integration input file update error.'))
+                raise ValidationError(_(
+                    'Failed to update external order information from the store.\n\n'
+                    'This issue is most commonly caused by the order being removed from the e-commerce system. '
+                    'If the order is no longer available, the connector cannot update its data.\n\n'
+                    'Please ensure the external system is accessible and the order still exists. '
+                    'If the issue persists, contact support: https://support.ventor.tech/'
+                ))
 
-        return self.si_id.adapter.parse_order(self.to_dict())
+        data = self.si_id.adapter.parse_order(self.to_dict())
+        data['related_input_files'] = [(6, 0, self.ids)]
+
+        return data
+
+    def process_all(self):
+        for rec in self:
+            rec.process()
 
     def process(self):
         self.ensure_one()
@@ -223,8 +249,9 @@ class SaleIntegrationInputFile(models.Model):
         if self.order_id:
             self.action_process()
 
-            job_kwargs = self._get_job_process_kwargs()
-            job = self.with_context(company_id=self.si_id.company_id.id)\
+            job_kwargs = self._job_kwargs_process_input_file()
+            job = self \
+                .with_context(company_id=self.si_id.company_id.id) \
                 .with_delay(**job_kwargs).run_current_pipeline()
 
             self.order_id.job_log(job)
@@ -234,7 +261,7 @@ class SaleIntegrationInputFile(models.Model):
             si = self.si_id.with_context(company_id=self.si_id.company_id.id)
             job_kwargs = si._job_kwargs_create_order_from_input(self)
 
-            job = si.with_delay(**job_kwargs).create_order_from_input(self)
+            job = si.with_delay(**job_kwargs).create_order_from_input(self.id)
 
             self.job_log(job)
 
@@ -245,9 +272,10 @@ class SaleIntegrationInputFile(models.Model):
 
         if self.order_id:
             self.action_process()
+            job_kwargs = self._job_kwargs_process_input_file()
 
-            job_kwargs = self._get_job_process_kwargs()
-            job = self.with_context(company_id=self.si_id.company_id.id)\
+            job = self \
+                .with_context(company_id=self.si_id.company_id.id) \
                 .with_delay(**job_kwargs).run_current_pipeline()
 
             self.order_id.job_log(job)
@@ -255,7 +283,7 @@ class SaleIntegrationInputFile(models.Model):
 
         self.action_create_order()
 
-        return self.si_id.create_order_from_input(self)
+        return self.si_id.create_order_from_input(self.id)
 
     def cancel_order_in_ecommerce_system(self, params: dict):
         self.ensure_one()
@@ -296,10 +324,14 @@ class SaleIntegrationInputFile(models.Model):
 
         pipiline = self.order_id.integration_pipeline
         if not pipiline:
-            return {}, {}
+            return {}
 
         data = self.parse()
-        return pipiline._update_pipeline(data)
+        pipiline._update_pipeline(
+            workflow_states=data.get('integration_workflow_states', []),
+            payment_method_code=data.get('payment_method'),
+        )
+        return data
 
     def open_pipeline_form(self):
         pipeline = self.order_id.integration_pipeline
@@ -327,67 +359,54 @@ class SaleIntegrationInputFile(models.Model):
     def _update_from_external(self):
         self.ensure_one()
 
-        integration = self.si_id
-        adapter = integration._build_adapter()
-        input_data = adapter.receive_order(self.name)
+        input_data = self.si_id.adapter.receive_order(self.name)
 
         if not input_data:
             return False
 
         self.raw_data = json.dumps(input_data['data'], indent=4)
+
         return True
 
-    def _prepare_log_vals(self):
-        vals = {
-            'name': f'Input file {self.name} changelog',
-            'type': 'client',
-            'level': 'DEBUG',
-            'dbname': self.env.cr.dbname,
-            'message': 'Input file was marked as "Update Required"',
-            'path': self.__module__,
-            'func': self.__class__.__name__,
-            'line': str(self.si_id),
-        }
-        return vals
-
-    def _get_job_actual_data_kwargs(self):
+    def _job_kwargs_process_input_file(self):
         return {
-            'eta': 5,
-            'description': f'{self.si_id.name}: "{self.name}" >> Get actual Data for workflow',
-            'identity_key': f'get_actual_data_{self.si_id}_{self.name}',
-        }
-
-    def _get_job_process_kwargs(self):
-        return {
+            'priority': 9,
             'description': f'{self.si_id.name}: "{self.name}" >> Create Order From input',
             'identity_key': f'process_input_file_{self.si_id}_{self.name}',
         }
 
-    def _run_cancel_order(self, data):
+    def run_cancel_order_job(self, data):
         self.ensure_one()
 
-        order = self.order_id.with_context(
-            external_order_id=self.name,
-            company_id=self.si_id.company_id.id,
-        )
+        order = self.order_id.with_context(company_id=self.si_id.company_id.id)
         if not order:
             return False
 
+        job_kwargs = order._job_kwargs_run_integration_workflow(task='cancel', priority=5)
+        job_kwargs['description'] = f'{self.si_id.name}: Order № "{order.display_name}" >> Cancel Order (by webhook)'
+
+        job = self.with_context(company_id=self.si_id.company_id.id) \
+            .with_delay(**job_kwargs) \
+            ._run_cancel_order(data)
+
+        order.job_log(job)
+
+        return job
+
+    def _run_cancel_order(self, data):
+        order = self.order_id
+
         # Additional Order adjustments
         updated_data = order._adjust_integration_external_data(data)
-        order._apply_values_from_external(updated_data)
-
-        job_kwargs = order._build_workflow_job_kwargs(task='cancel', priority=10)
-        job_kwargs['description'] = f'{self.si_id.name}: Order № "{order.display_name}" >> Cancel Order',
+        order.with_context(skip_integration_order_post_action=True)._apply_values_from_external(updated_data)
 
         # Cancel order without sending info to the e-commerce system
-        job = order.with_delay(**job_kwargs)._integration_action_cancel_no_dispatch()
-        order.job_log(job)
+        order._integration_action_cancel_no_dispatch()
 
         return True
 
     def _prepare_actual_pipeline_data(self):
-        adapter = self.si_id._build_adapter()
+        adapter = self.si_id.adapter
         input_data = adapter.receive_order(self.name)
 
         if not input_data:
@@ -401,23 +420,25 @@ class SaleIntegrationInputFile(models.Model):
         }
 
     def _build_and_run_order_pipeline(self, data, skip_dispatch=True):
-        order = self.order_id.with_context(
-            external_order_id=self.name,
-            default_skip_dispatch=skip_dispatch,
-        )
+        order = self.order_id.with_context(default_skip_dispatch=skip_dispatch)
+
         if not order:
             return False
 
         # Additional Order adjustments
         updated_data = order._adjust_integration_external_data(data)
         order._apply_values_from_external(updated_data)
+
         # Build and run workflow
-        return order._build_and_run_integration_workflow(updated_data, self.id)
+        return order._build_and_run_integration_workflow(
+            workflow_states=updated_data.get('integration_workflow_states', []),
+            payment_method_code=updated_data.get('payment_method'),
+        )
 
     def _get_file_id_for_log(self):
         return self.id
 
-    def open_order(self):
+    def action_open_order(self):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
@@ -425,4 +446,12 @@ class SaleIntegrationInputFile(models.Model):
             'res_id': self.order_id.id,
             'view_mode': 'form',
             'target': 'current',
+        }
+
+    def action_open_store_order(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'url': self.si_id.get_order_url(self.name),
+            'target': 'new',
         }

@@ -9,7 +9,7 @@ class PrintNodeActionMethod(models.Model):
     """ Action Button method
     """
     _name = 'printnode.action.method'
-    _description = 'PrintNode Action Method'
+    _description = 'Direct Print Action Method'
 
     name = fields.Char(
         string='Name',

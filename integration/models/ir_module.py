@@ -49,7 +49,7 @@ class IrModule(models.Model):
 
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Integration Installation Wizard'),
+            'name': _('Let\'s ensure a seamless setup!'),
             'res_model': 'integration.installation.wizard',
             'res_id': wizard.id,
             'view_mode': 'form',

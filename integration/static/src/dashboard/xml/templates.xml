@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="integration.IntegrationDashboardFilterTemplate" owl="1">
+        <div t-attf-class="row mb-4 align-items-center #{state.blurGlobal ? 'blurred' : ''}">
+            <div class="col-md-4">
+                <h2 class="h2 d-inline-block">Sales Overview Dashboard</h2>
+                <span class="badge rounded-pill bg-info text-white align-top ms-1">BETA</span>
+            </div>
+            <div class="col-md-8">
+                <form class="row gx-2 gy-2 align-items-center justify-content-end">
+                    <div class="col-auto">
+                        <select class="form-select" aria-label="Select Store(s)" t-on-change="onIntegrationChange">
+                            <option value="all" t-att-selected="props.selectedIntegrationId === 0 ? 'selected' : null">
+                                All Stores
+                            </option>
+                            <t t-foreach="props.integrations" t-as="integration" t-key="integration.id">
+                                <option t-att-value="integration.id" t-att-selected="props.selectedIntegrationId === integration.id ? 'selected' : null">
+                                    <t t-esc="integration.name"/>
+                                </option>
+                            </t>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <input type="date" class="form-control" t-model="state.start"/>
+                    </div>
+                    <div class="col-auto">
+                        <input type="date" class="form-control" t-model="state.end"/>
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-primary" t-on-click="onRefresh">Refresh</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div t-attf-class="row mb-4 align-items-center #{state.blurGlobal ? 'blurred' : ''}">
+            <div class="col-12">
+                <div class="alert alert-info mb-0" role="alert">
+                    <strong>Tip:</strong> Please note that dashboard data is cached
+                    (to improve performance) and may not reflect real-time changes.
+                    Cache resets every 60 minutes. To force a refresh, click
+                    the <strong>Refresh</strong> button.
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="integration.AbstractCard" owl="1">
+        <div class="col-sm-6 col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h4 class="card-title"><t t-esc="title"/></h4>
+                    <p class="display-6">
+                        <t t-esc="value"/>
+                    </p>
+
+                    <t t-if="typeof percent === 'number' and percent &gt; 0">
+                        <small class="text-success"><t t-esc="percent"/>% vs previous period</small>
+                    </t>
+                    <t t-elif="typeof percent === 'number' and percent &lt; 0">
+                        <small class="text-danger"><t t-esc="percent"/>% vs previous period</small>
+                    </t>
+                    <t t-elif="typeof percent === 'number' and percent == 0.0">
+                        <small><t t-esc="percent"/>% vs previous period</small>
+                    </t>
+                    <t t-else="">
+                        <small class="text-muted">Not Enough Data</small>
+                    </t>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="integration.SalesCardsPanelTemplate" owl="1">
+        <t t-if="state.isLoading">
+            <div class="row mb-4 g-3 o_loader_container">
+                <div class="o_loader_spinner"/>
+            </div>
+        </t>
+        <t t-else="">
+            <div t-attf-class="row mb-4 g-3 #{props.blurGlobal ? 'blurred' : ''}">
+                <!-- TODO: Instead array it would be nice to use object (cards.total_sales) -->
+                <t t-if="cards[0]">
+                    <TotalSalesRevenueCard data="cards[0] || {}"/>
+                </t>
+
+                <t t-if="cards[1]">
+                    <NumberOfOrdersCard data="cards[1] || {}"/>
+                </t>
+
+                <t t-if="cards[2]">
+                    <AverageOrderValueCard data="cards[2] || {}"/>
+                </t>
+
+                <t t-if="cards[3]">
+                    <RepeatPurchaseRateCard data="cards[3] || {}"/>
+                </t>
+            </div>
+        </t>
+    </t>
+
+    <t t-name="integration.GenericChartCardTemplate" owl="1">
+        <div class="card">
+            <div class="card-header">
+                <h4><t t-esc="header"/></h4>
+            </div>
+            <div class="card-body">
+                <canvas t-ref="canvas" class="chart-canvas"></canvas>
+                <t t-if="!this.isValidData">
+                    <div class="no-content h-100 d-flex justify-content-center align-items-center position-absolute top-0 bottom-0 start-0 end-0">
+                        <div class="lead bg-white p-3">Not Enough Data</div>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="integration.SalesDataTemplate" owl="1">
+        <t t-if="state.isLoading">
+            <div class="row mb-4 g-3 o_loader_container">
+                <div class="o_loader_spinner"/>
+            </div>
+        </t>
+        <t t-else="">
+            <div t-attf-class="row mb-4 g-3 integration_dashboard_chart_sales #{props.blurGlobal ? 'blurred' : ''}">
+                <div class="col-md-8">
+                    <SalesOverTimeCard data="this.salesOverTime"/>
+                </div>
+                <div class="col-md-4">
+                    <SalesDistributionCard data="this.orderValueDistribution"/>
+                </div>
+            </div>
+        </t>
+    </t>
+
+    <t t-name="integration.ProductsPanelTemplate" owl="1">
+        <t t-if="state.isLoading">
+            <div class="row mb-4 g-3 o_loader_container">
+                <div class="o_loader_spinner"/>
+            </div>
+        </t>
+        <t t-else="">
+            <div t-attf-class="row mb-4 #{props.blurGlobal ? 'blurred' : ''}">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Top Performing Products</h4>
+                        </div>
+                        <div class="card-body p-0 position-relative" style="min-height: 100px;">
+                            <t t-if="!products.length">
+                                <div class="no-content h-100 d-flex justify-content-center align-items-center position-absolute top-0 bottom-0 start-0 end-0">
+                                    <div class="lead bg-white p-3">Not Enough Data</div>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Product Name</th>
+                                            <th>Reference</th>
+                                            <th class="text-end">Units Sold</th>
+                                            <th class="text-end">Total Revenue</th>
+                                            <th class="text-end">% of Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="products" t-as="product" t-key="product.id">
+                                            <tr>
+                                                <td><t t-esc="product.name"/></td>
+                                                <td><t t-esc="product.default_code"/></td>
+                                                <td class="text-end">
+                                                    <t t-esc="product.units_sold"/>
+                                                </td>
+                                                <td class="text-end">
+                                                    <t t-esc="product.currency_symbol"/><t t-esc="product.total_revenue.toLocaleString()"/>
+                                                </td>
+                                                <td class="text-end">
+                                                    <t t-esc="product.percent_total"/>%
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </t>
+
+    <t t-name="integration.OtherMetricsPanelTemplate" owl="1">
+        <t t-if="state.isLoading">
+            <div class="row mb-4 g-3 o_loader_container">
+                <div class="o_loader_spinner"/>
+            </div>
+        </t>
+        <t t-else="">
+            <div t-attf-class="row mb-4 #{props.blurGlobal ? 'blurred' : ''}">
+                <div class="col-12">
+                    <StorePerformanceBreakdownCard data="this.stores"/>
+                </div>
+            </div>
+            <div t-attf-class="row mb-4 #{props.blurGlobal ? 'blurred' : ''} integration_dashboard_chart_customers">
+                <div class="col-md-7">
+                    <CustomersBreakdownCard data="this.customers"/>
+                </div>
+                <div class="col-md-5">
+                    <CountriesBreakdownCard data="this.countries"/>
+                </div>
+            </div>
+        </t>
+    </t>
+
+    <t t-name="integration.StorePerformanceBreakdownCardTemplate" owl="1">
+        <div class="card">
+            <div class="card-header">
+                <h4>Store Performance Breakdown</h4>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Store Name</th>
+                            <th class="text-end">Orders</th>
+                            <th class="text-end">Revenue</th>
+                            <th class="text-end">Average Order Value</th>
+                            <th class="text-end">Median Order Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="props.data" t-as="store" t-key="store.name">
+                            <tr>
+                                <td><t t-esc="store.name"/></td>
+                                <td class="text-end">
+                                    <t t-esc="store.number_of_orders"/>
+                                </td>
+                                <td class="text-end">
+                                    <t t-esc="store.currency_symbol"/><t t-esc="store.sales_revenue.toLocaleString()"/>
+                                </td>
+                                <td class="text-end">
+                                    <t t-esc="store.currency_symbol"/><t t-esc="store.average_order_value.toLocaleString()"/>
+                                </td>
+                                <td class="text-end">
+                                    <t t-esc="store.currency_symbol"/><t t-esc="store.median_order_value.toLocaleString()"/>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="integration.CountriesBreakdownCardTemplate" owl="1">
+        <div class="card">
+            <div class="card-header">
+                <h4>Top Countries</h4>
+            </div>
+            <div class="card-body p-0">
+                <t t-if="!props.data.length">
+                    <div class="no-content h-100 d-flex justify-content-center align-items-center position-absolute top-0 bottom-0 start-0 end-0">
+                        <div class="lead bg-white p-3">Not Enough Data</div>
+                    </div>
+                </t>
+                <t t-else="">
+                    <ul class="list-group list-group-flush">
+                        <t t-foreach="props.data" t-as="country" t-key="country.name">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span t-esc="country.name"/>
+                                <span t-esc="`${country.percent}%`"/>
+                            </li>
+                        </t>
+                    </ul>
+                </t>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="integration.IntegrationDashboardTemplate" owl="1">
+        <div class="o_content integration_dashboard_container">
+            <div class="container py-3">
+
+                <t t-if="state.blurGlobal">
+                    <div class="position-fixed text-center p-4 border" style="width:500px; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index:999; background-color: rgba(255, 255, 255, 0.5);">
+                        <img src="/integration/static/description/images/e-commerce-combined-logo.png" style="height: 100px;"/>
+
+                        <h3 class="pt-4 pb-4">Welcome to Your E-commerce Dashboard!</h3>
+
+                        <div class="text-start">
+                            <p>
+                                To view real-time insights and sales data here, follow these steps:
+                            </p>
+    
+                            <dl>
+                                <dt>1. Create Your First Connection</dt>
+                                <dd><small>Link your Odoo system to your e-commerce store to enable synchronization.</small></dd>
+    
+                                <dt>2. Configure Your Connection</dt>
+                                <dd><small>Adjust settings like product synchronization, order imports, and stock updates to match your workflow.</small></dd>
+                            </dl>
+    
+                            <p>Once set up, this dashboard will display key metrics, sales data, and activity summaries to keep your business running smoothly.</p>
+    
+                            <p class="alert alert-info" role="alert">Ready to get started? Go to the <strong>Stores</strong> menu and create your first connection.</p>
+
+                            <p>Need help? Visit our <strong><a href="https://support.ventor.tech" target="_blank">Help Center</a></strong> for setup guides and support.</p>
+                        </div>
+
+                    </div>
+                </t>
+                
+                <IntegrationDashboardFilter
+                    start="state.start"
+                    end="state.end"
+                    blurGlobal="state.blurGlobal"
+                    integrations="state.integrations"
+                    selectedIntegrationId="state.selectedIntegrationId"
+                    updateDates="(start, end) => this.updateDates(start, end)"
+                    updateComponents="() => this.updateComponents()"
+                    updateSelectedIntegrations="(id) => this.updateSelectedIntegrations(id)"/>
+
+                <SalesCardsPanel
+                    start="state.start"
+                    end="state.end"
+                    blurGlobal="state.blurGlobal"
+                    updateKey="state.updateKey"
+                    getSelectedIntegrations="() => this.getSelectedIntegrations()"
+                    selectedIntegrationId="state.selectedIntegrationId"/>
+
+                <SalesDataPanel
+                    start="state.start"
+                    end="state.end"
+                    blurGlobal="state.blurGlobal"
+                    updateKey="state.updateKey"
+                    getSelectedIntegrations="() => this.getSelectedIntegrations()"
+                    selectedIntegrationId="state.selectedIntegrationId"/>
+
+                <ProductsPanel
+                    start="state.start"
+                    end="state.end"
+                    blurGlobal="state.blurGlobal"
+                    updateKey="state.updateKey"
+                    getSelectedIntegrations="() => this.getSelectedIntegrations()"
+                    selectedIntegrationId="state.selectedIntegrationId"/>
+
+                <OtherMetricsPanel
+                    start="state.start"
+                    end="state.end"
+                    blurGlobal="state.blurGlobal"
+                    updateKey="state.updateKey"
+                    getSelectedIntegrations="() => this.getSelectedIntegrations()"
+                    selectedIntegrationId="state.selectedIntegrationId"/>
+
+                <!-- Empty div for the bottom indent -->
+                <div class="pt-5 pb-5"></div>
+            </div>
+        </div>
+    </t>
+
+</templates>

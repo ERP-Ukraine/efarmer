@@ -2,24 +2,24 @@
 <odoo>
     <data>
 
-        <record id="printnode_release_tree" model="ir.ui.view">
-            <field name="name">printnode_release.tree</field>
+        <record id="printnode_release_list" model="ir.ui.view">
+            <field name="name">printnode_release.list</field>
             <field name="model">printnode.release</field>
-            <field name="type">tree</field>
+            <field name="type">list</field>
             <field name="arch" type="xml">
-                <tree string="Releases" editable="bottom" create="false" delete="false">
+                <list string="Releases" editable="bottom" create="false" delete="false">
                     <field name="version" />
                     <field name="release_notes" />
                     <field name="is_critical_update" />
-                </tree>
+                </list>
             </field>
         </record>
 
         <record id="printnode_release_action" model="ir.actions.act_window">
             <field name="name">Releases</field>
             <field name="res_model">printnode.release</field>
-            <field name="view_mode">tree</field>
-            <field name="view_id" ref="printnode_release_tree" />
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="printnode_release_list" />
         </record>
 
         <menuitem id="menu_printnode_releases"

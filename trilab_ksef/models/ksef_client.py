@@ -6,32 +6,24 @@ import logging
 import secrets
 import time
 import zipfile
-import sys
-if sys.version_info >= (3, 9):
-    from collections.abc import Generator, Iterator
-else:
-    from typing import Generator, Iterator
+from collections.abc import Generator, Iterator
 from dataclasses import dataclass
 from datetime import date, datetime
-from enum import Enum, IntEnum, auto
+from enum import Enum, IntEnum, StrEnum, auto
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, Tuple, TypedDict, Union, cast
+from typing import Any, Literal, TypedDict, cast
 from urllib.parse import urljoin, urlparse
 
 import dateutil.parser
 import pytz
 import requests
-from cryptography import exceptions as crypto_exceptions
-from cryptography import x509
+from cryptography import exceptions as crypto_exceptions, x509
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives import padding as sym_padding
+from cryptography.hazmat.primitives import hashes, padding as sym_padding, serialization
 from cryptography.hazmat.primitives.asymmetric import ec, padding
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-
-from .utils import StrEnum
 
 _logger = logging.getLogger(__name__)
 
@@ -64,9 +56,9 @@ class KsefRequestError(KsefNetworkError):
     """Raised when an HTTP request fails due to network issues."""
 
     endpoint: str
-    cause: Optional[Exception]
+    cause: Exception | None
 
-    def __init__(self, endpoint: str, cause: Optional[Exception] = None) -> None:
+    def __init__(self, endpoint: str, cause: Exception | None = None) -> None:
         self.endpoint = endpoint
         self.cause = cause
         super().__init__(f'Request to {endpoint!r} failed: {cause}')
@@ -218,7 +210,7 @@ class KsefStatusCode(IntEnum):
     OK = 200
 
 
-@dataclass(frozen=True)
+@dataclass(kw_only=True, frozen=True)
 class AuthenticateKsefTokenResponse:
     access_token: str
     access_token_valid_until: datetime
@@ -236,29 +228,29 @@ class AuthenticateKsefTokenResponse:
         )
 
 
-@dataclass(frozen=True)
+@dataclass(kw_only=True, frozen=True)
 class InvoiceStatusInfo:
     code: int
     description: str
-    details: Optional[List[str]] = None
-    extensions: Optional[Dict[str, Optional[str]]] = None
+    details: list[str] | None = None
+    extensions: dict[str, str | None] | None = None
 
 
-@dataclass(frozen=True)
+@dataclass(kw_only=True, frozen=True)
 class SessionInvoiceStatusResponse:
     ordinal_number: int
     reference_number: str
     invoice_hash: str
     invoicing_date: datetime
     status: InvoiceStatusInfo
-    invoice_number: Optional[str] = None
-    ksef_number: Optional[str] = None
-    invoice_file_name: Optional[str] = None
-    acquisition_date: Optional[datetime] = None
-    permanent_storage_date: Optional[datetime] = None
-    upo_download_url: Optional[str] = None
-    upo_download_url_expiration_date: Optional[datetime] = None
-    invoicing_mode: Optional[str] = None
+    invoice_number: str | None = None
+    ksef_number: str | None = None
+    invoice_file_name: str | None = None
+    acquisition_date: datetime | None = None
+    permanent_storage_date: datetime | None = None
+    upo_download_url: str | None = None
+    upo_download_url_expiration_date: datetime | None = None
+    invoicing_mode: str | None = None
 
 
 class InvoiceBatchExportState(TypedDict):
@@ -267,18 +259,18 @@ class InvoiceBatchExportState(TypedDict):
     key_b64: str
 
 
-@dataclass(frozen=True)
+@dataclass(kw_only=True, frozen=True)
 class InvoiceBatchExportResult:
     permanent_storage_hwm_date: datetime
     is_truncated: bool
-    invoices: Generator[Tuple[str, str], None, None]  # (filename, xml_content)
+    invoices: Generator[tuple[str, str], None, None]  # (filename, xml_content)
 
 
 class InvoiceBatchExportStatusResult(TypedDict):
     status: InvoiceBatchExportStatus
     status_code: int
     status_description: str
-    data: Optional[Dict[str, Any]]
+    data: dict[str, Any] | None
 
 
 class BatchFileMetadata(TypedDict):
@@ -295,8 +287,8 @@ class BatchPartMetadata(TypedDict):
 
 
 class SessionInvoicesListResponse(TypedDict):
-    continuation_token: Optional[str]
-    invoices: List[SessionInvoiceStatusResponse]
+    continuation_token: str | None
+    invoices: list[SessionInvoiceStatusResponse]
 
 
 class KsefClient:
@@ -307,8 +299,8 @@ class KsefClient:
         base_url: str,
         ksef_token: str,
         nip_identifier: str,
-        public_asymmetric_key_path: Union[str, Path],
-        public_symmetric_key_path: Union[str, Path],
+        public_asymmetric_key_path: str | Path,
+        public_symmetric_key_path: str | Path,
     ) -> None:
         self.base_url: str = self._validate_base_url(base_url)
         self.public_asymmetric_key_path: Path = self._validate_public_key_path(public_asymmetric_key_path)
@@ -318,19 +310,19 @@ class KsefClient:
         self.nip_identifier: str = nip_identifier
         self._session: requests.Session = requests.Session()
 
-        self.access_token: Optional[str] = None
+        self.access_token: str | None = None
 
-        self.session_key: Union[bytes, None] = None
-        self.session_iv: Union[bytes, None] = None
-        self.session_reference: Optional[str] = None
+        self.session_key: bytes | None = None
+        self.session_iv: bytes | None = None
+        self.session_reference: str | None = None
 
-        self.invoice_batch_export_reference: Optional[str] = None
-        self.invoice_batch_export_iv: Union[bytes, None] = None
-        self.invoice_batch_export_key: Union[bytes, None] = None
+        self.invoice_batch_export_reference: str | None = None
+        self.invoice_batch_export_iv: bytes | None = None
+        self.invoice_batch_export_key: bytes | None = None
 
-        self.invoice_batch_import_reference: Optional[str] = None
-        self.invoice_batch_import_key: Union[bytes, None] = None
-        self.invoice_batch_import_iv: Union[bytes, None] = None
+        self.invoice_batch_import_reference: str | None = None
+        self.invoice_batch_import_key: bytes | None = None
+        self.invoice_batch_import_iv: bytes | None = None
 
     @staticmethod
     def _validate_base_url(base_url: str) -> str:
@@ -340,7 +332,7 @@ class KsefClient:
         return f'{base_url}/'
 
     @staticmethod
-    def _validate_public_key_path(public_key_path: Union[str, Path]) -> Path:
+    def _validate_public_key_path(public_key_path: str | Path) -> Path:
         if isinstance(public_key_path, str):
             public_key_path = Path(public_key_path)
 
@@ -350,17 +342,17 @@ class KsefClient:
         return public_key_path
 
     @staticmethod
-    def _parse_datetime(dt_str: str) -> datetime:
-        return dateutil.parser.parse(dt_str)
+    def parse_datetime(dt_str: str) -> datetime:
+        return dateutil.parser.isoparse(dt_str)
 
     @classmethod
-    def _parse_invoice_status_response(cls, data: Dict[str, Any]) -> SessionInvoiceStatusResponse:
+    def _parse_invoice_status_response(cls, data: dict[str, Any]) -> SessionInvoiceStatusResponse:
         status_data = data['status']
         return SessionInvoiceStatusResponse(
             ordinal_number=data['ordinalNumber'],
             reference_number=data['referenceNumber'],
             invoice_hash=data['invoiceHash'],
-            invoicing_date=cls._parse_datetime(data['invoicingDate']),
+            invoicing_date=cls.parse_datetime(data['invoicingDate']),
             status=InvoiceStatusInfo(
                 code=status_data['code'],
                 description=status_data['description'],
@@ -370,13 +362,13 @@ class KsefClient:
             invoice_number=data.get('invoiceNumber'),
             ksef_number=data.get('ksefNumber'),
             invoice_file_name=data.get('invoiceFileName'),
-            acquisition_date=cls._parse_datetime(data['acquisitionDate']) if data.get('acquisitionDate') else None,
+            acquisition_date=cls.parse_datetime(data['acquisitionDate']) if data.get('acquisitionDate') else None,
             permanent_storage_date=(
-                cls._parse_datetime(data['permanentStorageDate']) if data.get('permanentStorageDate') else None
+                cls.parse_datetime(data['permanentStorageDate']) if data.get('permanentStorageDate') else None
             ),
             upo_download_url=data.get('upoDownloadUrl'),
             upo_download_url_expiration_date=(
-                cls._parse_datetime(data['upoDownloadUrlExpirationDate'])
+                cls.parse_datetime(data['upoDownloadUrlExpirationDate'])
                 if data.get('upoDownloadUrlExpirationDate')
                 else None
             ),
@@ -402,7 +394,7 @@ class KsefClient:
             _logger.error('No active invoice batch export. Call start_batch_invoice_export() first.')
             raise KsefInvoiceBatchExportMissingStateDataError
 
-    def _encrypt_invoice_aes(self, invoice_xml: bytes) -> Tuple[bytes, str, int]:
+    def _encrypt_invoice_aes(self, invoice_xml: bytes) -> tuple[bytes, str, int]:
         """Encrypt invoice XML using AES-256-CBC with session keys.
 
         Args:
@@ -445,11 +437,11 @@ class KsefClient:
         }
 
     @staticmethod
-    def _split_into_parts(data: bytes, max_part_size: int) -> List[bytes]:
+    def _split_into_parts(data: bytes, max_part_size: int) -> list[bytes]:
         if len(data) <= max_part_size:
             return [data]
 
-        parts: List[bytes] = []
+        parts: list[bytes] = []
         offset = 0
         while offset < len(data):
             chunk_size = min(max_part_size, len(data) - offset)
@@ -473,7 +465,7 @@ class KsefClient:
             raise KsefEncryptionError('AES encryption failed') from error
 
     @staticmethod
-    def _create_invoice_zip(invoices: Iterator[Tuple[str, bytes]]) -> Tuple[bytes, int]:
+    def _create_invoice_zip(invoices: Iterator[tuple[str, bytes]]) -> tuple[bytes, int]:
         zip_buffer = io.BytesIO()
         invoice_count = 0
 
@@ -491,12 +483,12 @@ class KsefClient:
 
     def _prepare_batch_parts(
         self, zip_bytes: bytes, key: bytes, iv: bytes, max_part_size: int
-    ) -> List[BatchPartMetadata]:
+    ) -> list[BatchPartMetadata]:
         raw_parts = self._split_into_parts(zip_bytes, max_part_size)
 
         _logger.debug('Split ZIP (%d bytes) into %d parts', len(zip_bytes), len(raw_parts))
 
-        encrypted_parts: List[BatchPartMetadata] = []
+        encrypted_parts: list[BatchPartMetadata] = []
         for idx, part_data in enumerate(raw_parts, start=1):
             encrypted_data = self._encrypt_part_aes(part_data, key, iv)
 
@@ -525,14 +517,12 @@ class KsefClient:
         while counter < MAX_TRIES:
             try:
                 if self.access_token is not None:
-                    kwargs['headers'] = {
-                        **kwargs.get('headers', {}),
-                        'Authorization': f'Bearer {self.access_token}',
-                    }
+                    kwargs['headers'] = kwargs.get('headers', {}) | {'Authorization': f'Bearer {self.access_token}'}
 
                 response: requests.Response = getattr(self._session, method.lower())(
                     url=urljoin(self.base_url, endpoint), timeout=TIMEOUT_SECS, **kwargs
                 )
+
             except requests.RequestException as err:
                 raise KsefRequestError(endpoint, err) from err
 
@@ -578,7 +568,7 @@ class KsefClient:
             raise KsefInvalidKeyError('asymmetric')
         return key
 
-    def get_public_keys(self) -> Tuple[str, str]:
+    def get_public_keys(self) -> tuple[str, str]:
         """Retrieve current valid public keys from KSeF API.
 
         Returns:
@@ -627,16 +617,22 @@ class KsefClient:
 
         return self._decode_certificate(symmetric_certificate), self._decode_certificate(token_certificate)
 
-    def get_challenge(self) -> Tuple[str, datetime]:
+    def get_challenge(self) -> tuple[str, datetime]:
+        """Request authentication challenge from KSeF API.
+
+        Returns:
+            A tuple of (challenge_string, challenge_timestamp).
+
+        Raises:
+            KsefApiClientError: If API call fails.
+        """
         try:
-            challenge_data = self._call_api(
-                'auth/challenge',
-                method='post',
-            ).json()
+            challenge_data = self._call_api('auth/challenge', method='post').json()
+
         except KsefHttpStatusError as error:
             raise KsefAuthenticationStatusError(error.status_code, error.response_text) from error
 
-        return challenge_data['challenge'], self._parse_datetime(challenge_data['timestamp'])
+        return challenge_data['challenge'], self.parse_datetime(challenge_data['timestamp'])
 
     def _encrypt_ksef_token(self, challenge_timestamp: datetime) -> str:
         timestamp_ms = int(challenge_timestamp.timestamp() * 1000)
@@ -649,7 +645,7 @@ class KsefClient:
 
         return base64.b64encode(encrypted).decode()
 
-    def _authenticate_ksef_token(self) -> Dict[str, Any]:
+    def _authenticate_ksef_token(self) -> dict[str, Any]:
         challenge, challenge_timestamp = self.get_challenge()
 
         try:
@@ -663,40 +659,46 @@ class KsefClient:
                     'EncryptedToken': self._encrypt_ksef_token(challenge_timestamp),
                 },
             )
+
         except KsefHttpStatusError as error:
             raise KsefAuthenticationStatusError(error.status_code, error.response_text) from error
 
         return response.json()
 
-    def get_authentication_status(self, reference_number: str, temp_token: str) -> Dict[str, Any]:
+    def get_authentication_status(self, reference_number: str, temp_token: str) -> dict[str, Any]:
         try:
             response = self._call_api(
                 f'auth/{reference_number}',
                 method='get',
                 headers={'Authorization': f'Bearer {temp_token}'},
             )
+
         except KsefHttpStatusError as error:
             raise KsefAuthenticationStatusError(error.status_code, error.response_text) from error
+
         return response.json()
 
-    def redeem_token(self, temp_token: str) -> Dict[str, Any]:
+    def redeem_token(self, temp_token: str) -> dict[str, Any]:
         try:
             response = self._call_api(
                 'auth/token/redeem',
                 method='post',
                 headers={'Authorization': f'Bearer {temp_token}'},
             )
+
         except KsefHttpStatusError as error:
             raise KsefAuthenticationStatusError(error.status_code, error.response_text) from error
+
         return response.json()
 
-    def refresh_token(self, refresh_token: str) -> Dict[str, Any]:
+    def refresh_token(self, refresh_token: str) -> dict[str, Any]:
         try:
             response = self._call_api(
                 'auth/token/refresh',
                 method='post',
                 headers={'Authorization': f'Bearer {refresh_token}'},
             )
+
         except KsefHttpStatusError as error:
             raise KsefAuthenticationStatusError(error.status_code, error.response_text) from error
 
@@ -740,10 +742,12 @@ class KsefClient:
 
             if status_code == KsefStatusCode.OK:
                 break
+
             elif status_code == KsefStatusCode.PENDING:
                 if attempt < AUTH_STATUS_CHECK_ATTEMPTS - 1:
                     _logger.debug('Waiting for KSeF authentication...')
                     time.sleep(AUTH_STATUS_CHECK_DELAY_SECS)
+
             else:
                 raise KsefAuthenticationStatusError(status_code, status_description)
         else:
@@ -755,16 +759,16 @@ class KsefClient:
         _logger.info('Authentication successful')
         auth_response = AuthenticateKsefTokenResponse(
             access_token=redeem_response['accessToken']['token'],
-            access_token_valid_until=self._parse_datetime(redeem_response['accessToken']['validUntil']),
+            access_token_valid_until=self.parse_datetime(redeem_response['accessToken']['validUntil']),
             refresh_token=redeem_response['refreshToken']['token'],
-            refresh_token_valid_until=self._parse_datetime(redeem_response['refreshToken']['validUntil']),
+            refresh_token_valid_until=self.parse_datetime(redeem_response['refreshToken']['validUntil']),
         )
 
         self.access_token = auth_response.access_token
 
         return auth_response
 
-    def open_interactive_session(self, form_code: FormCode = FormCode.FA_3) -> Tuple[str, datetime]:
+    def open_interactive_session(self, form_code: FormCode = FormCode.FA_3) -> tuple[str, datetime]:
         """Open an encrypted interactive session for invoice submission.
 
         Creates a new interactive session with KSeF API using AES encryption.
@@ -809,7 +813,7 @@ class KsefClient:
         ).json()
 
         reference_number = response_json['referenceNumber']
-        valid_until = self._parse_datetime(response_json['validUntil'])
+        valid_until = self.parse_datetime(response_json['validUntil'])
 
         # Store session context for invoice encryption
         self.session_key = raw_key
@@ -877,7 +881,7 @@ class KsefClient:
         _logger.info('Invoice submitted successfully: %s', invoice_ref)
         return invoice_ref
 
-    def get_session_status(self, session_reference: Optional[str] = None) -> Dict[str, Any]:
+    def get_session_status(self, session_reference: str | None = None) -> dict[str, Any]:
         self._ensure_access_token()
 
         session_reference = session_reference or self.session_reference
@@ -891,7 +895,7 @@ class KsefClient:
         ).json()
 
     def get_session_invoices(
-        self, session_reference: Optional[str] = None, page_size: int = 100
+        self, session_reference: str | None = None, page_size: int = 1000, continuation_token: str | None = None
     ) -> SessionInvoicesListResponse:
         self._ensure_access_token()
 
@@ -900,9 +904,15 @@ class KsefClient:
         if session_reference is None:
             raise KsefClientError('No session reference provided or active.')
 
+        headers = {}
+
+        if continuation_token:
+            headers['x-continuation-token'] = continuation_token
+
         response_json = self._call_api(
             f'sessions/{session_reference}/invoices',
             method='get',
+            headers=headers,
             params={'pageSize': page_size},
         ).json()
 
@@ -911,8 +921,27 @@ class KsefClient:
             'invoices': [self._parse_invoice_status_response(inv) for inv in response_json.get('invoices', [])],
         }
 
+    def get_all_session_invoices(self, session_reference: str | None = None) -> list[SessionInvoiceStatusResponse]:
+        invoices = []
+        continuation_token: str | None = None
+
+        while True:
+            response = self.get_session_invoices(
+                session_reference=session_reference,
+                continuation_token=continuation_token,
+            )
+
+            invoices.extend(response['invoices'])
+
+            continuation_token = response['continuation_token']
+
+            if not continuation_token:
+                break
+
+        return invoices
+
     def get_session_invoice_status(
-        self, invoice_reference: str, session_reference: Optional[str] = None
+        self, invoice_reference: str, session_reference: str | None = None
     ) -> SessionInvoiceStatusResponse:
         self._ensure_access_token()
 
@@ -928,7 +957,7 @@ class KsefClient:
 
         return self._parse_invoice_status_response(response_json)
 
-    def get_session_invoice_upo(self, invoice_reference: str, session_reference: Optional[str] = None) -> str:
+    def get_session_invoice_upo(self, invoice_reference: str, session_reference: str | None = None) -> str:
         """Download invoice UPO XML file."""
         self._ensure_access_token()
 
@@ -975,7 +1004,7 @@ class KsefClient:
     def start_invoice_batch_export(
         self,
         date_from: datetime,
-        date_to: Optional[datetime] = None,
+        date_to: datetime | None = None,
         subject_type: Literal['Subject1', 'Subject2', 'Subject3', 'SubjectAuthorized'] = 'Subject2',
         **filters: Any,
     ) -> str:
@@ -1013,8 +1042,8 @@ class KsefClient:
                         'to': date_to.isoformat() if date_to else None,
                         'restrictToPermanentStorageHwmDate': True,
                     },
-                    **(filters or {}),
                 }
+                | filters,
             },
         ).json()
 
@@ -1062,11 +1091,11 @@ class KsefClient:
             'data': response_json,
         }
 
-    def _download_all_invoice_parts(self, parts: List[Dict[str, Any]]) -> Generator[Tuple[str, str], None, None]:
+    def _download_all_invoice_parts(self, parts: list[dict[str, Any]]) -> Generator[tuple[str, str], None, None]:
         for part in parts:
             yield from self._download_and_decrypt_part(part)
 
-    def download_invoice_batch_export(self) -> Optional[InvoiceBatchExportResult]:
+    def download_invoice_batch_export(self) -> InvoiceBatchExportResult | None:
         self._ensure_invoice_batch_export_data()
         result = self._get_invoice_batch_export_status(cast('str', self.invoice_batch_export_reference))
 
@@ -1088,7 +1117,7 @@ class KsefClient:
             return None
 
         return InvoiceBatchExportResult(
-            permanent_storage_hwm_date=self._parse_datetime(response_data['package']['permanentStorageHwmDate']),
+            permanent_storage_hwm_date=self.parse_datetime(response_data['package']['permanentStorageHwmDate']),
             is_truncated=response_data['package']['isTruncated'],
             invoices=self._download_all_invoice_parts(parts),
         )
@@ -1106,10 +1135,10 @@ class KsefClient:
         self,
         form_code: FormCode,
         zip_metadata: BatchFileMetadata,
-        parts: List[BatchPartMetadata],
+        parts: list[BatchPartMetadata],
         encrypted_key: bytes,
         iv: bytes,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         payload = {
             'formCode': {
                 'systemCode': form_code.value[0],
@@ -1142,7 +1171,7 @@ class KsefClient:
         ).json()
 
     def _upload_batch_part(
-        self, url: str, method: str, headers: Dict[str, str], encrypted_data: bytes, part_number: int
+        self, url: str, method: str, headers: dict[str, str], encrypted_data: bytes, part_number: int
     ) -> None:
         try:
             _logger.debug('Uploading part %d (%d bytes) to %s', part_number, len(encrypted_data), url[:50] + '...')
@@ -1159,7 +1188,7 @@ class KsefClient:
         except requests.RequestException as err:
             raise KsefBatchPartUploadError(part_number, 0, str(err)) from err
 
-    def _upload_batch_parts(self, upload_requests: List[Dict[str, Any]], parts: List[BatchPartMetadata]) -> None:
+    def _upload_batch_parts(self, upload_requests: list[dict[str, Any]], parts: list[BatchPartMetadata]) -> None:
         upload_map = {req['ordinalNumber']: req for req in upload_requests}
 
         for part in parts:
@@ -1182,7 +1211,7 @@ class KsefClient:
 
     def start_invoice_batch_import(
         self,
-        invoices: Iterator[Tuple[str, bytes]],
+        invoices: Iterator[tuple[str, bytes]],
         form_code: FormCode = FormCode.FA_3,
         max_part_size: int = 100 * 1024 * 1024,
     ) -> str:
@@ -1227,7 +1256,7 @@ class KsefClient:
         _logger.info('Batch submission complete: %s', reference_number)
         return reference_number
 
-    def close_invoice_batch_import(self, session_reference: Optional[str] = None) -> None:
+    def close_invoice_batch_import(self, session_reference: str | None = None) -> None:
         self._ensure_access_token()
 
         session_reference = session_reference or self.invoice_batch_import_reference
@@ -1245,7 +1274,7 @@ class KsefClient:
 
         _logger.info('Batch import closed: %s', session_reference)
 
-    def _download_and_decrypt_part(self, part: Dict[str, Any]) -> Generator[Tuple[str, str], None, None]:
+    def _download_and_decrypt_part(self, part: dict[str, Any]) -> Generator[tuple[str, str], None, None]:
         url = part['url']
         part_name = part['partName']
 

@@ -1,0 +1,17 @@
+<odoo>
+    <data>
+        <record id="timesheets_analysis_report_pivot_inherit" model="ir.ui.view">
+            <field name="name">timesheets.analysis.report.pivot.custom</field>
+            <field name="model">timesheets.analysis.report</field>
+            <field name="inherit_id" ref="hr_timesheet.timesheets_analysis_report_pivot_employee"/>
+            <field name="arch" type="xml">
+                <xpath expr="//pivot" position="inside">
+                    <field name="task_product_id" type="row"/>
+                    <field name="epic_id" type="row"/>
+                    <field name="product_version_id" type="row"/>
+                    <field name="issue_type_id" type="row"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

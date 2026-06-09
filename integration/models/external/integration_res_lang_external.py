@@ -11,3 +11,8 @@ class IntegrationResLangExternal(models.Model):
     _inherit = 'integration.external.mixin'
     _description = 'Integration Res Lang External'
     _odoo_model = 'res.lang'
+
+    def _compute_display_name(self):
+        """That method redefined in parent class"""
+        for record in self:
+            record.display_name = record.name

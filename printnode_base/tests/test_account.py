@@ -220,7 +220,7 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
 
     def test_get_node(self):
         """
-        Test for correct parsing and updating PrintNode nodes (printer and computers)
+        Test for correct parsing and updating Direct Print nodes (printer and computers)
         """
 
         # Computers
@@ -334,7 +334,7 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
 
         with self.cr.savepoint(), patch.object(type(self.account), '_send_printnode_request') as \
                 mock_account_send_printnode_request:
-            def side_effect_send_printnode_request(uri: str):
+            def side_effect_send_printnode_request(uri: str, params=None):
                 if uri == 'computers':
                     return test_computers
 
@@ -359,7 +359,7 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
     def test_clear_devices_from_odoo(self):
         """
         Test to check deleting of devices from Odoo which
-        not presented in the Printnode Account
+        not presented in the Direct Print Account
         """
 
         # Set Up
@@ -392,7 +392,7 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
 
         with self.cr.savepoint(), patch.object(type(self.account), '_send_printnode_request') as \
                 mock_send_printnode_request:
-            def side_effect_send_printnode_request(uri: str):
+            def side_effect_send_printnode_request(uri: str, params=None):
                 if uri == 'computers':
                     return TEST_COMPUTERS_FROM_PRINTNODE
 
@@ -560,12 +560,12 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
 
     def test_get_limits_printnode(self):
         """
-        Test getting limits (printed pages + total available pages) from Printnode
+        Test getting limits (printed pages + total available pages) from Direct Print
         """
 
         with self.cr.savepoint(), patch.object(type(self.account), '_send_printnode_request', ) \
                 as mock_send_printnode_request:
-            def side_effect_send_printnode_request(uri: str):
+            def side_effect_send_printnode_request(uri: str, params=None):
                 vals = {
                     'billing/statistics': PRINTNODE_STATISTICS,
                     'billing/plan': PRINTNODE_BILLING_PLAN
@@ -604,7 +604,7 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
             self.assertEqual(self.account.printed, printed)
             self.assertEqual(self.account.limits, limits)
 
-            # Expected limits from Printnode
+            # Expected limits from Direct Print
             self.account.is_dpc_account = False
             self.account.update_limits_for_account()
             self.assertEqual(self.account.printed, printed + 10)

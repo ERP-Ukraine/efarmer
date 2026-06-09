@@ -3,7 +3,7 @@
 from odoo import models
 
 
-class IntegrationProductPricelistExternal(models.Model):
+class IntegrationStockLocationExternal(models.Model):
     _name = 'integration.stock.location.external'
     _inherit = 'integration.external.mixin'
     _description = 'Integration Stock Location External'

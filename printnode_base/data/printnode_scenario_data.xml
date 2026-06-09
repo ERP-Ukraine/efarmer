@@ -140,5 +140,21 @@
             <field name="report_id" eval="ref('stock.action_report_quant_package_barcode_small')"/>
         </record>
 
+        <record id="print_multiple_lot_labels_based_on_packaging_after_validation_scenario" model="printnode.scenario">
+            <field name="action" eval="ref('printnode_base.print_multiple_lot_labels_based_on_packaging_after_validation')" />
+            <field name="active">False</field>
+            <field name="description">Print multiple lot labels on Transfer based on pack qty(after val.)</field>
+            <field name="domain">[["picking_type_code","=","incoming"]]</field>
+            <field name="report_id" eval="ref('stock.action_report_lot_label')"/>
+        </record>
+
+        <record id="print_product_labels_based_on_packaging_on_transfer_scenario" model="printnode.scenario">
+            <field name="action" eval="ref('printnode_base.print_product_labels_based_on_packaging_on_transfer')" />
+            <field name="active">False</field>
+            <field name="description">Print multiple product labels on Transfer based on pack qty(after val.)</field>
+            <field name="domain">[["picking_type_code","=","incoming"]]</field>
+            <field name="report_id" eval="ref('stock.label_product_product')"/>
+        </record>
+
     </data>
 </odoo>

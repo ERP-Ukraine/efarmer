@@ -8,3 +8,4 @@ access_jpk_gtu_user,"JPK GTU Read Access",model_jpk_gtu,base.group_user,1,0,0,0
 access_jpk_gtu_manager,"JPK GTU Read Access",model_jpk_gtu,jpk_manager,1,1,1,0
 access_jpk_account_tag_user,"JPK Tag Access",model_jpk_account_tag,account.group_account_user,1,1,1,1
 access_jpk_account_tag_invoice,"JPK Tag Access",model_jpk_account_tag,account.group_account_invoice,1,0,0,0
+access_move_resequence_manager,access_move_resequence_manager,model_trilab_jpk_base_move_resequence,account.group_account_manager,1,1,1,1

@@ -4,17 +4,18 @@
 <template id="account_commercial_report_invoice_document" inherit_id="account.report_invoice_document" name="account_commercial_report_invoice_document">
     <xpath expr="//table[@name='invoice_snln_table']" position="replace">
     </xpath>
-    <xpath expr="//span[@t-field='o.invoice_payment_term_id.note']" position="replace">
+    <xpath expr="//span[@t-field='o.invoice_payment_term_id.note']" position="attributes">
+        <attribute name="class">d-none</attribute>
     </xpath>
 </template>
 
 <template id="report_account_commercial_invoice_document" inherit_id="account.report_invoice_document" primary="True">
     <!-- Change the header. -->
-    <xpath expr="//div[hasclass('page')]/h2" position="replace">
-        <h2>
+    <xpath expr="//t[@t-set='layout_document_title']" position="replace">
+        <t t-set="layout_document_title">
             <span>Сommercial Invoice # </span>
-            <span t-field="doc.name"/>
-        </h2>
+            <span t-if="o.name and o.name != '/'" t-field="o.name">INV/2023/0001</span>
+        </t>
     </xpath>
     <!-- Remove "Please use the following communication for your payment". -->
     <xpath expr="//span[@t-field='o.payment_reference']/../.." position="replace"/>
@@ -29,19 +30,19 @@
     </xpath>
     <!-- Append phone and email fields below the partner address. -->
     <xpath expr="//t[@t-set='address']" position="inside">
-        <div t-if="o.partner_id.phone or o.partner_id.mobile">Phone: <span t-esc="o.partner_id.phone or o.partner_id.mobile"/></div>
+        <div t-if="o.partner_id.phone">Phone: <span t-esc="o.partner_id.phone"/></div>
         <div t-if="o.partner_id.email">Email: <span t-field="o.partner_id.email"/></div>
     </xpath>
     <!-- Remove the payment term notes. -->
-    <xpath expr="//p[@name='payment_term']" position="replace">
+    <xpath expr="//span[@name='payment_term']" position="replace">
         <p t-if="o.invoice_payment_term_id" name="payment_term">
           <span>Payment Terms: <span t-field="o.invoice_payment_term_id.name"/></span>
         </p>
     </xpath>
     <!-- Display `HS Code` and `Country of origin` into the description column. -->
     <xpath expr="//table[@name='invoice_line_table']//td[@name='account_invoice_line_name']" position="inside">
-        <div name="hs_code" t-if="line.product_id.intrastat_id.code">
-            HS Code: <span t-field="line.product_id.intrastat_id.code"/>
+        <div name="hs_code" t-if="line.product_id.intrastat_code_id.code">
+            HS Code: <span t-field="line.product_id.intrastat_code_id.code"/>
         </div>
         <div name="country_of_origin" t-if="line.product_id.intrastat_origin_country_id.name">
             Country of Origin: <span t-field="line.product_id.intrastat_origin_country_id.name"/>

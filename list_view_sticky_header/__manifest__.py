@@ -22,7 +22,7 @@
 
 {
     'name': 'List View Sticky Header',
-    'version': '15.0.1.0.1',
+    'version': '18.0.1.0.0',
     'summary': 'Helps to Stick The Header of List View',
     'description': 'Helps to Stick The Header of List View',
     'category': 'Tools',
@@ -33,11 +33,6 @@
     'license': 'LGPL-3',
     'images': ['static/description/banner.png'],
     'depends': ['base'],
-    'assets': {
-        'web.assets_backend': [
-            "list_view_sticky_header/static/src/scss/sticky_header.scss"
-        ],
-    },
     'installable': True,
     'auto_install': False,
     'application': False,

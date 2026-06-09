@@ -4,12 +4,12 @@
         <record id="youtrack_product_version_tree" model="ir.ui.view">
             <field name="name">youtrack_product_version.tree</field>
             <field name="model">youtrack.product.version</field>
-            <field name="type">tree</field>
+            <field name="type">list</field>
             <field name="arch" type="xml">
-                <tree string="YouTrack Product Versions">
+                <list string="YouTrack Product Versions">
                     <field name="name" />
                     <field name="youtrack_id" />
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -35,7 +35,7 @@
         <record id='youtrack_product_version_list_action' model='ir.actions.act_window'>
             <field name="name">YouTrack Product Versions</field>
             <field name="res_model">youtrack.product.version</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
             <field name="view_id" ref="youtrack_product_version_tree"/>
         </record>
 

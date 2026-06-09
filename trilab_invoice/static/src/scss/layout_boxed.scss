@@ -1,3 +1,12 @@
+.x-nobr {
+  white-space: nowrap;
+}
+
+.x-auto-column-wrap {
+  max-width: 25%;
+  overflow-wrap: break-word;
+}
+
 div.header {
   background-color: transparent;
 }
@@ -15,7 +24,7 @@ div.header {
         &:first-child,
         &.o_subtotal {
           td:first-child {
-            border-right: 1px solid gray('700');
+            border-right: 1px solid map-get($grays, '700');
           }
         }
       }
@@ -28,10 +37,10 @@ div.header {
     }
 
   table.correction-table {
-    border: none;
+    border-color: transparent;
 
     tbody {
-      border: 1px solid gray('700');
+      border: 1px solid map-get($grays, '700');
     }
   }
 
@@ -39,9 +48,7 @@ div.header {
   thead.after-correction {
     .table-title {
       th {
-        border-top: none;
-        border-left: none;
-        border-right: none;
+        border: none;
       }
     }
   }

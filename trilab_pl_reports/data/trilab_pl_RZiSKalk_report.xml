@@ -1,520 +1,463 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
 
-    <record id="trilab_pl_RZiSKalk" model="account.financial.html.report">
-        <field name="name">PL Profil and Loss (calculation variant)</field>
-        <field name='parent_id' ref='trilab_pl_reports.menu_report_polish_accounting'/>
-        <field name="date_range" eval="True"/>
-        <field name="analytic" eval="True"/>
-        <field name="unfold_all_filter" eval="True"/>
+    <record id="trilab_pl_RZiSKalk" model="account.report">
+        <field name="name">PL Profit and Loss (calculation variant) RZiSKalk</field>
+        <field name="root_report_id" ref="account_reports.profit_and_loss"/>
+        <field name="country_id" ref="base.pl"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_analytic" eval="True"/>
+        <field name="filter_analytic_groupby" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_journals" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="default_opening_date_filter">this_year</field>
+        <field name="column_ids">
+            <record id="trilab_pl_RZiSKalk_balance" model="account.report.column">
+                <field name="name">Balance</field>
+                <field name="expression_label">balance</field>
+            </record>
+        </field>
+        <field name="line_ids">
+            <record id="trilab_pl_RZiSKalk_A" model="account.report.line">
+                <field name="name">Products and Goods Sale Net Revenue, including:</field>
+                <field name="code">RZiSKalk_A</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSKalk_A_I.balance + RZiSKalk_A_II.balance</field>
+                <field name="children_ids">
+                    <record id="trilab_pl_RZiSKalk_A_J" model="account.report.line">
+                        <field name="name">- Subsidiary Entities</field>
+                        <field name="code">RZiSKalk_A_J</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_A_J'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSKalk_A_I" model="account.report.line">
+                        <field name="name">Product Sale Net Revenue</field>
+                        <field name="code">RZiSKalk_A_I</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_A_I'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSKalk_A_II" model="account.report.line">
+                        <field name="name">Goods Net Sale Revenue</field>
+                        <field name="code">RZiSKalk_A_II</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_A_II'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                </field>
+            </record>
+            <record id="trilab_pl_RZiSKalk_B" model="account.report.line">
+                <field name="name">Products and Goods Sale Cost, including:</field>
+                <field name="code">RZiSKalk_B</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSKalk_B_I.balance + RZiSKalk_B_II.balance</field>
+                <field name="children_ids">
+                    <record id="trilab_pl_RZiSKalk_B_J" model="account.report.line">
+                        <field name="name">- Subsidiary Entities</field>
+                        <field name="code">RZiSKalk_B_J</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_B_J'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSKalk_B_I" model="account.report.line">
+                        <field name="name">Sold Products Production Costs</field>
+                        <field name="code">RZiSKalk_B_I</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_B_I'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSKalk_B_II" model="account.report.line">
+                        <field name="name">Sold Goods Value</field>
+                        <field name="code">RZiSKalk_B_II</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_B_II'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                </field>
+            </record>
+            <record id="trilab_pl_RZiSKalk_C" model="account.report.line">
+                <field name="name">Sales Gross Profit/Loss (A-B)</field>
+                <field name="code">RZiSKalk_C</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSKalk_A.balance - RZiSKalk_B.balance</field>
+            </record>
+            <record id="trilab_pl_RZiSKalk_D" model="account.report.line">
+                <field name="name">Sell Costs</field>
+                <field name="code">RZiSKalk_D</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_D'))])</field>
+                <field name="groupby">account_id</field>
+                <field name="foldable" eval="True"/>
+            </record>
+            <record id="trilab_pl_RZiSKalk_E" model="account.report.line">
+                <field name="name">Administrative Expenses</field>
+                <field name="code">RZiSKalk_E</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_E'))])</field>
+                <field name="groupby">account_id</field>
+                <field name="foldable" eval="True"/>
+            </record>
+            <record id="trilab_pl_RZiSKalk_F" model="account.report.line">
+                <field name="name">Sales Profit/Loss (C-D-E)</field>
+                <field name="code">RZiSKalk_F</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSKalk_C.balance - RZiSKalk_D.balance - RZiSKalk_E.balance</field>
+            </record>
+            <record id="trilab_pl_RZiSKalk_G" model="account.report.line">
+                <field name="name">Other Operating Revenue</field>
+                <field name="code">RZiSKalk_G</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSKalk_G_I.balance + RZiSKalk_G_II.balance + RZiSKalk_G_III.balance + RZiSKalk_G_IV.balance</field>
+                <field name="children_ids">
+                    <record id="trilab_pl_RZiSKalk_G_I" model="account.report.line">
+                        <field name="name">Gain on Disposal Non Financial Fixed Assets</field>
+                        <field name="code">RZiSKalk_G_I</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                        <field name="expression_ids">
+                            <record id="trilab_pl_RZiSKalk_G_I_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">domain</field>
+                                <field name="formula" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_G_I'))]"/>
+                                <field name="subformula">(abs(sum)-sum)/2</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="trilab_pl_RZiSKalk_G_II" model="account.report.line">
+                        <field name="name">Subsidies</field>
+                        <field name="code">RZiSKalk_G_II</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_G_II'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSKalk_G_III" model="account.report.line">
+                        <field name="name">Non Financial Assets Revaluation</field>
+                        <field name="code">RZiSKalk_G_III</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_G_III'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSKalk_G_IV" model="account.report.line">
+                        <field name="name">Other Operating Revenue</field>
+                        <field name="code">RZiSKalk_G_IV</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_G_IV'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                </field>
+            </record>
+            <record id="trilab_pl_RZiSKalk_H" model="account.report.line">
+                <field name="name">Other Operating Costs</field>
+                <field name="code">RZiSKalk_H</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSKalk_H_I.balance + RZiSKalk_H_II.balance + RZiSKalk_H_III.balance</field>
+                <field name="children_ids">
+                    <record id="trilab_pl_RZiSKalk_H_I" model="account.report.line">
+                        <field name="name">Non Financial Fixed Assets Loss on Disposal</field>
+                        <field name="code">RZiSKalk_H_I</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                        <field name="expression_ids">
+                            <record id="trilab_pl_RZiSKalk_H_I_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">domain</field>
+                                <field name="formula" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_H_I'))]"/>
+                                <field name="subformula">(abs(sum)+sum)/2</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="trilab_pl_RZiSKalk_H_II" model="account.report.line">
+                        <field name="name">Non Financial Assets Revaluation</field>
+                        <field name="code">RZiSKalk_H_II</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_H_II'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSKalk_H_III" model="account.report.line">
+                        <field name="name">Other Operating Costs</field>
+                        <field name="code">RZiSKalk_H_III</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_H_III'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                </field>
+            </record>
+            <record id="trilab_pl_RZiSKalk_I" model="account.report.line">
+                <field name="name">Operating Activity Profit/Loss(F+G-H)</field>
+                <field name="code">RZiSKalk_I</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSKalk_F.balance + RZiSKalk_G.balance - RZiSKalk_H.balance</field>
+            </record>
+            <record id="trilab_pl_RZiSKalk_J" model="account.report.line">
+                <field name="name">Financial Revenue</field>
+                <field name="code">RZiSKalk_J</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSKalk_J_I.balance + RZiSKalk_J_II.balance + RZiSKalk_J_III.balance + RZiSKalk_J_IV.balance + RZiSKalk_J_V.balance</field>
+                <field name="children_ids">
+                    <record id="trilab_pl_RZiSKalk_J_I" model="account.report.line">
+                        <field name="name">Dividends and Shares, including:</field>
+                        <field name="code">RZiSKalk_J_I</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="aggregation_formula">RZiSKalk_J_I_A.balance + RZiSKalk_J_I_B.balance</field>
+                        <field name="children_ids">
+                            <record id="trilab_pl_RZiSKalk_J_I_A" model="account.report.line">
+                                <field name="name">Subsidiary Entities, including:</field>
+                                <field name="code">RZiSKalk_J_I_A</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_I_A'))])</field>
+                                <field name="groupby">account_id</field>
+                                <field name="foldable" eval="True"/>
+                            </record>
+                            <record id="trilab_pl_RZiSKalk_J_I_A_1" model="account.report.line">
+                                <field name="name">- Subsidiary Entities</field>
+                                <field name="code">RZiSKalk_J_I_A_1</field>
+                                <field name="hierarchy_level" eval="3"/>
+                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_I_A_1'))])</field>
+                                <field name="groupby">account_id</field>
+                                <field name="foldable" eval="True"/>
+                            </record>
+                            <record id="trilab_pl_RZiSKalk_J_I_B" model="account.report.line">
+                                <field name="name">Other Entities, including:</field>
+                                <field name="code">RZiSKalk_J_I_B</field>
+                                <field name="hierarchy_level" eval="2"/>
+                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_I_B'))])</field>
+                                <field name="groupby">account_id</field>
+                                <field name="foldable" eval="True"/>
+                            </record>
+                            <record id="trilab_pl_RZiSKalk_J_I_B_1" model="account.report.line">
+                                <field name="name">- Subsidiary Entities</field>
+                                <field name="code">RZiSKalk_J_I_B_1</field>
+                                <field name="hierarchy_level" eval="3"/>
+                                <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_I_B_1'))])</field>
+                                <field name="groupby">account_id</field>
+                                <field name="foldable" eval="True"/>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="trilab_pl_RZiSKalk_J_II" model="account.report.line">
+                        <field name="name">Interest, including:</field>
+                        <field name="code">RZiSKalk_J_II</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_II'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSKalk_J_II_J" model="account.report.line">
+                        <field name="name">- Subsidiary Entities:</field>
+                        <field name="code">RZiSKalk_J_II_J</field>
+                        <field name="hierarchy_level" eval="2"/>
+                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_II_J'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSKalk_J_III" model="account.report.line">
+                        <field name="name">Financial Assets Gain on disposal, including:</field>
+                        <field name="code">RZiSKalk_J_III</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                        <field name="expression_ids">
+                            <record id="trilab_pl_RZiSKalk_J_III_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">domain</field>
+                                <field name="formula" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_III'))]"/>
+                                <field name="subformula">(abs(sum)-sum)/2</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="trilab_pl_RZiSKalk_J_III_J" model="account.report.line">
+                        <field name="name">- Subsidiary Entities</field>
+                        <field name="code">RZiSKalk_J_III_J</field>
+                        <field name="hierarchy_level" eval="2"/>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                        <field name="expression_ids">
+                            <record id="trilab_pl_RZiSKalk_J_III_J_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">domain</field>
+                                <field name="formula" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_III_J'))]"/>
+                                <field name="subformula">(abs(sum)-sum)/2</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="trilab_pl_RZiSKalk_J_IV" model="account.report.line">
+                        <field name="name">Financial Assets Revaluation</field>
+                        <field name="code">RZiSKalk_J_IV</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">-sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_IV'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSKalk_J_V" model="account.report.line">
+                        <field name="name">Other</field>
+                        <field name="code">RZiSKalk_J_V</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="foldable" eval="True"/>
+                        <field name="expression_ids">
+                            <record id="trilab_pl_RZiSKalk_J_V_rk_balance" model="account.report.expression">
+                                <field name="label">balance1</field>
+                                <field name="engine">domain</field>
+                                <field name="formula" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_V_rk'))]"/>
+                                <field name="subformula">(abs(sum)-sum)/2</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                            <record id="trilab_pl_RZiSKalk_J_V_poz_balance" model="account.report.expression">
+                                <field name="label">balance2</field>
+                                <field name="engine">domain</field>
+                                <field name="formula" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_V_poz'))]"/>
+                                <field name="subformula">-sum</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                            <record id="trilab_pl_RZiSKalk_J_V_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">aggregation</field>
+                                <field name="formula">RZiSKalk_J_V.balance1 + RZiSKalk_J_V.balance2</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                </field>
+            </record>
+            <record id="trilab_pl_RZiSKalk_K" model="account.report.line">
+                <field name="name">Financial Expenses</field>
+                <field name="code">RZiSKalk_K</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSKalk_K_I.balance + RZiSKalk_K_II.balance + RZiSKalk_K_III.balance + RZiSKalk_K_IV.balance</field>
+                <field name="children_ids">
+                    <record id="trilab_pl_RZiSKalk_K_I" model="account.report.line">
+                        <field name="name">Interest, including:</field>
+                        <field name="code">RZiSKalk_K_I</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_K_I'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSKalk_K_I_J" model="account.report.line">
+                        <field name="name">- Subsidiary Entities</field>
+                        <field name="code">RZiSKalk_K_I_J</field>
+                        <field name="hierarchy_level" eval="2"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_K_I_J'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSKalk_K_II" model="account.report.line">
+                        <field name="name">Financial Assets Loss on disposal, including:</field>
+                        <field name="code">RZiSKalk_K_II</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                        <field name="expression_ids">
+                            <record id="trilab_pl_RZiSKalk_K_II_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">domain</field>
+                                <field name="formula" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_K_II'))]"/>
+                                <field name="subformula">(abs(sum)+(sum))/2</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="trilab_pl_RZiSKalk_K_II_J" model="account.report.line">
+                        <field name="name">- Subsidiary Entities</field>
+                        <field name="code">RZiSKalk_K_II_J</field>
+                        <field name="hierarchy_level" eval="2"/>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                        <field name="expression_ids">
+                            <record id="trilab_pl_RZiSKalk_K_II_J_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">domain</field>
+                                <field name="formula" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_K_II_J'))]"/>
+                                <field name="subformula">(abs(sum)+(sum))/2</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="trilab_pl_RZiSKalk_K_III" model="account.report.line">
+                        <field name="name">Financial Assets Revaluation</field>
+                        <field name="code">RZiSKalk_K_III</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_K_III'))])</field>
+                        <field name="groupby">account_id</field>
+                        <field name="foldable" eval="True"/>
+                    </record>
+                    <record id="trilab_pl_RZiSKalk_K_IV" model="account.report.line">
+                        <field name="name">Other</field>
+                        <field name="code">RZiSKalk_K_IV</field>
+                        <field name="hierarchy_level" eval="1"/>
+                        <field name="foldable" eval="True"/>
+                        <field name="expression_ids">
+                            <record id="trilab_pl_RZiSKalk_K_IV_rk_balance" model="account.report.expression">
+                                <field name="label">balance1</field>
+                                <field name="engine">domain</field>
+                                <field name="formula" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_K_IV_rk'))]"/>
+                                <field name="subformula">(abs(sum)+sum)/2</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                            <record id="trilab_pl_RZiSKalk_K_IV_poz_balance" model="account.report.expression">
+                                <field name="label">balance2</field>
+                                <field name="engine">domain</field>
+                                <field name="formula" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_K_IV_poz'))]"/>
+                                <field name="subformula">sum</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                            <record id="trilab_pl_RZiSKalk_K_IV_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">aggregation</field>
+                                <field name="formula">RZiSKalk_K_IV.balance1 + RZiSKalk_K_IV.balance2</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                </field>
+            </record>
+            <record id="trilab_pl_RZiSKalk_L" model="account.report.line">
+                <field name="name">Gross Profit/Loss (I+J-K)</field>
+                <field name="code">RZiSKalk_L</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSKalk_I.balance + RZiSKalk_J.balance - RZiSKalk_K.balance</field>
+            </record>
+            <record id="trilab_pl_RZiSKalk_M" model="account.report.line">
+                <field name="name">Income Tax</field>
+                <field name="code">RZiSKalk_M</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_M'))])</field>
+                <field name="groupby">account_id</field>
+                <field name="foldable" eval="True"/>
+            </record>
+            <record id="trilab_pl_RZiSKalk_N" model="account.report.line">
+                <field name="name">Other Mandatory Profit Decrease (loss increase)</field>
+                <field name="code">RZiSKalk_N</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="domain_formula">sum([('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_N'))])</field>
+                <field name="groupby">account_id</field>
+                <field name="foldable" eval="True"/>
+            </record>
+            <record id="trilab_pl_RZiSKalk_O" model="account.report.line">
+                <field name="name">Net Profit/Loss (L-M-N)</field>
+                <field name="code">RZiSKalk_O</field>
+                <field name="hierarchy_level" eval="0"/>
+                <field name="aggregation_formula">RZiSKalk_L.balance - RZiSKalk_M.balance - RZiSKalk_N.balance</field>
+            </record>
+        </field>
     </record>
 
-    <record id="trilab_pl_RZiSKalk_A" model="account.financial.html.report.line">
-        <field name="name">Przychody netto ze sprzedaży produktów i towarów, w tym:</field>
-        <field name="code">RZiSKalk_A</field>
-        <field name="sequence" eval="0"/>
-        <field name="level" eval="0"/>
-        <field name="formulas">RZiSKalk_A_I + RZiSKalk_A_II</field>
-        <field name="financial_report_id" ref="trilab_pl_RZiSKalk"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_A_J" model="account.financial.html.report.line">
-        <field name="name">– od jednostek powiązanych</field>
-        <field name="code">RZiSKalk_A_J</field>
-        <field name="sequence" eval="0"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_A_J'))]"/>
-        <field name="show_domain">foldable</field>
-        <field name="formulas">-sum</field>
-        <field name="groupby">account_id</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_A"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_A_I" model="account.financial.html.report.line">
-        <field name="name">Przychody netto ze sprzedaży produktów</field>
-        <field name="code">RZiSKalk_A_I</field>
-        <field name="sequence" eval="1"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_A_I'))]"/>
-        <field name="show_domain">foldable</field>
-        <field name="formulas">-sum</field>
-        <field name="groupby">account_id</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_A"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_A_II" model="account.financial.html.report.line">
-        <field name="name">Przychody netto ze sprzedaży towarów</field>
-        <field name="code">RZiSKalk_A_II</field>
-        <field name="sequence" eval="2"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_A_II'))]"/>
-        <field name="show_domain">foldable</field>
-        <field name="formulas">-sum</field>
-        <field name="groupby">account_id</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_A"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_B" model="account.financial.html.report.line">
-        <field name="name">Koszty sprzedanych produktów i towarów, w tym:</field>
-        <field name="code">RZiSKalk_B</field>
-        <field name="sequence" eval="1"/>
-        <field name="level" eval="0"/>
-        <field name="formulas">RZiSKalk_B_I + RZiSKalk_B_II</field>
-        <field name="financial_report_id" ref="trilab_pl_RZiSKalk"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_B_J" model="account.financial.html.report.line">
-        <field name="name">– od jednostek powiązanych</field>
-        <field name="code">RZiSKalk_B_J</field>
-        <field name="sequence" eval="0"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_B_J'))]"/>
-        <field name="show_domain">foldable</field>
-        <field name="formulas">sum</field>
-        <field name="groupby">account_id</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_B"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_B_I" model="account.financial.html.report.line">
-        <field name="name">Koszt wytworzenia sprzedanych produktów</field>
-        <field name="code">RZiSKalk_B_I</field>
-        <field name="sequence" eval="1"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_B_I'))]"/>
-        <field name="show_domain">foldable</field>
-        <field name="formulas">sum</field>
-        <field name="groupby">account_id</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_B"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_B_II" model="account.financial.html.report.line">
-        <field name="name">Wartość sprzedanych towarów</field>
-        <field name="code">RZiSKalk_B_II</field>
-        <field name="sequence" eval="2"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_B_II'))]"/>
-        <field name="show_domain">foldable</field>
-        <field name="formulas">sum</field>
-        <field name="groupby">account_id</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_B"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_C" model="account.financial.html.report.line">
-        <field name="name">Zysk (strata) brutto ze sprzedaży (A–B)</field>
-        <field name="code">RZiSKalk_C</field>
-        <field name="sequence" eval="2"/>
-        <field name="level" eval="0"/>
-        <field name="formulas">RZiSKalk_A - RZiSKalk_B</field>
-        <field name="financial_report_id" ref="trilab_pl_RZiSKalk"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_D" model="account.financial.html.report.line">
-        <field name="name">Koszty sprzedaży</field>
-        <field name="code">RZiSKalk_D</field>
-        <field name="sequence" eval="3"/>
-        <field name="level" eval="0"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_D'))]"/>
-        <field name="formulas">sum</field>
-        <field name="financial_report_id" ref="trilab_pl_RZiSKalk"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_E" model="account.financial.html.report.line">
-        <field name="name">Koszty ogólnego zarządu</field>
-        <field name="code">RZiSKalk_E</field>
-        <field name="sequence" eval="4"/>
-        <field name="level" eval="0"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_E'))]"/>
-        <field name="formulas">sum</field>
-        <field name="financial_report_id" ref="trilab_pl_RZiSKalk"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_F" model="account.financial.html.report.line">
-        <field name="name">Zysk (strata) ze sprzedaży (C–D–E)</field>
-        <field name="code">RZiSKalk_F</field>
-        <field name="sequence" eval="5"/>
-        <field name="level" eval="0"/>
-        <field name="formulas">RZiSKalk_C - RZiSKalk_D - RZiSKalk_E</field>
-        <field name="financial_report_id" ref="trilab_pl_RZiSKalk"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_G" model="account.financial.html.report.line">
-        <field name="name">Pozostałe przychody operacyjne</field>
-        <field name="code">RZiSKalk_G</field>
-        <field name="sequence" eval="6"/>
-        <field name="level" eval="0"/>
-        <field name="formulas">RZiSKalk_G_I + RZiSKalk_G_II + RZiSKalk_G_III + RZiSKalk_G_IV</field>
-        <field name="financial_report_id" ref="trilab_pl_RZiSKalk"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_G_I" model="account.financial.html.report.line">
-        <field name="name">Zysk z tytułu rozchodu niefinansowych aktywów trwałych</field>
-        <field name="code">RZiSKalk_G_I</field>
-        <field name="sequence" eval="0"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_G_I'))]"/>
-        <field name="show_domain">foldable</field>
-        <field name="formulas">-sum</field>
-        <field name="groupby">account_id</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_G"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_G_II" model="account.financial.html.report.line">
-        <field name="name">Dotacje</field>
-        <field name="code">RZiSKalk_G_II</field>
-        <field name="sequence" eval="1"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_G_II'))]"/>
-        <field name="show_domain">foldable</field>
-        <field name="formulas">-sum</field>
-        <field name="groupby">account_id</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_G"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_G_III" model="account.financial.html.report.line">
-        <field name="name">Aktualizacja wartości aktywów niefinansowych</field>
-        <field name="code">RZiSKalk_G_III</field>
-        <field name="sequence" eval="2"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_G_III'))]"/>
-        <field name="show_domain">foldable</field>
-        <field name="formulas">-sum</field>
-        <field name="groupby">account_id</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_G"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_G_IV" model="account.financial.html.report.line">
-        <field name="name">Inne przychody operacyjne</field>
-        <field name="code">RZiSKalk_G_IV</field>
-        <field name="sequence" eval="3"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_G_IV'))]"/>
-        <field name="show_domain">foldable</field>
-        <field name="formulas">-sum</field>
-        <field name="groupby">account_id</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_G"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_H" model="account.financial.html.report.line">
-        <field name="name">Pozostałe koszty operacyjne</field>
-        <field name="code">RZiSKalk_H</field>
-        <field name="sequence" eval="7"/>
-        <field name="level" eval="0"/>
-        <field name="formulas">RZiSKalk_H_I + RZiSKalk_H_II + RZiSKalk_H_III</field>
-        <field name="financial_report_id" ref="trilab_pl_RZiSKalk"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_H_I" model="account.financial.html.report.line">
-        <field name="name">Strata z tytułu rozchodu niefinansowych aktywów trwałych</field>
-        <field name="code">RZiSKalk_H_I</field>
-        <field name="sequence" eval="0"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_H_I'))]"/>
-        <field name="show_domain">foldable</field>
-        <field name="formulas">sum</field>
-        <field name="groupby">account_id</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_H"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_H_II" model="account.financial.html.report.line">
-        <field name="name">Aktualizacja wartości aktywów niefinansowych</field>
-        <field name="code">RZiSKalk_H_II</field>
-        <field name="sequence" eval="1"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_H_II'))]"/>
-        <field name="show_domain">foldable</field>
-        <field name="formulas">sum</field>
-        <field name="groupby">account_id</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_H"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_H_III" model="account.financial.html.report.line">
-        <field name="name">Inne koszty operacyjne</field>
-        <field name="code">RZiSKalk_H_III</field>
-        <field name="sequence" eval="2"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_H_III'))]"/>
-        <field name="show_domain">foldable</field>
-        <field name="formulas">sum</field>
-        <field name="groupby">account_id</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_H"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_I" model="account.financial.html.report.line">
-        <field name="name">Zysk (strata) z działalności operacyjnej (F+G–H)</field>
-        <field name="code">RZiSKalk_I</field>
-        <field name="sequence" eval="8"/>
-        <field name="level" eval="0"/>
-        <field name="formulas">RZiSKalk_F + RZiSKalk_G - RZiSKalk_H</field>
-        <field name="financial_report_id" ref="trilab_pl_RZiSKalk"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_J" model="account.financial.html.report.line">
-        <field name="name">Przychody finansowe</field>
-        <field name="code">RZiSKalk_J</field>
-        <field name="sequence" eval="9"/>
-        <field name="level" eval="0"/>
-        <field name="formulas">RZiSKalk_J_I + RZiSKalk_J_II + RZiSKalk_J_III + RZiSKalk_J_IV + RZiSKalk_J_V</field>
-        <field name="financial_report_id" ref="trilab_pl_RZiSKalk"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_J_I" model="account.financial.html.report.line">
-        <field name="name">Dywidendy i udziały w zyskach, w tym:</field>
-        <field name="code">RZiSKalk_J_I</field>
-        <field name="sequence" eval="0"/>
-        <field name="level" eval="1"/>
-        <field name="formulas">RZiSKalk_J_I_A + RZiSKalk_J_I_B</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_J"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_J_I_A" model="account.financial.html.report.line">
-        <field name="name">od jednostek powiązanych, w tym:</field>
-        <field name="code">RZiSKalk_J_I_A</field>
-        <field name="sequence" eval="0"/>
-        <field name="level" eval="2"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_I_A'))]"/>
-        <field name="formulas">-sum</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_J_I"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_J_I_A_1" model="account.financial.html.report.line">
-        <field name="name">– w których jednostka posiada zaangażowanie w kapitale</field>
-        <field name="code">RZiSKalk_J_I_A_1</field>
-        <field name="sequence" eval="0"/>
-        <field name="level" eval="3"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_I_A_1'))]"/>
-        <field name="formulas">-sum</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_J_I_A"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_J_I_B" model="account.financial.html.report.line">
-        <field name="name">od jednostek pozostałych, w tym:</field>
-        <field name="code">RZiSKalk_J_I_B</field>
-        <field name="sequence" eval="1"/>
-        <field name="level" eval="2"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_I_B'))]"/>
-        <field name="formulas">-sum</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_J_I"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_J_I_B_1" model="account.financial.html.report.line">
-        <field name="name">– w których jednostka posiada zaangażowanie w kapitale</field>
-        <field name="code">RZiSKalk_J_I_B_1</field>
-        <field name="sequence" eval="0"/>
-        <field name="level" eval="3"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_I_B_1'))]"/>
-        <field name="formulas">-sum</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_J_I_B"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_J_II" model="account.financial.html.report.line">
-        <field name="name">Odsetki, w tym:</field>
-        <field name="code">RZiSKalk_J_II</field>
-        <field name="sequence" eval="1"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_II'))]"/>
-        <field name="formulas">-sum</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_J"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_J_II_J" model="account.financial.html.report.line">
-        <field name="name">– od jednostek powiązanych:</field>
-        <field name="code">RZiSKalk_J_II_J</field>
-        <field name="sequence" eval="0"/>
-        <field name="level" eval="2"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_II_J'))]"/>
-        <field name="formulas">-sum</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_J_II"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_J_III" model="account.financial.html.report.line">
-        <field name="name">Zysk z tytułu rozchodu aktywów finansowych, w tym:</field>
-        <field name="code">RZiSKalk_J_III</field>
-        <field name="sequence" eval="2"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_III'))]"/>
-        <field name="formulas">-sum</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_J"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_J_III_J" model="account.financial.html.report.line">
-        <field name="name">– od jednostek powiązanych:</field>
-        <field name="code">RZiSKalk_J_III_J</field>
-        <field name="sequence" eval="0"/>
-        <field name="level" eval="2"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_III_J'))]"/>
-        <field name="formulas">-sum</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_J_III"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_J_IV" model="account.financial.html.report.line">
-        <field name="name">Aktualizacja wartości aktywów finansowych</field>
-        <field name="code">RZiSKalk_J_IV</field>
-        <field name="sequence" eval="3"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_IV'))]"/>
-        <field name="formulas">-sum</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_J"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_J_V" model="account.financial.html.report.line">
-        <field name="name">Inne</field>
-        <field name="code">RZiSKalk_J_V</field>
-        <field name="sequence" eval="4"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_J_V'))]"/>
-        <field name="formulas">-sum</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_J"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_K" model="account.financial.html.report.line">
-        <field name="name">Koszty finansowe</field>
-        <field name="code">RZiSKalk_K</field>
-        <field name="sequence" eval="10"/>
-        <field name="level" eval="0"/>
-        <field name="formulas">RZiSKalk_K_I + RZiSKalk_K_II + RZiSKalk_K_III + RZiSKalk_K_IV</field>
-        <field name="financial_report_id" ref="trilab_pl_RZiSKalk"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_K_I" model="account.financial.html.report.line">
-        <field name="name">Odsetki, w tym:</field>
-        <field name="code">RZiSKalk_K_I</field>
-        <field name="sequence" eval="0"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_K_I'))]"/>
-        <field name="formulas">sum</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_K"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_K_I_J" model="account.financial.html.report.line">
-        <field name="name">– dla jednostek powiązanych</field>
-        <field name="code">RZiSKalk_K_I_J</field>
-        <field name="sequence" eval="0"/>
-        <field name="level" eval="2"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_K_I_J'))]"/>
-        <field name="formulas">sum</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_K_I"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_K_II" model="account.financial.html.report.line">
-        <field name="name">Strata z tytułu rozchodu aktywów finansowych, w tym:</field>
-        <field name="code">RZiSKalk_K_II</field>
-        <field name="sequence" eval="1"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_K_II'))]"/>
-        <field name="formulas">sum</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_K"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_K_II_J" model="account.financial.html.report.line">
-        <field name="name">– dla jednostek powiązanych</field>
-        <field name="code">RZiSKalk_K_II_J</field>
-        <field name="sequence" eval="0"/>
-        <field name="level" eval="2"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_K_II_J'))]"/>
-        <field name="formulas">sum</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_K_II"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_K_III" model="account.financial.html.report.line">
-        <field name="name">Aktualizacja wartości aktywów finansowych</field>
-        <field name="code">RZiSKalk_K_III</field>
-        <field name="sequence" eval="2"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_K_III'))]"/>
-        <field name="formulas">sum</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_K"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_K_IV" model="account.financial.html.report.line">
-        <field name="name">Inne</field>
-        <field name="code">RZiSKalk_K_IV</field>
-        <field name="sequence" eval="3"/>
-        <field name="level" eval="1"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_K_IV'))]"/>
-        <field name="formulas">sum</field>
-        <field name="parent_id" ref="trilab_pl_RZiSKalk_K"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_L" model="account.financial.html.report.line">
-        <field name="name">Zysk (strata) brutto (I+J–K)</field>
-        <field name="code">RZiSKalk_L</field>
-        <field name="sequence" eval="11"/>
-        <field name="level" eval="0"/>
-        <field name="formulas">RZiSKalk_I + RZiSKalk_J - RZiSKalk_K</field>
-        <field name="financial_report_id" ref="trilab_pl_RZiSKalk"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_M" model="account.financial.html.report.line">
-        <field name="name">Podatek dochodowy</field>
-        <field name="code">RZiSKalk_M</field>
-        <field name="sequence" eval="12"/>
-        <field name="level" eval="0"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_M'))]"/>
-        <field name="formulas">sum</field>
-        <field name="financial_report_id" ref="trilab_pl_RZiSKalk"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_N" model="account.financial.html.report.line">
-        <field name="name">Pozostałe obowiązkowe zmniejszenia zysku (zwiększenia straty)</field>
-        <field name="code">RZiSKalk_N</field>
-        <field name="sequence" eval="13"/>
-        <field name="level" eval="0"/>
-        <field name="domain" eval="[('account_id.tag_ids','=', ref('trilab_pl_reports.RZiSKalk_N'))]"/>
-        <field name="formulas">sum</field>
-        <field name="financial_report_id" ref="trilab_pl_RZiSKalk"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
-
-    <record id="trilab_pl_RZiSKalk_O" model="account.financial.html.report.line">
-        <field name="name">Zysk (strata) netto (L–M–N)</field>
-        <field name="code">RZiSKalk_O</field>
-        <field name="sequence" eval="14"/>
-        <field name="level" eval="0"/>
-        <field name="formulas">RZiSKalk_L - RZiSKalk_M - RZiSKalk_N</field>
-        <field name="financial_report_id" ref="trilab_pl_RZiSKalk"/>
-        <field name="special_date_changer">strict_range</field>
-    </record>
 </odoo>

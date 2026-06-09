@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <record id="jpk_gtu_tree" model="ir.ui.view">
-        <field name="name">jpk_gtu_tree</field>
+    <record id="jpk_gtu_list" model="ir.ui.view">
+        <field name="name">jpk_gtu_list</field>
         <field name="model">jpk.gtu</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name"/>
                 <field name="description"/>
-            </tree>
+            </list>
         </field>
     </record>
 

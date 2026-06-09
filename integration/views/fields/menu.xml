@@ -1,26 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <record id="menu_ecommerce_settings_action" model="ir.actions.act_window">
-            <field name="name">Integration</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">res.config.settings</field>
-        </record>
-
         <menuitem id="menu_product_fields"
                   name="Product Fields"
                   parent="configuration_menu"
                   sequence="3"/>
 
         <menuitem id="menu_product_ecommerce_fields_mapping"
-                  name="Product Fields Mapping"
+                  name="Field Synchronization"
                   parent="menu_product_fields"
                   action="product_ecommerce_field_mapping_action"/>
 
         <menuitem id="menu_product_ecommerce_fields"
-                  name="All Product Fields"
+                  name="Field Definitions"
                   parent="menu_product_fields"
-                  action="product_ecommerce_field_action"
-                  groups="base.group_no_one"/>
+                  action="product_ecommerce_field_action"/>
     </data>
 </odoo>

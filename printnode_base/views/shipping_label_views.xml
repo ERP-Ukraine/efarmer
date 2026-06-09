@@ -14,17 +14,17 @@
                             <field name="picking_id" />
                             <field name="tracking_numbers" />
                             <field name="label_ids">
-                                <tree create="false" edit="false" delete="false">
+                                <list create="false" edit="false" delete="false">
                                     <field name="document_id" />
                                     <field name="package_id" />
                                     <button name="print_label_with_package_via_printnode" type="object" icon="fa-print" string="Send to Printer" aria-label="Send to Printer" title="Send shipping labels to Printer via Direct Print" />
-                                </tree>
+                                </list>
                             </field>
                             <field name="return_label_ids">
-                                <tree create="false" edit="false" delete="false">
+                                <list create="false" edit="false" delete="false">
                                     <field name="document_id" />
                                     <button name="print_label_with_package_via_printnode" type="object" icon="fa-print" string="Send to Printer" aria-label="Send to Printer" title="Send shipping labels to Printer via Direct Print" />
-                                </tree>
+                                </list>
                             </field>
                             <field name="label_status" />
                         </group>
@@ -33,12 +33,12 @@
             </field>
         </record>
 
-        <record id="shipping_label_tree" model="ir.ui.view">
-            <field name="name">shipping.label.tree</field>
+        <record id="shipping_label_list" model="ir.ui.view">
+            <field name="name">shipping.label.list</field>
             <field name="model">shipping.label</field>
-            <field name="type">tree</field>
+            <field name="type">list</field>
             <field name="arch" type="xml">
-                <tree string="Shipping Label Tree" create="false" edit="false" delete="false" decoration-muted="label_status == 'inactive'">
+                <list string="Shipping Label List" create="false" edit="false" delete="false" decoration-muted="label_status == 'inactive'">
                     <field name="create_date" widget="datetime" />
                     <field name="carrier_id" ref="delivery_carrier" />
                     <field name="picking_id" />
@@ -47,7 +47,7 @@
                     <field name="return_label_ids" />
                     <field name="label_status" />
                     <button name="print_via_printnode" type="object" icon="fa-print" string="Send to Printer" aria-label="Send to Printer" title="Send shipping labels to Printer via Direct Print" />
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -80,8 +80,8 @@
         <record id="shipping_labels_action" model="ir.actions.act_window">
             <field name="name">Shipping Labels</field>
             <field name="res_model">shipping.label</field>
-            <field name="view_mode">tree,form</field>
-            <field name="view_id" ref="shipping_label_tree" />
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="shipping_label_list" />
             <field name="context">{'search_default_active_labels': 1}</field>
         </record>
 

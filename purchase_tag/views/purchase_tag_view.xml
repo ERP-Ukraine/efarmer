@@ -19,7 +19,8 @@
                     </div>
                     <group>
                         <group>
-                            <field name="color" required="True" />
+                            <field name="color" required="True" widget="color_picker" />
+                            <field name="parent_id" />
                         </group>
                     </group>
                 </sheet>
@@ -31,10 +32,11 @@
         <field name="name">purchase.tag.view.tree</field>
         <field name="model">purchase.tag</field>
         <field name="arch" type="xml">
-            <tree editable="bottom">
+            <list>
                 <field name="name" />
+                <field name="parent_id" optional="hide" />
                 <field name="color" widget="color_picker" />
-            </tree>
+            </list>
         </field>
     </record>
 

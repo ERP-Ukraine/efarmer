@@ -2,17 +2,47 @@
 <odoo>
     <data>
 
+        <menuitem id="menu_integration_catalog_external"
+                  name="Catalogs"
+                  parent="integration.menu_external_shopify_only"
+                  action="integration_catalog_external_action"
+                  sequence="10"/>
+
+        <menuitem id="menu_order_fulfillments"
+                  name="Order Fulfillments"
+                  parent="integration.menu_external_shopify_only"
+                  action="integration.external_order_fulfillment_tree_action"
+                  sequence="20"/>
+
         <menuitem id="menu_order_risk"
                   name="Order Risks"
-                  parent="integration.menu_external"
+                  parent="integration.menu_external_shopify_only"
                   action="external_order_risk_action"
-                  groups="base.group_no_one"/>
+                  sequence="30"/>
+
+        <menuitem id="menu_order_source_name"
+                  name="Order Source Names"
+                  parent="integration.menu_external_shopify_only"
+                  action="external_order_source_name_action"
+                  sequence="40"/>
+
+        <menuitem id="menu_shopify_order_tag_external"
+                  name="Order Tags"
+                  parent="integration.menu_external_shopify_only"
+                  action="action_external_integration_shopify_order_tag"
+                  sequence="50"/>
+
+        <menuitem id="menu_shopify_product_tag_external"
+                  name="Product Tags"
+                  parent="integration.menu_external_shopify_only"
+                  action="action_external_integration_shopify_product_tag"
+                  sequence="60"/>
 
         <menuitem id="menu_sale_channel"
                   name="Sales Channels"
-                  parent="integration.menu_external"
+                  parent="integration.menu_external_shopify_only"
                   action="external_sale_channel_action"
-                  groups="base.group_no_one"/>
+                  sequence="70"/>
 
     </data>
 </odoo>

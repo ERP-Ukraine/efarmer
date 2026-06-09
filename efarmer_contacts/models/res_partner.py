@@ -27,15 +27,11 @@ class ResPartner(models.Model):
                 partner.is_company = True
 
     @api.model
-    def vies_vat_check(self, country_code, vat_number):
-        '''
-        Function overwrites the original one in order to skip VIES check for polish companies
-        '''
-        if country_code.upper() == self.env.ref('base.pl').code.upper():
+    def _run_vat_test(self, vat_number, default_country, partner_is_company=True):
+        if self.country_code.upper() == self.env.ref('base.pl').code.upper():
             _logger.info(f'VIES check was skipped for polish company {self.name} with VAT {vat_number}')
             return True
-        else:
-            return super().vies_vat_check(country_code, vat_number)
+        return super()._run_vat_test(vat_number, default_country, partner_is_company)
 
     @api.model
     def _get_fiscal_positions(self):
@@ -87,13 +83,11 @@ GROUP BY afpt2.country_code;
                     position_id = position[0][0][0]
                 else:
                     continue
-
-                self.env['ir.property'].sudo().with_company(company)._set_multi(
-                    "property_account_position_id",
-                    self._name,
-                    {r.id: position_id for r in partner_ids},
-                )
-                sum(partner_ids, self.env['res.partner']).sudo().with_company(company)._commercial_sync_to_children()
+                for partner_id in partner_ids:
+                    partner_id.with_company(company).sudo().write({
+                        'property_account_position_id': position_id if position_id else False,
+                    })
+                    partner_id.sudo().with_company(company)._commercial_sync_to_children()
 
     @api.model_create_multi
     def create(self, vals_list):

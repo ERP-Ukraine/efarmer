@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 {
-    "name": "CMI Activities",
+    "name": "eFarmer Activities",
     "version": "1.1",
     "category": "Custom",
     "author": "VentorTech",
@@ -10,10 +10,9 @@
     "license": "OPL-1",
     "summary": "Manage your activities",
     "depends": [
-        "mail",
+        "base",
     ],
     "data": [
-        "views/mail_activity_views.xml",
     ],
     "installable": True,
     "application": True,

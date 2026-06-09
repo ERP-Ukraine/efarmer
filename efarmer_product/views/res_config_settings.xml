@@ -3,18 +3,15 @@
     <record id="res_config_settings_efarmer_product_view_form" model="ir.ui.view">
         <field name="name">res.config.settings.view.efarmer.product.form.inherit</field>
         <field name="model">res.config.settings</field>
-        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="inherit_id" ref="stock.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[@id='uom_settings']" position="after">
-                <div class="col-12 col-md-6 o_setting_box" id="default_product_function_settings">
-                    <div class="o_setting_right_pane">
-                        <label for="product_function_id"/>
+            <xpath expr="//setting[@id='sell_purchase_uom']" position="after">
+                <setting id="default_product_function_settings"
+                     help="Set Fully Invoiced for Upselling Opportunity Sales Orders"   >
+                    <group class="mt16">
                         <field name="product_function_id"/>
-                        <div class="text-muted">
-                            Set Fully Invoiced for Upselling Opportunity Sales Orders
-                        </div>
-                    </div>
-                </div>
+                    </group>
+                </setting>
             </xpath>
         </field>
     </record>
@@ -23,18 +20,10 @@
         <field name="model">res.config.settings</field>
         <field name="inherit_id" ref="account.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[@data-key='account']//div[@id='tax_fiscal_country_234']" position="after">
-                <div class="col-12 col-lg-6 o_setting_box"
-                    id="enable_so_tax_auto_calc"
-                    groups="account_consolidation.group_consolidation_user"
-                >
-                    <div class="o_setting_left_pane">
-                        <field name="enable_so_tax_auto_calc"/>
-                    </div>
-                    <div class="o_setting_right_pane">
-                        <label for="enable_so_tax_auto_calc"/>
-                    </div>
-                </div>
+            <xpath expr="//setting[@id='tax_fiscal_country_234']" position="after">
+                <setting id="enable_so_tax_auto_calc" >
+                    <field name="enable_so_tax_auto_calc"/>
+                </setting>
             </xpath>
         </field>
     </record>

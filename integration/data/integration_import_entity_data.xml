@@ -1,0 +1,130 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+
+        <!-- Master Data -->
+        <record model="integration.import.entity" id="integration_import_entity_attributes">
+            <field name="name">Attributes</field>
+            <field name="method_name">initial_import_attributes</field>
+            <field name="external_model">integration.product.attribute.external</field>
+            <field name="mapping_model">integration.product.attribute.mapping</field>
+            <field name="integration_type"></field>
+            <field name="is_master_data">True</field>
+            <field name="supports_import_by_id">False</field>
+        </record>
+
+        <record model="integration.import.entity" id="integration_import_entity_categories">
+            <field name="name">Categories</field>
+            <field name="method_name">integrationApiImportCategories</field>
+            <field name="external_model">integration.product.public.category.external</field>
+            <field name="mapping_model">integration.product.public.category.mapping</field>
+            <field name="integration_type"></field>
+            <field name="is_master_data">True</field>
+            <field name="supports_import_by_id">False</field>
+        </record>
+
+        <record model="integration.import.entity" id="integration_import_entity_countries">
+            <field name="name">Countries</field>
+            <field name="method_name">initial_import_countries</field>
+            <field name="external_model">integration.res.country.external</field>
+            <field name="mapping_model">integration.res.country.mapping</field>
+            <field name="integration_type"></field>
+            <field name="is_master_data">True</field>
+            <field name="supports_import_by_id">False</field>
+        </record>
+
+        <record model="integration.import.entity" id="integration_import_entity_languages">
+            <field name="name">Languages</field>
+            <field name="method_name">integrationApiImportLanguages</field>
+            <field name="external_model">integration.res.lang.external</field>
+            <field name="mapping_model">integration.res.lang.mapping</field>
+            <field name="integration_type"></field>
+            <field name="is_master_data">True</field>
+            <field name="supports_import_by_id">False</field>
+        </record>
+
+        <record model="integration.import.entity" id="integration_import_entity_locations">
+            <field name="name">Locations</field>
+            <field name="method_name">integrationApiImportLocations</field>
+            <field name="external_model">integration.stock.location.external</field>
+            <field name="mapping_model"></field>
+            <field name="integration_type"></field>
+            <field name="is_master_data">True</field>
+            <field name="supports_import_by_id">False</field>
+        </record>
+
+        <record model="integration.import.entity" id="integration_import_entity_payment_methods">
+            <field name="name">Payment Methods</field>
+            <field name="method_name">integrationApiImportPaymentMethods</field>
+            <field name="external_model">integration.sale.order.payment.method.external</field>
+            <field name="mapping_model">integration.sale.order.payment.method.mapping</field>
+            <field name="integration_type"></field>
+            <field name="is_master_data">True</field>
+            <field name="supports_import_by_id">False</field>
+        </record>
+
+        <record model="integration.import.entity" id="integration_import_entity_shipping_methods">
+            <field name="name">Shipping Methods</field>
+            <field name="method_name">integrationApiImportDeliveryMethods</field>
+            <field name="external_model">integration.delivery.carrier.external</field>
+            <field name="mapping_model">integration.delivery.carrier.mapping</field>
+            <field name="integration_type"></field>
+            <field name="is_master_data">True</field>
+            <field name="supports_import_by_id">False</field>
+        </record>
+
+        <record model="integration.import.entity" id="integration_import_entity_sub_statuses">
+            <field name="name">Sub-Statuses</field>
+            <field name="method_name">integrationApiImportSaleOrderStatuses</field>
+            <field name="external_model">integration.sale.order.sub.status.external</field>
+            <field name="mapping_model">integration.sale.order.sub.status.mapping</field>
+            <field name="integration_type"></field>
+            <field name="is_master_data">True</field>
+            <field name="supports_import_by_id">False</field>
+        </record>
+
+        <record model="integration.import.entity" id="integration_import_entity_taxes">
+            <field name="name">Taxes</field>
+            <field name="method_name">integrationApiImportTaxes</field>
+            <field name="external_model">integration.account.tax.external</field>
+            <field name="mapping_model">integration.account.tax.mapping</field>
+            <field name="integration_type"></field>
+            <field name="is_master_data">True</field>
+            <field name="supports_import_by_id">False</field>
+        </record>
+
+        <!-- Main Data -->
+        <record model="integration.import.entity" id="integration_import_entity_customers">
+            <field name="name">Customers</field>
+            <!-- TODO: ??? Replace method with refactored one -->
+            <field name="method_name">import_customers</field>
+            <field name="external_model">integration.res.partner.external</field>
+            <field name="mapping_model">integration.res.partner.mapping</field>
+            <field name="integration_type"></field>
+            <field name="is_master_data">False</field>
+            <field name="supports_import_by_id">True</field>
+        </record>
+
+        <record model="integration.import.entity" id="integration_import_entity_orders">
+            <field name="name">Orders</field>
+            <field name="method_name">import_orders</field>
+            <!-- In reality import method returns sale.integration.input.file records -->
+            <field name="external_model">integration.sale.order.external</field>
+            <field name="mapping_model">integration.sale.order.mapping</field>
+            <field name="integration_type"></field>
+            <field name="is_master_data">False</field>
+            <field name="supports_import_by_id">True</field>
+        </record>
+
+        <record model="integration.import.entity" id="integration_import_entity_products">
+            <field name="name">Products</field>
+            <field name="method_name">import_products</field>
+            <field name="external_model">integration.product.template.external</field>
+            <field name="mapping_model">integration.product.template.mapping</field>
+            <field name="integration_type"></field>
+            <field name="is_master_data">False</field>
+            <field name="supports_import_by_id">True</field>
+        </record>
+
+    </data>
+</odoo>

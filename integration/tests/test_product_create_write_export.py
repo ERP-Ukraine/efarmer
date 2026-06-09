@@ -1,8 +1,9 @@
 # See LICENSE file for full copyright and licensing details.
 
+from odoo.tests import tagged
 from odoo.exceptions import UserError
 
-from .config.integration_init import OdooIntegrationInit
+from .config.integration_init import OdooIntegrationInit, load_xml
 
 
 class TestErrorCreate(UserError):
@@ -21,20 +22,27 @@ class TestErrorExportImage(UserError):
     pass
 
 
+@tagged('post_install', '-at_install', 'test_integration_core')
 class TestProductCreateWriteExport(OdooIntegrationInit):
 
-    def setUp(self):
-        super(TestProductCreateWriteExport, self).setUp()
-
-        self.assertTrue(self.integration_no_api_1.is_active)
-        self.assertTrue(self.integration_no_api_2.is_active)
-
-        self.assertTrue(
-            self.get_all_integrations() == (self.integration_no_api_1 + self.integration_no_api_2)
+    @classmethod
+    def setUpClass(cls):
+        super(TestProductCreateWriteExport, cls).setUpClass()
+        # Load base integration XML data first (needed for refs)
+        load_xml(
+            cls.env,
+            module='integration',
+            path_file='tests/data',
+            filename='init_sale_integration.xml',
         )
 
-        self.assertTrue(self.integration_no_api_1.export_template_job_enabled)
-        self.assertTrue(self.integration_no_api_2.export_template_job_enabled)
+        integration_no_api_1 = cls.env.ref('integration.integration_no_api_1')
+        integration_no_api_2 = cls.env.ref('integration.integration_no_api_2')
+
+        assert integration_no_api_1.is_active
+        assert integration_no_api_2.is_active
+        assert integration_no_api_1.export_template_job_enabled
+        assert integration_no_api_2.export_template_job_enabled
 
     @property
     def skip_ctx(self):
@@ -61,13 +69,11 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
                 raise TestErrorCreate('trigger-export-from-create-called')
             raise TestErrorWrite('trigger-export-from-write-called')
 
-        self.env['product.template']._patch_method(
+        self.patch(
+            type(self.env['product.template']),
             '_trigger_export_single_template',
             _trigger_export_single_template_patch,
         )
-
-    def _revert_export_methods(self):
-        self.env['product.template']._revert_method('_trigger_export_single_template')
 
     def test_create_simple_template_apply_integration(self):
         self._patch_export_methods()  # raise if skip_ctx doesnt't work
@@ -95,8 +101,6 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
         self.assertTrue(record.integration_ids == integrations)
         self.assertTrue(len(record.product_variant_ids) == 1)
         self.assertTrue(record.product_variant_ids.integration_ids == integrations)
-
-        self._revert_export_methods()
 
     def test_create_complex_template_apply_integration(self):
         self._patch_export_methods()  # raise if skip_ctx doesnt't work
@@ -131,8 +135,6 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
         self.assertTrue(record.product_variant_ids[0].integration_ids == integrations)
         self.assertTrue(record.product_variant_ids[1].integration_ids == integrations)
 
-        self._revert_export_methods()
-
     def test_create_variant_apply_integration(self):
         self._patch_export_methods()  # raise if skip_ctx doesnt't work
 
@@ -159,8 +161,6 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
         self.assertTrue(record.integration_ids == integrations)
         self.assertTrue(len(record.product_tmpl_id.product_variant_ids) == 1)
         self.assertTrue(record.product_tmpl_id.integration_ids == integrations)
-
-        self._revert_export_methods()
 
     def test_trigger_export_from_template_create(self):
         # Patch export methods
@@ -197,8 +197,6 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
 
             self.assertTrue(record._get_enabled_integrations() == integrations)
 
-        self._revert_export_methods()
-
     def test_trigger_export_from_variant_create(self):
         # Patch export methods
         self._patch_export_methods()  # expects raise
@@ -233,8 +231,6 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
             self.assertTrue(record.product_variant_ids.integration_ids == integrations)
 
             self.assertTrue(record._get_enabled_integrations() == integrations)
-
-        self._revert_export_methods()
 
     def test_get_related_valid_integrations(self):
         # 1. Create template with two integrations
@@ -349,7 +345,7 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
         def _get_trackable_fields_patch(*args, **kw):
             return self.env['ir.model.fields']
 
-        integration._patch_method('_get_trackable_fields', _get_trackable_fields_patch)
+        self.patch(type(integration), '_get_trackable_fields', _get_trackable_fields_patch)
 
         field = self.env.ref('product.field_product_template__name')
 
@@ -370,8 +366,6 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
         integration.export_template_job_enabled = True
         integration.global_tracked_fields = [(6, 0, [])]
 
-        integration._revert_method('_get_trackable_fields')
-
     def test_trigger_export_template_from_write(self):
 
         def with_delay_patch(*args, **kw):
@@ -390,11 +384,11 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
             raise TestErrorExportImage('export_images_job_called')
 
         integration = self.integration_no_api_1
-        integration._patch_method('with_delay', with_delay_patch)
-        integration._patch_method('_is_need_export_images', _is_need_export_images_patch)
-        integration._patch_method('_is_need_export_product', _is_need_export_product_patch)
-        integration._patch_method('export_template', export_template_patch)
-        integration._patch_method('export_images_job', export_images_job_patch)
+        self.patch(type(integration), 'with_delay', with_delay_patch)
+        self.patch(type(integration), '_is_need_export_images', _is_need_export_images_patch)
+        self.patch(type(integration), '_is_need_export_product', _is_need_export_product_patch)
+        self.patch(type(integration), 'export_template', export_template_patch)
+        self.patch(type(integration), 'export_template_images_verbose', export_images_job_patch)
 
         # 1. Create template with one active integration
         vals = self.generate_product_data(
@@ -407,17 +401,37 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
         with self.assertRaises(TestErrorExportTemplate):
             record._trigger_export_single_template({})
 
-        # 2. Expected `export_images_job` method
+        # 2. Expected `export_template_images_verbose` method
         def _is_need_export_product_patch2(*args, **kw):
             return False
 
-        integration._patch_method('_is_need_export_product', _is_need_export_product_patch2)
+        self.patch(type(integration), '_is_need_export_product', _is_need_export_product_patch2)
 
         with self.assertRaises(TestErrorExportImage):
             record._trigger_export_single_template({})
 
-        integration._revert_method('with_delay')
-        integration._revert_method('_is_need_export_images')
-        integration._revert_method('_is_need_export_product')
-        integration._revert_method('export_template')
-        integration._revert_method('export_images_job')
+    def test_integration_company_mismatch_compute(self):
+        integration1 = self.integration_no_api_1  # company A
+        integration2 = self.integration_no_api_2  # company B
+        self.assertNotEqual(integration1.company_id, integration2.company_id)
+
+        tmpl = self.template.with_context(**self.skip_ctx).create(
+            self.generate_product_data(name='p', integration=integration1)
+        )
+
+        # A
+        tmpl.company_id = integration1.company_id
+        tmpl.integration_ids = [(6, 0, integration1.ids)]
+        tmpl._compute_integration_company_mismatch()
+        self.assertFalse(tmpl.integration_company_mismatch)
+
+        # B
+        tmpl.integration_ids = [(6, 0, integration2.ids)]
+        tmpl._compute_integration_company_mismatch()
+        self.assertTrue(tmpl.integration_company_mismatch)
+
+        # C
+        tmpl.company_id = False
+        tmpl.integration_ids = [(6, 0, (integration1 | integration2).ids)]
+        tmpl._compute_integration_company_mismatch()
+        self.assertFalse(tmpl.integration_company_mismatch)

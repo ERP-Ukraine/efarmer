@@ -37,6 +37,10 @@ class ResUsers(models.Model):
         string='User Settings'
     )
 
+    ventor_filter_settings = fields.Text(
+        string='Filter Settings'
+    )
+
     @property
     def SELF_READABLE_FIELDS(self):
         readable_fields = [
@@ -44,12 +48,13 @@ class ResUsers(models.Model):
             'ventor_user_settings',
             'custom_package_name',
             'ventor_base_version',
+            'ventor_filter_settings',
         ]
         return super().SELF_READABLE_FIELDS + readable_fields
 
     @property
     def SELF_WRITEABLE_FIELDS(self):
-        writable_fields = ['ventor_user_settings']
+        writable_fields = ['ventor_user_settings', 'ventor_filter_settings']
         return super().SELF_WRITEABLE_FIELDS + writable_fields
 
     def _compute_custom_package_name(self):
@@ -99,17 +104,9 @@ class ResUsers(models.Model):
             ventor_option_settings.pop('wave_picking')
         return ventor_option_settings
 
-    def _update_group_picking_wave_menu(self, vals):
-        vals = self._remove_reified_groups(vals)
-        if 'groups_id' in vals:
-            group_stock_picking_wave = self.env.ref('stock.group_stock_picking_wave')
-            merp_wave_picking_menu = self.env.ref('ventor_base.merp_wave_picking_menu')
-            if group_stock_picking_wave not in self.groups_id and merp_wave_picking_menu in self.groups_id:
-                merp_wave_picking_menu.write({'users': [(3, self.id)]})
-
-    @api.model
-    def create(self, vals):
-        result = super().create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        result = super().create(vals_list)
         if not result.allowed_warehouse_ids:
             result.write(
                 {
@@ -125,6 +122,6 @@ class ResUsers(models.Model):
     def write(self, vals):
         result = super().write(vals)
         if result and 'allowed_warehouse_ids' in vals:
-            self.env['ir.rule'].clear_cache()
-        self._update_group_picking_wave_menu(vals)
+            self.env.registry.clear_cache()
+
         return result

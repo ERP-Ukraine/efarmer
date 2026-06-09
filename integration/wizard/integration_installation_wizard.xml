@@ -9,94 +9,98 @@
             <field name="arch" type="xml">
                 <form name="Installation Wizard">
                     <sheet>
-                        <field name="state" invisible="1"/>
+                        <field name="state" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
 
-                        <div name="main" states="step_main">
-                            <h3 class="mb-3">
-                                <span class="fa fa-gears mr-2" aria-label="Information"></span>
-                                Let's ensure a seamless setup!
-                            </h3>
-                            <p>
+                        <div name="main" invisible="state != 'step_main'">
+                            <p class="mb-0">
                                 This quick check will confirm VentorTech connector is ready to function as intended.
                                 Click 'Validate Configuration' button below to verify your settings.
                             </p>
                         </div>
 
-                        <div name="success" states="step_success">
+                        <div name="success" invisible="state != 'step_success'">
                             <div class="alert alert-info p-3 mb-3" role="alert">
-                                We checked your configuration and it looks like everything is good.
-                                You can now start configuring the connection to your store.
-                            </div>
-
-                            <div class="alert alert-info mb-4 p-3" role="alert">
-                                <h3 class="mb-2">
-                                    <span class="fa fa-info-circle mr-2" aria-label="Information"></span>
-                                    Don't want to spend time configuring?
-                                </h3>
-
-                                <p class="mb-2">
-                                    Let our experts handle the setup for you. Purchase our one-time configuration service and
-                                    get your connector up and running quickly!
+                                <p>
+                                    We checked your configuration and it looks like everything is good.
+                                    You can now start configuring the connection to your store.
                                 </p>
 
-                                <a href="https://ecosystem.ventor.tech/product/installation-configuration-service/" class="btn btn-primary" target="_blank" role="button">
-                                    <span class="fa fa-wrench mr-2" aria-label="Purchase Button"></span>
-                                    Purchase or Learn More
-                                </a>
+                                <button name="open_configuration_wizard"
+                                        type="object"
+                                        class="btn btn-outline-primary"
+                                        string="See Getting Started Guide"
+                                />
                             </div>
 
                             <div class="row">
                                 <div class="col-md-6 mb-4">
-                                    <div class="card bg-light border-light">
-                                        <div class="card-body">
+                                    <div class="card bg-secondary rounded-3">
+                                        <div class="card-body rounded-3 bg-white">
                                             <h5 class="card-title mb-4">
-                                                <span class="fa fa-gears mr-2" aria-label="Purchase Button"></span>
+                                                <span class="fa fa-gears me-2" aria-label="Purchase Button"></span>
                                                 Get up and running
                                             </h5>
-                                            <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/article/482541668" class="btn btn-outline-primary text-uppercase w-100" target="_blank" role="button">Install and configure the VentorTech connector</a>
+                                            <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/article/482541668" class="btn btn-outline-primary w-100" target="_blank" role="button">Install and configure the VentorTech connector</a>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-4">
-                                    <div class="card bg-light border-light">
-                                        <div class="card-body">
+                                    <div class="card bg-secondary rounded-3">
+                                        <div class="card-body rounded-3 bg-white">
                                             <h5 class="card-title mb-4">
-                                                <span class="fa fa-question-circle mr-2" aria-label="Purchase Button"></span>
+                                                <span class="fa fa-question-circle me-2" aria-label="Purchase Button"></span>
                                                 Need help?
                                             </h5>
-                                            <a href="https://support.ventor.tech/" class="btn btn-outline-primary text-uppercase w-100" target="_blank" role="button">Explore our documentation and support resources</a>
+                                            <a href="https://support.ventor.tech/" class="btn btn-outline-primary w-100" target="_blank" role="button">Explore our documentation and support resources</a>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-4">
-                                    <div class="card bg-light border-light">
-                                        <div class="card-body">
+                                    <div class="card bg-secondary rounded-3">
+                                        <div class="card-body rounded-3 bg-white">
                                             <h5 class="card-title mb-4">
-                                                <span class="fa fa-search mr-2" aria-label="Purchase Button"></span>
+                                                <span class="fa fa-search me-2" aria-label="Purchase Button"></span>
                                                 Discover more
                                             </h5>
-                                            <a href="https://ecosystem.ventor.tech/" class="btn btn-outline-primary text-uppercase w-100" target="_blank" role="button">See our full range of VentorTech Apps</a>
+                                            <a href="https://ecosystem.ventor.tech/" class="btn btn-outline-primary w-100" target="_blank" role="button">See our full range of VentorTech Apps</a>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-4">
-                                    <div class="card bg-light border-light">
-                                        <div class="card-body">
+                                    <div class="card bg-secondary rounded-3">
+                                        <div class="card-body rounded-3 bg-white">
                                             <h5 class="card-title mb-4">
-                                                <span class="fa fa-star mr-2" aria-label="Purchase Button"></span>
+                                                <span class="fa fa-star me-2" aria-label="Purchase Button"></span>
                                                 Want the best experience?
                                             </h5>
-                                            <a href="https://ecosystem.ventor.tech/ventortech-ecosystem-benefits/" class="btn btn-outline-primary text-uppercase w-100" target="_blank" role="button">Learn about buying apps directly from us</a>
+                                            <a href="https://ecosystem.ventor.tech/ventortech-ecosystem-benefits/" class="btn btn-outline-primary w-100" target="_blank" role="button">Learn about buying apps directly from us</a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div name="errors" states="step_error">
                             <div class="alert alert-info mb-4 p-3" role="alert">
                                 <h3 class="mb-2">
-                                    <i class="fa fa-info-circle mr-2"/>
+                                    <span class="fa fa-info-circle me-2" aria-label="Information"></span>
+                                    Don't want to spend time configuring?
+                                </h3>
+
+                                <p class="mb-2">
+                                    Let our experts handle the setup for you. Purchase our one-time configuration service and
+                                    get your connector up and running quickly!
+                                </p>
+
+                                <a href="https://ecosystem.ventor.tech/product/installation-configuration-service/" class="btn btn-primary" target="_blank" role="button">
+                                    <span class="fa fa-wrench me-2" aria-label="Purchase Button"></span>
+                                    Purchase or Learn More
+                                </a>
+                            </div>
+                        </div>
+
+                        <div name="errors" invisible="state != 'step_error'">
+                            <div class="alert alert-info mb-4 p-3" role="alert">
+                                <h3 class="mb-2">
+                                    <i class="fa fa-info-circle me-2" title="Information"/>
                                     Don't want to spend time configuring?
                                 </h3>
                                 <p class="mb-2">
@@ -104,14 +108,14 @@
                                     get your connector up and running quickly!
                                 </p>
                                 <a href="https://ecosystem.ventor.tech/product/installation-configuration-service/" class="btn btn-primary" target="_blank" role="button">
-                                    <span class="fa fa-wrench mr-2" aria-label="Purchase Button"></span>
+                                    <span class="fa fa-wrench me-2" aria-label="Purchase Button"></span>
                                     Purchase or Learn More
                                 </a>
                             </div>
 
                             <div class="alert alert-danger mb-4 p-3" role="alert">
                                 <h3 class="mb-2">
-                                    <span class="fa fa-exclamation-circle mr-2" aria-label="Alert"></span>
+                                    <span class="fa fa-exclamation-circle me-2" aria-label="Alert"></span>
                                     Configuration adjustments needed
                                 </h3>
                                 <p>
@@ -150,31 +154,39 @@
                         </div>
 
                         <footer>
-                            <button name="check_odoo_setup_for_integration"
-                                    type="object"
-                                    string="Validate Configuration"
-                                    class="btn-primary"
-                                    states="step_main"
-                            />
-                            <button name="check_odoo_setup_for_integration"
-                                    type="object"
-                                    string="Re-check Configuration"
-                                    class="btn-primary"
-                                    states="step_error"
-                            />
-                            <button name="close_wizard"
-                                    type="object"
-                                    string="Close"
-                                    class="btn-primary"
-                            />
+                            <div class="d-flex justify-content-between w-100">
+                                <div class="d-flex align-items-center align-content-around flex-wrap gap-1">
+                                    <button name="check_odoo_setup_for_integration"
+                                            type="object"
+                                            string="Validate Configuration"
+                                            class="btn-primary"
+                                            invisible="state != 'step_main'"
+                                    />
+                                    <button name="check_odoo_setup_for_integration"
+                                            type="object"
+                                            string="Re-check Configuration"
+                                            class="btn-primary"
+                                            invisible="state != 'step_error'"
+                                    />
+                                </div>
+
+                                <div class="d-flex align-items-center align-content-around flex-wrap gap-1">
+                                    <button name="open_configuration_wizard"
+                                            type="object"
+                                            class="btn btn-outline-primary"
+                                            string="See Getting Started Guide"
+                                    />
+                                </div>
+                            </div>
                         </footer>
                     </sheet>
                 </form>
+
             </field>
         </record>
 
         <record id="integration_installer_action" model="ir.actions.act_window">
-            <field name="name">Integration Installer</field>
+            <field name="name">Let's Ensure a Seamless Setup!</field>
             <field name="res_model">integration.installation.wizard</field>
             <field name="view_mode">form</field>
             <field name="view_id" ref="integration_installation_wizard_form"/>

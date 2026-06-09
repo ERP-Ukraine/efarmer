@@ -1,29 +1,27 @@
 <?xml version='1.0' encoding='utf-8'?>
 <odoo>
-    <record id="view_bank_statement_form" model="ir.ui.view">
+    <!-- <record id="view_bank_statement_tree" model="ir.ui.view">
         <field name="name">account.bank.statement.form</field>
         <field name="model">account.bank.statement</field>
         <field name="inherit_id" ref="account.view_bank_statement_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//page[@name='statement_line_ids']/field[@name='line_ids']/tree/field[@name='partner_id']" position="after">
-                <field name="analytic_tag_ids" widget="many2many_tags"  readonly="0"/>
-                <field name="department_id" readonly="0" options="{'no_quick_create':True}"/>
+            <xpath expr="//page[@name='statement_line_ids']/field[@name='line_ids']/tree/field[@name='partner_id']" position="after"> -->
+                <!-- <field name="analytic_tag_ids" widget="many2many_tags"  readonly="0"/> -->
+                <!-- <field name="department_id" readonly="0" options="{'no_quick_create':True}"/>
             </xpath>
         </field>
-    </record>
+    </record> -->
 
     <record id="view_move_line_tree_grouped_general" model="ir.ui.view">
-        <field name="inherit_id" ref="account.view_move_line_tree_grouped_general"/>
+        <field name="inherit_id" ref="account.view_move_line_tree"/>
         <field name="name">account.consolidation.move.line.tree</field>
         <field name="model">account.move.line</field>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='analytic_tag_ids']" position="after">
+            <xpath expr="//field[@name='balance']" position="after">
                 <field name="department_id" optional="hide"/>
             </xpath>
             <xpath expr="//field[@name='product_id']" position="after">
                 <field name="create_uid" optional="hide"/>
-            </xpath>
-            <xpath expr="//field[@name='create_uid']" position="after">
                 <field name="posted_uid" optional="hide"/>
             </xpath>
         </field>
@@ -32,14 +30,14 @@
     <record id="view_account_move_line_filter_with_root_selection" model="ir.ui.view">
         <field name="name">account.move.line.search</field>
         <field name="model">account.move.line</field>
-        <field name="inherit_id" ref="account.view_account_move_line_filter_with_root_selection"/>
+        <field name="inherit_id" ref="account.view_account_move_line_filter"/>
         <field name="arch" type="xml">
             <field name="reconcile_model_id" position="after">
-                <field name="analytic_tag_ids"/>
+                <!-- <field name="analytic_tag_ids"/> -->
                 <field name="department_id"/>
             </field>
             <xpath expr="//group" position="inside">
-                <filter string="Analytic Tag" name="group_by_analytic_tag_ids" domain="[]" context="{'group_by': 'analytic_tag_ids'}"/>
+                <!-- <filter string="Analytic Tag" name="group_by_analytic_tag_ids" domain="[]" context="{'group_by': 'analytic_tag_ids'}"/> -->
                 <filter string="Department" name="group_by_department_id" domain="[]" context="{'group_by': 'department_id'}"/>
             </xpath>
         </field>

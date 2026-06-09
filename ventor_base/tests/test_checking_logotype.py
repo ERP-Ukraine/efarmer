@@ -2,8 +2,8 @@
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
 
 from odoo.tests.common import TransactionCase
+from odoo.tools.misc import file_path
 from odoo.exceptions import UserError
-from odoo.modules.module import get_resource_path
 import base64
 
 
@@ -24,12 +24,12 @@ class TestCheckingLogotype(TransactionCase):
         self.company = self.env['res.company'].search([], limit=1)
 
     def test_upload_invalid_logo(self):
-        img_path = get_resource_path('ventor_base', 'static', 'test_logo', '400_400.png')
+        img_path = file_path('ventor_base/static/test_logo/400_400.png')
         img_content = base64.b64encode(open(img_path, "rb").read())
         with self.assertRaises(UserError):
             self.company._validate_logotype({'logotype_file': img_content})
 
     def test_upload_valid_logo(self):
-        img_path = get_resource_path('ventor_base', 'static', 'test_logo', '600_600.png')
+        img_path = file_path('ventor_base/static/test_logo/600_600.png')
         img_content = base64.b64encode(open(img_path, "rb").read())
         self.assertEqual(self.company._validate_logotype({'logotype_file': img_content}), True)

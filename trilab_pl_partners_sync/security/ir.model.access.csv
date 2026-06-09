@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_trilab_check_partner,trilab.check.partner,model_trilab_check_partner,base.group_user,1,1,1,1
+access_trilab_check_partner_details,trilab.check.partner.details,model_trilab_check_partner_details,base.group_user,1,1,1,1
+access_trilab_check_partner_gus,trilab.check.partner.gus,model_trilab_check_partner_gus,base.group_user,1,1,1,1
+access_trilab_wl_partner_bank,access_trilab_wl_partner_bank,model_trilab_wl_partner_bank,base.group_user,1,1,1,1
+access_trilab_wl_wizard,access_trilab_wl_wizard,model_trilab_wl_wizard,base.group_user,1,1,1,1

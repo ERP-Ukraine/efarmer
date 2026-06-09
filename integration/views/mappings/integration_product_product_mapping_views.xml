@@ -3,15 +3,35 @@
     <data>
 
         <record id="integration_product_product_mapping_view_tree" model="ir.ui.view">
-            <field name="name">integration.product.product.mapping.view.tree</field>
+            <field name="name">integration.product.product.mapping.view.list</field>
             <field name="model">integration.product.product.mapping</field>
             <field name="arch" type="xml">
-                <tree editable="bottom">
+                <list editable="bottom">
                     <field name="id" groups="base.group_no_one"/>
                     <field name="integration_id"/>
-                    <field name="product_id"/>
-                    <field name="external_product_id"/>
-                </tree>
+                    <field name="external_product_id" string="E-Commerce Variant" domain="[('integration_id', '=', integration_id)]"/>
+                    <field name="product_id" string="Odoo Variant"/>
+
+                    <!-- Debug buttons -->
+                    <button type="object"
+                            name="calculate_import_fields_data"
+                            string="Show Import Data"
+                            title="Display raw data that would be imported from e-commerce"
+                            icon="fa-code"
+                            class="btn-outline-secondary"
+                            context="{'integration_return_action': True}"
+                            invisible="not external_product_id"
+                            groups="base.group_no_one"/>
+                    <button type="object"
+                            name="calculate_export_data"
+                            string="Show Export Data"
+                            title="Display raw data that would be exported to e-commerce"
+                            icon="fa-code"
+                            class="btn-outline-secondary"
+                            context="{'integration_return_action': True}"
+                            invisible="not product_id"
+                            groups="base.group_no_one"/>
+                </list>
             </field>
         </record>
 
@@ -23,18 +43,19 @@
                     <field name="product_id"/>
                     <field name="external_product_id"/>
                     <field name="integration_id"/>
-                    <filter string="Not Mapped" name="not_mapped" domain="[('product_id', '=', False)]" />
+                    <filter string="Not Mapped" name="not_mapped" domain="[('product_id', '=', False)]"/>
                     <group expand="0" string="Group By">
-                        <filter string="Sale Integration" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
+                        <filter string="E-Commerce Store" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
                     </group>
                 </search>
             </field>
         </record>
 
         <record id="integration_product_product_mapping_action" model="ir.actions.act_window">
-            <field name="name">Variants Mappings</field>
+            <field name="name">Variant Mappings</field>
+            <field name="path">eci-variant-mappings</field>
             <field name="res_model">integration.product.product.mapping</field>
-            <field name="view_mode">tree</field>
+            <field name="view_mode">list</field>
             <field name="context">{'search_default_not_mapped': 1, 'product_product_mapping': 1}</field>
         </record>
 

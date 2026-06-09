@@ -1,10 +1,9 @@
 import re
 
-from stdnum.eu import vat as std_eu_vat
-from stdnum.pl import nip as std_pl_nip
-
 from odoo import _, fields, models, tools
 from odoo.exceptions import ValidationError
+from stdnum.eu import vat as std_eu_vat
+from stdnum.pl import nip as std_pl_nip
 
 
 class Partner(models.Model):
@@ -15,6 +14,7 @@ class Partner(models.Model):
         default=False,
         help='Istniejące powiązania między nabywcą a dokonującym dostawy towarów lub usługodawcą, o których mowa '
         'w art. 32 ust. 2 pkt 1 ustawy.',
+        export_string_translation=False,
     )
 
     @tools.ormcache('self', 'raise_exception')
@@ -68,8 +68,8 @@ class Partner(models.Model):
                 else:
                     return std_pl_nip.compact(self.vat)
 
-            except std_pl_nip.ValidationError as exc:
+            except std_pl_nip.ValidationError as error:
                 if raise_exception:
-                    raise ValidationError(str(exc))
+                    raise ValidationError(str(error)) from error
 
         return None

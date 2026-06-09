@@ -10,6 +10,26 @@
                     <field name="x_ksef_purchase_journal_id" domain="[('type', '=', 'purchase')]"/>
                 </group>
             </xpath>
+            <xpath expr="//page[@name='sales_purchases']" position="inside">
+                <group name='x_ksef_sales' string='KSeF'>
+                    <field name="x_ksef_classification"/>
+                    <field name="x_ksef_classification_other" required="x_ksef_classification == '-1'"/>
+                    <field name="x_ksef_disable_shipping_third_party"/>
+                    <field name="x_ksef_gln"/>
+                    <field name="x_ksef_eori"/>
+                    <field name="x_ksef_internal_id"/>
+                </group>
+            </xpath>
+            <xpath expr="//page[@name='contact_addresses']//field[@name='child_ids']//form//sheet" position="inside">
+                <group name='x_ksef_sales' string='KSeF'>
+                    <field name="x_ksef_classification"/>
+                    <field name="x_ksef_classification_other" required="x_ksef_classification == '-1'"/>
+                    <field name="x_ksef_disable_shipping_third_party"/>
+                    <field name="x_ksef_gln"/>
+                    <field name="x_ksef_eori"/>
+                    <field name="x_ksef_internal_id"/>
+                </group>
+            </xpath>
         </field>
     </record>
 </odoo>

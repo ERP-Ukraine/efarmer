@@ -3,21 +3,22 @@
     <data>
 
         <record id="integration_product_attribute_external_view_tree" model="ir.ui.view">
-            <field name="name">integration.product.attribute.external.view.tree</field>
+            <field name="name">integration.product.attribute.external.view.list</field>
             <field name="model">integration.product.attribute.external</field>
             <field name="arch" type="xml">
-                <tree editable="bottom" create="0">
+                <list editable="bottom" create="0">
                     <field name="id" groups="base.group_no_one"/>
                     <field name="integration_id"/>
                     <field name="code"/>
                     <field name="name"/>
                     <field name="external_attribute_value_ids" widget="many2many_tags" optional="1"/>
                     <button name="action_open_mapping"
-                            title="Open Mapping"
-                            icon="fa-external-link"
                             type="object"
+                            string="Open Mapping"
+                            icon="fa-external-link"
+                            class="btn-outline-primary"
                     />
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -31,7 +32,7 @@
                     <field name="external_attribute_value_ids"/>
                     <field name="integration_id"/>
                     <group expand="0" string="Group By">
-                        <filter string="Sale Integration" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
+                        <filter string="E-Commerce Store" name="group_by_integration_id" context="{'group_by': 'integration_id'}"/>
                     </group>
                 </search>
             </field>
@@ -39,8 +40,9 @@
 
         <record id="integration_product_attribute_external_action" model="ir.actions.act_window">
             <field name="name">External Attributes</field>
+            <field name="path">eci-external-attributes</field>
             <field name="res_model">integration.product.attribute.external</field>
-            <field name="view_mode">tree</field>
+            <field name="view_mode">list</field>
         </record>
 
         <record id="integration_product_attribute_external_action_run_import_attributes" model="ir.actions.server">

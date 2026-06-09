@@ -6,32 +6,48 @@
         <field name="model">import.export.integration.wizard</field>
         <field name="arch" type="xml">
             <form>
-                <field invisible="1" name="state"/>
+                <field invisible="1" name="state"/> <!-- Required because it is used in the invisible condition below -->
 
-                <div states="start">
+                <div invisible="state != 'start'">
                     <h3 class="mb-4">Import / Export Integration data</h3>
 
-                    <button name="action_import" string="Import" type="object" class="oe_highlight mr-3"/>
+                    <p>
+                        This wizard allows you to import and export data between two Odoo instances.
+                        Please note that this wizard does not support exporting / importing all existing
+                        configuration parameters. Manual configuration of the integration is required after the import.
+                    </p>
+
+                    <p>
+                        To import exported data on other Odoo instance, you need:
+                    </p>
+
+                    <ul>
+                        <li>Create a new connection to the same e-commerce platform</li>
+                        <li>Import the exported data into the new connection using this wizard</li>
+                        <li>Adjust imported connection parameters to match your needs</li>
+                    </ul>
+
+                    <button name="action_import" string="Import" type="object" class="oe_highlight me-3"/>
                     <button name="action_export" string="Export" type="object" class="oe_highlight"/>
                 </div>
 
-                <div states="import">
+                <div invisible="state != 'import'">
                     <h3 class="mb-4">Please insert the data you received from the other Odoo instance</h3>
-                    <field name="input" widget="text" />
+                    <field name="input" widget="text"/>
                 </div>
 
-                <div states="export">
+                <div invisible="state != 'export'">
                     <h3 class="mb-4">Please copy the following data and enter it into the other Odoo instance</h3>
-                    <field name="output" widget="CopyClipboardChar" readonly="1" />
+                    <field name="output" widget="CopyClipboardChar" readonly="1"/>
                 </div>
 
-                <div states="finish">
+                <div invisible="state != 'finish'">
                     <h3 class="mb-4">Import finished</h3>
-                    <field name="message" readonly="1" />
+                    <field name="message" readonly="1"/>
                 </div>
 
                 <footer>
-                    <button name="import_data" string="Import" type="object" class="oe_highlight" states="import" />
+                    <button name="import_data" string="Import" type="object" class="oe_highlight" invisible="state != 'import'"/>
                     <button string="Close" class="btn btn-secondary" special="cancel"/>
                 </footer>
             </form>

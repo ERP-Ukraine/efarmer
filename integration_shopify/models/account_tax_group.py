@@ -8,7 +8,7 @@ class AccountTaxGroup(models.Model):
     _inherit = ['account.tax.group', 'integration.model.mixin']
 
     def to_external(self, integration):
-        if integration.is_shopify():
+        if integration.is_integration_shopify:
             return False
 
         return super(AccountTaxGroup, self).to_external(integration)

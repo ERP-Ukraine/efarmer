@@ -21,26 +21,26 @@
             </field>
         </record>
 
-        <record id="printnode_computer_tree" model="ir.ui.view">
-            <field name="name">printnode_computer.tree</field>
+        <record id="printnode_computer_list" model="ir.ui.view">
+            <field name="name">printnode_computer.list</field>
             <field name="model">printnode.computer</field>
-            <field name="type">tree</field>
+            <field name="type">list</field>
             <field name="arch" type="xml">
-                <tree string="Computers" editable="bottom" create="false" edit="false" delete="true">
+                <list string="Computers" editable="bottom" create="false" edit="false" delete="true">
                     <field name="printnode_id" />
                     <field name="name" />
                     <field name="status" />
                     <field name="account_id" />
                     <field name="active" widget="boolean_toggle" />
-                </tree>
+                </list>
             </field>
         </record>
 
         <record id="printnode_computer_action" model="ir.actions.act_window">
             <field name="name">Computers</field>
             <field name="res_model">printnode.computer</field>
-            <field name="view_mode">tree</field>
-            <field name="view_id" ref="printnode_computer_tree" />
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="printnode_computer_list" />
             <field name="context">{"active_test": False}</field>
         </record>
 

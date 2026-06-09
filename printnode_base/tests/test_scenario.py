@@ -151,6 +151,7 @@ class TestPrintNodeScenario(TestPrintNodeCommon):
                 self.sale_order,
                 copies=1,
                 options={'bin': self.printer_bin.name},
+                data={'source_document': self.sale_order.mapped('name')},
             )
 
         # Expected to call a special method for printing

@@ -55,6 +55,7 @@ class IntegrationWorkflowPipelineLine(models.Model):
         related='order_id.company_id',
     )
     integration_id = fields.Many2one(
+        string='E-Commerce Store',
         comodel_name='sale.integration',
         related='order_id.integration_id',
     )
@@ -69,7 +70,13 @@ class IntegrationWorkflowPipelineLine(models.Model):
 
     def _compute_name(self):
         for rec in self:
-            rec.name = ' '.join([x.capitalize() for x in rec.current_step_method.split('_')])
+            method_name = rec.current_step_method
+            try:
+                value = self.env['integration.sale.order.sub.status.external']._fields[method_name].string
+            except KeyError:
+                value = f'Workflow Method "{method_name}"'
+
+            rec.name = value
 
     @property
     def is_not_done(self):
@@ -139,7 +146,11 @@ class IntegrationWorkflowPipelineLine(models.Model):
         """Manual running by button"""
         self.ensure_one()
         if self.state in (SKIP, DONE):
-            raise UserError(_('Inactive task for the current workflow!'))
+            raise UserError(_(
+                'The task cannot be executed because it is inactive in the current auto-workflow. '
+                'This task is in a "Skip" or "Done" state and cannot be processed further. '
+                'Please verify the auto-workflow status.'
+            ))
 
         self._validate_previous()
         order_method = self._retrieve_current_order_method()
@@ -161,10 +172,12 @@ class IntegrationWorkflowPipelineLine(models.Model):
     def run_with_delay(self):
         """Automatic running by triggered `pipeline_id`"""
         self.ensure_one()
+        job_kwargs = self._job_kwargs_pipeline_task()
 
-        job_kwargs = self._build_task_job_kwargs()
-        job = self.with_context(company_id=self.company_id.id)\
-            .with_delay(**job_kwargs)._run_and_call_next()
+        job = self \
+            .with_context(company_id=self.company_id.id) \
+            .with_delay(**job_kwargs) \
+            ._run_and_call_next()
 
         self.order_id.job_log(job)
         return job
@@ -182,17 +195,20 @@ class IntegrationWorkflowPipelineLine(models.Model):
         return self.pipeline_id.get_formview_action_log()
 
     def _fail_job_manually(self, message):
-        job_kwargs = self._build_task_job_kwargs()
+        job_kwargs = self._job_kwargs_pipeline_task()
         job_kwargs['description'] = job_kwargs['description'] + ' [TRACEBACK INFO] (mark me as done)'
 
-        job = self.with_context(company_id=self.company_id.id)\
-            .with_delay(**job_kwargs)._raise_message(message)
+        job = self \
+            .with_context(company_id=self.company_id.id) \
+            .with_delay(**job_kwargs) \
+            ._raise_message(message)
 
         self.order_id.job_log(job)
         return job
 
-    def _build_task_job_kwargs(self):
+    def _job_kwargs_pipeline_task(self):
         return {
+            'priority': 9,
             'channel': self.env.ref('integration.channel_sale_order').complete_name,
             'identity_key': f'integartion_pipeline_task-{self.integration_id.id}-{self}',
             'description': f'{self.integration_id.name}: Order № "{self.order_id.display_name}" >> {self.name}',
@@ -200,9 +216,9 @@ class IntegrationWorkflowPipelineLine(models.Model):
 
     def _raise_message(self, message):
         info = _(
-            'This is just an information message. Mark this job as done (no need to requeue) '
-            'and fix all the issues related to %s order by clicking on the '
-            '"Integration Workflow" button on the order\'s form.'
+            'This is an informational message. Please mark this job as '
+            'done (there is no need to requeue it) and resolve all issues related to the order "%s" by '
+            'clicking on the "Integration Workflow" button on the order form.'
         ) % self.order_id.name
 
         message_info = (
@@ -244,13 +260,14 @@ class IntegrationWorkflowPipelineLine(models.Model):
         return getattr(order, f'_integration_{self.current_step_method}')
 
     def _validate_previous(self):
-        states = self.pipeline_id.pipeline_task_ids\
+        states = self.pipeline_id.pipeline_task_ids \
             .filtered(lambda x: x.id < self.id and x.state != SKIP).mapped('state')
 
         if states and not all(x == DONE for x in states):
-            raise UserError(
-                _('Not the all previous tasks in the state DONE. Fix them first.')
-            )
+            raise UserError(_(
+                'Not all previous tasks are in the "Done" state. Please complete or fix '
+                'the pending tasks before proceeding.'
+            ))
 
     def _get_integration_id_for_job(self):
         return self.integration_id.id
@@ -278,22 +295,19 @@ class IntegrationWorkflowPipeline(models.Model):
     )
     update_required = fields.Boolean(
         related='input_file_id.update_required',
-        string='Input File Update Required',
+        string='Order Data Update Required',
     )
     sub_state_external_ids = fields.Many2many(
         comodel_name='integration.sale.order.sub.status.external',
         relation='pipeline_external_sub_state_relation',
         column1='pipeline_id',
         column2='sub_state_external_id',
-        string='External Sub Status Code',
+        string='Store Order Status',
     )
     invoice_journal_id = fields.Many2one(
         comodel_name='account.journal',
         compute='_compute_invoice_journal',
         string='Invoice Journal',
-    )
-    force_invoice_date = fields.Boolean(
-        string='Force Invoice Date',
     )
     payment_method_external_id = fields.Many2one(
         comodel_name='integration.sale.order.payment.method.external',
@@ -330,7 +344,7 @@ class IntegrationWorkflowPipeline(models.Model):
         return dict(
             self=str(self),
             order_id=self.order_id.id,
-            integration_id=self.input_file_id.si_id.id,
+            integration_id=self._get_integration_id_for_job(),
             tasks=self._tasks_info(),
         )
 
@@ -348,10 +362,12 @@ class IntegrationWorkflowPipeline(models.Model):
 
     def manual_run(self):
         self.ensure_one()
+        job_kwargs = self.order_id._job_kwargs_run_integration_workflow()
 
-        job_kwargs = self.order_id._build_workflow_job_kwargs()
-        job = self.with_context(company_id=self.order_id.company_id.id)\
-            .with_delay(**job_kwargs).trigger_pipeline()
+        job = self \
+            .with_context(company_id=self.order_id.company_id.id) \
+            .with_delay(**job_kwargs) \
+            .trigger_pipeline()
 
         self.order_id.job_log(job)
         return self.open_form()
@@ -374,9 +390,9 @@ class IntegrationWorkflowPipeline(models.Model):
         self.input_file_id.action_process()
 
     def trigger_pipeline(self):
-        _logger.info('Running integration pipeline --> %s', str(self.loginfo))
+        _logger.info('Running integration pipeline → %s', str(self.loginfo))
         if not self.has_tasks_to_process:
-            _logger.info('Skipping integration pipeline --> %s', str(self.loginfo))
+            _logger.info('Skipping integration pipeline → %s', str(self.loginfo))
             self._mark_input_as_done()
             return _('Workflow Ended: %s') % self._tasks_info()
 
@@ -405,15 +421,17 @@ class IntegrationWorkflowPipeline(models.Model):
     def _tasks_info(self):
         return [(x.id, x.name, x.state) for x in self.pipeline_task_ids]
 
-    def _update_pipeline(self, order_data):
-        _logger.info('Updating integration pipeline: %s -->', self.loginfo)
+    def _update_pipeline(self, workflow_states, payment_method_code):
+        _logger.info('Updating integration pipeline: %s →', self.loginfo)
 
-        task_list, pipeline_vals = self.order_id._build_task_list_and_vals(order_data)
+        task_list, pipeline_vals = self.order_id._build_task_list_and_vals(
+            workflow_states, payment_method_code,
+        )
         sub_state_ids = pipeline_vals['sub_state_external_ids'][0][-1]
         payment_method_external_id = pipeline_vals['payment_method_external_id']
         vals = {
             'sub_state_external_ids': [(4, x, 0) for x in sub_state_ids],
-            'skip_dispatch': self._context.get('default_skip_dispatch', False),
+            'skip_dispatch': self.env.context.get('default_skip_dispatch', False),
         }
         if payment_method_external_id:
             vals['payment_method_external_id'] = payment_method_external_id
@@ -429,7 +447,11 @@ class IntegrationWorkflowPipeline(models.Model):
                 task.mark_todo()
                 _logger.info('%s: integration pipeline task "%s" was marked as "TODO".', self, task_name)
 
-        return order_data, vals
+        return vals
+
+    def get_payment_journal_or_raise(self):
+        self.payment_method_external_id._raise_for_missing_journal()
+        return self.payment_journal_id
 
     def get_formview_action_log(self):
         return self.order_id.get_formview_action()

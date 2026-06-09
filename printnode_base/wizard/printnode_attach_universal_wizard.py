@@ -84,9 +84,11 @@ class PrintnodeAttachUniversalWizard(models.TransientModel):
                 'type': 'qweb-pdf' if line.mimetype == 'application/pdf' else 'qweb-text',
                 'options': {'bin': self.printer_bin.name} if self.printer_bin else {},
                 'copies': copies,
+                'source_document': line.attachment_id.mapped('res_name'),
             }
+
             printer.printnode_print_b64(
-                line.bin_data.decode('ascii'), params, check_printer_format=False)
+                line.bin_data.decode('ascii'), params, check_printer_format=False, postcommit=False)
 
         attachment_names = [al.attachment_id.name for al in self.attach_line_ids]
         title = _('Documents were sent to printer')
@@ -119,7 +121,6 @@ class PrintnodeAttachUniversalWizard(models.TransientModel):
         attachments = self.env['ir.attachment'].search([
             ('res_id', 'in', res_ids),
             ('res_model', '=', res_model),
-            ('company_id', '=', self.env.company.id),
         ], order='create_date desc')
         lines_vals = [{'attachment_id': rec.id} for rec in attachments]
         attach_lines = self.env['printnode.attach.line'].create(lines_vals)
@@ -137,7 +138,7 @@ class PrintnodeAttachUniversalWizard(models.TransientModel):
 
 class PrintnodeAttachLine(models.TransientModel):
     _name = 'printnode.attach.line'
-    _description = 'Printnode Attachment Line'
+    _description = 'Direct Print Attachment Line'
 
     attachment_id = fields.Many2one(
         comodel_name='ir.attachment',

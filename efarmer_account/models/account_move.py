@@ -8,16 +8,13 @@ class AccountMove(models.Model):
     _inherit = "account.move"
 
     department_id = fields.Many2one(
-        comodel_name='hr.department',
-        string='Department',
+        comodel_name="hr.department",
+        string="Department",
         check_company=True,
         copy=False,
     )
     posted_uid = fields.Many2one(
-        'res.users',
-        string='Posted by',
-        readonly=True,
-        copy=False
+        "res.users", string="Posted by", readonly=True, copy=False
     )
 
     def action_post(self):
@@ -25,7 +22,7 @@ class AccountMove(models.Model):
 
         for move in self:
             # Capture posting user
-            if move.state == 'posted':
+            if move.state == "posted":
                 move.posted_uid = self.env.user.id
 
         return res

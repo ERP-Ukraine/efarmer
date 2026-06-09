@@ -1,43 +1,65 @@
 # See LICENSE file for full copyright and licensing details.
 
-from odoo import models, fields
-from odoo.tools import unsafe_eval
+import base64
+
+from odoo import api, models, fields
+
+from ..tools import safe_json_dumps
+
+# eval to compile generated string python code into binary code, used in `_compile`
+unsafe_eval = eval
 
 
 class MessageWizard(models.TransientModel):
     _name = 'message.wizard'
+    _inherit = 'export.file.mixin'
     _description = 'Show Message'
 
     message = fields.Text(
         string='Message',
-        required=True,
-    )
-    message_html = fields.Html(
-        string='HTML Message',
     )
 
-    def download_html(self):
-        vals = {
-            'type': 'ir.actions.act_url',
-            'name': 'Download Html',
-            'target': 'self',
-            'url': '/integration/messagewizard/export?res_id=%s' % self.id,
-        }
-        return vals
+    def download_pdf(self):
+        pdf_bytes = self._convert_html_to_pdf_bytes(self.export_html or self.message)
+        self.export_pdf = base64.b64encode(pdf_bytes)
+        return super().download_pdf()
 
     def action_close(self):
         return {
             'type': 'ir.actions.act_window_close',
         }
 
-    def run_wizard(self, view_name):
+    @api.model
+    def create_and_run(self, data: str):
+        wizard = self.create({
+            'message': data,
+        })
+        return wizard.run_wizard('integration_message_wizard_form')
+
+    @api.model
+    def create_json_and_run(self, data: dict):
+        wizard = self.create({
+            'export_json': safe_json_dumps(data, indent=4),
+        })
+        return wizard.run_wizard('integration_message_wizard_json_form')
+
+    @api.model
+    def create_html_and_run(self, data: str):
+        wizard = self.create({
+            'export_html': data,
+        })
+        return wizard.run_wizard('integration_message_wizard_html_form')
+
+    def run_wizard(self, view_name: str):
+        view_name_ = view_name if '.' in view_name else f'integration.{view_name}'
+
         return {
             'type': 'ir.actions.act_window',
             'name': 'INFO',
             'res_model': self._name,
             'res_id': self.id,
             'view_mode': 'form',
-            'view_id': self.env.ref(f'integration.{view_name}').id,
+            'view_id': self.env.ref(view_name_).id,
             'target': 'new',
         }
 
@@ -53,7 +75,7 @@ class MessageWizard(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'INFO',
             'res_model': 'integration.product.template.mapping',
-            'view_mode': 'tree',
+            'view_mode': 'list',
             'view_id': view.id,
             'target': 'self',
         }

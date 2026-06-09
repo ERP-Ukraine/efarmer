@@ -8,9 +8,9 @@ class SaleOrderLine(models.Model):
         """Checks if current line has Kit Product"""
         if not len(self) == 1 or not self.product_id:
             return False
-        boms = self.env['mrp.bom']._bom_find(self.product_id,
-                                             company_id=self.company_id.id,
-                                             bom_type='phantom')
+        boms = self.env["mrp.bom"]._bom_find(
+            self.product_id, company_id=self.company_id.id, bom_type="phantom"
+        )
         return bool(boms)
 
     @api.depends('product_id', 'company_id', 'currency_id', 'product_uom')
@@ -19,8 +19,8 @@ class SaleOrderLine(models.Model):
             line.product_id.button_bom_cost()
         super()._compute_purchase_price()
 
-    @api.returns('self', lambda value: value.id)
     def copy(self, default=None):
+        default = dict(default or {})
         rec = super().copy(default)
         if rec.has_kit_product():
             rec._compute_purchase_price()
@@ -34,6 +34,6 @@ class SaleOrder(models.Model):
         res = super()._action_confirm()
 
         # Explicitly recompute sale.order.line:purchase_price
-        self.mapped('order_line')._compute_purchase_price()
+        self.mapped("order_line")._compute_purchase_price()
 
         return res

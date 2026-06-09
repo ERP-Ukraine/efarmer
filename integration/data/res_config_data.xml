@@ -3,7 +3,7 @@
 
     <!-- By default, enable separate delivery and invoice addresses -->
     <record id="base.group_user" model="res.groups">
-        <field name="implied_ids" eval="[(4, ref('sale.group_delivery_invoice_address'))]"/>
+        <field name="implied_ids" eval="[(4, ref('account.group_delivery_invoice_address'))]"/>
     </record>
 
 </odoo>

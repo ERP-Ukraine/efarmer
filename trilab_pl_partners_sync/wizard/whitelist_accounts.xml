@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="select_wl_bank_accounts_form" model="ir.ui.view">
+        <field name="name">Select Whitelist Bank Accounts Form</field>
+        <field name="model">trilab.wl.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group string="Select Whitelist Bank Accounts To Save" col="2">
+                        <field name="select_all"/>
+                        <field name="banks_ids" nolabel="1" colspan="2">
+                            <list create="False" editable="top">
+                                <field name="select"/>
+                                <field name="acc_number"/>
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="save_selected_banks" string="Save" class="btn-primary" type="object"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="wl_partner_bank_tree" model="ir.ui.view">
+        <field name="name">Whitelist Partner Bank Tree</field>
+        <field name="model">trilab.wl.partner.bank</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="acc_number"/>
+            </list>
+        </field>
+    </record>
+
+</odoo>

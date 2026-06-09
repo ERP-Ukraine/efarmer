@@ -1,6 +1,6 @@
 {
     'name': 'Mail Server by Sender',
-    'version': '1.1',
+    'version': '18.0.1.0.0',
     'category': 'Tools',
     'author': 'ERP Ukraine',
     'website': 'https://erp.co.ua',
@@ -10,7 +10,7 @@
     'description': """
 Select Mail Server by Sender address.
 """,
-    'depends': ['base', 'mail'],
+    'depends': ['base'],
     'installable': True,
     'auto_install': False
 }

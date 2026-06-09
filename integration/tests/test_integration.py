@@ -1,8 +1,11 @@
 # See LICENSE file for full copyright and licensing details.
 
+from odoo.tests import tagged
+
 from .config.integration_init import OdooIntegrationInit
 
 
+@tagged('post_install', '-at_install', 'test_integration_core')
 class TestIntegration(OdooIntegrationInit):
 
     def setUp(self):
@@ -14,8 +17,8 @@ class TestIntegration(OdooIntegrationInit):
             name='job 1',
             integration=self.integration_no_api_1,
         )
-        product_1 = self.env['product.template']\
-            .with_user(self.integration_administrator)\
+        product_1 = self.env['product.template'] \
+            .with_user(self.integration_administrator) \
             .create(vals_product_1)
 
         # Testing as Integration Administrator
@@ -28,8 +31,8 @@ class TestIntegration(OdooIntegrationInit):
             name='job 2',
             integration=self.integration_no_api_1,
         )
-        product_2 = self.env['product.template']\
-            .with_user(self.integration_user)\
+        product_2 = self.env['product.template'] \
+            .with_user(self.integration_user) \
             .create(vals_product_2)
 
         # Testing as Integration User
@@ -46,8 +49,8 @@ class TestIntegration(OdooIntegrationInit):
             name='job 1',
             integration=self.integration_no_api_1,
         )
-        product_1 = self.env['product.template']\
-            .with_user(self.integration_administrator)\
+        product_1 = self.env['product.template'] \
+            .with_user(self.integration_administrator) \
             .create(vals_product_1)
 
         # Testing as Integration Administrator(allow_export_images=True)
@@ -60,8 +63,8 @@ class TestIntegration(OdooIntegrationInit):
             name='job 2',
             integration=self.integration_no_api_1,
         )
-        product_2 = self.env['product.template']\
-            .with_user(self.integration_user)\
+        product_2 = self.env['product.template'] \
+            .with_user(self.integration_user) \
             .create(vals_product_2)
 
         # Testing as Integration Administrator(allow_export_images=True)
@@ -80,8 +83,8 @@ class TestIntegration(OdooIntegrationInit):
             name='job 3',
             integration=self.integration_no_api_1,
         )
-        product_3 = self.env['product.template']\
-            .with_user(self.integration_administrator)\
+        product_3 = self.env['product.template'] \
+            .with_user(self.integration_administrator) \
             .create(vals_product_3)
 
         # Testing as Integration Administrator(allow_export_images=False)
@@ -99,8 +102,8 @@ class TestIntegration(OdooIntegrationInit):
             name='job 4',
             integration=self.integration_no_api_1,
         )
-        product_4 = self.env['product.template']\
-            .with_user(self.integration_user)\
+        product_4 = self.env['product.template'] \
+            .with_user(self.integration_user) \
             .create(vals_product_4)
 
         # Testing as Integration User(allow_export_images=False)
@@ -119,9 +122,9 @@ class TestIntegration(OdooIntegrationInit):
             name='job 1',
             integration=self.integration_no_api_1,
         )
-        product_1 = self.env['product.template']\
-            .with_user(self.integration_administrator)\
-            .with_context(skip_product_export=True)\
+        product_1 = self.env['product.template'] \
+            .with_user(self.integration_administrator) \
+            .with_context(skip_product_export=True) \
             .create(vals_product_1)
 
         # Testing as Integration Administrator
@@ -134,9 +137,9 @@ class TestIntegration(OdooIntegrationInit):
             name='job 2',
             integration=self.integration_no_api_1,
         )
-        product_2 = self.env['product.template']\
-            .with_user(self.integration_user)\
-            .with_context(skip_product_export=True)\
+        product_2 = self.env['product.template'] \
+            .with_user(self.integration_user) \
+            .with_context(skip_product_export=True) \
             .create(vals_product_2)
 
         # Testing as Integration User
@@ -156,8 +159,8 @@ class TestIntegration(OdooIntegrationInit):
             name='job 1',
             integration=self.integration_no_api_1,
         )
-        product_1 = self.env['product.template']\
-            .with_user(self.integration_administrator)\
+        product_1 = self.env['product.template'] \
+            .with_user(self.integration_administrator) \
             .create(vals_product_1)
 
         # Testing as Integration Administrator
@@ -170,8 +173,8 @@ class TestIntegration(OdooIntegrationInit):
             name='job 2',
             integration=self.integration_no_api_1,
         )
-        product_2 = self.env['product.template']\
-            .with_user(self.integration_user)\
+        product_2 = self.env['product.template'] \
+            .with_user(self.integration_user) \
             .create(vals_product_2)
 
         # Testing as Integration User
@@ -201,8 +204,8 @@ class TestIntegration(OdooIntegrationInit):
             self.assertFalse(integration.apply_to_products)
 
         # Create product_1 as Integration Administrator without integrations
-        product_1 = self.env['product.template']\
-            .with_user(self.integration_administrator)\
+        product_1 = self.env['product.template'] \
+            .with_user(self.integration_administrator) \
             .create(vals_product_1)
 
         # Testing as Integration Administrator
@@ -215,8 +218,8 @@ class TestIntegration(OdooIntegrationInit):
         )
 
         # Create product_2 as Integration User without integrations
-        product_2 = self.env['product.template']\
-            .with_user(self.integration_user)\
+        product_2 = self.env['product.template'] \
+            .with_user(self.integration_user) \
             .create(vals_product_2)
 
         # Testing as Integration User
@@ -229,8 +232,8 @@ class TestIntegration(OdooIntegrationInit):
             name='job 1',
             integration=self.integration_no_api_1,
         )
-        product_1 = self.env['product.template']\
-            .with_user(self.integration_administrator)\
+        product_1 = self.env['product.template'] \
+            .with_user(self.integration_administrator) \
             .create(vals_product_1)
 
         # Check product_1 has one integration
@@ -249,8 +252,8 @@ class TestIntegration(OdooIntegrationInit):
             integration=self.get_all_integrations(),
         )
 
-        product_2 = self.env['product.template']\
-            .with_user(self.integration_administrator)\
+        product_2 = self.env['product.template'] \
+            .with_user(self.integration_administrator) \
             .create(vals_product_2)
 
         # Check product_2 has two integrations
@@ -271,8 +274,8 @@ class TestIntegration(OdooIntegrationInit):
             name='job 3',
             integration=self.integration_no_api_1,
         )
-        product_3 = self.env['product.template']\
-            .with_user(self.integration_user)\
+        product_3 = self.env['product.template'] \
+            .with_user(self.integration_user) \
             .create(vals_product_3)
 
         # Check product_3 has one integration
@@ -291,8 +294,8 @@ class TestIntegration(OdooIntegrationInit):
             integration=self.get_all_integrations(),
         )
 
-        product_4 = self.env['product.template']\
-            .with_user(self.integration_user)\
+        product_4 = self.env['product.template'] \
+            .with_user(self.integration_user) \
             .create(vals_product_4)
 
         # Check product_4 has two integrations
@@ -315,8 +318,8 @@ class TestIntegration(OdooIntegrationInit):
             integration=self.integration_no_api_1,
         )
         vals_product_1.update({'default_code': False})
-        product_1 = self.env['product.template']\
-            .with_user(self.integration_administrator)\
+        product_1 = self.env['product.template'] \
+            .with_user(self.integration_administrator) \
             .create(vals_product_1)
 
         # Check default_code is False for product_1
@@ -335,8 +338,8 @@ class TestIntegration(OdooIntegrationInit):
             integration=self.integration_no_api_1,
         )
         vals_product_2.update({'default_code': False})
-        product_2 = self.env['product.template']\
-            .with_user(self.integration_administrator)\
+        product_2 = self.env['product.template'] \
+            .with_user(self.integration_administrator) \
             .with_context(manual_trigger=True).create(vals_product_2)
 
         identity_key_2 = self.get_integration_identity_key(self.integration_no_api_1, product_2)
@@ -351,8 +354,8 @@ class TestIntegration(OdooIntegrationInit):
             integration=self.integration_no_api_1,
         )
         vals_product_3.update({'default_code': False})
-        product_3 = self.env['product.template']\
-            .with_user(self.integration_user)\
+        product_3 = self.env['product.template'] \
+            .with_user(self.integration_user) \
             .create(vals_product_3)
 
         # Check default_code is False for product_3
@@ -371,8 +374,8 @@ class TestIntegration(OdooIntegrationInit):
             integration=self.integration_no_api_1,
         )
         vals_product_4.update({'default_code': False})
-        product_4 = self.env['product.template']\
-            .with_user(self.integration_user)\
+        product_4 = self.env['product.template'] \
+            .with_user(self.integration_user) \
             .with_context(manual_trigger=True).create(vals_product_4)
 
         # Testing as Integration User

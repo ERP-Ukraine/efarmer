@@ -14,11 +14,10 @@
     'demo': [],
 
     'depends': [
-        'mrp',
-        'stock_account',
+        'base',
+       
     ],
 
     'data': [
-        'views/mrp_bom_views.xml',
     ],
 }

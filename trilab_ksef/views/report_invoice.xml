@@ -6,11 +6,11 @@
 
         <div id="ksef-qrcode" class="d-flex mb-3" style="page-break-inside: avoid;" t-if="qr_code_url_pair">
             <t t-set="is_online" t-value="o.x_ksef_is_online()"/>
-            <div class="qrcode mr-3" id="qrcode_image">
+            <div class="qrcode me-3" id="qrcode_image">
                 <p class="position-relative mb-0">
                     <figure class="text-muted text-center" style="font-size: 10px">
                         <img t-att-src="qr_code_url_pair[0][0]"/>
-                        <figcaption t-if="is_online" t-esc="o.x_pl_ksef_invoice_number"/>
+                        <figcaption t-if="is_online" t-out="o.x_pl_ksef_invoice_number"/>
                         <figcaption t-else="">Offline</figcaption>
                     </figure>
                     <figure class="text-muted text-center" style="font-size: 10px" t-if="not is_online">
@@ -22,16 +22,16 @@
             <div class="d-inline text-muted lh-sm fst-italic" id="qrcode_info" t-if="qr_code_url_pair">
                 <p>Can't scan the code from the image? Click on the verification link and proceed to invoice
                     verification!</p>
-                <a class="d-block text-break"
+                <a class="d-block text-break me-3"
                    target="_blank"
                    t-att-href="qr_code_url_pair[0][1]"
-                   t-esc="qr_code_url_pair[0][1]"
+                   t-out="qr_code_url_pair[0][1]"
                 />
-                <a class="d-block text-break"
+                <a class="d-block text-break me-3"
                    target="_blank"
                    t-if="not is_online"
                    t-att-href="qr_code_url_pair[1][1]"
-                   t-esc="qr_code_url_pair[1][1]"
+                   t-out="qr_code_url_pair[1][1]"
                 />
             </div>
         </div>
@@ -39,12 +39,13 @@
 
     <template id="ksef_report_invoice_document" inherit_id="trilab_invoice.report_invoice_document"
               name="ksef_trilab_report_invoice_document">
-        <xpath expr="//div[hasclass('page')]/h2[1]" position="after">
+        <xpath expr="//div[hasclass('invoice_main')]" position="after">
             <t t-if="o.x_pl_ksef_invoice_number">
-                <h6>KSeF ID: <t t-esc="o.x_pl_ksef_invoice_number"/></h6>
+                <h6>KSeF ID: <t t-out="o.x_pl_ksef_invoice_number"/></h6>
             </t>
         </xpath>
-        <xpath expr="//div[@id='qrcode']" position="after">
+
+        <xpath expr="//div[@id='payment_term']" position="inside">
             <t t-call="trilab_ksef.ksef_qrcode" t-lang="lang"/>
         </xpath>
     </template>

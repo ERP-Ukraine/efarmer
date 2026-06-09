@@ -1,5 +1,7 @@
 # Copyright 2021 VentorTech OU
 # See LICENSE file for full copyright and licensing details.
+import json
+
 from datetime import datetime, timedelta
 from odoo import api, models, fields
 
@@ -7,16 +9,16 @@ from .constants import Constants
 
 
 class PrintNodePrintJob(models.Model):
-    """ PrintNode Job entity
+    """ Direct Print Job entity
     """
 
     _name = 'printnode.printjob'
     _inherit = 'printnode.logger.mixin'
-    _description = 'PrintNode Job'
+    _description = 'Direct Print Job'
 
     # Actually, it is enough to have only 20 symbols but to be sure...
     printnode_id = fields.Char(
-        string='Direct Print ID',
+        string='Job ID',
         size=64,
         default='__New_ID__',
     )
@@ -27,9 +29,18 @@ class PrintNodePrintJob(models.Model):
         ondelete='cascade',
     )
 
+    debug_info = fields.Text(
+        string='Debug Info',
+    )
+
+    print_user = fields.Char(
+        string='Print User',
+        readonly=True,
+    )
+
     description = fields.Char(
         string='Label',
-        size=64
+        size=512,
     )
 
     attachment_id = fields.Many2one(
@@ -43,10 +54,21 @@ class PrintNodePrintJob(models.Model):
         return super().unlink()
 
     @api.model
-    def create_job(self, title='', printer_id=False, content=None, content_type=None):
+    def create_job(self, data, printer_id=False):
+        title = data.get('title')
+        content = data.get('content')
+        content_type = data.get('contentType')
+
+        # Prepare debug_info for logging
+        dict_copy = data.copy()
+        dict_copy.pop('content', None)
+        debug_info = json.dumps(dict_copy, indent=4)
+
         create_vals = {
             'printer_id': printer_id,
             'description': title,
+            'debug_info': debug_info,
+            'print_user': self.env.user.name,
         }
         res = super().create(create_vals)
 

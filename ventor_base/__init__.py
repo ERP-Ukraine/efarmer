@@ -5,19 +5,18 @@ from . import models
 from . import report
 from odoo import api, SUPERUSER_ID
 
-def _post_init_hook(cr, registry):
+def _post_init_hook(env):
     """
     This hook updates Ventor Settings in Operation Types
     And adds to all users to Ventor - Administrator Role
     """
-    env = api.Environment(cr, SUPERUSER_ID, {})
 
     users_model = env['res.users']
 
-    values = [(4, user.id) for user in users_model.search([])]
+    values = [(4, user.id) for user in users_model.search([]) if user.has_group('base.group_user')]
     env.ref('ventor_base.ventor_role_admin').users = values
 
-    cr.execute(
+    env.cr.execute(
         """
         UPDATE stock_picking_type
         SET
@@ -39,6 +38,7 @@ def _post_init_hook(cr, registry):
     group_settings = env['res.config.settings'].default_get(
         [
             'group_stock_tracking_lot',
+            'group_stock_tracking_owner',
         ]
     )
 

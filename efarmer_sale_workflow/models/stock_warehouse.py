@@ -4,9 +4,9 @@ from odoo import fields, models
 
 
 class Warehouse(models.Model):
-    _inherit = 'stock.warehouse'
+    _inherit = "stock.warehouse"
 
     user_id = fields.Many2one(
-        'res.users',
-        string='Responsible',
+        "res.users",
+        string="Responsible",
     )

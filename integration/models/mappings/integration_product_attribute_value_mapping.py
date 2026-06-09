@@ -8,19 +8,23 @@ class IntegrationProductAttributeValueMapping(models.Model):
     _inherit = 'integration.mapping.mixin'
     _description = 'Integration Product Attribute Value Mapping'
     _mapping_fields = ('attribute_value_id', 'external_attribute_value_id')
+    _mapping_label = 'Attribute Value'
 
     attribute_value_id = fields.Many2one(
+        string='Odoo Product Attribute Value',
         comodel_name='product.attribute.value',
         ondelete='cascade',
     )
 
     external_attribute_value_id = fields.Many2one(
+        string='External Product Attribute Value',
         comodel_name='integration.product.attribute.value.external',
         required=True,
         ondelete='cascade',
     )
 
     attribute_id = fields.Many2one(
+        string='Odoo Product Attribute',
         comodel_name='product.attribute',
         compute='_compute_attribute_id',
     )

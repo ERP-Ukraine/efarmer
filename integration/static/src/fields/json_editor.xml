@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="integration.JsonEditorField" t-inherit="web.AceField" t-inherit-mode="primary">
+        <xpath expr="//CodeEditor" position="attributes">
+            <attribute name="maxLines">maxLines</attribute>
+        </xpath>
+    </t>
+
+</templates>

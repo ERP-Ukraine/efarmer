@@ -7,72 +7,74 @@
         <field name="priority" eval="100"/>
         <field name="inherit_id" ref="base.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[hasclass('settings')]" position="inside">
-                <div class="app_settings_block" groups="integration.group_integration_manager" data-string="Integration"  string="Integration" data-key="integration">
+            <xpath expr="//form" position="inside">
+                <app data-string="E-Commerce Integrations" string="E-Commerce Integrations" name="integration" groups="integration.group_integration_manager">
                     <div id="external_integration">
-                        <h2>External Integration</h2>
+                        <h2>Security Settings</h2>
                         <div class="row mt16 o_settings_container" name="integration_settings_container">
                             <div class="col-12 col-lg-6 o_setting_box" id="api_key_setting">
                                 <div class="o_setting_right_pane">
-                                    <label for="integration_api_key" class="mb-3" />
+                                    <label for="integration_api_key" class="mb-3"/>
                                     <field name="integration_api_key" widget="CopyClipboardChar" readonly="1" style="width:100%"/>
-                                    <button name="generate_integration_api_key" string="Regenerate API Key" type="object" class="btn btn-outline-primary text-uppercase"/>
+                                    <button name="regenerate_integration_api_key" string="Regenerate API Key" type="object" class="btn btn-outline-primary mt-2"/>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div id="ecosystem_subscription">
-                        <h2>Ecosystem Subscription</h2>
-                        <div class="row mt16 o_settings_container" name="ecosystem_subscription_container">
-                            <div class="col-12 col-lg-8 o_setting_box" id="ecosystem_subscription_setting_key">
-                                <div class="o_setting_right_pane">
-                                    <div class="content-group">
-                                        <label for="ecosystem_subscription_key"/>
-                                        <field name="ecosystem_subscription_key" style="width: 60%; margin-top: 8px;"/>
-                                        <button name="update_ecosystem_subscription_info"
-                                                class="ml-2 btn btn-secondary oe_inline"
-                                                type="object"
-                                                string="Check Subscription"
-                                                attrs="{'invisible': [('ecosystem_subscription_key', '=', False)]}"/>
-                                    </div>
 
-                                    <div class="content-group" attrs="{'invisible': [('ecosystem_subscription_key', '=', False)]}">
-                                        <strong>
-                                            <field name="ecosystem_subscription_message"
-                                                class="col-6 col-lg-6 o_light_label"
-                                                readonly="1"
-                                                decoration-success="ecosystem_subscription_message == 'Subscription is active'"
-                                                decoration-danger="ecosystem_subscription_message != 'Subscription is active'"/>
-                                        </strong>
-                                        <div  attrs="{'invisible': [('ecosystem_subscription_message', '!=', 'Subscription is active')]}">
-                                            <label for="ecosystem_subscription_expiration_date" string="Expiration Date at: " class="col-6 col-lg-6 o_light_label"/>
-                                            <field name="ecosystem_subscription_expiration_date" class="oe_inline" readonly="1"/>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <div id="system_configuration">
-                        <h2>System Configuration</h2>
+                        <h2>System State</h2>
                         <div class="row mt16 o_settings_container" name="system_configuration_container">
-                            <div class="col-12 col-lg-6 o_setting_box" id="system_configuration_setting">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_right_pane mb-4">
+                                    <div class="text-muted mb-3">
+                                        Click this button to check the system configuration and ensure that all necessary settings are properly installed and configured.
+                                    </div>
+                                    <button name="validate_configuration" string="Validate Configuration" type="object" class="btn btn-outline-primary"/>
+                                </div>
+
                                 <div class="o_setting_right_pane">
                                     <div class="text-muted mb-3">
-                                        Click this button to check the system configuration and ensure that all necessary settings are properly installed and configured
+                                        Click here to open the Getting Started Wizard and access video tutorials and helpful instructions for configuring your connector.
                                     </div>
-                                    <button name="validate_configuration" string="Validate Configuration" type="object" class="btn btn-outline-primary text-uppercase"/>
+                                    <button name="open_getting_started_guide" string="Open Getting Started Guide" type="object" class="btn btn-outline-primary"/>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="col-12 o_setting_box">
+                                    <div class="o_setting_right_pane">
+                                        <div class="text-muted mb-3">
+                                            Version information for all E-Commerce Integration modules.
+                                        </div>
+                                        <field name="integration_modules_version_info" widget="text" readonly="1" style="width: 100%; font-family: monospace; font-size: 10px; white-space: pre-wrap;"/>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+
+                    <div id="advanced_configuration" groups="base.group_no_one">
+                        <h2>Advanced Configuration</h2>
+                        <div class="row mt16 o_settings_container" name="product_configuration_container">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_right_pane">
+                                    <div class="text-muted mb-3">
+                                        Skip convert images to webp format on a product form view.
+                                    </div>
+                                    <field name="skip_convert_to_webp" widget="boolean_toggle"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </app>
             </xpath>
         </field>
     </record>
 
     <record id="integration_res_config_settings_action" model="ir.actions.act_window">
         <field name="name">Settings</field>
+        <field name="path">eci-settings</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">res.config.settings</field>
         <field name="view_id" ref="res_config_settings_view_form_external_integration"/>

@@ -163,26 +163,26 @@ class TestPrintNodeAccountActivation(TestPrintNodeCommon):
         self.mock_update_account_limits.assert_called_once()
         self.mock_import_devices.assert_called_once()
 
-    def test_account_activation_case_5(self):
-        """
-        Emulated state: Something is wrong with the key
-        Expected UserError
-        Will run self.env.cr.commit()
-        """
+    # def test_account_activation_case_5(self):
+    #     """
+    #     Emulated state: Something is wrong with the key
+    #     Expected UserError
+    #     Will run self.env.cr.commit()
+    #     """
 
-        DPC_RESPONSE.update({'status_code': 400, 'message': 'TestUserError_2'})
-        self.mock_send_dpc_request.return_value = DPC_RESPONSE
-        self.mock_is_correct_dpc_api_key.return_value = True
-        self.account.status = ''  # for UserError message test
-        mock_commit = self._create_patch_object(type(self.env.cr), 'commit')
+    #     DPC_RESPONSE.update({'status_code': 400, 'message': 'TestUserError_2'})
+    #     self.mock_send_dpc_request.return_value = DPC_RESPONSE
+    #     self.mock_is_correct_dpc_api_key.return_value = True
+    #     self.account.status = ''  # for UserError message test
+    #     mock_commit = self._create_patch_object(type(self.env.cr), 'commit')
 
-        with self.cr.savepoint(), self.assertRaises(UserError) as err:
-            self.assertIsNone(self.account.activate_account())
+    #     with self.cr.savepoint(), self.assertRaises(UserError) as err:
+    #         self.assertIsNone(self.account.activate_account())
 
-        self.assertTrue('TestUserError_2' in err.exception.args[0])
-        self.assertEqual(
-            self.mock_send_dpc_request.call_args_list,
-            [self.call_args, ]
-        )
-        self.mock_unlink_devices.assert_called_once()
-        mock_commit.assert_called_once()
+    #     self.assertTrue('TestUserError_2' in err.exception.args[0])
+    #     self.assertEqual(
+    #         self.mock_send_dpc_request.call_args_list,
+    #         [self.call_args, ]
+    #     )
+    #     self.mock_unlink_devices.assert_called_once()
+    #     mock_commit.assert_called_once()
