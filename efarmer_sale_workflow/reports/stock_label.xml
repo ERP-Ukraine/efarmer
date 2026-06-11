@@ -7,8 +7,7 @@
                 <t t-set="product" t-value="line.product_id if line._name != 'product.template' and line._name != 'product.product' else line"/>
                 <t t-if="line._name != 'product.template' and line._name != 'product.product' and line._name != 'stock.lot'">
                     <t t-set="lot_ids" t-value="line.lot_id if line._name != 'mrp.production' else line.lot_producing_id"/>
-                    <t t-set="lot_name" t-value="lot_ids.mapped('name') if product.tracking != 'none' else ''"/>
-        
+                    <t t-set="lot_name" t-value="', '.join(lot_ids.mapped('name')) if product.tracking != 'none' else ''"/>
                     <t t-if="line._name == 'stock.quant'">
                         <t t-set="pre_qty" t-value="line.quantity"/>
                     </t>
