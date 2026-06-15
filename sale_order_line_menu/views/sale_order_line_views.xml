@@ -81,6 +81,9 @@
                     domain="[('move_id.partner_id', 'child_of', parent.parent_partner_id), ('sale_line_ids', 'not in', parent.order_line), ('display_type', '=', 'product'), ('move_id.move_type', 'in', ('out_invoice', 'out_refund', 'out_receipt'))]"
                 />
             </xpath>
+            <xpath expr="//field[@name='product_uom']" position="after">
+                <field name="tag_ids" optional="hide" widget="many2many_tags" />
+            </xpath>
         </field>
     </record>
 
