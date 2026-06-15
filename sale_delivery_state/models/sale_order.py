@@ -12,7 +12,7 @@ from odoo.tools import float_compare, float_is_zero
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
-    delivery_status = fields.Selection(
+    oca_delivery_status = fields.Selection(
         # Compute method have a different name then the field because
         # the method _compute_delivery_status already exist in odoo sale_stock
         compute="_compute_oca_delivery_status",
@@ -88,15 +88,15 @@ class SaleOrder(models.Model):
     def _compute_oca_delivery_status(self):
         for order in self:
             if order.state in ("draft", "cancel"):
-                order.delivery_status = None
+                order.oca_delivery_status = None
             elif order.force_delivery_state or order._all_qty_delivered():
-                order.delivery_status = "full"
+                order.oca_delivery_status = "full"
             elif order._partially_delivered():
-                order.delivery_status = "partial"
+                order.oca_delivery_status = "partial"
             elif order._is_delivery_status_started():
-                order.delivery_status = "started"
+                order.oca_delivery_status = "started"
             else:
-                order.delivery_status = "pending"
+                order.oca_delivery_status = "pending"
 
     def _is_delivery_status_started(self):
         # Loose dep on sale_stock. Feel free to customize this method
