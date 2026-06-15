@@ -543,7 +543,7 @@ class PrintNodePrinter(models.Model):
 
     def _format_title(self, objects, copies):
         if len(objects) == 1:
-            return f'{objects.display_name} ({objects.name} objects, {copies} copies)'
+            return f'{objects.display_name} ({objects._name} objects, {copies} copies)'
 
         names = objects.mapped('display_name')[:150]
         return f'{objects._description} ({len(objects)} records, {names} objects, {copies} copies)'
