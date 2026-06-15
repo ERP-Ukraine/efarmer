@@ -10,7 +10,7 @@
                     name="action_force_delivery_state"
                     type="object"
                     string="Force delivery done"
-                    invisible="force_delivery_state or delivery_status == 'full' or state != 'sale' or not locked"
+                    invisible="force_delivery_state or oca_delivery_status == 'full' or state != 'sale' or not locked"
                 />
                 <button
                     name="action_unforce_delivery_state"
@@ -20,7 +20,7 @@
                 />
             </field>
             <group name="sale_shipping" position="inside">
-                <field name="delivery_status" invisible="state != 'sale'" />
+                <field name="oca_delivery_status" invisible="state != 'sale'" />
                 <field name="force_delivery_state" invisible="1" />
             </group>
             <xpath expr="//field[@name='order_line']/list" position="inside">
@@ -35,14 +35,14 @@
         <field name="model">sale.order</field>
         <field name="arch" type="xml">
             <field name="invoice_status" position="before">
-                <!-- <field
-                    name="delivery_status"
+                <field
+                    name="oca_delivery_status"
                     widget="badge"
                     optional="hide"
-                    decoration-info="delivery_status == 'pending'"
-                    decoration-warning="delivery_status in ('partial', 'started')"
-                    decoration-success="delivery_status == 'full'"
-                /> -->
+                    decoration-info="oca_delivery_status == 'pending'"
+                    decoration-warning="oca_delivery_status in ('partial', 'started')"
+                    decoration-success="oca_delivery_status == 'full'"
+                />
             </field>
         </field>
     </record>
@@ -60,14 +60,14 @@
                 <filter
                     string="Pending Deliveries"
                     name="filter_delivery_status_pending"
-                    domain="[('delivery_status','in',['pending', 'started', 'partial'])]"
+                    domain="[('oca_delivery_status','in',['pending', 'started', 'partial'])]"
                 />
             </filter>
             <filter name="order_month" position="after">
                 <filter
-                    string="Delivery Status"
-                    name="delivery_status"
-                    context="{'group_by': 'delivery_status'}"
+                    string="OCA Delivery Status"
+                    name="oca_delivery_status"
+                    context="{'group_by': 'oca_delivery_status'}"
                 />
             </filter>
         </field>
