@@ -47,7 +47,7 @@ class SaleOrder(models.Model):
         self.ensure_one()
         # Skip delivery costs lines
         sale_lines = self.order_line.filtered(
-            lambda rec: not rec._is_delivery() and not rec.skip_sale_delivery_state and rec.product_id.type != "service" 
+            lambda rec: not rec._is_delivery() and not rec.skip_sale_delivery_state
         )
         precision = self.env["decimal.precision"].precision_get(
             "Product Unit of Measure"
@@ -69,7 +69,7 @@ class SaleOrder(models.Model):
         self.ensure_one()
         # Skip delivery costs lines
         sale_lines = self.order_line.filtered(
-            lambda rec: not rec._is_delivery() and not rec.skip_sale_delivery_state and rec.product_id.type != "service" 
+            lambda rec: not rec._is_delivery() and not rec.skip_sale_delivery_state
         )
         precision = self.env["decimal.precision"].precision_get(
             "Product Unit of Measure"
