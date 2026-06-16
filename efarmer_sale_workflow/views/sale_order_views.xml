@@ -140,8 +140,8 @@
                     <field name="pick_scheduled_date"
                            readonly="1"
                            optional="show"
-                           decoration-danger="state not in ('done', 'cancel') and delivery_status in ('unprocessed', 'partially') and pick_scheduled_date &lt; context_today().strftime('%Y-%m-%d')"
-                           decoration-warning="state not in ('done', 'cancel') and delivery_status in ('unprocessed', 'partially') and pick_scheduled_date &gt;= context_today().strftime('%Y-%m-%d') and pick_scheduled_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')" />
+                           decoration-danger="state not in ('done', 'cancel') and oca_delivery_status in ('pending', 'started', 'partial') and pick_scheduled_date &lt; context_today().strftime('%Y-%m-%d')"
+                           decoration-warning="state not in ('done', 'cancel') and oca_delivery_status in ('pending', 'started', 'partial') and pick_scheduled_date &gt;= context_today().strftime('%Y-%m-%d') and pick_scheduled_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')" />
                 </xpath>
                 <xpath expr="//field[@name='pick_scheduled_date']" position="before">
                     <field name="paid_on_date"/>
@@ -167,8 +167,8 @@
                     <field name="pick_scheduled_date"
                            readonly="1"
                            optional="show"
-                           decoration-danger="state not in ('done', 'cancel') and delivery_status in ('unprocessed', 'partially') and pick_scheduled_date &lt; context_today().strftime('%Y-%m-%d')"
-                           decoration-warning="state not in ('done', 'cancel') and delivery_status in ('unprocessed', 'partially') and pick_scheduled_date &gt;= context_today().strftime('%Y-%m-%d') and pick_scheduled_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')" />
+                           decoration-danger="state not in ('done', 'cancel') and oca_delivery_status in ('pending', 'started', 'partial') and pick_scheduled_date &lt; context_today().strftime('%Y-%m-%d')"
+                           decoration-warning="state not in ('done', 'cancel') and oca_delivery_status in ('pending', 'started', 'partial') and pick_scheduled_date &gt;= context_today().strftime('%Y-%m-%d') and pick_scheduled_date &lt;= (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d')" />
                 </xpath>
                 <xpath expr="//field[@name='pick_scheduled_date']" position="before">
                     <field name="paid_on_date"/>

@@ -89,11 +89,11 @@ class SaleOrder(models.Model):
         return self.write({"state": "to_payment"})
 
     @api.depends(
-        "picking_ids", "picking_ids.scheduled_date", "state", "delivery_status"
+        "picking_ids", "picking_ids.scheduled_date", "state", "oca_delivery_status"
     )
     def _compute_pick_scheduled_date(self):
         for order in self:
-            if order.state != "sale" or order.delivery_status == "full":
+            if order.state != "sale" or order.oca_delivery_status == "full":
                 order.pick_scheduled_date = None
             else:
                 active_picks = order.picking_ids.filtered(
