@@ -219,5 +219,32 @@
                 </xpath>
             </field>
         </record>
+
+        <record id="view_order_form_delivery_status_always_visible" model="ir.ui.view">
+            <field name="name">sale.order.form.delivery.status.always.visible</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale_stock.view_order_form_inherit_sale_stock"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='delivery_status']" position="attributes">
+                    <attribute name="invisible">False</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_quotation_tree_inherit_delivery_status" model="ir.ui.view">
+            <field name="name">sale.order.quotation.tree</field>
+            <field name="inherit_id" ref="sale.view_quotation_tree" />
+            <field name="model">sale.order</field>
+            <field name="arch" type="xml">
+                <field name="invoice_status" position="before">
+                    <field name="delivery_status"
+                        decoration-success="delivery_status == 'full'"
+                        decoration-warning="delivery_status == 'partial'"
+                        decoration-info="delivery_status in ['pending', 'started']"
+                        widget="badge"
+                        optional="hide"/>
+                </field>
+            </field>
+        </record>
     </data>
 </odoo>

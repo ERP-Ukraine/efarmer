@@ -20,7 +20,7 @@
                 />
             </field>
             <group name="sale_shipping" position="inside">
-                <field name="oca_delivery_status" invisible="state != 'sale'" />
+                <field name="oca_delivery_status"/>
                 <field name="force_delivery_state" invisible="1" />
             </group>
             <xpath expr="//field[@name='order_line']/list" position="inside">
@@ -46,6 +46,23 @@
             </field>
         </field>
     </record>
+    <record id="view_quotation_tree_inherit_delivery_status" model="ir.ui.view">
+        <field name="name">sale.order.quotation.tree</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree" />
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <field name="invoice_status" position="before">
+                <field
+                    name="oca_delivery_status"
+                    widget="badge"
+                    optional="hide"
+                    decoration-info="oca_delivery_status == 'pending'"
+                    decoration-warning="oca_delivery_status in ('partial', 'started')"
+                    decoration-success="oca_delivery_status == 'full'"
+                />
+            </field>
+        </field>
+    </record>
 
     <record
         id="sale_order_view_search_inherit_sale_inherit_delivery_status"
@@ -56,6 +73,31 @@
         <field name="inherit_id" ref="sale.sale_order_view_search_inherit_sale" />
         <field name="arch" type="xml">
             <filter name="order_date" position="after">
+                <separator />
+                <filter
+                    string="Pending Deliveries"
+                    name="filter_delivery_status_pending"
+                    domain="[('oca_delivery_status','in',['pending', 'started', 'partial'])]"
+                />
+            </filter>
+            <filter name="order_month" position="after">
+                <filter
+                    string="OCA Delivery Status"
+                    name="oca_delivery_status"
+                    context="{'group_by': 'oca_delivery_status'}"
+                />
+            </filter>
+        </field>
+    </record>
+    <record
+        id="sale_quotation_view_search_inherit_sale_inherit_delivery_status"
+        model="ir.ui.view"
+    >
+        <field name="name">sale.quotation.search</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.sale_order_view_search_inherit_quotation" />
+        <field name="arch" type="xml">
+            <filter name="filter_create_date" position="after">
                 <separator />
                 <filter
                     string="Pending Deliveries"
