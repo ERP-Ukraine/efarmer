@@ -55,40 +55,40 @@ class TestDeliveryState(TransactionCase):
         )
 
     def test_no_delivery(self):
-        self.assertFalse(self.order.delivery_status)
+        self.assertFalse(self.order.oca_delivery_status)
 
     def test_unprocessed_delivery(self):
         self.order.action_confirm()
-        self.assertEqual(self.order.delivery_status, "pending")
+        self.assertEqual(self.order.oca_delivery_status, "pending")
 
     def test_partially(self):
         self.order.action_confirm()
         self.order.order_line[0].qty_delivered = 2
-        self.assertEqual(self.order.delivery_status, "partial")
+        self.assertEqual(self.order.oca_delivery_status, "partial")
 
     def test_delivery_done(self):
         self.order.action_confirm()
         for line in self.order.order_line:
             line.qty_delivered = line.product_uom_qty
-        self.assertEqual(self.order.delivery_status, "full")
+        self.assertEqual(self.order.oca_delivery_status, "full")
 
     def test_no_delivery_delivery_cost(self):
         self._add_delivery_cost_line()
         with self._mock_delivery():
-            self.assertFalse(self.order.delivery_status)
+            self.assertFalse(self.order.oca_delivery_status)
 
     def test_unprocessed_delivery_delivery_cost(self):
         self._add_delivery_cost_line()
         with self._mock_delivery():
             self.order.action_confirm()
-            self.assertEqual(self.order.delivery_status, "pending")
+            self.assertEqual(self.order.oca_delivery_status, "pending")
 
     def test_partially_delivery_cost(self):
         self._add_delivery_cost_line()
         with self._mock_delivery():
             self.order.action_confirm()
             self.order.order_line[0].qty_delivered = 2
-            self.assertEqual(self.order.delivery_status, "partial")
+            self.assertEqual(self.order.oca_delivery_status, "partial")
 
     def test_forced_delivery_cost(self):
         self._add_delivery_cost_line()
@@ -96,7 +96,7 @@ class TestDeliveryState(TransactionCase):
             self.order.action_confirm()
             self.order.order_line[0].qty_delivered = 2
             self.order.force_delivery_state = True
-            self.assertEqual(self.order.delivery_status, "full")
+            self.assertEqual(self.order.oca_delivery_status, "full")
 
     def test_delivery_done_delivery_cost(self):
         self._add_delivery_cost_line()
@@ -106,7 +106,7 @@ class TestDeliveryState(TransactionCase):
                 if line._is_delivery():
                     continue
                 line.qty_delivered = line.product_uom_qty
-            self.assertEqual(self.order.delivery_status, "full")
+            self.assertEqual(self.order.oca_delivery_status, "full")
 
     def test_skip_service_line(self):
         self._add_service_line()
@@ -115,8 +115,8 @@ class TestDeliveryState(TransactionCase):
             if line.product_id == self.service_product:
                 continue
             line.qty_delivered = line.product_uom_qty
-        self.assertEqual(self.order.delivery_status, "partial")
+        self.assertEqual(self.order.oca_delivery_status, "partial")
         self.order.order_line.filtered(
             lambda a: a.product_id and a.product_id == self.service_product
         ).write({"skip_sale_delivery_state": True})
-        self.assertEqual(self.order.delivery_status, "full")
+        self.assertEqual(self.order.oca_delivery_status, "full")
