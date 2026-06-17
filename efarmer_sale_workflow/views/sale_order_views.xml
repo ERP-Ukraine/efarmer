@@ -85,6 +85,9 @@
                 <xpath expr="//field[@name='order_line']/list/field[@name='price_unit']" position="attributes">
                     <attribute name="readonly">is_storable</attribute>
                 </xpath>
+                <xpath expr="//field[@name='order_line']/list/field[@name='product_uom_qty']" position="after">
+                    <field name="qty_delivered_method"/>
+                </xpath>
             </field>
         </record>
 
