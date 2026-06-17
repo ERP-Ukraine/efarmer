@@ -22,6 +22,6 @@ class StockLot(models.Model):
             "type": "ir.actions.act_window",
             "name": "Helpdesk Tickets",
             "res_model": "helpdesk.ticket",
-            "view_mode": "tree,form",
+            "view_mode": "list,form",
             "domain": [("id", "in", self.helpdesk_ticket_ids.ids)],
         }
