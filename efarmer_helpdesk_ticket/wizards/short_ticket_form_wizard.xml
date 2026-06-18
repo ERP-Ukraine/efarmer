@@ -12,12 +12,12 @@
                         <field name="ticket_id" invisible="1"/>
                         <field name="allowed_tag_ids" invisible="1" widget="many2many_tags"/>
                         <field name="choose_product_by" widget="radio"/>
-                        <field name="lot_id" options="{'no_create': True}"/>
-                        <field name="product_id" readonly="choose_product_by == 'serial'" force_save="1"/>
+                        <field name="lot_id" domain="[('id', 'in', allowed_lot_ids)]" options="{'no_create': True}"/>
+                        <field name="product_id" domain="[('id', 'in', allowed_product_ids)]" readonly="choose_product_by == 'serial'" force_save="1"/>
                         <field name="partner_id" readonly="choose_product_by == 'serial'" force_save="1"/>
                         <field name="sale_id" readonly="choose_product_by == 'serial'" force_save="1"/>
-                        <field name="delivery_transfer_id" readonly="choose_product_by == 'serial'" force_save="1"/>
-                        <field name="delivery_move_id" readonly="choose_product_by == 'serial'" force_save="1"/>
+                        <field name="delivery_transfer_id" domain="[('id', 'in', allowed_transfer_ids)]" readonly="choose_product_by == 'serial'" force_save="1"/>
+                        <field name="delivery_move_id" domain="[('id', 'in', allowed_move_ids)]" readonly="choose_product_by == 'serial'" force_save="1"/>
                         <field name="efarmer_client_type" readonly="choose_product_by == 'serial'" force_save="1"/>
                         <field name="email" readonly="choose_product_by == 'serial'" force_save="1"/>
                         <field name="phone" readonly="choose_product_by == 'serial'" force_save="1"/>
