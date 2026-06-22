@@ -1,0 +1,185 @@
+"id","name","name@pl","description","invoice_label","amount","amount_type","type_tax_use","sequence","tax_group_id","tax_scope","active","price_include_override","repartition_line_ids/repartition_type","repartition_line_ids/document_type","repartition_line_ids/tag_ids","repartition_line_ids/account_id","repartition_line_ids/factor_percent"
+"vat_z_23_towary_poz","VAT Z 23 T","VAT Z 23 T",,"23%","23.0","percent","purchase","0","tax_group_vat_23",,,,"base","invoice","trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_46","chart22102",
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_46","chart22102",
+"vat_z_23_uslugi_poz","VAT Z 23 U","VAT Z 23 U",,"23%","23.0","percent","purchase","2","tax_group_vat_23","service","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_46","chart22102",
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_46","chart22102",
+"vat_z_23_towary_st","VAT Z 23 ST","VAT Z 23 ST",,"23%","23.0","percent","purchase","3","tax_group_vat_23","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_43",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_44","chart22102",
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_43",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_44","chart22102",
+"vat_s_23_towary","VAT S 23 T","VAT S 23 T",,"23%","23.0","percent","sale","4","tax_group_vat_23","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_19",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_20","chart22101",
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_19",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_20","chart22101",
+"vat_s_23_uslugi","VAT S 23 U","VAT S 23 U",,"23%","23.0","percent","sale","5","tax_group_vat_23","service","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_19",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_20","chart22101",
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_19",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_20","chart22101",
+"vat_z_8_towary_poz","VAT Z 8 T","VAT Z 8 T",,"8%","8","percent","purchase","100","tax_group_vat_8","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_46","chart22102",
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_46","chart22102",
+"vat_z_5_towary_poz","VAT Z 5 T","VAT Z 5 T",,"5%","5","percent","purchase","101","tax_group_vat_5","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_46","chart22102",
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_46","chart22102",
+"vat_z_0_towary_poz","VAT Z 0 T","VAT Z 0 T",,"0%","0","percent","purchase","102","tax_group_vat_0","consu","1",,"base","invoice",,,
+,,,,,,,,,,,,,"tax","invoice",,,
+,,,,,,,,,,,,,"base","refund",,,
+,,,,,,,,,,,,,"tax","refund",,,
+"vat_z_zw_towary_poz","VAT Z ZW T","VAT Z ZW T",,"ZW","0","percent","purchase","103","tax_group_vat_zw","consu","1",,"base","invoice",,,
+,,,,,,,,,,,,,"tax","invoice",,,
+,,,,,,,,,,,,,"base","refund",,,
+,,,,,,,,,,,,,"tax","refund",,,
+"ue_z_23_towary_st","EU Z 23 ST","UE Z 23 ST",,"UEZT","23.0","percent","purchase","104","tax_group_vat_23","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_23||trilab_jpk_vat.pl_jpk_K_43",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_44","chart22102","100"
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_24","chart22101","-100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_23||trilab_jpk_vat.pl_jpk_K_43",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_44","chart22102","100"
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_24","chart22101","-100"
+"ue_z_23_towary_poz","EU Z 23 T","UE Z 23 T",,"UEZT","23","percent","purchase","105","tax_group_vat_23","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_23||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_24","chart22101","-100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_23||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_24","chart22101","-100"
+"ue_z_8_towary_poz","EU Z 8 T","UE Z 8 T",,"UEZT","8","percent","purchase","110","tax_group_vat_8","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_23||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_24","chart22101","-100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_23||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_24","chart22101","-100"
+"ue_z_5_towary_poz","EU Z 5 T","UE Z 5 T",,"UEZT","5","percent","purchase","111","tax_group_vat_5","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_23||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_24","chart22101","-100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_23||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_24","chart22101","-100"
+"ue_z_0_towary_poz","EU Z 0 T","UE Z 0 T",,"UEZT","0","percent","purchase","112","tax_group_vat_0","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_23||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_24","chart22101","-100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_23||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_24","chart22101","-100"
+"ue_z_zw_towary_poz","EU Z ZW T","UE Z ZW T",,"UEZT","0","percent","purchase","113","tax_group_vat_zw","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_23||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_24","chart22101","-100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_23||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_24","chart22101","-100"
+"ue_z_23_uslugi_poz","EU Z 23 U","UE Z 23 U",,"UEZU","23","percent","purchase","114","tax_group_vat_23","service","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_29||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_30","chart22101","-100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_29||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_30","chart22101","-100"
+"im_z_23_towary_st","IM 23 ST (33a)","IM 23 ST (33a)",,"IMT","23","percent","purchase","120","tax_group_vat_23","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_25||trilab_jpk_vat.pl_jpk_K_43",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_44","chart22102","100"
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_26","chart22101","-100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_25||trilab_jpk_vat.pl_jpk_K_43",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_44","chart22102","100"
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_26","chart22101","-100"
+"im_z_23_towary_poz","IM 23 T (33a)","IM 23 T (33a)",,"IMT","23","percent","purchase","121","tax_group_vat_23","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_25||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_26","chart22101","-100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_25||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_26","chart22101","-100"
+"im_z_8_towary_poz","IM 8 T (33a)","IM 8 T (33a)",,"IMT","8","percent","purchase","122","tax_group_vat_8","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_25||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_26","chart22101","-100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_25||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_26","chart22101","-100"
+"im_z_5_towary_poz","IM 5 T (33a)","IM 5 T (33a)",,"IMT","5","percent","purchase","123","tax_group_vat_5","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_25||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_26","chart22101","-100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_25||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_26","chart22101","-100"
+"im_z_0_towary_poz","IM 0 T (33a)","IM 0 T (33a)",,"IMT","0","percent","purchase","124","tax_group_vat_0","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_25||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_26","chart22101","-100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_25||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_26","chart22101","-100"
+"im_z_zw_towary_poz","IM ZW T (33a)","IM ZW T (33a)",,"IMT","0","percent","purchase","125","tax_group_vat_zw","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_25||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_26","chart22101","-100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_25||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_26","chart22101","-100"
+"im_z_23_uslugi_poz","IM 23 U","IM 23 U",,"IMU","23","percent","purchase","126","tax_group_vat_23","service","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_27||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_28","chart22101","-100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_27||trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_28","chart22101","-100"
+"vat_z_23_towary_poz_brutto","VAT Z 23 T (gross)","VAT Z 23 T (brutto)",,"23%","23","percent","purchase","130","tax_group_vat_23","consu","1","tax_included","base","invoice","trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,"tax_included","base","refund","trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+"vat_z_23_towary_st_brutto","VAT Z 23 T ST (gross)","VAT Z 23 T ST (brutto)",,"23%","23","percent","purchase","131","tax_group_vat_23","consu","1","tax_included","base","invoice","trilab_jpk_vat.pl_jpk_K_43",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_44","chart22102","100"
+,,,,,,,,,,,,"tax_included","base","refund","trilab_jpk_vat.pl_jpk_K_43",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_44","chart22102","100"
+"vat_z_8_towary_poz_brutto","VAT Z 8 T (gross)","VAT Z 8 T (brutto)",,"8%","8","percent","purchase","132","tax_group_vat_8","consu","1","tax_included","base","invoice","trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,"tax_included","base","refund","trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+"vat_z_5_towary_poz_brutto","VAT Z 5 T (gross)","VAT Z 5 T (brutto)",,"5%","5","percent","purchase","133","tax_group_vat_5","consu","1","tax_included","base","invoice","trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+,,,,,,,,,,,,"tax_included","base","refund","trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_46","chart22102","100"
+"vat_z_23_KSO_0,5","VAT Z 23 KSO 0,5","VAT Z 23 KSO 0,5",,"23%","146","percent","purchase","134","tax_group_vat_23","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_46","chart22102","15.7534246575342"
+,,,,,,,,,,,,,"tax","invoice",trilab_jpk_vat.pl_jpk_dodaj_NKUP,,"38.1849315068493"
+,,,,,,,,,,,,,"tax","invoice",,,"46.0616438356164"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_45",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_46","chart22102","15.7534246575342"
+,,,,,,,,,,,,,"tax","refund",trilab_jpk_vat.pl_jpk_dodaj_NKUP,,"38.1849315068493"
+,,,,,,,,,,,,,"tax","refund",,,"46.0616438356164"
+"vat_s_8_towary","VAT S 8 T","VAT S 8 T",,"8%","8","percent","sale","200","tax_group_vat_8","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_17",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_18","chart22101","100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_17",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_18","chart22101","100"
+"vat_s_5_towary","VAT S 5 T","VAT S 5 T",,"5%","5","percent","sale","201","tax_group_vat_5","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_15",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_16","chart22101","100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_15",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_16","chart22101","100"
+"vat_s_0_towary","VAT S 0 T","VAT S 0 T",,"0%","0","percent","sale","202","tax_group_vat_0","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_13",,
+,,,,,,,,,,,,,"tax","invoice",,"chart22101","100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_13",,
+,,,,,,,,,,,,,"tax","refund",,"chart22101","100"
+"vat_s_zw_towary","VAT S ZW T","VAT S ZW T",,"ZW","0","percent","sale","203","tax_group_vat_zw","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_10",,
+,,,,,,,,,,,,,"tax","invoice",,"chart22101","100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_10",,
+,,,,,,,,,,,,,"tax","refund",,"chart22101","100"
+"ue_s_towary","EU S T","UE S T",,"UEST","0","percent","sale","204","tax_group_vat_0","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_21",,
+,,,,,,,,,,,,,"tax","invoice",,"chart22101","100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_21",,
+,,,,,,,,,,,,,"tax","refund",,"chart22101","100"
+"ue_s_uslugi","EU S U","UE S U",,"UESU","0","percent","sale","205","tax_group_vat_0","service","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_11||trilab_jpk_vat.pl_jpk_K_12",,
+,,,,,,,,,,,,,"tax","invoice",,"chart22101","100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_11||trilab_jpk_vat.pl_jpk_K_12",,
+,,,,,,,,,,,,,"tax","refund",,"chart22101","100"
+"ex_s_towary","EX T","EX T",,"EXT","0","percent","sale","206","tax_group_vat_0","consu","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_22",,
+,,,,,,,,,,,,,"tax","invoice",,"chart22101","100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_22",,
+,,,,,,,,,,,,,"tax","refund",,"chart22101","100"
+"ex_s_uslugi","EX U","EX U",,"EXU","0","percent","sale","207","tax_group_vat_0","service","1",,"base","invoice","trilab_jpk_vat.pl_jpk_K_11",,
+,,,,,,,,,,,,,"tax","invoice",,"chart22101","100"
+,,,,,,,,,,,,,"base","refund","trilab_jpk_vat.pl_jpk_K_11",,
+,,,,,,,,,,,,,"tax","refund",,"chart22101","100"
+"vat_s_23_uslugi_brutto","VAT S 23 U (gross)","VAT S 23 U (brutto)",,"23%","23","percent","sale","208","tax_group_vat_23","service","1","tax_included","base","invoice","trilab_jpk_vat.pl_jpk_K_19",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_20","chart22101","100"
+,,,,,,,,,,,,"tax_included","base","refund","trilab_jpk_vat.pl_jpk_K_19",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_20","chart22101","100"
+"vat_s_23_towary_brutto","VAT S 23 T (gross)","VAT S 23 T (brutto)",,"23%","23","percent","sale","209","tax_group_vat_23","consu","1","tax_included","base","invoice","trilab_jpk_vat.pl_jpk_K_19",,
+,,,,,,,,,,,,,"tax","invoice","trilab_jpk_vat.pl_jpk_K_20","chart22101","100"
+,,,,,,,,,,,,"tax_included","base","refund","trilab_jpk_vat.pl_jpk_K_19",,
+,,,,,,,,,,,,,"tax","refund","trilab_jpk_vat.pl_jpk_K_20","chart22101","100"
