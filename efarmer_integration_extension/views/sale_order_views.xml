@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="sale_order_view_form_inherit_cancel_states" model="ir.ui.view">
+            <field name="name">sale.order.form.inherit.integration.cancel.states</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="integration.view_order_from_inherit"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_cancel_integration']" position="attributes">
+                    <attribute name="invisible">state not in ['draft', 'sent', 'sale', 'to_payment', 'to_confirm'] or not id or locked</attribute>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>
