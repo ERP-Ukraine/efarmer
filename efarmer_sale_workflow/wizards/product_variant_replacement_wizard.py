@@ -44,6 +44,14 @@ class OrderLineProductReplacementWizard(models.TransientModel):
             )
 
         if len(self.replacement_line_ids) >= 1:
+            # In Odoo 18, setting product_id triggers computes that reset discount,
+            # price_unit, and tax_id — preserve them before the write.
+            preserved = {
+                "discount": self.sale_line_id.discount,
+                "price_unit": self.sale_line_id.price_unit,
+                "tax_id": [(6, 0, self.sale_line_id.tax_id.ids)],
+            }
+
             self.sale_line_id.product_id = self.replacement_line_ids[0].product_id.id
             self.sale_line_id.name = self.replacement_line_ids[
                 0
@@ -51,6 +59,7 @@ class OrderLineProductReplacementWizard(models.TransientModel):
             self.sale_line_id.product_uom_qty = self.replacement_line_ids[
                 0
             ].product_uom_qty
+            self.sale_line_id.write(preserved)
 
             # enter in for loop only if replacement_line_ids > 1
             for line in self.replacement_line_ids[1:]:
@@ -59,9 +68,9 @@ class OrderLineProductReplacementWizard(models.TransientModel):
                     "product_id": line.product_id.id,
                     "name": line.product_id.get_product_multiline_description_sale(),
                     "product_uom_qty": line.product_uom_qty,
+                    **preserved,
                 }
                 self.sale_line_id.copy(default=default)
-
 
 class ProductReplacements(models.TransientModel):
     _name = "product.replacement.lines"

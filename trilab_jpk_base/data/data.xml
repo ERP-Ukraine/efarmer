@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-<data noupdate="1">
     <record id="jpk_vat_doc_att" model="ir.attachment">
         <field name="datas" type="base64" file="trilab_jpk_base/data/Schemat_JPK_VAT(3)_v1-1.xsd"/>
         <field name="name">Schemat_JPK_VAT(3)_v1-1.xsd</field>
@@ -171,5 +170,4 @@
         <field name="xsd_id" ref="vat_uek5_v2_1e_doc_att"/>
         <field name="gate_type">eDeclarations</field>
     </record>
-    </data>
 </odoo>
