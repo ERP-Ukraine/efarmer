@@ -110,6 +110,15 @@ class Label(models.Model):
         readonly=True,
     )
 
+    convert_to_pdf = fields.Boolean(
+        string='Convert Label to PDF',
+        default=False,
+        help=(
+            'If enabled, the label will be converted to PDF format using Labelary API when printing or downloading. '
+            'If disabled, the original ZPL format will be returned (default Odoo behavior).'
+        ),
+    )
+
     @api.depends('name', 'print_report_name')
     def _compute_print_report_name_preview(self):
         for rec in self:

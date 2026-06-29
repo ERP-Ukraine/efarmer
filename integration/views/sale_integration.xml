@@ -567,6 +567,42 @@
                                     <field name="request_order_url" widget="CopyClipboardChar" readonly="1"/>
                                     <field name="invoice_report_id" options="{'no_open': True}"/>
                                     <field name="behavior_on_non_existing_invoice" widget="radio"/>
+
+                                    <div colspan="2">
+                                        <div class="accordion" id="invoicesApiAccordion">
+                                            <div class="accordion-item">
+                                                <h2 class="accordion-header">
+                                                    <a href="#" class="accordion-button collapsed" role="button"
+                                                       data-bs-toggle="collapse" data-bs-target="#invoicesApiCollapse"
+                                                       aria-expanded="false" aria-controls="invoicesApiCollapse">
+                                                        Response format and error codes
+                                                    </a>
+                                                </h2>
+                                                <div id="invoicesApiCollapse" class="accordion-collapse collapse"
+                                                     data-bs-parent="#invoicesApiAccordion">
+                                                    <div class="accordion-body">
+                                                        <p>
+                                                            The endpoint always responds with a JSON body
+                                                            <code>{"code": int, "message": str, "data": list}</code>.
+                                                            The <code>code</code> field indicates the result of the request:
+                                                        </p>
+                                                        <ul>
+                                                            <li><code>0</code> — success; <code>data</code> contains the link to the PDF invoice.</li>
+                                                            <li><code>1</code> — integration API key missing, not configured or invalid.</li>
+                                                            <li><code>2</code> — integration not found or inactive.</li>
+                                                            <li><code>-1</code> — order not found, not ready or no invoice available.</li>
+                                                            <li><code>-2</code> — invoice processing error (creation or validation).</li>
+                                                            <li><code>-3</code> — PDF generation/render error.</li>
+                                                        </ul>
+                                                        <p class="mb-0">Response Examples</p>
+                                                        <pre class="mb-0">{"code": 0, "message": "", "data": ["https://your-odoo/.../invoice.pdf"]}</pre>
+                                                        <pre class="mb-0">{"code": 1, "message": "Integration API key is invalid.", "data": []}</pre>
+                                                        <pre class="mb-0">{"code": -1, "message": "Odoo order not found from external code 12345.", "data": []}</pre>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </group>
                             </page>
 

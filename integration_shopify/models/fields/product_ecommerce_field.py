@@ -3,13 +3,43 @@
 import logging
 from datetime import datetime, date
 
-from odoo import models, fields
+from odoo import api, models, fields, _
 from odoo.exceptions import ValidationError
+from odoo.addons.integration.tools import is_translated_value
 
 from ...shopify_api import SHOPIFY
 
 
 _logger = logging.getLogger(__name__)
+
+
+def _stringify_metafield_value(value, odoo_field_type=None):
+    """
+    Coerce a single metafield value to a Shopify-ready string.
+
+    Shopify metafield values must be strings. Falsy-but-meaningful numbers (``0``,
+    ``0.0``) are kept, and only ``None`` / empty string map to ``''`` (which the
+    adapter turns into a metafield delete).
+
+    ``odoo_field_type`` is the type of the source Odoo field ('boolean', 'char',
+    'integer', ...). It disambiguates values Odoo represents the same way - most
+    importantly ``False``, which is both a real Boolean value and the "empty" value of
+    Char/Text/relational fields. Add per-type branches here as new cases appear.
+
+    Structured types (lists, money, dimensions, JSON) are expected to be produced as
+    a ready string by an export script.
+    """
+    if value is None or value == '':
+        return ''
+
+    if isinstance(value, bool):
+        # Only a real Boolean field carries a meaningful True/False; for any other
+        # field type ``False`` is an empty value.
+        if odoo_field_type == 'boolean':
+            return 'true' if value else 'false'
+        return 'true' if value else ''
+
+    return str(value)
 
 
 class ProductEcommerceField(models.Model):
@@ -24,10 +54,11 @@ class ProductEcommerceField(models.Model):
 
     is_shopify_metafield = fields.Boolean(
         string='Metafield',
-        compute='_compute_is_shopify_metafield',
+        default=False,
         help=(
-            'Shopify metafield have to be formatted as <Namespace>.<Key>\n'
-            'Metafield type is required for metafield to be synced.'
+            'Enable this for a Shopify metafield. The API Field Name must be formatted '
+            'as "<namespace>.<key>" exactly as shown in Shopify (e.g. "custom.my_field").\n'
+            'A metafield type is required for the field to be synced.'
         ),
     )
 
@@ -78,9 +109,19 @@ class ProductEcommerceField(models.Model):
         help='Key used for translations. If not set, the key will be the same as the field name.',
     )
 
-    def _compute_is_shopify_metafield(self):
+    @api.constrains('is_shopify_metafield', 'technical_name', 'type_api')
+    def _check_shopify_metafield_name(self):
         for rec in self:
-            rec.is_shopify_metafield = (rec.type_api == SHOPIFY) and rec.technical_name.startswith('metafields.')
+            if rec.type_api != SHOPIFY or not rec.is_shopify_metafield:
+                continue
+
+            parts = (rec.technical_name or '').split('.')
+            if len(parts) < 2 or not parts[-1] or not parts[-2]:
+                raise ValidationError(_(
+                    'The API Field Name "%s" is not a valid Shopify metafield reference.\n'
+                    'Enter it as "<namespace>.<key>" exactly as shown in Shopify, '
+                    'for example "custom.my_field".'
+                ) % (rec.technical_name or ''))
 
     def get_translation_key(self, strip_path: bool = True):
         self.ensure_one()
@@ -115,14 +156,55 @@ class ProductEcommerceField(models.Model):
 
         field = next(filter(lambda x: x['key'] == key and x['namespace'] == namespace, metafields), None)
 
+        # An absent metafield means it was cleared on Shopify (Shopify deletes a metafield
+        # when its value is emptied), so clear the mapped Odoo field instead of leaving the
+        # previous value untouched.
         if not field:
-            return dict()
+            odoo_name = self.get_odoo_field_name(raise_if_not_found=False)
+            return {odoo_name: False} if odoo_name else dict()
 
         value = self._format_metafield_input_type(field['value'])
 
         odoo_name = self.get_odoo_field_name(raise_if_not_found=True)
 
         return {odoo_name: value}
+
+    def _prepare_metafield_export_value(self, integration_id: int, odoo_id: int):
+        """
+        Read the raw Odoo value and coerce it to a Shopify-ready metafield string.
+
+        Metafield values must be strings, so we deliberately bypass the generic
+        "Export Output Type" conversion (which would either send a non-string number
+        or drop ``0`` / ``0.0`` / ``False`` to an empty string) and stringify the raw
+        value directly - see ``_stringify_metafield_value``. Translatable values keep
+        their per-language structure with each value stringified. Structured types
+        (lists, money, dimensions, JSON) should be produced via an export script.
+        """
+        self.ensure_one()
+
+        odoo_name = self.get_odoo_field_name()
+        odoo_record = self.get_odoo_record(odoo_id)
+        integration = self.env['sale.integration'].browse(integration_id)
+        odoo_record = odoo_record.with_company(integration.company_id)
+
+        odoo_field = odoo_record._fields.get(odoo_name)
+        odoo_field_type = odoo_field.type if odoo_field else None
+
+        value = odoo_record.convert_field_value_to_external(
+            integration_id,
+            odoo_name,
+            translate=self.is_translatable_field,
+        )
+
+        if is_translated_value(value):
+            return {
+                'language': {
+                    k: _stringify_metafield_value(v, odoo_field_type)
+                    for k, v in value['language'].items()
+                },
+            }
+
+        return _stringify_metafield_value(value, odoo_field_type)
 
     def _build_export_field_dict(self, integration_id: int, odoo_id: int):
         _logger.info('%s: _build_export_field_dict: %s. Shopify inheritance.', integration_id, self.technical_name)
@@ -140,18 +222,21 @@ class ProductEcommerceField(models.Model):
 
         # 1. Handle Shopify metafields special case
         if self.is_shopify_metafield:
-            value = self._prepare_export_value(integration_id, odoo_id)
-
-            # Skip sending empty value for unexported product (GQL error!)
-            if force_export:
-                value_ = integration.adapter.parse_translated_value(value)
-                if not value_:
-                    return {}
+            value = self._prepare_metafield_export_value(integration_id, odoo_id)
 
             if serialize_translations:
+                # Skip sending empty value for unexported product (GQL error!)
+                if force_export:
+                    value_ = integration.adapter.parse_translated_value(value)
+                    if not value_:
+                        return {}
+
                 key_ = self.get_translation_key()
                 return {key_: value}
 
+            # Always pass the metafield through, even when empty. The adapter decides
+            # whether to set it (non-empty) or delete it (empty) while building the
+            # product create/update mutation, so emptying a value clears the metafield.
             api_name = self.get_api_field_name()
             *__, namespace, key = api_name.split('.')
 

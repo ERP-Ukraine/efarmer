@@ -116,7 +116,12 @@ class IntegrationAccountTaxMapping(models.Model):
                 ('price_include_override', '=', value)
             )
 
-        odoo_tax = tax_id.search(domain, limit=1)
+        # Bind the integration language so the translatable account.tax name is matched against the translation it
+        # was stored under at import time; otherwise the search uses the runtime user's language and silently
+        # misses matches in multi-language setups. Falls back to the current context language when the integration
+        # language is not configured yet.
+        lang_context = self.integration_id.get_integration_lang_context()
+        odoo_tax = tax_id.with_context(**lang_context).search(domain, limit=1)
         if odoo_tax:
             self.tax_id = odoo_tax.id
 

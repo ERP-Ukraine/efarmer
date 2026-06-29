@@ -609,7 +609,6 @@ class ProductTemplate(models.Model):
             if use_jobs_for_blocks:
                 context = {
                     'company_id': self.company_id.id,
-                    'job_integration_id': self.id,
                     'job_integration_job_type': 'product',
                     'job_related_record_model': self._name,
                     'job_related_record_ids': templates_block.ids,

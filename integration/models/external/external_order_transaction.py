@@ -266,7 +266,7 @@ class ExternalOrderTransaction(models.Model):
         order_currency = order.pricelist_id.currency_id
 
         if order_currency.id != external_currency.id:
-            amount = order_currency._convert(
+            amount = external_currency._convert(
                 from_amount=self.float_amount,
                 to_currency=order_currency,
                 company=order.company_id,

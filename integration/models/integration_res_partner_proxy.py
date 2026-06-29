@@ -541,6 +541,15 @@ class IntegrationResPartnerProxy(models.TransientModel):
             )
             return False
 
+        # Mapped partner has no parent company, but current context expects one
+        if company and not skip_individual and not mapped_partner.is_company and not mapped_partner.parent_id:
+            self._log_partner_trace(
+                'Mapped partner incompatible',
+                f'Mapped partner "{mapped_partner.display_name}" has no parent company, '
+                f'but expected "{company.display_name}"',
+            )
+            return False
+
         # Mapped partner has different parent company
         if mapped_partner.parent_id and company:
             if mapped_partner.parent_id != company:
@@ -1014,8 +1023,16 @@ class IntegrationResPartnerProxy(models.TransientModel):
             if not hasattr(partner, field):
                 _logger.warning('Field %s does not exist on res.partner model.', field)
                 continue
+
             if isinstance(partner[field], models.Model):
-                if partner[field].id != new_value:
+                partner_value_id = partner[field].id
+
+                if field == 'company_id':
+                    if partner_value_id not in [False, new_value]:
+                        changed_fields.append(field)
+                    continue
+
+                if partner_value_id != new_value:
                     changed_fields.append(field)
                 continue
 

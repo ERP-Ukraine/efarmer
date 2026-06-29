@@ -133,13 +133,17 @@ class InventoryItem(ShopifyResourceUpdate):
         """
         Activate an inventory item at a location.
         """
+        variables = {
+            'available': int(quantity),
+            'locationId': self._env.Location.create_gid(location_id),
+            'inventoryItemId': self.create_gid(inventory_item_id),
+        }
+
+        idempotency_key = self.compute_idempotency_key(variables)
+
         response = self.execute(
-            self.MUTATION_ACTIVATE_INVENTORY_ITEM,
-            variables={
-                'available': int(quantity),
-                'locationId': self._env.Location.create_gid(location_id),
-                'inventoryItemId': self.create_gid(inventory_item_id),
-            },
+            self.MUTATION_ACTIVATE_INVENTORY_ITEM % idempotency_key,
+            variables=variables,
             user_errors_path='data.inventoryActivate.userErrors',
         )
 

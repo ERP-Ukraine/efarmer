@@ -163,9 +163,20 @@ def _async_http_get(scheme, host, port, user, password, db_name, job_uuid):
             auth = None
             if user:
                 auth = (user, password)
+            # Tell Odoo which database to bind through the 'X-Odoo-Database'
+            # header. Odoo resolves the database during routing
+            # (Request._get_session_and_dbname), *before* the controller runs.
+            # On multi-database instances the '?db=' query string alone is not
+            # enough: the database cannot be auto-detected, the request is
+            # dispatched in "nodb" mode (request.env is None) and
+            # '/queue_job/runjob' fails with "'NoneType' object is not
+            # callable". The header makes the database selection deterministic
+            # and stateless (no session cookie needed). The '?db=' query string
+            # is kept because the controller still reads 'db' from it.
+            headers = {"X-Odoo-Database": db_name}
             # we are not interested in the result, so we set a short timeout
             # but not too short so we trap and log hard configuration errors
-            response = requests.get(url, timeout=1, auth=auth)
+            response = requests.get(url, timeout=1, auth=auth, headers=headers)
 
             # raise_for_status will result in either nothing, a Client Error
             # for HTTP Response codes between 400 and 500 or a Server Error

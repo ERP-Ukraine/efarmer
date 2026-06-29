@@ -51,7 +51,30 @@
                                 </div>
                             </div>
                         </div>
-                        <h2>Technical Settings</h2>
+                        <h2>PDF Conversion Settings</h2>
+                        <div class="row mt16 o_settings_container">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"></div>
+                                <div class="o_setting_right_pane">
+                                    <div class="content-group">
+                                        <div class="mt16">
+                                            <label for="zld_pdf_labelary_requests_today" string="Labelary API Requests Today" />
+                                            <br />
+                                            <field name="zld_pdf_labelary_requests_today" readonly="1" />
+                                        </div>
+                                    </div>
+                                    <div class="text-muted">
+                                        This counter shows the number of requests sent to Labelary API today (UTC timezone).
+                                        The counter resets automatically at midnight UTC each day.
+                                        <br/><br/>
+                                        <strong>Free plan limits:</strong> 3 requests per second, 5,000 requests per day.
+                                        <br/>
+                                        <a href="https://labelary.com/service.html#limits" target="_blank">View all limits</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <h2 groups="base.group_no_one">Technical Settings</h2>
                         <div class="row mt16 o_settings_container" groups="base.group_no_one">
                             <div class="col-12 col-lg-6 o_setting_box" >
                                 <div class="o_setting_left_pane">

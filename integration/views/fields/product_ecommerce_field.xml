@@ -25,6 +25,12 @@
                                     icon="fa-flask">
                                 <span class="o_stat_text">Test Mapping</span>
                             </button>
+                            <button name="action_open_field_mappings"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-link">
+                                <field name="mapping_count" widget="statinfo" string="Store Mappings"/>
+                            </button>
                             <button class="oe_stat_button" disabled="1" icon="fa-lock" invisible="not is_default">
                                 <span class="o_stat_text">System Field</span>
                             </button>
@@ -42,7 +48,29 @@
                             <h1>
                                 <field name="name" placeholder="e.g. Product Title, Meta Description..." readonly="is_default"/>
                             </h1>
+                        </div>
+                        <group col="1">
                             <field name="type_api" readonly="is_default"/>
+                        </group>
+
+                        <!-- Section: Documentation -->
+                        <h3 class="mt-4 mb-3">Documentation</h3>
+                        <div class="alert alert-info mb-3" role="alert">
+                            <i class="fa fa-info-circle me-2" title="Information"/>
+                            <strong>Important:</strong> Read the description and requirements carefully before enabling this field mapping in your stores.
+                        </div>
+                        <div class="mb-3">
+                            <label class="o_form_label" for="description">Description</label>
+                            <div class="text-muted mt-1">
+                                <field name="description" nolabel="1" widget="text"/>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="o_form_label" for="requirements">Requirements</label>
+                            <div class="text-muted mt-1">
+                                <field name="requirements" nolabel="1" widget="text"/>
+                            </div>
                         </div>
 
                         <!-- Section: Field Mapping -->

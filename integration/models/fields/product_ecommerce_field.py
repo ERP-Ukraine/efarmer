@@ -199,6 +199,11 @@ class ProductEcommerceField(models.Model):
         string='Mappings',
     )
 
+    mapping_count = fields.Integer(
+        string='Store Mappings',
+        compute='_compute_mapping_count',
+    )
+
     integration_id = fields.Many2one(
         comodel_name='sale.integration',
         string='Integration',
@@ -291,6 +296,18 @@ class ProductEcommerceField(models.Model):
         string='Uses Script',
         compute='_compute_is_scriptable_field',
         store=True,
+    )
+
+    description = fields.Text(
+        string='Description',
+        readonly=True,
+        help='Describe how this mapping works and what data it synchronizes.',
+    )
+
+    requirements = fields.Text(
+        string='Requirements',
+        readonly=True,
+        help='Specify prerequisites or limitations for using this field mapping.',
     )
 
     @api.depends('odoo_model_id')
@@ -468,6 +485,11 @@ class ProductEcommerceField(models.Model):
             **kwargs,
         })
 
+    @api.depends('mapping_ids')
+    def _compute_mapping_count(self):
+        for rec in self:
+            rec.mapping_count = len(rec.with_context(active_test=False).mapping_ids)
+
     def action_open_test_wizard(self):
         """
         Open the test wizard for this field definition.
@@ -482,6 +504,25 @@ class ProductEcommerceField(models.Model):
             'context': {
                 'default_ecommerce_field_id': self.id,
             },
+        }
+
+    def action_open_field_mappings(self):
+        """
+        Open the store-specific mappings (Field Synchronization) that use this
+        field definition.
+        """
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Store Mappings'),
+            'res_model': 'product.ecommerce.field.mapping',
+            'view_mode': 'list',
+            'domain': [('ecommerce_field_id', '=', self.id)],
+            'context': {
+                'active_test': False,
+                'default_ecommerce_field_id': self.id,
+            },
+            'target': 'current',
         }
 
     def action_unlink(self):

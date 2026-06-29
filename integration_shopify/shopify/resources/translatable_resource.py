@@ -104,22 +104,42 @@ class TranslatableResource(GqlDict):
         return result
 
     def parse_translations(self) -> dict:
+        """
+        Build a ``{key: {locale: value}}`` map for one pulled target locale.
+
+        For each key, the primary-language value comes from ``translatable_content``
+        and is then overwritten by the target-locale ``translations`` when present, so
+        a single resource yields either the translation (if any) or the primary value.
+        The per-locale resources are merged afterwards (see ``fetch_translations``),
+        which is what accumulates all locales - including the shop default one - per key.
+
+        Nested resources (product metafields) are handled the same way so metafield
+        translations expose both their primary value and their per-locale translations,
+        keyed by ``Metafield.odoo_key`` (``metafields.<namespace>.<key>``).
+        """
         result = {}
 
-        # 0. Default translations
+        # 0. Default (primary-language) values of the product's own fields.
         for translatable_content in self.translatable_content:
             result[translatable_content.key] = {translatable_content.locale: translatable_content.value}
 
-        # 1. Main translations
+        # 1. Target-locale translations of the product's own fields (override the primary).
         for translation in self.translations:
             result[translation.key] = {translation.locale: translation.value}
 
-        # 2. Nested resources translations
+        # 2. Nested resources (metafields): same primary + translation handling as above,
+        #    keyed by the metafield odoo key so it lines up with the field mapping.
         if self.metafields_data:
             for resource in self.nested_translatable_resources:
                 if resource.resource_id in self.metafields_data:
                     metafield = self._env.Metafield.set(**self.metafields_data[resource.resource_id])
 
+                    # 2.0 Primary-language value (was missing - metafield translations
+                    #     used to carry only secondary languages, leaving no base value).
+                    for content in resource.translatable_content:
+                        result[metafield.odoo_key] = {content.locale: content.value}
+
+                    # 2.1 Target-locale translation (overrides the primary when present).
                     for translation in resource.translations:
                         result[metafield.odoo_key] = {translation.locale: translation.value}
 

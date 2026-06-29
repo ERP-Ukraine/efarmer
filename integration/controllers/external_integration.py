@@ -23,7 +23,18 @@ class ExternalIntegration(Controller):
     )
     @build_environment
     def get_pdf_invoice(self, *args, **kw):
-        """ Get PDF invoice for the order. """
+        """
+        Get PDF invoice for the order.
+
+        Response body: {'code': int, 'message': str, 'data': list}
+        Codes:
+            0  = success
+            1  = integration API key missing / not configured / invalid
+            2  = integration not found or inactive
+            -1 = order not found / not ready / no invoice available
+            -2 = invoice processing error (creation or validation)
+            -3 = PDF generation/render error
+        """
         _logger.info('ExternalIntegration.get_pdf_invoice()')
 
         headers = [
@@ -45,7 +56,7 @@ class ExternalIntegration(Controller):
         integration = env['sale.integration'].browse(integration_id).exists()
         if not integration or integration.state == 'draft':
             message = f'Integration ID {integration_id} not found/or inactive in Odoo'
-            body.update({'code': 1, 'message': message})
+            body.update({'code': 2, 'message': message})
             return request.make_response(json.dumps(body), headers=headers)
 
         internal_api_key = integration.get_integration_api_key()
@@ -62,7 +73,7 @@ class ExternalIntegration(Controller):
         order = env['sale.order'].from_external(integration, order_code, False)
         if not order:
             message = f'Odoo order not found from external code {order_code}.'
-            body.update({'code': 1, 'message': message})
+            body.update({'code': -1, 'message': message})
             return request.make_response(json.dumps(body), headers=headers)
 
         # Get status code, result message and data with link to PDF invoice

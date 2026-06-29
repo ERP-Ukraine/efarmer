@@ -133,25 +133,32 @@ class OrderParseMixin:
 
     def parse_delivery_data(self):
         """
-        In some cases delivery method may not be parsed from fulfillment orders because of the
-        `shipping_line.code` is not matched with the `delivery_method.serviceCode`.
-        So we use the shipping line instead and this option is usable only with the
-        `integration.auto_create_delivery_carrier_on_so` flag enabled.
+        Resolve the delivery carrier and shipping cost for the order.
 
-        For example `shipping_line.code != delivery_method.serviceCode`:
+        The carrier is taken from the fulfillment order's delivery method when it is
+        valid. For marketplace orders (e.g. Amazon via Marketplace Connect) the
+        delivery method carries no service code (so `delivery_method.is_valid` is
+        False), while the carrier identity lives on the order's shipping line. In that
+        case we fall back to the shipping line via `_carrier_from_shipping_line`, which
+        formats the carrier exactly like a delivery method would. The same shipping
+        methods are also collected during master data import (see
+        `ShopifyAPIClient.get_delivery_methods`), so the carrier can be mapped manually
+        and does not depend on the `auto_create_delivery_carrier_on_so` flag.
+
+        For example a marketplace order with an unusable delivery method:
 
             shippingLine = {
-                "id": "gid://shopify/ShippingLine/11967452840318",
-                "title": "Shipped by Seller: Shipped by seller",
-                "code": "Shipped by Seller: Shipped by seller",
+                "id": "gid://shopify/ShippingLine/11959328473463",
+                "title": "Amazon Standard",
+                "code": "AMZSTD",
                 "carrierIdentifier": null,
             }
 
             delivery_method = {
-                "id": "gid://shopify/DeliveryMethod/8165399691646",
-                "presentedName": "Shipped by Seller: Shipped by seller",
+                "id": "gid://shopify/DeliveryMethod/8332656869751",
+                "presentedName": null,
                 "methodType": "SHIPPING",
-                "serviceCode": "custom"
+                "serviceCode": null
             }
         """
         shipping_line = self.shipping_line
@@ -160,13 +167,21 @@ class OrderParseMixin:
         carrier, shipping_cost, taxes, note = {}, 0, [], ''
         discount = {}
 
-        if shipping_line and delivery_method and delivery_method.is_valid:
-            carrier = delivery_method.to_odoo_format()
+        if shipping_line:
             use_customer_currency = self.props.use_customer_currency
 
-            if carrier.get('id'):
-                method_type = delivery_method.method_type
-                carrier['is_pickup_point'] = method_type.is_pick_up or method_type.is_pickup_point
+            # Resolve the carrier. Prefer the fulfillment order's delivery method, but
+            # fall back to the shipping line itself for marketplace orders (e.g. Amazon
+            # via Marketplace Connect) where the delivery method carries no service code
+            # and is therefore not "valid" - yet the order still has a priced shipping
+            # line that must not be dropped.
+            if delivery_method and delivery_method.is_valid:
+                carrier = delivery_method.to_odoo_format()
+                if carrier.get('id'):
+                    method_type = delivery_method.method_type
+                    carrier['is_pickup_point'] = method_type.is_pick_up or method_type.is_pickup_point
+            else:
+                carrier = self._carrier_from_shipping_line(shipping_line)
 
             # Use the original (non-discounted) price so that the factory can create
             # proper discount lines for the full discount amount.  Fall back to the
@@ -212,6 +227,27 @@ class OrderParseMixin:
             'delivery_notes': note,
             'discount': discount,
         }
+
+    def _carrier_from_shipping_line(self, shipping_line):
+        """Build an Odoo carrier dict from the order's shipping line.
+
+        Used as a fallback when the fulfillment order's delivery method is not
+        "valid" (no service code / presented name), which happens for marketplace
+        orders such as Amazon via Marketplace Connect. In that case the carrier
+        identity still lives on the shipping line (`code` / `title`), so we format
+        it the same way `DeliveryMethod.to_odoo_format` does to keep the carrier
+        mapping code consistent.
+        """
+        code = shipping_line['code']
+        title = shipping_line['title']
+        if not code and not title:
+            return {}
+
+        name = title or code
+        # `format_delivery_code` only relies on the class-level prefix, so calling it
+        # on the (empty) DeliveryMethod resource is safe and avoids duplicating logic.
+        formatted_code = self._env.DeliveryMethod.format_delivery_code(name, code or name)
+        return {'id': formatted_code, 'name': name}
 
     def parse_order_risks(self):
         self.ensure_one()
@@ -313,6 +349,7 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
     _body = ShopifyResourceUpdate._tmpl.ORDER_BODY
 
     ORDER_GET_TAXES_BODY = ShopifyResourceUpdate._tmpl.ORDER_GET_TAXES_BODY
+    ORDER_GET_DELIVERY_METHODS_BODY = ShopifyResourceUpdate._tmpl.ORDER_GET_DELIVERY_METHODS_BODY
     ORDER_GET_PAYMENT_METHODS_BODY = ShopifyResourceUpdate._tmpl.ORDER_GET_PAYMENT_METHODS_BODY
     ORDER_INPUT_FILE_BODY = ShopifyResourceUpdate._tmpl.ORDER_INPUT_FILE_BODY
 
@@ -546,7 +583,7 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
     def get_batch_body_minimal(self, filter_params: str = ''):
         return self.get_batch(
             body=self.ORDER_INPUT_FILE_BODY,
-            arguments='sortKey: CREATED_AT',
+            arguments='sortKey: UPDATED_AT',
             filter_params=filter_params,
         )
 
@@ -559,6 +596,12 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
     def get_batch_for_taxes(self):
         return self.get_batch(
             body=self.ORDER_GET_TAXES_BODY,
+            arguments='sortKey: ID, reverse: true',
+        )
+
+    def get_batch_for_delivery_methods(self):
+        return self.get_batch(
+            body=self.ORDER_GET_DELIVERY_METHODS_BODY,
             arguments='sortKey: ID, reverse: true',
         )
 

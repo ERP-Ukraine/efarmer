@@ -9,8 +9,8 @@
                 <list editable="bottom">
                     <field name="id" groups="base.group_no_one"/>
                     <field name="integration_id"/>
-                    <field name="category_id"/>
                     <field name="external_category_id" domain="[('integration_id', '=', integration_id)]"/>
+                    <field name="category_id"/>
                     <button type="object"
                             name="import_categories"
                             string="Import Category"

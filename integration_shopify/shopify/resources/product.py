@@ -16,6 +16,7 @@ class Product(ShopifyResourceUpdate, ProductMixin):
     MUTATION_CREATE = ShopifyResourceUpdate._tmpl.MUTATION_CREATE_PRODUCT_ASYNCHRONOUS
     MUTATION_UPDATE = ShopifyResourceUpdate._tmpl.MUTATION_PRODUCT_UPDATE
     MUTATION_DELETE = ShopifyResourceUpdate._tmpl.MUTATION_PRODUCT_DELETE
+    MUTATION_METAFIELDS_DELETE = ShopifyResourceUpdate._tmpl.MUTATION_METAFIELDS_DELETE
 
     MUTATION_PRODUCT_REORDER_MEDIA = ShopifyResourceUpdate._tmpl.MUTATION_PRODUCT_REORDER_MEDIA
     MUTATION_PRODUCT_VARIANT_APPEND_MEDIA = ShopifyResourceUpdate._tmpl.MUTATION_PRODUCT_VARIANT_APPEND_MEDIA
@@ -282,6 +283,34 @@ class Product(ShopifyResourceUpdate, ProductMixin):
         )
 
         return self._extract(response, 'data.productUpdate.product', dict)
+
+    def delete_metafields(self, metafields: list):
+        """
+        Delete the given metafields from this product.
+
+        Shopify ignores empty metafield values on productUpdate/productSet, so the
+        only way to clear a metafield is to delete it explicitly. Each item is matched
+        by owner (this product) + namespace + key.
+        """
+        self.ensure_one()
+
+        identifiers = [
+            {
+                'ownerId': self.gid,
+                'namespace': metafield['namespace'],
+                'key': metafield['key'],
+            }
+            for metafield in metafields
+        ]
+
+        if not identifiers:
+            return
+
+        self.execute(
+            self.MUTATION_METAFIELDS_DELETE,
+            variables={'metafields': identifiers},
+            user_errors_path='data.metafieldsDelete.userErrors',
+        )
 
     def bulk_create_variants(self, variants_data: list):
         self.ensure_one()

@@ -274,7 +274,14 @@ class IntegrationExternalMixin(models.AbstractModel):
                     escape_psql(reference),
                 )]
 
-            odoo_record = self.odoo_model.search(search_domain)
+            # Bind the integration language so name matching uses the translation the value was stored under at
+            # import time; otherwise translatable reference fields (e.g. product.attribute.name) are searched in
+            # the runtime user's language and silently miss matches in multi-language setups. Falls back to the
+            # current context language when the integration language is not configured yet (e.g. during the Quick
+            # Configuration wizard, before the language step is reached).
+            odoo_record = self.odoo_model \
+                .with_context(**self.integration_id.get_integration_lang_context()) \
+                .search(search_domain)
 
             if len(odoo_record) > 1:
                 record_details = '\n'.join([
@@ -367,49 +374,93 @@ class IntegrationExternalMixin(models.AbstractModel):
         vals: dict,
         translations_only: bool = False,
     ):
+        """
+        Create or update an Odoo record from external data that may contain translations.
+
+        ``vals`` mixes two kinds of values:
+          * plain values -> written as-is;
+          * "translated values" -> a dict shaped like
+            ``{'language': {res_lang_id: value, ...}}`` (recognised by
+            ``is_translated_value``), carrying one value per Odoo language.
+
+        For every translatable field we need a single *base value* (stored in the
+        integration language) plus one extra write per other language:
+          * base value = the translation in the integration language
+            (``context_lang_code``); if that language is not provided we fall back to
+            the shop default language (``shop_lang_code``) value, and if that is missing
+            too the field is left untouched;
+          * each remaining language is collected in ``translations[lang_code]`` and
+            written afterwards under that language's context.
+
+        :param integration_id: ``sale.integration`` id the data comes from.
+        :param odoo_object: target record (empty recordset -> create, else update).
+        :param vals: ``{field: value}`` where value is plain or a translated value.
+        :param translations_only: when True, only write the per-language translations
+            and leave the base values untouched - used by the translation import flow
+            on an already existing record.
+        :return: the created/updated record.
+        """
+        # translations:           {lang_code: {field: value}} for every language
+        #                         except the integration one (written later per lang).
+        # translatable_fields:    {field: {res_lang_id: value}} extracted from vals.
+        # non_translatable_fields: {field: base_value} written in the integration language.
         translations, translatable_fields, non_translatable_fields = defaultdict(dict), {}, {}
 
         integration = self.env['sale.integration'].browse(integration_id)
-        shop_lang_code = integration.get_shop_lang_code()
-        context_lang_code = integration.get_integration_lang_code()
+        shop_lang_code = integration.get_shop_lang_code()            # shop primary language
+        context_lang_code = integration.get_integration_lang_code()  # integration base language
 
+        # 1. Split incoming values into translatable ones and plain ones.
         for field, value in vals.items():
             if is_translated_value(value):
                 translatable_fields[field] = value['language']
             else:
                 non_translatable_fields[field] = value
 
+        # 2. For each translatable field, choose its base value and bucket the rest per language.
         ResLang = self.env['res.lang']
         for field, raw_translations in translatable_fields.items():
             for res_lang_id, translation in raw_translations.items():
                 translation_lang_code = ResLang.browse(res_lang_id).code
 
                 if context_lang_code == translation_lang_code:
+                    # Translation in the integration language -> this is the base value.
                     non_translatable_fields[field] = translation
                 else:
+                    # Any other language is written later under its own context.
                     translations[translation_lang_code][field] = translation
 
             if field not in non_translatable_fields:
-                non_translatable_fields[field] = translations[shop_lang_code][field]
+                # No translation in the integration language, so use the shop default
+                # language value as the base value. It may be absent (e.g. Shopify
+                # metafields expose only secondary-language translations) - in that case
+                # keep the existing Odoo value instead of crashing the whole import.
+                shop_default_value = translations.get(shop_lang_code, {}).get(field)
+                if shop_default_value is not None:
+                    non_translatable_fields[field] = shop_default_value
 
         odoo_object = odoo_object \
             .with_company(integration.company_id) \
             .with_context(lang=context_lang_code)
 
-        # Update non-translatable fields
+        # 3. Write the base values (in the integration language), or create the record.
         if odoo_object:
             if not translations_only:
                 odoo_object.write(non_translatable_fields)
         else:
             odoo_object = odoo_object.create(non_translatable_fields)
 
-        # Update translatable fields
+        # 4. Write the remaining languages, each under its own language context.
+        #    An empty per-language value falls back to the base value (same content);
+        #    if there is no base value either, skip the field (keep the existing value).
         for lang_code, data in translations.items():
-            vals = {}
+            lang_vals = {}
             for field, value in data.items():
-                vals[field] = value or non_translatable_fields[field]
+                value = value or non_translatable_fields.get(field)
+                if value is not None:
+                    lang_vals[field] = value
 
-            odoo_object.with_context(lang=lang_code).write(vals)
+            odoo_object.with_context(lang=lang_code).write(lang_vals)
 
         return odoo_object
 
@@ -433,9 +484,10 @@ class IntegrationExternalMixin(models.AbstractModel):
         # Bind the integration language so name comparisons run against the
         # translation values were stored under at import time. Without this,
         # the search uses the runtime user's language and silently misses
-        # matches in multi-language setups.
+        # matches in multi-language setups. Falls back to the current context
+        # language when the integration language is not configured yet.
         ElementValue = self.env[f'product.{element}.value'] \
-            .with_context(lang=integration.get_integration_lang_code())
+            .with_context(**integration.get_integration_lang_context())
 
         external_values = getattr(integration.adapter, f'get_{element}_values')()
 
@@ -509,7 +561,7 @@ class IntegrationExternalMixin(models.AbstractModel):
         ElementMapping = self.env[f'integration.product.{element}.mapping']
         # See _fix_unmapped_element for the rationale on binding the integration language.
         ElementValue = self.env[f'product.{element}.value'] \
-            .with_context(lang=integration.get_integration_lang_code())
+            .with_context(**integration.get_integration_lang_context())
 
         # 1. Find all mapped "Product Attribute/Feature Mapping"
         mapped_elements = ElementMapping.search([

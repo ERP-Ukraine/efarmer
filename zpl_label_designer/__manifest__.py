@@ -16,7 +16,15 @@
         Dynamic ZPL Labels | Custom Labels in Odoo | Direct Print Integration | ZPL Print Odoo |
         Label Generator for Odoo | Odoo Warehouse Labels | ZPL Designer | Create Label | Stock Label |
         Lot Label | Serial Label | Odoo ZPL | Designer Label | Creating Label | Create ZPL |
-        Document Label | Package Label | Packaging Label | Price Label | Label Builder
+        Document Label | Package Label | Packaging Label | Price Label | Label Builder |
+        PDF | PDF Label | PDF Labels | PDF Label Designer | ZPL to PDF Odoo | ZPL PDF Converter |
+        Convert ZPL to PDF | Odoo PDF Labels | PDF Label Generator Odoo | PDF Label Printing Odoo |
+        PDF Label Download Odoo | Download Labels as PDF | Print Labels as PDF | ZPL Label PDF |
+        Zebra Label PDF | Barcode Label PDF | Product Labels PDF | Inventory Labels PDF |
+        Warehouse Labels PDF | Manufacturing Labels PDF | Stock Labels PDF | Lot Labels PDF |
+        Serial Labels PDF | Package Labels PDF | Price Labels PDF | Document Labels PDF |
+        PDF Report Labels | Export Odoo Labels to PDF | PDF Conversion Odoo | Odoo ZPL PDF |
+        Create PDF Labels | PDF Label Builder | PDF Barcode Labels
     """,
     'version': '19.0.2.0.0',
     'category': 'Tools',

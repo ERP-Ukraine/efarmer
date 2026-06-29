@@ -177,6 +177,11 @@ class FulfillmentOrder(ShopifyResourceUpdate):
         return [{'id': x.gid, 'quantity': x.remaining_quantity} for x in lines]
 
     def _prepare_fulfillment_single_line_data(self, sale_line_id: int, qty: int):
+        if qty <= 0:
+            # Nothing to fulfill for this line. Shopify rejects fulfillment
+            # lines with a quantity of 0 ("Quantity must be greater than 0").
+            return dict()
+
         line = self._get_fulfillment_line(sale_line_id)
 
         if not line:

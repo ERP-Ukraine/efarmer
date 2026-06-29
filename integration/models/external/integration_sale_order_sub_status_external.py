@@ -144,8 +144,14 @@ class IntegrationSaleSubStatusExternal(models.Model):
         if not isinstance(external_values, list):
             external_values = [external_values]
 
+        # Bind the integration language so the translatable status name is matched against the translation it was
+        # stored under at import time; otherwise the search uses the runtime user's language and silently misses
+        # matches in multi-language setups. Falls back to the current context language when the integration language
+        # is not configured yet.
+        lang_context = integration.get_integration_lang_context()
+
         for mapping in unmapped_sub_statuses:
-            odoo_sub_status = odoo_sub_status_model.search([
+            odoo_sub_status = odoo_sub_status_model.with_context(**lang_context).search([
                 ('name', '=', mapping.external_id.name),
                 ('integration_id', '=', integration.id),
             ])
@@ -204,7 +210,12 @@ class IntegrationSaleSubStatusExternal(models.Model):
 
         # If mapping doesn't exist, try to find status by name
         if not mapping or not mapping.odoo_id:
-            odoo_status = OrderStatus.search([
+            # Bind the integration language so the translatable status name is matched against the translation it
+            # was stored under at import time; otherwise the search uses the runtime user's language and silently
+            # misses matches in multi-language setups. Falls back to the current context language when the
+            # integration language is not configured yet.
+            lang_context = self.integration_id.get_integration_lang_context()
+            odoo_status = OrderStatus.with_context(**lang_context).search([
                 ('name', '=', self.name),
                 ('integration_id', '=', self.integration_id.id),
             ])

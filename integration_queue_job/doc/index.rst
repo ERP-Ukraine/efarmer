@@ -40,6 +40,12 @@ You can postpone method calls to be executed asynchronously:
 
 Release Notes
 -------------
+* 1.0.6 (2026-06-11)
+    - Fixed job runner failing with "'NoneType' object is not callable" on
+      multi-database instances. The runner now passes the target database in
+      the ``X-Odoo-Database`` header so Odoo binds it during routing, instead
+      of relying on auto-detection of a single database.
+
 * 1.0.5 (2026-05-21)
     - Fixed job runner retry loop on HTTP 429 responses by postponing rate-limited jobs according to Retry-After.
 

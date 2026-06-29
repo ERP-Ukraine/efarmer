@@ -12,12 +12,25 @@
                     <div class="row mx-0" colspan="2" invisible="not is_shopify_metafield">
                         <div class="alert alert-warning" role="alert">
                             <p class="mb-0">
-                                If you have enabled this checkbox, please be careful, you may need a custom script for the mapping to work properly.
+                                Enter the API Field Name as "namespace.key", exactly as shown in Shopify (for example: custom.my_field).
+                            </p>
+                            <p class="mb-0 mt-1">
+                                Metafield values are always sent to Shopify as text. Numbers and true/false are
+                                converted automatically (e.g. 12.5, true), and emptying a value removes the metafield.
+                                For structured types (lists, money, dimensions, JSON) use a Data Transformation
+                                export script to produce the exact value Shopify expects.
                             </p>
                         </div>
                     </div>
                     <field name="shopify_metafield_type" string="Metafield Type" invisible="type_api != 'shopify' or not is_shopify_metafield" required="is_shopify_metafield" readonly="is_default"/>
                     <field name="translation_key" string="Translation Key" groups="base.group_no_one" invisible="type_api != 'shopify'" readonly="is_default"/>
+                </xpath>
+
+                <!-- "Export Output Type" does not apply to Shopify metafields: their value is
+                     always serialised as text based on the Metafield Type, so hide it to avoid
+                     confusion. -->
+                <xpath expr="//field[@name='export_field_type']" position="attributes">
+                    <attribute name="invisible">is_shopify_metafield</attribute>
                 </xpath>
             </field>
         </record>

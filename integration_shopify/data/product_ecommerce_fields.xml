@@ -58,6 +58,7 @@
         <record id="shopify_ecommerce_field_meta_title" model="product.ecommerce.field">
             <field name="name">Product Meta Title</field>
             <field name="technical_name">metafields.global.title_tag</field>
+            <field name="is_shopify_metafield" eval="True"/>
             <field name="shopify_metafield_type">single_line_text_field</field>
             <field name="type_api">shopify</field>
             <field name="odoo_model_id" ref="product.model_product_template" />
@@ -76,6 +77,7 @@
         <record id="shopify_ecommerce_field_meta_description" model="product.ecommerce.field">
             <field name="name">Product Meta Description</field>
             <field name="technical_name">metafields.global.description_tag</field>
+            <field name="is_shopify_metafield" eval="True"/>
             <field name="shopify_metafield_type">multi_line_text_field</field>
             <field name="type_api">shopify</field>
             <field name="odoo_model_id" ref="product.model_product_template" />

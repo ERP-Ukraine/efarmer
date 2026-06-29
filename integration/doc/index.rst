@@ -10,6 +10,15 @@ Having trouble or want to explore detailed documentation? Visit our support port
 Release Notes
 -------------
 
+* 2.1.6 (2026-06-23)
+    - [IMP] Added a "Store Mappings" smart button on product field definitions, showing how many store-specific mappings use the definition and opening them in one click.
+    - [IMP] Aligned the column order in mapping lists so the external (e-commerce) record is always shown before the Odoo record, matching the rest of the mapping views.
+    - [FIX] Improved contact matching during order import to prevent duplicate contacts. A previously mapped contact that has no parent company is no longer reused when the order requires a company (B2B) context, and company assignment changes are now detected correctly — avoiding wrongly reused or duplicated contacts.
+    - [FIX] Fixed an issue where e-commerce payments registered in a currency different from the order currency were recorded without conversion, resulting in an incorrect payment amount. The amount is now correctly converted from the external currency into the order currency.
+    - [FIX] Fixed an issue where matching existing Odoo records by name during import used the current user's language instead of the integration's store language. In multi-language setups this could fail to find existing records (attributes, categories, delivery carriers, taxes, pricelists, order sub-statuses) and create duplicates. Matching now consistently uses the integration language.
+    - [FIX] Fixed an issue where a block-level export job could be linked to the wrong record — a product template ID was stored in the field meant for the e-commerce store — causing the job to reference an incorrect record.
+    - [FIX] Other improvements and fixes implemented to boost overall performance, stability, and reliability.
+
 * 2.1.4 (2026-05-27)
     - [IMP] Added "Auto-Link" button for attribute values, allowing users to quickly map external attribute values to existing Odoo attribute values — particularly useful when working with custom attribute mappings.
     - [IMP] Improved VIES VAT validation handling when the service is temporarily unavailable or overloaded. The connector now automatically retries the request up to 3 times before proceeding — and if the service remains unavailable, the order is imported successfully with a note added to the contact's chatter to flag the unvalidated VAT number.

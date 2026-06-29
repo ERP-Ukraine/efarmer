@@ -80,15 +80,21 @@ class IntegrationDeliveryCarrierMapping(models.Model):
         if carrier_id or not self.external_carrier_id:
             return carrier_id
 
+        # Bind the integration language so name matching uses the translation the value was stored under at import
+        # time; otherwise the translatable product.template / delivery.carrier names are searched in the runtime
+        # user's language and silently miss matches in multi-language setups. Falls back to the current context
+        # language when the integration language is not configured yet.
+        lang_context = self.integration_id.get_integration_lang_context()
+
         ref_field = self.integration_id.product_reference_name
-        product_template = self.env['product.template'].search([
+        product_template = self.env['product.template'].with_context(**lang_context).search([
             ('name', '=', self.external_carrier_id.name),
             (ref_field, '=', self.external_carrier_id.code),
         ])
         if not product_template:
             return carrier_id
 
-        odoo_carrier = carrier_id.search([
+        odoo_carrier = carrier_id.with_context(**lang_context).search([
             ('name', '=', self.external_carrier_id.name),
             ('product_id', 'in', product_template.mapped('product_variant_ids.id')),
         ], limit=1)

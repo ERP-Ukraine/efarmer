@@ -381,6 +381,12 @@ class ShopifyAPIClient(AbsApiClient):
             ],
         }
 
+        # Drop empty metafields: Shopify can't set an empty value and there is nothing
+        # to delete on a brand-new product.
+        self._strip_empty_metafields(payload)
+        for variant in payload['variants']:
+            self._strip_empty_metafields(variant)
+
         product = self.gql.Product
 
         # 1.1 If no product options, add default "Title" option
@@ -475,6 +481,20 @@ class ShopifyAPIClient(AbsApiClient):
 
         # 5. Update product by actual values (productUpdate).
         values = self._prepare_converted_fields(data['fields'])
+
+        # Empty metafields must be deleted explicitly: Shopify silently ignores empty
+        # values on productUpdate, so setting "" would not clear them. Non-empty ones
+        # are set as usual.
+        metafields = values.pop('metafields', None)
+        if metafields is not None:
+            to_set = [x for x in metafields if not self._is_empty_metafield_value(x.get('value'))]
+            to_delete = [x for x in metafields if self._is_empty_metafield_value(x.get('value'))]
+
+            if to_set:
+                values['metafields'] = to_set
+
+            product.delete_metafields(to_delete)
+
         product.update(values)
 
         # 6. Refresh product
@@ -915,27 +935,42 @@ class ShopifyAPIClient(AbsApiClient):
         fetched_qty = control_qty = 0
         max_limit = self.batch_size
 
-        # 1. Get delivery methods from fulfillment orders (DeliveryMethodType == shipping)
-        FulfillmentOrder = self.gql.FulfillmentOrder
+        # 1. Get shipping delivery methods from orders. Each order is scanned once and
+        # yields its carrier two ways:
+        #   a) the fulfillment orders' delivery methods (DeliveryMethodType == shipping);
+        #   b) a fallback built from the order's shipping line for marketplace orders
+        #      (e.g. Amazon via Marketplace Connect) where the delivery method carries no
+        #      service code (is not "valid"), so the carrier identity lives on the
+        #      shipping line instead.
+        # Case (b) mirrors the fallback used when importing orders, so these shipping
+        # methods can be imported as master data and mapped manually rather than relying
+        # on auto-creation of delivery carriers.
+        Order = self.gql.Order
 
         while True:
-            orders = FulfillmentOrder.get_batch_for_delivery_methods()
+            orders = Order.get_batch_for_delivery_methods()
 
             fetched_qty += len(orders)
 
-            for record in orders:
-                delivery = record.delivery_method
-                if not delivery:
-                    continue
+            for order in orders:
+                for fulfillment_order in order.fulfillment_orders:
+                    delivery = fulfillment_order.delivery_method
+                    if not delivery or not delivery.method_type.is_shipping or not delivery.is_valid:
+                        continue
 
-                if not delivery.method_type.is_shipping or not delivery.is_valid:
-                    continue
+                    result.add(delivery.to_odoo_format(to_tuple=True))
 
-                result.add(
-                    delivery.to_odoo_format(to_tuple=True)
-                )
+                # Fall back to the shipping line when the order has no valid shipping
+                # delivery method (marketplace orders).
+                delivery = order.delivery_method
+                if not (delivery and delivery.is_valid):
+                    shipping_line = order.shipping_line
+                    if shipping_line:
+                        carrier = order._carrier_from_shipping_line(shipping_line)
+                        if carrier:
+                            result.add(tuple(carrier.items()))
 
-            if (len(orders) < FulfillmentOrder._request_limit) or not FulfillmentOrder.cursor:
+            if (len(orders) < Order._request_limit) or not Order.cursor:
                 break
 
             if fetched_qty >= max_limit * 10:
@@ -1508,6 +1543,30 @@ class ShopifyAPIClient(AbsApiClient):
 
     def get_product_url(self, external_product_code: str) -> str:
         return f'{self.admin_url}/products/{external_product_code}'
+
+    @staticmethod
+    def _is_empty_metafield_value(value):
+        """
+        Whether a metafield value should be treated as "clear the metafield".
+
+        Only ``None`` and an empty string count as empty. Falsy-but-meaningful values
+        (boolean ``False``, ``0``, ``0.0``, an empty list serialised as ``"[]"``) are
+        real values and must still be sent to Shopify, not deleted.
+        """
+        return value is None or value == ''
+
+    def _strip_empty_metafields(self, field_dict: dict):
+        """
+        Drop empty metafields from a prepared fields dict (in place).
+
+        Used on create, where an empty metafield can neither be set (Shopify rejects an
+        empty value) nor deleted (it does not exist yet on a brand-new product).
+        """
+        metafields = field_dict.get('metafields')
+        if metafields:
+            field_dict['metafields'] = [
+                x for x in metafields if not self._is_empty_metafield_value(x.get('value'))
+            ]
 
     def _prepare_converted_fields(self, fields_dict):
         result = dict()

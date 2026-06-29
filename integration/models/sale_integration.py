@@ -1967,7 +1967,7 @@ class SaleIntegration(models.Model):
                 rec.inventory_synchronization_cron_id.sudo().name = rec._get_cron_name('Periodic Inventory Sync')
 
     def get_class(self):
-        return lambda: es.raise_error(err_code='E111')
+        return lambda *args, **kwargs: es.raise_error(err_code='E111')
 
     @api.model
     def get_integrations(self, job_name, company_id=False):
@@ -6179,6 +6179,34 @@ class SaleIntegration(models.Model):
             ) % (self.name, code))
 
         return code
+
+    def get_integration_lang_context(self):
+        """
+        Return a context dict that binds the integration language for best-effort matching of
+        translatable name fields (e.g. `product.attribute.name`) against the translation they were
+        stored under at import time.
+
+        Unlike `get_integration_lang_code`, this never raises: it falls back to an empty dict - i.e.
+        the current context language - when the integration language is not configured yet (e.g.
+        during the Quick Configuration wizard, before the language step is reached) or is inactive.
+        Name matching is an optimisation, so it must degrade gracefully instead of blocking the flow
+        with "Integration language is not defined".
+        """
+        self.ensure_one()
+
+        lang = self.integration_lang_id
+
+        if lang and self.env['res.lang']._lang_get(lang.code):
+            return {'lang': lang.code}
+
+        _logger.info(
+            '%s: Integration language is not defined (or inactive); matching translatable names in '
+            'the current context language "%s" instead. Set the "Integration Language" in the Quick '
+            'Configuration wizard for reliable multi-language matching.',
+            self.name,
+            self.env.context.get('lang'),
+        )
+        return {}
 
     def get_shop_lang_code(self):
         """

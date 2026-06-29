@@ -185,9 +185,15 @@ class IntegrationEcommerceProductCategoryExternal(models.Model):
             parent = odoo_category
 
     def _find_similar_odoo_category(self):
-        odoo_categories = self.odoo_model.search([
-            ('name', '=ilike', escape_psql(self.name)),
-        ])
+        # Bind the integration language so name matching (and the complete_name comparison below, which reads names
+        # off the matched records) uses the translation the value was stored under at import time; otherwise the
+        # translatable name field is searched in the runtime user's language and silently misses matches. Falls back
+        # to the current context language when the integration language is not configured yet.
+        odoo_categories = self.odoo_model \
+            .with_context(**self.integration_id.get_integration_lang_context()) \
+            .search([
+                ('name', '=ilike', escape_psql(self.name)),
+            ])
 
         def calculate_complete_name(category):
             return ' / '.join(category.parents_and_self.mapped('name'))

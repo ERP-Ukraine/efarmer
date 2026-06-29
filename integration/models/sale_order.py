@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from odoo import fields, models, api, SUPERUSER_ID, _
 from odoo.tools.float_utils import float_compare
 from odoo.tools import float_is_zero
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError
 
 from .auto_workflow.integration_workflow_pipeline import SKIP, TO_DO
 from ...integration.exceptions import ApiImportError
@@ -981,20 +981,25 @@ class SaleOrder(models.Model):
 
         Returns:
             tuple: (code, message, data)
-                code (int): 0 = success, 1 = error
+                code (int): 0 = success; error codes:
+                    -1 = order not ready / no invoice available
+                    -2 = invoice processing error (creation or validation)
+                    -3 = PDF generation/render error
                 message (str): Status message
                 data (list): List with dict containing PDF filename and download link
         """
         self.ensure_one()
 
         success_code = 0
-        error_code = 1
+        ERR_ORDER_NOT_READY = -1
+        ERR_INVOICE_PROCESSING = -2
+        ERR_PDF_RENDER = -3
         message = ''
         data = []
 
         if self.state != 'sale':
             message = f'Order {self.display_name} is not confirmed yet.'
-            return error_code, message, data
+            return ERR_ORDER_NOT_READY, message, data
 
         # Get all related documents (invoices and credit notes)
         all_documents = self.actual_invoice_ids
@@ -1002,7 +1007,7 @@ class SaleOrder(models.Model):
         if not all_documents:
             if self.invoice_status != 'to invoice':
                 message = 'Order %s has no invoices and hasn\'t status "to invoice".' % self.display_name
-                return error_code, message, data
+                return ERR_ORDER_NOT_READY, message, data
 
         # Try to find an invoice that is validated
         posted_documents = all_documents.filtered(lambda i: i.invoice_is_posted)
@@ -1012,7 +1017,7 @@ class SaleOrder(models.Model):
                 and not posted_documents
         ):
             message = 'No validated invoice was found for order %s' % self.display_name
-            return error_code, message, data
+            return ERR_ORDER_NOT_READY, message, data
 
         # Create invoice if it is not created yet
         if not posted_documents and self.invoice_status == 'to invoice':
@@ -1020,32 +1025,24 @@ class SaleOrder(models.Model):
                 invoice_created = self._create_invoices(final=True)
                 if not invoice_created:
                     message = 'Invoice creation error'
-                    return error_code, message, data
-
-            except (ValidationError, UserError) as e:
-                message = e.args[0]
-                return error_code, message, data
+                    return ERR_INVOICE_PROCESSING, message, data
 
             except Exception as e:
                 message = e.args[0]
-                return error_code, message, data
+                return ERR_INVOICE_PROCESSING, message, data
 
         # Validate invoice if it is not validated yet
         try:
             invoice_validated, _ = self._integration_validate_invoice()
             if not invoice_validated:
                 message = 'Invoice validation error'
-                return error_code, message, data
+                return ERR_INVOICE_PROCESSING, message, data
 
             posted_documents = self.actual_invoice_ids.filtered(lambda i: i.invoice_is_posted)
 
-        except (ValidationError, UserError) as e:
-            message = e.args[0]
-            return error_code, message, data
-
         except Exception as e:
             message = e.args[0]
-            return error_code, message, data
+            return ERR_INVOICE_PROCESSING, message, data
 
         ActionsReport = self.env['ir.actions.report']
         report_template = self.integration_id.invoice_report_id
@@ -1053,7 +1050,7 @@ class SaleOrder(models.Model):
         try:
             final_pdf, __ = ActionsReport._render(report_template, posted_documents.ids)
         except (UserError, Exception) as e:
-            return error_code, f'PDF generation error: {str(e)}', data
+            return ERR_PDF_RENDER, f'PDF generation error: {str(e)}', data
 
         # Create attachment with PDF
         access_token = self.env['ir.attachment']._generate_access_token()

@@ -43,6 +43,10 @@
                                                 <i class="fa fa-lightbulb-o me-1" title="Tip"></i>
                                                 <small><strong>Tip:</strong> After creating a definition, go to <strong>Field Synchronization</strong> to enable it for your store(s).</small>
                                             </div>
+                                            <div class="alert alert-info mb-0 py-2" role="alert">
+                                                <i class="fa fa-info-circle me-1" title="Information"/>
+                                                <strong>Important:</strong> Read the description and requirements carefully before enabling this field mapping in your store(s).
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

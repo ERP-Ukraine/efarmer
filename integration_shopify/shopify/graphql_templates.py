@@ -578,6 +578,7 @@ class GraphQLTemplate:
         tags
         isGiftCard
         descriptionHtml
+        vendor
         options {
             %s
         }
@@ -1063,6 +1064,24 @@ class GraphQLTemplate:
         TAX_LINE_BODY,
     )
 
+    ORDER_GET_DELIVERY_METHODS_BODY = """
+        id
+        shippingLine {
+            %s
+        }
+        fulfillmentOrders(first: 10) {
+            nodes {
+                id
+                deliveryMethod {
+                    %s
+                }
+            }
+        }
+    """ % (
+        SHIPPING_LINE_BODY,
+        DELIVERY_METHOD_BODY,
+    )
+
     ORDER_GET_PAYMENT_METHODS_BODY = """
         id
         name
@@ -1301,6 +1320,21 @@ class GraphQLTemplate:
         }
     """ % USER_ERRORS_BODY_1
 
+    MUTATION_METAFIELDS_DELETE = """
+        mutation MetafieldsDelete($metafields: [MetafieldIdentifierInput!]!) {
+            metafieldsDelete(metafields: $metafields) {
+                deletedMetafields {
+                    ownerId
+                    namespace
+                    key
+                }
+                userErrors {
+                    %s
+                }
+            }
+        }
+    """ % USER_ERRORS_BODY_1
+
     MUTATION_PRODUCT_VARIANT_DELETE = """
         mutation productVariantDelete($id: ID!) {
             productVariantDelete(id: $id) {
@@ -1525,7 +1559,9 @@ class GraphQLTemplate:
 
     MUTATION_ACTIVATE_INVENTORY_ITEM = """
         mutation ActivateInventoryItem($inventoryItemId: ID!, $locationId: ID!, $available: Int) {
-            inventoryActivate(inventoryItemId: $inventoryItemId, locationId: $locationId, available: $available) {
+            inventoryActivate(
+                inventoryItemId: $inventoryItemId, locationId: $locationId, available: $available
+            ) @idempotent(key: "%%s") {
                 inventoryLevel {
                     id
                     quantities(names: ["available"]) {

@@ -1,5 +1,6 @@
 # See LICENSE file for full copyright and licensing details.
 
+from odoo.exceptions import UserError
 from odoo.tests import tagged
 
 from .config.integration_init import OdooIntegrationInit, load_xml
@@ -318,3 +319,29 @@ class TestTranslations(OdooIntegrationInit):
             template.with_context(lang=EN_CODE_FULL).name,
             'Test Translation Product updated',
         )
+
+    def test_get_integration_lang_context(self):
+        """`get_integration_lang_context` must never raise.
+
+        It binds the integration language for name matching when one is configured, and falls
+        back to an empty context (the current language) when it is not - the exact situation hit
+        during the Quick Configuration wizard, before the language step is reached, where
+        `get_integration_lang_code` raises "Integration language is not defined" instead.
+        """
+        integration = self.integration_no_api_1
+
+        # 1. Language configured -> bind it for name matching.
+        integration.integration_lang_id = self.lang_en.id
+        self.assertEqual(
+            integration.get_integration_lang_context(),
+            {'lang': EN_CODE_FULL},
+        )
+
+        # 2. Language not configured (fresh store, before the wizard language step) ->
+        #    fall back to the current context language instead of raising.
+        integration.integration_lang_id = False
+        self.assertEqual(integration.get_integration_lang_context(), {})
+
+        # The hard accessor still raises in the same state - this is what used to crash the wizard.
+        with self.assertRaises(UserError):
+            integration.get_integration_lang_code()
