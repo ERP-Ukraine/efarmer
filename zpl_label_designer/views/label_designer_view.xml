@@ -65,6 +65,57 @@
                                 <field name="designer_label_id" />
                                 <field name="write_date" />
                             </group>
+                            <group attrs="{'invisible': [('action_report_id', '=', False)]}">
+                                <field name="convert_to_pdf"/>
+
+                                <div id="zld_pdf_experimental_accordion" class="accordion mt-2" colspan="2">
+                                    <div class="card">
+                                        <div class="card-header" id="zld_pdf_experimental_heading">
+                                            <a role="button"
+                                            href="#zld_pdf_experimental_info"
+                                            class="btn btn-link collapsed p-0 text-decoration-none"
+                                            data-toggle="collapse"
+                                            aria-expanded="false"
+                                            aria-controls="zld_pdf_experimental_info">
+                                                <i class="fa fa-flask mr-2"></i>
+                                                Experimental Feature - PDF Conversion
+                                            </a>
+                                        </div>
+
+                                        <div id="zld_pdf_experimental_info"
+                                            class="collapse"
+                                            aria-labelledby="zld_pdf_experimental_heading"
+                                            data-parent="#zld_pdf_experimental_accordion">
+                                            <div class="card-body">
+                                                <p>
+                                                    This feature converts ZPL labels to PDF format using the
+                                                    <a href="https://labelary.com/" target="_blank">Labelary API</a>
+                                                    before printing or downloading reports. This is an experimental feature that relies on an external service.
+                                                </p>
+
+                                                <p><strong>Important Limitations:</strong></p>
+
+                                                <ul>
+                                                    <li><strong>Rate Limits:</strong> Free plan allows 3 requests per second and 5,000 requests per day</li>
+                                                    <li><strong>Request Limits:</strong> Maximum 50 labels per request, 1 MB request body size</li>
+                                                    <li><strong>Label Dimensions:</strong> Maximum 15 inches per dimension</li>
+                                                    <li><strong>Embedded Content:</strong> Images limited to 2,000 pixels, objects limited to 2 MB</li>
+                                                </ul>
+
+                                                <p>
+                                                    Exceeding these limits may result in HTTP 429 (Too Many Requests) or HTTP 413 (Payload Too Large) errors.
+                                                </p>
+
+                                                <p>
+                                                    If these limits are too restrictive, please contact us through our
+                                                    <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/group/-1" target="_blank">support portal</a>,
+                                                    and we will investigate your request personally.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </group>
                         </group>
 
                         <div>

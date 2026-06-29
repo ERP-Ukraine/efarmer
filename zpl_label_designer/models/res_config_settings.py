@@ -1,4 +1,5 @@
 import secrets
+import urllib.parse
 
 from odoo import api, fields, models
 
@@ -27,6 +28,21 @@ class ResConfigSettings(models.TransientModel):
         help='API key for the access from ZPL Label Designer',
     )
 
+    zld_pdf_labelary_requests_today = fields.Integer(
+        string='Labelary API Requests Today',
+        compute='_compute_zld_pdf_labelary_requests_today',
+        help='Number of Labelary API requests sent today (resets at midnight UTC).',
+    )
+
+    @api.depends()
+    def _compute_zld_pdf_labelary_requests_today(self):
+        """
+        Compute the daily request counter.
+        """
+        count = self.get_zld_pdf_labelary_requests_today()
+        for record in self:
+            record.zld_pdf_labelary_requests_today = count
+
     def _compute_zld_api_key(self):
         """
         Update API key for all config settings
@@ -51,6 +67,9 @@ class ResConfigSettings(models.TransientModel):
         zld_api_key = self.get_zld_api_key()
         res.update(zld_api_key=zld_api_key)
 
+        zld_pdf_labelary_requests_today = self.get_zld_pdf_labelary_requests_today()
+        res.update(zld_pdf_labelary_requests_today=zld_pdf_labelary_requests_today)
+
         return res
 
     @api.model
@@ -59,3 +78,45 @@ class ResConfigSettings(models.TransientModel):
         Get API key for the installed integration.
         """
         return self.env['ir.config_parameter'].sudo().get_param('zpl_label_designer.api_key')
+
+    def get_zld_pdf_labelary_requests_today(self):
+        """
+        Get the current daily request count.
+        """
+        count = 0
+        count_str = self.env['ir.config_parameter'].sudo().get_param(
+            'zpl_label_designer_pdf.labelary_requests_today'
+        )
+
+        try:
+            count = int(count_str)
+        except (ValueError, TypeError):
+            count = -1
+
+        return count
+
+    def open_designer_connection(self):
+        """
+        Open the ZPL Label Designer "new connection" page with the form
+        pre-filled (name, Odoo base URL, database, API key) via URL fragment.
+        """
+        ICP = self.env['ir.config_parameter'].sudo()
+
+        designer_url = ICP.get_param('zpl_label_designer.designer_url')
+        base_url = ICP.get_param('web.base.url')
+
+        fragment = urllib.parse.urlencode(
+            {
+                'name': f'{self.env.company.name} ({self.env.cr.dbname})',
+                'url': base_url,
+                'database': self.env.cr.dbname,
+                'api_key': self.get_zld_api_key(),
+            },
+            quote_via=urllib.parse.quote,
+        )
+
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'{designer_url}/connections/new#{fragment}',
+            'target': 'new',
+        }

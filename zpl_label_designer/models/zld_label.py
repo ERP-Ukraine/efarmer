@@ -48,14 +48,15 @@ class Label(models.Model):
         readonly=True,
     )
 
-    dpi = fields.Integer(
+    dpi = fields.Float(
         string="DPI",
         required=True,
         readonly=True,
     )
 
-    orientation = fields.Char(
-        string="Orientation",
+    orientation = fields.Selection(
+        default="normal",
+        selection=[('normal', 'Normal'), ('inverted', 'Inverted')],
         readonly=True,
     )
 
@@ -109,6 +110,15 @@ class Label(models.Model):
         readonly=True,
     )
 
+    convert_to_pdf = fields.Boolean(
+        string='Convert Label to PDF',
+        default=False,
+        help=(
+            'If enabled, the label will be converted to PDF format using Labelary API when printing or downloading. '
+            'If disabled, the original ZPL format will be returned (default Odoo behavior).'
+        ),
+    )
+
     @api.depends('name', 'print_report_name')
     def _compute_print_report_name_preview(self):
         for rec in self:
@@ -140,8 +150,7 @@ class Label(models.Model):
     def unlink(self):
         for label in self:
             if label.is_published:
-                raise exceptions.UserError(
-                    _('Cannot delete published label. Please, unpublish it in Odoo first'))
+                raise exceptions.UserError(_('Cannot delete published label'))
 
             if not self.env.is_superuser() and label.designer_label_id:
                 raise exceptions.UserError(_(
@@ -271,7 +280,7 @@ class Label(models.Model):
 
         if not label:
             # TODO: Maybe it's better just to return success?
-            raise ValueError(_('No label with such ID found'))
+            raise ValueError(_('Not label with such ID found in Odoo'))
 
         # This will raise exception if label published
         label.unlink()
@@ -639,6 +648,6 @@ class Label(models.Model):
             .get_param('zpl_label_designer.designer_url')
 
         if not label_id:
-            return f'{base_url}/'
+            return f'{base_url}/labels'
 
         return f'{base_url}/{label_id}'
