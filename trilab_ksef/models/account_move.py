@@ -167,6 +167,7 @@ class AccountMove(models.Model):
             and self.country_code == 'PL'
             and self.is_sale_document()
             and (self.partner_id.is_company or bool(self.partner_id.vat))
+            and self.x_pl_ksef_invoice_proof != 'DI'
         )
 
     @api.depends(
