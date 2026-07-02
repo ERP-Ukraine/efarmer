@@ -9,6 +9,7 @@
                     <field name="is_manually_current_rate"/>
                     <field name="product_vat_id" readonly="is_manually_current_rate == False"/>
                     <field name="current_rate_pln" readonly="is_manually_current_rate == False"/>
+                    <field name="_current_rate_pln" invisible="1"/>
                 </div>
             </field>
     </record>
