@@ -109,7 +109,11 @@ class AccountMove(models.Model):
             move.current_rate_pln = (
                 account_payment_rate or invoice_date_rate or default_rate
             )
-            if move.invoice_line_ids and move.invoice_line_ids.sale_line_ids:
+            if (
+                move.invoice_line_ids
+                and move.invoice_line_ids.sale_line_ids
+                and move.invoice_line_ids.sale_line_ids[0].order_id.product_vat_id
+            ):
                 move.product_vat_id = move.invoice_line_ids.sale_line_ids[
                     0
                 ].order_id.product_vat_id
