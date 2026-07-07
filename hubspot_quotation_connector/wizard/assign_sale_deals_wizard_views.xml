@@ -8,6 +8,7 @@
             <form>
                 <sheet>
                     <field name="deal_ids" invisible="1"/>
+                    <field name="order_id" invisible="1"/>
                     <div class="oe_title">
                         <h1>
                             <field name="hubspot_id" readonly="True" options="{'no_open': True}"/>

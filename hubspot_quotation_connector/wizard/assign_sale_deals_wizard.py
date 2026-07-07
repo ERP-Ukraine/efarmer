@@ -64,6 +64,9 @@ class AssignSaleDealsWizard(models.TransientModel):
                 assign_id.deal_ids = None
                 continue
             partner_id = assign_id.order_id.partner_id
+            if not partner_id:
+                assign_id.deal_ids = None
+                continue
             remote_field = hubspot_id.remote_field
             deal_items = hubspot_id.get_deals_by_partner(
                 partner_id=partner_id,
