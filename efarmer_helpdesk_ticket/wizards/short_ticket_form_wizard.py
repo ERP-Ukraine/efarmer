@@ -229,6 +229,9 @@ class ShortTicketFormWizard(models.TransientModel):
     @api.onchange("email")
     def _onchange_email(self):
         if self.email:
-            self.partner_id = self.env["res.partner"].search(
-                [("email", "like", self.email)], limit=1
-            )
+            if self.email.lower() == (self.sale_id.partner_id.email).lower():
+                self.partner_id = self.sale_id.partner_id
+            else:
+                self.partner_id = self.env["res.partner"].search(
+                    [("email", "=ilike", self.email)], limit=1
+                )
