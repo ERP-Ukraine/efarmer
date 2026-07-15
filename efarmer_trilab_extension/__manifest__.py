@@ -17,11 +17,13 @@
         'efarmer_sale_workflow',
         'trilab_jpk_base',
         'trilab_invoice',
+        'trilab_jpk_vat',
         'mrp',
     ],
     'data': [
         # Model Views
         'data/trilab_vat_reports.xml',
+        'views/jpk_vat7m_templates.xml',
         'views/sale_order_views.xml',
     ],
     'installable': True,
