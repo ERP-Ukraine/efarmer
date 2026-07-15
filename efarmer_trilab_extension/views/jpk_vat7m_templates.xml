@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="efarmer_report_jpk_vat_7m" inherit_id="trilab_jpk_vat.report_jpk_vat_7m">
+        <xpath expr="//span[@t-field='doc.p_55_58']" position="replace">
+            <t t-if="doc.system_code == 'JPK_V7M (3)'">
+                <span t-field="doc.p_55_58_v3" class="text-right"/>
+            </t>
+            <t t-else="">
+                <span t-field="doc.p_55_58" class="text-right"/>
+            </t>
+        </xpath>
+    </template>
+
+    <template id="efarmer_sub_report_section_v3" inherit_id="trilab_jpk_vat.sub_report_section_v3">
+        <xpath expr="//t[@t-out=&quot;data['ksefdowod']&quot;]/.." position="after">
+            <td class="act_as_cell left" t-att-rowspan="child_count">
+                <t t-out="data['nrksef']"/>
+            </td>
+        </xpath>
+    </template>
+
+    <template id="efarmer_report_jpk_vat7m_report_v3" inherit_id="trilab_jpk_vat.report_jpk_vat7m_report_v3">
+        <xpath expr="//th[normalize-space()='Typ dowodu faktury']" position="after">
+            <th>Nr KSeF</th>
+        </xpath>
+
+        <xpath expr="//t[@t-set='th_colspan' and @t-value='th_colspan + 1']" position="after">
+            <t t-set="th_colspan" t-value="th_colspan + 1"/>
+        </xpath>
+    </template>
+</odoo>
