@@ -15,7 +15,7 @@
                            string="Deal ID"
                            invisible="hubspot_deal_object_id in (False, 0)"
                            readonly="True"
-                           options="{'format': false}"/>
+                           options="{'enable_formatting': false}"/>
                     <field name="hubspot_deal_name"
                            readonly="True"
                            invisible="hubspot_deal_name in (False, '')"
