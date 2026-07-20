@@ -14,7 +14,9 @@ class ReturnPicking(models.TransientModel):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
-        ticket = self.env['helpdesk.ticket'].browse(self.env.context.get('active_id'))
-        if 'sale_order_id' in fields_list and ticket.sale_order_id:
-            res['sale_order_id'] = ticket.sale_order_id.id
+        ticket_id = res.get('ticket_id') or self.env.context.get('default_ticket_id')
+        if 'sale_order_id' in fields_list and ticket_id:
+            ticket = self.env['helpdesk.ticket'].browse(ticket_id)
+            if ticket.sale_order_id:
+                res['sale_order_id'] = ticket.sale_order_id.id
         return res
