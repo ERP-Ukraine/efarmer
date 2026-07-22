@@ -200,6 +200,19 @@ class AccountMove(models.Model):
             currency,
         )
 
+    def _compute_tax_totals(self):
+        """Function overwrites original one in order to hide totals in company currency on the reports
+         for polish customers with invoices in PLN"""
+        super()._compute_tax_totals()
+        for move in self:
+            if (
+                move.tax_totals
+                and move.is_sale_document(include_receipts=True)
+                and move.partner_id.country_id.code == 'PL'
+                and move.currency_id.name == 'PLN'
+            ):
+                move.tax_totals['display_in_company_currency'] = False
+
 
 class AccountMoveLine(models.Model):
     _inherit = "account.move.line"
