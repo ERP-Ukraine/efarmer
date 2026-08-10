@@ -213,11 +213,28 @@ class OdooIntegrationInit(OdooIntegrationBase):
     def get_all_integrations(self):
         return self.integration_no_api_1 | self.integration_no_api_2
 
-    def get_integration_identity_key(self, integration, product, export_images=True):
-        return integration._job_kwargs_export_template(product, export_images).get('identity_key')
+    def get_integration_identity_key(self, integration, product, export_images=True, force=False):
+        # `force=True` matches the explicit push path (manual_trigger / "Export to Stores"); `force=False`
+        # matches the automatic change-driven export of an already-mapped product.
+        return integration._job_kwargs_export_template(product, export_images, force=force).get('identity_key')
 
     def get_queue_job(self, identity_key):
         return self.env['queue.job'].search([('identity_key', '=', identity_key)])
+
+    def map_product(self, product, integration, code):
+        """Mark `product` as already published in `integration` (external record + mapping).
+
+        Needed for the automatic change-driven export path, which only updates products that are already mapped.
+        """
+        external = self._create_external(product, integration, code)
+        self._create_mapping(product, external, integration)
+        return external
+
+    def make_field_tracked(self, integration, field_xmlid='product.field_product_template__name'):
+        """Make `field` trigger automatic export so a plain `write` exercises the change-driven path."""
+        field = self.env.ref(field_xmlid)
+        integration.global_tracked_fields = [(4, field.id, 0)]
+        return field
 
     def _create_external(self, product, integration, code):
         model = 'integration.{}.external'.format(product._name)

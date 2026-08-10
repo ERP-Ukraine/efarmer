@@ -6,8 +6,9 @@
         <field name="model_id" ref="product.model_product_template"/>
         <field name="binding_model_id" ref="product.model_product_template"/>
         <field name="binding_view_types">form,list</field>
+        <field name="sequence">10</field>
         <field name="state">code</field>
-        <field name="code">action = records.with_context(manual_trigger=True).trigger_export(export_images=True)</field>
+        <field name="code">action = records.action_export_to_stores()</field>
     </record>
 
     <record id="model_product_template_action_force_export_inventory" model="ir.actions.server">
@@ -15,6 +16,7 @@
         <field name="model_id" ref="product.model_product_template"/>
         <field name="binding_model_id" ref="product.model_product_template"/>
         <field name="binding_view_types">form,list</field>
+        <field name="sequence">20</field>
         <field name="state">code</field>
         <field name="code">action = records.product_variant_ids.action_force_export_inventory()</field>
     </record>
@@ -24,6 +26,7 @@
         <field name="model_id" ref="product.model_product_template"/>
         <field name="binding_model_id" ref="product.model_product_template"/>
         <field name="binding_view_types">form,list</field>
+        <field name="sequence">30</field>
         <field name="group_ids" eval="[(6, 0, (ref('integration.group_integration_manager'),))]"/>
         <field name="state">code</field>
         <field name="code">
@@ -37,8 +40,19 @@ if records:
         <field name="model_id" ref="product.model_product_template"/>
         <field name="binding_model_id" ref="product.model_product_template"/>
         <field name="binding_view_types">form,list</field>
+        <field name="sequence">40</field>
         <field name="state">code</field>
         <field name="code">action = records.action_run_refresh_product_info_from_external()</field>
+    </record>
+
+    <record id="model_product_template_action_refresh_product_stock" model="ir.actions.server">
+        <field name="name">Refresh Stock from Store</field>
+        <field name="model_id" ref="product.model_product_template"/>
+        <field name="binding_model_id" ref="product.model_product_template"/>
+        <field name="binding_view_types">form</field>
+        <field name="sequence">50</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_run_refresh_stock_from_external()</field>
     </record>
 
     <record id="product_template_action_open_related_jobs" model="ir.actions.server">
@@ -46,6 +60,7 @@ if records:
         <field name="model_id" ref="product.model_product_template"/>
         <field name="binding_model_id" ref="product.model_product_template"/>
         <field name="binding_view_types">form</field>
+        <field name="sequence">60</field>
         <field name="state">code</field>
         <field name="group_ids" eval="[(4, ref('integration.group_integration_manager'))]"/>
         <field name="code">action = records.open_related_jobs()</field>
@@ -81,6 +96,15 @@ if records:
             <group name="upsell" position="attributes">
                 <attribute name="invisible">0</attribute>
             </group>
+
+            <xpath expr="//sheet/*[1]" position="before">
+                <div class="alert alert-warning mb-3" role="alert" invisible="not pending_first_export_warning">
+                    <i class="fa fa-clock-o" title="Pending"/>
+                    This product is waiting to be published to the e-commerce store(s) below. It will be exported
+                    automatically once the required fields are filled:
+                    <field name="pending_first_export_warning" nolabel="1" readonly="1"/>
+                </div>
+            </xpath>
 
             <xpath expr="//page[@name='sales']" position="after">
                 <page name="shop" string="E-Commerce Integration">
@@ -135,12 +159,28 @@ if records:
                                 </div>
                             </div>
                             <group colspan="2" name="integrations_field" invisible="product_variant_count &gt; 1 and not is_product_variant">
+                                <div class="text-muted" colspan="2">
+                                    <i class="fa fa-info-circle" title="Information"/>
+                                    Ticking a store only links this product to it — nothing is sent yet. Use
+                                    <strong>Export to Stores</strong> below to publish or update it there. Unticking just
+                                    removes the link; it does not delete or change the product already in the store.
+                                </div>
                                 <field name="integration_ids" widget="many2many_checkboxes"/>
                             </group>
                             <group colspan="2" name="synchronization_settings">
                                 <field name="exclude_from_synchronization" help="Check to prevent this product from being exported to any e-commerce store"/>
                                 <field name="exclude_from_synchronization_stock" help="Check to prevent stock levels from being synchronized with e-commerce stores"/>
                             </group>
+                            <div colspan="2" class="mt-2">
+                                <button name="action_export_to_stores" type="object" string="Export to Stores"
+                                        class="btn-outline-primary me-2" icon="fa-cloud-upload" invisible="not id"
+                                        confirm="This publishes the product to all linked stores now, overwriting their current content and images there. Continue?"
+                                        help="Publish this product to all linked stores now, overwriting their current content and images there."/>
+                                <button name="export_images_to_integration" type="object" string="Export Images Only"
+                                        class="btn-outline-secondary" context="{'integration_erase_mappings': True}"
+                                        groups="base.group_no_one" invisible="not id"
+                                        help="Export only the product images to e-commerce stores without updating other product data"/>
+                            </div>
                         </group>
                     </group>
 
@@ -229,8 +269,6 @@ if records:
                                    nolabel="1"
                                    widget="x2_many_media_viewer"
                             />
-
-                            <button type="object" name="export_images_to_integration" context="{'integration_erase_mappings': True}" string="Export Images Only" groups="base.group_no_one" colspan="2" help="Export only the product images to e-commerce stores without updating other product data"/>
                         </group>
                     </group>
                 </page>

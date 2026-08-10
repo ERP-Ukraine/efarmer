@@ -548,8 +548,11 @@ class SaleIntegration(models.Model):
         return super(SaleIntegration, self)._retrieve_webhook_routes()
 
     def _prepare_shopify_oauth_redirect_url(self):
-        base_url = self._get_base_url_or_debug()
-        return f'{base_url}/{self.env.cr.dbname}/integration/shopify/{self.id}/oauth'
+        return self._build_integration_route(
+            'shopify',
+            self.id,
+            'oauth',
+        )
 
     def force_set_inactive(self):
         if self.is_integration_shopify:
@@ -718,9 +721,22 @@ class SaleIntegration(models.Model):
         channel_id = _extract_channel_id(data)
 
         if channel_id:
-            return channel_id in external_channel_ids
+            if channel_id in external_channel_ids:
+                return True
+            self._log_order_import(
+                'Order filtered out',
+                f'order {data.get("name") or data.get("id")} skipped: its sales channel '
+                f'({channel_id}) is not among the integration channels {external_channel_ids}.')
+            return False
 
-        return include_no_channel
+        if include_no_channel:
+            return True
+
+        self._log_order_import(
+            'Order filtered out',
+            f'order {data.get("name") or data.get("id")} skipped: it has no sales channel and the '
+            f'"no sales channel" option is not enabled for this integration.')
+        return False
 
     def _filter_orders_by_business_entities(self, data: dict):
         """
@@ -744,4 +760,11 @@ class SaleIntegration(models.Model):
         entity_ids = set(entities.mapped('external_id'))
         entity_id = _extract_entity_id(data)
 
-        return entity_id in entity_ids
+        if entity_id in entity_ids:
+            return True
+
+        self._log_order_import(
+            'Order filtered out',
+            f'order {data.get("name") or data.get("id")} skipped: its business entity ({entity_id}) '
+            f'is not among the integration business entities {sorted(entity_ids)}.')
+        return False

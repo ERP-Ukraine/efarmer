@@ -23,6 +23,7 @@ from . import product_attribute_value
 from . import product_pricelist
 from . import integration_log_type
 from . import integration_logging
+from . import integration_storage
 from . import integration_webhook_line
 from . import sale_integration
 from . import sale_integration_api_field

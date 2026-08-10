@@ -20,20 +20,28 @@ class TaxLine(GqlDict):
         self.ensure_one()
         return self.ratePercentage
 
-    @property
-    def is_zero_amount_tax(self):
-        """Return True if this tax has a non-zero rate but zero amount.
+    def is_rate_amount_mismatch(self, taxable_base):
+        """Return True if this tax's rate contradicts its own computed tax amount.
 
-        Shopify occasionally keeps tax lines on order lines or shipping with a
-        positive rate (e.g. 6%) but a zero amount.  Applying such a tax in Odoo
-        would produce a non-zero tax amount and cause an order total mismatch.
+        Shopify occasionally keeps a tax line with a positive rate (e.g. 6%) but
+        a zero tax amount even though the line it belongs to has a non-zero
+        taxable base. Applying such a tax in Odoo would produce a non-zero tax
+        amount and cause an order total mismatch, so it must be dropped.
+
+        The base must be the amount Shopify itself computed the tax on, i.e. the
+        line total *after* discount allocations - not the original price. With no
+        positive base (free line, or one discounted down to zero) a zero tax
+        amount is correct, not a mismatch: any rate applied to 0 is 0.
         """
         self.ensure_one()
-        if not float(self['rate'] or 0):
+        if float(taxable_base or 0) <= 0:
             return False
-        price_set = self['priceSet'] or {}
-        shop_money = price_set.get('shopMoney') or {}
-        return float(shop_money.get('amount') or 0) == 0.0
+
+        rate = float(self['rate'] or 0)
+        shop_money = (self['priceSet'] or {}).get('shopMoney') or {}
+        tax_amount = float(shop_money.get('amount') or 0)
+
+        return bool(rate) and not bool(tax_amount)
 
     def to_odoo_format(self, taxes_included: bool):
         self.ensure_one()

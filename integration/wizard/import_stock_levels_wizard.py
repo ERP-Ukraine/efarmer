@@ -39,7 +39,7 @@ class ImportStockLevelsWizard(models.TransientModel):
         return self.wizard_line_ids[:1]  # Get the only one record if it's not the Shopify/Magento
 
     def get_location_lines(self, integration):
-        location_line_ids = integration.location_line_ids  # external.stock.location.line
+        location_line_ids = integration.get_location_mappings(raise_error=True)  # external.stock.location.line
         StockLocationLine = location_line_ids.browse()
         lines_for_import = StockLocationLine.browse()
 

@@ -872,11 +872,10 @@ class ShopifyAPIClient(AbsApiClient):
 
         return [x.to_odoo_format(use_customer_currency) for x in order.transactions]
 
-    @add_dynamic_kwargs
-    def order_fetch_kwargs(self, **kw):
+    def order_fetch_kwargs(self):
         params_str = self._default_order_domain()
 
-        integration = self._get_integration(kw)
+        integration = self.integration
 
         receive_from = integration.last_receive_orders_datetime_str
         if receive_from:
@@ -888,16 +887,18 @@ class ShopifyAPIClient(AbsApiClient):
 
         return params_str
 
-    @add_dynamic_kwargs
     @check_scope('read_orders')
-    def receive_orders(self, **kw):
+    def receive_orders(self, page_token=None):
         _logger.info('Shopify "%s": receive_orders()', self._integration_name)
 
-        params_str = self.order_fetch_kwargs()(**kw)
+        params_str = self.order_fetch_kwargs()
 
-        orders = self.gql.Order.get_batch_body_minimal(filter_params=params_str)
+        orders, next_page_token = self.gql.Order.get_orders_page(
+            filter_params=params_str,
+            page_token=page_token,
+        )
 
-        return [x.to_odoo_format() for x in orders]
+        return [x.to_odoo_format() for x in orders], next_page_token
 
     @check_scope('read_orders')
     def receive_order(self, order_id):
@@ -1408,9 +1409,15 @@ class ShopifyAPIClient(AbsApiClient):
 
     @add_dynamic_kwargs
     @check_scope('read_products')
-    def get_templates_and_products_for_validation_test(self, **kw):
+    def get_templates_and_products_for_validation_test(self, product_refs=None, **kw):
         """Shopify product has no reference (sku) and barcode, only its variant."""
         _logger.info('Shopify "%s": get_templates_and_products_for_validation_test()', self._integration_name)
+        return TemplateHub(self.get_validation_tuples(product_refs=product_refs, **kw))
+
+    def get_validation_tuples(self, ids=None, product_refs=None, **kw):
+        """Shopify product has no reference (sku) and barcode, only its variant."""
+        _logger.info('Shopify "%s": get_validation_tuples(%s ids)',
+                     self._integration_name, len(ids) if ids else 'all')
 
         integration = self._get_integration(kw)
         variant_reference = integration.variant_reference_api_name
@@ -1422,22 +1429,27 @@ class ShopifyAPIClient(AbsApiClient):
             variant_barcode,
         )
 
-        templates = self.gql.Product.get_batch(
-            body=body,
-            arguments='sortKey: CREATED_AT',
-            filter_params=self._default_product_domain(),
-            limit=math.inf,
-        )
-
-        data = dict()
-        for template in templates:
-            parsed_data = template._serialize_for_validation_test(
-                sku=variant_reference,
-                barcode=variant_barcode,
+        if ids:
+            # Scope the fetch to a batch of template ids (background validation).
+            templates = self.gql.Product.get_by_ids(list(ids), body=body)
+        else:
+            templates = self.gql.Product.get_batch(
+                body=body,
+                arguments='sortKey: CREATED_AT',
+                filter_params=self._default_product_domain(),
+                limit=math.inf,
             )
-            data[template.id_str] = parsed_data
 
-        return TemplateHub(list(itertools.chain.from_iterable(data.values())))
+        tuples = list()
+        for template in templates:
+            tuples.extend(
+                template._serialize_for_validation_test(
+                    sku=variant_reference,
+                    barcode=variant_barcode,
+                )
+            )
+
+        return tuples
 
     @check_scope('write_orders')
     def cancel_order(self, external_id: str, params: dict):

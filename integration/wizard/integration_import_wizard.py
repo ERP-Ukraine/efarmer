@@ -1,4 +1,5 @@
 import base64
+import uuid
 
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
@@ -13,6 +14,7 @@ IMPORT_PROCESS_STATES = [
     ('first_time_import_2_2', 'Master Data Import Results'),
     ('first_time_import_2_3', 'Unmapped Mappings Review'),
     ('first_time_import_3', 'Product Import'),
+    ('first_time_import_3_0', 'Product Import: Validation Jobs'),
     ('first_time_import_3_1', 'Product Import: Validation Report'),
     ('first_time_import_3_2', 'Product Import: Configuration'),
     ('first_time_import_3_3', 'Product Import: Background Jobs'),
@@ -83,6 +85,14 @@ class IntegrationImportEntity(models.Model):
         help='Indicates if this entity supports importing specific records by their external IDs.',
     )
 
+    consistency_method_name = fields.Char(
+        string='Consistency Method Name',
+        help=(
+            'Name of the adapter method used to fetch current records '
+            'from the e-commerce store for consistency check.'
+        ),
+    )
+
 
 class IntegrationImportWizard(models.TransientModel):
     _name = 'integration.import.wizard'
@@ -126,6 +136,18 @@ class IntegrationImportWizard(models.TransientModel):
     import_in_background = fields.Boolean(
         string='Import in Background',
         default=True,
+    )
+
+    validate_in_background = fields.Boolean(
+        string='Run Validation in Background',
+        default=False,
+        help='Fetch the catalog for validation in background batches instead of in a '
+             'single request. Use this for large or slow stores to avoid timeouts.',
+    )
+
+    validation_token = fields.Char(
+        string='Validation Run Token',
+        readonly=True,
     )
 
     remove_existing_records = fields.Boolean(
@@ -523,6 +545,20 @@ class IntegrationImportWizard(models.TransientModel):
         }
 
     def action_start_catalog_validation(self):
+        if self.validate_in_background:
+            token = str(uuid.uuid4())
+            jobs = self.integration_id.validate_catalog_in_background(token)
+
+            if jobs:
+                self.validation_token = token
+                self.jobs = jobs
+                self.state = 'first_time_import_3_0'
+            else:
+                # Nothing to validate -> behave like a clean (no-errors) result.
+                self.state = 'first_time_import_3_2'
+
+            return self.action_refresh_view()
+
         validation_result = self.integration_id._get_product_validation_report_html()
 
         if validation_result:
@@ -548,6 +584,19 @@ class IntegrationImportWizard(models.TransientModel):
             'view_mode': 'form',
             'target': 'new',
         }
+
+    def action_finish_catalog_validation(self):
+        """Assemble the report from the finished background validation jobs and
+        route to the validation report (if any issues) or to the configuration step.
+        """
+        validation_result = self.integration_id.validation_report_from_storage(
+            self.validation_token
+        )
+        self.validation_token = False
+        self.errors = validation_result
+
+        self.state = 'first_time_import_3_1' if validation_result else 'first_time_import_3_2'
+        return self.action_refresh_view()
 
     def action_start_update_import(self):
         """

@@ -22,6 +22,12 @@ def build_environment(func):
     @wraps(func)
     def wrapper(*args, **kw):
         db = kw.get('dbname')
+        if not db:
+            message = 'Database name is missing.'
+            _logger.error(message)
+            return BadRequest(message)
+
+        kw['dbname'] = db
         if db not in db_list(force=True):
             message = f'Database "{db}" not found!'
             _logger.error(message)

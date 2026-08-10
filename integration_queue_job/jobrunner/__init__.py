@@ -3,26 +3,92 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html)
 
 import logging
-from threading import Thread
 import time
+from configparser import ConfigParser
+from configparser import Error as ConfigParserError
+from threading import Thread
 
 from odoo.service import server
 from odoo.tools import config
 
+_logger = logging.getLogger(__name__)
 
-# Odoo 19.0 does not process custom config sections, so we read configuration parameters from the
-# main section and save them to a dict that will be passed to the job runner
-queue_job_config = {
-    'channels': config.get('queue_job_channels', 'root:1'),
-    'scheme': config.get('queue_job_scheme', 'http'),
-    'host': config.get('queue_job_host', 'localhost'),
-    'port': config.get('queue_job_port', 8069),
-}
+# Our settings live in their own [queue_job] section of odoo.conf, which we parse
+# ourselves. Odoo only ever iterates the [options] section (tools/config.py,
+# `for name, value in p.items('options')`) and logs a warning for every key it
+# does not recognise, so settings kept there cost one warning apiece on every
+# process start. It never enumerates the other sections, so a section of our own
+# is both silent and, incidentally, the layout every OCA queue_job doc assumes.
+QUEUE_JOB_SECTION = 'queue_job'
+
+# Before the section, the same settings were flat 'queue_job_*' keys under
+# [options]. Odoo stores unknown keys as-is, which is how they reached us. Still
+# honoured, so that upgrading the module does not silently repoint a live runner,
+# but the section wins wherever both define a key.
+LEGACY_PREFIX = 'queue_job_'
+LEGACY_KEYS = ('channels', 'scheme', 'host', 'port')
+
+
+def _read_config_section():
+    """Return the [queue_job] section of odoo.conf as a dict."""
+    cfg_path = config.get('config')
+    if not cfg_path:
+        return {}
+
+    parser = ConfigParser(interpolation=None)
+    try:
+        parser.read(cfg_path)
+    except (OSError, ConfigParserError):
+        _logger.exception(
+            'Could not read %s. The job runner falls back to its defaults.', cfg_path
+        )
+        return {}
+
+    if not parser.has_section(QUEUE_JOB_SECTION):
+        return {}
+    return {key: value for key, value in parser[QUEUE_JOB_SECTION].items() if value}
+
+
+def _read_legacy_options():
+    """Return the deprecated flat 'queue_job_*' keys from [options]."""
+    return {
+        key: config.get(f'{LEGACY_PREFIX}{key}')
+        for key in LEGACY_KEYS
+        if config.get(f'{LEGACY_PREFIX}{key}')
+    }
+
+
+def _build_queue_job_config():
+    settings = _read_config_section()
+    legacy = _read_legacy_options()
+
+    if legacy:
+        _logger.warning(
+            'odoo.conf still configures the job runner through %s under [options]. '
+            'Odoo warns about every key it does not know there, and only a '
+            '[queue_job] section can carry the jobrunner_db_* and http_auth_* '
+            'settings. Move them:\n\n[queue_job]\n%s\n',
+            ', '.join(f'{LEGACY_PREFIX}{key}' for key in sorted(legacy)),
+            '\n'.join(f'{key} = {value}' for key, value in sorted(legacy.items())),
+        )
+
+    # A key defined in both places is a half-finished migration. Take the section:
+    # it is what the admin wrote most recently, and the legacy key is the one Odoo
+    # is already complaining about.
+    for key, value in legacy.items():
+        settings.setdefault(key, value)
+
+    # An absent key must stay absent rather than acquire a default here: the runner
+    # falls back to Odoo's own http_interface/http_port, and a default of ours
+    # would shadow that and pin the runner to localhost:8069 no matter what Odoo is
+    # really listening on.
+    return settings
+
+
+queue_job_config = _build_queue_job_config()
 
 
 from .runner import QueueJobRunner, _channels  # NOQA: E402
-
-_logger = logging.getLogger(__name__)
 
 START_DELAY = 5
 

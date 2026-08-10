@@ -8,117 +8,87 @@
             <field name="arch" type="xml">
                 <form string="Sales Order Raw Data">
                     <header>
-                        <button name="action_cancel"
-                                type="object"
-                                string="Cancel"
-                                invisible="state not in ['draft', 'unknown'] or not id"
-                                class="btn-primary"
-                        />
-                        <button name="action_draft"
-                                type="object"
-                                string="Move To Draft"
-                                invisible="state not in ['cancelled', 'done'] or not id or order_id != False"
-                                class="btn-primary"
-                        />
-                        <button name="process"
-                                type="object"
-                                string="Process"
-                                class="btn-primary"
-                        />
-                        <button name="process_no_job"
-                                type="object"
-                                string="Process Now"
-                                class="btn-primary"
-                                groups="base.group_no_one"
-                        />
-                        <button name="run_current_pipeline"
-                                type="object"
-                                string="Run Current Pipeline"
-                                invisible="state in ['cancelled', 'skipped', 'unknown'] or not id or not order_id"
-                                class="btn-primary"
-                                groups="base.group_no_one"
-                        />
-                        <button name="update_current_pipeline"
-                                type="object"
-                                string="Update Current Pipeline"
-                                invisible="state in ['cancelled', 'skipped', 'unknown'] or not id or not order_id"
-                                class="btn-primary"
-                                groups="base.group_no_one"
-                        />
-                        <button name="run_actual_pipeline"
-                                type="object"
-                                string="Run Actual Pipeline"
-                                invisible="state in ['cancelled', 'skipped', 'unknown'] or not id or not order_id"
-                                class="btn-primary"
-                                groups="base.group_no_one"
-                        />
-                        <button name="open_pipeline_form"
-                                type="object"
-                                string="Workflow"
-                                invisible="not order_id"
-                                class="btn-primary"
-                        />
-
-                        <button type="object"
-                                name="action_open_related_jobs"
-                                string="View Related Jobs"
-                        />
-                        <field name="state"
-                                widget="statusbar"
-                                statusbar_visible="draft,create_order,workflow_process,done,cancelled"/>
+                        <button name="process" type="object" string="Process" class="btn-primary"/>
+                        <button name="open_pipeline_form" type="object" string="Order Automation" invisible="not order_id" class="btn-secondary"/>
+                        <button type="object" name="action_open_related_jobs" string="View Related Jobs"/>
+                        <span class="vr mx-3 align-self-center" style="height: 25px" groups="base.group_no_one"/>
+                        <button name="process_no_job" type="object" class="btn-secondary"
+                                title="Developer tool: Process Now (bypasses job queue)"
+                                groups="base.group_no_one">
+                          Process Now<span class="text-muted small"> · dev</span>
+                        </button>
                     </header>
-
                     <sheet>
+                        <h1 colspan="2">
+                            <span invisible="not order_id">
+                                Order <field name="order_id" readonly="1" nolabel="1" class="oe_inline" options="{'no_open': True}"/>
+                            </span>
+                            <span invisible="order_id">
+                                Reference <field name="order_reference" readonly="1" nolabel="1" class="oe_inline"/>
+                            </span>
+                        </h1>
+                        <field name="pipeline_ids" invisible="1"/>
+                        <field name="pipeline_status" invisible="1"/>
+                        <field name="pipeline_failed_step" invisible="1"/>
+                        <div class="mb-3">
+                            <span class="badge rounded-pill text-bg-success" invisible="pipeline_status != 'done'">
+                                <i class="fa fa-check-circle me-1" title="Completed"/>Automation completed
+                            </span>
+                            <span class="badge rounded-pill text-bg-danger" invisible="pipeline_status != 'failed'">
+                                <i class="fa fa-exclamation-triangle me-1" title="Stopped"/>Stopped at "<field name="pipeline_failed_step" nolabel="1" class="oe_inline mb-0"/>"
+                            </span>
+                            <span class="badge rounded-pill text-bg-warning" invisible="pipeline_status != 'running'">
+                                <i class="fa fa-clock-o me-1" title="Running"/>Automation running…
+                            </span>
+                            <span class="badge rounded-pill text-bg-secondary" invisible="pipeline_status != 'skipped'">
+                                <i class="fa fa-minus me-1" title="Not configured"/>No automation configured for this status
+                            </span>
+                            <span class="badge rounded-pill text-bg-dark" invisible="pipeline_status != 'cancelled'">
+                                <i class="fa fa-ban me-1" title="Cancelled"/>Cancelled
+                            </span>
+                            <span class="badge rounded-pill text-bg-light text-dark" invisible="pipeline_status != 'none'">
+                                <i class="fa fa-circle-o-notch me-1" title="Not processed"/>Not processed yet
+                            </span>
+                        </div>
                         <group>
-                            <label for="name" string="Order ID"/>
-                            <div class="o_row" colspan="1">
-                                <field name="name" readonly="id != False" class="oe_inline w-auto" style="max-width: 150px;" />
-                                <button type="object" name="action_open_store_order" string="Open Store Order" class="btn-outline-primary" />
-                            </div>
-                            <field name="has_error"/>
-                            <field name="update_required"/>
-                            <field name="si_id" readonly="id != False"/>
-                            <field name="type_api" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
-                            <field name="create_date"/>
+                            <group string="From the Store">
+                                <field name="state" invisible="1" widget="statusbar" statusbar_visible="draft,create_order,workflow_process,done,cancelled"/>
+                                <field name="type_api" invisible="1"/>
+                                <!-- Required because it is used in the fields domains in the model -->
+                                <label for="name" string="Order ID"/>
+                                <div class="o_row" colspan="1">
+                                    <field name="name" readonly="id != False" class="oe_inline w-auto" style="max-width: 150px;"/>
+                                    <button type="object" name="action_open_store_order" string="Open Store Order" class="btn-outline-primary"/>
+                                </div>
+                                <field name="order_reference"/>
+                                <field name="si_id" readonly="id != False"/>
+                                <label for="order_sub_status_id"/>
+                                <div class="o_row" colspan="1">
+                                    <field name="order_sub_status_id" readonly="1" options="{'no_open': True}" nolabel="1" class="oe_inline" style="max-width: 150px;"/>
+                                    <button type="object" name="action_open_automation_statuses" string="Configure Status" class="btn-outline-primary" invisible="not order_sub_status_id"/>
+                                </div>
+                                <field name="create_date"/>
+                            </group>
 
-                            <label for="order_id" string="Sales Order"/>
-                            <div class="o_row" colspan="1">
-                                <field name="order_id" readonly="1" class="oe_inline w-auto" style="max-width: 150px;"/>
-                                <button
-                                    type="object"
-                                    name="action_open_order"
-                                    string="Open Sales Order"
-                                    class="btn-outline-primary"
-                                    invisible="not order_id"
-                                />
-                            </div>
-                            <field name="order_reference" />
+                            <group string="In Odoo">
+                                <label for="order_id" string="Sales Order"/>
+                                <div class="o_row" colspan="1">
+                                    <field name="order_id" readonly="1" class="oe_inline w-auto" style="max-width: 150px;"/>
+                                    <button type="object" name="action_open_order" string="Open Sales Order" class="btn-outline-primary" invisible="not order_id"/>
+                                </div>
+                                <label for="update_required" string="Re-fetch on Next Process" class="text-muted" help="Turn on to pull a fresh copy of the order from the store on the next Process run."/>
+                                <div class="o_row" colspan="1">
+                                    <field name="update_required" class="oe_inline"/>
+                                </div>
+                            </group>
                         </group>
                         <group string="Order Data">
-                            <div colspan="2">
-                                <p class="alert alert-info" role="alert">
-                                    <i class="fa fa-info-circle" title="Information"></i>
-                                    Click the button to view the data parsed by the connector.
-
-                                    <div class="mt-3">
-                                        <button
-                                            type="object"
-                                            name="print_parsed_data"
-                                            string="View Parsed Data"
-                                            class="btn-outline-primary"
-                                        />
-                                        <button
-                                            type="object"
-                                            name="action_view_contact_trace"
-                                            string="View Contact Trace"
-                                            class="btn-outline-secondary ms-3"
-                                            invisible="not order_id"
-                                            groups="base.group_no_one"
-                                        />
-                                    </div>
-                                </p>
+                            <div colspan="2" id="file_order_data_buttons" class="d-flex align-items-center">
+                                <button type="object" name="print_parsed_data" string="View Parsed Data" class="btn btn-outline-primary"/>
+                                    <button type="object" name="action_view_contact_trace" string="View Contact Trace" class="btn btn-secondary ms-2" invisible="not order_id" groups="base.group_no_one"/>
+                                    <span class="text-muted ms-3">Inspect what the connector parsed from the store.</span>
                             </div>
-                            <field name="display_data" nolabel="1" colspan="2" widget="json_editor" options="{'maxLines': 1000}"/>
+                            <field name="display_data" nolabel="1" colspan="2" class="mt-2" widget="json_editor" options="{'maxLines': 1000}"/>
                         </group>
                     </sheet>
                 </form>
@@ -129,21 +99,25 @@
             <field name="name">sale.integration.input.file.list</field>
             <field name="model">sale.integration.input.file</field>
             <field name="arch" type="xml">
-                <list string="Sales Order Raw Data"
-                      decoration-muted="state == 'done'"
-                      decoration-danger="has_error == True"
-                      decoration-warning="state in ('cancelled', 'skipped', 'unknown')"
-                      create="0"
-                >
-                    <field name="si_id" />
-                    <field name="name" />
-                    <field name="order_id" />
-                    <button type="object" name="open_pipeline_form" string="Workflow" invisible="not order_id" />
-                    <field name="state" />
-                    <field name="has_error" optional="hide" />
-                    <field name="update_required" optional="hide" />
-                    <field name="create_date" />
-                    <button type="object" name="action_open_related_jobs" string="View Related Jobs" icon="fa-list" class="btn-outline-primary" />
+                <list string="Sales Order Raw Data" js_class="sale_integration_input_file_list_view" 
+                      decoration-muted="pipeline_status in ('skipped', 'cancelled')" 
+                      decoration-danger="pipeline_status == 'failed'" 
+                      decoration-warning="pipeline_status == 'running'" 
+                      create="0">
+                    <field name="si_id"/>
+                    <field name="name"/>
+                    <field name="order_id"/>
+                    <field name="pipeline_status" widget="badge" string="Automation" 
+                          decoration-success="pipeline_status == 'done'" 
+                          decoration-danger="pipeline_status == 'failed'" 
+                          decoration-warning="pipeline_status == 'running'" 
+                          optional="show" width="150px;"/>
+                    <field name="create_date"/>
+                    <button type="object" name="action_open_related_jobs" string="View Related Jobs" 
+                            icon="fa-list" class="btn-outline-primary"/>
+                    <button type="object" name="open_pipeline_form" string="Order Automation" 
+                            icon="fa-cogs" class="btn-outline-primary" 
+                            invisible="pipeline_status == 'none'"/>
                 </list>
             </field>
         </record>
@@ -157,11 +131,24 @@
                     <field name="si_id"/>
                     <field name="order_id"/>
                     <field name="raw_data"/>
+                    <field name="pipeline_status"/>
 
-                    <filter name="draft"
-                            string="Draft"
-                            domain="[('state', '=', 'draft')]"
+                    <filter name="running"
+                            string="Running"
+                            domain="[('pipeline_status', '=', 'running')]"
                     />
+
+                    <filter name="skipped"
+                            string="No automation"
+                            domain="[('pipeline_status', '=', 'skipped')]"
+                    />
+
+                    <filter name="failed"
+                            string="Failed"
+                            domain="[('pipeline_status', '=', 'failed')]"
+                    />
+
+
                     <filter name="create_order"
                             string="Create Order"
                             domain="[('state', '=', 'create_order')]"
@@ -205,9 +192,9 @@
             <field name="view_id" ref="view_sale_integration_input_file_list" />
             <field name="context">
                 {
-                    'search_default_draft': 1,
-                    'search_default_create_order': 1,
-                    'search_default_workflow_process': 1,
+                    'search_default_failed': 1,
+                    'search_default_skipped': 1,
+                    'search_default_running': 1,
                 }
             </field>
         </record>
@@ -219,26 +206,6 @@
             <field name="binding_view_types">list</field>
             <field name="state">code</field>
             <field name="code">action = records.process_all()</field>
-        </record>
-
-        <record id="input_file_action_update_pipeline" model="ir.actions.server">
-            <field name="name">Update Pipeline</field>
-            <field name="model_id" ref="integration.model_sale_integration_input_file" />
-            <field name="binding_model_id" ref="integration.model_sale_integration_input_file" />
-            <field name="binding_view_types">list</field>
-            <field name="state">code</field>
-            <field name="group_ids" eval="[(4, ref('integration.group_integration_manager'))]" />
-            <field name="code">action = records.action_update_current_pipeline()</field>
-        </record>
-
-        <record id="input_file_action_run_current_pipeline" model="ir.actions.server">
-            <field name="name">Run Current Pipeline</field>
-            <field name="model_id" ref="integration.model_sale_integration_input_file" />
-            <field name="binding_model_id" ref="integration.model_sale_integration_input_file" />
-            <field name="binding_view_types">list</field>
-            <field name="state">code</field>
-            <field name="group_ids" eval="[(4, ref('integration.group_integration_manager'))]" />
-            <field name="code">action = records.action_run_current_pipeline()</field>
         </record>
 
     </data>

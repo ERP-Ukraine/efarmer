@@ -57,6 +57,11 @@ class LineItem(GqlDict):
         self.ensure_one()
         return self['nonFulfillableQuantity'] or 0
 
+    @property
+    def duties(self):
+        self.ensure_one()
+        return [self._env.Duty.set(**x) for x in (self['duties'] or [])]
+
 
 class OrderLineItem(LineItem):
     """Class used exclusively in the OrderParseMixin to parse the line items."""
@@ -93,6 +98,18 @@ class OrderLineItem(LineItem):
         return self.price if self.order.taxes_included_in_price else 0
 
     @property
+    def discount_amount(self):
+        self.ensure_one()
+        use_customer_currency = self.props.use_customer_currency
+        return sum(x.amount_set.get_amount(use_customer_currency) for x in self.discount_allocations)
+
+    @property
+    def taxable_base(self):
+        """Line total Shopify computed its tax lines on: subtotal minus discount allocations."""
+        self.ensure_one()
+        return round(self.price * self.current_quantity - self.discount_amount, 2)
+
+    @property
     def current_quantity_tmp(self):
         self.ensure_one()
 
@@ -112,10 +129,10 @@ class OrderLineItem(LineItem):
             taxes = [
                 x.to_odoo_format(self.order.taxes_included_in_price)
                 for x in self.tax_lines
-                if not x.is_zero_amount_tax
+                if not x.is_rate_amount_mismatch(self.taxable_base)
             ]
 
-        result = {
+        return {
             'id': self.id_str,
             'name': self.name,
             'reference': self.sku,
@@ -124,43 +141,86 @@ class OrderLineItem(LineItem):
             'product_id': variant and variant.external_id or None,
             'price_unit_tax_incl': self.price_tax_incl,
             'taxes': taxes,
-            'discount': {},
+            'discount': self._parse_discount(requested_quantity),
+            'duties': self._parse_duties(requested_quantity),
         }
 
+    def _parse_discount(self, requested_quantity):
+        """Discount allocations are given for the whole line, so scale them to the requested
+        quantity (a line may be split across locations)."""
+        self.ensure_one()
+
         discount_allocations = self.discount_allocations
+        current_quantity = self.current_quantity
 
-        if discount_allocations:
-            use_customer_currency = self.props.use_customer_currency
-            current_quantity = self.current_quantity
+        if not discount_allocations or not current_quantity:
+            return {}
 
-            if not current_quantity:
-                return result
+        use_customer_currency = self.props.use_customer_currency
+        result = {}
 
-            amount = sum(x.amount_set.get_amount(use_customer_currency) for x in discount_allocations)
+        amount = self.discount_amount
 
-            if amount:
-                amount_ = round(amount * requested_quantity / current_quantity, 4)
+        if amount:
+            amount_ = round(amount * requested_quantity / current_quantity, 4)
 
-                result['discount'].update(
-                    discount_amount=amount_,
-                    discount_percent=100 * amount_ / (self.price or 1) / (requested_quantity or 1),
-                    discount_amount_tax_incl=0,
-                )
+            result.update(
+                discount_amount=amount_,
+                discount_percent=100 * amount_ / (self.price or 1) / (requested_quantity or 1),
+                discount_amount_tax_incl=0,
+            )
 
-            # Always populate per-code breakdown so the factory can create
-            # separate discount lines when `multiple_discount_lines` is enabled.
-            # The factory uses the aggregate `discount` dict when the feature is off.
-            discount_allocations_data = []
-            for allocation in discount_allocations:
-                alloc_amount = allocation.amount_set.get_amount(use_customer_currency)
-                if not alloc_amount:
-                    continue
-                discount_allocations_data.append({
-                    'code': allocation.discount_application,
-                    'discount_amount': round(alloc_amount * requested_quantity / current_quantity, 4),
-                    'discount_amount_tax_incl': 0,
-                })
-            if discount_allocations_data:
-                result['discount']['discount_allocations'] = discount_allocations_data
+        # Always populate per-code breakdown so the factory can create
+        # separate discount lines when `multiple_discount_lines` is enabled.
+        # The factory uses the aggregate `discount` dict when the feature is off.
+        discount_allocations_data = []
+        for allocation in discount_allocations:
+            alloc_amount = allocation.amount_set.get_amount(use_customer_currency)
+            if not alloc_amount:
+                continue
+            discount_allocations_data.append({
+                'code': allocation.discount_application,
+                'discount_amount': round(alloc_amount * requested_quantity / current_quantity, 4),
+                'discount_amount_tax_incl': 0,
+            })
+        if discount_allocations_data:
+            result['discount_allocations'] = discount_allocations_data
+
+        return result
+
+    def _parse_duties(self, requested_quantity):
+        """Duty amounts are charged for the whole line, so scale them to the requested quantity
+        (a line may be split across locations) the same way as discount allocations."""
+        self.ensure_one()
+
+        current_quantity = self.current_quantity
+
+        # When `dutiesIncluded` is set, duties are already part of the product prices,
+        # so a separate duty line would double-count them.
+        if self.order.duties_included or not current_quantity:
+            return []
+
+        use_customer_currency = self.props.use_customer_currency
+        tax_exempt = self.order.tax_exempt
+        result = []
+
+        for duty in self.duties:
+            amount = duty.price_set.get_amount(use_customer_currency)
+            if not amount:
+                continue
+
+            if tax_exempt:
+                taxes = []
+            else:
+                taxes = [
+                    x.to_odoo_format(self.order.taxes_included_in_price)
+                    for x in duty.tax_lines
+                    if not x.is_rate_amount_mismatch(amount)
+                ]
+            result.append({
+                'id': duty.id_str,
+                'amount': round(amount * requested_quantity / current_quantity, 4),
+                'taxes': taxes,
+            })
 
         return result

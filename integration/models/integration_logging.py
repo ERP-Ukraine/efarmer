@@ -6,6 +6,13 @@ from odoo import api, models, fields
 
 _logger = logging.getLogger(__name__)
 
+# How much of a log message reaches the server log below DEBUG. A single webhook
+# payload is tens of kilobytes of pretty-printed JSON -- headers, every variant,
+# every image -- and Odoo.sh blocks an instance whose odoo.log outgrows its disk
+# quota. The full text is always kept on the integration.logging record, and is
+# still emitted in full when this logger is set to DEBUG.
+SERVER_LOG_MAX_CHARS = 400
+
 
 class IntegrationLogging(models.TransientModel):
     _name = 'integration.logging'
@@ -23,6 +30,7 @@ class IntegrationLogging(models.TransientModel):
         selection=[
             ('webhook', 'Webhook'),
             ('customer', 'Customers Sync'),
+            ('order_import', 'Orders Import'),
         ],
         string='Event Type',
     )
@@ -43,6 +51,29 @@ class IntegrationLogging(models.TransientModel):
         string='Related Record',
         model_field='res_model',
     )
+
+    @api.model
+    def _format_for_server_log(self, message):
+        """Shorten a message for the server log, unless DEBUG is on.
+
+        The caller's message may be an entire webhook payload. Truncating it is
+        what keeps odoo.log within the daily quota Odoo.sh enforces, but a silent
+        truncation reads as "that was the whole payload", so say what was cut and
+        where to get it.
+        """
+        if _logger.isEnabledFor(logging.DEBUG):
+            return message
+
+        text = message if isinstance(message, str) else str(message)
+        if len(text) <= SERVER_LOG_MAX_CHARS:
+            return text
+
+        withheld = len(text) - SERVER_LOG_MAX_CHARS
+        return (
+            f'{text[:SERVER_LOG_MAX_CHARS]}... '
+            f'[{withheld} more characters withheld; the full message is on the '
+            f'Integration Log record, or raise this logger to DEBUG]'
+        )
 
     @api.model
     def write_log(self, integration, event_type, event_name, message,
@@ -70,13 +101,14 @@ class IntegrationLogging(models.TransientModel):
         if isinstance(integration, int):
             integration = self.env['sale.integration'].browse(integration)
 
-        # Always write to server log at the requested level.
+        # Always write to server log at the requested level, but only DEBUG gets
+        # the message in full: see SERVER_LOG_MAX_CHARS.
         log_func = getattr(_logger, log_level, _logger.debug)
         log_func(
             '[Integration %s] %s: %s',
             integration.name,
             event_name,
-            message,
+            self._format_for_server_log(message),
         )
 
         if not integration._is_log_type_enabled(event_type):

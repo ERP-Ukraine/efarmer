@@ -17,6 +17,7 @@ from ..fields import JobSerialized
 from ..job import (
     CANCELLED,
     DONE,
+    ENQUEUED,
     FAILED,
     PENDING,
     STARTED,
@@ -26,6 +27,18 @@ from ..job import (
 )
 
 _logger = logging.getLogger(__name__)
+
+# How many job uuids the garbage collector spells out in a single log line. An
+# outage leaves a whole backlog stuck at once, and a 36-character uuid per job
+# turns one WARNING into hundreds of kilobytes.
+LOG_STUCK_JOBS_SAMPLE = 10
+
+# Odoo stops a request once it has run for 'limit_time_real' seconds, but it does
+# not kill the thread at that instant. Reading odoo/service/server.py: the main
+# loop only notices on its next pass (SLEEP_INTERVAL = 60s), then waits for the
+# other in-flight requests before reloading (up to another SLEEP_INTERVAL), then
+# joins the threads (1s).
+KILL_DELAY_SECONDS = 2 * 60 + 1
 
 
 class QueueJob(models.Model):
@@ -304,7 +317,7 @@ class QueueJob(models.Model):
         )
         return action
 
-    def _change_job_state(self, state, result=None):
+    def _change_job_state(self, state, result=None, reset_retry=True):
         """Change the state of the `Job` object
 
         Changing the state of the Job will automatically change some fields
@@ -318,7 +331,7 @@ class QueueJob(models.Model):
                 record.env["queue.job"].flush_model()
                 job_.enqueue_waiting()
             elif state == PENDING:
-                job_.set_pending(result=result)
+                job_.set_pending(result=result, reset_retry=reset_retry)
                 job_.store()
             elif state == CANCELLED:
                 job_.set_cancelled(result=result)
@@ -338,9 +351,16 @@ class QueueJob(models.Model):
         self._change_job_state(CANCELLED, result=result)
         return True
 
-    def requeue(self):
+    def requeue(self, reset_retry=True):
+        """Send jobs back to 'pending'.
+
+        :param reset_retry: clear the retry counter, as a user asking for a
+            fresh attempt would expect. Automatic requeues must pass False: the
+            garbage collector runs every 5 minutes, and wiping the counter on
+            every pass would hide a job that has been failing all along.
+        """
         jobs_to_requeue = self.filtered(lambda job_: job_.state != WAIT_DEPENDENCIES)
-        jobs_to_requeue._change_job_state(PENDING)
+        jobs_to_requeue._change_job_state(PENDING, reset_retry=reset_retry)
         return True
 
     def _message_post_on_failure(self):
@@ -353,7 +373,7 @@ class QueueJob(models.Model):
             record.message_subscribe(partner_ids=users.mapped("partner_id").ids)
             msg = record._message_failed_job()
             if msg:
-                record.message_post(body=msg, subtype_xmlid="queue_job.mt_job_failed")
+                record.message_post(body=msg, subtype_xmlid="integration_queue_job.mt_job_failed")
 
     def _subscribe_users_domain(self):
         """Subscribe all users having the 'Queue Job Manager' group"""
@@ -413,20 +433,169 @@ class QueueJob(models.Model):
                     break
         return True
 
-    def requeue_stuck_jobs(self, enqueued_delta=5, started_delta=0):
-        """Fix jobs that are in a bad states
+    def _minimum_started_delta(self):
+        """Minutes after which a 'started' job is provably dead, 0 if never.
 
-        :param in_queue_delta: lookup time in minutes for jobs
-                                that are in enqueued state
+        Odoo stops a request once it has run for ``limit_time_real`` seconds, but
+        it does not kill the thread at that instant -- see KILL_DELAY_SECONDS.
 
-        :param started_delta: lookup time in minutes for jobs
-                                that are in enqueued state,
-                                0 means that it is not checked
+        Returns 0 when ``limit_time_real`` is disabled: a job may then run for as
+        long as it likes, and no deadline can prove it dead.
         """
-        self._get_stuck_jobs_to_requeue(
+        limit_time_real = config.get("limit_time_real") or 0
+        if limit_time_real <= 0:
+            return 0
+        # Round up. A partial minute of grace is not grace.
+        return (limit_time_real + KILL_DELAY_SECONDS + 59) // 60
+
+    def _safe_started_delta(self, started_delta):
+        """Never let a caller requeue a job that could still be running.
+
+        Nothing locks a running job, so requeuing one executes it a second time,
+        in parallel. The deadline at which a job is safely dead depends on this
+        deployment's ``limit_time_real`` -- a number hardcoded in the cron body
+        cannot know it.
+        """
+        if not started_delta:
+            # 0 means "never requeue a started job", the conservative choice.
+            return 0
+
+        minimum = self._minimum_started_delta()
+        if not minimum:
+            _logger.warning(
+                "Jobs Garbage Collector: 'limit_time_real' is disabled, so a "
+                "started job can never be proven dead. Requeuing one after %s "
+                "minutes may execute it a second time, in parallel.",
+                started_delta,
+            )
+            return started_delta
+
+        if started_delta < minimum:
+            _logger.warning(
+                "Jobs Garbage Collector: started_delta=%s minutes, but on this "
+                "deployment a job can still be alive %s minutes after it started. "
+                "Using %s instead, so that a running job is not executed twice.",
+                started_delta,
+                minimum,
+                minimum,
+            )
+            return minimum
+        return started_delta
+
+    def requeue_stuck_jobs(self, enqueued_delta=5, started_delta=0):
+        """Rescue jobs the runner has abandoned.
+
+        :param enqueued_delta: after how many minutes in 'enqueued' a job is
+                               considered never dispatched. 0 disables the check.
+
+        :param started_delta: after how many minutes in 'started' a job is
+                              considered dead. 0 disables the check. Raised to
+                              ``_minimum_started_delta()`` when it is too small to
+                              be safe, so the cron body does not have to know this
+                              deployment's ``limit_time_real``.
+        """
+        started_delta = self._safe_started_delta(started_delta)
+        stuck_jobs = self._get_stuck_jobs_to_requeue(
             enqueued_delta=enqueued_delta, started_delta=started_delta
-        ).requeue()
+        )
+        # Explain the rescue before it happens, while we can still see which
+        # state each job was found in.
+        self._log_stuck_jobs(stuck_jobs, enqueued_delta, started_delta)
+
+        # A job found in 'started' died in the middle of a run, so that run
+        # counts as a spent attempt. One found in 'enqueued' never reached a
+        # worker, so nothing was spent on it and it is simply requeued.
+        dead_jobs = stuck_jobs.filtered(lambda job_: job_.state == STARTED)
+        dead_jobs._rescue_dead_jobs()
+
+        # Never reset 'retry' here: this cron runs every 5 minutes, and a job it
+        # keeps rescuing would have its retry budget wiped on every pass and so
+        # never reach max_retries.
+        (stuck_jobs - dead_jobs).requeue(reset_retry=False)
         return True
+
+    def _rescue_dead_jobs(self):
+        """Requeue jobs that died mid-run, giving up on those out of retries.
+
+        ``Job.perform()`` increments ``retry`` as soon as a job starts running,
+        but the new value only reaches the database once the job finishes, fails
+        or is postponed. A job killed in the middle of a run -- by
+        ``limit_time_real``, the OOM killer, or a hard restart -- leaves no trace
+        of the attempt. Charging it here is what lets ``max_retries`` eventually
+        be reached; without it, a job that dies on every single run is rescued
+        every 5 minutes forever.
+
+        As everywhere else, ``max_retries = 0`` means "retry indefinitely".
+
+        A job out of retries is failed rather than requeued, and that is also the
+        safer branch: nothing locks a running job, so if the 'started' deadline
+        misjudged a job that is in fact still alive, failing it costs a wrong
+        state that the job itself overwrites on completion, whereas requeuing it
+        would run a second copy in parallel.
+        """
+        for record in self:
+            job_ = Job.load(record.env, record.uuid)
+            job_.retry += 1
+            if job_.max_retries and job_.retry >= job_.max_retries:
+                job_.set_failed(
+                    exc_name="JobFoundDead",
+                    exc_message=_(
+                        "Job found dead after %(retry)s attempts", retry=job_.retry
+                    ),
+                    exc_info=_(
+                        "The job was still in state 'started' long after it "
+                        "should have finished, so it is assumed dead, and its "
+                        "%(max_retries)s retries are exhausted.",
+                        max_retries=job_.max_retries,
+                    ),
+                )
+                _logger.warning(
+                    "Giving up on job %s: found dead after %s attempts",
+                    job_.uuid,
+                    job_.retry,
+                )
+            else:
+                job_.set_pending(reset_retry=False)
+            job_.store()
+
+    def _log_stuck_jobs(self, stuck_jobs, enqueued_delta, started_delta):
+        """Record why each stuck job was picked up, in the log and in its chatter.
+
+        The job runner deliberately draws no conclusion from a request timeout,
+        so a job whose dispatch was lost stays 'enqueued' until this cron
+        rescues it. Without a trace, that reads as a job stuck for no reason.
+        """
+        if not stuck_jobs:
+            return
+
+        delta_by_state = {ENQUEUED: enqueued_delta, STARTED: started_delta}
+        bodies = {}
+        for job in stuck_jobs:
+            bodies[job.id] = _(
+                "Found stuck by the Jobs Garbage Collector: the job stayed in "
+                "state '%(state)s' for more than %(delta)s minutes.",
+                state=job.state,
+                delta=delta_by_state.get(job.state),
+            )
+
+        # Not "requeuing": one out of retries is failed instead, see
+        # _rescue_dead_jobs().
+        uuids = stuck_jobs.mapped("uuid")
+        sample, rest = uuids[:LOG_STUCK_JOBS_SAMPLE], uuids[LOG_STUCK_JOBS_SAMPLE:]
+        _logger.warning(
+            "Found %s stuck job(s): %s%s",
+            len(uuids),
+            ", ".join(sample),
+            f", and {len(rest)} more (raise this logger to DEBUG for the rest)"
+            if rest
+            else "",
+        )
+        if rest:
+            _logger.debug("Remaining stuck jobs: %s", ", ".join(rest))
+
+        # Each job also gets a note, so an individual job explains itself without
+        # digging through the log. This is one batched INSERT, not one per job.
+        stuck_jobs._message_log_batch(bodies=bodies)
 
     def _get_stuck_jobs_domain(self, queue_dl, started_dl):
         domain = []

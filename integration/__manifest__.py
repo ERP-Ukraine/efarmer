@@ -2,19 +2,20 @@
 
 {
     'name': 'Odoo E-Commerce Connector Core',
-    'version': '19.0.2.1.6',
+    'version': '19.0.2.2.0',
     'category': 'Sales',
     'author': 'VentorTech',
     'website': 'https://ventor.tech',
     'support': 'support@ventor.tech',
     'license': 'OPL-1',
+    'live_test_url': 'https://demo.ventor.tech',
     'price': 50.00,
     'currency': 'EUR',
     'images': [
         'static/description/images/banner.gif'
     ],
     'summary': '''Core Odoo framework exclusively for VentorTech e-commerce connectors:
-WooCommerce, PrestaShop, Magento 2 & Shopify — real-time sync of orders, products,
+WooCommerce, PrestaShop, Magento 2, Shopify and Base (formerly Baselinker) — real-time sync of orders, products,
 inventory, customers & more.''',
     'depends': [
         'web',
@@ -45,6 +46,7 @@ inventory, customers & more.''',
         # Wizard
         'wizard/import_customers_wizard.xml',
         'wizard/refresh_products_wizard.xml',
+        'wizard/refresh_product_stock_wizard.xml',
         'wizard/import_stock_levels_wizard.xml',
         'wizard/message_wizard.xml',
         'wizard/configuration_wizard.xml',
@@ -55,7 +57,9 @@ inventory, customers & more.''',
         'wizard/integration_configuration_wizard.xml',
         'wizard/integration_order_field_mapping_editor_wizard.xml',
         'wizard/integration_import_wizard.xml',
+        'wizard/integration_external_record_consistency_wizard.xml',
         'wizard/product_ecommerce_field_test_wizard.xml',
+        'wizard/integration_sale_order_sub_status_bulk_wizard.xml',
 
         # Views
         'views/ir_module_views.xml',
@@ -69,7 +73,6 @@ inventory, customers & more.''',
         'views/ecommerce_product_category_views.xml',
         'views/ecommerce_product_image_views.xml',
         'views/product_product_views.xml',
-        'views/product_pricelist_views.xml',
         'views/product_attribute_views.xml',
         'views/queue_job_views.xml',
         'views/res_partner_views.xml',

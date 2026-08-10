@@ -1,6 +1,6 @@
 # See LICENSE file for full copyright and licensing details.
 
-from odoo import models, fields, _
+from odoo import api, models, fields, _
 from odoo.exceptions import UserError
 
 
@@ -19,6 +19,18 @@ class IntegrationSaleOrderPaymentMethodExternal(models.Model):
         string='Payment Journal',
         domain="[('type', 'in', ('cash', 'bank')), ('company_id', 'in', [company_id, False])]",
     )
+    payment_method_line_id = fields.Many2one(
+        comodel_name='account.payment.method.line',
+        string='Payment Method',
+        compute='_compute_payment_method_line_id',
+        store=True,
+        readonly=False,
+        domain="[('journal_id', '=', payment_journal_id), ('payment_type', '=', 'inbound')]",
+        help=(
+            'Odoo payment method assigned to payments created automatically for this '
+            'external payment method. When empty, the payment journal default is used.'
+        ),
+    )
     payment_term_id = fields.Many2one(
         comodel_name='account.payment.term',
         string='Payment Terms',
@@ -34,6 +46,13 @@ class IntegrationSaleOrderPaymentMethodExternal(models.Model):
         required=True,
         help='Create Invoice in external system when in Odoo ...',
     )
+
+    @api.depends('payment_journal_id')
+    def _compute_payment_method_line_id(self):
+        # Clear the line when it no longer belongs to the selected journal
+        for record in self:
+            if record.payment_method_line_id.journal_id != record.payment_journal_id:
+                record.payment_method_line_id = False
 
     @property
     def send_when_invoice_is_paid(self):

@@ -7,380 +7,160 @@ from .config.integration_init import OdooIntegrationInit
 
 @tagged('post_install', '-at_install', 'test_integration_core')
 class TestIntegration(OdooIntegrationInit):
+    """Tests for the link-vs-push contract.
+
+    - Linking a product to a store (or creating it linked) never pushes.
+    - Automatic export only updates products that are ALREADY mapped in a store, gated by
+      `export_template_job_enabled` and `allow_export_images`.
+    - The explicit "Export to Stores" action (`action_export_to_stores`) always pushes, ignoring the toggle.
+    """
 
     def setUp(self):
         super(TestIntegration, self).setUp()
 
-    def test_create_job_after_creating_product(self):
-        # Create product as Integration Administrator
-        vals_product_1 = self.generate_product_data(
-            name='job 1',
-            integration=self.integration_no_api_1,
-        )
-        product_1 = self.env['product.template'] \
-            .with_user(self.integration_administrator) \
-            .create(vals_product_1)
+    def reload(self, product):
+        # Records returned by create() keep create-time context flags (`skip_product_export`, `from_product_create`)
+        # that suppress the write-triggered export. Re-browse to get the clean context a user has when editing a
+        # product loaded from the database — that is the behaviour we want to test.
+        return self.env[product._name].browse(product.id)
 
-        # Testing as Integration Administrator
-        identity_key_1 = self.get_integration_identity_key(self.integration_no_api_1, product_1)
-        queue_job_as_admin = self.get_queue_job(identity_key_1)
-        self.assertEqual(queue_job_as_admin.identity_key, identity_key_1)
+    # --- Linking / creating never pushes ------------------------------------------------------------------
 
-        # Create product as Integration User
-        vals_product_2 = self.generate_product_data(
-            name='job 2',
-            integration=self.integration_no_api_1,
-        )
-        product_2 = self.env['product.template'] \
-            .with_user(self.integration_user) \
-            .create(vals_product_2)
+    def test_no_export_job_on_create(self):
+        integration = self.integration_no_api_1
+        self.make_field_tracked(integration)
 
-        # Testing as Integration User
-        identity_key_2 = self.get_integration_identity_key(self.integration_no_api_1, product_2)
-        queue_job_as_user = self.get_queue_job(identity_key_2)
-        self.assertEqual(queue_job_as_user.identity_key, identity_key_2)
+        vals = self.generate_product_data(name='fresh', integration=integration)
+        product = self.env['product.template'].create(vals)
 
-    def test_allow_export_images(self):
-        # Check allow_export_images is True for Integration
-        self.assertTrue(self.integration_no_api_1.allow_export_images)
+        # The product is linked, but creating it never queues an export job.
+        self.assertEqual(product.integration_ids, integration)
+        for export_images in (True, False):
+            key = self.get_integration_identity_key(integration, product, export_images=export_images)
+            self.assertFalse(self.get_queue_job(key))
 
-        # Create product_1 as Integration Administrator
-        vals_product_1 = self.generate_product_data(
-            name='job 1',
-            integration=self.integration_no_api_1,
-        )
-        product_1 = self.env['product.template'] \
-            .with_user(self.integration_administrator) \
-            .create(vals_product_1)
+    def test_no_export_job_on_write_unmapped(self):
+        # A product linked to a store but never published (not mapped) must not be pushed when edited.
+        integration = self.integration_no_api_1
+        self.make_field_tracked(integration)
 
-        # Testing as Integration Administrator(allow_export_images=True)
-        identity_key_1 = self.get_integration_identity_key(self.integration_no_api_1, product_1)
-        queue_job_as_admin = self.get_queue_job(identity_key_1)
-        self.assertTrue(queue_job_as_admin)
+        vals = self.generate_product_data(name='unmapped', integration=integration)
+        product = self.env['product.template'].with_context(skip_product_export=True).create(vals)
 
-        # Create product_2 as Integration User
-        vals_product_2 = self.generate_product_data(
-            name='job 2',
-            integration=self.integration_no_api_1,
-        )
-        product_2 = self.env['product.template'] \
-            .with_user(self.integration_user) \
-            .create(vals_product_2)
+        self.reload(product).write({'name': 'Renamed unmapped'})
 
-        # Testing as Integration Administrator(allow_export_images=True)
-        identity_key_2 = self.get_integration_identity_key(self.integration_no_api_1, product_2)
-        queue_job_as_user = self.get_queue_job(identity_key_2)
-        self.assertTrue(queue_job_as_user)
+        key = self.get_integration_identity_key(integration, product, export_images=False)
+        self.assertFalse(self.get_queue_job(key))
 
-        # Disable allow_export_images for Integration
-        self.integration_no_api_1.write({'allow_export_images': False})
+    # --- Automatic change-driven export of an already-mapped product --------------------------------------
 
-        # Check allow_export_images is False for Integration
-        self.assertFalse(self.integration_no_api_1.allow_export_images)
+    def test_sync_job_on_write_mapped(self):
+        integration = self.integration_no_api_1
+        product = self.product_pt_1  # already linked to and mapped in `integration`
+        self.make_field_tracked(integration)
 
-        # Create product_3 as Integration Administrator
-        vals_product_3 = self.generate_product_data(
-            name='job 3',
-            integration=self.integration_no_api_1,
-        )
-        product_3 = self.env['product.template'] \
-            .with_user(self.integration_administrator) \
-            .create(vals_product_3)
+        self.reload(product).write({'name': 'Renamed mapped'})
 
-        # Testing as Integration Administrator(allow_export_images=False)
-        # _export_images = export_images and integration.allow_export_images
-        identity_key_3 = self.get_integration_identity_key(
-            self.integration_no_api_1,
-            product_3,
-            export_images=False,
-        )
-        queue_job_as_admin = self.get_queue_job(identity_key_3)
-        self.assertTrue(queue_job_as_admin)
-
-        # Create product_4 as Integration User
-        vals_product_4 = self.generate_product_data(
-            name='job 4',
-            integration=self.integration_no_api_1,
-        )
-        product_4 = self.env['product.template'] \
-            .with_user(self.integration_user) \
-            .create(vals_product_4)
-
-        # Testing as Integration User(allow_export_images=False)
-        # _export_images = export_images and integration.allow_export_images
-        identity_key_3 = self.get_integration_identity_key(
-            self.integration_no_api_1,
-            product_4,
-            export_images=False,
-        )
-        queue_job_as_user = self.get_queue_job(identity_key_3)
-        self.assertTrue(queue_job_as_user)
-
-    def test_skip_product_export(self):
-        # Create product_1 as Integration Administrator
-        vals_product_1 = self.generate_product_data(
-            name='job 1',
-            integration=self.integration_no_api_1,
-        )
-        product_1 = self.env['product.template'] \
-            .with_user(self.integration_administrator) \
-            .with_context(skip_product_export=True) \
-            .create(vals_product_1)
-
-        # Testing as Integration Administrator
-        identity_key_1 = self.get_integration_identity_key(self.integration_no_api_1, product_1)
-        queue_job_as_admin = self.get_queue_job(identity_key_1)
-        self.assertFalse(queue_job_as_admin)
-
-        # Create product as Integration User
-        vals_product_2 = self.generate_product_data(
-            name='job 2',
-            integration=self.integration_no_api_1,
-        )
-        product_2 = self.env['product.template'] \
-            .with_user(self.integration_user) \
-            .with_context(skip_product_export=True) \
-            .create(vals_product_2)
-
-        # Testing as Integration User
-        identity_key_2 = self.get_integration_identity_key(self.integration_no_api_1, product_2)
-        queue_job_as_user = self.get_queue_job(identity_key_2)
-        self.assertFalse(queue_job_as_user)
+        key = self.get_integration_identity_key(integration, product, export_images=False)
+        self.assertTrue(self.get_queue_job(key))
 
     def test_export_template_job_enabled(self):
-        # Disable export_template_job_enabled for Integration
-        self.integration_no_api_1.write({'export_template_job_enabled': False})
+        integration = self.integration_no_api_1
+        product = self.product_pt_1
+        self.make_field_tracked(integration)
+        key = self.get_integration_identity_key(integration, product, export_images=False)
 
-        # Check export_template_job_enabled is False for Integration
-        self.assertFalse(self.integration_no_api_1.export_template_job_enabled)
+        # Toggle OFF -> the change-driven export does nothing.
+        integration.export_template_job_enabled = False
+        self.reload(product).write({'name': 'Renamed off'})
+        self.assertFalse(self.get_queue_job(key))
 
-        # Create product_1 as Integration Administrator
-        vals_product_1 = self.generate_product_data(
-            name='job 1',
-            integration=self.integration_no_api_1,
-        )
-        product_1 = self.env['product.template'] \
-            .with_user(self.integration_administrator) \
-            .create(vals_product_1)
+        # Toggle ON -> a write to a mapped product queues a job.
+        integration.export_template_job_enabled = True
+        self.reload(product).write({'name': 'Renamed on'})
+        self.assertTrue(self.get_queue_job(key))
 
-        # Testing as Integration Administrator
-        identity_key_1 = self.get_integration_identity_key(self.integration_no_api_1, product_1)
-        queue_job_as_admin = self.get_queue_job(identity_key_1)
-        self.assertFalse(queue_job_as_admin)
+    def test_allow_export_images(self):
+        integration = self.integration_no_api_1
+        product = self.product_pt_1
+        self.make_field_tracked(integration)
+        image = self.generate_product_data(name='img')['image_1920']
 
-        # Create product as Integration User
-        vals_product_2 = self.generate_product_data(
-            name='job 2',
-            integration=self.integration_no_api_1,
-        )
-        product_2 = self.env['product.template'] \
-            .with_user(self.integration_user) \
-            .create(vals_product_2)
+        # allow_export_images = True -> the queued job carries images.
+        integration.allow_export_images = True
+        self.reload(product).write({'name': 'imgs on', 'image_1920': image})
+        key_with_images = self.get_integration_identity_key(integration, product, export_images=True)
+        self.assertTrue(self.get_queue_job(key_with_images))
 
-        # Testing as Integration User
-        identity_key_2 = self.get_integration_identity_key(self.integration_no_api_1, product_2)
-        queue_job_as_user = self.get_queue_job(identity_key_2)
-        self.assertFalse(queue_job_as_user)
+        # allow_export_images = False -> the queued job is created without images.
+        integration.allow_export_images = False
+        self.reload(product).write({'name': 'imgs off', 'image_1920': image})
+        key_without_images = self.get_integration_identity_key(integration, product, export_images=False)
+        self.assertTrue(self.get_queue_job(key_without_images))
 
-    def test_apply_to_products(self):
-        vals_product_1 = self.generate_product_data(
-            name='job 1',
-            integration=self.integration_no_api_1,
-        )
+    def test_skip_product_export(self):
+        integration = self.integration_no_api_1
+        product = self.product_pt_1
+        self.make_field_tracked(integration)
 
-        # Disable apply_to_products for Integrations except self.integration_no_api_1
-        for integration in self.integration_no_api_1.search(
-            [('id', '!=', self.integration_no_api_1.id)]
-        ):
-            integration.write({'apply_to_products': False})
+        # Even on a mapped product, an explicit `skip_product_export` suppresses the export.
+        self.reload(product).with_context(skip_product_export=True).write({'name': 'Skipped'})
 
-        # Check apply_to_products is not False for self.integration_no_api_1
-        self.assertTrue(self.integration_no_api_1.apply_to_products)
-
-        # Check apply_to_products is False for Integrations except self.integration_no_api_1
-        for integration in self.integration_no_api_1.search(
-            [('id', '!=', self.integration_no_api_1.id)]
-        ):
-            self.assertFalse(integration.apply_to_products)
-
-        # Create product_1 as Integration Administrator without integrations
-        product_1 = self.env['product.template'] \
-            .with_user(self.integration_administrator) \
-            .create(vals_product_1)
-
-        # Testing as Integration Administrator
-        self.assertIn(self.integration_no_api_1, product_1.integration_ids)
-        self.assertNotIn(self.integration_no_api_2, product_1.integration_ids)
-
-        vals_product_2 = self.generate_product_data(
-            name='job 2',
-            integration=self.integration_no_api_1,
-        )
-
-        # Create product_2 as Integration User without integrations
-        product_2 = self.env['product.template'] \
-            .with_user(self.integration_user) \
-            .create(vals_product_2)
-
-        # Testing as Integration User
-        self.assertIn(self.integration_no_api_1, product_2.integration_ids)
-        self.assertNotIn(self.integration_no_api_2, product_2.integration_ids)
+        key = self.get_integration_identity_key(integration, product, export_images=False)
+        self.assertFalse(self.get_queue_job(key))
 
     def test_company_id(self):
-        # Create product_1 as Integration Administrator
-        vals_product_1 = self.generate_product_data(
-            name='job 1',
-            integration=self.integration_no_api_1,
-        )
-        product_1 = self.env['product.template'] \
-            .with_user(self.integration_administrator) \
-            .create(vals_product_1)
+        integrations = self.get_all_integrations()
 
-        # Check product_1 has one integration
-        self.assertEqual(len(product_1.integration_ids), 1)
+        # A product linked to and mapped in both integrations (each in a different company).
+        vals = self.generate_product_data(name='both', integration=integrations)
+        product = self.env['product.template'].with_context(skip_product_export=True).create(vals)
+        self.map_product(product, self.integration_no_api_1, 'COMP-1')
+        self.map_product(product, self.integration_no_api_2, 'COMP-2')
+        for integration in integrations:
+            self.make_field_tracked(integration)
 
-        # Testing as Integration Administrator
-        identity_key_1 = self.get_integration_identity_key(self.integration_no_api_1, product_1)
-        queue_job_as_admin = self.get_queue_job(identity_key_1)
+        self.reload(product).write({'name': 'Renamed both'})
 
-        # Only one job was created because one integration was selected for product_1
-        self.assertEqual(queue_job_as_admin.company_id, product_1.integration_ids.company_id)
+        # One job per integration, each carrying that integration's company.
+        for integration in integrations:
+            key = self.get_integration_identity_key(integration, product, export_images=False)
+            job = self.get_queue_job(key)
+            self.assertTrue(job)
+            self.assertEqual(job.company_id, integration.company_id)
 
-        # Create product_2 as Integration Administrator
-        vals_product_2 = self.generate_product_data(
-            name='job 2',
-            integration=self.get_all_integrations(),
-        )
+    # --- Explicit push ("Export to Stores") -------------------------------------------------------------
 
-        product_2 = self.env['product.template'] \
-            .with_user(self.integration_administrator) \
-            .create(vals_product_2)
+    def test_explicit_export_creates_job(self):
+        integration = self.integration_no_api_1
+        product = self.product_pt_1
 
-        # Check product_2 has two integrations
-        self.assertEqual(len(product_2.integration_ids), 2)
+        self.reload(product).action_export_to_stores()
 
-        # Testing as Integration Administrator, two jobs were created
-        # because two integrations were selected for product_2
-        identity_key_2 = self.get_integration_identity_key(self.integration_no_api_1, product_2)
-        queue_job_as_admin_unt_1 = self.get_queue_job(identity_key_2)
-        self.assertEqual(queue_job_as_admin_unt_1.identity_key, identity_key_2)
+        key = self.get_integration_identity_key(integration, product, export_images=True, force=True)
+        self.assertTrue(self.get_queue_job(key))
 
-        identity_key_3 = self.get_integration_identity_key(self.integration_no_api_2, product_2)
-        queue_job_as_admin_int_2 = self.get_queue_job(identity_key_3)
-        self.assertEqual(queue_job_as_admin_int_2.identity_key, identity_key_3)
+    def test_explicit_export_ignores_job_toggle(self):
+        integration = self.integration_no_api_1
+        product = self.product_pt_1
 
-        # Create product_3 as Integration User
-        vals_product_3 = self.generate_product_data(
-            name='job 3',
-            integration=self.integration_no_api_1,
-        )
-        product_3 = self.env['product.template'] \
-            .with_user(self.integration_user) \
-            .create(vals_product_3)
+        # Even with the automatic export job disabled, an explicit push still runs.
+        integration.export_template_job_enabled = False
+        self.reload(product).action_export_to_stores()
 
-        # Check product_3 has one integration
-        self.assertEqual(len(product_3.integration_ids), 1)
-
-        # Testing as Integration User
-        identity_key_4 = self.get_integration_identity_key(self.integration_no_api_1, product_3)
-        queue_job_as_user = self.get_queue_job(identity_key_4)
-
-        # Only one job was created because one integration was selected for product_3
-        self.assertEqual(queue_job_as_user.company_id, product_3.integration_ids.company_id)
-
-        # Create product_4 as Integration User
-        vals_product_4 = self.generate_product_data(
-            name='job 4',
-            integration=self.get_all_integrations(),
-        )
-
-        product_4 = self.env['product.template'] \
-            .with_user(self.integration_user) \
-            .create(vals_product_4)
-
-        # Check product_4 has two integrations
-        self.assertEqual(len(product_4.integration_ids), 2)
-
-        # Testing as Integration User, two jobs were created
-        # because two integrations were selected for product_4
-        identity_key_5 = self.get_integration_identity_key(self.integration_no_api_1, product_4)
-        queue_job_as_user_unt_1 = self.get_queue_job(identity_key_5)
-        self.assertEqual(queue_job_as_user_unt_1.identity_key, identity_key_5)
-
-        identity_key_6 = self.get_integration_identity_key(self.integration_no_api_2, product_4)
-        queue_job_as_user_int_2 = self.get_queue_job(identity_key_6)
-        self.assertEqual(queue_job_as_user_int_2.identity_key, identity_key_6)
+        key = self.get_integration_identity_key(integration, product, export_images=True, force=True)
+        self.assertTrue(self.get_queue_job(key))
 
     def test_mandatory_fields_initial_product_export(self):
-        # 1.1 Create product_1 as Integration Administrator
-        vals_product_1 = self.generate_product_data(
-            name='job 1',
-            integration=self.integration_no_api_1,
-        )
-        vals_product_1.update({'default_code': False})
-        product_1 = self.env['product.template'] \
-            .with_user(self.integration_administrator) \
-            .create(vals_product_1)
+        # An explicit export of a product missing a mandatory field still queues a job (which fails later to
+        # alert the user), rather than silently doing nothing.
+        integration = self.integration_no_api_1
+        vals = self.generate_product_data(name='no-ref', integration=integration)
+        vals.update({'default_code': False})
+        product = self.env['product.template'].with_context(skip_product_export=True).create(vals)
+        self.assertFalse(product.default_code)
 
-        # Check default_code is False for product_1
-        self.assertFalse(product_1.default_code)
+        self.reload(product).action_export_to_stores()
 
-        # Testing as Integration Administrator
-        identity_key_1 = self.get_integration_identity_key(self.integration_no_api_1, product_1)
-        queue_job_1 = self.get_queue_job(identity_key_1)
-        # The job will be created and will fail (even if no default_code is specified)
-        # to alert the user about issues
-        self.assertTrue(queue_job_1)
-
-        # 1.2 Testing as Integration Administrator(manual_trigger=True)
-        vals_product_2 = self.generate_product_data(
-            name='job 2',
-            integration=self.integration_no_api_1,
-        )
-        vals_product_2.update({'default_code': False})
-        product_2 = self.env['product.template'] \
-            .with_user(self.integration_administrator) \
-            .with_context(manual_trigger=True).create(vals_product_2)
-
-        identity_key_2 = self.get_integration_identity_key(self.integration_no_api_1, product_2)
-        queue_job_2 = self.get_queue_job(identity_key_2)
-        # The job will be created and will fail (even if no default_code is specified)
-        # to alert the user about issues
-        self.assertTrue(queue_job_2)
-
-        # 2.1 Create product_3 as Integration User
-        vals_product_3 = self.generate_product_data(
-            name='job 3',
-            integration=self.integration_no_api_1,
-        )
-        vals_product_3.update({'default_code': False})
-        product_3 = self.env['product.template'] \
-            .with_user(self.integration_user) \
-            .create(vals_product_3)
-
-        # Check default_code is False for product_3
-        self.assertFalse(product_3.default_code)
-
-        # Testing as Integration User
-        identity_key_3 = self.get_integration_identity_key(self.integration_no_api_1, product_3)
-        queue_job_3 = self.get_queue_job(identity_key_3)
-        # The job will be created and will fail (even if no default_code is specified)
-        # to alert the user about issues
-        self.assertTrue(queue_job_3)
-
-        # 2.2 Testing as Integration User(manual_trigger=True)
-        vals_product_4 = self.generate_product_data(
-            name='job 4',
-            integration=self.integration_no_api_1,
-        )
-        vals_product_4.update({'default_code': False})
-        product_4 = self.env['product.template'] \
-            .with_user(self.integration_user) \
-            .with_context(manual_trigger=True).create(vals_product_4)
-
-        # Testing as Integration User
-        identity_key_4 = self.get_integration_identity_key(self.integration_no_api_1, product_4)
-        queue_job_4 = self.get_queue_job(identity_key_4)
-        # The job will be created and will fail (even if no default_code is specified)
-        # to alert the user about issues
-        self.assertTrue(queue_job_4)
+        key = self.get_integration_identity_key(integration, product, export_images=True, force=True)
+        self.assertTrue(self.get_queue_job(key))

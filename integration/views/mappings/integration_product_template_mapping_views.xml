@@ -14,7 +14,7 @@
 
                     <!-- Action buttons for unmapped products -->
                     <button type="object"
-                            name="run_map_product"
+                            name="run_map_products"
                             string="Auto-Link"
                             title="Automatically find and link matching Odoo product"
                             icon="fa-link"
@@ -91,7 +91,7 @@
             <field name="binding_view_types">list</field>
             <field name="state">code</field>
             <field name="sequence">1</field>
-            <field name="code">[x.integration_id.import_external_product(x.external_template_id.code) for x in records]</field>
+            <field name="code">action = records.run_map_products()</field>
         </record>
 
         <record id="integration_product_template_mapping_action_run_import_products" model="ir.actions.server">

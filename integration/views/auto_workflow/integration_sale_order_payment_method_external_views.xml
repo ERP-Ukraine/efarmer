@@ -11,6 +11,7 @@
                     <field name="integration_id" readonly="1"/>
                     <field name="name" readonly="1"/>
                     <field name="payment_journal_id" options="{'no_create': True}"/>
+                    <field name="payment_method_line_id" options="{'no_create': True}"/>
                     <field name="payment_term_id" options="{'no_create': True}"/>
                     <field name="send_payment_status_when"/>
                 </list>

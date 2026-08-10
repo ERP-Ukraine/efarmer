@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="integration.SaleIntegrationInputFileListView" t-inherit="web.ListRenderer" t-inherit-mode="primary" owl="1">
+        <xpath expr="//div[@class='o_list_renderer o_renderer table-responsive']" position="before">
+            <div class="o_onboarding_container collapse show">
+                <div class="o_onboarding_main position-relative overflow-hidden py-3"
+                     style="background: linear-gradient(135deg, #088BF5 0%, #144496 100%);">
+                    <div class="container-fluid px-4">
+                        <div class="bg-view d-flex flex-column flex-md-row gap-3 p-3 rounded">
+                            <div class="flex-fill">
+                                <strong><i class="fa fa-info-circle me-1" title="Information"/>What is this?</strong>
+                                <p class="mb-0">Every order pulled from your stores appears here. Each row shows where the
+                                    order is in processing and what automation did with it.</p>
+                            </div>
+                            <div class="flex-fill">
+                                <strong><i class="fa fa-lightbulb-o me-1" title="Tip"/>Tip</strong>
+                                <p class="mb-0">A red row means automation stopped on an error. Open it and click
+                                    "Order Automation" to see the failed step and retry.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </t>
+
+</templates>

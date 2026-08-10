@@ -109,8 +109,8 @@ class NoAPIClient(AbsApiClient):
     def get_customer_and_addresses(self, customer_id):
         return
 
-    def receive_orders(self):
-        return
+    def receive_orders(self, page_token=None):
+        return [], None
 
     def receive_order(self):
         return
@@ -156,6 +156,9 @@ class NoAPIClient(AbsApiClient):
 
     def get_templates_and_products_for_validation_test(self, product_refs=None):
         return
+
+    def get_validation_tuples(self, ids=None, product_refs=None, **kw):
+        return []
 
     def get_stock_levels(self):
         return

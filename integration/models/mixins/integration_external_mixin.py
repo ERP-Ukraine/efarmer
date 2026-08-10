@@ -21,6 +21,7 @@ RESULT_ALREADY_MAPPED = 2
 RESULT_MAPPED = 3
 RESULT_EXISTS = 4
 RESULT_NOT_IN_EXTERNAL = 5
+RESULT_MODE_CONFLICT = 6
 
 
 class IntegrationExternalMixin(models.AbstractModel):
@@ -650,258 +651,62 @@ class IntegrationExternalMixin(models.AbstractModel):
         # 3. Set external_attribute_id or external_feature_id
         setattr(self, f'external_{element}_id', external_element.id)
 
-    def _import_elements_and_values(self, ext_element, ext_values, element, link_to_existing=False):
-        result = {
-            'element': 0,
-            'values': {RESULT_ALREADY_MAPPED: 0, RESULT_MAPPED: 0, RESULT_CREATED: 0},
-        }
-        MappingProductElement = self.env[f'integration.product.{element}.mapping']
-        MappingProductElementValue = self.env[f'integration.product.{element}.value.mapping']
-        ExternalProductElementValue = self.env[f'integration.product.{element}.value.external']
+    def _build_import_elements_action(self, element_label, res_element, res_values):
+        """Build the summary wizard action for an attribute/feature import.
 
-        # Add to context the default integration language for the further search methods.
-        context_lang_code = self.integration_id.get_integration_lang_code()
-        ProductElement = self.env[f'product.{element}'] \
-            .with_context(lang=context_lang_code)
-        ProductElementValue = self.env[f'product.{element}.value'] \
-            .with_context(lang=context_lang_code)
-
-        # 1. Checks before creating
-        element_mapping = MappingProductElement.get_mapping(self.integration_id, self.code)
-
-        element_record = None
-        # 1.1. Check that attribute/feature already mapped
-        if element_mapping:
-            element_record = getattr(element_mapping, f'{element}_id')
-
-        # Important! The ProductElement variable has context language from integration.
-        odoo_object = ProductElement.search([('name', '=ilike', escape_psql(self.name))])
-
-        # 1.2. Check by Name that attribute/feature already exists in Odoo
-        if odoo_object and not element_record and not link_to_existing:
-            result['element'] = RESULT_EXISTS
-            return result
-
-        if len(odoo_object) > 1 and not element_record:
-            raise es.UserError(_(
-                'Multiple Odoo %s records share the name "%s" (IDs: %s). '
-                'Please ensure each %s name is unique in Odoo before running the import, '
-                'or manually create the mapping in the integration settings.'
-            ) % (
-                element.capitalize(),
-                self.name,
-                ', '.join(str(r.id) for r in odoo_object),
-                element.capitalize(),
-            ))
-
-        # 2. Create Product Attribute/Feature (if it is not already created)
-        if element_record:
-            result['element'] = RESULT_ALREADY_MAPPED
-        else:
-            name = self.env['integration.res.lang.mapping'] \
-                .convert_external_translations(self.integration_id.id, ext_element['name'])
-
-            vals = dict(name=name)
-            if element == 'attribute':
-                mode_value = self._get_mode_create_variant(ext_element['id'], ext_values)
-                vals['create_variant'] = mode_value
-
-            element_record = self.create_or_update_with_translations(
-                self.integration_id.id,
-                odoo_object,
-                vals,
-            )
-
-            # Create mapping for new attribute
-            self.create_or_update_mapping(odoo_id=element_record.id)
-
-            # Warn if this Odoo record already has a mapping to a different external record
-            existing_mappings = MappingProductElement.search([
-                ('integration_id', '=', self.integration_id.id),
-                (f'{element}_id', '=', element_record.id),
-            ])
-            if len(existing_mappings) > 1:
-                external_field = f'external_{element}_id'
-                existing_codes = [getattr(m, external_field).code for m in existing_mappings]
-                _logger.warning(
-                    'Multiple external %s records mapped to the same Odoo record '
-                    '"%s" (id=%s) for integration "%s". External codes: %s.',
-                    element, element_record.name, element_record.id,
-                    self.integration_id.name, existing_codes,
-                )
-
-            result['element'] = RESULT_CREATED
-
-        # 3. Create Product Attribute/Feature Values
-        for ext_value in ext_values:
-            # 4. Checks before creating
-            element_value_mapping = \
-                MappingProductElementValue.get_mapping(self.integration_id, ext_value['id'])
-
-            element_value = None
-            # 4.1. Check that attribute already mapped
-            if element_value_mapping:
-                element_value = getattr(element_value_mapping, f'{element}_value_id')
-
-            if element_value:
-                result['values'][RESULT_ALREADY_MAPPED] += 1
-                continue
-
-            # 5. Try to find "Product Attribute/Feature Value" by Name or create
-            name = ext_value['name']
-            if isinstance(name, dict) and name.get('language'):
-                name = self.get_original_name(name)
-
-            # Important! The ProductElementValue variable has context language from integration.
-            element_value = ProductElementValue.search([
-                (f'{element}_id', '=', element_record.id),
-                ('name', '=ilike', escape_psql(name)),
-            ])
-
-            if element_value:
-                result['values'][RESULT_MAPPED] += 1
-            else:
-                name = self.env['integration.res.lang.mapping'] \
-                    .convert_external_translations(self.integration_id.id, ext_value['name'])
-
-                sequence_value = element_record._get_next_sequence()
-
-                element_value = self.create_or_update_with_translations(
-                    self.integration_id.id,
-                    ProductElementValue,
-                    {
-                        'name': name,
-                        'sequence': sequence_value,
-                        f'{element}_id': element_record.id,
-                    },
-                )
-                result['values'][RESULT_CREATED] += 1
-
-            # 6.  Get external record and if it doesn't exists create it
-            external_value = ExternalProductElementValue.get_external_by_code(
-                self.integration_id,
-                ext_value['id'],
-                raise_error=False,
-            )
-
-            if not external_value:
-                external_value = ExternalProductElementValue.create({
-                    'code': ext_value['id'],
-                    'name': element_value.name,
-                    'integration_id': self.integration_id.id,
-                })
-
-            # 7. Create mapping for new product attribute/feature value
-            external_value.create_or_update_mapping(odoo_id=element_value.id)
-
-        return result
-
-    def _run_import_elements_element(self, element, link_to_existing=False):
-        res_element = {}
-        res_values = {}
-        elements_by_integration = {}
+        ``element_label`` is the singular, capitalised label (e.g. "Attribute").
+        ``res_element`` maps a ``RESULT_*`` code to a count (created / already
+        mapped) or to a list of record names (the other outcomes); ``res_values``
+        maps ``RESULT_*`` codes to value counts. This is presentation only - it
+        contains no attribute/feature-specific logic.
+        """
         msg = ''
 
-        # Distribute selected attributes/features by connectors
-        for external_element in self:
-            integration_id = external_element.integration_id.id
-
-            if integration_id not in elements_by_integration:
-                elements_by_integration[integration_id] = {
-                    'integration': external_element.integration_id,
-                    'elements': []
-                }
-
-            elements_by_integration[integration_id]['elements'] += [external_element]
-
-        for integration_id, external_elements in elements_by_integration.items():
-            adapter = external_elements['integration'].adapter
-
-            # Get attributes and values from External System
-            ext_elements = getattr(adapter, f'get_{element}s')()
-            ext_values = getattr(adapter, f'get_{element}_values')()
-
-            # Create dict with selected attributes/features
-            # and attributes/features + values from External System
-            elements_dict = {
-                external_element.code: {
-                    'ext_elements': {},
-                    'ext_values': [],
-                    'external_element': external_element
-                }
-                for external_element in external_elements['elements']
-            }
-
-            for ext_element in ext_elements:
-                if ext_element['id'] in elements_dict:
-                    elements_dict[ext_element['id']]['ext_elements'] = ext_element
-
-            for ext_value in ext_values:
-                if ext_value['id_group'] in elements_dict:
-                    elements_dict[ext_value['id_group']]['ext_values'] += [ext_value]
-
-            # Run through the attributes and try to import them
-            for key, item in elements_dict.items():
-                external_element = item['external_element']
-
-                if not item['ext_elements']:
-                    result = {'element': RESULT_NOT_IN_EXTERNAL, 'values': {}}
-                else:
-                    result = external_element._import_elements_and_values(
-                        item['ext_elements'],
-                        item['ext_values'],
-                        element,
-                        link_to_existing=link_to_existing,
-                    )
-
-                if result['element'] in (RESULT_ALREADY_MAPPED, RESULT_CREATED):
-                    res_element[result['element']] = res_element.get(result['element'], 0) + 1
-                else:
-                    res_element[result['element']] = res_element.get(result['element'], []) + \
-                        [external_element.name]
-
-                for key, value_result in result['values'].items():
-                    res_values[key] = res_values.get(key, 0) + value_result
-
-        # Create message
         if res_element.get(RESULT_CREATED) or res_values.get(RESULT_CREATED):
             msg += _('\n\nImported:\n - Product %ss: %s\n - Product %s Values: %s') % (
-                element.capitalize(),
+                element_label,
                 res_element.get(RESULT_CREATED, 0),
-                element.capitalize(),
+                element_label,
                 res_values.get(RESULT_CREATED, 0),
             )
 
         if res_element.get(RESULT_ALREADY_MAPPED) or res_values.get(RESULT_ALREADY_MAPPED):
             msg += _('\n\nAlready mapped:\n - Product %ss: %s\n - Product %s Values: %s') % (
-                element.capitalize(),
+                element_label,
                 res_element.get(RESULT_ALREADY_MAPPED, 0),
-                element.capitalize(),
+                element_label,
                 res_values.get(RESULT_ALREADY_MAPPED, 0),
             )
 
         if res_element.get(RESULT_MAPPED):
             msg += _('\n\nProduct %ss Values mapped: %s') % (
-                element.capitalize(), res_element.get(RESULT_MAPPED))
+                element_label, res_element.get(RESULT_MAPPED))
 
         if res_element.get(RESULT_EXISTS):
-            msg += _('\n\nProduct %ss already existing in Odoo:\n - ') % element.capitalize()
+            msg += _('\n\nProduct %ss already existing in Odoo:\n - ') % element_label
             msg += '%s' % '\n - '.join(res_element.get(RESULT_EXISTS))
 
+        if res_element.get(RESULT_MODE_CONFLICT):
+            msg += _(
+                '\n\nProduct %ss left unmapped because a same-name Odoo attribute uses a '
+                'different "Variant Creation" mode. Rename or change that Odoo attribute '
+                '(or create a separate one), then re-import:\n - '
+            ) % element_label
+            msg += '%s' % '\n - '.join(res_element.get(RESULT_MODE_CONFLICT))
+
         if res_element.get(RESULT_NOT_IN_EXTERNAL):
-            msg += _('\n\nProduct %ss that do not exist in E-Commerce System:\n - ') \
-                % element.capitalize()
+            msg += _('\n\nProduct %ss that do not exist in E-Commerce System:\n - ') % element_label
             msg += '%s' % '\n - '.join(res_element.get(RESULT_NOT_IN_EXTERNAL))
 
         message_id = self.env['message.wizard'].create({'message': msg[2:]})
 
         return {
-            'name': _('Import Product %ss') % element.capitalize(),
+            'name': _('Import Product %ss') % element_label,
             'type': 'ir.actions.act_window',
             'view_mode': 'form',
             'res_model': 'message.wizard',
             'res_id': message_id.id,
-            'target': 'new'
+            'target': 'new',
         }
 
     def _unmap(self):

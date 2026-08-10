@@ -7,13 +7,12 @@
             <field name="model">sale.integration.input.file</field>
             <field name="inherit_id" ref="integration.view_sale_integration_input_file_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//header/button[@name='process']" position="before">
-                    <button name="fetch_full_order"
-                            type="object"
-                            string="Fetch Full Order"
-                            class="btn btn-outline-primary"
-                            invisible="type_api != 'shopify'"
-                    />
+                <xpath expr="//div[@id='file_order_data_buttons']" position="inside">
+                    <span class="vr mx-3 align-self-center" style="height: 25px" invisible="type_api != 'shopify'" groups="base.group_no_one"/>
+                    <button name="fetch_full_order" type="object" class="btn btn-secondary" invisible="type_api != 'shopify'"
+                            title="Developer tool: re-fetch full order from Shopify and override its raw data" groups="base.group_no_one">
+                        Fetch Full Order<span class="text-muted small"> · dev</span>
+                    </button>
                 </xpath>
             </field>
         </record>

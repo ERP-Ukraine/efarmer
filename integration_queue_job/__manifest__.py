@@ -8,7 +8,7 @@
     'summary': '''Lightweight background jobs module used as a technical dependency for VentorTech integration modules.
 Built on top of Job Queue module from OCA (https://github.com/OCA/queue).
 ''',
-    'version': '19.0.1.0.6',
+    'version': '19.0.1.0.9',
     'images': [
         'static/description/images/banner.gif',
     ],
@@ -33,5 +33,4 @@ Built on top of Job Queue module from OCA (https://github.com/OCA/queue).
     'application': False,
     'maintainers': ['ventor-dev'],
     'post_init_hook': 'post_init_hook',
-    'post_load': 'post_load',
 }

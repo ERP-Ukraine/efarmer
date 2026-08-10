@@ -94,7 +94,6 @@
             <field name="integration_lang_id" ref="base.lang_pl"/>
             <field name="export_template_job_enabled">False</field>
             <field name="allow_export_images">False</field>
-            <field name="apply_to_products">False</field>
             <field name="translations_sync">False</field>
             <field name="mandatory_fields_initial_product_export" eval="[(6, 0, (ref('product.field_product_product__default_code'),))]"/>
         </record>

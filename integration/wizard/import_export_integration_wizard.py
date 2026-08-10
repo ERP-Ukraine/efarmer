@@ -6,16 +6,41 @@ from odoo.exceptions import UserError
 
 FIELDS_TO_EXPORT = [
     'name', 'type_api', 'state',
-    # The list of fields below is not complete. We avoid to export some fields because
-    # - they can lead to errors when importing (i.e. x2many or x2one fields)
-    # - they can lead to unwanted changes (i.e. run crons, update orders, etc.)
-    # - they are not relevant to export (i.e. computed fields)
+    # The list of fields below is not complete. We export ONLY plain scalar configuration
+    # fields (Boolean / Selection / Char / Datetime). We intentionally skip:
+    # - relational fields (x2many / x2one): record ids are not portable across instances
+    #   and would error or mis-link on import;
+    # - computed / related fields: not writable / not meaningful to restore;
+    # - automation enablers (cron `*_active`, `*_job_enabled`): would silently start
+    #   importing/exporting on the restored copy;
+    # - behavior-sync toggles (status push back to the store, auto-apply external
+    #   fulfillments/payments) and debug fields (test_method*, force_full_fulfillment):
+    #   excluded to guarantee the restored connection has no side effects.
     # ** Please be careful when adding new fields to this list! **
-    'price_including_taxes', 'apply_to_products', 'auto_create_products_on_so',
-    'auto_create_taxes_on_so', 'auto_create_delivery_carrier_on_so',
-    'last_receive_orders_datetime', 'orders_cut_off_datetime', 'pricelist_integration',
-    'last_update_pricelist_items', 'allow_export_images', 'send_inactive_product',
-    'select_send_sale_price', 'is_import_dynamic_attribute', 'synchronise_qty_field',
+    # Orders import / sync timestamps
+    'last_receive_orders_datetime', 'orders_cut_off_datetime',
+    'last_order_sync_datetime', 'last_update_pricelist_items',
+    'use_order_total_difference_correction', 'use_odoo_so_numbering', 'order_name_ref',
+    # Auto-create on order import
+    'auto_create_products_on_so', 'auto_create_taxes_on_so',
+    'auto_create_delivery_carrier_on_so',
+    # Customer mapping
+    'use_manual_customer_mapping', 'emails_for_failed_mapping_notifications',
+    'skip_individual_contacts', 'use_vat_only_company_search',
+    'use_search_customer_fields_ids', 'ignore_vat_validation',
+    # Product export / images / pricing
+    'allow_import_images', 'allow_export_images', 'send_inactive_product',
+    'select_send_sale_price', 'price_including_taxes', 'pricelist_integration',
+    'validate_barcode', 'is_import_dynamic_attribute', 'synchronise_qty_field',
+    'change_advanced_fields', 'apply_company_on_product',
+    'update_stock_for_manufacture_boms', 'ignore_boms_for_product_export',
+    # Discounts / bundles
+    'separate_discount_line', 'multiple_discount_lines', 'product_bundle_policy',
+    # Taxes / invoicing
+    'behavior_on_empty_tax', 'behavior_on_non_existing_invoice',
+    'update_fiscal_position', 'default_tax_scope',
+    # Salesperson / logging
+    'keep_sales_person_empty', 'save_log',
 ]
 
 

@@ -4,55 +4,51 @@
     <t t-name="integration.ProductEcommerceFieldMappingListView" t-inherit="web.ListRenderer" t-inherit-mode="primary" owl="1">
         <xpath expr="//div[@class='o_list_renderer o_renderer table-responsive']" position="before">
             <div class="o_onboarding_container collapse show">
-                <div class="o_onboarding_main position-relative overflow-hidden o_onboarding_violet py-3"
-                     style="background: linear-gradient(135deg, #A04A25 0%, #9A033F 25%, #5F7A2A 75%, #3A1F5A 100%);">
-                    <div class="o_onboarding_steps d-flex justify-content-center align-items-center">
-                        <div class="container-fluid px-4">
-                            <div class="card shadow-sm border-0 bg-white">
-                                <div class="card-body p-3">
-                                    <div class="row align-items-start">
-                                        <div class="col-md-3 mb-3 mb-md-0">
-                                            <h4 class="card-title mb-2 text-dark">
-                                                <i class="fa fa-info-circle text-primary me-2"></i>
-                                                What is this?
-                                            </h4>
-                                            <p class="mb-0 text-dark">
-                                                Here you control which fields are synchronized for each of your stores. Each store can have its own synchronization settings.
-                                            </p>
-                                        </div>
+                <div class="o_onboarding_main position-relative overflow-hidden py-3"
+                     style="background: linear-gradient(135deg, #088BF5 0%, #144496 100%);">
+                    <div class="container-fluid px-4">
+                        <div class="bg-view p-3 rounded">
+                            <div class="row align-items-start">
+                                <div class="col-md-3 mb-3 mb-md-0">
+                                    <h4 class="mb-2">
+                                        <i class="fa fa-info-circle text-primary me-2"></i>
+                                        What is this?
+                                    </h4>
+                                    <p class="mb-0">
+                                        Here you control which fields are synchronized for each of your stores. Each store can have its own synchronization settings.
+                                    </p>
+                                </div>
 
-                                        <div class="col-md-6 mb-3 mb-md-0">
-                                            <h5 class="mb-2 text-dark">
-                                                <i class="fa fa-cog text-success me-2"></i>
-                                                How checkboxes work:
-                                            </h5>
-                                            <ul class="list-unstyled mb-0">
-                                                <li class="mb-1 text-dark">
-                                                    <i class="fa fa-toggle-on text-primary me-2"></i>
-                                                    <strong>Active</strong> - when disabled, the field is completely ignored during any synchronization
-                                                </li>
-                                                <li class="mb-1 text-dark">
-                                                    <i class="fa fa-arrow-right text-primary me-2"></i>
-                                                    <strong>Export</strong> - when enabled, the field is sent to the shop on every export; when disabled, only on first-time export of a new product
-                                                </li>
-                                                <li class="mb-1 text-dark">
-                                                    <i class="fa fa-arrow-left text-primary me-2"></i>
-                                                    <strong>Import</strong> - when enabled, the field is updated in Odoo on every import; when disabled, only on first-time import of a new product
-                                                </li>
-                                            </ul>
-                                        </div>
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <h5 class="mb-2">
+                                        <i class="fa fa-cog text-success me-2"></i>
+                                        How checkboxes work:
+                                    </h5>
+                                    <ul class="list-unstyled mb-0">
+                                        <li class="mb-1">
+                                            <i class="fa fa-toggle-on text-primary me-2"></i>
+                                            <strong>Active</strong> - when disabled, the field is completely ignored during any synchronization
+                                        </li>
+                                        <li class="mb-1">
+                                            <i class="fa fa-arrow-right text-primary me-2"></i>
+                                            <strong>Export</strong> - when enabled, the field is sent to the shop on every export; when disabled, only on first-time export of a new product
+                                        </li>
+                                        <li class="mb-1">
+                                            <i class="fa fa-arrow-left text-primary me-2"></i>
+                                            <strong>Import</strong> - when enabled, the field is updated in Odoo on every import; when disabled, only on first-time import of a new product
+                                        </li>
+                                    </ul>
+                                </div>
 
-                                        <div class="col-md-3">
-                                            <div class="alert alert-info mb-0 py-2" role="alert">
-                                                <i class="fa fa-lightbulb-o me-1"></i>
-                                                <small><strong>Tip:</strong> Need to add a new field? Go to <strong>Field Definitions</strong> to create a new field configuration first.</small>
-                                            </div>
-                                            <div class="alert alert-info mb-3" role="alert">
-                                                <i class="fa fa-info-circle me-2" title="Information"/>
-                                                <strong>Important:</strong> Read the description and requirements carefully before enabling this field mapping in your stores.
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="col-md-3">
+                                    <p class="mb-2">
+                                        <i class="fa fa-lightbulb-o me-1"></i>
+                                        <small><strong>Tip:</strong> Need to add a new field? Go to <strong>Field Definitions</strong> to create a new field configuration first.</small>
+                                    </p>
+                                    <p class="mb-0">
+                                        <i class="fa fa-info-circle me-2" title="Information"/>
+                                        <strong>Important:</strong> Read the description and requirements carefully before enabling this field mapping in your stores.
+                                    </p>
                                 </div>
                             </div>
                         </div>

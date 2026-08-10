@@ -11,6 +11,18 @@
             <field name="integration_type"></field>
             <field name="is_master_data">True</field>
             <field name="supports_import_by_id">False</field>
+            <field name="consistency_method_name">get_attributes</field>
+        </record>
+
+        <record model="integration.import.entity" id="integration_import_entity_attribute_values">
+            <field name="name">Attribute Values</field>
+            <field name="method_name">integrationApiImportAttributeValues</field>
+            <field name="external_model">integration.product.attribute.value.external</field>
+            <field name="mapping_model">integration.product.attribute.value.mapping</field>
+            <field name="integration_type"></field>
+            <field name="is_master_data">False</field>
+            <field name="supports_import_by_id">False</field>
+            <field name="consistency_method_name">get_attribute_values</field>
         </record>
 
         <record model="integration.import.entity" id="integration_import_entity_categories">
@@ -21,6 +33,7 @@
             <field name="integration_type"></field>
             <field name="is_master_data">True</field>
             <field name="supports_import_by_id">False</field>
+            <field name="consistency_method_name">get_categories</field>
         </record>
 
         <record model="integration.import.entity" id="integration_import_entity_countries">
@@ -31,6 +44,7 @@
             <field name="integration_type"></field>
             <field name="is_master_data">True</field>
             <field name="supports_import_by_id">False</field>
+            <field name="consistency_method_name">get_countries</field>
         </record>
 
         <record model="integration.import.entity" id="integration_import_entity_languages">
@@ -41,6 +55,7 @@
             <field name="integration_type"></field>
             <field name="is_master_data">True</field>
             <field name="supports_import_by_id">False</field>
+            <field name="consistency_method_name">get_languages</field>
         </record>
 
         <record model="integration.import.entity" id="integration_import_entity_locations">
@@ -51,6 +66,7 @@
             <field name="integration_type"></field>
             <field name="is_master_data">True</field>
             <field name="supports_import_by_id">False</field>
+            <field name="consistency_method_name">get_locations</field>
         </record>
 
         <record model="integration.import.entity" id="integration_import_entity_payment_methods">
@@ -61,6 +77,7 @@
             <field name="integration_type"></field>
             <field name="is_master_data">True</field>
             <field name="supports_import_by_id">False</field>
+            <field name="consistency_method_name">get_payment_methods</field>
         </record>
 
         <record model="integration.import.entity" id="integration_import_entity_shipping_methods">
@@ -71,6 +88,7 @@
             <field name="integration_type"></field>
             <field name="is_master_data">True</field>
             <field name="supports_import_by_id">False</field>
+            <field name="consistency_method_name">get_delivery_methods</field>
         </record>
 
         <record model="integration.import.entity" id="integration_import_entity_sub_statuses">
@@ -81,6 +99,7 @@
             <field name="integration_type"></field>
             <field name="is_master_data">True</field>
             <field name="supports_import_by_id">False</field>
+            <field name="consistency_method_name">get_sale_order_statuses</field>
         </record>
 
         <record model="integration.import.entity" id="integration_import_entity_taxes">
@@ -91,6 +110,7 @@
             <field name="integration_type"></field>
             <field name="is_master_data">True</field>
             <field name="supports_import_by_id">False</field>
+            <field name="consistency_method_name">get_taxes</field>
         </record>
 
         <!-- Main Data -->
@@ -103,6 +123,7 @@
             <field name="integration_type"></field>
             <field name="is_master_data">False</field>
             <field name="supports_import_by_id">True</field>
+            <field name="consistency_method_name">get_customer_ids</field>
         </record>
 
         <record model="integration.import.entity" id="integration_import_entity_orders">
@@ -124,6 +145,7 @@
             <field name="integration_type"></field>
             <field name="is_master_data">False</field>
             <field name="supports_import_by_id">True</field>
+            <field name="consistency_method_name">get_product_template_ids</field>
         </record>
 
     </data>

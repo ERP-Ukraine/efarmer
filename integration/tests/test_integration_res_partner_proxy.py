@@ -779,3 +779,158 @@ class TestIntegrationResPartnerProxy(OdooIntegrationInit):
         # Mapping must be updated to the new partner (same record, partner_id rewritten)
         mapping.invalidate_recordset()
         self.assertEqual(mapping.partner_id.id, partner.id)
+
+    def test_build_search_domain_uses_sanitized_phone(self):
+        """Test that phone_sanitized is compared with the sanitized value."""
+        proxy = self._create_proxy('customer', {
+            'person_name': 'Phone Test',
+        })
+
+        domain = proxy._build_search_domain(
+            [('phone', '=')],
+            {
+                'phone': '+44 7911 123456',
+                'phone_sanitized': '+447911123456',
+            },
+        )
+
+        self.assertEqual(domain, [
+            '|',
+            ('phone', '=', '+44 7911 123456'),
+            ('phone_sanitized', '=', '+447911123456'),
+        ])
+
+    def test_get_or_create_partner_finds_contact_by_sanitized_phone(self):
+        """Test finding an existing contact by a differently formatted phone."""
+        phone_field = self.env.ref('base.field_res_partner__phone')
+        self.integration_no_api_1.write({
+            'search_customer_fields_ids': [(6, 0, phone_field.ids)],
+        })
+
+        existing_partner = self.env['res.partner'].create({
+            'name': 'Phone Test',
+            'phone': '+44 7911 123456',
+            'company_id': self.company_id_1.id,
+        })
+        existing_partner.phone_sanitized = '+447911123456'
+
+        Proxy = self.env['integration.res.partner.proxy']
+        with patch.object(
+            type(Proxy),
+            '_phone_format',
+            return_value='+447911123456',
+        ):
+            proxy = self._create_proxy('customer', {
+                'person_name': 'Phone Test',
+                'phone': '07911 123456',
+                'country_code': 'GB',
+            })
+
+        partner = proxy.get_or_create_partner()
+
+        self.assertEqual(partner, existing_partner)
+
+    def test_collect_address_search_domain_uses_sanitized_phone(self):
+        """Test using phone_sanitized in address search domain."""
+        Proxy = self.env['integration.res.partner.proxy']
+
+        with patch.object(
+            type(Proxy),
+            '_phone_format',
+            return_value='+447911123456',
+        ):
+            proxy = self._create_proxy('shipping_address', {
+                'person_name': 'Phone Test',
+                'phone': '07911 123456',
+                'country_code': 'GB',
+            })
+
+        address_vals = {
+            'name': 'Phone Test',
+            'parent_id': 1,
+            'company_id': self.company_id_1.id,
+            'phone': '07911 123456',
+        }
+
+        domain = proxy._collect_address_search_domain(address_vals)
+
+        self.assertNotIn('phone_sanitized', address_vals)
+        self.assertIn(
+            ('phone_sanitized', '=', '+447911123456'),
+            domain,
+        )
+        self.assertNotIn(
+            ('phone_sanitized', '=', '07911 123456'),
+            domain,
+        )
+
+    def test_get_or_create_address_finds_by_sanitized_phone(self):
+        """Test reusing an address with a differently formatted phone."""
+        ResPartner = self.env['res.partner']
+        Proxy = self.env['integration.res.partner.proxy']
+
+        factory = self.env['integration.res.partner.factory'].create({
+            'integration_id': self.integration_no_api_1.id,
+        })
+
+        parent = ResPartner.create({
+            'name': 'Address Parent',
+            'company_id': self.company_id_1.id,
+        })
+
+        customer_proxy = Proxy.create_proxy(
+            type_='customer',
+            integration_id=self.integration_no_api_1.id,
+            factory_id=factory.id,
+            data={
+                'person_name': 'Address Parent',
+            },
+        )
+        customer_proxy.partner_id = parent
+
+        existing_address = ResPartner.create({
+            'name': 'Address Phone Test',
+            'parent_id': parent.id,
+            'company_id': self.company_id_1.id,
+            'type': 'delivery',
+            'street': '10 Test Street',
+            'city': 'London',
+            'zip': 'SW1A 1AA',
+            'country_id': self.env.ref('base.uk').id,
+            'phone': '+44 7911 123456',
+        })
+        existing_address.phone_sanitized = '+447911123456'
+
+        with patch.object(
+            type(Proxy),
+            '_phone_format',
+            return_value='+447911123456',
+        ):
+            address_proxy = Proxy.create_proxy(
+                type_='shipping_address',
+                integration_id=self.integration_no_api_1.id,
+                factory_id=factory.id,
+                data={
+                    'person_name': 'Address Phone Test',
+                    'street': '10 Test Street',
+                    'city': 'London',
+                    'zip': 'SW1A 1AA',
+                    'country_code': 'GB',
+                    'phone': '07911 123456',
+                },
+            )
+
+        address_count_before = ResPartner.search_count([
+            ('parent_id', '=', parent.id),
+            ('type', '=', 'delivery'),
+        ])
+
+        result = address_proxy._get_or_create_address()
+
+        address_count_after = ResPartner.search_count([
+            ('parent_id', '=', parent.id),
+            ('type', '=', 'delivery'),
+        ])
+
+        self.assertEqual(result, existing_address)
+        self.assertEqual(address_count_after, address_count_before)

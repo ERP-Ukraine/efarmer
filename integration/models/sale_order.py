@@ -11,8 +11,9 @@ from odoo.tools.float_utils import float_compare
 from odoo.tools import float_is_zero
 from odoo.exceptions import UserError
 
-from .auto_workflow.integration_workflow_pipeline import SKIP, TO_DO
-from ...integration.exceptions import ApiImportError
+from .auto_workflow.integration_workflow_pipeline import SKIP, TO_DO, STATUS_FAILED
+from ..tools import is_sale_advance_payment_installed
+from ...integration.exceptions import ApiImportError, ErrorStore as es
 
 
 _logger = logging.getLogger(__name__)
@@ -147,6 +148,11 @@ class SaleOrder(models.Model):
         string='External Multistock',
     )
 
+    integration_pipeline_failed = fields.Boolean(
+        string='Order Automation Failed',
+        compute='_compute_integration_pipeline_failed',
+    )
+
     @property
     def order_is_confirmed(self):
         assert len(self) <= 1, _('Recordsets not allowed')
@@ -225,6 +231,11 @@ class SaleOrder(models.Model):
         assert len(self) <= 1, _('Recordsets not allowed')
         return self.related_input_files[:1].order_reference
 
+    def _compute_integration_pipeline_failed(self):
+        for order in self:
+            pipeline = order.integration_pipeline
+            order.integration_pipeline_failed = bool(pipeline) and pipeline.status == STATUS_FAILED
+
     @api.depends('amount_total', 'integration_amount_total')
     def _compute_total_amount_difference_error_message(self):
         error_message = _(
@@ -247,6 +258,18 @@ class SaleOrder(models.Model):
             for order in self:
                 order._integration_cancel_order_hook()
         return res
+
+    def unlink(self):
+        input_files = self.related_input_files
+        result = super().unlink()
+
+        if input_files:
+            # The order's pipeline is dropped by a DB-level cascade, which Odoo's
+            # recompute triggers never see, so `pipeline_status` is force-recomputed here.
+            input_files.invalidate_recordset()
+            input_files._compute_pipeline_status()
+
+        return result
 
     def action_integration_pipeline_form(self):
         pipeline = self.integration_pipeline
@@ -344,6 +367,11 @@ class SaleOrder(models.Model):
         if self.env.context.get('skip_dispatch_to_external'):
             return result
 
+        # The Shipped/Cancelled/Paid event hooks set the sub-status under `force_status_export=True` so the change
+        # is pushed to the store on the strength of their own toggle, without also needing the master
+        # "Auto-Export Manual Status Changes" option. The master toggle still governs plain manual status edits.
+        force_status_export = self.env.context.get('force_status_export')
+
         if vals.get('sub_status_id'):
             for order in self:
                 if statuses_before_write[order] == order.sub_status_id:
@@ -353,7 +381,7 @@ class SaleOrder(models.Model):
                 if not integration:
                     continue
 
-                if not integration.is_sale_order_status_export_enabled:
+                if not integration.is_sale_order_status_export_enabled and not force_status_export:
                     continue
 
                 job_kwargs = self._job_kwargs_export_sale_order_status(order)
@@ -416,7 +444,9 @@ class SaleOrder(models.Model):
             return None
 
         if self.integration_id.run_action_on_cancel_so:
-            result = self._perform_method_by_name(f'_{self.type_api}_cancel_order')
+            # Drive the status export off this event's own toggle (no master toggle needed).
+            result = self.with_context(force_status_export=True) \
+                ._perform_method_by_name(f'_{self.type_api}_cancel_order')
         else:
             result = None
 
@@ -438,7 +468,9 @@ class SaleOrder(models.Model):
         if not self.integration_id.export_tracking_job_enabled:
             return None
 
-        return self._perform_method_by_name(f'_{self.type_api}_shipped_order')
+        # Drive the shipped-status export off the fulfillment toggle (no master toggle needed).
+        return self.with_context(force_status_export=True) \
+            ._perform_method_by_name(f'_{self.type_api}_shipped_order')
 
     def _integration_validate_invoice_order_hook(self):
         self.ensure_one()
@@ -469,7 +501,8 @@ class SaleOrder(models.Model):
 
             # 1. A case when the paid-order-hook was called by force from validate-invoice-order-hook method
             if force_export_paid_status:
-                return self._perform_method_by_name(f'_{self.type_api}_paid_order')
+                return self.with_context(force_status_export=True) \
+                    ._perform_method_by_name(f'_{self.type_api}_paid_order')
 
             if self.payment_method_id:
                 payment_method_external = self.payment_method_id.to_external_record(self.integration_id)
@@ -479,7 +512,8 @@ class SaleOrder(models.Model):
                     return None
 
             # 3. Just a common case when the run_action_on_so_invoice_status property is True
-            return self._perform_method_by_name(f'_{self.type_api}_paid_order')
+            return self.with_context(force_status_export=True) \
+                ._perform_method_by_name(f'_{self.type_api}_paid_order')
 
         return None
 
@@ -580,14 +614,10 @@ class SaleOrder(models.Model):
             return external_data
 
         if self.order_is_confirmed:
-            # 4.1 Apply fulfillments
+            # Apply fulfillments. Payments are not applied eagerly here: advance payments
+            # run in the `apply_advance_payment` workflow step, and payments against posted
+            # invoices run in the `register_payment` step / the invoice-post hook.
             self._integration_apply_external_fulfillments()
-
-            # 4.2 Apply payments
-            if self.integration_id.create_advance_payments or (
-                self.is_order_invoices_posted and not self.order_is_fully_paid
-            ):
-                self._integration_apply_external_payments()
 
         return external_data
 
@@ -611,6 +641,8 @@ class SaleOrder(models.Model):
 
         if pipeline:
             pipeline._update_pipeline(workflow_states, payment_method_code)
+            if not pipeline.input_file_id:
+                pipeline.input_file_id = self.input_file_id
         else:
             _task_list, vals = self._build_task_list_and_vals(workflow_states, payment_method_code)
             next_step_task_list = _task_list and (_task_list[1:] + [(False, False)])
@@ -632,7 +664,7 @@ class SaleOrder(models.Model):
             pipeline = self.env['integration.workflow.pipeline'].create(pipeline_vals)
             _logger.info('New integration pipeline for %s was created: %s', self.name, str(pipeline.loginfo))
 
-        if pipeline.has_tasks_to_process:
+        if not pipeline.all_tasks_done:
             _logger.info('%s: integration pipeline ready to run.', self.name)
             pipeline._mark_input_to_process()
 
@@ -771,8 +803,7 @@ class SaleOrder(models.Model):
         if self.env.context.get('from_integration_workflow'):
             pipeline = self.integration_pipeline
 
-            invoice_date = fields.Date.context_today(self, self.date_order)
-            invoice_vals['invoice_date'] = invoice_date
+            invoice_vals['invoice_date'] = pipeline.get_invoice_date()
 
             # Ensure an invoice journal is defined, otherwise raise an error
             if not pipeline.invoice_journal_id:
@@ -804,6 +835,72 @@ class SaleOrder(models.Model):
             return True, _('%s (id=%s) [%s]: confirmed successfully.') % args
 
         return False, _('%s (id=%s) [%s]: order confirmation error.') % args
+
+    def _integration_apply_advance_payment(self):
+        _logger.info('Run integration auto-workflow apply_advance_payment: %s', self)
+
+        self.ensure_one()
+        args = self._get_description_id_name()
+
+        if not self.order_is_confirmed:
+            return True, _('%s (id=%s) [%s]: order is not confirmed, advance payment skipped.') % args
+
+        try:
+            self._integration_apply_external_payments(as_advance=True)
+        except es.ValidationError as error:
+            # e.g. a refund transaction: report the clean message on this step.
+            return False, '%s (id=%s) [%s]: %s' % (*args, error.args[0] if error.args else error)
+
+        # `validate()` swallows per-transaction failures (marks them failed without raising),
+        # so check the outcome and fail the step instead of silently continuing.
+        failed = self.external_payment_ids.filtered(lambda x: x.is_external_failed)
+        if failed:
+            return False, _('%s (id=%s) [%s]: advance payment failed: %s') % (
+                *args, '; '.join(failed.mapped('internal_info')))
+
+        # No matching e-commerce transaction was applied (setting disabled, or no data e.g.
+        # cash on delivery / bank transfer) -- fall back to a manual advance payment for the
+        # full residual, same as the `register_payment` step does for invoices with no
+        # transaction data. Keeps both payment steps equally predictable for customers.
+        # `amount_residual` only exists when the OCA module is installed; without it we
+        # can't tell whether anything is still due, so fail loudly instead of silently
+        # reporting success.
+        if not is_sale_advance_payment_installed(self.env):
+            return False, _(
+                '%s (id=%s) [%s]: cannot register advance payment — the required OCA '
+                '"Sale Advance Payment" module is not installed.'
+            ) % args
+
+        if self.amount_residual > 0:
+            self._integration_register_advance_payment_fallback()
+
+        return True, _('%s (id=%s) [%s]: advance payments applied.') % args
+
+    def _integration_register_advance_payment_fallback(self):
+        """Book a manual advance payment for the full residual amount.
+
+        Mirrors `_integration_register_payment_one`'s fallback: when no e-commerce
+        transaction data was available to apply as a real payment, the order is still
+        recorded as paid in advance rather than left unpaid.
+        """
+        self.ensure_one()
+
+        journal = self.integration_pipeline.get_payment_journal_or_raise()
+
+        wizard = self.env['account.voucher.wizard'] \
+            .with_context(
+                active_ids=self.ids,
+                default_integration_id=self.integration_id.id,
+            ).create({
+                'order_id': self.id,
+                'amount_total': self.amount_residual,
+                'amount_advance': self.amount_residual,
+                'currency_id': self.pricelist_id.currency_id.id,
+                'journal_id': journal.id,
+                'date': fields.Date.context_today(self),
+            })
+
+        wizard.make_advance_payment()
 
     def _integration_validate_picking(self):
         _logger.info('Run integration auto-workflow validate_picking: %s', self)
@@ -945,6 +1042,11 @@ class SaleOrder(models.Model):
             return True
 
         journal = self.integration_pipeline.get_payment_journal_or_raise()
+
+        # Use the payment method mapped to the external payment method, if any.
+        payment_method_line = self.integration_pipeline.payment_method_external_id.payment_method_line_id
+        if payment_method_line:
+            self = self.with_context(default_payment_method_line_id=payment_method_line.id)
 
         wizard = self.env['account.payment.register'] \
             .with_context(
@@ -1730,9 +1832,7 @@ class SaleOrder(models.Model):
         # Validate external fulfillments if the integration supports it
         self._integration_apply_external_fulfillments()
 
-        # Create advance payments if the integration supports it (_validate_as_advance_payment)
-        if self.integration_id.create_advance_payments:
-            self._integration_apply_external_payments()
+        # Advance payments are handled by the `apply_advance_payment` workflow step.
 
         return True
 
@@ -1751,7 +1851,7 @@ class SaleOrder(models.Model):
             for record in self.external_fulfillment_ids.filtered(lambda x: x.is_ecommerce_ok and not x.is_done):
                 record.validate()
 
-    def _integration_apply_external_payments(self, from_invoice_post: bool = False):
+    def _integration_apply_external_payments(self, as_advance: bool = False):
         self.ensure_one()
 
         integration = self.integration_id
@@ -1761,10 +1861,11 @@ class SaleOrder(models.Model):
             if payments:
                 self.external_payment_ids._raise_if_refund_found()
 
+                # Only the `apply_advance_payment` step asks for advance; everyone else
+                # (e.g. the invoice-post hook) registers the payment against the invoice.
                 for payment in payments:
-                    # force_standard_validation is set during invoice posting to skip
                     payment \
-                        .with_context(integration_skip_advance_payment=from_invoice_post) \
+                        .with_context(integration_apply_advance_payment=as_advance) \
                         .validate()
 
     def action_open_order_in_external_system(self):

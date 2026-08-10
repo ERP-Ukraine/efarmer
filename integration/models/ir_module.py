@@ -10,6 +10,7 @@ INTEGRATION_MODULES = [
     'integration_magento2',
     'integration_shopify',
     'integration_woocommerce',
+    'integration_baselinker',
     'integration_monitoring',
 ]
 

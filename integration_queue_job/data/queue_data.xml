@@ -9,8 +9,13 @@
             <field name="state">code</field>
             <field name="code"># Requeue stuck jobs:
 # - enqueued > 5 min
-# - started  > 15 min
-model.requeue_stuck_jobs(enqueued_delta=5, started_delta=15)
+# - started  > 20 min, or longer if this deployment's limit_time_real demands it
+#
+# Nothing locks a running job, so requeuing one that is still alive executes it
+# twice. 'started_delta' is therefore raised automatically to whatever
+# limit_time_real makes provably safe -- see queue.job._safe_started_delta().
+# Use 0 to never requeue a started job at all.
+model.requeue_stuck_jobs(enqueued_delta=5, started_delta=20)
             </field>
         </record>
         <!-- Queue-job-related subtypes for messaging / Chatter -->

@@ -192,10 +192,13 @@ class OrderParseMixin:
             if self.tax_exempt:
                 taxes = []
             else:
+                # The tax lines were computed on the discounted price, so that - not the
+                # original one used as `shipping_cost` above - is the base to validate against.
+                taxable_base = shipping_line.get_price(use_customer_currency)
                 taxes = [
                     x.to_odoo_format(self.taxes_included_in_price)
                     for x in shipping_line.tax_lines
-                    if not x.is_zero_amount_tax
+                    if not x.is_rate_amount_mismatch(taxable_base)
                 ]
             note = self.note or ''
 
@@ -387,6 +390,11 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
         return bool(self['taxesIncluded'])
 
     @property
+    def duties_included(self):
+        self.ensure_one()
+        return bool(self['dutiesIncluded'])
+
+    @property
     def requires_shipping(self):
         self.ensure_one()
         return self['requiresShipping']
@@ -543,10 +551,7 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
 
         # If the delivery method is not found by shipping code, return the first valid delivery method.
         if not delivery_method:
-            raise self._es.ValidationError(
-                'Delivery method may not be parsed. Please contact VentorTech support '
-                'at support@ventor.tech to report this issue.',
-            )
+            return delivery_method_first
 
         return delivery_method
 
@@ -565,10 +570,16 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
         self.ensure_one()
         fulfillment_orders = self.fulfillment_orders
 
-        if len(fulfillment_orders) != 1:
+        # 1. Skip falsy values
+        location_ids = list(filter(None, [x.location.id for x in fulfillment_orders]))
+
+        # 2.1 If there are no location ids, return False
+        # 2.2 If there are multiple location ids, return False. Each location will be processed on the OrderLine level
+        if not location_ids or len(set(location_ids)) > 1:
             return False
 
-        return fulfillment_orders[0].location.id_str
+        # 3. If there is only one location id, return it
+        return str(location_ids[0])
 
     @property
     def billing_matches_shipping(self):
@@ -580,12 +591,14 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
         self.ensure_one()
         return self._env.BusinessEntity.set(**(self['merchantBusinessEntity'] or {}))
 
-    def get_batch_body_minimal(self, filter_params: str = ''):
-        return self.get_batch(
+    def get_orders_page(self, filter_params: str = '', page_token: str = None):
+        orders = self.get_batch(
             body=self.ORDER_INPUT_FILE_BODY,
             arguments='sortKey: UPDATED_AT',
             filter_params=filter_params,
+            after=page_token,
         )
+        return orders, (self.cursor or None)
 
     def get_batch_for_payment_methods(self):
         return self.get_batch(

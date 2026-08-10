@@ -9,4 +9,9 @@
         <field name="code">customer</field>
         <field name="name">Customers Sync</field>
     </record>
+
+    <record id="integration_log_type_order_import" model="integration.log.type">
+        <field name="code">order_import</field>
+        <field name="name">Orders Import</field>
+    </record>
 </odoo>

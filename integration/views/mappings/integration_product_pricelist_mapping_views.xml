@@ -11,13 +11,6 @@
                     <field name="integration_id"/>
                     <field name="external_pricelist_id" domain="[('integration_id', '=', integration_id)]"/>
                     <field name="pricelist_id" domain="[('company_id', 'in', [company_id, False])]"/>
-                    <field name="type_api" column_invisible="1"/>
-                    <button name="import_special_prices_mapping"
-                            type="object"
-                            string="Synchronize"
-                            invisible="not pricelist_id or type_api != 'prestashop'"
-                            icon="fa-refresh"
-                            class="btn-outline-primary"/>
                 </list>
             </field>
         </record>

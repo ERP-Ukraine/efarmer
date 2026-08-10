@@ -159,7 +159,13 @@ class ShopifyWebhook(Controller, IntegrationWebhook):
         }
 
     # Handle orders
-    @route(f'/<string:dbname>/integration/{SHOPIFY}/<int:integration_id>/orders', **_kwargs)
+    @route(
+        [
+            f'/integration/<string:dbname>/{SHOPIFY}/<int:integration_id>/orders',
+            f'/<string:dbname>/integration/{SHOPIFY}/<int:integration_id>/orders',
+        ],
+        **_kwargs,
+    )
     @build_environment
     @validate_integration
     def shopify_receive_orders(self, *args, **kw):
@@ -258,7 +264,13 @@ class ShopifyWebhook(Controller, IntegrationWebhook):
         return Response(f'Job created for order with code={external_order_id}. Action: process partially fulfill order')
 
     # Handle products
-    @route(f'/<string:dbname>/integration/{SHOPIFY}/<int:integration_id>/products', **_kwargs)
+    @route(
+        [
+            f'/integration/<string:dbname>/{SHOPIFY}/<int:integration_id>/products',
+            f'/<string:dbname>/integration/{SHOPIFY}/<int:integration_id>/products',
+        ],
+        **_kwargs,
+    )
     @build_environment
     @validate_integration
     def shopify_receive_products(self, *args, **kw):

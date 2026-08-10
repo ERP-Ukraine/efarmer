@@ -367,10 +367,11 @@ class IntegrationResPartnerProxy(models.TransientModel):
 
             # Special case: phone → search in both phone and phone_sanitized
             if key == 'phone':
+                sanitized_value = values.get('phone_sanitized') or value
                 domain.extend([
                     '|',
                     (key, op, value),
-                    ('phone_sanitized', '=ilike', value),
+                    ('phone_sanitized', '=', sanitized_value),
                 ])
                 continue
 
@@ -1167,7 +1168,12 @@ class IntegrationResPartnerProxy(models.TransientModel):
             ('country_id', '='),
         ])
 
-        domain = self._build_search_domain(search_criteria, address_vals)
+        # phone_sanitized is used only for matching and must not be written explicitly.
+        search_values = dict(address_vals)
+        if self.phone_sanitized:
+            search_values['phone_sanitized'] = self.phone_sanitized
+
+        domain = self._build_search_domain(search_criteria, search_values)
 
         domain.append(('type', 'in', ['other', 'invoice', 'delivery']))
 

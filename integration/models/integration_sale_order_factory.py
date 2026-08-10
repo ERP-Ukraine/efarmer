@@ -18,6 +18,7 @@ _logger = logging.getLogger(__name__)
 
 # Mark strings for extraction (never executed, just for translation tools)
 _lt('Discount for %s')
+_lt('Duties for %s')
 _lt('Coupon: %s')
 _lt('Pickup Point: %s')
 
@@ -76,6 +77,10 @@ class IntegrationSaleOrderFactory(models.TransientModel):
             order = self._create_order(order_data)
             order.create_mapping(integration, order_data['id'], extra_vals={'name': order.name})
             self._post_create_order(order, order_data)
+        elif self.input_file_id not in order.related_input_files:
+            # Re-import of an already-mapped order: link the current input file,
+            # otherwise the input file stays orphaned (no order_id / no pipeline).
+            order.related_input_files = [(4, self.input_file_id.id)]
 
         return order
 
@@ -188,6 +193,10 @@ class IntegrationSaleOrderFactory(models.TransientModel):
             if integration.separate_discount_line:
                 for discount_line_vals in self._prepare_order_discount_line_vals(order, line):
                     lines_to_create.append((0, 0, discount_line_vals))
+
+            # Separate duty lines (if the line carries duties)
+            for duty_line_vals in self._prepare_order_duty_line_vals(order, line):
+                lines_to_create.append((0, 0, duty_line_vals))
 
         # Hook for customizations
         lines_to_create = self._post_create_order_lines(order, order_data, lines_to_create)
@@ -370,6 +379,79 @@ class IntegrationSaleOrderFactory(models.TransientModel):
 
         return [vals]
 
+    def _prepare_order_duty_line_vals(self, order, line_data, product=None):
+        """
+        Prepare order line values for duty lines (import duties charged by the
+        e-commerce system on a product line, e.g. Shopify Managed Markets).
+
+        Works the same way as `_prepare_order_discount_line_vals`, but duties are
+        positive charges and are always created as separate lines when present.
+
+        :param order: sale.order recordset
+        :param line_data: dict with raw line data from e-commerce platform
+        :param product: product.product recordset (optional)
+        :return: list of dicts with prepared order line values for duty line(s)
+        """
+        duties = line_data.get('duties') or []
+        if not duties:
+            return []
+
+        duty_product = self._get_duty_product()
+
+        if not product:
+            try:
+                product = self._try_get_odoo_product(line_data)
+            except (es.UndefinedExternalProduct, es.NotFoundExternalProduct):
+                product = self.env['product.product']
+
+        if product:
+            line_name = product.display_name
+        else:
+            line_name, line_reference = line_data.get('name'), line_data.get('reference')
+            if line_reference:
+                line_name = f'[{line_reference}] {line_name}'
+
+        # Prepare duty order line Description in customer language (if available)
+        lang = order.partner_id.lang
+        if lang:
+            duty_product = duty_product.with_context(lang=lang)
+
+        duty_description = self._get_translated_string('Duties for %s', line_name, lang=lang)
+        duty_name = self._update_order_description(duty_product, [duty_description])
+
+        result = []
+        for duty in duties:
+            if not duty.get('amount'):
+                continue
+
+            taxes = self.get_taxes_from_external_list(duty_product, duty.get('taxes') or [])
+
+            result.append({
+                'product_id': duty_product.id,
+                'name': duty_name,
+                'price_unit': duty['amount'],
+                'product_uom_qty': 1,
+                'tax_ids': [(6, 0, taxes.ids)],
+            })
+
+        return result
+
+    def _get_duty_product(self):
+        integration = self.integration_id
+        if not integration.duty_product_id:
+            raise es.ApiImportError(
+                _(
+                    'The order contains import duties, but the Duties Product is not configured '
+                    'for the "%s" integration.\n'
+                    'To resolve this issue, please configure the "Duties Product" setting in '
+                    'the "Sales Orders" tab of the integration settings:\n'
+                    '1. Go to "E-Commerce Integrations → Stores → %s → Sales Orders" tab.\n'
+                    '2. Set the "Duties Product" field.\n\n'
+                    'Once this is done, requeue the job to continue processing.'
+                ) % (integration.name, integration.name)
+            )
+        return integration.duty_product_id
+
     def _get_order_pricelist(self, order_currency_iso, partner):
         integration = self.integration_id
         company = integration.company_id
@@ -456,7 +538,7 @@ class IntegrationSaleOrderFactory(models.TransientModel):
         try:
             product = self._try_get_odoo_product(line_data)
             vals['product_id'] = product.id
-        except (es.UndefinedExternalProduct) as error:
+        except (es.UndefinedExternalProduct, es.NotFoundExternalProduct) as error:
             line_name, line_reference = line_data['name'], line_data['reference']
 
             # Try to get fallback product if the product is not found or not defined

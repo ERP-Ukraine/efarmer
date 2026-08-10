@@ -140,6 +140,7 @@ class ProductEcommerceField(models.Model):
     is_default = fields.Boolean(
         string='Default',
         default=False,
+        copy=False,
         help='Technical field',
     )
 
@@ -383,27 +384,25 @@ class ProductEcommerceField(models.Model):
 
         return super(ProductEcommerceField, self).create(vals_list)
 
+    def copy(self, default=None):
+        """
+        Duplicate field configurations.
+        """
+        copies = self.browse()
+
+        for record in self:
+            record_default = dict(default or {})
+            record_default.setdefault('name', f'{record.name} (Copy)')
+
+            copies |= super(ProductEcommerceField, record).copy(record_default)
+
+        return copies
+
     def make_copy(self):
         """
-        Create a copy of the field configuration with default scripts.
+        Duplicate the selected field configurations.
         """
-        self.ensure_one()
-
-        kw = {}
-
-        if not self.import_script:
-            kw['import_script'] = SCRIPT_PATTERN
-
-        if not self.export_script:
-            kw['export_script'] = SCRIPT_PATTERN
-
-        return self.copy(
-            default={
-                'is_default': False,
-                'name': self.name + ' (Copy)',
-                **kw,
-            }
-        )
+        return self.copy()
 
     def _get_mapping_for_integration(self, integration_id: int, mark_active: bool = True):
         """
@@ -600,7 +599,6 @@ class ProductEcommerceField(models.Model):
             'datetime': datetime,
             'UserError': UserError,
             'ValidationError': ValidationError,
-            'DATETIME_FORMAT': kw['integration'].datetime_format,
             **kw,
         }
 
@@ -624,10 +622,10 @@ class ProductEcommerceField(models.Model):
         :param odoo_id: Optional Odoo record ID (product.template or product.product)
         :return: Dict with {odoo_field_name: converted_value} or script result
         """
-        _logger.info('%s: calculate_import_value: %s', integration_id, self.technical_name)
+        _logger.debug('%s: calculate_import_value: %s', integration_id, self.technical_name)
         self.ensure_one()
 
-        _logger.info(
+        _logger.debug(
             '[%s] Integration preprocessing IN: Processing script for %s (id=%s)',
             integration_id, self.name, self.id
         )
@@ -649,7 +647,7 @@ class ProductEcommerceField(models.Model):
         :param data: Tuple of (template_data, variant_data) from external API
         :return: Dict with {odoo_field_name: converted_value}
         """
-        _logger.info('%s: _build_import_field_dict: %s', integration_id, self.technical_name)
+        _logger.debug('%s: _build_import_field_dict: %s', integration_id, self.technical_name)
         self.ensure_one()
 
         value = self._extract_import_value(integration_id, data)
@@ -772,7 +770,7 @@ class ProductEcommerceField(models.Model):
         :param odoo_id: Odoo record ID (product.template or product.product)
         :return: Dict with {api_field_name: converted_value} or script result
         """
-        _logger.info('Integration %s: calculate_export_value: %s', integration_id, self.technical_name)
+        _logger.debug('Integration %s: calculate_export_value: %s', integration_id, self.technical_name)
         self.ensure_one()
 
         script = self.export_script_clean
@@ -792,7 +790,7 @@ class ProductEcommerceField(models.Model):
         :param odoo_id: Odoo record ID (product.template or product.product)
         :return: Dict with {api_field_name: converted_value}
         """
-        _logger.info('Integration %s: _build_export_field_dict: %s', integration_id, self.technical_name)
+        _logger.debug('Integration %s: _build_export_field_dict: %s', integration_id, self.technical_name)
         self.ensure_one()
 
         value = self._prepare_export_value(integration_id, odoo_id)

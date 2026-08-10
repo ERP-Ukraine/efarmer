@@ -4,7 +4,6 @@ import logging
 
 from odoo import fields, models, api, _
 from odoo.tools import float_is_zero
-from odoo.tools.misc import groupby
 
 
 _logger = logging.getLogger(__name__)
@@ -25,7 +24,7 @@ class ProductProduct(models.Model):
     integration_variant_image_ids = fields.One2many(
         comodel_name='ecommerce.product.image',
         inverse_name='product_variant_id',
-        string='Extra Variant Images',
+        string='Additional Variant Images',
     )
 
     variant_extra_price = fields.Float(
@@ -51,6 +50,11 @@ class ProductProduct(models.Model):
         comodel_name='integration.product.product.mapping',
         inverse_name='product_id',
         string='E-Commerce Store Mappings',
+    )
+
+    pending_first_export_warning = fields.Text(
+        related='product_tmpl_id.pending_first_export_warning',
+        string='Pending First Export Warning',
     )
 
     mapping_count = fields.Integer(
@@ -130,25 +134,12 @@ class ProductProduct(models.Model):
 
         products = super(ProductProduct, self.with_context(ctx)).create(vals_list)
 
-        # If `from_product_template` flag is True, export will be triggered from parent template.
-        if ctx.get('skip_product_export') or from_product_template:
-            return products
-
-        # If there are no integrations with "Export Product Template Job Enabled" flag -> exit
-        if not self.env['sale.integration'].get_integrations('export_template'):
-            return products
-
-        router = {rec.id: vals for rec, vals in zip(products, vals_list)}
-
-        for template, variant_list in groupby(products, key=lambda x: x.product_tmpl_id):
-            if not template.product_variant_ids or template.exclude_from_synchronization:
-                continue
-
-            vals = dict()
-            for variant in variant_list:
-                vals.update(router[variant.id])
-
-            template._trigger_export_single_template(vals, first_export=True)
+        # Creating a variant only links it to the selected stores. When a variant is created standalone (not driven
+        # by a template create, which handles this itself), evaluate "Auto-Export New Products" at the template level.
+        if not from_product_template and not (ctx.get('skip_product_export') or ctx.get('skip_pending_first_export')):
+            templates = products.mapped('product_tmpl_id')
+            templates._set_pending_first_export()
+            templates._process_pending_first_export()
 
         return products
 
@@ -167,7 +158,16 @@ class ProductProduct(models.Model):
         if from_product_template or ctx.get('from_product_create'):
             return result
 
-        # If there are no integrations with "Export Product Template Job Enabled" flag -> exit
+        # A product marked pending AT CREATION publishes itself once its required fields are filled (a variant
+        # write filling the internal reference is the usual trigger), and drops stores that were unlinked /
+        # already published. Linking an EXISTING product to a new store never auto-exports here — that first
+        # push is a manual action ("Export to Stores" / the linking wizard's "Link & export now").
+        if not ctx.get('skip_pending_first_export'):
+            pending_templates = self.mapped('product_tmpl_id').filtered('pending_export_integration_ids')
+            if pending_templates:
+                pending_templates._process_pending_first_export()
+
+        # If there are no integrations with "Auto-Export Product Updates" enabled -> exit
         if not self.env['sale.integration'].get_integrations('export_template'):
             return result
 
@@ -175,7 +175,7 @@ class ProductProduct(models.Model):
             if not template.product_variant_ids or template.exclude_from_synchronization:
                 continue
 
-            template._trigger_export_single_template(vals)
+            template._export_changes_to_mapped_integrations(vals)
 
         return result
 
@@ -202,6 +202,9 @@ class ProductProduct(models.Model):
 
     def is_image_from_parent(self):
         return bool(self.image_1920) and not bool(self.image_variant_1920)
+
+    def action_export_to_stores(self):
+        return self.mapped('product_tmpl_id').action_export_to_stores()
 
     def export_images_to_integration(self):
         return self.product_tmpl_id.export_images_to_integration()

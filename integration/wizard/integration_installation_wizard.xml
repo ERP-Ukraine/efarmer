@@ -50,7 +50,9 @@
                                             <span class="mb-4">
                                                 Connectors, printing tools, and other Odoo apps built to make your business run smoother. Take a look at what else we offer.
                                             </span>
-                                            <a href="https://ecosystem.ventor.tech/" class="btn btn-outline-primary w-100 mt-2" target="_blank" role="button">Explore our apps</a>
+                                            <div class="mt-2">
+                                                <a href="https://ecosystem.ventor.tech/" class="btn btn-outline-primary" target="_blank" role="button">Explore our apps</a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

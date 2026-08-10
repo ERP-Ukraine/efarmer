@@ -18,7 +18,10 @@ INTEGRATION_API_HEADER = 'Integration-Api-Key'
 class ExternalIntegration(Controller):
 
     @route(
-        '/<string:dbname>/integration/<int:integration_id>/external-order/<string:order_id>',
+        [
+            '/integration/<string:dbname>/<int:integration_id>/external-order/<string:order_id>',
+            '/<string:dbname>/integration/<int:integration_id>/external-order/<string:order_id>',
+        ],
         type='http', methods=['GET'], auth='none',
     )
     @build_environment

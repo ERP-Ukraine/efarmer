@@ -49,7 +49,6 @@
 
     <menuitem id="menu_catalog_categories"
               action="ecommerce_product_category_action"
-              parent="sale.menu_sale_config"
-              sequence="1"/>
+              parent="menu_sale_configuration_integration"/>
 
 </odoo>

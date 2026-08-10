@@ -1,97 +1,60 @@
 # See LICENSE file for full copyright and licensing details.
 
-from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo import models, fields, _
+
+from ...exceptions import ErrorStore as es
 
 
 class IntegrationSaleSubStatusExternal(models.Model):
     _name = 'integration.sale.order.sub.status.external'
-    _inherit = 'integration.external.mixin'
+    _inherit = ['integration.external.mixin', 'integration.workflow.automation.mixin']
     _description = 'E-commerce Order Status Configuration'
     _odoo_model = 'sale.order.sub.status'
 
     # Override this field from external mixin to provide custom name
     name = fields.Char(
-        string='Order Status Name',
+        string='Order Status',
         help='Name of the order status as it appears in the e-commerce system',
     )
 
-    validate_order = fields.Boolean(
-        string='Confirm Sales Order',
-        help='Automatically confirm the sales order when this status is reached',
-    )
-    validate_picking = fields.Boolean(
-        string='Validate Delivery',
-        help='Automatically validate the delivery when this status is reached',
-    )
-    create_invoice = fields.Boolean(
-        string='Create Invoice',
-        help='Automatically create a customer invoice when this status is reached',
-    )
-    invoice_journal_id = fields.Many2one(
-        comodel_name='account.journal',
-        string='Invoice Journal',
-        domain="[('type', '=', 'sale'), ('company_id', '=', company_id)]",
-        help='Journal to use when creating invoices for this order status',
-    )
-    validate_invoice = fields.Boolean(
-        string='Confirm Invoice',
-        help='Automatically confirm the invoice when this status is reached',
-    )
-    send_invoice = fields.Boolean(
-        string='Send Invoice to Customer',
-        help='Automatically send the invoice to the customer when this status is reached',
-    )
-    register_payment = fields.Boolean(
-        string='Register Payment',
-        help='Automatically register payment when this status is reached',
-    )
-
-    @staticmethod
-    def _get_workflow_task_list():
-        """
-        Get the ordered list of workflow tasks.
-
-        Note: The order of tasks is critical for proper workflow execution.
-
-        Returns:
-            list: Ordered list of workflow task field names
-        """
-        return [
-            'validate_order',
-            'validate_picking',
-            'create_invoice',
-            'validate_invoice',
-            'send_invoice',
-            'register_payment',
-        ]
-
-    @api.onchange('validate_order')
-    def _onchange_validate_order(self):
-        """Reset dependent fields when order validation is disabled"""
-        if not self.validate_order:
-            self.validate_picking = False
-            self.create_invoice = False
-            self.invoice_journal_id = False
-            self.validate_invoice = False
-            self.send_invoice = False
-            self.register_payment = False
-
-    @api.onchange('create_invoice')
-    def _onchange_create_invoice(self):
-        """Reset dependent fields when invoice creation is disabled"""
-        if not self.create_invoice:
-            self.invoice_journal_id = False
-            self.validate_invoice = False
-            self.send_invoice = False
-            self.register_payment = False
-
-    @api.onchange('validate_invoice')
-    def _onchange_validate_invoice(self):
-        """Reset dependent fields when invoice validation is disabled"""
-        if not self.validate_invoice:
-            self.send_invoice = False
-            self.register_payment = False
+    def action_open_workflow_wizard(self):
+        """Open the automation wizard, pre-filled with this status's current settings."""
+        self.ensure_one()
+        type_labels = dict(
+            self.env['sale.integration']._fields['type_api']._description_selection(self.env)
+        )
+        integration = self.integration_id
+        title = ' › '.join(filter(None, [
+            type_labels.get(integration.type_api),
+            integration.name,
+            self.name,
+        ]))
+        wizard = self.env['integration.sale.order.sub.status.bulk.wizard'].create({
+            'sub_status_ids': [(6, 0, self.ids)],
+            'validate_order': self.validate_order,
+            'apply_advance_payment': self.apply_advance_payment,
+            'validate_picking': self.validate_picking,
+            'create_invoice': self.create_invoice,
+            'invoice_journal_id': self.invoice_journal_id.id,
+            'invoice_date_source': self.invoice_date_source,
+            'validate_invoice': self.validate_invoice,
+            'send_invoice': self.send_invoice,
+            'register_payment': self.register_payment,
+        })
+        return {
+            'type': 'ir.actions.act_window',
+            'name': title,
+            'res_model': wizard._name,
+            'res_id': wizard.id,
+            'view_mode': 'form',
+            'views': [(
+                self.env.ref(
+                    'integration.integration_sale_order_sub_status_bulk_wizard_view_form'
+                ).id,
+                'form',
+            )],
+            'target': 'new',
+        }
 
     def retrieve_active_workflow_tasks(self):
         """
@@ -101,10 +64,9 @@ class IntegrationSaleSubStatusExternal(models.Model):
             list: List of tuples (task_name, is_active, priority)
         """
         self.ensure_one()
-        task_list = self._get_workflow_task_list()
 
         active_task_list = list()
-        for idx, task_name in enumerate(task_list, start=1):
+        for idx, task_name in enumerate(self._get_workflow_task_list(), start=1):
             task_enable = True if getattr(self, task_name) else False
             active_task_list.append((task_name, task_enable, idx))
 
@@ -221,13 +183,13 @@ class IntegrationSaleSubStatusExternal(models.Model):
             ])
 
             if len(odoo_status) > 1:
-                raise UserError(_(
+                raise es.UserError(_(
                     'Multiple order statuses with the name "%s" were found. Please ensure that status names '
                     'are unique within each integration to avoid conflicts.'
                 ) % self.name)
 
             if odoo_status:
-                raise UserError(_(
+                raise es.UserError(_(
                     'An order status with the name "%s" already exists for this integration. '
                     'Please use a different name to avoid duplication.'
                 ) % self.name)

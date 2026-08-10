@@ -70,6 +70,10 @@ class ExternalOrderResource(models.AbstractModel):
     def is_done(self):
         return self.internal_status == 'done'
 
+    @property
+    def is_external_failed(self):
+        return self.is_ecommerce_ok and self.internal_status == 'failed'
+
     def _compute_is_ecommerce_ok(self):
         for rec in self:
             rec.is_ecommerce_ok = False

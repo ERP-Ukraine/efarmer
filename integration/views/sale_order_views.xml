@@ -35,8 +35,12 @@
                     </button>
                     <button class="oe_stat_button" type="object" name="action_integration_pipeline_form" icon="fa-magic"
                             invisible="not integration_id">
-                        <span invisible="not integration_id" class="o_stat_text">
-                            Order Workflow
+                        <field name="integration_pipeline_failed" invisible="1"/>
+                        <span class="o_stat_text" invisible="integration_pipeline_failed">
+                            Order Automation
+                        </span>
+                        <span class="o_stat_text text-danger" invisible="not integration_pipeline_failed">
+                            Automation Failed
                         </span>
                     </button>
                 </xpath>

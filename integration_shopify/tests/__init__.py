@@ -5,6 +5,7 @@ from . import json_data
 from . import init_integration_shopify
 
 from . import test_integration_shopify
+from . import test_receive_orders_pagination
 from . import test_apply_external_fulfillments
 from . import test_is_importable_order_status
 from . import test_is_importable_product

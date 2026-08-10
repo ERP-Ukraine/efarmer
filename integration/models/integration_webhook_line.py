@@ -47,6 +47,10 @@ class IntegrationWebhookLine(models.Model):
             value = rec.is_active
             rec.is_active = not value
 
+    def action_delete_webhook(self):
+        self.ensure_one()
+        return self.integration_id.delete_webhook(self)
+
     def _compute_controller_route(self):
         for rec in self:
             method = rec.controller_method

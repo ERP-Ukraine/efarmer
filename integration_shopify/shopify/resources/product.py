@@ -527,7 +527,7 @@ class Product(ShopifyResourceUpdate, ProductMixin):
                 variables={
                     'productId': self.gid,
                     'options': payload,
-                    # Existing variants are updated with the first option value of each added option  New variants
+                    # Existing variants are updated with the first option value of each added option. New variants
                     # are created for each combination of existing variant option values and new option values.
                     'variantStrategy': 'CREATE',
                 },
@@ -541,7 +541,7 @@ class Product(ShopifyResourceUpdate, ProductMixin):
         return False
 
     def _run_option_values_delete_if_needed(self, attribute_values: list):
-        """Currently we are only deleting unnecessary option values"""
+        """Add missing option values and delete ones that are no longer needed."""
         self.ensure_one()
 
         refresh = False
@@ -552,12 +552,18 @@ class Product(ShopifyResourceUpdate, ProductMixin):
 
             option_name = option.name
             if option_name in attributes_by_name:
+                existing_option_values = [x.name for x in option.option_values]
                 input_option_values = [x['name'] for x in attributes_by_name[option_name]]
 
                 # 1. Delete unnecessary option values
                 for option_value in option.option_values:
                     if option_value.name not in input_option_values:
                         option_values_delete_ids.append(option_value.gid)
+
+                # 2. Add missing option values
+                for value_name in input_option_values:
+                    if value_name not in existing_option_values:
+                        option_values_to_add.append({'name': value_name})
 
             # 3. Update option
             if option_values_delete_ids or option_values_to_add:
@@ -568,6 +574,7 @@ class Product(ShopifyResourceUpdate, ProductMixin):
                         'option': {
                             'id': option.gid,
                         },
+                        'optionValuesToAdd': option_values_to_add,
                         'optionValuesToDelete': option_values_delete_ids,
                         # Variants are created and deleted according to the option values to add and to delete.
                         'variantStrategy': 'MANAGE',

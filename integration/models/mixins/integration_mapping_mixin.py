@@ -154,17 +154,27 @@ class IntegrationMappingMixin(models.AbstractModel):
             return self.browse()
 
         if len(external) > 1:
+            conflicting = ', '.join('"%s"' % name for name in external.mapped('display_name'))
             raise ValidationError(_(
-                'Multiple external records found that match the criteria for mapping. This may be due to:\n'
-                '1. Duplicate records with the same "Code" field value.\n'
-                '2. Duplicate records with the same "Name" field value.\n'
-                '3. A possible bug in the connector.\n\n'
-                'Model: %s\n'
-                'Record IDs: %s\n'
-                'Integration: %s\n\n'
-                'Please review the external records for duplicates or inconsistencies and try again. '
-                'If the issue persists, contact the support team for further assistance: https://support.ventor.tech/'
-            ) % (self._name, external, integration.name))
+                'More than one record in your store "%(store)s" matches the same value, '
+                'so Odoo cannot decide which one to link to.\n\n'
+                'This is usually caused by duplicated records in the store that share the same '
+                '"Name" (for example two attributes both named "Color").\n\n'
+                'Conflicting records: %(conflicting)s\n\n'
+                'How to fix it:\n'
+                '  1. In your store, make sure there are no duplicated records with the same name '
+                'and remove any duplicates.\n'
+                '  2. In Odoo, remove the duplicated external records:\n'
+                '     E-Commerce Integrations -> External Records -> (the entity listed above) and '
+                'delete the duplicates.\n'
+                '  3. Alternatively, remove all external records and re-import them so they are up to date:\n'
+                '     E-Commerce Integrations -> %(store)s -> Data Import -> Open Import Wizard.\n'
+                '  4. Retry the failed action or restart the failed job.\n\n'
+                'If the problem continues, please contact our support team: https://support.ventor.tech'
+            ) % {
+                'store': integration.name,
+                'conflicting': conflicting,
+            })
 
         __, external_field_name = self._mapping_fields
 
@@ -190,8 +200,22 @@ class IntegrationMappingMixin(models.AbstractModel):
 
         if not record and raise_error:
             raise NotMappedFromExternal(_(
-                'Unable to map the external code "%s" to an Odoo record.'
-            ) % code, model_name=self._name, code=code, integration=integration)
+                'The value "%(code)s" coming from your store is not linked to any record in Odoo yet, '
+                'so the import cannot continue.\n\n'
+                'This happens when the value exists in your store but the matching Odoo record was '
+                'never imported or never mapped to it.\n\n'
+                'How to fix it:\n'
+                '  1. Open the mapping for this entity in Odoo '
+                '(E-Commerce Integrations -> Mappings -> the entity listed above) and link the '
+                'external value "%(code)s" to the correct Odoo record.\n'
+                '  2. If the value is missing entirely, re-import the records from your store '
+                '(E-Commerce Integrations -> %(store)s -> Data Import -> Open Import Wizard) and map it.\n'
+                '  3. Retry the failed action or restart the failed job.\n\n'
+                'If the problem continues, please contact our support team: https://support.ventor.tech'
+            ) % {
+                'code': code,
+                'store': integration.name,
+            }, model_name=self._name, code=code, integration=integration)
 
         return record
 
@@ -206,7 +230,8 @@ class IntegrationMappingMixin(models.AbstractModel):
 
         if not mapping and raise_error:
             raise NotMappedToExternal(
-                _('Unable to find a corresponding external record for the given Odoo record.'),
+                _('The Odoo record "%s" has not been exported to your store yet, '
+                  'so there is no matching record in the store to link it to.') % odoo_value.display_name,
                 model_name=odoo_value._name,
                 obj_id=odoo_value.id,
                 integration=integration,

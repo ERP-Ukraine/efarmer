@@ -58,7 +58,9 @@ export class IntegrationStatusMenu extends Component {
 
             this.state.isManager = await this.user.hasGroup('integration.group_integration_manager');
 
-            if (!this.state.isLoaded) {
+            // Skip the RPC for non-managers: the menu is hidden for them, and on databases
+            // without the integration module the group doesn't exist, so isManager is false
+            if (this.state.isManager && !this.state.isLoaded) {
                 const data = await this.orm.call(
                     "sale.integration",
                     "get_status_menu_data",

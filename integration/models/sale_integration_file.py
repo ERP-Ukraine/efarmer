@@ -6,6 +6,15 @@ import json
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError, ValidationError
 
+from .auto_workflow.integration_workflow_pipeline import (
+    STATUS_CANCELLED,
+    STATUS_FAILED,
+    STATUS_RUNNING,
+    STATUS_SKIPPED,
+    STATUS_DONE,
+    STATUS_NONE,
+)
+
 
 class SaleIntegrationFile(models.Model):
     _name = 'sale.integration.file'
@@ -48,6 +57,10 @@ class SaleIntegrationFile(models.Model):
         string='Sales Order',
         comodel_name='sale.order',
         ondelete='set null',
+    )
+    order_sub_status_id = fields.Many2one(
+        related="order_id.sub_status_id",
+        string='Store Status',
     )
     raw_data = fields.Text(
         string='Raw Data in JSON',
@@ -104,30 +117,53 @@ class SaleIntegrationInputFile(models.Model):
         compute='_compute_order_reference',
         help='Reference received from the input file',
     )
-    has_error = fields.Boolean(
-        string='Has Error',
-        compute='_compute_has_error',
+    pipeline_ids = fields.One2many(
+        comodel_name='integration.workflow.pipeline',
+        inverse_name='input_file_id',
+        string='Order Automation',
+    )
+    pipeline_status = fields.Selection(
+        selection=[
+            (STATUS_SKIPPED, 'Not Configured'),
+            (STATUS_CANCELLED, 'Cancelled'),
+            (STATUS_RUNNING, 'Running'),
+            (STATUS_DONE, 'Completed'),
+            (STATUS_FAILED, 'Stopped'),
+            (STATUS_NONE, 'Pending'),
+        ],
+        string='Automation Status',
+        compute='_compute_pipeline_status',
+        store=True,
+        index=True,
+    )
+    pipeline_failed_step = fields.Char(
+        string='Failed Step',
+        compute='_compute_pipeline_failed_step',
     )
 
-    @api.depends('state')
-    def _compute_has_error(self):
+    @property
+    def pipeline(self):
+        return self.pipeline_ids[:1]
+
+    @api.depends('state', 'pipeline_ids.pipeline_task_ids.state')
+    def _compute_pipeline_status(self):
+        # 'cancelled'/'none' are file-level; the rest delegate to pipeline.status
         for rec in self:
-            rec.has_error = rec._has_error()
+            pipeline = rec.pipeline
+            if rec.state == 'cancelled':
+                rec.pipeline_status = STATUS_CANCELLED
+            elif not pipeline:
+                rec.pipeline_status = STATUS_NONE
+            else:
+                rec.pipeline_status = pipeline.status
 
-    def _has_error(self):
-        if self.state not in ('create_order', 'workflow_process'):
-            return False
-
-        order = self.order_id
-        if not order:
-            return True
-        pipeline = order.integration_pipeline
-        if not pipeline:
-            return True
-        if not pipeline.is_done:
-            return True
-
-        return False
+    @api.depends('pipeline_status', 'pipeline_ids.pipeline_task_ids.state')
+    def _compute_pipeline_failed_step(self):
+        for rec in self:
+            if rec.pipeline_status == STATUS_FAILED:
+                rec.pipeline_failed_step = rec.pipeline.failed_task.name
+            else:
+                rec.pipeline_failed_step = False
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -370,6 +406,31 @@ class SaleIntegrationInputFile(models.Model):
         )
         return data
 
+    def action_open_automation_statuses(self):
+        self.ensure_one()
+
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/odoo/eci-order-sub-statuses',
+            'target': 'new',
+        }
+
+    def action_open_order(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/odoo/orders/{self.order_id.id}',
+            'target': 'new',
+        }
+
+    def action_open_store_order(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'url': self.si_id.get_order_url(self.name),
+            'target': 'new',
+        }
+
     def open_pipeline_form(self):
         pipeline = self.order_id.integration_pipeline
 
@@ -399,14 +460,6 @@ class SaleIntegrationInputFile(models.Model):
             'domain': [('id', 'in', jobs.ids)],
             'target': 'current',
         }
-
-    def action_update_current_pipeline(self):
-        for rec in self:
-            rec.update_current_pipeline()
-
-    def action_run_current_pipeline(self):
-        for rec in self:
-            rec.run_current_pipeline()
 
     def _update_from_external(self):
         self.ensure_one()
@@ -493,21 +546,3 @@ class SaleIntegrationInputFile(models.Model):
 
     def _get_file_id_for_log(self):
         return self.id
-
-    def action_open_order(self):
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'res_model': 'sale.order',
-            'res_id': self.order_id.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
-
-    def action_open_store_order(self):
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.act_url',
-            'url': self.si_id.get_order_url(self.name),
-            'target': 'new',
-        }

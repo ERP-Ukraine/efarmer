@@ -47,7 +47,7 @@ class ExportFile(Controller):
         if not file_content:
             return request.not_found(_('No %s content available for this record.') % extension)
 
-        if file_config.get('needs_decode') and isinstance(file_content, str):
+        if file_config.get('needs_decode') and isinstance(file_content, (str, bytes)):
             try:
                 file_content = base64.b64decode(file_content)
             except (binascii.Error, ValueError, TypeError) as e:

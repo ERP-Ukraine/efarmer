@@ -65,6 +65,13 @@ class IntegrationconfigurationWizard(models.TransientModel):
         readonly=True,
     )
 
+    is_baselinker_installed = fields.Boolean(
+        string='Is BaseLinker Installed?',
+        default=lambda self: self._is_module_installed('integration_baselinker'),
+        store=False,
+        readonly=True,
+    )
+
     def go_to_step(self, step_name):
         self.state = step_name
 

@@ -138,7 +138,7 @@ class ProductEcommerceField(models.Model):
         return value
 
     def _build_import_field_dict(self, integration_id: int, data: tuple):
-        _logger.info('%s: _build_import_field_dict: %s. Shopify inheritance.', integration_id, self.technical_name)
+        _logger.debug('%s: _build_import_field_dict: %s. Shopify inheritance.', integration_id, self.technical_name)
         self.ensure_one()
 
         if not self.is_shopify_metafield:
@@ -207,7 +207,7 @@ class ProductEcommerceField(models.Model):
         return _stringify_metafield_value(value, odoo_field_type)
 
     def _build_export_field_dict(self, integration_id: int, odoo_id: int):
-        _logger.info('%s: _build_export_field_dict: %s. Shopify inheritance.', integration_id, self.technical_name)
+        _logger.debug('%s: _build_export_field_dict: %s. Shopify inheritance.', integration_id, self.technical_name)
         self.ensure_one()
 
         integration = self.env['sale.integration'].browse(integration_id)

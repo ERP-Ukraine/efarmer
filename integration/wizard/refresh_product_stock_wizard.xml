@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_refresh_product_stock_wizard" model="ir.ui.view">
+        <field name="name">Refresh Product Stock from Store</field>
+        <field name="model">refresh.product.stock.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Refresh Stock from Store">
+                <field name="allowed_integration_ids" invisible="1"/>
+                <field name="mapped_erp_location_ids" invisible="1"/>
+                <field name="mapped_external_location_ids" invisible="1"/>
+                <field name="supports_external_locations" invisible="1"/>
+                <field name="supports_stock_fetch_by_product" invisible="1"/>
+                <field name="template_id" invisible="1"/>
+                <div class="alert alert-warning" role="alert">
+                    <h4 class="mb-2"><i class="fa fa-warning" title="Warning"/> Warning</h4>
+                    <p class="mb-2">
+                        <strong>Important:</strong> Stock Refresh is a destructive synchronization operation.
+                    </p>
+                    <p class="mb-2">
+                        It is intended for controlled stock alignment from the store to Odoo, similar to initial stock setup.
+                        The imported quantity is applied via inventory adjustment and can replace existing quantities
+                        in mapped Odoo locations.
+                    </p>
+                    <p class="mb-1"><strong>Please run only when:</strong></p>
+                    <ul class="mb-0">
+                        <li>store-to-location mapping is fully validated,</li>
+                        <li>you understand how mapped locations affect final Odoo stock,</li>
+                        <li>tracked (lot/serial) products are handled separately in Odoo.</li>
+                    </ul>
+                </div>
+                <div class="alert alert-warning"
+                    role="alert"
+                    invisible="supports_stock_fetch_by_product or not integration_id">
+                    <p class="mb-0">
+                        This store does not support fetching stock only for the selected product.
+                        Stock refresh may take longer because the connector has to load stock data
+                        for all products in the store before applying the selected ones.
+                    </p>
+                </div>
+
+                <group col="1">
+                    <field name="integration_id" required="1" options="{'no_quick_create':True,'no_create_edit':True}"/>
+
+                    <field name="location_id" options="{'no_quick_create':True,'no_create_edit':True}" invisible="supports_external_locations"/>
+
+                    <field name="wizard_line_ids" nolabel="1" invisible="not supports_external_locations" colspan="2">
+                        <list create="0" edit="0" delete="1">
+                            <field name="erp_location_id"/>
+                            <field name="external_location_id"/>
+                        </list>
+                    </field>
+                </group>
+                <footer>
+                    <button name="run_refresh_stock" string="Refresh" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

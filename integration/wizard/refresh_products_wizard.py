@@ -50,7 +50,7 @@ class RefreshProductsWizard(models.TransientModel):
 
     def run_refresh(self):
         for template in self.template_ids:
-            try :
+            try:
                 external_template = template.to_external_record(self.integration_id)
             except NotMappedToExternal:
                 raise UserError(_(

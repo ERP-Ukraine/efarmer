@@ -319,6 +319,7 @@ class ReadMixin:
         arguments: str = None,
         filter_params: Union[dict, str] = None,
         limit: int = _request_limit,
+        after: str = None,
     ):
         # 1. Prepare request limit
         if limit == self._infinity:
@@ -346,10 +347,11 @@ class ReadMixin:
 
         # 2. Execute query
         result = []
+        cursor = after or self.cursor  # Explicit `after` to support cross-job continuation
         for __ in iterations:
             # 2.1. Prepare query values
-            if self.cursor:
-                values = f'{_values}, after: "{self.cursor}"'
+            if cursor:
+                values = f'{_values}, after: "{cursor}"'
             else:
                 values = _values
 
@@ -362,6 +364,8 @@ class ReadMixin:
 
             if not self.cursor or len(result) >= limit:
                 break
+
+            cursor = self.cursor  # Next page cursor
 
         # 3. Limit result if requested
         if limit != self._infinity:

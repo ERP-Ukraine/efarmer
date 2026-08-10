@@ -54,7 +54,9 @@
                         </div>
                     </div>
 
-                    <div id="advanced_configuration" groups="base.group_no_one">
+                    <field name="module_integration_prestashop" invisible="1"/>
+                    <field name="module_integration_magento2" invisible="1"/>
+                    <div id="advanced_configuration" groups="base.group_no_one" invisible="not module_integration_prestashop and not module_integration_magento2">
                         <h2>Advanced Configuration</h2>
                         <div class="row mt16 o_settings_container" name="product_configuration_container">
                             <div class="col-12 col-lg-6 o_setting_box">

@@ -6,7 +6,7 @@ from odoo.api import Environment
 
 from abc import ABC, abstractmethod
 
-from ..tools import IS_FALSE, is_translated_value, parse_translated_value
+from ..tools import IS_FALSE, is_translated_value, parse_translated_value, CURRENT_ENV
 
 
 class AbsApiClient(ABC):
@@ -39,15 +39,44 @@ class AbsApiClient(ABC):
         value = self._settings['fields'][key]['value']
         return value
 
-    def _get_env(self, kw: dict):
-        env = kw.get('_env')
-        assert isinstance(env, Environment), 'Expected `_env` among key-word arguments'
+    @property
+    def env(self):
+        """The live Odoo ``env`` bound for the current adapter call.
+
+        Published per-call by the ``Adapter`` wrapper (see ``CURRENT_ENV`` in
+        tools.py), because the adapter core is cached/shared and must not hold a
+        stale ``env``. Prefer this (or :attr:`integration`) over the legacy
+        ``_get_env(kw)`` / ``_get_integration(kw)`` + ``@add_dynamic_kwargs``.
+        """
+        env = CURRENT_ENV.get(None)
+        if not isinstance(env, Environment):
+            # AttributeError (not RuntimeError): Odoo's translation machinery resolves `_()` by doing
+            # `getattr(self, 'env', None)` on the adapter when it appears on the call stack. `getattr` only
+            # falls back on AttributeError, so raising anything else here would mask the real exception
+            # (e.g. a UserError) whenever the adapter is used outside a bound `Adapter` call.
+            raise AttributeError('Adapter `env` is not bound for this call')
         return env
 
-    def _get_integration(self, kw: dict):
-        env = self._get_env(kw)
-        assert self._integration_id, 'Expected assigned `integration_id`'
-        return env['sale.integration'].browse(self._integration_id)
+    @property
+    def integration(self):
+        if not self._integration_id:
+            raise ValueError('Expected assigned `integration_id`')
+        return self.env['sale.integration'].browse(self._integration_id)
+
+    def _get_env(self, kw=None):
+        # Backward-compatible: prefer an explicitly-passed `_env` (legacy
+        # @add_dynamic_kwargs path), otherwise fall back to the ambient ContextVar.
+        env = (kw or {}).get('_env')
+        if env is None:
+            return self.env
+        if not isinstance(env, Environment):
+            raise ValueError('Expected `_env` among key-word arguments')
+        return env
+
+    def _get_integration(self, kw=None):
+        if not self._integration_id:
+            raise ValueError('Expected assigned `integration_id`')
+        return self._get_env(kw)['sale.integration'].browse(self._integration_id)
 
     def is_translated_value(self, value):
         return is_translated_value(value)
@@ -177,11 +206,13 @@ class AbsApiClient(ABC):
         return
 
     @abstractmethod
-    def receive_orders(self):
+    def receive_orders(self, page_token=None):
         """
-        Receive orders and prepare input file information
+        Receive one page of orders -> ``(orders, next_page_token)``.
 
-        :return:
+        ``page_token``: opaque continuation cursor (an API cursor, a page number, or an
+        item offset -- connector-specific); ``None`` starts a new import run, and a
+        ``None`` in the result means the run is done.
         """
         return
 
@@ -303,6 +334,25 @@ class AbsApiClient(ABC):
         """
         product_refs - optional product reference(s) to search duplicates
         It can be either string or single list
+        """
+        return
+
+    @abstractmethod
+    def get_validation_tuples(self, ids=None, product_refs=None, **kw):
+        """Return a flat list of validation tuples (plain dicts) for pre-import checks.
+
+        Each dict matches the ``ProductTuple`` schema
+        (``id, name, barcode, ref, parent_id, skip_ref, joint_namespace``).
+
+        Scoping:
+            - ``ids`` - limit to these external template ids (used for batched,
+              background validation);
+            - ``product_refs`` - limit to these references (legacy);
+            - neither - the whole catalog.
+
+        This is the building block behind
+        :meth:`get_templates_and_products_for_validation_test`, exposed
+        separately so the result can be fetched in batches and combined later.
         """
         return
 

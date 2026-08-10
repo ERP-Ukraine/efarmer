@@ -1,6 +1,7 @@
 # See LICENSE file for full copyright and licensing details.
 
 import base64
+import contextvars
 import logging
 import hashlib
 import html
@@ -190,6 +191,12 @@ def not_implemented(method):
     def wrapper(self, *args, **kw):
         es.raise_error(err_code='E111')
     return wrapper
+
+
+def is_sale_advance_payment_installed(env) -> bool:
+    """Check whether the optional OCA `sale_advance_payment` module is installed."""
+    module = env.ref('base.module_sale_advance_payment', raise_if_not_found=False)
+    return bool(module and module.state == 'installed')
 
 
 def raise_requeue_job_on_concurrent_update(method):
@@ -785,6 +792,15 @@ class ExternalImage:
         return f'{self.template_code}-{self.checksum}{self.extension}'
 
 
+# Holds the live ``env`` for the duration of an adapter method call. The adapter
+# core is cached/shared across requests (see AdapterHub), so the request-bound
+# ``env`` must not be stored on it; instead the ``Adapter`` wrapper publishes it
+# here per call. A ContextVar is per-thread/per-context, so this stays correct
+# under both process and thread workers. Core methods read it via
+# ``AbstractApiClient.env`` / ``.integration``.
+CURRENT_ENV = contextvars.ContextVar('integration_adapter_env')
+
+
 class Adapter:
     """Class wrapper for Integration API-Client."""
 
@@ -797,10 +813,24 @@ class Adapter:
 
     def __getattr__(self, name):
         attr = getattr(self.__cache_core, name)
+
+        # Legacy: resolve the @add_dynamic_kwargs two-step curry so the real
+        # callable is invoked. Kept until the decorator is removed (Phase 2);
+        # `_env` is now also available ambiently via `CURRENT_ENV`, below.
         if hasattr(attr, '__name__') and attr.__name__ == '__add_dynamic_kwargs':
-            dynamic_kwargs = self.__get_dynamic_kwargs()
-            return attr(**dynamic_kwargs)
-        return attr
+            attr = attr(**self.__get_dynamic_kwargs())
+
+        if not callable(attr):
+            return attr
+
+        @wraps(attr)
+        def bound(*args, **kwargs):
+            token = CURRENT_ENV.set(self._env)
+            try:
+                return attr(*args, **kwargs)
+            finally:
+                CURRENT_ENV.reset(token)
+        return bound
 
     def __get_dynamic_kwargs(self):
         return {
@@ -828,13 +858,13 @@ class AdapterHub:
     def set_core_cls(cls, integration, key):
         core = integration._build_adapter_core()
         cls._adapter_hub[key] = core
-        _logger.info('Set integration api-client core: %s, %s', key, core)
+        _logger.debug('Set integration api-client core: %s, %s', key, core)
         return core
 
     @classmethod
     def erase_core_cls(cls, key):
         core = cls._adapter_hub.pop(key, False)
-        _logger.info('Erase integration api-client core: %s, %s', key, core)
+        _logger.debug('Erase integration api-client core: %s, %s', key, core)
 
     def get_core(self, integration):
         key = self.get_key(integration)
@@ -848,7 +878,7 @@ class AdapterHub:
                 core = AdapterHub.set_core_cls(integration, key)
 
         core.activate_adapter()
-        _logger.info('Get integration api-client core: %s, %s', key, core)
+        _logger.debug('Get integration api-client core: %s, %s', key, core)
         return core
 
 
@@ -1654,11 +1684,6 @@ class ExtractNode:
             data = self._extract(result, self.keys)
 
             if isinstance(data, ExtractNode.MissedValue):
-                if self._raise_error:
-                    raise es.JsonMissedKey(
-                        'ExtractNode parse error: Key "%s" not found' % ('.'.join(self.keys))
-                    )
-
                 return self.get_default()
 
             return data
@@ -1681,7 +1706,8 @@ class ExtractNode:
                     # If the key is an integer and within the list bounds, continue extraction
                     return self._extract(data[int(key)], remaining_keys)
 
-                _logger.warning('Integration-data parse error: Index "%s" out of range', key)
+                if self._raise_error:
+                    raise es.JsonMissedKey('ExtractNode parse error: Index "%s" out of range' % key)
                 return ExtractNode.MissedValue()
 
             # Handle the all lists elements
@@ -1694,13 +1720,15 @@ class ExtractNode:
             if key in data:
                 return self._extract(data[key], remaining_keys)
 
-            _logger.warning('Integration-data parse error: Key "%s" not found', key)
+            if self._raise_error:
+                raise es.JsonMissedKey('ExtractNode parse error: Key "%s" not found' % key)
             return ExtractNode.MissedValue()
 
         # Unknown data type (neither a list nor a dictionary)_extract
-        _logger.warning(
-            'Integration-data parse error: Expected list or dict at key "%s", got %s', key, type(data).__name__
-        )
+        if self._raise_error:
+            raise es.JsonMissedKey(
+                'ExtractNode parse error: Expected list or dict at key "%s", got %s' % (key, type(data).__name__)
+            )
         return ExtractNode.MissedValue()
 
     def get_default(self):

@@ -12,6 +12,7 @@ from odoo.addons.integration_queue_job.job import Job
 
 from ..tools import ExternalImage
 from ..exceptions import NotMappedToExternal
+from ..exceptions import ErrorStore as es
 from ..models.sale_integration import EXPORT_EXTERNAL_BLOCK
 
 
@@ -20,6 +21,7 @@ _logger = logging.getLogger(__name__)
 INTEGRATION_PRODUCT_TEMPLATE_ACTIONS = [
     'Export to Stores', 'Export Stock to Stores',
     'Manage Store Connections', 'Refresh from Store',
+    'Refresh Stock from Store',
     'View Synchronization History',
 ]
 
@@ -46,7 +48,7 @@ class ProductTemplate(models.Model):
     integration_category_ids = fields.Many2many(
         comodel_name='ecommerce.product.category',
         relation='ecommerce_product_category_product_template_rel',
-        string='Website Product Category',
+        string='E-Commerce Product Category',
     )
 
     available_category_ids = fields.Many2many(
@@ -58,7 +60,7 @@ class ProductTemplate(models.Model):
     integration_template_image_ids = fields.One2many(
         comodel_name='ecommerce.product.image',
         inverse_name='product_tmpl_id',
-        string='Extra Product Media',
+        string='Additional Product Images',
         copy=True,
     )
 
@@ -355,6 +357,22 @@ class ProductTemplate(models.Model):
              'By default it syncs to all.',
     )
 
+    pending_export_integration_ids = fields.Many2many(
+        comodel_name='sale.integration',
+        relation='product_template_pending_export_integration',
+        column1='template_id',
+        column2='integration_id',
+        string='Pending First Export',
+        copy=False,
+        help='Technical field. Stores the e-commerce stores this product still has to be auto-exported to for the '
+             'first time (via "Auto-Export New Products"), once its required fields are filled.',
+    )
+    pending_first_export_warning = fields.Text(
+        string='Pending First Export Warning',
+        compute='_compute_pending_first_export_warning',
+        compute_sudo=True,
+    )
+
     @api.depends('product_variant_ids', 'product_variant_ids.integration_ids')
     def _compute_integration_ids(self):
         # We can't use plain call of self._compute_template_field_from_variant_field('integration_ids') because it
@@ -388,27 +406,28 @@ class ProductTemplate(models.Model):
     def create(self, vals_list):
         # We need to avoid calling export separately from template and variant.
         ctx = dict(self.env.context, from_product_template=True, from_product_create=True)
-        from_product_product = ctx.pop('from_product_product', False)
+        # `from_product_product` would otherwise propagate into nested variant creation; drop it here.
+        ctx.pop('from_product_product', False)
 
         templates = super(ProductTemplate, self.with_context(ctx)).create(vals_list)
 
+        skip_default_linking = ctx.get('skip_product_export') or ctx.get('skip_pending_first_export')
         for template, vals in zip(templates, vals_list):
             if 'integration_ids' in vals:
                 template.product_variant_ids.integration_ids = vals['integration_ids']
+            elif not skip_default_linking:
+                # No explicit stores were passed, so the `integration_ids` field default (the opt-in
+                # "Auto-Export New Products" stores) was applied to the template. But `integration_ids` is
+                # COMPUTED from the variants, so that default value is lost unless it is also pushed down to the
+                # variants here (otherwise `template.integration_ids` reads back empty). Skipped for the
+                # import/copy paths (`skip_*` context), which manage linking themselves.
+                template.product_variant_ids.integration_ids = template._prepare_default_integration_ids()
 
-        # If `from_product_product` flag is True, export will be triggered from it's variant.
-        if ctx.get('skip_product_export') or from_product_product:
-            return templates
-
-        # If there are no integrations with "Export Product Template Job Enabled" flag -> exit
-        if not self.env['sale.integration'].get_integrations('export_template'):
-            return templates
-
-        for template, vals in zip(templates, vals_list):
-            if not template.product_variant_ids or template.exclude_from_synchronization:
-                continue
-
-            template._trigger_export_single_template(vals, first_export=True)
+        # Creating a product only links it to the selected stores. The single exception is the "Auto-Export New
+        # Products" opt-in, which records the product as pending and publishes it once its required fields are filled.
+        if not (ctx.get('skip_product_export') or ctx.get('skip_pending_first_export')):
+            templates._set_pending_first_export()
+            templates._process_pending_first_export()
 
         return templates
 
@@ -427,7 +446,16 @@ class ProductTemplate(models.Model):
         if from_product_product or ctx.get('from_product_create'):
             return result
 
-        # If there are no integrations with "Export Product Template Job Enabled" flag -> exit
+        # A product marked pending AT CREATION publishes itself once its required fields are filled, and drops
+        # stores that were unlinked / already published. Linking an EXISTING product to a new store never
+        # auto-exports here — that first push is a manual action ("Export to Stores" / the linking wizard's
+        # "Link & export now").
+        if not ctx.get('skip_pending_first_export'):
+            pending_templates = self.filtered('pending_export_integration_ids')
+            if pending_templates:
+                pending_templates._process_pending_first_export()
+
+        # If there are no integrations with "Auto-Export Product Updates" enabled -> exit
         if not self.env['sale.integration'].get_integrations('export_template'):
             return result
 
@@ -438,15 +466,25 @@ class ProductTemplate(models.Model):
             if not template.product_variant_ids or template.exclude_from_synchronization:
                 continue
 
-            template._trigger_export_single_template(vals)
+            template._export_changes_to_mapped_integrations(vals)
 
         return result
 
-    def _trigger_export_single_template(self, vals: dict, first_export: bool = False):
+    def _export_changes_to_mapped_integrations(self, vals: dict):
+        """Automatically propagate tracked field changes to integrations where this product is already mapped.
+
+        This is NOT a general export entry point: it only updates listings that already exist in a store. The first
+        push to an integration is always an explicit action (the "Export to Stores" button or the wizard's "Link &
+        export now"). To export a product on demand use `trigger_export()` instead.
+        """
         result = self.env['queue.job']
 
         for integration in self._get_enabled_integrations():
-            export_template = first_export or integration._is_need_export_product(vals)
+            # Skip integrations where this product is not mapped yet, so we never perform a first push automatically.
+            if not self.to_external_record(integration, raise_error=False):
+                continue
+
+            export_template = integration._is_need_export_product(vals)
             export_images = integration._is_need_export_images(vals)
             integration = integration.with_context(company_id=integration.company_id.id)
 
@@ -494,6 +532,83 @@ class ProductTemplate(models.Model):
 
         return integrations
 
+    @api.depends(
+        'pending_export_integration_ids',
+        'product_variant_ids.integration_ids',
+        'product_variant_ids.default_code',
+    )
+    def _compute_pending_first_export_warning(self):
+        # Non-stored: recomputed on every form read, so it is always accurate even for unusual configured required
+        # fields (which the coarse depends above cannot all enumerate).
+        for template in self:
+            messages = list()
+            for integration in template.pending_export_integration_ids:
+                is_valid, message = template.validate_in_odoo(integration, raise_error=False)
+                if not is_valid:
+                    messages.append(_('• %(store)s: %(reason)s') % {'store': integration.name, 'reason': message})
+            template.pending_first_export_warning = '\n'.join(messages).strip()
+
+    def _set_pending_first_export(self):
+        """Mark each product as pending first export to every linked store that has "Auto-Export New Products" on.
+
+        Called from `create()` only: linking an EXISTING product to a store is a manual action and never
+        auto-exports (the first push is always explicit — "Export to Stores" / the linking wizard). Do not call
+        this from `write()`.
+
+        Candidate stores are taken from the VARIANTS (the template `integration_ids` is empty for multi-variant
+        products). Stores where the product is already published are skipped.
+        """
+        for template in self:
+            if template.exclude_from_synchronization:
+                continue
+
+            candidates = template.product_variant_ids.integration_ids.filtered(
+                lambda i: i.state == 'active' and i.auto_export_new_products
+            ).filtered(
+                lambda i: not template.to_external_record(i, raise_error=False)
+            )
+
+            to_add = candidates - template.pending_export_integration_ids
+            if to_add:
+                template.with_context(skip_pending_first_export=True).write({
+                    'pending_export_integration_ids': [(4, integration.id) for integration in to_add],
+                })
+
+    def _process_pending_first_export(self):
+        """Publish products whose required fields are now satisfied to their pending stores, then clear those stores.
+
+        Optimistic: a store is removed from pending as soon as the export is queued. If that queued job later fails
+        (e.g. store API error), it is visible as a failed job and can be re-sent via "Export to Stores".
+        """
+        for template in self:
+            pending = template.pending_export_integration_ids
+            if not pending:
+                continue
+
+            linked = template.product_variant_ids.integration_ids
+            to_remove = self.env['sale.integration']
+
+            for integration in pending:
+                # Store no longer linked, or product already published there -> nothing pending anymore.
+                if integration not in linked or template.to_external_record(integration, raise_error=False):
+                    to_remove |= integration
+                    continue
+
+                is_valid, dummy = template.validate_in_odoo(integration, raise_error=False)
+                if not is_valid:
+                    continue  # keep pending until the required fields are filled
+
+                template.with_context(manual_trigger=True).trigger_export(
+                    export_images=integration.allow_export_images,
+                    force_integrations=integration,
+                )
+                to_remove |= integration  # optimistic: cleared once the export job is queued
+
+            if to_remove:
+                template.with_context(skip_pending_first_export=True).write({
+                    'pending_export_integration_ids': [(3, integration.id) for integration in to_remove],
+                })
+
     @api.onchange('integration_category_ids')
     def _onchange_integration_category_ids(self):
         category_ids = list()
@@ -539,12 +654,18 @@ class ProductTemplate(models.Model):
 
     @staticmethod
     def _get_change_external_message():
-        return _(
-            'Totally %s products are selected. You can define if selected products will'
-            'be synchronised to specific stores. Stores only in "Active"'
-            'state are displayed below. Note that you can define this also on'
-            '"E-Commerce Integration" tab of every product/product variant individually.'
-        )
+        return _('%s product(s) selected. For each store choose an action:')
+
+    def action_export_to_stores(self):
+        """Explicitly publish the selected product(s) to all linked integrations.
+
+        This is the deliberate "push" action (overwrites the product's content and images in every linked store). It
+        is the same path used by the "Export to Stores" menu and ignores the per-integration export-job toggle.
+
+        We request `export_images=True`, but image export is still gated per integration by its `allow_export_images`
+        setting (see `export_template`), so stores with image export disabled are not affected.
+        """
+        return self.with_context(manual_trigger=True).trigger_export(export_images=True)
 
     def export_images_to_integration(self):
         self.ensure_one()
@@ -676,14 +797,24 @@ class ProductTemplate(models.Model):
         variant_ids = self.product_variant_ids
         mandatory_fields = integration.sudo().mandatory_fields_initial_product_export
 
-        for field_name in mandatory_fields.mapped('name'):
-            if not all(variant[field_name] for variant in variant_ids):
-                message = _(
-                    'The product template "%s" or one of its variants does not have '
-                    'the mandatory field "%s" filled.\n\n'
-                    'Please ensure that the field "%s" is populated for all variants before proceeding with the export.'
-                ) % (self.display_name, field_name, field_name)
-                return False, message
+        # Collect ALL missing fields (not just the first), so the user can fix them in one go.
+        missing_fields = mandatory_fields.filtered(
+            lambda f: not all(variant[f.name] for variant in variant_ids)
+        )
+        if missing_fields:
+            # Show the user-friendly label alongside the technical name, e.g. "Internal Reference" (default_code).
+            # Built with an explicit loop (not a generator expression) so `_()` can find `self` on this frame.
+            field_labels = []
+            for field in missing_fields:
+                field_labels.append(
+                    _('"%(label)s" (%(name)s)') % {'label': field.field_description, 'name': field.name}
+                )
+            labels = ', '.join(field_labels)
+            message = _(
+                'The product template "%(template)s" or one of its variants is missing the following required '
+                'field(s): %(fields)s.\n\n'
+            ) % {'template': self.display_name, 'fields': labels}
+            return False, message
 
         return True, ''
 
@@ -965,7 +1096,9 @@ class ProductTemplate(models.Model):
         return {x.name: False for x in mandatory_fields if x.name not in required_fields}
 
     def action_run_refresh_product_info_from_external(self):
-        allowed_integrations = self.product_variant_ids.mapped('integration_ids')
+        allowed_integrations = self.product_variant_ids.mapped('integration_ids').filtered(
+            lambda i: i.state == 'active'
+        )
 
         if not allowed_integrations:
             raise UserError(_(
@@ -989,13 +1122,39 @@ class ProductTemplate(models.Model):
             },
         }
 
+    def action_run_refresh_stock_from_external(self):
+        self.ensure_one()
+
+        allowed_integrations = self.product_variant_ids.mapped('integration_ids').filtered(
+            lambda i: i.state == 'active'
+        )
+        if not allowed_integrations:
+            es.raise_error(
+                err_code='E114',
+                product_name=self.display_name,
+                support_contact=False,
+                raise_from_none=True,
+            )
+
+        wizard = self.env['refresh.product.stock.wizard'].create({
+            'template_id': self.id,
+        })
+
+        return wizard.open_form()
+
     def _create_variant_ids(self):
         if not self.env.context.get('integration_first_time_import'):
             return super(ProductTemplate, self)._create_variant_ids()
 
         for tmpl in self:
-            attr_lines = tmpl.attribute_line_ids
-            if not attr_lines or len(attr_lines) == len(attr_lines.value_ids):
+            # During first-time import we let Odoo auto-create variants only when there is
+            # a single possible combination; otherwise variants are created explicitly from
+            # the external payloads (to match external variant IDs).
+            # `no_variant` attributes never create variants regardless of how many values
+            # they have, so they must be ignored here — otherwise a simple product with a
+            # multi-value descriptive attribute ends up with zero variants.
+            variant_lines = tmpl.attribute_line_ids._without_no_variant_attributes()
+            if not variant_lines or len(variant_lines) == len(variant_lines.value_ids):
                 super(ProductTemplate, tmpl)._create_variant_ids()
 
         return True

@@ -6,6 +6,7 @@ import json
 import logging
 import pytz
 import traceback
+import itertools
 
 from datetime import datetime, timedelta
 from dateutil import parser
@@ -17,7 +18,7 @@ from typing import List, Dict
 from odoo import api, fields, models, SUPERUSER_ID, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.modules.registry import Registry
-from odoo.tools import config, ormcache, float_is_zero
+from odoo.tools import ormcache, float_is_zero
 from odoo.tools.safe_eval import safe_eval
 from odoo.tools.misc import clean_context
 
@@ -46,6 +47,7 @@ INTEGRATION_MODULES = [
     'integration_prestashop',
     'integration_magento2',
     'integration_woocommerce',
+    'integration_baselinker',
     'integration_queue_job',
     'queue_job'
 ]
@@ -54,6 +56,7 @@ SUPPORTED_ECOMMERCE_SYSTEMS = {
     'prestashop': 'PrestaShop',
     'shopify': 'Shopify',
     'woocommerce': 'WooCommerce',
+    'baselinker': 'Base',
 }
 
 EXCLUDED_MAPPING_MODELS = [
@@ -67,7 +70,11 @@ EXPORT_EXTERNAL_BLOCK = 500
 
 IMAGE_FIELDS = ['image_1920', 'integration_template_image_ids', 'integration_variant_image_ids']
 PRODUCT_QTY_FIELDS = ['free_qty', 'qty_available', 'virtual_available']
-TRACKED_FIELDS_INITIAL_PRODUCT_EXPORT = ['integration_ids']
+# Fields whose change triggers an automatic product export by default. Kept empty on purpose: linking a store to a
+# product (`integration_ids`) is membership only and must never push. Pushing is always an explicit user action (the
+# "Export to Stores" button or the "Link & export now" wizard action); automatic export only keeps already-published
+# products up to date when their content changes.
+TRACKED_FIELDS_INITIAL_PRODUCT_EXPORT = []
 SEARCH_CUSTOMER_FIELDS = ['email', 'name', 'phone']
 INVENTORY_DEPENDENT_FIELDS = {
     'update_stock_for_manufacture_boms',
@@ -204,7 +211,7 @@ class SaleIntegration(models.Model):
         comodel_name='ir.cron',
     )
     receive_orders_cron_id_active = fields.Boolean(
-        string='Enable Order Import',
+        string='Auto-Import Orders',
         related='receive_orders_cron_id.active',
         readonly=False,
         help=(
@@ -216,12 +223,24 @@ class SaleIntegration(models.Model):
             'cancellations) will not be applied — even for orders that already exist in Odoo.'
         ),
     )
-    export_template_job_enabled = fields.Boolean(
-        string='Enable Product Template Export Job',
+    auto_export_new_products = fields.Boolean(
+        string='Auto-Export New Products',
         default=False,
         help=(
-            'Check this option to activate the automatic export of product templates to the '
-            'e-commerce system whenever relevant product fields are updated in Odoo.'
+            'Automatically link new Odoo products to this store and publish them once they are ready. A product is '
+            'published only after it satisfies the store\'s "Required Fields for Initial Export" (e.g. internal '
+            'reference / SKU), so incomplete products are never sent. Until a product is ready, it is shown as '
+            'pending first export. Only affects products created while this option is enabled.'
+        ),
+    )
+    export_template_job_enabled = fields.Boolean(
+        string='Auto-Export Product Updates',
+        default=False,
+        help=(
+            'Keep products that are ALREADY published in this store up to date: when a watched field changes in Odoo, '
+            'the change is exported automatically. This never performs the first publish of a product, which is always '
+            'an explicit action (the "Export to Stores" button on the product, or "Link & export now" in the '
+            '"Manage Store Connections" wizard).'
         ),
     )
     export_inventory_job_enabled = fields.Boolean(
@@ -254,19 +273,22 @@ class SaleIntegration(models.Model):
         inverse='_inverse_next_inventory_synchronization_date',
     )
     export_tracking_job_enabled = fields.Boolean(
-        string='Enable Order Tracking Export Job',
+        string='Auto-Export Shipments & Tracking',
         default=False,
         help=(
-            'Check this option to automate the export of tracking numbers from Odoo to the '
-            'e-commerce platform upon confirmation of the delivery order.'
+            'When a delivery is validated in Odoo, automatically mark the order as shipped in the store and send the '
+            'tracking number (if available). For Shopify/Magento this creates a fulfillment/shipment; for PrestaShop, '
+            'WooCommerce and BaseLinker it sets the order to the "Store Status for Shipped Orders" defined below. '
+            'A tracking number is optional — the shipment is sent either way.'
         ),
     )
     export_sale_order_status_job_enabled = fields.Boolean(
-        string='Enable Sale Order Status Export Job',
+        string='Auto-Export Manual Status Changes',
         default=False,
         help=(
-            'Check this option to automatically update the sale order status on the '
-            'e-commerce system corresponding to status changes in Odoo.'
+            'Send the order\'s "E-Commerce Store Order Status" to the store when it is changed BY HAND on a sales '
+            'order. The automated events (Shipped, Cancelled, Paid/Invoiced) are pushed on their own by their '
+            'dedicated options and do not require this setting.'
         ),
     )
     product_ids = fields.Many2many(
@@ -279,17 +301,28 @@ class SaleIntegration(models.Model):
     discount_product_id = fields.Many2one(
         comodel_name='product.product',
         string='Discount Product',
-        domain="[('type', '=', 'service')]",
+        domain="[('type', '=', 'service'), ('company_id', 'in', [False, company_id])]",
         help=(
             'Select a product to represent discounts as a separate line item within Odoo. '
             'This will ensure that discounts are itemized clearly on sales orders.'
         ),
     )
 
+    duty_product_id = fields.Many2one(
+        comodel_name='product.product',
+        string='Duties Product',
+        domain="[('type', '=', 'service'), ('company_id', 'in', [False, company_id])]",
+        help=(
+            'Select a product to represent import duties charged by the e-commerce system '
+            'as a separate line item within Odoo. This will ensure that duties are itemized '
+            'clearly on sales orders.'
+        ),
+    )
+
     positive_price_difference_product_id = fields.Many2one(
         comodel_name='product.product',
         string='Price Difference Product (Positive)',
-        domain="[('type', '=', 'service')]",
+        domain="[('type', '=', 'service'), ('company_id', 'in', [False, company_id])]",
         help=(
             'Select a product to account for any positive discrepancies between the '
             'total amounts of orders in the E-Commerce system and Odoo. This product will be '
@@ -300,7 +333,7 @@ class SaleIntegration(models.Model):
     negative_price_difference_product_id = fields.Many2one(
         comodel_name='product.product',
         string='Price Difference Product (Negative)',
-        domain="[('type', '=', 'service')]",
+        domain="[('type', '=', 'service'), ('company_id', 'in', [False, company_id])]",
         help=(
             'Select a product to account for any negative discrepancies between the '
             'total amounts of orders in the E-Commerce system and Odoo. This product will be '
@@ -311,6 +344,7 @@ class SaleIntegration(models.Model):
     gift_wrapping_product_id = fields.Many2one(
         comodel_name='product.product',
         string='Gift Wrapping Product',
+        domain="[('company_id', 'in', [False, company_id])]",
         help=(
             'Select a specific product to be used for gift-wrapping services. If a sales order '
             'in PrestaShop includes gift wrapping, this product will be added accordingly.'
@@ -318,66 +352,54 @@ class SaleIntegration(models.Model):
     )
 
     run_action_on_cancel_so = fields.Boolean(
-        string='Sync Cancelled SO Status',
+        string='Auto-Export Cancelled Status',
         copy=False,
         help=(
-            'Enable this option to automatically update the order status in the e-commerce '
-            'system when a sales order is cancelled in Odoo.'
+            'When a sales order is cancelled in Odoo, automatically set it to the "Store Status for Cancelled '
+            'Orders" below and send that status to the e-commerce system. Pushes on its own — it does not require '
+            'the "Auto-Export Manual Status Changes" option.'
         ),
     )
 
     sub_status_cancel_id = fields.Many2one(
         comodel_name='sale.order.sub.status',
-        string='Store Order Status for Cancelled SO',
+        string='Store Status for Cancelled Orders',
         domain='[("integration_id", "=", id)]',
         copy=False,
         help=(
-            'Specify the store order status that will be sent to the e-commerce system when '
-            'a sales order is cancelled in Odoo.'
+            'The store order status to send when a sales order is cancelled in Odoo.'
         ),
     )
 
     sub_status_shipped_id = fields.Many2one(
         comodel_name='sale.order.sub.status',
-        string='Store Order Status for Shipped SO',
+        string='Store Status for Shipped Orders',
         domain='[("integration_id", "=", id)]',
         copy=False,
         help=(
-            'Specify the store order status that will be sent to the e-commerce system for '
-            'orders marked as shipped in Odoo.'
+            'The store order status to send when an order is shipped in Odoo (used by PrestaShop, WooCommerce and '
+            'BaseLinker; Shopify/Magento mark the order shipped via their own fulfillment/shipment).'
         ),
     )
 
     run_action_on_so_invoice_status = fields.Boolean(
-        string='Sync Invoiced/Paid SO Status',
+        string='Auto-Export Paid/Invoiced Status',
         copy=False,
         help=(
-            'Enable this option to update the order status in the e-commerce system for '
-            'sales orders that are invoiced or marked as paid in Odoo. Specific behaviors '
-            'based on the payment method can be configured under '
-            '"Auto-Workflow → Payment Methods", where you can adjust when the payment status '
-            'is sent. By default, the action occurs when an order is fully invoiced, '
-            'and all related invoices are "Paid" or "In Payment".'
+            'When a sales order is fully invoiced/paid in Odoo, automatically set it to the "Store Status for '
+            'Paid/Invoiced Orders" below and send that status to the e-commerce system. Pushes on its own — it does '
+            'not require the "Auto-Export Manual Status Changes" option. Payment-method-specific timing can be '
+            'configured under "Auto-Workflow → Payment Methods".'
         ),
     )
 
     sub_status_paid_id = fields.Many2one(
         comodel_name='sale.order.sub.status',
-        string='Store Order Status for Invoiced/Paid SO',
+        string='Store Status for Paid/Invoiced Orders',
         domain='[("integration_id", "=", id)]',
         copy=False,
         help=(
-            'Choose the store order status to be applied to orders in the e-commerce system once '
-            'the corresponding sales order in Odoo is fully paid.'
-        ),
-    )
-
-    apply_to_products = fields.Boolean(
-        string='Auto-Export New Products',
-        default=False,
-        help=(
-            'Enable automatic export of newly created Odoo products to the e-commerce system, '
-            'ensuring all new inventory items are synchronized.'
+            'The store order status to send once the corresponding sales order in Odoo is fully paid/invoiced.'
         ),
     )
 
@@ -433,15 +455,6 @@ class SaleIntegration(models.Model):
             'This process occurs after order invoices are automatically confirmed in Odoo '
             '(if the auto-workflow is enabled with the "Confirm Invoice" action).'
         ),
-    )
-
-    create_advance_payments = fields.Boolean(
-        string='Create Advance Payments (Before Invoice)',
-        help=(
-            'When enabled, the connector will register payments directly on the Sales Order '
-            'using the OCA module "sale_advance_payment", instead of waiting for invoices.'
-        ),
-        copy=False,
     )
 
     integration_writeoff_account_id = fields.Many2one(
@@ -635,12 +648,13 @@ class SaleIntegration(models.Model):
     )
 
     global_tracked_fields = fields.Many2many(
-        string='Product Sync Watch Fields',
+        string='Extra Fields to Watch for Updates',
         comodel_name='ir.model.fields',
         relation='sale_integration_global_tracked_fields_rel',
         help=(
-            'Choose the Odoo product fields that, when altered, will trigger an automatic '
-            'export of the product details to the connected e-commerce platform.'
+            'Every export-enabled product field mapping already triggers an automatic update export when its Odoo '
+            'field changes. Use this list to watch ADDITIONAL Odoo product fields on top of those. It is normally '
+            'left empty — the field mappings already cover the data sent to the store.'
         ),
         domain='[("model", "in", ["product.template", "product.product"])]',
         default=lambda self: self._get_default_global_tracked_fields(),
@@ -798,7 +812,7 @@ class SaleIntegration(models.Model):
     fallback_product_id = fields.Many2one(
         comodel_name='product.product',
         string='Fallback Product',
-        domain="[('type', '=', 'service')]",
+        domain="[('type', '=', 'service'), ('company_id', 'in', [False, company_id])]",
         help=(
             'Use this field to select a default product for order lines with missing '
             'SKU and ID details. It\'s applicable when products are removed or '
@@ -1156,6 +1170,12 @@ class SaleIntegration(models.Model):
         compute='_compute_api_access_granted',
     )
 
+    supports_stock_fetch_by_product = fields.Boolean(
+        string='Supports Stock Fetch by Product',
+        compute='_compute_supports_stock_fetch_by_product',
+        help='Supports stock synchronization for selected products only.',
+    )
+
     @api.depends('name', 'type_api')
     def _compute_display_name(self):
         for rec in self:
@@ -1178,6 +1198,10 @@ class SaleIntegration(models.Model):
     def _compute_supports_external_locations(self):
         for rec in self:
             rec.supports_external_locations = rec.type_api in ('shopify', 'baselinker')
+
+    def _compute_supports_stock_fetch_by_product(self):
+        for rec in self:
+            rec.supports_stock_fetch_by_product = False
 
     @property
     def is_no_api(self):
@@ -1237,19 +1261,6 @@ class SaleIntegration(models.Model):
         self.product_barcode_id = self.env.ref(
             'integration.integration_product_barcode_no_api_private').id
         return bool(self.product_barcode_id)
-
-    @api.constrains('create_advance_payments')
-    def _check_sale_advance_payment_module_installed(self):
-        sap = self.env.ref('base.module_sale_advance_payment', raise_if_not_found=False)
-        is_installed_sap = (sap.state == 'installed') if sap else False
-
-        for record in self.filtered('create_advance_payments'):
-            if not is_installed_sap:
-                raise ValidationError(_(
-                    '%(integration_name)s: to enable "Create Advance Payments (Before Invoice)" you must first install '
-                    'the free OCA module "Sale Advance Payment".\n\n'
-                    'You can find it on the OCA GitHub repository under "sale-workflow".'
-                ) % {'integration_name': record.name})
 
     @api.onchange('search_customer_fields_ids')
     def _onchange_search_customer_fields_ids(self):
@@ -1335,15 +1346,14 @@ class SaleIntegration(models.Model):
             rec.lang_ids = records.filtered('active')
 
     def _compute_request_order_url(self):
-        host = self.get_base_url_config()
-        db_name = self.env.cr.dbname
-        integration_api_key = self.get_integration_api_key() or ''
-
-        pattern = f'{host}/{db_name}/integration/integration_id/external-order/' \
-                  f'%order_id%?integration_api_key={integration_api_key}'
         for integration in self:
-            url = pattern.replace('integration_id', str(integration.id))
-            integration.request_order_url = url
+            integration_api_key = integration.get_integration_api_key() or ''
+            base_route = integration._build_integration_route(
+                integration.id,
+                'external-order',
+                '%order_id%',
+            )
+            integration.request_order_url = f'{base_route}?integration_api_key={integration_api_key}'
 
     def _compute_next_inventory_synchronization_date(self):
         for integration in self:
@@ -1513,6 +1523,16 @@ class SaleIntegration(models.Model):
             'context': {'default_integration_id': self.id},
         }
 
+    def action_open_payment_methods_workflow(self):
+        """Open the auto-workflow Payment Methods of this store (where "Send payment status when" is configured)."""
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id(
+            'integration.integration_sale_order_payment_method_external_auto_workflow_action'
+        )
+        action['domain'] = [('integration_id', '=', self.id)]
+        action['context'] = {'default_integration_id': self.id}
+        return action
+
     def action_view_failed_jobs(self):
         """Open failed jobs for this integration using custom views."""
         self.ensure_one()
@@ -1622,9 +1642,28 @@ class SaleIntegration(models.Model):
 
         return self.create_integration_webhook_lines(data_dict)
 
+    def delete_webhook(self, webhook_line):
+        self.ensure_one()
+        webhook_line.ensure_one()
+
+        if webhook_line.integration_id != self:
+            raise ValidationError(_('The webhook does not belong to this integration.'))
+
+        try:
+            self.adapter.unlink_existing_webhooks([webhook_line.external_ref])
+        except Exception as ex:
+            message = self._get_error_webhook_message(ex) if ex.args else ex
+            return self.env['message.wizard'].create_html_and_run(message)
+
+        webhook_line.unlink()
+        return True
+
     def drop_webhooks(self):
         result = False
         external_ids = self.webhook_line_ids.mapped('external_ref')
+
+        if not external_ids:
+            return result
 
         try:
             adapter = self.adapter
@@ -1642,7 +1681,7 @@ class SaleIntegration(models.Model):
         vals_list = list()
         default_vals = {
             'integration_id': self.id,
-            'original_base_url': self._get_base_url_or_debug(),
+            'original_base_url': self.get_base_url_config(),
         }
 
         for (controller_method, name, technical_name), reference in data_dict.items():
@@ -1678,16 +1717,26 @@ class SaleIntegration(models.Model):
         value = self[:1].get_base_url()
         return value.strip('/')
 
-    def _get_base_url_or_debug(self):
-        debug_url = config.options.get('localhost_debug_url')
-        if debug_url:
-            return debug_url  # Fake url, just for localhost coding and debug
-        return self.get_base_url_config()
+    def _build_integration_route(self, *parts):
+        self.ensure_one()
+
+        base_url = self.get_base_url_config()
+
+        # Every part of path must be not empty
+        segments = ['integration', self.env.cr.dbname, *parts]
+        clean_parts = [str(p).strip('/') for p in segments]
+        if not all(clean_parts):
+            raise ValueError(f'Empty segment in integration route: {segments!r}')
+
+        return f"{base_url}/{'/'.join(clean_parts)}"
 
     def _build_webhook_route(self, controller_method):
-        db_name = self.env.cr.dbname
-        base_url = self._get_base_url_or_debug()
-        return f'{base_url}/{db_name}/integration/{self.type_api}/{self.id}/{controller_method}'
+        self.ensure_one()
+        return self._build_integration_route(
+            self.type_api,
+            self.id,
+            controller_method,
+        )
 
     def _retrieve_webhook_routes(self):
         _logger.error('Webhook routes are not specified for the "%s".', self.name)
@@ -2070,13 +2119,6 @@ class SaleIntegration(models.Model):
         # 6. Normalize dependency fields
         if INVENTORY_DEPENDENT_FIELDS & set(vals):
             self._update_inventory_field_values()
-
-        # 7. Disable advance payments if auto-apply payments is turned off
-        # (it doesn't work with boolean_toggle widget in the onchange method)
-        if 'apply_external_payments' in vals:
-            if not self.apply_external_payments:
-                self.with_context(skip_write_actions=True) \
-                    .write({'create_advance_payments': False})
 
         return result
 
@@ -2883,53 +2925,66 @@ class SaleIntegration(models.Model):
 
         adapter = self.adapter
 
-        _logger.info(
-            '%s (import orders): from kwargs %s',
-            self.name,
-            adapter.order_fetch_kwargs(),
-        )
+        self._log_order_import(
+            'Manual import start',
+            f'resume_date={self.last_receive_orders_datetime}, filter={adapter.order_fetch_kwargs()}')
 
         self.last_order_sync_datetime = fields.Datetime.now()
 
         new_input_files = self.env['sale.integration.input.file']
-        filtered_external_orders_count = 0
-        last_receive_dt = self.last_receive_orders_datetime
+        new_receive_orders_datetime = None
+        page_token = None
+        seen_tokens = set()
+        page_no = 0
+        stalled = False
+
         while True:
-            # Import batch of orders
-            external_orders = adapter.receive_orders()
+            # Fetch the whole backlog here, page by page, continuing via the connector's
+            # own continuation token (a cursor, page number, or offset) rather than by
+            # moving the resume date each page. The resume date is moved once, at the end.
+            orders, next_page_token = adapter.receive_orders(page_token=page_token)
+            page_no += 1
 
-            if not external_orders:
-                _logger.info('%s (import orders): no more orders to import', self.name)
+            for order_data in self.filter_received_orders(orders):
+                # Returns newly created input files and existing ones already created.
+                new_input_files |= self._create_input_file_from_received_data(order_data)
+
+            updated_at_list = [order_data['updated_at'] for order_data in orders]
+            new_receive_orders_datetime = \
+                self._next_receive_orders_datetime(updated_at_list) or new_receive_orders_datetime
+
+            self._log_order_import(
+                'Page fetched',
+                f'page {page_no} (token={page_token}) -> {len(orders)} orders (updated_at '
+                f'{min(updated_at_list) if updated_at_list else "-"}..'
+                f'{max(updated_at_list) if updated_at_list else "-"}), next_token={next_page_token}')
+
+            if next_page_token is None:
                 break
 
-            # Filter orders based on the integration settings
-            filtered_external_orders = self.filter_received_orders(external_orders)
-            filtered_external_orders_count += len(filtered_external_orders)
-
-            for order_data in filtered_external_orders:
-                # In fact this method returns not only newly created input files but also
-                # existing input files that were already created before.
-                new_input_file = self._create_input_file_from_received_data(order_data)
-                new_input_files |= new_input_file
-
-            # Update last receive datetime
-            updated_at_list = [order_data['updated_at'] for order_data in external_orders]
-            last_receive_dt = self._find_max_datetime(updated_at_list)
-
-            if last_receive_dt is not None:
-                self.last_receive_orders_datetime = last_receive_dt - timedelta(seconds=1)
-
-            # Check if we have more orders to import
-            if len(external_orders) < adapter.order_limit_value():
+            # Safety net: a token that repeats would re-fetch the same page forever
+            # (e.g. a legacy date-window connector returning the same boundary). Stop instead
+            # and hold the resume date, so the un-fetched orders stay in range for a retry.
+            if next_page_token in seen_tokens:
+                self._log_order_import(
+                    'Import stalled',
+                    f'page token repeated ({next_page_token}) at page {page_no}; stopping the import '
+                    f'run and holding the resume date to avoid skipping orders. This points to a '
+                    f'connector pagination bug, please investigate.',
+                    log_level='error')
+                stalled = True
                 break
 
-        _logger.info(
-            '%s (import orders): {count: %s, updated_at: %s, input_files: %s}',
-            self.name,
-            filtered_external_orders_count,
-            last_receive_dt,
-            new_input_files.ids,
-        )
+            seen_tokens.add(next_page_token)
+            page_token = next_page_token
+
+        if new_receive_orders_datetime is not None and not stalled:  # Move the resume date forward once
+            self.last_receive_orders_datetime = new_receive_orders_datetime
+
+        self._log_order_import(
+            'Import done',
+            f'pages={page_no}, resume_date={self.last_receive_orders_datetime}'
+            f'{" (held: stalled)" if stalled else ""}, input_files={new_input_files.ids}')
 
         return new_input_files
 
@@ -3405,6 +3460,104 @@ class SaleIntegration(models.Model):
 
         return mapping._fix_unmapped_shipping_one()
 
+    def run_external_products_auto_mapping(self, template_ids, raise_error=True):
+        """
+        Run auto-mapping for external products.
+
+        Returns:
+            str: Formatted message string with detailed auto-mapping results.
+        """
+        self.ensure_one()
+
+        external_templates, external_variants, error_list, failed_external_template_ids = \
+            self._import_external_product(
+                template_ids,
+                try_to_map=True,
+                raise_error=False,
+            )
+
+        return self._prepare_external_products_auto_mapping_message(
+            template_ids=template_ids,
+            external_templates=external_templates,
+            external_variants=external_variants,
+            error_list=error_list,
+            failed_external_template_ids=failed_external_template_ids,
+            raise_error=raise_error,
+        )
+
+    def _prepare_external_products_auto_mapping_message(
+        self,
+        template_ids,
+        external_templates,
+        external_variants,
+        error_list,
+        failed_external_template_ids,
+        raise_error=True,
+    ):
+        template_mappings = self.env['integration.product.template.mapping'].search([
+            ('integration_id', '=', self.id),
+            ('external_template_id', 'in', external_templates.ids),
+        ])
+
+        mapped_templates = template_mappings.filtered('template_id')
+        not_mapped_templates = template_mappings.filtered(lambda mapping: not mapping.template_id)
+
+        total_processed = len(template_ids) if isinstance(template_ids, list) else 1
+
+        message = ''
+        message += _('Summary:\n')
+        message += _('• Total templates processed: %s\n') % total_processed
+        message += _('• Successfully mapped: %s\n') % len(mapped_templates)
+        message += _('• Failed to map: %s\n\n') % (total_processed - len(mapped_templates))
+
+        if mapped_templates:
+            message += _('✅ Auto-Mapping%s completed successfully!\n\n') % (
+                ' (partial)' if not_mapped_templates or error_list else ''
+            )
+            message += _('Mapped Templates (%s total):\n') % len(mapped_templates)
+
+            for mapping in mapped_templates[:20]:
+                message += _('  • %(external)s → %(odoo)s\n') % {
+                    'external': mapping.external_template_id.display_name,
+                    'odoo': mapping.template_id.display_name,
+                }
+
+            remaining = len(mapped_templates) - 20
+            if remaining > 0:
+                message += _('  ... and %s more mapped templates\n') % remaining
+
+            message += '\n'
+
+        if not_mapped_templates:
+            message += _('⚠️ Auto-Mapping could not find matching Odoo products.\n\n')
+            message += _('Not Mapped Templates (%s total):\n') % len(not_mapped_templates)
+
+            for mapping in not_mapped_templates[:20]:
+                message += _('  • %(external)s (ID: %(code)s, SKU: %(sku)s)\n') % {
+                    'external': mapping.external_template_id.display_name,
+                    'code': mapping.external_template_id.code,
+                    'sku': mapping.external_template_id.external_reference or 'N/A',
+                }
+
+            remaining = len(not_mapped_templates) - 20
+            if remaining > 0:
+                message += _('  ... and %s more not mapped templates\n') % remaining
+
+            message += _('\nYou can map them manually or use "Create in Odoo".\n')
+
+        if error_list:
+            message += _('\nErrors when trying to auto-map products:\n')
+            for error in error_list[:20]:
+                message += _('\t• %s\n\n') % error
+
+        if not external_templates and not external_variants:
+            message += _('❌ No external products found or mapped\n')
+
+        if raise_error and not mapped_templates:
+            raise es.UserError(message.rstrip('\n'))
+
+        return message.rstrip('\n')
+
     def import_external_product(self, template_ids, raise_error=True):
         """
         (1) receive actual product data
@@ -3419,6 +3572,24 @@ class SaleIntegration(models.Model):
         external_templates, external_variants, \
             error_list, failed_external_template_ids = self._import_external_product(template_ids, raise_error=False)
 
+        return self._prepare_import_external_product_message(
+            template_ids=template_ids,
+            external_templates=external_templates,
+            external_variants=external_variants,
+            error_list=error_list,
+            failed_external_template_ids=failed_external_template_ids,
+            raise_error=raise_error,
+        )
+
+    def _prepare_import_external_product_message(
+        self,
+        template_ids,
+        external_templates,
+        external_variants,
+        error_list,
+        failed_external_template_ids,
+        raise_error=True,
+    ):
         message = ''
         total_processed = len(template_ids) if isinstance(template_ids, list) else 1
         successful_imports = len(external_templates) + len(external_variants)
@@ -3439,7 +3610,7 @@ class SaleIntegration(models.Model):
                     message += _('\t• %s\n\n') % error
             if not raise_error:
                 return message.strip('\n')
-            raise UserError(_('\n\n%s') % message)
+            raise es.UserError(_('\n\n%s') % message)
 
         # Success section
         # Prevent display if there are only problematic products
@@ -3492,18 +3663,18 @@ class SaleIntegration(models.Model):
             shown_errors = error_list[:20]
             remaining_errors = total_errors - 20
 
-            message = '\n\n'
-            message += _('⚠️ ERRORS (%s total):\n\n') % total_errors
+            message = _('⚠️ ERRORS (%s total):\n') % total_errors
             for error in shown_errors:
                 message += _('\t• %s\n\n') % (error)
 
             if remaining_errors > 0:
                 message += _('  ... and %s more errors\n') % remaining_errors
-            message += '\n'
+
+            message = message.strip('\n')
 
             if not raise_error:
-                return message.strip('\n')
-            raise UserError(_('\n\n%s') % message)
+                return message
+            raise es.UserError(message)
 
         elif failed_external_template_ids:
             message += _(
@@ -3987,7 +4158,13 @@ class SaleIntegration(models.Model):
         if not pricelist_ids:
             return pricelist_ids._integration_not_mapped_error()
 
-        return pricelist_ids.trigger_update_items_to_external(integration_id=self.id)
+        return self.trigger_update_pricelist_items_to_external()
+
+    def trigger_update_pricelist_items_to_external(self):
+        self.ensure_one()
+
+        message = self.env['product.pricelist']._integration_no_need_message()
+        return self.env['product.pricelist']._return_display_notification(message)
 
     def cron_calculation_and_export_prices(self):
         """
@@ -4332,7 +4509,18 @@ class SaleIntegration(models.Model):
         to_export = attribute.to_export_format(self)
         code = adapter.export_attribute(to_export)
 
-        attribute.create_mapping(self, code, extra_vals={'name': attribute.name})
+        # Carry the Odoo attribute's variant role onto the external record so the
+        # attribute-mapping constraint stays satisfied. Without this the external
+        # record keeps its default ``used_for_variants=True`` and exporting a
+        # descriptive ("Never") attribute would be rejected as a mode mismatch.
+        attribute.create_mapping(
+            self,
+            code,
+            extra_vals={
+                'name': attribute.name,
+                'used_for_variants': attribute.creates_variants,
+            },
+        )
 
         return code
 
@@ -4472,16 +4660,8 @@ class SaleIntegration(models.Model):
     def _collect_inventory_data(self, variants: 'models.Model', raise_error: bool):
         self.ensure_one()
 
-        # Check if inventory locations are specified
-        lines = self.location_line_ids
-        if not lines:
-            raise UserError(_(
-                'The inventory locations for "%s" are not specified.\n\n'
-                'Please go to "E-Commerce Integrations → Stores → %s → Inventory tab" and specify '
-                'the locations where inventory will be managed.'
-            ) % (self.name, self.name))
-
         inventory_data = dict()
+        lines = self.get_location_mappings(raise_error=True)
         fail_variant_ids = self.env['product.product']
         location_ids_list = lines._group_by_external_code()
 
@@ -4634,40 +4814,43 @@ class SaleIntegration(models.Model):
         return filtered_orders
 
     @expose_for_testing('Import Orders')
-    def integrationApiReceiveOrders(self, update_dt=True):
+    def integrationApiReceiveOrders(self, update_dt=True, page_token=None):
         """
         Receive and process orders from the integration source.
 
         Important: this is internal method, so it does not check if orders import is enabled.
 
         Args:
-            update_dt (bool): Whether to update the 'last_receive_orders_datetime'
-            attribute with the maximum 'updated_at' value from received orders.
-            Defaults to True.
+            update_dt (bool): Whether to update the 'last_receive_orders_datetime' attribute with the maximum
+            'updated_at' value from received orders. Defaults to True.
+            page_token (str): Optional token for paginated order fetching. If provided, the method will fetch
+            the next page of orders.
 
         Returns:
             recordset: A set of created input files for processed orders.
         """
         self.ensure_one()
         adapter = self.adapter
-        last_receive_dt = self.last_receive_orders_datetime
 
-        _logger.info(
-            '%s receive orders: from kwargs %s',
-            self.name,
-            adapter.order_fetch_kwargs(),
-        )
+        if page_token:
+            self._log_order_import(
+                'Import continue',
+                f'page_token={page_token}, resume_date={self.last_receive_orders_datetime} held')
+        else:
+            self._log_order_import(
+                'Import start',
+                f'resume_date={self.last_receive_orders_datetime}, filter={adapter.order_fetch_kwargs()}')
 
         # Update the actual sync timestamp
         self.last_order_sync_datetime = fields.Datetime.now()
 
-        # 1. receive orders
-        orders_data_list = adapter.receive_orders()
+        # 1. Receive one page of orders -> (orders, next_page_token)
+        orders_data_list, next_page_token = adapter.receive_orders(page_token=page_token)
 
-        # 2. filter orders
+        # 2. Filter orders
         filtered_orders_data_list = self.filter_received_orders(orders_data_list)
 
-        # 3. create input files
+        # 3. Create input files
         updated_at_list = list()
         created_input_files = self.env['sale.integration.input.file']
 
@@ -4675,26 +4858,43 @@ class SaleIntegration(models.Model):
             input_file = self._create_input_file_from_received_data(order_data)
             created_input_files |= input_file
 
-        # 4. update receive parameters
+        # 4. Move the resume date forward, but only once the whole import run is complete
         updated_at_list = [order_data['updated_at'] for order_data in orders_data_list]
-        if updated_at_list:
-            last_receive_dt = self._find_max_datetime(updated_at_list)
+
+        # Safety net: a token that repeats the previous one would re-fetch the same page
+        # forever (e.g. a legacy date-window connector returning the same boundary). Stop and
+        # hold the resume date, so the un-fetched orders stay in range for the next run.
+        stalled = next_page_token is not None and next_page_token == page_token
+        if stalled:
+            self._log_order_import(
+                'Import stalled',
+                f'page token did not change ({page_token}); stopping the import run and holding the '
+                f'resume date to avoid skipping orders. This points to a connector pagination bug, '
+                f'please investigate.',
+                log_level='error')
+            next_page_token = None
+
+        if next_page_token is not None:
+            # More pages: enqueue the next page as a separate (bounded) background job --
+            # an enqueue, not synchronous recursion. Resume date is held until the last page.
+            self.integration_receive_orders_cron(page_token=next_page_token)
+        elif update_dt and not stalled:  # Last page reached: move last_receive_orders_datetime forward once
+            new_receive_orders_datetime = self._next_receive_orders_datetime(updated_at_list)
+            if new_receive_orders_datetime is not None:
+                self.last_receive_orders_datetime = new_receive_orders_datetime
+
+        if next_page_token is not None:
+            resume = 'held (more pages)'
+        elif stalled:
+            resume = f'{self.last_receive_orders_datetime} (held: stalled)'
         else:
-            update_dt = False
-
-        if update_dt:  # update
-            self.last_receive_orders_datetime = last_receive_dt - timedelta(seconds=1)
-
-        if len(orders_data_list) == adapter.order_limit_value():
-            self.integration_receive_orders_cron()
-
-        _logger.info(
-            '%s receive orders: {count: %s, updated_at: %s, input_files: %s}',
-            self.name,
-            len(filtered_orders_data_list),
-            last_receive_dt,
-            created_input_files.ids,
-        )
+            resume = self.last_receive_orders_datetime
+        self._log_order_import(
+            'Page fetched',
+            f'fetched {len(orders_data_list)} orders (updated_at '
+            f'{min(updated_at_list) if updated_at_list else "-"}..'
+            f'{max(updated_at_list) if updated_at_list else "-"}), next_page_token={next_page_token}, '
+            f'resume_date={resume}, input_files={created_input_files.ids}')
         return created_input_files
 
     @expose_for_testing('Clear Incorrect Attribute Value Mappings')
@@ -4711,10 +4911,11 @@ class SaleIntegration(models.Model):
                     value.attribute_value_id = False
         return True
 
-    def integration_receive_orders_cron(self, cron_operation=True):
-        """
-        Method called by the scheduled action to receive orders.
-        This method checks if orders should be imported before proceeding.
+    def integration_receive_orders_cron(self, page_token=None, update_dt=True):
+        """Enqueue one bounded order-import background job (checks import is enabled first).
+
+        Two callers: the scheduled action (fresh import), and integrationApiReceiveOrders
+        continuing an in-progress import run (page_token set) with the next page.
         """
         self.ensure_one()
 
@@ -4726,7 +4927,7 @@ class SaleIntegration(models.Model):
             )
             return False
 
-        job_kwargs = self._job_kwargs_receive_orders(cron=cron_operation)
+        job_kwargs = self._job_kwargs_receive_orders()
 
         context = {
             'company_id': self.company_id.id,
@@ -4736,7 +4937,7 @@ class SaleIntegration(models.Model):
         job = self \
             .with_context(**context) \
             .with_delay(**job_kwargs) \
-            .integrationApiReceiveOrders(update_dt=cron_operation)
+            .integrationApiReceiveOrders(update_dt=update_dt, page_token=page_token)
 
         return job
 
@@ -4913,6 +5114,10 @@ class SaleIntegration(models.Model):
     def fetch_order_by_id(self, external_order_id: str, raise_error: bool = False):
         self.ensure_one()
 
+        # Always a recordset return type, so callers can safely ``|=`` the result even when
+        # nothing is imported (an empty recordset is falsy, so ``if not result`` still works).
+        empty = self.env['sale.integration.input.file']
+
         input_data = self.adapter.receive_order(external_order_id)
 
         # Handle case where input data is not found for the external order
@@ -4928,13 +5133,15 @@ class SaleIntegration(models.Model):
 
             if raise_error:
                 raise es.ApiImportError(message)
-            return False
+            return empty
 
         filtered_input_data = self.filter_received_orders([input_data])
 
+        # A filtered-out order is a deliberate skip (per the integration rules), not an error,
+        # so it never raises -- it just imports nothing.
         if not filtered_input_data:
             _logger.info('%s: Order with code=%s skipped by integration filter-rules!', self.name, external_order_id)
-            return False
+            return empty
 
         # Create input file from received data
         input_file = self._create_input_file_from_received_data(filtered_input_data[0])
@@ -5538,7 +5745,17 @@ class SaleIntegration(models.Model):
                     print(f"Odoo error: {error_data['title']}")
         """
         tmpl_hub = self.adapter.get_templates_and_products_for_validation_test()
+        return self._run_validation_checks(tmpl_hub)
 
+    def _run_validation_checks(self, tmpl_hub):
+        """Run all validation checks on a prebuilt ``TemplateHub`` and return the
+        structured results dict (same shape as :meth:`_validate_product_templates`).
+
+        The expensive part - fetching ``tmpl_hub`` from the e-commerce system -
+        is done by the caller. Everything here is fast (in-memory grouping plus a
+        single Odoo ``search_read``), so it is safe to run synchronously even
+        right after a large catalog has been fetched in background batches.
+        """
         ref_field = self.product_reference_name
         barcode_field = self.product_barcode_name
         ref_field_name = self.env['product.template']._get_field_string(ref_field)
@@ -5687,8 +5904,9 @@ class SaleIntegration(models.Model):
 
         return validation_results
 
-    def _get_product_validation_report_html(self):
-        validation_results = self._validate_product_templates()
+    def _get_product_validation_report_html(self, validation_results=None):
+        if validation_results is None:
+            validation_results = self._validate_product_templates()
 
         if not validation_results['has_errors']:
             return ''
@@ -5764,6 +5982,83 @@ class SaleIntegration(models.Model):
                         )
 
         return formatter.dump()
+
+    def validate_catalog_in_background(self, token):
+        """Fetch validation data for the whole catalog in background batches.
+
+        Mirrors :meth:`import_products_in_background`: enumerate external template
+        ids, split them into blocks and create one queue job per block. Each job
+        stashes its batch of validation tuples under ``token`` in
+        ``integration.storage``; the cheap in-memory checks are run later (by the
+        import wizard finish step) once every batch is done. Splitting keeps each
+        job well under the platform request-time limit, and (with the default
+        queue channel capacity) the batches are processed one at a time so the
+        e-commerce store is not overloaded.
+
+        :param token: unique key grouping this run's stored batches.
+        :return: recordset of created ``queue.job`` records.
+        """
+        self.ensure_one()
+        self = self.with_context(company_id=self.company_id.id)
+
+        template_ids = self.adapter.get_product_template_ids()
+        if not template_ids:
+            return self.env['queue.job']
+
+        jobs = self.env['queue.job']
+
+        block = 1
+        limit = self.get_external_block_limit()
+        description_ = f'{self.name}: Catalog Validation: Fetch Batch [Block %s]'
+        context = {
+            'job_integration_id': self.id,
+            'job_integration_job_type': 'product',
+        }
+
+        while template_ids:
+            job = self.with_context(**context).with_delay(
+                priority=2,
+                description=(description_ % block),
+            ).validation_fetch_batch(token, template_ids[:limit])
+
+            jobs |= job.db_record() if isinstance(job, Job) else job
+
+            block += 1
+            template_ids = template_ids[limit:]
+
+        return jobs
+
+    def validation_fetch_batch(self, token, external_template_ids):
+        """Queue-job step: fetch validation tuples for a batch of external template
+        ids and stash them under ``token`` for later assembly.
+        """
+        self.ensure_one()
+        tuples = self.adapter.get_validation_tuples(ids=external_template_ids)
+        self.env['integration.storage'].push(token, tuples)
+        return (
+            f'Stored {len(tuples)} validation tuples '
+            f'for {len(external_template_ids)} templates.'
+        )
+
+    def validation_report_from_storage(self, token):
+        """Assemble the validation report from batches previously stored under
+        ``token``, then drop the stored rows.
+
+        The expensive fetching has already been done by the background jobs; here
+        we only combine the tuples into a ``TemplateHub`` and run the fast,
+        in-memory checks (plus the Odoo-side checks). Safe to call synchronously.
+
+        :return: HTML report string ('' when there are no issues).
+        """
+        self.ensure_one()
+
+        batches = self.env['integration.storage'].pop_values(token)
+        tuples = list(itertools.chain.from_iterable(b or [] for b in batches))
+
+        tmpl_hub = TemplateHub(tuples)
+        validation_results = self._run_validation_checks(tmpl_hub)
+
+        return self._get_product_validation_report_html(validation_results=validation_results)
 
     @raise_requeue_job_on_concurrent_update
     def import_product(
@@ -5888,6 +6183,42 @@ class SaleIntegration(models.Model):
             },
         }
 
+    def action_open_catalog_validation_wizard(self):
+        """Open the import wizard directly at the catalog-validation step.
+
+        Entry point for the "Run Validation Test" button: lets the user run
+        validation through the full wizard UX (including the "Run validation in
+        background" option for large/slow stores) instead of the old
+        synchronous-only popup.
+        """
+        self.ensure_one()
+        wizard = self.env['integration.import.wizard'].create({
+            'integration_id': self.id,
+            'import_mode': 'first_time',
+            'state': 'first_time_import_3',
+        })
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Product Catalog Validation'),
+            'res_model': 'integration.import.wizard',
+            'res_id': wizard.id,
+            'view_mode': 'form',
+            'target': 'new',
+        }
+
+    def action_open_consistency_wizard(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('External Records Consistency Check'),
+            'res_model': 'integration.external.record.consistency.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_integration_id': self.id,
+            },
+        }
+
     def _build_configuration_wizard(self):
         integration_postfix = self._get_configuration_postfix()
 
@@ -5927,6 +6258,7 @@ class SaleIntegration(models.Model):
 
         if to_string:
             return datetime.strftime(external_date, self.datetime_format)
+
         return external_date
 
     def _find_max_datetime(self, datetime_list: list):
@@ -5945,10 +6277,18 @@ class SaleIntegration(models.Model):
         date_max = max(x for x in datetime_list)
         return self._set_zero_time_zone(date_max)
 
-    def _job_kwargs_receive_orders(self, cron=True):
+    def _next_receive_orders_datetime(self, datetime_list):
+        """Resume date for the next import run = max(datetime_list) minus a 1s overlap
+        (so orders sharing the boundary second are re-fetched, not skipped), or None if
+        the list is empty. Goes through the integration's tz handling (UTC-normalized).
+        """
+        max_dt = self._find_max_datetime(datetime_list)
+        return max_dt - timedelta(seconds=1) if max_dt else None
+
+    def _job_kwargs_receive_orders(self):
         return {
             'priority': 6,
-            'description': f'{self.name}: Receive Orders (cron={cron})',
+            'description': f'{self.name}: Import Orders',
             'identity_key': f'receive_orders_cron-{self.type_api}_{self.id}',
         }
 
@@ -6085,17 +6425,6 @@ class SaleIntegration(models.Model):
             'identity_key': f'export_specific_prices-{self.id}-{template}',
             'description': (
                 f'{self.name}: Export Specific Prices for "{template.display_name}" template'
-            ),
-        }
-
-    def _job_kwargs_prepare_specific_prices(self, pricelist_ids):
-        ids = '-'.join(map(str, pricelist_ids.ids))
-        names = ', '.join(pricelist_ids.mapped('name'))
-        return {
-            'priority': 14,
-            'identity_key': f'prepare_prices_from_pricelists-{self.id}_{ids}',
-            'description': (
-                f'{self.name}: Export. Prepare Specific Prices from Pricelists ({names})'
             ),
         }
 
@@ -6237,6 +6566,19 @@ class SaleIntegration(models.Model):
 
         return lang
 
+    def get_location_mappings(self, raise_error=False):
+        """Return inventory location mappings for the integration."""
+        self.ensure_one()
+
+        location_lines = self.location_line_ids
+        if not location_lines and raise_error:
+            raise es.UserError(_(
+                'No inventory location mapping is configured for "%s".\n\n'
+                'Please open "E-Commerce Integrations -> Stores -> %s -> Inventory" and configure mapping first.'
+            ) % (self.name, self.name))
+
+        return location_lines
+
     def import_stock_levels_integration(self, location_line):
         self.ensure_one()
 
@@ -6327,6 +6669,13 @@ class SaleIntegration(models.Model):
         :field_vals: dict from product `create` or `write` method
         """
         if not self.is_product_template_export_enabled:
+            return False
+
+        # Linking/unlinking a store (`integration_ids`) is membership only and must never trigger a push, so we drop it
+        # before deciding. This also neutralises legacy installs that still watch `integration_ids`.
+        field_vals = {key: value for key, value in field_vals.items() if key != 'integration_ids'}
+
+        if not field_vals:
             return False
 
         self_su = self.sudo()
@@ -6681,6 +7030,26 @@ class SaleIntegration(models.Model):
 
     def _is_log_type_enabled(self, event_type):
         return self.save_log and event_type in self.log_type_ids.mapped('code')
+
+    def _log_order_import(self, event_name, message, log_level='info', input_file=None):
+        """Route an order-import event to the standard server log and, when 'Save Logs'
+        is enabled for the 'order_import' type, to the integration.logging DB model.
+
+        The server-log line reads ``[Integration <name>] Orders import (<event_name>): <message>``,
+        so ``grep 'Orders import'`` surfaces the entire import flow (the greppable marker that
+        replaces the old inline "import orders" tag). Keep `message` cheap to build: it is
+        assembled regardless of the setting (only the DB row is gated).
+        """
+        self.ensure_one()
+        self.env['integration.logging'].write_log(
+            integration=self,
+            event_type='order_import',
+            event_name=f'Orders import ({event_name})',
+            message=message,
+            res_model='sale.integration.input.file' if input_file else None,
+            res_id=input_file.id if input_file else None,
+            log_level=log_level,
+        )
 
     def action_open_price_preview(self):
         raise NotImplementedError

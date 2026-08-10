@@ -362,6 +362,15 @@
                                 Click Continue to begin the product import process.
                             </p>
                         </div>
+
+                        <field name="validate_in_background" widget="boolean_toggle"/>
+                        <p class="o_wrap_label" invisible="validate_in_background"/><!-- Do not remove - important for layout! -->
+                        <p invisible="validate_in_background">
+                            <small>
+                                If you have a large or slow store, enable this to run the catalog
+                                validation in the background (in batches) and avoid request timeouts.
+                            </small>
+                        </p>
                     </group>
 
                     <footer invisible="state != 'first_time_import_3'">
@@ -371,6 +380,60 @@
                             string="Start Catalog Validation →"
                             class="btn-primary me-2"
                         />
+                    </footer>
+
+
+                    <!--
+                        First-time Import: Catalog Validation Background Jobs
+                    -->
+                    <group invisible="state != 'first_time_import_3_0'">
+                        <p class="mb-2" colspan="2">
+                            Your catalog is being fetched for validation in the background.
+                            The system processes products in batches to avoid timeouts on large or slow stores.
+                        </p>
+
+                        <h5 colspan="2">Validation Jobs</h5>
+
+                        <!-- Jobs List -->
+                        <field name="jobs" nolabel="1" colspan="2">
+                            <list decoration-success="state=='done'" decoration-danger="state=='failed'">
+                                <field name="name"/>
+                                <field name="state"/>
+                            </list>
+                        </field>
+
+                        <p colspan="2"><small><i>Click a job name to view logs and troubleshoot if needed.</i></small></p>
+
+                        <div class="alert alert-success mt-2" role="alert" invisible="not jobs_done" colspan="2">
+                            <h6>✅ All Validation Jobs Completed</h6>
+                            <p class="mb-0">
+                                All catalog data has been fetched. Click <strong>Continue</strong> to run the
+                                validation checks and view the report.
+                            </p>
+                        </div>
+
+                        <div class="alert alert-info" role="alert" colspan="2">
+                            <p class="mb-0">
+                                <strong>Next Steps:</strong>
+                                <ul class="mb-0">
+                                    <li>Use the Refresh Status button to check job progress</li>
+                                    <li>Once all jobs are done, click Continue to build the validation report</li>
+                                    <li>If some jobs have failed, click them to review and fix the issue, then refresh</li>
+                                </ul>
+                            </p>
+                        </div>
+                    </group>
+
+                    <footer invisible="state != 'first_time_import_3_0'">
+                        <div class="d-flex justify-content-between w-100">
+                            <div>
+                                <button name="action_back_to_product_import" type="object" string="← Go Back" class="btn-secondary me-2"/>
+                                <button name="action_refresh_queue_jobs_view" type="object" string="Refresh Status" class="btn-secondary me-2"/>
+                                <button name="action_finish_catalog_validation" type="object" string="Continue →" class="btn-primary me-2" invisible="not jobs_done"/>
+                            </div>
+
+                            <button name="action_open_queue_jobs" type="object" string="Open Queue Jobs" class="btn-primary me-2"/>
+                        </div>
                     </footer>
 
 

@@ -81,6 +81,6 @@ class AccountMove(models.Model):
                 for order in invoice.invoice_line_ids.mapped('sale_line_ids.order_id'):
                     order._integration_validate_invoice_order_hook()
 
-            # Apply external payments
+            # Register external payments against the freshly posted invoice (standard flow).
             for order in invoice.invoice_line_ids.mapped('sale_line_ids.order_id'):
-                order._integration_apply_external_payments(from_invoice_post=True)
+                order._integration_apply_external_payments()

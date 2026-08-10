@@ -47,6 +47,7 @@ from .delivery_profile_location_group import DeliveryProfileLocationGroup
 from .delivery_method import DeliveryMethod
 from .delivery_zone import DeliveryZone
 from .discount_allocation import DiscountAllocation
+from .duty import Duty
 from .fulfillment_line_item import FulfillmentLineItem
 from .fulfillment_order_line_item import FulfillmentOrderLineItem
 from .inventory_level import InventoryLevel

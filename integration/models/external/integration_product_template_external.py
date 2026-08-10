@@ -430,11 +430,25 @@ class IntegrationProductTemplateExternal(models.Model):
                     'value_ids': [(6, 0, value_ids)],
                 })]
 
+        self._remove_obsolete_no_variant_attribute_lines(template, set(attr_values_ids_by_attr_id))
+
         # 2. Update template with actual values
         values = template.calculate_import_fields_data(integration.id, template_data)
         template = self.create_or_update_with_translations(integration.id, template, values)
 
         return template
+
+    def _remove_obsolete_no_variant_attribute_lines(self, template, imported_attribute_ids):
+        """Hook: drop "Never" (no_variant) attribute lines no longer present in the
+        external product.
+
+        No-op by default so importing never deletes attributes for connectors that
+        do not manage their removal. Connectors opt in - see the WooCommerce
+        descriptive-attribute sync, where Odoo mirrors the store. Only no_variant
+        attributes are ever in scope; variation attributes are never removed here
+        (that would delete and recreate variants).
+        """
+        return
 
     def _create_template(self, template_data: dict):
         integration = self.integration_id

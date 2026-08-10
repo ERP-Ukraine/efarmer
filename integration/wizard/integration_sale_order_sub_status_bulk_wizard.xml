@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="integration_sale_order_sub_status_bulk_wizard_view_form" model="ir.ui.view">
+        <field name="name">integration.sale.order.sub.status.bulk.wizard.view.form</field>
+        <field name="model">integration.sale.order.sub.status.bulk.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="company_id" invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
+                <field name="is_single_status" invisible="1"/>
+                <div class="alert alert-info d-flex flex-column flex-md-row gap-3" role="alert" invisible="not is_single_status">
+                    <div class="flex-fill">
+                        <strong><i class="fa fa-info-circle me-1"/>What is this?</strong>
+                        <p class="mb-0">Set what Odoo does automatically when an order reaches "<field name="single_status_name" nolabel="1" readonly="1" class="oe_inline fw-bold"/>".
+                            Tasks run top to bottom, and some depend on earlier ones.</p>
+                    </div>
+                    <div class="flex-fill">
+                        <strong><i class="fa fa-lightbulb-o me-1"/>Tip</strong>
+                        <p class="mb-0">Enable the actions you need below. The "What will run" box updates live
+                            to show the exact sequence for this status.</p>
+                    </div>
+                </div>
+                <div class="alert alert-info d-flex flex-column flex-md-row gap-3" role="alert" invisible="is_single_status">
+                    <div class="flex-fill">
+                        <strong><i class="fa fa-info-circle me-1"/>What is this?</strong>
+                        <p class="mb-0">Set what Odoo does automatically for the selected order statuses. Tasks
+                            run top to bottom, and some depend on earlier ones.</p>
+                    </div>
+                    <div class="flex-fill">
+                        <strong><i class="fa fa-lightbulb-o me-1"/>Tip</strong>
+                        <p class="mb-0">Enable the actions you need below. The "What will run" box updates live
+                            to show the exact sequence that will be applied.</p>
+                    </div>
+                </div>
+                <group invisible="is_single_status">
+                    <field name="sub_status_ids" widget="many2many_tags" readonly="1" options="{'no_create': True}"/>
+                </group>
+                <div class="o_workflow_steps">
+                    <div class="d-flex align-items-start py-2 border-bottom">
+                        <field name="validate_order" nolabel="1" class="mt-1"/>
+                        <div class="ms-2">
+                            <label for="validate_order" string="Confirm Sales Order" class="fw-bold mb-0"/>
+                            <div class="text-muted">Turns the imported quotation into a confirmed sales order.</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start py-2 border-bottom">
+                        <field name="apply_advance_payment" nolabel="1" class="mt-1"
+                               readonly="not validate_order" force_save="1"/>
+                        <div class="ms-2">
+                            <label for="apply_advance_payment" string="Register Advance Payment" class="fw-bold mb-0"/>
+                            <div class="text-muted" invisible="not validate_order">Registers the e-commerce payment on the order before invoicing
+                                (OCA "sale_advance_payment"). Mutually exclusive with "Register Payment".</div>
+                            <div class="text-muted" invisible="validate_order">Requires "Confirm Sales Order".</div>
+                            <div class="alert alert-info d-flex align-items-start mt-2 mb-0 py-2" role="alert"
+                                 invisible="not apply_advance_payment">
+                                <i class="fa fa-info-circle mt-1 me-2" title="Information" role="img"/>
+                                <div>
+                                    <p class="mb-0">
+                                        Make sure every payment method you receive has a <strong>Payment Journal</strong> set under
+                                        Configuration → Auto-Workflow → Payment Methods, otherwise the payment cannot be registered.</p>
+                                    <button name="action_go_to_payment_methods" string="Go To Payment Methods"
+                                            type="object" class="btn btn-sm btn-info mt-2"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start py-2 border-bottom">
+                        <field name="validate_picking" nolabel="1" class="mt-1"
+                               readonly="not validate_order" force_save="1"/>
+                        <div class="ms-2">
+                            <label for="validate_picking" string="Validate Delivery" class="fw-bold mb-0"/>
+                            <div class="text-muted" invisible="not validate_order">Validates the delivery, marking the goods as shipped.</div>
+                            <div class="text-muted" invisible="validate_order">Requires "Confirm Sales Order".</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start py-2 border-bottom">
+                        <field name="create_invoice" nolabel="1" class="mt-1"
+                               readonly="not validate_order" force_save="1"/>
+                        <div class="ms-2 flex-fill">
+                            <label for="create_invoice" string="Create Invoice" class="fw-bold mb-0"/>
+                            <div class="text-muted" invisible="not validate_order">Creates a customer invoice for the order.</div>
+                            <div class="text-muted" invisible="validate_order">Requires "Confirm Sales Order".</div>
+                            <div class="d-flex align-items-center mt-2" invisible="not create_invoice">
+                                <label for="invoice_journal_id" string="Invoice Journal" class="me-2 mb-0"/>
+                                <field name="invoice_journal_id" nolabel="1"
+                                       options="{'no_create': True}"
+                                       required="create_invoice"
+                                       readonly="not create_invoice"
+                                       force_save="1"/>
+                            </div>
+                            <div class="d-flex align-items-center mt-2" invisible="not create_invoice">
+                                <label for="invoice_date_source" string="Default Invoice Date" class="me-2 mb-0"/>
+                                <field name="invoice_date_source" nolabel="1"
+                                       required="create_invoice"
+                                       readonly="not create_invoice"
+                                       force_save="1"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start py-2 border-bottom">
+                        <field name="validate_invoice" nolabel="1" class="mt-1"
+                               readonly="not create_invoice" force_save="1"/>
+                        <div class="ms-2">
+                            <label for="validate_invoice" string="Confirm Invoice" class="fw-bold mb-0"/>
+                            <div class="text-muted" invisible="not create_invoice">Posts the draft invoice.</div>
+                            <div class="text-muted" invisible="create_invoice">Requires "Create Invoice".</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start py-2 border-bottom">
+                        <field name="send_invoice" nolabel="1" class="mt-1"
+                               readonly="not validate_invoice" force_save="1"/>
+                        <div class="ms-2">
+                            <label for="send_invoice" string="Send Invoice to Customer" class="fw-bold mb-0"/>
+                            <div class="text-muted" invisible="not validate_invoice">Emails the invoice to the customer.</div>
+                            <div class="text-muted" invisible="validate_invoice">Requires "Confirm Invoice".</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start py-2">
+                        <field name="register_payment" nolabel="1" class="mt-1"
+                               readonly="not validate_invoice" force_save="1"/>
+                        <div class="ms-2 flex-fill">
+                            <label for="register_payment" string="Register Payment" class="fw-bold mb-0"/>
+                            <div class="text-muted" invisible="not validate_invoice">Registers payment against the invoice.
+                                Mutually exclusive with "Register Advance Payment".</div>
+                            <div class="text-muted" invisible="validate_invoice">Requires "Confirm Invoice".</div>
+                            <div class="alert alert-info d-flex align-items-start mt-2 mb-0 py-2" role="alert"
+                                 invisible="not register_payment">
+                                <i class="fa fa-info-circle mt-1 me-2" title="Information" role="img"/>
+                                <div>
+                                    <p class="mb-0">
+                                        Make sure every payment method you receive has a <strong>Payment Journal</strong> set under
+                                        Configuration → Auto-Workflow → Payment Methods, otherwise the payment cannot be registered.</p>
+                                    <button name="action_go_to_payment_methods" string="Go To Payment Methods"
+                                            type="object" class="btn btn-sm btn-info mt-2"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="alert alert-info mt-3 mb-0" role="alert" invisible="not is_single_status">
+                    <strong><i class="fa fa-bolt me-1"/>What will run for "<field name="single_status_name" nolabel="1" readonly="1" class="oe_inline fw-bold"/>"</strong>
+                    <div class="mt-1">
+                      <field name="automation_steps_html" nolabel="1" readonly="1" invisible="automation_steps_not_configured"/>
+                      <span invisible="not automation_steps_not_configured">
+                          No actions will run. The order is imported into Odoo but stays as-is — no confirmation, invoice or payment.
+                      </span>
+                    </div>
+                </div>
+                <div class="alert alert-info mt-3 mb-0" role="alert" invisible="is_single_status">
+                    <strong><i class="fa fa-bolt me-1"/>What will run</strong>
+                    <div class="mt-1">
+                      <field name="automation_steps_html" nolabel="1" readonly="1" invisible="automation_steps_not_configured"/>
+                      <span invisible="not automation_steps_not_configured">
+                          No actions will run. Orders stay as-is — no confirmation, invoice or payment.
+                      </span>
+                    </div>
+                </div>
+                <footer>
+                    <button name="action_apply" string="Apply" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="integration_sale_order_sub_status_bulk_wizard_action" model="ir.actions.act_window">
+        <field name="name">Configure Automation</field>
+        <field name="res_model">integration.sale.order.sub.status.bulk.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="integration_sale_order_sub_status_bulk_wizard_view_form"/>
+        <field name="target">new</field>
+        <field name="context">{'default_sub_status_ids': active_ids}</field>
+        <field name="binding_model_id" ref="integration.model_integration_sale_order_sub_status_external"/>
+        <field name="binding_view_types">list</field>
+    </record>
+
+</odoo>

@@ -6,10 +6,6 @@ from odoo.exceptions import UserError
 from .config.integration_init import OdooIntegrationInit, load_xml
 
 
-class TestErrorCreate(UserError):
-    pass
-
-
 class TestErrorWrite(UserError):
     pass
 
@@ -63,16 +59,15 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
         })]
 
     def _patch_export_methods(self):
-
-        def _trigger_export_single_template_patch(*args, first_export=False):
-            if first_export:
-                raise TestErrorCreate('trigger-export-from-create-called')
-            raise TestErrorWrite('trigger-export-from-write-called')
+        # Raise if the automatic change-driven export path is reached (e.g. it must NOT run on create or when
+        # `skip_product_export` is set).
+        def _export_changes_patch(*args, **kw):
+            raise TestErrorWrite('export-changes-to-mapped-integrations-called')
 
         self.patch(
             type(self.env['product.template']),
-            '_trigger_export_single_template',
-            _trigger_export_single_template_patch,
+            '_export_changes_to_mapped_integrations',
+            _export_changes_patch,
         )
 
     def test_create_simple_template_apply_integration(self):
@@ -180,75 +175,45 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
         self.assertTrue(len(record.product_tmpl_id.product_variant_ids) == 1)
         self.assertTrue(record.product_tmpl_id.integration_ids == integrations)
 
-    def test_trigger_export_from_template_create(self):
-        # Patch export methods
-        self._patch_export_methods()  # expects raise
+    def test_no_export_from_template_create(self):
+        # Creating a template never pushes, even when linked to enabled integrations.
+        self._patch_export_methods()  # raises if the auto-export path is reached
 
+        integrations = self.get_all_integrations()
         vals = self.generate_product_data(
             name='product-1',
-            integration=self.integration_no_api_1,
-        )
-
-        # 1. Create with one integration
-        with self.assertRaises(TestErrorCreate):
-            record = self.template.with_user(self.integration_administrator).create(vals)
-
-            self.assertTrue(record.integration_ids == self.integration_no_api_1)
-            self.assertTrue(len(record.product_variant_ids) == 1)
-            self.assertTrue(record.product_variant_ids.integration_ids == self.integration_no_api_1)
-
-            self.assertTrue(record._get_enabled_integrations() == self.integration_no_api_1)
-
-        # 2. Create with two integrations
-        integrations = self.get_all_integrations()
-
-        vals = self.generate_product_data(
-            name='product-2',
             integration=integrations,
         )
-        with self.assertRaises(TestErrorCreate):
-            record = self.template.with_user(self.integration_user).create(vals)
 
-            self.assertTrue(record.integration_ids == integrations)
-            self.assertTrue(len(record.product_variant_ids) == 1)
-            self.assertTrue(record.product_variant_ids.integration_ids == integrations)
+        # Must NOT raise and must NOT queue any export job.
+        record = self.template.create(vals)
 
-            self.assertTrue(record._get_enabled_integrations() == integrations)
+        self.assertEqual(record.integration_ids, integrations)
+        self.assertEqual(record._get_enabled_integrations(), integrations)
+        for integration in integrations:
+            for export_images in (True, False):
+                key = self.get_integration_identity_key(integration, record, export_images=export_images)
+                self.assertFalse(self.get_queue_job(key))
 
-    def test_trigger_export_from_variant_create(self):
-        # Patch export methods
-        self._patch_export_methods()  # expects raise
+    def test_no_export_from_variant_create(self):
+        # Creating a variant never pushes either.
+        self._patch_export_methods()  # raises if the auto-export path is reached
 
+        integrations = self.get_all_integrations()
         vals = self.generate_product_data(
             name='product-1',
-            integration=self.integration_no_api_1,
-        )
-
-        # 1. Create with one integration
-        with self.assertRaises(TestErrorCreate):
-            record = self.variant.create(vals)
-
-            self.assertTrue(record.integration_ids == self.integration_no_api_1)
-            self.assertTrue(len(record.product_variant_ids) == 1)
-            self.assertTrue(record.product_variant_ids.integration_ids == self.integration_no_api_1)
-
-            self.assertTrue(record._get_enabled_integrations() == self.integration_no_api_1)
-
-        # 2. Create with two integrations
-        integrations = self.get_all_integrations()
-
-        vals = self.generate_product_data(
-            name='product-2',
             integration=integrations,
         )
-        with self.assertRaises(TestErrorCreate):
-            record = self.variant.create(vals)
 
-            self.assertTrue(record.integration_ids == integrations)
-            self.assertTrue(len(record.product_variant_ids) == 1)
-            self.assertTrue(record.product_variant_ids.integration_ids == integrations)
+        record = self.variant.create(vals)
 
-            self.assertTrue(record._get_enabled_integrations() == integrations)
+        self.assertEqual(record.integration_ids, integrations)
+        for integration in integrations:
+            for export_images in (True, False):
+                key = self.get_integration_identity_key(
+                    integration, record.product_tmpl_id, export_images=export_images,
+                )
+                self.assertFalse(self.get_queue_job(key))
 
     def test_get_related_valid_integrations(self):
         # 1. Create template with two integrations
@@ -411,19 +376,12 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
         self.patch(type(integration), 'export_template', export_template_patch)
         self.patch(type(integration), 'export_template_images_verbose', export_images_job_patch)
 
-        # 1. Create template with one active integration
-        vals = self.generate_product_data(
-            name='product-1',
-            integration=integration,
-        )
-        record = self.template.with_context(
-            **self.skip_ctx,
-            user=self.integration_user,
-        ).create(vals)
+        # Use an already-mapped product so the change-driven path is allowed to run (the guard requires it).
+        record = self.product_pt_1
 
         # 1. Expected `export_template` method
         with self.assertRaises(TestErrorExportTemplate):
-            record._trigger_export_single_template({})
+            record._export_changes_to_mapped_integrations({})
 
         # 2. Expected `export_template_images_verbose` method
         def _is_need_export_product_patch2(*args, **kw):
@@ -432,7 +390,7 @@ class TestProductCreateWriteExport(OdooIntegrationInit):
         self.patch(type(integration), '_is_need_export_product', _is_need_export_product_patch2)
 
         with self.assertRaises(TestErrorExportImage):
-            record._trigger_export_single_template({})
+            record._export_changes_to_mapped_integrations({})
 
     def test_integration_company_mismatch_compute(self):
         integration1 = self.integration_no_api_1  # company A

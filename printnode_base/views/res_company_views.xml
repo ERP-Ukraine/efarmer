@@ -63,7 +63,7 @@
                                     </small>
                                 </p>
                                 <field name="company_label_printer"
-                                       options="{'no_open': [('printnode_enabled', '=', False)], 'avosave': false}"
+                                       options="{'no_open': [('printnode_enabled', '=', False)], 'autosave': false}"
                                        readonly="auto_send_slp == False" />
                             </group>
                             <div colspan="2">
@@ -106,7 +106,7 @@
                                 <field name="printnode_package_report"
                                        required="print_package_with_label == True"
                                        readonly="printnode_enabled == False or print_package_with_label == False"
-                                       options="{'no_create': True, 'avosave': false}"
+                                       options="{'no_create': True, 'autosave': false}"
                                        domain="[('model', '=', 'stock.package'), ('report_type', 'in', ['qweb-pdf', 'qweb-text', 'py3o'])]" />
                             </group>
 
@@ -134,7 +134,7 @@
                             <group name="product_labels_settings">
                                 <field name="print_labels_format"
                                        class="mt-2"
-                                       options="{'no_open': [('printnode_enabled', '=', False)], 'avosave': false}"
+                                       options="{'no_open': [('printnode_enabled', '=', False)], 'autosave': false}"
                                        readonly="printnode_enabled == False" />
                                 <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
                                 <p class="mb-0 mt-0">
@@ -174,7 +174,7 @@
                                 <div colspan="2">
                                     <field name="scales_picking_domain"
                                         widget="domain"
-                                        options="{'model': 'stock.picking', 'avosave': false}"/>
+                                        options="{'model': 'stock.picking', 'autosave': false}"/>
                                 </div>
                             </group>
 
@@ -221,7 +221,7 @@
                                 <group invisible="debug_logging == False"> <!-- Required because it is used in the invisible condition above -->
                                     <field name="log_type_ids"
                                         widget="many2many_tags"
-                                        options="{'no_create': True, 'no_open': True, 'avosave': false}"
+                                        options="{'no_create': True, 'no_open': True, 'autosave': false}"
                                         readonly="debug_logging == False"/>
                                 </group>
 

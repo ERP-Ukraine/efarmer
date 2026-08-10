@@ -25,6 +25,22 @@ class IntegrationProductMixin(models.AbstractModel):
     def is_consumable_storable(self):
         return self.type == 'consu' and self.is_storable
 
+    def _prepare_default_integration_ids(self):
+        """Return the integrations a brand-new product should be linked to by default (Many2many command list).
+
+        A new product is linked to every active store that has "Auto-Export New Products" enabled; the actual
+        publish happens later, only once the product satisfies that store's required fields (see
+        `_process_pending_first_export`). Stores without that option default to no link — linking them is an
+        explicit user choice and publishing is a separate explicit action ("Export to Stores" / "Link & export now").
+
+        This is the extension point for connectors that need a different default linking policy.
+        """
+        integrations = self.env['sale.integration'].search([
+            ('state', '=', 'active'),
+            ('auto_export_new_products', '=', True),
+        ])
+        return [(6, 0, integrations.ids)]
+
     def to_external_record(self, integration, raise_error=True):
         """
         Redefined method from the integration.model.mixin
@@ -170,6 +186,40 @@ class IntegrationProductMixin(models.AbstractModel):
             return round_float(res['total_included'], decimal_precision)
 
         return round_float(res['total_excluded'], decimal_precision)
+
+    def get_pricelist_special_price_data(self, integration_id: int) -> tuple:
+        self.ensure_one()
+
+        integration = self.env['sale.integration'].browse(integration_id)
+        pricelist = integration.integration_sale_pricelist_id
+
+        if not pricelist:
+            field_label = (
+                _('Special Prices Pricelist for Product Export') if integration.is_integration_magento_two
+                else _('Sale Pricelist for Product Export')
+            )
+            raise UserError(_(
+                'The product cannot be exported because the "%(field_label)s" '
+                'is missing for the "%(integration_name)s" integration.\n'
+                'Please review the following options to resolve the issue:\n'
+                '1. Set the "%(field_label)s" in the settings '
+                '(E-commerce Integration → %(integration_name)s → Products → %(field_label)s), OR\n'
+                '2. Deactivate the field mapping that uses this pricelist.',
+                field_label=field_label,
+                integration_name=integration.name,
+            ))
+
+        price, item_id = pricelist\
+            .with_context(skip_pricelist_date_validation=True)\
+            ._compute_price_rule(self, 0)[self.id]
+
+        item = self.env['product.pricelist.item'].browse(item_id)
+        price = self.get_price_by_send_tax_incl(integration_id, price)
+
+        date_start = item.date_start and item.date_start.strftime(integration.datetime_format) or ''
+        date_end = item.date_end and item.date_end.strftime(integration.datetime_format) or ''
+
+        return price, date_start, date_end
 
     def _get_ecommerce_fields_mappings(self, integration_id: int, domain_ext: list):
         search_domain = [

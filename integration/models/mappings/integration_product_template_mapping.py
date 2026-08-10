@@ -4,6 +4,8 @@ import logging
 
 from odoo import fields, models, _
 
+from ...exceptions import ErrorStore as es
+
 _logger = logging.getLogger(__name__)
 
 
@@ -37,12 +39,17 @@ class IntegrationProductTemplateMapping(models.Model):
         'Product template mapping should be unique per integration',
     )
 
-    def run_map_product(self):
-        self.ensure_one()
-        message = self.integration_id.import_external_product(
-            self.external_template_id.code,
-            raise_error=False,
-        )
+    def run_map_products(self):
+        integration = self.mapped('integration_id')
+        if len(integration) > 1:
+            raise es.UserError(_(
+                'Auto-Link can be run only for products from one e-commerce store at a time.\n\n'
+                'Please select products from the same store and try again.'
+            ))
+
+        template_ids = self.mapped('external_template_id.code')
+        message = integration.run_external_products_auto_mapping(template_ids, raise_error=False)
+
         action = self.env['message.wizard'].create_and_run(message)
         action['name'] = _('Auto-Link Results')
         return action

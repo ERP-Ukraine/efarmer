@@ -49,11 +49,11 @@ class IntegrationModelMixin(models.AbstractModel):
         return self.to_export_format(integration)
 
     def to_export_format(self, integration: 'models.Model'):
-        raise es.raise_error('E111')
+        es.raise_error('E111')
 
-    def export_with_integration(self, integration):
+    def export_with_integration(self, integration: 'models.Model'):
         """Return external code."""
-        raise es.raise_error('E111')
+        es.raise_error('E111')
 
     def export_with_integration_to_record(self, integration):
         self.export_with_integration(integration)
@@ -106,11 +106,6 @@ class IntegrationModelMixin(models.AbstractModel):
             ('state', '=', 'active'),
         ])
         return active_integrations
-
-    def _prepare_default_integration_ids(self):
-        integrations = self.get_active_integrations()
-        integrations_to_apply = integrations.filtered('apply_to_products')
-        return [(6, 0, integrations_to_apply.ids)]
 
     def _get_next_sequence(self):
         sequence_list = self.value_ids.mapped('sequence')

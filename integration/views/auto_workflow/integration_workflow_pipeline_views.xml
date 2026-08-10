@@ -6,94 +6,107 @@
             <field name="name">integration.workflow.pipeline.form</field>
             <field name="model">integration.workflow.pipeline</field>
             <field name="arch" type="xml">
-                <form string="Integration Workflow Pipeline Form" create="0" edit="0" delete="0">
-                    <group>
-                        <field name="order_id" readonly="1"/>
-                        <field name="sub_state_external_ids" readonly="1" widget="many2many_tags"/>
-                        <field name="skip_dispatch" readonly="1"/>
-                        <field name="invoice_journal_id" readonly="1"/>
-                        <field name="payment_journal_id" readonly="1"/>
-                        <field name="input_file_id" readonly="1"/>
-                        <field name="input_file_state"/>
-                        <field name="update_required"/>
-                        <field name="current_info" readonly="1"/>
-                        <field name="pipeline_task_ids" readonly="1">
-                            <list no_open="1"
-                                decoration-muted="state=='skip'" 
-                                decoration-success="state=='done'" 
-                                decoration-danger="state=='failed'"
-                                decoration-warning="state=='in_process'"
-                            >
+                <form string="Order Automation Pipeline Form" create="0" edit="0" delete="0">
+                    <sheet>
+                        <group>
+                            <group string="Sales Order">
+                                <label for="order_id" string="Sales Order"/>
+                                <div class="o_row" colspan="1">
+                                    <field name="order_id" readonly="1" nolabel="1"
+                                          options="{'no_open': True}" class="oe_inline"/>
+                                    <button type="object" name="action_open_order"
+                                            string="Open" class="btn-outline-primary ms-5"
+                                            invisible="not order_id"/>
+                                </div>
+                                <field name="order_sub_status_id" readonly="1" string="Store Status"/>
+                                <field name="create_date" string="Created On"/>
+                            </group>
+                            <group string="External Order">
+                                <label for="input_file_id" string="External Order"/>
+                                <div class="o_row" colspan="1">
+                                    <field name="input_file_id" readonly="1" nolabel="1"
+                                          options="{'no_open': True}" class="oe_inline"/>
+                                    <button type="object" name="action_open_input_file"
+                                            string="Open Store Order" class="btn-outline-primary ms-5"
+                                            invisible="not input_file_id"/>
+                                </div>
+                                <field name="order_integration_id" readonly="1" string="Store"/>
+                            </group>
+                        </group>
+
+                        <field name="alert_type" invisible="1"/>
+                        <field name="failed_task_skip_allowed" invisible="1"/>
+                        <div role="alert" class="alert mt-2 alert-success" invisible="alert_type != 'succeed'">
+                            <h4 class="d-flex align-items-center gap-2" style="color: inherit">
+                                <i aria-hidden="true" class="fa fa-check-square" title="Success"/>
+                                <field name="alert_title" readonly="1" nolabel="1"/>
+                            </h4>
+                            <field name="alert_body" readonly="1" nolabel="1"/>
+                        </div>
+                        <div role="alert" colspan="2" class="alert mt-2 alert-danger" invisible="alert_type != 'failed'">
+                            <h4 class="d-flex align-items-center gap-2" style="color: inherit">
+                                <i aria-hidden="true" class="fa fa-exclamation-triangle" title="Error"/>
+                                <field name="alert_title" readonly="1" nolabel="1"/>
+                            </h4>
+                            <field name="alert_body" readonly="1" nolabel="1"/>
+                        </div>
+                        <div role="alert" colspan="2" class="alert mt-2 alert-info" invisible="alert_type not in ['not_configured', 'processing']">
+                            <h4 class="d-flex align-items-center gap-2" style="color: inherit">
+                                <i aria-hidden="true" class="fa fa-clock-o" title="Info"/>
+                                <field name="alert_title" readonly="1" nolabel="1"/>
+                            </h4>
+                            <field name="alert_body" readonly="1" nolabel="1"/>
+                        </div>
+
+                        <separator string="Workflow steps"/>
+                        <field name="pipeline_task_ids" readonly="1" nolabel="1">
+                            <list no_open="1" decoration-muted="state=='skip'" decoration-success="state=='done'" decoration-danger="state=='failed'" decoration-warning="state=='in_process'">
                                 <field name="name"/>
-                                <field name="current_step_method" column_invisible="1"/> <!-- Can be removed in the future? -->
-                                <field name="next_step_method" column_invisible="1"/> <!-- Can be removed in the future? -->
-                                <field name="state"/>
-                                <button name="run"
-                                        string="Run" 
-                                        type="object"
-                                        invisible="state in ['skip', 'done']"
-                                />
-                                <button name="task_force_done"
-                                        string="Force Done" 
-                                        type="object"
-                                        invisible="state == 'done'"
-                                        groups="base.group_no_one"
-                                />
-                                <button name="task_force_draft"
-                                        string="To Draft" 
-                                        type="object"
-                                        invisible="state == 'todo'"
-                                        groups="base.group_no_one"
-                                />
+                                <field name="current_step_method" column_invisible="1"/>
+                                <field name="skip_allowed" column_invisible="1"/>
+                                <field name="state" width="100px" style="text-align: right;"/>
+                                <button name="action_retry_step" string="Retry From Here" type="object" icon="fa-refresh" invisible="state != 'failed'" width="150px"/>
+                                <button name="action_skip_step" string="Skip Step" type="object" icon="fa-forward" invisible="state != 'failed' or not skip_allowed" width="120px"/>
+                                <button name="task_force_done" string="Force Done" type="object" groups="base.group_no_one" width="100px"/>
+                                <button name="task_force_draft" string="To Draft" type="object" groups="base.group_no_one" width="80px"/>
                             </list>
                         </field>
-                    </group>
-                    <group>
-                        <button name="manual_run"
-                                string="Re-Run With Delay" 
-                                type="object" 
-                        />
-                        <button name="mark_input_as_done"
-                                string="Mark Input as DONE" 
-                                type="object"
-                                class="float-right mr-1"
-                                groups="base.group_no_one"
-                        />
-                        <button name="open_form"
-                                string="Refresh Form" 
-                                type="object"
-                                class="float-right mr-1"
-                                groups="base.group_no_one"
-                        />
-                        <button name="clear_info"
-                                string="Clear Info" 
-                                type="object" 
-                                class="float-right mr-1"
-                        />
-                    </group>
-                    <group>
-                        <button name="drop_pipeline"
-                                string="Drop Workflow" 
-                                type="object" 
-                                class="btn-outline-danger float-right mr-1"
-                                groups="base.group_no_one"
-                        />
-                    </group>
+
+                        <div class="alert alert-danger clearfix" role="alert" invisible="alert_type != 'failed'">
+                            <h4 style="color: inherit;"><field name="error_title"/></h4>
+                            <p class="mb-0" style="white-space: pre-wrap; word-break: break-word; max-height: 12em; overflow-y: auto;"
+                               invisible="not current_info"><field name="current_info" nolabel="1" readonly="1"/></p>
+                            <div class="accordion mt-2" id="errorAccordion" invisible="not error_traceback">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <a href="#" class="accordion-button collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#errorCollapse" aria-expanded="false" aria-controls="errorCollapse">
+                                            Technical details
+                                        </a>
+                                    </h2>
+                                    <div id="errorCollapse" class="accordion-collapse collapse" data-bs-parent="#errorAccordion">
+                                        <div class="accordion-body">
+                                            <div class="alert alert-danger o_error_detail mb-0" role="alert">
+                                                <pre><field name="error_traceback" nolabel="1" readonly="1" widget="text"/></pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </sheet>
+
                     <footer>
-                        <button string="Close" class="btn-secondary" special="cancel"/>
+                        <button name="manual_run" string="Run Again" type="object" icon="fa-refresh"
+                                class="btn-primary" invisible="alert_type in ('failed', 'running')"/>
+                        <button name="run_from_failed_step" string="Retry From Failed Step" type="object"
+                                icon="fa-refresh" class="btn-primary" invisible="alert_type != 'failed'"/>
+                        <button name="action_skip_failed_step" string="Skip Failed Step" type="object"
+                                icon="fa-forward" class="btn-secondary"
+                                invisible="alert_type != 'failed' or not failed_task_skip_allowed"/>
+                        <button name="open_form" string="Refresh Wizard" type="object" icon="fa-refresh"
+                                class="btn-secondary ms-auto"/>
                     </footer>
                 </form>
-            </field>
-        </record>
-
-        <record id="integration_workflow_pipeline_form_tree" model="ir.ui.view">
-            <field name="name">integration.workflow.pipeline.list</field>
-            <field name="model">integration.workflow.pipeline</field>
-            <field name="arch" type="xml">
-                <list string="Integration Workflow Pipeline Tree" create="0" edit="0">
-                    <field name="order_id"/>
-                    <field name="pipeline_task_ids" widget="many2many_tags"/>
-                </list>
             </field>
         </record>
 

@@ -84,6 +84,7 @@
                             <field name="is_prestashop_installed" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
                             <field name="is_shopify_installed" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
                             <field name="is_magento2_installed" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
+                            <field name="is_baselinker_installed" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
 
                             <div class="row">
                                 <div class="container">
@@ -112,7 +113,8 @@
                                         ></iframe>
                                     </div>
 
-                                    <div invisible="is_shopify_installed == False">
+                                    <!-- BaseLinker has no dedicated tutorial yet, so it reuses the Shopify connection video -->
+                                    <div invisible="is_shopify_installed == False and is_baselinker_installed == False">
                                         <iframe
                                             class="youtube-embedded-video"
                                             src="https://www.youtube.com/embed/jpKBHcmJIiU"

@@ -15,6 +15,11 @@ class ProductAttribute(models.Model):
              'It means that attribute will not be exported to external systems.',
     )
 
+    @property
+    def creates_variants(self):
+        self.ensure_one()
+        return self.create_variant != 'no_variant'
+
     def export_with_integration(self, integration):
         self.ensure_one()
         return integration.export_attribute(self)

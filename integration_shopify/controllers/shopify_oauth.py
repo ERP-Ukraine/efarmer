@@ -14,7 +14,14 @@ from ..shopify_api import SHOPIFY
 
 class ShopifyOAuth(Controller):
 
-    @route(f'/<string:dbname>/integration/{SHOPIFY}/<int:integration_id>/oauth', type='http', auth='user')
+    @route(
+        [
+            f'/integration/<string:dbname>/{SHOPIFY}/<int:integration_id>/oauth',
+            f'/<string:dbname>/integration/{SHOPIFY}/<int:integration_id>/oauth',
+        ],
+        type='http',
+        auth='user',
+    )
     @build_environment
     def shopify_oauth_callback(self, integration_id: int, code: str, shop: str, state: int, **kw):
         # 1. Validate Integration

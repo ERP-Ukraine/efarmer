@@ -119,12 +119,10 @@ class ExternalOrderTransaction(models.Model):
 
     def validate(self):
         """
-        Advance payment flow and fall back to standard validation
+        Run as an advance payment when the workflow step requests it (the per-status
+        ``apply_advance_payment`` flag drives that step); otherwise validate as standard.
         """
-        if (
-            self.env.context.get('integration_skip_advance_payment')
-            or not self.integration_id.create_advance_payments
-        ):
+        if not self.env.context.get('integration_apply_advance_payment'):
             return super().validate()
 
         result, ids = self._validate_as_advance_payment()
@@ -160,6 +158,11 @@ class ExternalOrderTransaction(models.Model):
             self.internal_info = _('No unpaid invoices found for this order')
             self.mark_skipped()
             return False, []
+
+        # Use the payment method mapped to this transaction's gateway, if any.
+        payment_method_line = self._integration_payment_method_line()
+        if payment_method_line:
+            self = self.with_context(default_payment_method_line_id=payment_method_line.id)
 
         wizard = self.env['account.payment.register'] \
             .with_context(
@@ -210,8 +213,15 @@ class ExternalOrderTransaction(models.Model):
         order = self.erp_order_id
         old_payments = order.account_payment_ids
 
+        # Use the payment method mapped to this transaction's gateway, if any.
+        voucher_wizard = self.env['account.voucher.wizard']
+        payment_method_line = self._integration_payment_method_line()
+        if payment_method_line:
+            voucher_wizard = voucher_wizard.with_context(
+                default_payment_method_line_id=payment_method_line.id)
+
         try:
-            wizard = self.env['account.voucher.wizard'] \
+            wizard = voucher_wizard \
                 .with_context(
                     active_ids=order.ids,
                     default_integration_id=self.integration_id.id,
@@ -235,6 +245,20 @@ class ExternalOrderTransaction(models.Model):
         self.mark_done()
 
         return True, new_payments.ids
+
+    def _integration_payment_method_line(self):
+        """Resolve the Odoo payment method line mapped to this transaction's gateway."""
+        self.ensure_one()
+        if not self.gateway:
+            return self.env['account.payment.method.line']
+
+        payment_method = self.env['sale.order.payment.method'].from_external(
+            self.integration_id, self.gateway, raise_error=False)
+        if not payment_method:
+            return self.env['account.payment.method.line']
+
+        external = payment_method.to_external_record(self.integration_id, raise_error=False)
+        return external.payment_method_line_id
 
     def get_journal(self):
         """Get the appropriate payment journal for this transaction"""

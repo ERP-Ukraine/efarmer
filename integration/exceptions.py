@@ -374,7 +374,14 @@ class ErrorStore:
                 'existing_info',
                 'entity_label',
             ],
-        )
+        ),
+        'E114': ErrorInfo(
+            error_type=UserError,
+            format_method='format_product_not_connected_for_stock_refresh',
+            format_method_params=[
+                'product_name',
+            ],
+        ),
     }
 
     def __new__(cls):
@@ -696,3 +703,13 @@ class ErrorStore:
         return _(
             'This functionality is not yet implemented.'
         )
+
+    @staticmethod
+    def format_product_not_connected_for_stock_refresh(product_name):
+        return _(
+            'Product "%s" is not connected to any e-commerce store for stock refresh.\n\n'
+            'To resolve this issue, please do the following:\n'
+            '1. Open the product and go to the "E-Commerce Integration" tab.\n'
+            '2. Assign at least one active store to the product (or its variants).\n'
+            '3. Ensure product mapping to the selected store is completed.'
+        ) % product_name

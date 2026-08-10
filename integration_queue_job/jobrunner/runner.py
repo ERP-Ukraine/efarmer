@@ -92,8 +92,8 @@ def _connection_info_for(db_name):
 
 
 def _async_http_get(scheme, host, port, user, password, db_name, job_uuid):
-    # Method to set failed job (due to timeout, etc) as pending,
-    # to avoid keeping it as enqueued.
+    # Fallback used only when postponing a rate-limited job fails; see
+    # set_job_pending_with_eta().
     def set_job_pending():
         connection_info = _connection_info_for(db_name)
         conn = psycopg2.connect(**connection_info)
@@ -158,32 +158,29 @@ def _async_http_get(scheme, host, port, user, password, db_name, job_uuid):
     #       if this was python3 I would be doing this with
     #       asyncio, aiohttp and aiopg
     def urlopen():
-        url = f"{scheme}://{host}:{port}/queue_job/runjob?db={db_name}&job_uuid={job_uuid}"
+        url = f"{scheme}://{host}:{port}/queue_job/runjob?job_uuid={job_uuid}"
         try:
             auth = None
             if user:
                 auth = (user, password)
-            # Tell Odoo which database to bind through the 'X-Odoo-Database'
-            # header. Odoo resolves the database during routing
-            # (Request._get_session_and_dbname), *before* the controller runs.
-            # On multi-database instances the '?db=' query string alone is not
-            # enough: the database cannot be auto-detected, the request is
-            # dispatched in "nodb" mode (request.env is None) and
-            # '/queue_job/runjob' fails with "'NoneType' object is not
-            # callable". The header makes the database selection deterministic
-            # and stateless (no session cookie needed). The '?db=' query string
-            # is kept because the controller still reads 'db' from it.
-            headers = {"X-Odoo-Database": db_name}
             # we are not interested in the result, so we set a short timeout
             # but not too short so we trap and log hard configuration errors
-            response = requests.get(url, timeout=1, auth=auth, headers=headers)
+            response = requests.get(
+                url, timeout=1, auth=auth, headers={"X-Odoo-Database": db_name}
+            )
 
             # raise_for_status will result in either nothing, a Client Error
             # for HTTP Response codes between 400 and 500 or a Server Error
             # for codes between 500 and 600
             response.raise_for_status()
         except requests.Timeout:
-            set_job_pending()
+            # '/queue_job/runjob' only answers once the job is done, so the 1s
+            # timeout means "not waiting for the result", not "the request
+            # failed". Resetting the job here re-notifies the runner, which
+            # re-dispatches and times out again: a 1 req/s storm until the
+            # platform answers 429. Genuinely lost requests are recovered by
+            # the 'Jobs Garbage Collector' cron.
+            pass
         except requests.exceptions.HTTPError as err:
             response = err.response
             if response is not None and response.status_code == 429:
@@ -204,10 +201,8 @@ def _async_http_get(scheme, host, port, user, password, db_name, job_uuid):
                 return
 
             _logger.exception("exception in GET %s", url)
-            set_job_pending()
         except Exception:
             _logger.exception("exception in GET %s", url)
-            set_job_pending()
 
     thread = threading.Thread(target=urlopen)
     thread.daemon = True
@@ -335,6 +330,19 @@ class QueueJobRunner:
         self._stop = False
         self._stop_pipe = os.pipe()
 
+    def __del__(self):
+        # pylint: disable=except-pass
+        # The runner is re-created on every 'limit_time_cpu' recovery and on
+        # every process reload, so leaking the stop-pipe fds adds up.
+        try:
+            os.close(self._stop_pipe[0])
+        except OSError:
+            pass
+        try:
+            os.close(self._stop_pipe[1])
+        except OSError:
+            pass
+
     @classmethod
     def from_environ_or_config(cls):
         scheme = os.environ.get("ODOO_QUEUE_JOB_SCHEME") or queue_job_config.get(
@@ -359,7 +367,9 @@ class QueueJobRunner:
         runner = cls(
             scheme=scheme or "http",
             host=host or "localhost",
-            port=port or 8069,
+            # 'queue_job_port' is not a known Odoo option, so it reaches us as a
+            # string when set in the config file.
+            port=int(port or 8069),
             user=user,
             password=password,
         )

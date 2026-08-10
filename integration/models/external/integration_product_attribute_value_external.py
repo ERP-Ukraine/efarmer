@@ -20,6 +20,10 @@ class IntegrationProductAttributeValueExternal(models.Model):
         ondelete='cascade',
     )
 
+    used_for_variants = fields.Boolean(
+        related='external_attribute_id.used_for_variants',
+    )
+
     def _compute_display_name(self):
         for rec in self:
             if rec.external_attribute_id:

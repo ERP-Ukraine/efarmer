@@ -207,6 +207,7 @@ class GraphQLTemplate:
     PRODUCT_OPTION_VALUE_BODY = """
         id
         name
+        hasVariants
     """
 
     PRODUCT_OPTION_BODY = """
@@ -768,6 +769,21 @@ class GraphQLTemplate:
         }
     """
 
+    DUTY_BODY = """
+        id
+        countryCodeOfOrigin
+        harmonizedSystemCode
+        price {
+            %s
+        }
+        taxLines {
+            %s
+        }
+    """ % (
+        MONEY_BAG_BODY,
+        TAX_LINE_BODY,
+    )
+
     LINE_ITEM_BODY = """
         id
         name
@@ -796,10 +812,14 @@ class GraphQLTemplate:
         discountAllocations {
             %s
         }
+        duties {
+            %s
+        }
     """ % (
         TAX_LINE_BODY,
         MONEY_BAG_BODY,
         DISCOUNT_ALLOCATION_BODY,
+        DUTY_BODY,
     )
 
     LINE_ITEM_MINIMAL_BODY = """
@@ -994,6 +1014,7 @@ class GraphQLTemplate:
         currentTotalPriceSet {
             %s
         }
+        dutiesIncluded
         customer {
             %s
         }
@@ -1427,10 +1448,12 @@ class GraphQLTemplate:
         mutation createOptions(
             $productId: ID!,
             $options: [OptionCreateInput!]!,
+            $variantStrategy: ProductOptionCreateVariantStrategy
         ) {
             productOptionsCreate(
                 productId: $productId,
-                options: $options
+                options: $options,
+                variantStrategy: $variantStrategy
             ) {
                 userErrors {
                     %s
@@ -1443,15 +1466,13 @@ class GraphQLTemplate:
                         values
                         position
                         optionValues {
-                            id
-                            name
-                            hasVariants
+                            %s
                         }
                     }
                 }
             }
         }
-    """ % USER_ERRORS_BODY_2
+    """ % (USER_ERRORS_BODY_2, PRODUCT_OPTION_VALUE_BODY)
 
     MUTATION_DELETE_PRODUCT_OPTIONS = """
         mutation deleteOptions(
@@ -1476,26 +1497,26 @@ class GraphQLTemplate:
                         values
                         position
                         optionValues {
-                            id
-                            name
-                        hasVariants
+                            %s
                         }
                     }
                 }
             }
         }
-    """ % USER_ERRORS_BODY_2
+    """ % (USER_ERRORS_BODY_2, PRODUCT_OPTION_VALUE_BODY)
 
     MUTATION_UPDATE_PRODUCT_OPTIONS = """
         mutation updateOption(
             $productId: ID!,
             $option: OptionUpdateInput!,
+            $optionValuesToAdd: [OptionValueCreateInput!],
             $optionValuesToDelete: [ID!]
             $variantStrategy: ProductOptionUpdateVariantStrategy
         ) {
             productOptionUpdate(
                 productId: $productId,
                 option: $option,
+                optionValuesToAdd: $optionValuesToAdd,
                 optionValuesToDelete: $optionValuesToDelete,
                 variantStrategy: $variantStrategy
             ) {
@@ -1510,15 +1531,13 @@ class GraphQLTemplate:
                         values
                         position
                         optionValues {
-                            id
-                            name
-                            hasVariants
+                            %s
                         }
                     }
                 }
             }
         }
-    """ % USER_ERRORS_BODY_2
+    """ % (USER_ERRORS_BODY_2, PRODUCT_OPTION_VALUE_BODY)
 
     MUTATION_CREATE_STAGED_TARGET = """
         mutation stagedUploadsCreate($input: [StagedUploadInput!]!) {

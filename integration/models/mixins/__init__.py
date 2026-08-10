@@ -9,3 +9,4 @@ from . import integration_mapping_mixin
 from . import integration_product_element_value_mapping_mixin
 from . import integration_external_mixin
 from . import integration_product_external_mixin
+from . import integration_workflow_automation_mixin

@@ -23,6 +23,10 @@ class ResConfigSettings(models.TransientModel):
         help='Do not convert product images to webp format.',
     )
 
+    # module_ + <module_name> autopopulates by odoo with ('installed', 'to upgrade' or 'to install')
+    module_integration_prestashop = fields.Boolean()
+    module_integration_magento2 = fields.Boolean()
+
     def get_values(self):
         """ Get values for the installed integration. """
         res = super().get_values()

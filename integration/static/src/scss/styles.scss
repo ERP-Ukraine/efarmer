@@ -52,10 +52,9 @@
 }
 
 .integration-no-content-logo {
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
+    height: 128px;
+    max-width: 100%;
+    object-fit: contain;
 }
 
 /* YouTube embedded videos */
@@ -66,20 +65,20 @@ iframe.youtube-embedded-video {
 
 /* API Access Badge Buttons */
 .integration-api-badge-button {
-    background-color: #28a745;
-    color: white;
-    font-size: 0.9rem;
+    background-color: #d1e7dd;
+    color: #0f5132;
+    font-size: 0.8rem;
+    font-weight: 600;
     cursor: pointer;
     text-decoration: none;
-    border: none !important;
+    border: 1px solid #badbcc !important;
     box-shadow: none !important;
-    padding: 0.5rem 1rem;
+    padding: 0.25rem 0.6rem;
 
     &:hover {
-        background-color: #218838 !important; // Darker shade of #28a745
+        background-color: #badbcc;
         text-decoration: none;
-        color: white !important;
-        border-color: transparent !important;
+        color: #0f5132;
     }
 
     &:focus {
@@ -88,17 +87,25 @@ iframe.youtube-embedded-video {
     }
 
     &.api-access-not-granted {
-        background-color: #dc3545;
+        background-color: #f8d7da;
+        color: #842029;
+        border-color: #f5c2c7 !important;
 
         &:hover {
-            background-color: #c82333 !important; // Darker shade of #dc3545
-            text-decoration: none;
-            color: white !important;
-            border-color: transparent !important;
+            background-color: #f5c2c7;
+            color: #842029;
         }
 
         &:focus {
             box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
         }
+    }
+}
+
+/* Sale Integration form header logo */
+.o_integration_header_logo {
+    img {
+        max-height: 110px;
+        object-fit: contain;
     }
 }
