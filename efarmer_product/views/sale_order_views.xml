@@ -31,7 +31,7 @@
                         title="Copy this line's taxes to all other order lines and remove any other taxes from them"
                         class="btn-link"
                         column_invisible="parent.is_auto_calc_taxes"
-                        invisible="display_type or is_downpayment"/>
+                        invisible="display_type or is_downpayment or qty_invoiced > 0"/>
             </xpath>
         </field>
     </record>
