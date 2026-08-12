@@ -55,13 +55,14 @@ def migrate(cr, version):
     """)
 
     # 4) Back-fill the new per-status `apply_advance_payment` step from the old
-    #    integration-level `create_advance_payments` checkbox. The old checkbox
-    #    auto-applied advance payments from the `_integration_post_order_confirm`
-    #    hook, which only ever ran after the order had been auto-confirmed -- i.e.
-    #    only for statuses that already had the `validate_order` step enabled. Only
-    #    back-fill those, so the migrated data matches the old runtime behavior
-    #    instead of silently enabling advance payments for statuses that never used
-    #    to trigger it.
+    #    integration-level `create_advance_payments` checkbox, matching the old
+    #    `_integration_post_order_confirm` behavior (only ran when `validate_order`
+    #    was already enabled).
+    cr.execute("""
+        ALTER TABLE integration_sale_order_sub_status_external
+            ADD COLUMN IF NOT EXISTS apply_advance_payment BOOLEAN;
+    """)
+
     cr.execute("""
         SELECT column_name FROM information_schema.columns
         WHERE table_name = 'sale_integration' AND column_name = 'create_advance_payments'

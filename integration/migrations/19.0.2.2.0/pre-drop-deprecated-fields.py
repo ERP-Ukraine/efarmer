@@ -30,6 +30,8 @@ def _migrate_apply_to_products(cr):
     if not cr.fetchone():
         return
 
+    cr.execute("ALTER TABLE sale_integration ADD COLUMN IF NOT EXISTS auto_export_new_products BOOLEAN")
+
     cr.execute("""
         UPDATE sale_integration
         SET auto_export_new_products = apply_to_products
