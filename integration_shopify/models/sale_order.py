@@ -159,32 +159,24 @@ class SaleOrder(models.Model):
         order.update_props(
             use_customer_currency=adapter._settings['use_customer_currency'],
         )
-        read_order = False
 
         def _read():
-            nonlocal read_order
+            order.read()
+            return bool(order)
 
-            if not read_order:
-                order.read()
-                read_order = True
-
-        if 'order_risks' not in external_data:
-            # 1. Fetch Order Risks
-            _read()
-            order_risks = order.parse_order_risks()
-            external_data['order_risks'] = order_risks
-
-        if 'payment_transactions' not in external_data:
-            # 2. Fetch Order Payments
-            _read()
-            payment_txns = order.parse_payment_transactions()
-            external_data['payment_transactions'] = payment_txns
-
-        if 'order_fulfillments' not in external_data:
-            # 3. Fetch Order Fulfillments
-            _read()
-            order_fulfillments = order.parse_fulfillments()
-            external_data['order_fulfillments'] = order_fulfillments
+        if _read():
+            if 'order_risks' not in external_data:
+                external_data['order_risks'] = order.parse_order_risks()
+            if 'payment_transactions' not in external_data:
+                external_data['payment_transactions'] = order.parse_payment_transactions()
+            if 'order_fulfillments' not in external_data:
+                external_data['order_fulfillments'] = order.parse_fulfillments()
+        else:
+            external_data.update({
+                'order_risks': [],
+                'payment_transactions': [],
+                'order_fulfillments': [],
+            })
 
         return external_data
 

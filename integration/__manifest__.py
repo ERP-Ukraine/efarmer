@@ -2,7 +2,7 @@
 
 {
     'name': 'Odoo E-Commerce Connector Core',
-    'version': '19.0.2.2.0',
+    'version': '19.0.2.2.1',
     'category': 'Sales',
     'author': 'VentorTech',
     'website': 'https://ventor.tech',

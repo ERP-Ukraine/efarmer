@@ -216,8 +216,9 @@ class GqlDict:
     def _set_pseudo_id(self):  # TODO: get rid of that
         self.set(id=f'100500{randint(10000, 99999)}')  # ADD pseudo ID to avoid errors raise_if_no_key
 
-    def compute_idempotency_key(self, payload: dict) -> str:
-        return uuid.uuid5(uuid.NAMESPACE_URL, json.dumps(payload))
+    def generate_idempotency_key(self) -> str:
+        """Unique key for one Shopify GraphQL mutation attempt (@idempotent)."""
+        return str(uuid.uuid4())
 
 
 class ShopifyResourceBase:

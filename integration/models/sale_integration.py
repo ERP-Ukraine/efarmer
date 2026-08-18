@@ -68,6 +68,13 @@ LOG_SEPARATOR = '================================'
 IMPORT_EXTERNAL_BLOCK = 150  # Don't make more, because of 414 Request-URI Too Large error
 EXPORT_EXTERNAL_BLOCK = 500
 
+# Page caps for order import (each page is up to one connector page size, ~100 orders).
+# Manual import runs synchronously in one request/transaction, so it is capped low and hands
+# the rest to the background job chain. The background chain is only bounded to stop a
+# misbehaving connector that never signals the last page (a runaway job chain).
+MANUAL_IMPORT_MAX_PAGES = 50
+RECEIVE_ORDERS_MAX_PAGES = 10_000
+
 IMAGE_FIELDS = ['image_1920', 'integration_template_image_ids', 'integration_variant_image_ids']
 PRODUCT_QTY_FIELDS = ['free_qty', 'qty_available', 'virtual_available']
 # Fields whose change triggers an automatic product export by default. Kept empty on purpose: linking a store to a
@@ -1820,7 +1827,23 @@ class SaleIntegration(models.Model):
         self.ensure_one()
         self._raise_if_not_access_granted()
 
-        self.import_orders()
+        input_files = self.import_orders()
+
+        if input_files:
+            message = _('%s order(s) received and queued for processing.') % len(input_files)
+        else:
+            message = _('No new orders to import since the last sync.')
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Import Orders'),
+                'message': message,
+                'type': 'success',
+                'sticky': False,
+            }
+        }
 
     def _raise_if_not_access_granted(self):
         if not self.api_access_granted:
@@ -2932,11 +2955,12 @@ class SaleIntegration(models.Model):
         self.last_order_sync_datetime = fields.Datetime.now()
 
         new_input_files = self.env['sale.integration.input.file']
-        new_receive_orders_datetime = None
+        running_max_updated_at = None
         page_token = None
         seen_tokens = set()
         page_no = 0
         stalled = False
+        handed_off = False
 
         while True:
             # Fetch the whole backlog here, page by page, continuing via the connector's
@@ -2945,13 +2969,14 @@ class SaleIntegration(models.Model):
             orders, next_page_token = adapter.receive_orders(page_token=page_token)
             page_no += 1
 
-            for order_data in self.filter_received_orders(orders):
+            for order_data in self.with_context(bulk_order_import=True).filter_received_orders(orders):
                 # Returns newly created input files and existing ones already created.
                 new_input_files |= self._create_input_file_from_received_data(order_data)
 
+            # Carry the max updated_at across ALL pages: pages are ordered by id, not by
+            # updated_at, so the last page is not necessarily the newest one.
             updated_at_list = [order_data['updated_at'] for order_data in orders]
-            new_receive_orders_datetime = \
-                self._next_receive_orders_datetime(updated_at_list) or new_receive_orders_datetime
+            running_max_updated_at = self._max_updated_at(running_max_updated_at, updated_at_list)
 
             self._log_order_import(
                 'Page fetched',
@@ -2975,16 +3000,36 @@ class SaleIntegration(models.Model):
                 stalled = True
                 break
 
+            # Manual import runs in one request/transaction and is not meant to drain a full
+            # backlog. Once the cap is reached, hand the remaining pages to the background job
+            # chain (from the current token, carrying the running max) and hold the resume
+            # date here -- the chain moves it forward on its own final page.
+            if page_no >= MANUAL_IMPORT_MAX_PAGES:
+                self._log_order_import(
+                    'Manual import handed off',
+                    f'reached the manual page cap ({page_no} pages); the remaining orders will be '
+                    f'imported by a background job continuing from token {next_page_token}.',
+                    log_level='warning')
+                self.integration_receive_orders_cron(
+                    page_token=next_page_token, max_updated_at=running_max_updated_at, update_dt=True)
+                handed_off = True
+                break
+
             seen_tokens.add(next_page_token)
             page_token = next_page_token
 
-        if new_receive_orders_datetime is not None and not stalled:  # Move the resume date forward once
-            self.last_receive_orders_datetime = new_receive_orders_datetime
+        # Move the resume date forward once, to the max updated_at seen across the whole run,
+        # but only when the run actually completed here (not stalled, not handed off).
+        if running_max_updated_at is not None and not stalled and not handed_off:
+            new_receive_orders_datetime = self._next_receive_orders_datetime([running_max_updated_at])
+            if new_receive_orders_datetime is not None:
+                self.last_receive_orders_datetime = new_receive_orders_datetime
 
         self._log_order_import(
             'Import done',
             f'pages={page_no}, resume_date={self.last_receive_orders_datetime}'
-            f'{" (held: stalled)" if stalled else ""}, input_files={new_input_files.ids}')
+            f'{" (held: stalled)" if stalled else ""}{" (handed off)" if handed_off else ""}, '
+            f'input_files={new_input_files.ids}')
 
         return new_input_files
 
@@ -4814,7 +4859,7 @@ class SaleIntegration(models.Model):
         return filtered_orders
 
     @expose_for_testing('Import Orders')
-    def integrationApiReceiveOrders(self, update_dt=True, page_token=None):
+    def integrationApiReceiveOrders(self, update_dt=True, page_token=None, max_updated_at=None, page_no=1):
         """
         Receive and process orders from the integration source.
 
@@ -4825,6 +4870,11 @@ class SaleIntegration(models.Model):
             'updated_at' value from received orders. Defaults to True.
             page_token (str): Optional token for paginated order fetching. If provided, the method will fetch
             the next page of orders.
+            max_updated_at (str): Running max of 'updated_at' carried from earlier pages of the same run.
+            Pages are ordered by id, so the newest order may be on any page; the resume date can only be
+            computed once this max has been threaded through every page.
+            page_no (int): 1-based number of this page within the run, carried through the job chain to
+            bound it (RECEIVE_ORDERS_MAX_PAGES) against a connector that never signals the last page.
 
         Returns:
             recordset: A set of created input files for processed orders.
@@ -4847,8 +4897,10 @@ class SaleIntegration(models.Model):
         # 1. Receive one page of orders -> (orders, next_page_token)
         orders_data_list, next_page_token = adapter.receive_orders(page_token=page_token)
 
-        # 2. Filter orders
-        filtered_orders_data_list = self.filter_received_orders(orders_data_list)
+        # 2. Filter orders (bulk_order_import lets connectors apply bulk-only filters, e.g.
+        # WooCommerce status filtering, which must not affect single fetch-by-id imports)
+        filtered_orders_data_list = \
+            self.with_context(bulk_order_import=True).filter_received_orders(orders_data_list)
 
         # 3. Create input files
         updated_at_list = list()
@@ -4858,12 +4910,18 @@ class SaleIntegration(models.Model):
             input_file = self._create_input_file_from_received_data(order_data)
             created_input_files |= input_file
 
-        # 4. Move the resume date forward, but only once the whole import run is complete
+        # 4. Move the resume date forward, but only once the whole import run is complete.
+        # Carry the max updated_at across pages: pages are ordered by id, not by updated_at,
+        # so the newest order may sit on any page (including one before an empty final page).
         updated_at_list = [order_data['updated_at'] for order_data in orders_data_list]
+        running_max_updated_at = self._max_updated_at(max_updated_at, updated_at_list)
 
-        # Safety net: a token that repeats the previous one would re-fetch the same page
-        # forever (e.g. a legacy date-window connector returning the same boundary). Stop and
-        # hold the resume date, so the un-fetched orders stay in range for the next run.
+        # Any incomplete stop (stall or page cap) HOLDS the resume date: pages are ordered by
+        # id, so un-fetched (higher-id) orders may carry an older updated_at than the max seen
+        # so far. Advancing the date would skip them, so we only move it on a complete run.
+
+        # Safety net (fast path): a token that repeats the previous one would re-fetch the same
+        # page forever. Stop and hold the resume date so the un-fetched orders stay in range.
         stalled = next_page_token is not None and next_page_token == page_token
         if stalled:
             self._log_order_import(
@@ -4874,19 +4932,36 @@ class SaleIntegration(models.Model):
                 log_level='error')
             next_page_token = None
 
+        # Hard bound: a connector that never signals the last page would grow the job chain
+        # without end. Cap it and hold the resume date. (The sync path uses a seen-tokens set;
+        # a background chain cannot carry one, so it relies on this page counter instead.)
+        capped = next_page_token is not None and page_no >= RECEIVE_ORDERS_MAX_PAGES
+        if capped:
+            self._log_order_import(
+                'Import stopped (page cap)',
+                f'reached the background page cap ({page_no} pages) with more pages pending; stopping '
+                f'and holding the resume date. A connector that never signals the last page points to '
+                f'a pagination bug, please investigate.',
+                log_level='error')
+            next_page_token = None
+
         if next_page_token is not None:
-            # More pages: enqueue the next page as a separate (bounded) background job --
-            # an enqueue, not synchronous recursion. Resume date is held until the last page.
-            self.integration_receive_orders_cron(page_token=next_page_token)
-        elif update_dt and not stalled:  # Last page reached: move last_receive_orders_datetime forward once
-            new_receive_orders_datetime = self._next_receive_orders_datetime(updated_at_list)
+            # More pages: enqueue the next page as a separate (bounded) background job -- an
+            # enqueue, not synchronous recursion. The running max, update_dt and page number
+            # travel with it so the resume date is moved once, on the final page.
+            self.integration_receive_orders_cron(
+                page_token=next_page_token, max_updated_at=running_max_updated_at,
+                update_dt=update_dt, page_no=page_no + 1)
+        elif update_dt and not stalled and not capped and running_max_updated_at is not None:
+            # Last page reached (complete run): move last_receive_orders_datetime forward once.
+            new_receive_orders_datetime = self._next_receive_orders_datetime([running_max_updated_at])
             if new_receive_orders_datetime is not None:
                 self.last_receive_orders_datetime = new_receive_orders_datetime
 
         if next_page_token is not None:
             resume = 'held (more pages)'
-        elif stalled:
-            resume = f'{self.last_receive_orders_datetime} (held: stalled)'
+        elif stalled or capped:
+            resume = f'{self.last_receive_orders_datetime} (held: {"stalled" if stalled else "page cap"})'
         else:
             resume = self.last_receive_orders_datetime
         self._log_order_import(
@@ -4911,11 +4986,14 @@ class SaleIntegration(models.Model):
                     value.attribute_value_id = False
         return True
 
-    def integration_receive_orders_cron(self, page_token=None, update_dt=True):
+    def integration_receive_orders_cron(self, page_token=None, update_dt=True,
+                                        max_updated_at=None, page_no=1):
         """Enqueue one bounded order-import background job (checks import is enabled first).
 
         Two callers: the scheduled action (fresh import), and integrationApiReceiveOrders
-        continuing an in-progress import run (page_token set) with the next page.
+        continuing an in-progress import run (page_token set) with the next page, threading
+        the running max updated_at and page number so the resume date is moved once, on the
+        final page, and the job chain stays bounded.
         """
         self.ensure_one()
 
@@ -4937,7 +5015,9 @@ class SaleIntegration(models.Model):
         job = self \
             .with_context(**context) \
             .with_delay(**job_kwargs) \
-            .integrationApiReceiveOrders(update_dt=update_dt, page_token=page_token)
+            .integrationApiReceiveOrders(
+                update_dt=update_dt, page_token=page_token,
+                max_updated_at=max_updated_at, page_no=page_no)
 
         return job
 
@@ -6284,6 +6364,17 @@ class SaleIntegration(models.Model):
         """
         max_dt = self._find_max_datetime(datetime_list)
         return max_dt - timedelta(seconds=1) if max_dt else None
+
+    def _max_updated_at(self, current_max, updated_at_list):
+        """Running max of external ``updated_at`` strings, carried across import-run pages.
+
+        Pages are ordered by the connector's immutable id, so ``updated_at`` is not monotonic
+        between pages and the newest value may sit on any page. Values share one
+        connector-native format within a run, so a lexicographic max is a chronological max
+        (the same assumption as :meth:`_find_max_datetime`). ``None``-safe on both sides.
+        """
+        candidates = [x for x in [current_max, *updated_at_list] if x]
+        return max(candidates) if candidates else None
 
     def _job_kwargs_receive_orders(self):
         return {

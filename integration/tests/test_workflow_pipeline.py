@@ -92,11 +92,11 @@ class TestWorkflowPipeline(TransactionCase):
             raise ValueError('boom')
 
         with patch.object(type(task), '_retrieve_current_order_method', return_value=boom):
-            result, message = task._execute_order_method()
+            result, message, error_traceback = task._execute_order_method()
 
         self.assertFalse(result)
         self.assertIn('boom', message)
-        self.assertTrue(task.pipeline_id.error_traceback)
+        self.assertTrue(error_traceback)
 
     # --- _integration_apply_advance_payment -----------------------------------
 
@@ -305,10 +305,11 @@ class TestWorkflowPipeline(TransactionCase):
 
         with patch.object(type(task), '_retrieve_current_order_method',
                           return_value=lambda: (True, 'ok')):
-            result, message = task._execute_order_method()
+            result, message, error_traceback = task._execute_order_method()
 
         self.assertTrue(result)
         self.assertEqual(message, 'ok')
+        self.assertFalse(error_traceback)
         self.assertFalse(task.pipeline_id.error_traceback)
 
     # --- action_skip_step -----------------------------------------------------

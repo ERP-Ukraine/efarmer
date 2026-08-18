@@ -4,6 +4,7 @@ import re
 
 from odoo import api, models, fields, _
 from odoo.exceptions import UserError
+from odoo.modules.registry import Registry
 from odoo.addons.integration_queue_job.job import Job
 
 
@@ -249,6 +250,14 @@ class QueueJob(models.Model):
         return result
 
     @api.model
+    def cancel_failed_jobs_by_identity_key(self, identity_key):
+        """Cancel stale failed jobs sharing ``identity_key``"""
+        self.sudo().search([
+            ('state', '=', JOB_STATE_FAILED),
+            ('identity_key', '=', identity_key),
+        ]).button_cancelled()
+
+    @api.model
     def requeue_integration_jobs(self, exception_name, model_name, key):
         jobs = self.sudo().search([
             ('state', '=', JOB_STATE_FAILED),
@@ -445,16 +454,25 @@ class QueueJob(models.Model):
         }
 
     def action_run_now(self):
-        """Run the job synchronously in real time (debug tool)."""
+        """Run the job synchronously in real time (debug tool).
+
+        Executed on a dedicated connection: jobs are allowed to manage their own
+        transaction (e.g. rollback + persist their own failure elsewhere), and
+        must not be able to roll back the user's request because of that.
+        """
         self.ensure_one()
-        job = Job.load(self.env, self.uuid)
-        job.set_started()
-        job.store()
+        job_uuid = self.uuid
         try:
-            result = job.perform()
-            job.set_done(result=result)
-            job.enqueue_waiting()
-            job.store()
+            with Registry(self.env.cr.dbname).cursor() as job_cr:
+                job_env = api.Environment(job_cr, self.env.uid, self.env.context)
+                job = Job.load(job_env, job_uuid)
+                job.set_started()
+                job.store()
+
+                result = job.perform()
+                job.set_done(result=result)
+                job.enqueue_waiting()
+                job.store()
         except Exception as e:
             raise UserError(_('Job failed:\n\n%s') % str(e))
 

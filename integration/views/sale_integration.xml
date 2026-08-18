@@ -630,9 +630,16 @@
                                     <group name="order_processing_jobs_left">
                                         <field name="receive_orders_cron_id_active" widget="boolean_toggle"/>
                                         <p class="o_wrap_label"/> <!-- Spacer: keeps the note aligned under the field column -->
-                                        <div class="text-muted mb-4">
+                                        <div class="text-muted mb-2">
                                             Imports new orders from this store and applies webhook updates (fulfillments, payments, cancellations) to existing orders.
                                         </div>
+                                        <p class="o_wrap_label"/> <!-- Spacer: keeps the button aligned under the field column -->
+                                        <button name="action_import_orders"
+                                                type="object"
+                                                string="Import Orders Now"
+                                                help="Import orders updated since the last sync right now, without waiting for the scheduled job."
+                                                class="btn btn-outline-primary mb-4"
+                                                invisible="not id or state == 'draft'"/>
                                     </group>
                                     <group name="order_processing_jobs_right">
                                         <field name="export_tracking_job_enabled" widget="boolean_toggle"/>

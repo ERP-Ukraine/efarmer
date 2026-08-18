@@ -6,6 +6,8 @@ import traceback
 from psycopg2 import OperationalError
 
 from odoo import api, models, fields, _
+from odoo.modules.registry import Registry
+from odoo.addons.integration_queue_job.utils import must_run_without_delay
 
 from ...exceptions import ErrorStore as es
 from ...tools import raise_requeue_job_on_concurrent_update
@@ -212,13 +214,14 @@ class IntegrationWorkflowPipelineLine(models.Model):
 
         self.mark_skip()
         self.update_info()
+        self._cancel_stale_failed_jobs()
         self.call_next_step_job()
         return self.open_form()
 
-    def update_info(self, message=False):
-        if not message:
+    def update_info(self, message=False, error_traceback=False):
+        if not message and not error_traceback:
             return self.pipeline_id.clear_info()
-        return self.pipeline_id.write({'current_info': message})
+        return self.pipeline_id.write({'current_info': message, 'error_traceback': error_traceback})
 
     def open_form(self):
         return self.pipeline_id.open_form()
@@ -243,8 +246,11 @@ class IntegrationWorkflowPipelineLine(models.Model):
 
         return True
 
-    def run(self):
-        """Manual running by button"""
+    def _run_step_sync(self):
+        """Test-only: synchronously drives one pipeline step (`_run_and_call_next`
+        inline, via `must_run_without_delay`). No production caller uses this - real
+        usage goes through `action_retry_step`/`run_with_delay`.
+        """
         self.ensure_one()
         if self.state in (SKIP, DONE):
             raise es.UserError(_(
@@ -254,8 +260,7 @@ class IntegrationWorkflowPipelineLine(models.Model):
             ))
 
         self._validate_previous()
-        self._process_current_step()
-        return self.open_form()
+        self.run_with_delay()
 
     def action_retry_step(self):
         """Re-run a failed step with delay; the workflow continues from there."""
@@ -268,19 +273,21 @@ class IntegrationWorkflowPipelineLine(models.Model):
     def _execute_order_method(self):
         """Run the current step's order method, capturing any failure.
 
-        Returns ``(result, message)`` where ``result`` is True (done),
-        None (in process) or False (failed).
+        Returns ``(result, message, error_traceback)`` where ``result`` is True
+        (done), None (in process) or False (failed). ``error_traceback`` is the
+        full traceback on failure, ``None`` otherwise - it's up to the caller in
+        `_run_and_call_next` to persist it (see `_rollback_and_persist_failure`).
         """
         self.pipeline_id.error_traceback = False
         order_method = self._retrieve_current_order_method()
-        # Persist earlier pending writes before the savepoint so a rollback + cache
-        # clear on failure can't discard them. We flush via self.env (valid user)
-        # instead of a flushing savepoint, which flushes through transaction.default_env
-        # (possibly empty user) and breaks EE computes like account.move.signing_user.
+        # Persist earlier pending writes so `.clear()` below can't wipe an earlier
+        # step's unflushed 'done' state (e.g. multiple steps sharing one transaction,
+        # like tests or `must_run_without_delay` inline execution).
         self.env.flush_all()
         try:
+            # Keep savepoint to rollback flushed invoice data (state 'posted' for example)
             with self.env.cr.savepoint(flush=False):
-                result = order_method()
+                result, message = order_method()
                 self.env.flush_all()
         except OperationalError:
             # Let @raise_requeue_job_on_concurrent_update handle it
@@ -288,34 +295,20 @@ class IntegrationWorkflowPipelineLine(models.Model):
             raise
         except Exception as exc:
             self.env.cr.clear()
-            self.pipeline_id.error_traceback = traceback.format_exc()
-            return False, _(
+            message = _(
                 'An error occurred while processing %(step)s: %(error)s',
                 step=self.name, error=exc,
             )
-        return result
-
-    def _process_current_step(self):
-        """Execute the current step and update its state. Returns the raw result."""
-        self.ensure_one()
-
-        result, message = self._execute_order_method()
-        if result:
-            self.set_task_to_done()
-            if not self.get_next_task():
-                self.mark_input_as_done()
-        elif result is None:
-            self.mark_process()
-            self.update_info(message)
-        else:
-            self.mark_failed()
-            self.update_info(message)
-
-        return result
+            return False, message, traceback.format_exc()
+        return result, message, None
 
     def run_with_delay(self):
         """Automatic running by triggered `pipeline_id`"""
         self.ensure_one()
+
+        if self.state in (SKIP, DONE):
+            return self.call_next_step_job()
+
         job_kwargs = self._job_kwargs_pipeline_task()
 
         context = {
@@ -323,6 +316,7 @@ class IntegrationWorkflowPipelineLine(models.Model):
             'job_integration_id': self.order_id.integration_id.id,
             'job_integration_job_type': 'order',
             'job_order_id': self.order_id.id,
+            'job_input_file_id': self.pipeline_id.input_file_id.id,
         }
         job = self \
             .with_context(**context) \
@@ -345,29 +339,69 @@ class IntegrationWorkflowPipelineLine(models.Model):
     def _job_kwargs_pipeline_task(self):
         return {
             'priority': 9,
-            'channel': self.env.ref('integration.channel_sale_order').complete_name,
             'identity_key': f'integration_pipeline_task-{self.integration_id.id}-{self}',
             'description': f'{self.integration_id.name}: Order № "{self.order_id.display_name}" >> {self.name}',
         }
 
+    def _cancel_stale_failed_jobs(self):
+        """Clicking Retry repeatedly creates a new job each time (same identity_key
+        per task); once one finally succeeds, cancel the earlier failed attempts
+        instead of leaving them sitting as 'failed' forever."""
+        identity_key = self._job_kwargs_pipeline_task()['identity_key']
+        self.env['queue.job'].cancel_failed_jobs_by_identity_key(identity_key)
+
     @raise_requeue_job_on_concurrent_update
-    def _run_and_call_next(self, raise_error=False):
+    def _run_and_call_next(self):
         if self.state in (SKIP, DONE):
             self.call_next_step_job()
             return _('Task was skipped.')
 
-        result, message = self._execute_order_method()
+        result, message, error_traceback = self._execute_order_method()
+
         if result:
             self.set_task_to_done()
+            self._cancel_stale_failed_jobs()
             self.call_next_step_job()
         elif result is None:
             self.mark_process()
             self.call_next_step_job()
         else:
-            self.mark_failed()
-            self.update_info(message)
+            message = message or _('Step "%s" failed.', self.name)
+            if must_run_without_delay(self.env):
+                # `with_delay()` ran this inline, in the caller's own transaction
+                # (tests, QUEUE_JOB__NO_DELAY) - there's no dedicated job transaction
+                # here. A real rollback + new connection would either wipe out the
+                # caller's other work, or crash outright under TransactionCase, so
+                # just record the failure directly instead.
+                self.mark_failed()
+                self.update_info(message, error_traceback)
+            else:
+                self._rollback_and_persist_failure(message, error_traceback)
+            raise es.UserError(message)
 
         return message
+
+    def _rollback_and_persist_failure(self, message, error_traceback):
+        """Persist the failure on a separate connection, since the caller's raise
+        rolls back this job's own transaction. Roll back first to release any
+        locks this transaction holds - else the new connection below would
+        deadlock waiting on a lock we won't release until we return."""
+        self.ensure_one()
+        task_id = self.id
+
+        self.env.cr.rollback()
+
+        try:
+            with Registry(self.env.cr.dbname).cursor() as new_cr:
+                new_env = api.Environment(new_cr, self.env.uid, {})
+                task = new_env[self._name].browse(task_id)
+                task.mark_failed()
+                task.update_info(message, error_traceback)
+        except Exception:
+            _logger.exception(
+                'Could not persist the failure of pipeline task %s. '
+                'The task keeps its previous state.', task_id,
+            )
 
     def _retrieve_current_order_method(self):
         order = self.order_id
@@ -585,7 +619,7 @@ class IntegrationWorkflowPipeline(models.Model):
         lines_to_run = self.pipeline_task_ids.filtered(lambda t: t.is_waiting or t.is_failed)
         lines_to_run[:1].mark_process()
         lines_to_run[1:].mark_todo()
-        self.update_info()
+        self.clear_info()
 
         job_kwargs = self.order_id._job_kwargs_run_integration_workflow()
 
@@ -594,6 +628,7 @@ class IntegrationWorkflowPipeline(models.Model):
             'job_integration_id': self.order_id.integration_id.id,
             'job_integration_job_type': 'order',
             'job_order_id': self.order_id.id,
+            'job_input_file_id': self.input_file_id.id,
         }
         self.input_file_id \
             .with_context(**context) \

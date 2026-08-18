@@ -2,6 +2,7 @@
 
 from odoo.tests import tagged
 from odoo.tools import mute_logger
+from odoo.exceptions import UserError
 from odoo.addons.integration.tools import Adapter
 
 from .patch import ShopifyAPIClientPatchTest, ShopifyGraphQLPatchTest
@@ -397,6 +398,11 @@ class TestIntegrationShopify(IntegrationShopifyBase):
 
     @mute_logger('odoo.addons.integration.tools')
     def test_create_order_from_input(self):
+        # `_run_and_call_next` (used by `_run_step_sync()` now) would otherwise cascade through
+        # the whole remaining pipeline on success under `queue_job__no_delay` - this
+        # test drives each step manually, one at a time.
+        self.patch(type(self.env['integration.workflow.pipeline.line']), 'call_next_step_job', lambda self: None)
+
         # 1. Create input file
         self.integration.test_method_parameter = ORDER_ID
         input_file = self.integration.integrationApiReceiveOrder()
@@ -537,7 +543,7 @@ class TestIntegrationShopify(IntegrationShopifyBase):
         self.assertEqual(order.state, 'draft')
         self.assertEqual(len(order.picking_ids), 0)
 
-        task1.run()
+        task1._run_step_sync()
 
         self.assertEqual(task1.state, 'done')
         self.assertEqual(set(order.external_fulfillment_ids.mapped('internal_status')), {'done'})
@@ -553,7 +559,7 @@ class TestIntegrationShopify(IntegrationShopifyBase):
         task2 = pipeline.pipeline_task_ids.filtered(lambda x: x.current_step_method == 'validate_picking')
         self.assertEqual(task2.state, 'todo')
 
-        task2.run()
+        task2._run_step_sync()
 
         self.assertEqual(task2.state, 'done')
         self.assertEqual(len(order.picking_ids), 2)
@@ -562,7 +568,15 @@ class TestIntegrationShopify(IntegrationShopifyBase):
         task3 = pipeline.pipeline_task_ids.filtered(lambda x: x.current_step_method == 'create_invoice')
         self.assertEqual(task3.state, 'todo')
 
-        task3.run()
+        # Not self.assertRaises(): Odoo's version wraps the block in a savepoint and
+        # rolls it back when the expected exception fires (see
+        # `TransactionCase._assertRaises`), which would silently undo the
+        # state='failed'/current_info writes we're about to check below.
+        try:
+            task3._run_step_sync()
+            self.fail('create_invoice should have raised UserError')
+        except UserError:
+            pass
 
         self.assertEqual(task3.state, 'failed')
         self.assertIn('No Invoice Journal defined', pipeline.current_info)
@@ -581,7 +595,7 @@ class TestIntegrationShopify(IntegrationShopifyBase):
         partner.property_account_receivable_id = self.env.ref('integration_shopify.integration_shopify_account_a_recv')
         partner.property_account_payable_id = self.env.ref('integration_shopify.integration_shopify_account_a_pay')
 
-        task3.run()
+        task3._run_step_sync()
 
         self.assertEqual(task3.state, 'done')
 
@@ -607,7 +621,11 @@ class TestIntegrationShopify(IntegrationShopifyBase):
         self.assertEqual(task4.state, 'todo')
 
         # first attempt
-        task4.run()  # Assert applying external payments
+        try:
+            task4._run_step_sync()  # Assert applying external payments
+            self.fail('validate_invoice should have raised UserError')
+        except UserError:
+            pass
 
         self.assertEqual(task4.state, 'failed')
         self.assertIn(
@@ -626,7 +644,7 @@ class TestIntegrationShopify(IntegrationShopifyBase):
         self.assertEqual(invoice.state, 'draft')
 
         # second attempt
-        task4.run()
+        task4._run_step_sync()
 
         self.assertEqual(task4.state, 'done')
         self.assertEqual(set(order.external_payment_ids.mapped('internal_status')), {'done'})
@@ -658,7 +676,7 @@ class TestIntegrationShopify(IntegrationShopifyBase):
 
         self.assertFalse(invoice.is_move_sent)
 
-        task5.run()
+        task5._run_step_sync()
 
         self.assertEqual(task5.state, 'done')
         self.assertTrue(invoice.is_move_sent)
@@ -679,7 +697,7 @@ class TestIntegrationShopify(IntegrationShopifyBase):
 
         self.patch(type(journal), '_get_available_payment_method_lines', _get_available_payment_method_lines_patch)
 
-        task6.run()
+        task6._run_step_sync()
 
         self.assertEqual(task6.state, 'done')
 

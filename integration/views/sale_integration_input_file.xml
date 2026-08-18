@@ -148,6 +148,10 @@
                             domain="[('pipeline_status', '=', 'failed')]"
                     />
 
+                    <filter name="pending"
+                            string="Pending"
+                            domain="[('pipeline_status', '=', 'none')]"
+                    />
 
                     <filter name="create_order"
                             string="Create Order"
@@ -195,6 +199,7 @@
                     'search_default_failed': 1,
                     'search_default_skipped': 1,
                     'search_default_running': 1,
+                    'search_default_pending': 1,
                 }
             </field>
         </record>

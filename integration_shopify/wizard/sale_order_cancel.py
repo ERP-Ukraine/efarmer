@@ -65,6 +65,17 @@ class SaleOrderCancel(models.TransientModel):
         if not self.integration_id.is_integration_shopify:
             return super()._check_integration_order_status()
 
+        # Order already removed from Shopify — nothing left to cancel there.
+        external_id = self.order_id.external_order_name
+        if external_id:
+            remote_order = self.integration_id.adapter.gql.Order.set(id=external_id)
+            remote_order.read(body='id')
+            if not remote_order:
+                return self.with_context(
+                    cancel_integration_order_done=True,
+                    cancel_integration_fulfillment_done=True,
+                )
+
         # 1.Get actual fulfillments
         self.order_id\
             .with_context(skip_integration_order_post_action=True) \

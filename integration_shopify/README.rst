@@ -16,6 +16,20 @@ Change Log
 
 |
 
+* 2.2.1 (2026-08-17)
+    - [IMP] A failed auto-workflow step is now also reported as a failed background job with the same error message shown on the "Order Automation" form, so stuck orders are visible in the Job Queue and in any job failure notifications you have configured. Retrying or skipping the step is still done from the "Order Automation" form.
+    - [IMP] Retrying a failed automation step no longer leaves its earlier failed background jobs behind — once the step succeeds or is skipped, previous attempts are cancelled automatically. Steps that are not part of a status's automation no longer create background jobs at all.
+    - [IMP] The background jobs of the order automation are now listed under "View Related Jobs" on the external order, alongside the import jobs.
+    - [IMP] A manual "Import Orders" run no longer tries to fetch an unlimited backlog in one request: after 50 pages the rest is handed over to background jobs, preventing timeouts on large backlogs such as an initial import or a long connector downtime. Background runs are bounded too, so a store API that never signals the last page can no longer produce an endless chain of jobs.
+    - [IMP] The delivery carrier mapping list now shows the Shopify tracking company code column, which was previously not displayed.
+    - [FIX] Fixed inventory updates being silently discarded by Shopify. The connector reused the same request key for identical payloads, so re-sending a quantity that had been sent before — for example when stock changed and then returned to its previous value — was treated as a duplicate and ignored, leaving the store out of sync with Odoo. Each request now carries its own key.
+    - [FIX] Fixed an error when cancelling an order in Odoo that had already been deleted in Shopify. The cancellation now completes in Odoo instead of failing.
+    - [FIX] Fixed order processing failing when the order had been deleted in the store — risks, payments and fulfillments are now treated as empty instead of interrupting the operation.
+    - [FIX] Fixed the "Automation Status" column showing "Running" for external orders whose automation had not started yet — they are now shown as "Pending". Existing orders are corrected automatically when installing this version.
+    - [FIX] Fixed an error when clicking "Run Again" on the "Order Automation" form, which failed instead of restarting the automation.
+    - [FIX] Fixed a remaining case where an order could be missed during a multi-page import run: an order modified in the store while the run was in progress changed position in the result set, so the order at a page boundary was never fetched. Pages are now read by a stable, immutable key, and the resume date only moves forward once the whole run has completed — an interrupted run re-reads its orders instead of skipping them.
+    - [FIX] Other improvements and fixes implemented to boost overall performance, stability, and reliability.
+
 * 2.2.0 (2026-08-07)
     - [BREAKING] Order status export behavior change: the Cancelled / Paid / Shipped status exports now work on their own, without the former master "status export" toggle. A store that had one of them enabled while the master option was disabled will start sending that status after the upgrade — review each store's Automation Jobs settings after updating.
     - [NEW] Added support for import duties in Shopify orders (e.g. Shopify Managed Markets). Duties charged on an order line are now imported as a separate "Duties for <product>" line on the Sales Order, with their taxes, instead of being lost. A new "Duties Product" setting on the Sales Orders tab defines the service product used for these lines — if an order contains duties while the setting is empty, the import stops with a message explaining what to configure.

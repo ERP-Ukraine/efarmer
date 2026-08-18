@@ -6,8 +6,8 @@ def migrate(cr, version):
     set-based SQL, so Odoo's _auto_init finds the column already present and skips
     the per-row recompute over the whole (multi-million row) table.
 
-    Mirrors _compute_pipeline_status priority: cancelled > none > failed >
-    running > skipped > done.
+    Mirrors _compute_pipeline_status priority: cancelled > failed > skipped >
+    done > none > running.
     """
     # 1) Create the column up-front so the ORM does not schedule a mass recompute.
     cr.execute("""
@@ -29,8 +29,9 @@ def migrate(cr, version):
         agg AS (
             SELECT pl.sif_id,
                    COALESCE(bool_or(t.state = 'failed'), FALSE)                AS has_failed,
-                   COALESCE(bool_or(t.state IN ('in_process', 'todo')), FALSE) AS has_running,
-                   COALESCE(bool_and(t.state = 'skip'), TRUE)                  AS all_skipped
+                   COALESCE(bool_and(t.state = 'skip'), TRUE)                  AS all_skipped,
+                   COALESCE(bool_and(t.state IN ('skip', 'done')), TRUE)       AS all_done,
+                   COALESCE(bool_or(t.state IN ('done', 'in_process')), FALSE) AS has_progress
             FROM pl
             LEFT JOIN integration_workflow_pipeline_line t ON t.pipeline_id = pl.pipeline_id
             GROUP BY pl.sif_id
@@ -39,9 +40,10 @@ def migrate(cr, version):
         SET pipeline_status = CASE
                 WHEN sif.state = 'cancelled' THEN 'cancelled'
                 WHEN a.has_failed            THEN 'failed'
-                WHEN a.has_running           THEN 'running'
                 WHEN a.all_skipped           THEN 'skipped'
-                ELSE 'done'
+                WHEN a.all_done              THEN 'done'
+                WHEN NOT a.has_progress      THEN 'none'
+                ELSE 'running'
             END
         FROM agg a
         WHERE a.sif_id = sif.id;

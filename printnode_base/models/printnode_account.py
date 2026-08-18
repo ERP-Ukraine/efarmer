@@ -749,7 +749,7 @@ class PrintNodeAccount(models.Model):
 
         # Create a new test scales connected to the test computer
         self.env['printnode.scales'].create({
-            'name': 'Direct Print PRO Test Scale',
+            'name': 'PrintNode Test Scale',
             'printnode_id': 0,
             'device_num': 0,
             'computer_id': test_computer.id,

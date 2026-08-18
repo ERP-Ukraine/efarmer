@@ -117,7 +117,7 @@ class InventoryItem(ShopifyResourceUpdate):
             ],
         }
 
-        idempotency_key = self.compute_idempotency_key(payload)
+        idempotency_key = self.generate_idempotency_key()
 
         response = self.execute(
             self.MUTATION_INVENTORY_SET_QTY % idempotency_key,
@@ -139,7 +139,7 @@ class InventoryItem(ShopifyResourceUpdate):
             'inventoryItemId': self.create_gid(inventory_item_id),
         }
 
-        idempotency_key = self.compute_idempotency_key(variables)
+        idempotency_key = self.generate_idempotency_key()
 
         response = self.execute(
             self.MUTATION_ACTIVATE_INVENTORY_ITEM % idempotency_key,

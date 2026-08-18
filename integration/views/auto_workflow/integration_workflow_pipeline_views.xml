@@ -97,7 +97,7 @@
 
                     <footer>
                         <button name="manual_run" string="Run Again" type="object" icon="fa-refresh"
-                                class="btn-primary" invisible="alert_type in ('failed', 'running')"/>
+                                class="btn-primary" invisible="alert_type in ('failed', 'processing')"/>
                         <button name="run_from_failed_step" string="Retry From Failed Step" type="object"
                                 icon="fa-refresh" class="btn-primary" invisible="alert_type != 'failed'"/>
                         <button name="action_skip_failed_step" string="Skip Failed Step" type="object"

@@ -16,7 +16,7 @@ E-commerce Integration, Multi-Channel Selling, Seamless E-commerce Integration,
 Multi-Store Management, Odoo E-commerce Solution, Multi-Channel Sales Management,
 Connect Shopify to Odoo, Shopify Odoo Bridge, Odoo Shopify Bridge''',
     'category': 'Sales',
-    'version': '19.0.2.2.0',
+    'version': '19.0.2.2.1',
     'images': [
         'static/description/images/banner.gif',
     ],
@@ -62,6 +62,7 @@ Connect Shopify to Odoo, Shopify Odoo Bridge, Odoo Shopify Bridge''',
         'views/external/menu.xml',
         # Mappings
         'views/mappings/menu.xml',
+        'views/mappings/integration_delivery_carrier_mapping_views.xml',
     ],
     'demo': [
     ],
