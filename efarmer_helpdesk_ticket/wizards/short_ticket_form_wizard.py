@@ -47,7 +47,7 @@ class ShortTicketFormWizard(models.TransientModel):
         string="Tags",
     )
 
-    note = fields.Char(string="Note")
+    note = fields.Char(related="ticket_id.note", string="Note", readonly=False)
 
     delivery_transfer_id = fields.Many2one(
         comodel_name="stock.picking", string="Delivery Transfer"
