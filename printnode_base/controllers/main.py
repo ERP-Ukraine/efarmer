@@ -198,6 +198,15 @@ class ReportControllerProxy(ReportController):
 
         print_data['model'] = model
 
+        print_rule = user._get_printing_rule(report.id)
+
+        if print_rule and print_rule.exclude_from_auto_printing:
+            # If report is excluded from printing by Print Rules,
+            # then just download it
+            return print_data
+
+        print_data['print_rule'] = print_rule
+
         report_policy = request.env['printnode.report.policy'].search([
             ('report_id', '=', report.id),
         ])
@@ -279,6 +288,7 @@ class ReportControllerProxy(ReportController):
             })
 
         report_policy = print_data['report_policy']
+        print_rule = print_data.get('print_rule')
         printer_bin = print_data['printer_bin']
         printer_id = print_data['printer_id']
 
@@ -296,12 +306,27 @@ class ReportControllerProxy(ReportController):
         report_name = url_unquote(report_name)
         ascii_data = base64.b64encode(standard_response.data).decode('ascii')
 
+        # Use paper size from the matched Print Rule or fallback to legacy Report Policy.
+        report_paper = False
+        if print_rule and print_rule.report_paper_id:
+            report_paper = print_rule.report_paper_id
+        elif report_policy and report_policy.report_paper_id:
+            report_paper = report_policy.report_paper_id
+
+        # Prepare optional printer settings
+        options = {}
+        if printer_bin:
+            options['bin'] = printer_bin.name
+
+        if report_paper:
+            options['paper'] = report_paper.name
+
         try:
             params = {
                 'title': report_name,
                 'type': print_data['report_type'],
-                'size': report_policy and report_policy.report_paper_id,
-                'options': {'bin': printer_bin.name} if printer_bin else {},
+                'size': report_paper,
+                'options': options,
                 'report_name': print_data['report_name'],
                 'source_document': print_data['source_document'],
             }

@@ -51,8 +51,8 @@
 
         <menuitem id="menu_printnode_scales"
                   name="Scales"
-                  parent="menu_printnode_service"
-                  sequence="45"
+                  parent="menu_devices"
+                  sequence="3"
                   action="printnode_scales_action"
         />
 

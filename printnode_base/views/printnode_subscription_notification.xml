@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template
+        id="printnode_subscription_notification"
+        name="Direct Print Subscription Notification Banner"
+        inherit_id="web.layout"
+        priority="30">
+
+        <xpath expr="//body" position="inside">
+            <t t-set="printnode_subscription_banner"
+               t-value="
+                    request
+                    and request.session.uid
+                    and request.env['ir.config_parameter'].sudo().get_param(
+                    'printnode_base.subscription_notification_required'
+                ) == 'True'
+            "/>
+
+            <t t-if="printnode_subscription_banner">
+                <div id="printnode_subscription_notification"
+                     class="bg-warning text-dark text-center small px-2">
+
+                    <span>
+                        Your printing subscription renewal failed.
+                        Please pay within 14 days to keep printing access.
+                    </span>
+
+                    <a href="/odoo/action-printnode_base.printnode_config_action"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="text-dark text-decoration-none fw-semibold ms-1">
+                        More details
+                    </a>
+
+                </div>
+            </t>
+        </xpath>
+
+    </template>
+
+</odoo>

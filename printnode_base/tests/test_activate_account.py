@@ -61,9 +61,9 @@ class TestPrintNodeAccountActivation(TestPrintNodeCommon):
             type(self.account),
             '_is_correct_dpc_api_key'
         )
-        self.mock_update_account_limits = self._create_patch_object(
+        self.mock_update_subscription_info_for_account = self._create_patch_object(
             type(self.account),
-            'update_limits_for_account'
+            'update_subscription_info_for_account'
         )
         self.mock_import_devices = self._create_patch_object(type(self.account), 'import_devices')
         self.mock_unlink_devices = self._create_patch_object(type(self.account), 'unlink_devices')
@@ -72,9 +72,9 @@ class TestPrintNodeAccountActivation(TestPrintNodeCommon):
         """
         Emulated state: DPC API is not responding or something went wrong.
         Expected return None.
-        But will run _is_correct_dpc_api_key, update_limits_for_account, import_devices methods
-        for check the correctness of the api-key and update the print limits (if possible)
-        via api.printnode.com
+        But will run _is_correct_dpc_api_key, update_subscription_info_for_account and
+        import_devices methods to check the correctness of the API key and update the
+        subscription information via api.printnode.com.
         """
 
         self.mock_is_correct_dpc_api_key.return_value = True
@@ -89,15 +89,15 @@ class TestPrintNodeAccountActivation(TestPrintNodeCommon):
         )
         self.mock_unlink_devices.assert_called_once()
         self.mock_is_correct_dpc_api_key.assert_called_once()
-        self.mock_update_account_limits.assert_called_once()
+        self.mock_update_subscription_info_for_account.assert_called_once()
         self.mock_import_devices.assert_called_once()
 
     def test_account_activation_case_2(self):
         """
         Emulated state: DPC API is not responding or something went wrong.
         Expected UserError because response is None and 'is_dpc_account' field is False.
-        Will run _is_correct_dpc_api_key method for check the correctness of the api-key
-        via api.printnode.com
+        Will run _is_correct_dpc_api_key method to check the correctness of the API key
+        via api.printnode.com.
         """
 
         self.mock_is_correct_dpc_api_key.return_value = False
@@ -115,14 +115,15 @@ class TestPrintNodeAccountActivation(TestPrintNodeCommon):
         )
         self.mock_unlink_devices.assert_called_once()
         self.mock_is_correct_dpc_api_key.assert_called_once()
+        self.mock_update_subscription_info_for_account.assert_not_called()
+        self.mock_import_devices.assert_not_called()
 
     def test_account_activation_case_3(self):
         """
-        Emulated state: Everything is okay - the key is from DPC
-        Expected return None, 'is_dpc_account' field set to True
-        Will run update_limits_for_account and import_devices methods
-        for check the correctness of the api-key and update the print limits (if possible)
-        via api.printnode.com
+        Emulated state: Everything is okay - the key is from DPC.
+        Expected return None, 'is_dpc_account' field set to True.
+        Will run update_subscription_info_for_account and import_devices methods to update
+        subscription information and import devices.
         """
 
         self.mock_send_dpc_request.return_value = DPC_RESPONSE
@@ -135,20 +136,22 @@ class TestPrintNodeAccountActivation(TestPrintNodeCommon):
             [self.call_args, ]
         )
         self.mock_unlink_devices.assert_called_once()
-        self.mock_update_account_limits.assert_called_once()
+        self.mock_update_subscription_info_for_account.assert_called_once()
         self.mock_import_devices.assert_called_once()
 
     def test_account_activation_case_4(self):
         """
-        Emulated state: Status 404
-        Expected return None, 'is_dpc_account' field set to False
-        But will run _is_correct_dpc_api_key, update_limits_for_account, import_devices methods
-        for check the correctness of the api-key and update the print limits (if possible)
-        via api.printnode.com
+        Emulated state: Status 404.
+        Expected return None, 'is_dpc_account' field set to False.
+        But will run _is_correct_dpc_api_key, update_subscription_info_for_account and
+        import_devices methods to check the correctness of the API key and update the
+        subscription information via api.printnode.com.
         """
 
-        DPC_RESPONSE.update({'status_code': 404})
-        self.mock_send_dpc_request.return_value = DPC_RESPONSE
+        self.mock_send_dpc_request.return_value = {
+            **DPC_RESPONSE,
+            'status_code': 404,
+        }
         self.mock_is_correct_dpc_api_key.return_value = True
 
         self.assertIsNone(self.account.activate_account())
@@ -160,29 +163,5 @@ class TestPrintNodeAccountActivation(TestPrintNodeCommon):
         )
         self.mock_unlink_devices.assert_called_once()
         self.mock_is_correct_dpc_api_key.assert_called_once()
-        self.mock_update_account_limits.assert_called_once()
+        self.mock_update_subscription_info_for_account.assert_called_once()
         self.mock_import_devices.assert_called_once()
-
-    # def test_account_activation_case_5(self):
-    #     """
-    #     Emulated state: Something is wrong with the key
-    #     Expected UserError
-    #     Will run self.env.cr.commit()
-    #     """
-
-    #     DPC_RESPONSE.update({'status_code': 400, 'message': 'TestUserError_2'})
-    #     self.mock_send_dpc_request.return_value = DPC_RESPONSE
-    #     self.mock_is_correct_dpc_api_key.return_value = True
-    #     self.account.status = ''  # for UserError message test
-    #     mock_commit = self._create_patch_object(type(self.env.cr), 'commit')
-
-    #     with self.cr.savepoint(), self.assertRaises(UserError) as err:
-    #         self.assertIsNone(self.account.activate_account())
-
-    #     self.assertTrue('TestUserError_2' in err.exception.args[0])
-    #     self.assertEqual(
-    #         self.mock_send_dpc_request.call_args_list,
-    #         [self.call_args, ]
-    #     )
-    #     self.mock_unlink_devices.assert_called_once()
-    #     mock_commit.assert_called_once()

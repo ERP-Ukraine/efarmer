@@ -34,8 +34,8 @@ class Company(models.Model):
             ('zpl', 'ZPL Labels'),
             ('zplxprice', 'ZPL Labels with price')
         ],
-        string="Default Product Labels Format",
-        help='Set default label printing format')
+        string="Default Product Label Format for Scenarios",
+        help='Set default label printing format for scenarios',)
 
     printnode_recheck = fields.Boolean(
         string='Mandatory check Printing Status',

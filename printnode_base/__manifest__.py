@@ -22,7 +22,7 @@
         Print Agent | Print Assistant | Advanced Printing | POS | Multi Printing | Print Attachment |
         POS Print | Print Serial Number | Direct Print POS | Odoo POS Printing Solution | Print POS
     ''',
-    'version': '19.0.2.8.1',
+    'version': '19.0.2.9.0',
     'category': 'Tools',
     "images": ["static/description/images/banner.gif"],
     'author': 'VentorTech',
@@ -69,6 +69,7 @@
         'wizard/product_label_layout.xml',
         'wizard/printnode_attach_universal_wizard.xml',
         'wizard/printnode_print_reports_universal_wizard.xml',
+        'wizard/printnode_print_rule_wizard.xml',
         'wizard/stock_lot_label_layout.xml',
         'wizard/printnode_print_line_reports_wizard/abstract.xml',
         'wizard/printnode_print_line_reports_wizard/stock_move.xml',
@@ -82,8 +83,10 @@
         'views/printnode_printjob_views.xml',
         'views/printnode_action_button_views.xml',
         'views/printnode_scenario_views.xml',
+        'views/printnode_subscription_notification.xml',
         'views/printnode_action_method_views.xml',
         'views/printnode_map_action_server_views.xml',
+        'views/printnode_print_rule_views.xml',
         'views/printnode_report_policy_views.xml',
         'views/printnode_rule_views.xml',
         'views/printnode_workstation_views.xml',
@@ -108,6 +111,8 @@
             'printnode_base/static/src/components/*/*.css',
             'printnode_base/static/src/components/*/*.xml',
             'printnode_base/static/src/xml/attachment_list.xml',
+            'printnode_base/static/src/views/*/*.js',
+            'printnode_base/static/src/views/*/*.xml',
         ],
         'web.qunit_suite_tests': [
             'printnode_base/static/tests/printnode_base_mock_server.js',

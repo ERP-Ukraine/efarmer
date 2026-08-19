@@ -9,16 +9,41 @@
                   groups="printnode_security_group_manager"
         />
 
-        <menuitem id="menu_printnode_policy"
-                  name="Print Report Policy"
+        <menuitem id="menu_print_automation"
+                  name="Print Automation"
                   parent="menu_printnode"
                   sequence="30"
+        />
+
+        <menuitem id="menu_print_on_button_click"
+                  name="Print on Button Click"
+                  parent="menu_print_automation"
+                  sequence="31"
+        />
+
+        <menuitem id="menu_print_history"
+                  name="Print History"
+                  parent="menu_printnode"
+                  sequence="31"
         />
 
         <menuitem id="menu_printnode_service"
                   name="Configuration"
                   parent="menu_printnode"
                   sequence="36"
+        />
+
+        <menuitem id="menu_devices"
+                  name="Devices"
+                  parent="menu_printnode_service"
+                  sequence="33"
+        />
+
+        <menuitem id="menu_deprecated_rules"
+                  name="Deprecated Rules"
+                  parent="menu_printnode_service"
+                  sequence="66"
+                  groups="base.group_no_one"
         />
 
     </data>

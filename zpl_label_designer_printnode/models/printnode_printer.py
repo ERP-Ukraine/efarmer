@@ -16,9 +16,6 @@ class PrintNodePrinter(models.Model):
         # Check if this is a ZPL label report that needs PDF conversion
         report_id.ensure_one()
 
-        # Perform printer check (same as original printnode_print)
-        self.printnode_check_report(report_id)
-
         label = report_id.zld_label_id
         if not label or not label.convert_to_pdf:
             return super().printnode_print(
@@ -28,6 +25,9 @@ class PrintNodePrinter(models.Model):
                 data=data,
                 postcommit=postcommit,
             )
+
+        # Perform printer check (same as original printnode_print)
+        self.printnode_check_report(report_id)
 
         try:
             ids = objects and objects.mapped('id') or None

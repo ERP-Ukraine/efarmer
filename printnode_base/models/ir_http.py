@@ -11,13 +11,26 @@ class IrHttp(models.AbstractModel):
     def _get_active_company(self):
         # Since in certain cases Odoo does not always provide the active company
         # in the env, it is necessary to get it from cookies.
+
+        # VENSUP-22365: on Odoo.sh, for some users during login/session initialization,
+        # the `cids` cookie may be missing, malformed, or contain a company that is not
+        # available to the current user. In this case Direct Print must not break the
+        # login flow, so the user's default company is used as a safe fallback.
+        #
+        # This is an Odoo.sh-specific fix for the issue described in VENSUP-22365.
+        default_company = self.env.user.company_id.sudo()
+
         cids = request.cookies.get('cids')
         if not cids:
-            return self.env.company
+            return default_company
 
         first_id = str(cids).replace('-', ',').split(',')[0].strip()
         if not first_id.isdigit():
-            return None
+            return default_company
+
+        company_id = int(first_id)
+        if company_id not in self.env.user._get_company_ids():
+            return default_company
 
         return request.env['res.company'].browse(int(first_id)).exists()
 

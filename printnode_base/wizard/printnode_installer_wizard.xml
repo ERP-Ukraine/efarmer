@@ -67,7 +67,7 @@
                                     <hr class="my-3"/>
 
                                     <div class="d-flex justify-content-start mb-2">
-                                        <a href="https://print.ventor.tech/plans"
+                                        <a href="https://print.ventor.tech/plans?utm_source=direct-print-module&amp;utm_medium=installer-wizard&amp;utm_campaign=direct-print-pro/"
                                         target="_blank"
                                         role="button"
                                         class="btn btn-outline-primary">
@@ -102,7 +102,7 @@
                                             <div class="alert alert-light border rounded p-3" role="alert">
                                                 <ul class="mb-0">
                                                     <li>
-                                                        Log in using your credentials at <a href="https://print.ventor.tech/login" target="_blank">My Account</a>.
+                                                        Log in using your credentials at <a href="https://print.ventor.tech/login?utm_source=direct-print-module&amp;utm_medium=installer-wizard&amp;utm_campaign=direct-print-pro/" target="_blank">My Account</a>.
                                                     </li>
                                                     <li>
                                                         Go to <strong>Profile menu</strong>  and in the <strong>Account section</strong> you will find your <strong>API Key</strong>.
@@ -145,7 +145,7 @@
                                             <div class="alert alert-light border rounded p-2" role="alert">
                                                 <p class="mb-0">
                                                     If you don’t see the OS you need, please contact us at
-                                                    <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/group/-1" target="_blank">VentorTech Support</a>
+                                                    <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/group/-1/" target="_blank">VentorTech Support</a>
                                                     and specify your operating system.
                                                 </p>
                                             </div>
@@ -155,7 +155,7 @@
                                     <p class="mt-4"><strong>2. Log in into your account:</strong></p>
 
                                     <p>
-                                        Log in to the client using your credentials from <a href="https://print.ventor.tech/login" target="_blank">My Account</a>.
+                                        Log in to the client using your credentials from <a href="https://print.ventor.tech/login?utm_source=direct-print-module&amp;utm_medium=installer-wizard&amp;utm_campaign=direct-print-pro/" target="_blank">My Account</a>.
                                     </p>
 
                                     <div class="my-3">
@@ -171,7 +171,7 @@
                                             <div class="alert alert-light border rounded p-2" role="alert">
                                                 <ul class="mb-0">
                                                     <li>
-                                                        Log in using your credentials at <a href="https://print.ventor.tech/login" target="_blank">My Account</a>.
+                                                        Log in using your credentials at <a href="https://print.ventor.tech/login?utm_source=direct-print-module&amp;utm_medium=installer-wizard&amp;utm_campaign=direct-print-pro/" target="_blank">My Account</a>.
                                                     </li>
                                                     <li>
                                                         Go to <strong>Profile menu</strong>  and in the <strong>Account section</strong> you will find your client credentials.
@@ -270,38 +270,38 @@
                                             <li>
                                                 Need help with anything?
                                                 Check our
-                                                <a href="https://ecosystem.ventor.tech/faq/direct-print" target="_blank" class="text-decoration-none text-primary">
+                                                <a href="https://ecosystem.ventor.tech/faq/direct-print/?utm_source=direct-print-module&amp;utm_medium=installer-wizard&amp;utm_campaign=direct-print-pro/" target="_blank" class="text-decoration-none text-primary">
                                                     <span class="text-info">documentation</span>
                                                 </a>
                                                 or contact our
-                                                <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/group/-1" target="_blank" class="text-decoration-none text-primary">
+                                                <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/group/-1/" target="_blank" class="text-decoration-none text-primary">
                                                     <span class="text-info">support team</span>
                                                 </a>.
                                             </li>
                                         </ul>
                                     </div>
 
-                                    <div invisible="disable_advertising == True" class="alert alert-info d-flex flex-column rounded mb-1 mt-3" role="alert">
+                                    <!-- <div invisible="disable_advertising == True" class="alert alert-info d-flex flex-column rounded mb-1 mt-3" role="alert">
                                         <p class="fw-bold mb-1">
                                             🎁 <span class="text-danger">€30 Credit for Your Review</span>
                                         </p>
                                         <div>
-                                            Leave a review on the <a href="https://apps.odoo.com/apps/modules/19.0/printnode_base/#ratings" target="_blank">
+                                            Leave a review on the <a href="https://apps.odoo.com/apps/modules/19.0/printnode_base#ratings" target="_blank">
                                                 <span class="text-info"><strong class="text-info">Odoo App Store</strong></span>
                                             </a> and get €30 as credits for your printing subscription.
                                         </div>
                                         <div>
-                                            <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/article/522453101" target="_blank">
+                                            <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/article/522453101/" target="_blank">
                                                 <small class="text-info">How to leave your review? Check the FAQ</small>
                                             </a>
                                         </div>
                                         <div class="mt-1">
-                                            Just <a href="https://support.ventor.tech/" target="_blank"><strong class="text-info">contact us</strong></a> after posting - it's that simple!
+                                            Just <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/group/-1/" target="_blank"><strong class="text-info">contact us</strong></a> after posting - it's that simple!
                                         </div>
                                         <div class="fst-italic mb-0">
                                             Promo runs until 1 June 2026
                                         </div>
-                                    </div>
+                                    </div> -->
                                 </div>
 
                             </div>
@@ -331,7 +331,7 @@
                                 </div>
 
                                 <div invisible="is_last_step" class="d-flex align-items-center align-content-around flex-wrap gap-1">
-                                    <a href="https://youtu.be/jZAYCuH6PN0?si=sZUrxKI2Itj4BmDa"
+                                    <a href="https://youtu.be/jZAYCuH6PN0?si=sZUrxKI2Itj4BmDa/"
                                        role="button"
                                        target="_blank"
                                        class="btn btn-outline-info"

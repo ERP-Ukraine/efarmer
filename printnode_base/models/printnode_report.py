@@ -9,8 +9,14 @@ class PrintNodeReportPolicy(models.Model):
     """
     _name = 'printnode.report.policy'
     _description = 'Direct Print Report Policy'
-
     _rec_name = 'report_id'
+
+    active = fields.Boolean(
+        'Active',
+        default=True,
+        help="""Activate or Deactivate the report policy.
+                If not active, it is archived and ignored by printing rules."""
+    )
 
     report_id = fields.Many2one(
         'ir.actions.report',
@@ -47,7 +53,7 @@ class PrintNodeReportPolicy(models.Model):
     )
 
     exclude_from_auto_printing = fields.Boolean(
-        'Exclude from Auto-printing', default=False,
+        'Exclude from Auto-Printing', default=False,
         help="""If you would like to exclude this report from auto-printing,
                 select this checkbox."""
     )

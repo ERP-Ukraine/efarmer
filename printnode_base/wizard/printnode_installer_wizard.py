@@ -191,8 +191,7 @@ class PrintnodeInstaller(models.TransientModel):
                 record.client_apps_html = """
                     <p class='text-danger'>
                         Error loading client apps. Please contact our
-                        <a href="https://ventortech.atlassian.net/servicedesk/"
-                                "customer/portal/1/group/-1"
+                        <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/group/-1"
                            target="_blank" class="text-decoration-none text-primary">
                             <span class="text-info">support team</span>
                         </a>
@@ -262,7 +261,9 @@ class PrintnodeInstaller(models.TransientModel):
         if not self.api_key:
             raise exceptions.UserError(_('Please, enter the valid API key'))
 
-        self.env['printnode.account'].update_main_account(self.api_key)
+        account = self.env['printnode.account'].update_main_account(self.api_key)
+        if account:
+            account.update_subscription_info()
 
     def save_printers_settings(self):
         # Save to company

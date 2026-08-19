@@ -66,27 +66,28 @@ class StockPicking(models.Model):
         res = super(StockPicking, self).button_validate()
 
         if res is True:
-            printed = self.print_scenarios(action='print_document_on_transfer')
+            for transfer in self:
+                printed = transfer.print_scenarios(action='print_document_on_transfer')
 
-            if printed:
-                self.write({'printed': True})
+                if printed:
+                    transfer.write({'printed': True})
 
-            # Print product labels
-            self.print_scenarios(action='print_product_labels_on_transfer')
-            self.print_scenarios(action='print_product_labels_based_on_packaging_on_transfer')
+                # Print product labels
+                transfer.print_scenarios(action='print_product_labels_on_transfer')
+                transfer.print_scenarios(action='print_product_labels_based_on_packaging_on_transfer')
 
-            # Print lot labels
-            self.print_scenarios(
-                action='print_multiple_lot_labels_based_on_packaging_after_validation'
-            )
-            self.print_scenarios(action='print_single_lot_labels_on_transfer_after_validation')
-            self.print_scenarios(action='print_multiple_lot_labels_on_transfer_after_validation')
+                # Print lot labels
+                transfer.print_scenarios(
+                    action='print_multiple_lot_labels_based_on_packaging_after_validation'
+                )
+                transfer.print_scenarios(action='print_single_lot_labels_on_transfer_after_validation')
+                transfer.print_scenarios(action='print_multiple_lot_labels_on_transfer_after_validation')
 
-            # Print packages
-            self.print_scenarios(action='print_packages_label_on_transfer')
+                # Print packages
+                transfer.print_scenarios(action='print_packages_label_on_transfer')
 
-            # Print operations
-            self.print_scenarios(action='print_operations_document_on_transfer')
+                # Print operations
+                transfer.print_scenarios(action='print_operations_document_on_transfer')
 
         return res
 

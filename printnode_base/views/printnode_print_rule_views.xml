@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="printnode_print_rule_list" model="ir.ui.view">
+            <field name="name">printnode.print.rule</field>
+            <field name="model">printnode.print.rule</field>
+            <field name="type">list</field>
+            <field name="arch" type="xml">
+                <list string="Print Rules" create="0" js_class="printnode_print_rules_list">
+
+                    <header>
+                        <button name="%(printnode_base.action_printnode_print_rule_wizard)d"
+                                type="action"
+                                string="New Rule"
+                                class="btn-primary"
+                                display="always"/>
+                    </header>
+
+                    <field name="sequence" widget="handle"/>
+                    <field name="active" widget="boolean_toggle"/>
+                    <field name="description" readonly="1"/>
+
+                    <!-- Technical fields are kept available through optional columns/debug needs -->
+                    <field name="user_id" options="{'no_create': True}" optional="hide"/>
+                    <field name="printer_id" options="{'no_create': True}" optional="hide"/>
+                    <field name="printer_bin" options="{'no_create': True}" optional="hide"/>
+                    <field name="report_id" options="{'no_create': True}" optional="hide"/>
+                    <field name="report_model" optional="hide"/>
+                    <field name="report_type" optional="hide"/>
+                    <field name="report_paper_id" options="{'no_create': True}" optional="hide" groups="base.group_no_one"/>
+                    <field name="workstation_id" options="{'no_create': True}" optional="hide"/>
+                    <field name="exclude_from_auto_printing" optional="hide"/>
+                    <button name="action_open_print_rule_wizard"
+                            type="object"
+                            string="Edit Rule"
+                            icon="fa-pencil"
+                            class="btn-primary btn-sm ms-1"/>
+
+                    <button name="action_delete_print_rule"
+                            type="object"
+                            string="Delete"
+                            icon="fa-trash"
+                            class="btn-outline-danger btn-sm ms-1"
+                            confirm="Are you sure you want to delete this rule?"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="printnode_print_rule_search" model="ir.ui.view">
+            <field name="name">printnode.print.rule.search</field>
+            <field name="model">printnode.print.rule</field>
+            <field name="arch" type="xml">
+                <search string="Print Rules">
+                    <field name="user_id"/>
+                    <field name="report_id"/>
+                    <field name="printer_id"/>
+                    <field name="workstation_id"/>
+
+                    <filter name="active"
+                            string="Active"
+                            domain="[('active', '=', True)]"/>
+
+                    <filter name="inactive"
+                            string="Inactive"
+                            domain="[('active', '=', False)]"/>
+
+                    <filter name="exclude_from_auto_printing"
+                            string="Excluded from Auto-Printing"
+                            domain="[('exclude_from_auto_printing', '=', True)]"/>
+
+                    <separator/>
+
+                    <filter name="group_by_user"
+                            string="User"
+                            context="{'group_by': 'user_id'}"/>
+
+                    <filter name="group_by_report"
+                            string="Report"
+                            context="{'group_by': 'report_id'}"/>
+
+                    <filter name="group_by_printer"
+                            string="Printer"
+                            context="{'group_by': 'printer_id'}"/>
+
+                    <filter name="group_by_workstation"
+                            string="Workstation"
+                            context="{'group_by': 'workstation_id'}"/>
+
+                    <filter name="group_by_exclude_from_auto_printing"
+                            string="Excluded from Auto-Printing"
+                            context="{'group_by': 'exclude_from_auto_printing'}"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="printnode_print_rule" model="ir.actions.act_window">
+            <field name="name">Print Rules</field>
+            <field name="res_model">printnode.print.rule</field>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="printnode_print_rule_list"/>
+            <field name="search_view_id" ref="printnode_print_rule_search"/>
+            <field name="context">{"active_test": False}</field>
+        </record>
+
+            <menuitem id="menu_printnode_print_rule"
+                    name="Print Rules"
+                    parent="menu_printnode"
+                    sequence="29"
+                    action="printnode_print_rule"
+            />
+
+    </data>
+</odoo>

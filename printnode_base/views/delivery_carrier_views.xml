@@ -60,7 +60,7 @@
 
         <menuitem id="menu_printnode_carrier_settings"
                   name="Delivery Carrier Settings"
-                  parent="menu_printnode_policy"
+                  parent="menu_printnode_service"
                   sequence="35"
                   action="printnode_carrier_settings"
         />

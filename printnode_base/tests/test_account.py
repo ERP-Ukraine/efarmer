@@ -1,10 +1,13 @@
 # Copyright 2021 VentorTech OU
 # See LICENSE file for full copyright and licensing details.
 
+from datetime import date
+
 import requests
 from unittest.mock import patch, call
 
 from odoo.tests import tagged
+from odoo.tools import mute_logger
 
 from .common import TestPrintNodeCommon, TEST_COMPUTERS_FROM_PRINTNODE, \
     TEST_PRINTERS_FROM_PRINTNODE, TEST_SCALES_FROM_PRINTNODE
@@ -16,11 +19,17 @@ except ImportError:
     from json import JSONDecodeError
 
 
-LIMITS_RESPONSE = {
+SUBSCRIPTION_INFO_RESPONSE = {
     'data': {
         'stats': {
-            "limits": 5,
-            "printed": 3
+            'printed': 3,
+            'limits': 5,
+        },
+        'subscription_details': {
+            'subscription_status': 'active',
+            'subscription_plan': 'Business',
+            'subscription_start_date': '2026-01-01',
+            'subscription_end_date': '2026-12-31',
         },
     },
     'status_code': 200,
@@ -523,39 +532,6 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
             self.assertEqual(self.printer.status, 'offline')
             mock_requests_get.assert_called_once()
 
-    def test_get_limits_dpc(self):
-        """
-        Test getting limits (printed pages + total available pages)
-        for Direct Print Client account
-        """
-
-        # Check _get_limits_dpc with added return_value - LIMITS_RESPONSE
-        # Expected: printed-3, limits-5
-        with self.cr.savepoint(), patch.object(type(self.account), '_send_dpc_request', ) \
-                as mock_send_dpc_request:
-            mock_send_dpc_request.return_value = LIMITS_RESPONSE
-            printed, limits = self.account._get_limits_dpc()
-            self.assertEqual(printed, 3)
-            self.assertEqual(limits, 5)
-            mock_send_dpc_request.assert_called_once_with(
-                'GET',
-                f'api-keys/{self.account.api_key}')
-
-        # Check _get_limits_dpc with response status_code - 404
-        # Expected: printed-0, limits-0
-        LIMITS_RESPONSE.update({'status_code': 404, 'message': 'Error'})
-        with self.cr.savepoint(), patch.object(type(self.account), '_send_dpc_request', ) \
-                as mock_send_dpc_request:
-            mock_send_dpc_request.return_value = LIMITS_RESPONSE
-            printed, limits = self.account._get_limits_dpc()
-            self.assertEqual(printed, 0)
-            self.assertEqual(limits, 0)
-            self.assertEqual(self.account.status, 'Error')
-
-            mock_send_dpc_request.assert_called_once_with(
-                'GET',
-                f'api-keys/{self.account.api_key}')
-
     def test_get_limits_printnode(self):
         """
         Test getting limits (printed pages + total available pages) from Direct Print
@@ -580,46 +556,146 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
                 [call('billing/statistics'), call('billing/plan')]
             )
 
-    def test_update_limits_for_account(self):
+    @mute_logger('odoo.addons.printnode_base.models.printnode_account')
+    def test_update_subscription_info_for_account(self):
         """
-        Tests updating limits and number of printed documents
+        Tests updating limits and subscription information for current account
         """
 
-        self.account.printed = 0
-        self.account.limits = 0
-        printed = 10
-        limits = 100
+        self.account.update({
+            'is_dpc_account': True,
+            'printed': 0,
+            'limits': 0,
+        })
 
-        with self.cr.savepoint(), patch.object(type(self.account), '_get_limits_dpc', ) \
-                as mock_get_limits_dpc, patch.object(type(self.account), '_get_limits_printnode', )\
+        with self.cr.savepoint(), patch.object(type(self.account), '_send_dpc_request', ) \
+                as mock_send_dpc_request:
+            mock_send_dpc_request.return_value = SUBSCRIPTION_INFO_RESPONSE
+
+            subscription_status = self.account.update_subscription_info_for_account()
+
+            self.assertEqual(subscription_status, 'active')
+            self.assertEqual(self.account.printed, 3)
+            self.assertEqual(self.account.limits, 5)
+            self.assertEqual(self.account.subscription_status, 'active')
+            self.assertEqual(self.account.subscription_plan, 'Business')
+            self.assertEqual(self.account.subscription_start_date, date(2026, 1, 1))
+            self.assertEqual(self.account.subscription_end_date, date(2026, 12, 31))
+            mock_send_dpc_request.assert_called_once_with(
+                'GET',
+                'api-keys',
+                headers={'DPC-API-Key': self.account.api_key},
+            )
+
+        response_with_unknown_status = {
+            **SUBSCRIPTION_INFO_RESPONSE,
+            'data': {
+                **SUBSCRIPTION_INFO_RESPONSE['data'],
+                'subscription_details': {
+                    **SUBSCRIPTION_INFO_RESPONSE['data']['subscription_details'],
+                    'subscription_status': 'paused',
+                },
+            },
+        }
+
+        with self.cr.savepoint(), patch.object(type(self.account), '_send_dpc_request', ) \
+                as mock_send_dpc_request:
+            mock_send_dpc_request.return_value = response_with_unknown_status
+
+            subscription_status = self.account.update_subscription_info_for_account()
+
+            self.assertEqual(subscription_status, 'unknown')
+            self.assertEqual(self.account.subscription_status, 'unknown')
+
+        response_with_canceled_status = {
+            **SUBSCRIPTION_INFO_RESPONSE,
+            'data': {
+                **SUBSCRIPTION_INFO_RESPONSE['data'],
+                'stats': {},
+                'subscription_details': {
+                    **SUBSCRIPTION_INFO_RESPONSE['data']['subscription_details'],
+                    'subscription_status': 'canceled',
+                },
+            },
+        }
+
+        with self.cr.savepoint(), patch.object(type(self.account), '_send_dpc_request', ) \
+                as mock_send_dpc_request:
+            mock_send_dpc_request.return_value = response_with_canceled_status
+
+            subscription_status = self.account.update_subscription_info_for_account()
+
+            self.assertEqual(subscription_status, 'canceled')
+            self.assertEqual(self.account.subscription_status, 'canceled')
+            self.assertEqual(self.account.printed, 0)
+            self.assertEqual(self.account.limits, 0)
+
+        with self.cr.savepoint(), patch.object(type(self.account), '_send_dpc_request', ) \
+                as mock_send_dpc_request:
+            mock_send_dpc_request.return_value = {
+                'status_code': 404,
+                'message': 'Error',
+            }
+
+            self.assertFalse(self.account.update_subscription_info_for_account())
+            self.assertEqual(self.account.status, 'Error')
+
+        with self.cr.savepoint(), patch.object(type(self.account), '_send_dpc_request', ) \
+                as mock_send_dpc_request:
+            mock_send_dpc_request.return_value = None
+
+            self.assertFalse(self.account.update_subscription_info_for_account())
+            self.assertEqual(self.account.status, 'Failed to fetch subscription info')
+
+        printed = 20
+        limits = 110
+        self.account.is_dpc_account = False
+
+        with self.cr.savepoint(), patch.object(type(self.account), '_get_limits_printnode', ) \
                 as mock_get_limits_printnode:
-            mock_get_limits_dpc.return_value = printed, limits
-            mock_get_limits_printnode.return_value = printed + 10, limits + 10
+            mock_get_limits_printnode.return_value = printed, limits
 
-            # Expected limits from Direct Print Client
-            self.account.is_dpc_account = True
-            self.account.update_limits_for_account()
+            self.assertFalse(self.account.update_subscription_info_for_account())
             self.assertEqual(self.account.printed, printed)
             self.assertEqual(self.account.limits, limits)
+            mock_get_limits_printnode.assert_called_once()
 
-            # Expected limits from Direct Print
-            self.account.is_dpc_account = False
-            self.account.update_limits_for_account()
-            self.assertEqual(self.account.printed, printed + 10)
-            self.assertEqual(self.account.limits, limits + 10)
-
-    def test_update_limits(self):
+    def test_update_subscription_info(self):
         """
-        Test updating limits and number of printed documents
+        Test updating subscription information and notification state
         """
 
-        with self.cr.savepoint(), patch.object(type(self.account), 'update_limits_for_account', ) \
-                as mock_update_limits_for_account, \
+        config_parameter = self.env['ir.config_parameter']
+
+        with self.cr.savepoint(), \
+                patch.object(type(self.account), 'update_subscription_info_for_account', ) \
+                as mock_update_subscription_info_for_account, \
                 patch.object(type(self.account), '_notify_about_limits', ) \
-                as mock_notify_about_limits:
-            self.assertIsNone(self.account.update_limits())
-            mock_update_limits_for_account.assert_called_once()
-            mock_notify_about_limits.assert_called_once()
+                as mock_notify_about_limits, \
+                patch.object(type(config_parameter), 'set_param', ) as mock_set_param:
+            mock_update_subscription_info_for_account.side_effect = [
+                'past_due',
+                'active',
+            ]
+
+            self.assertIsNone(self.account.update_subscription_info())
+            self.assertIsNone(self.account.update_subscription_info())
+
+            self.assertEqual(mock_update_subscription_info_for_account.call_count, 2)
+            self.assertEqual(
+                mock_set_param.call_args_list,
+                [
+                    call(
+                        'printnode_base.subscription_notification_required',
+                        'True',
+                    ),
+                    call(
+                        'printnode_base.subscription_notification_required',
+                        'False',
+                    ),
+                ],
+            )
+            self.assertEqual(mock_notify_about_limits.call_count, 2)
 
     def test_notify_about_limits(self):
         """

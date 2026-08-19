@@ -41,6 +41,9 @@
                     <field name="printed" readonly="1" />
                     <field name="limits" readonly="1" />
                     <field name="status" />
+                    <field name="subscription_status" readonly="1"/>
+                    <field name="subscription_start_date" readonly="1"/>
+                    <field name="subscription_end_date" readonly="1"/>
                     <button name="import_devices" title="Import Printers &amp; Scales" type="object" icon="fa-cloud-download" />
                     <button name="unlink" title="Forget Account" type="object" icon="fa-trash-o" />
                 </list>
@@ -57,7 +60,7 @@
         <menuitem id="menu_printnode_accounts"
                   name="Accounts"
                   parent="menu_printnode_service"
-                  sequence="38"
+                  sequence="32"
                   action="printnode_account_action"
                   groups="base.group_no_one"
         />

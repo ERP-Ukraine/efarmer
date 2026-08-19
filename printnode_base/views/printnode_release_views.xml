@@ -25,7 +25,7 @@
         <menuitem id="menu_printnode_releases"
                   name="Releases"
                   parent="menu_printnode_service"
-                  sequence="38"
+                  sequence="31"
                   action="printnode_release_action"
                   groups="base.group_no_one"
         />

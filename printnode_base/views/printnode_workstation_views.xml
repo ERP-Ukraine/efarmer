@@ -6,7 +6,7 @@
             <field name="model">printnode.workstation</field>
             <field name="type">list</field>
             <field name="arch" type="xml">
-                <list string="Workstations" editable="bottom">
+                <list string="Workstations" editable="bottom" js_class="printnode_workstations_list">
                     <field name="name" />
                     <field name="printer_id" options="{'no_create': True}" />
                     <field name="label_printer_id" options="{'no_create': True}" />
@@ -25,7 +25,7 @@
         <menuitem id="menu_printnode_workstations"
                   name="Workstations"
                   parent="menu_printnode_service"
-                  sequence="38"
+                  sequence="34"
                   action="printnode_workstation_action"
                   groups="printnode_security_group_user"
         />

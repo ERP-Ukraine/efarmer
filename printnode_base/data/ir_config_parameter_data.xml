@@ -23,5 +23,10 @@
             <field name="value">10</field>
         </record>
 
+        <record model="ir.config_parameter" id="subscription_notification_required">
+            <field name="key">printnode_base.subscription_notification_required</field>
+            <field name="value">False</field>
+        </record>
+
     </data>
 </odoo>

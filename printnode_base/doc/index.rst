@@ -14,6 +14,17 @@ Change Log
 
 |
 
+* 2.9.0 (2026-08-19)
+    - [NEW] Added a Manufacturing add-on with a new printing scenario for the Manufacturing module
+    - [NEW] Implemented the new Unified Print Rules Builder, providing a single place to configure print rules and report settings. The new menu replaces the previous User Rules and Report Settings menus
+    - [NEW] Added the possibility to select a default label for the Print Label wizard
+    - [NEW] Added information panels to the main Direct Print Pro menus with menu descriptions and links to relevant documentation
+    - [IMP] Improved the printing order when multiple copies are configured in a print scenario
+    - [IMP] Improved the subscription UI with expiration notifications and clearer status information
+    - [IMP] Improved Print Jobs sorting by date and grouping by day
+    - [FIX] Fixed a minor issue related to user connection restrictions
+    - [FIX] Other improvements and fixes to enhance overall performance, stability, and reliability
+
 * 2.8.1 (2026-04-30)
     - [NEW] Added a new trial welcome plan that allows users to start printing for free during the first 3 months, including up to 15,000 prints
     - [NEW] Added a print button for each attachment for one-click printing

@@ -26,7 +26,7 @@
             <field name="model">printnode.printjob</field>
             <field name="type">list</field>
             <field name="arch" type="xml">
-                <list string="Print Jobs" create="false" edit="false">
+                <list string="Print Jobs" create="false" edit="false" expand="1" default_order="create_date desc, id desc" js_class="printnode_printjobs_list">
                     <field name="create_date" string="Date" />
                     <field name="description" />
                     <field name="printer_id" />
@@ -36,17 +36,36 @@
             </field>
         </record>
 
+        <record id="printnode_printjob_search" model="ir.ui.view">
+            <field name="name">printnode_printjob.search</field>
+            <field name="model">printnode.printjob</field>
+            <field name="type">search</field>
+            <field name="arch" type="xml">
+                <search string="Print Jobs">
+                    <filter
+                        name="group_by_create_date"
+                        string="Date"
+                        context="{'group_by': 'create_date:day'}"
+                    />
+                </search>
+            </field>
+        </record>
+
         <record id="printnode_printjob_action" model="ir.actions.act_window">
             <field name="name">Print Jobs</field>
             <field name="res_model">printnode.printjob</field>
             <field name="view_mode">list,form</field>
             <field name="view_id" ref="printnode_printjob_list" />
+            <field name="search_view_id" ref="printnode_printjob_search"/>
+            <field name="context">
+                {'search_default_group_by_create_date': 1}
+            </field>
         </record>
 
         <menuitem id="menu_printnode_log"
-                  name="Print jobs"
-                  parent="menu_printnode"
-                  sequence="35"
+                  name="Print Jobs"
+                  parent="menu_print_history"
+                  sequence="34"
                   action="printnode_printjob_action"
         />
 

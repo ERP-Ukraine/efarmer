@@ -7,7 +7,7 @@
             <field name="model">printnode.scenario</field>
             <field name="type">list</field>
             <field name="arch" type="xml">
-                <list string="Scenarios" editable="bottom" decoration-muted="not active">
+                <list string="Print Scenarios" editable="bottom" decoration-muted="not active" js_class="printnode_scenarios_list">
                     <field name="action" options="{'no_create': True}" />
                     <field name="domain" readonly="1" />
                     <field name="description" />
@@ -46,7 +46,7 @@
         </record>
 
         <record id="printnode_scenarios" model="ir.actions.act_window">
-            <field name="name">Scenarios</field>
+            <field name="name">Print Scenarios</field>
             <field name="res_model">printnode.scenario</field>
             <field name="view_mode">list</field>
             <field name="view_id" ref="printnode_scenario_list" />
@@ -55,8 +55,8 @@
 
         <menuitem id="menu_printnode_scenarios"
                   name="Print Scenarios"
-                  parent="menu_printnode"
-                  sequence="33"
+                  parent="menu_print_automation"
+                  sequence="30"
                   action="printnode_scenarios"
         />
 

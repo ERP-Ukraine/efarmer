@@ -36,6 +36,35 @@ class ResConfigSettings(models.TransientModel):
         config_parameter='printnode_base.disable_advertising',
     )
 
+    limits = fields.Integer(
+        string='Plan Page Limits',
+        related='printnode_account_id.limits',
+        readonly=True,
+    )
+
+    printed = fields.Integer(
+        string='Printed',
+        related='printnode_account_id.printed',
+        readonly=True,
+    )
+
+    subscription_plan = fields.Char(
+        string='Printing Plan',
+        related='printnode_account_id.subscription_plan',
+        readonly=True,
+    )
+
+    subscription_status = fields.Selection(
+        related='printnode_account_id.subscription_status',
+        readonly=True,
+    )
+
+    subscription_end_date = fields.Date(
+        string='Valid Until',
+        related='printnode_account_id.subscription_end_date',
+        readonly=True,
+    )
+
     def _compute_printnode_account_id(self):
         account = self.env['printnode.account'].get_main_printnode_account()
         for settings in self:
@@ -145,4 +174,26 @@ class ResConfigSettings(models.TransientModel):
             "view_mode": "form",
             "target": "current",
             "res_id": self.company_id.id,
+        }
+
+    def open_subscription_management(self):
+        return {
+            'type': 'ir.actions.act_url',
+            'url': 'https://print.ventor.tech/',
+            'target': 'new',
+        }
+
+    def refresh_subscription_info(self):
+        account = self.get_main_printnode_account()
+
+        if not account:
+            raise exceptions.UserError(
+                _('Please add an account before refreshing subscription info')
+            )
+
+        self.env['printnode.account'].update_subscription_info()
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
         }

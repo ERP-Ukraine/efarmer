@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="printnode_base.PrintNodePrintJobListView"
+       t-inherit="web.ListRenderer"
+       t-inherit-mode="primary"
+       owl="1">
+
+        <xpath expr="//div[contains(@class, 'o_list_renderer') and contains(@class, 'table-responsive')]"
+               position="before">
+
+            <div class="o_onboarding_container collapse show w-100">
+                <div class="o_notification_alert alert alert-info mb-0 py-2 w-100"
+                     role="alert">
+
+                    <div class="d-flex align-items-start gap-2">
+                        <i class="fa fa-info-circle mt-1 flex-shrink-0"
+                           title="Information"></i>
+
+                        <div>
+                            This menu contains the history of all print jobs
+                            processed by Direct Print.
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </xpath>
+
+    </t>
+
+</templates>

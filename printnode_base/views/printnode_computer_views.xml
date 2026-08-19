@@ -46,8 +46,8 @@
 
         <menuitem id="menu_printnode_computers"
                   name="Computers"
-                  parent="menu_printnode_service"
-                  sequence="39"
+                  parent="menu_devices"
+                  sequence="1"
                   action="printnode_computer_action"
         />
 

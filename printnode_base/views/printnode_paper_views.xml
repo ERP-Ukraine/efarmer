@@ -25,7 +25,7 @@
         <menuitem id="menu_printnode_papers"
                   name="Papers"
                   parent="menu_printnode_service"
-                  sequence="50"
+                  sequence="36"
                   action="printnode_paper_action"
         />
 

@@ -12,7 +12,7 @@
                     <app data-string="Direct Print PRO" string="Direct Print PRO" name="printnode_base" groups="printnode_base.printnode_security_group_manager">
                         <h2>Account</h2>
                         <!-- Review credit block -->
-                        <div class="alert alert-info row o_settings_container my-1" role="alert" style="margin-left: 4.5rem; padding-left: 0rem;" invisible="disable_advertising == True">
+                        <!-- <div class="alert alert-info row o_settings_container my-1" role="alert" style="margin-left: 4.5rem; padding-left: 0rem;" invisible="disable_advertising == True">
                             <p class="mt-1"><strong class="text-danger">🎁 €30 Credit for Your Review!</strong></p>
                             <div>
                                 Leave a review on the
@@ -28,78 +28,154 @@
                                 Just <a href="https://support.ventor.tech/" target="_blank"><strong class="text-info">contact us</strong></a> after posting - it's that simple!
                             </div>
                             <p class="mb-0"><em>Promo runs until 1 June 2026</em></p>
-                        </div>
-                        <div class="row mt16 o_settings_container">
-                            <div class="col-12 col-lg-6 o_setting_box">
-                                <div class="o_setting_right_pane">
-                                    <field name="printnode_account_id" invisible="1"/> <!-- Required because it is used in the invisible condition above -->
-                                    <label for="dpc_api_key" class="o_form_label d-block">API Key</label>
-                                    <field name="dpc_api_key" readonly="True" class="w-100" style="word-break: break-word" />
+                        </div> -->
 
-                                    <div class="alert alert-info mt-1" role="alert" >
-                                        You can find API key in your profile at
-                                        <a href="https://print.ventor.tech" target="_blank">
-                                            print.ventor.tech
-                                        </a>
-                                    </div>
+                        <!-- Subscription status block -->
+                        <div class="alert alert-warning row o_settings_container my-1 align-items-center"
+                            role="alert"
+                            style="margin-left: 4.5rem; padding-left: 0rem; max-width: 56rem;"
+                            invisible="subscription_status != 'past_due'">
 
-                                </div>
+                            <div class="col-auto d-flex align-items-center ps-3 pe-2">
+                                <i class="fa fa-exclamation-triangle fa-2x text-warning"
+                                title="Warning"
+                                role="img"
+                                aria-label="Warning"/>
                             </div>
 
-                            <div class="col-12 col-lg-6 o_setting_box">
-                                <div class="o_setting_right_pane">
-                                    <label for="dpc_status" class="o_form_label d-block">Status</label>
-                                    <strong class="mt-3 mb-2 d-block">
-                                        <field name="dpc_status" style="color: red;" invisible="dpc_status == 'OK'"/> <!-- Required because it is used in the invisible condition above -->
-                                        <field name="dpc_status" style="color: green;" invisible="dpc_status != 'OK'"/> <!-- Required because it is used in the invisible condition above -->
+                            <div class="col">
+                                <p class="mt-2 mb-2">
+                                    <strong class="text-warning">
+                                        Your printing subscription renewal failed.
                                     </strong>
+                                </p>
+                                <div>
+                                    You have 14 days to resolve the payment issue before printing is suspended.
+                                </div>
+                                <div class="mb-2">
+                                    Please review your subscription using the button
+                                    <strong>Manage Subscription</strong>
+                                    below.
+                                </div>
+                            </div>
+                        </div>
 
-                                    <div class="alert alert-info mt-2" role="alert">
-                                        Please, report us the text above if you have issues
+                        <div class="row mt16 o_settings_container">
+                            <div class="col-12 col-lg-6">
+                                <div class="o_setting_box">
+                                    <div class="o_setting_right_pane">
+                                        <field name="printnode_account_id" invisible="1"/>
+                                        <label for="dpc_api_key" class="o_form_label d-block">API Key</label>
+                                        <field name="dpc_api_key"
+                                            readonly="True"
+                                            class="w-100"
+                                            style="word-break: break-word"/>
+
+                                        <label for="dpc_status" class="o_form_label mt-2 d-block">
+                                            Direct Print Client API Key Status
+                                        </label>
+
+                                        <strong class="mt-2 mb-2 d-block">
+                                            <field name="dpc_status"
+                                                style="color: red;"
+                                                invisible="dpc_status == 'OK'"/>
+                                            <field name="dpc_status"
+                                                style="color: green;"
+                                                invisible="dpc_status != 'OK'"/>
+                                        </strong>
+
+                                        <div class="alert alert-warning mt-2" role="alert" invisible="dpc_status == 'OK'">
+                                            Please, <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/group/-1"
+                                                       target="_blank"
+                                                       class="text-warning fw-bold">report us
+                                            </a> the text above if you have issues
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="o_setting_box mt-4">
+                                    <div class="o_setting_right_pane">
+                                        <span class="o_form_label d-block text-muted mb-2">Actions</span>
+
+                                        <button name="%(printnode_installer_action)d"
+                                                string="Quick Configuration"
+                                                type="action"
+                                                class="oe_highlight me-4"/>
+
+                                        <button name="import_devices"
+                                                string="Import Printers &amp; Scales"
+                                                type="object"
+                                                class="btn btn-outline-primary"
+                                                icon="fa-cloud-download"/>
+
+                                        <br/>
+
+                                        <div class="alert alert-info mt-3" role="alert">
+                                            In order to import scales, they should be connected and switched on (online)
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="col-12 col-lg-6 o_setting_box">
                                 <div class="o_setting_right_pane">
-                                    <span class="o_form_label d-block text-muted mb-2">Actions</span>
-                                    <button name="%(printnode_installer_action)d" string="Quick Configuration" type="action" class="oe_highlight me-4" />
-                                    <button name="import_devices" string=" Import Printers &amp; Scales" type="object" class="btn btn-outline-primary" icon="fa-cloud-download" />
-                                    <br />
-                                    <div class="alert alert-info mt-3" role="alert">
-                                        In order to import scales, they should be connected and switched on (online)
-                                    </div>
-                                </div>
-                            </div>
+                                    <div class="border rounded p-3">
+                                        <span class="o_form_label d-block text-muted mb-3">
+                                            Subscription Information
+                                        </span>
 
-                            <div class="col-12 col-lg-6 o_setting_box">
-                                <div class="o_setting_right_pane">
-                                    <div class="border border-danger rounded p-3">
-                                        <p class="text-danger fw-bold mb-2"><strong>Danger Zone</strong></p>
-
-                                        <div class="ps-2 border-start border-2 border-danger">
-                                            <p class="mb-2">
-                                                Re-activate the account with a complete removal of all devices from Odoo and import them again
-                                            </p>
+                                        <div class="d-flex py-2 border-bottom">
+                                            <div class="w-50 text-muted">Printing Plan:</div>
+                                            <div class="w-50">
+                                                <field name="subscription_plan" readonly="1" class="oe_inline"/>
+                                            </div>
                                         </div>
 
-                                        <button name="activate_account"
-                                                    string=" Re-activate Account"
-                                                    type="object"
-                                                    class="btn btn-outline-danger mt-1"
-                                                    icon="fa-warning"/>
-
-                                        <div class="mt-4 ps-2 border-start border-2 border-danger">
-                                            <p class="mb-2">
-                                                Click on this button will remove all devices from Odoo that are not connected to the Printnode account
-                                            </p>
+                                        <div class="d-flex py-2 border-bottom">
+                                            <div class="w-50 text-muted">Printed:</div>
+                                            <div class="w-50">
+                                                <span> </span>
+                                                    <field name="printed" readonly="1" class="oe_inline"/>
+                                                <span> / </span>
+                                                    <field name="limits" readonly="1" class="oe_inline"/>
+                                                <span> prints</span>
+                                            </div>
                                         </div>
 
-                                        <button name="clear_devices_from_odoo"
-                                                    string=" Clear Devices in Odoo"
+                                        <div class="d-flex py-2 border-bottom">
+                                            <div class="w-50 text-muted">Subscription Status:</div>
+                                            <div class="w-50">
+                                                <field name="subscription_status"
+                                                    readonly="1"
+                                                    class="text-success fw-bold"
+                                                    invisible="subscription_status not in ['active', 'trialing']"/>
+
+                                                <field name="subscription_status"
+                                                    readonly="1"
+                                                    class="text-danger fw-bold"
+                                                    invisible="subscription_status in ['active', 'trialing']"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex py-2 border-bottom">
+                                            <div class="w-50 text-muted">Valid Until:</div>
+                                            <div class="w-50">
+                                                <field name="subscription_end_date" readonly="1"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-4 d-flex gap-3">
+                                            <button name="open_subscription_management"
+                                                    string="Manage Subscription"
                                                     type="object"
-                                                    class="btn btn-outline-danger mt-1"
-                                                    icon="fa-trash"/>
+                                                    class="oe_highlight"/>
+
+                                            <button name="refresh_subscription_info"
+                                                    string="Refresh"
+                                                    type="object"
+                                                    class="btn btn-outline-primary"/>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -141,7 +217,39 @@
                                 </div>
                             </div>
 
-                            <div class="col-12 col-lg-6 o_setting_box" >
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_right_pane">
+                                    <div class="border border-danger rounded p-3">
+                                        <p class="text-danger fw-bold mb-2"><strong>Danger Zone</strong></p>
+
+                                        <div class="ps-2 border-start border-2 border-danger">
+                                            <p class="mb-2">
+                                                Re-activate the account with a complete removal of all devices from Odoo and import them again
+                                            </p>
+                                        </div>
+
+                                        <button name="activate_account"
+                                                    string=" Re-activate Account"
+                                                    type="object"
+                                                    class="btn btn-outline-danger mt-1"
+                                                    icon="fa-warning"/>
+
+                                        <div class="mt-4 ps-2 border-start border-2 border-danger">
+                                            <p class="mb-2">
+                                                Click on this button will remove all devices from Odoo that are not connected to the Printnode account
+                                            </p>
+                                        </div>
+
+                                        <button name="clear_devices_from_odoo"
+                                                    string=" Clear Devices in Odoo"
+                                                    type="object"
+                                                    class="btn btn-outline-danger mt-1"
+                                                    icon="fa-trash"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- <div class="col-12 col-lg-6 o_setting_box" >
                                 <div class="o_setting_left_pane">
                                     <field name="disable_advertising"/>
                                 </div>
@@ -151,7 +259,7 @@
                                         Hide information about promotions and discounts.
                                     </div>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
 
                         <h2>Our Ecosystem of Products</h2>
@@ -260,7 +368,7 @@
         <menuitem id="menu_printnode_general"
                   name="Settings"
                   parent="menu_printnode_service"
-                  sequence="37"
+                  sequence="30"
                   action="printnode_config_action"
         />
 

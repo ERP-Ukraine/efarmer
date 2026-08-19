@@ -38,7 +38,7 @@
             <field name="model">shipping.label</field>
             <field name="type">list</field>
             <field name="arch" type="xml">
-                <list string="Shipping Label List" create="false" edit="false" delete="false" decoration-muted="label_status == 'inactive'">
+                <list string="Shipping Label List" create="false" edit="false" delete="false" decoration-muted="label_status == 'inactive'" js_class="printnode_shipping_labels_list">
                     <field name="create_date" widget="datetime" />
                     <field name="carrier_id" ref="delivery_carrier" />
                     <field name="picking_id" />
@@ -87,8 +87,8 @@
 
         <menuitem id="menu_shipping_labels"
                   name="Shipping Labels"
-                  parent="menu_printnode"
-                  sequence="34"
+                  parent="menu_print_history"
+                  sequence="35"
                   action="shipping_labels_action"
         />
 

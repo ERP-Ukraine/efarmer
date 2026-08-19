@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="printnode_print_rule_wizard_form" model="ir.ui.view">
+            <field name="name">printnode.print.rule.wizard.form</field>
+            <field name="model">printnode.print.rule.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Create Print Rule">
+                    <sheet>
+                        <field name="preview_state" invisible="1"/>
+
+                        <div class="alert alert-info d-flex align-items-start mb-4" role="alert">
+                            <i class="fa fa-info-circle mt-1 me-3" title="Information"/>
+                            <div>
+                                <div>
+                                    Configure when a print job should be sent to a specific printer.
+                                    Leave fields empty to make the rule apply more broadly.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="row align-items-center">
+                                <label for="user_id"
+                                       string="User"
+                                       class="col-2 fw-bold mb-0"/>
+                                <div class="col-10">
+                                    <field name="user_id"
+                                           nolabel="1"
+                                           class="w-100"
+                                           placeholder="Apply this rule only when the selected user triggers the print action."
+                                           options="{'no_create': True, 'no_open': True}"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="row align-items-center">
+                                <label for="report_id"
+                                    string="Report"
+                                    class="col-2 fw-bold mb-0"/>
+                                <div class="col-10">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <field name="report_id"
+                                                nolabel="1"
+                                                class="w-100"
+                                                placeholder="Apply this rule only when the selected report is printed."
+                                                options="{'no_create': True, 'no_open': True}"/>
+                                        </div>
+
+                                        <div class="col-5" groups="base.group_no_one">
+                                            <div class="row align-items-center">
+                                                <label for="report_model"
+                                                    string="Report Model"
+                                                    class="col-4 fw-bold mb-0"/>
+                                                <div class="col-8">
+                                                    <field name="report_model"
+                                                        nolabel="1"
+                                                        readonly="1"
+                                                        class="w-100"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="row align-items-center">
+                                <label for="workstation_id"
+                                       string="Workstation"
+                                       class="col-2 fw-bold mb-0"/>
+                                <div class="col-10">
+                                    <field name="workstation_id"
+                                           nolabel="1"
+                                           class="w-100"
+                                           placeholder="Apply this rule only when printing is triggered from the selected workstation."
+                                           options="{'no_create': True, 'no_open': True}"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="row align-items-center">
+                                <label for="exclude_from_auto_printing"
+                                       string="Exclude from Auto-Printing"
+                                       class="col-2 fw-bold mb-0"/>
+                                <div class="col-10">
+                                    <field name="exclude_from_auto_printing"
+                                           nolabel="1"
+                                           widget="boolean_toggle"/>
+                                    <div class="text-muted small mt-1">
+                                        Prevent reports matching this rule from being automatically printed.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3" invisible="exclude_from_auto_printing">
+                            <div class="row align-items-center">
+                                <label for="printer_id"
+                                       string="Printer"
+                                       class="col-2 fw-bold mb-0"/>
+                                <div class="col-10">
+                                    <field name="printer_id"
+                                           nolabel="1"
+                                           class="w-100"
+                                           placeholder="Print jobs matching this rule will be sent to this printer."
+                                           options="{'no_create': True, 'no_open': True}"
+                                           required="not exclude_from_auto_printing"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3" invisible="exclude_from_auto_printing">
+                            <div class="row align-items-center">
+                                <label for="printer_bin"
+                                       string="Printer Bin"
+                                       class="col-2 fw-bold mb-0"/>
+                                <div class="col-10">
+                                    <field name="printer_bin"
+                                           nolabel="1"
+                                           class="w-100"
+                                           placeholder="Select the printer tray or bin that should be used for printing."
+                                           options="{'no_create': True, 'no_open': True}"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3" groups="base.group_no_one">
+                            <div class="row align-items-center">
+                                <label for="report_paper_id"
+                                       string="Report Paper"
+                                       class="col-2 fw-bold mb-0"/>
+                                <div class="col-10">
+                                    <field name="report_paper_id"
+                                           nolabel="1"
+                                           class="w-100"
+                                           placeholder="Select the paper format that should be used for this report."
+                                           options="{'no_create': True, 'no_open': True}"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-3"/>
+
+                        <div class="mb-4">
+                            <div class="row align-items-center">
+                                <label for="active"
+                                       string="Active"
+                                       class="col-2 fw-bold mb-0"/>
+                                <div class="col-10">
+                                    <field name="active"
+                                           nolabel="1"
+                                           widget="boolean_toggle"/>
+                                    <div class="text-muted small mt-1">
+                                        Enable or disable the rule without deleting it.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <strong>Rule Preview</strong>
+
+                            <div class="alert alert-warning d-flex align-items-start mt-3 mb-0"
+                                 role="alert"
+                                 invisible="preview_state != 'warning'">
+                                <i class="fa fa-warning mt-1 me-3" title="Warning"/>
+                                <div>
+                                    <field name="preview" nolabel="1" readonly="1"/>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-success d-flex align-items-start mt-3 mb-0"
+                                 role="alert"
+                                 invisible="preview_state != 'success'">
+                                <i class="fa fa-check-circle mt-1 me-3" title="Valid"/>
+                                <div>
+                                    <field name="preview" nolabel="1" readonly="1"/>
+                                </div>
+                            </div>
+                        </div>
+                    </sheet>
+
+                    <footer>
+                        <button name="action_save"
+                                type="object"
+                                string="Save"
+                                class="btn-primary"/>
+                        <button special="cancel"
+                                string="Cancel"
+                                class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_printnode_print_rule_wizard" model="ir.actions.act_window">
+            <field name="name">Create Print Rule</field>
+            <field name="res_model">printnode.print.rule.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="printnode_print_rule_wizard_form"/>
+            <field name="target">new</field>
+            <field name="context">{'form_view_initial_mode': 'edit'}</field>
+        </record>
+
+    </data>
+</odoo>

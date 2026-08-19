@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="printnode_base.PrintNodeRuleListView"
+       t-inherit="web.ListRenderer"
+       t-inherit-mode="primary"
+       owl="1">
+
+        <xpath expr="//div[contains(@class, 'o_list_renderer') and contains(@class, 'table-responsive')]"
+               position="before">
+            <div class="o_onboarding_container collapse show w-100">
+                <div class="o_notification_alert alert alert-info mb-0 py-2 w-100"
+                     role="alert">
+                    <div class="d-flex align-items-start">
+                        <i class="fa fa-exclamation-triangle mt-1 me-2 flex-shrink-0"
+                           title="Important"></i>
+
+                        <div>
+                            <div class="fw-bold">
+                                Rules in this menu have been migrated to the new Print Rules menu
+                                and are disabled by default.
+                            </div>
+
+                            <div class="mt-2">
+                                New printing rules can now be created only in the
+                                <a href="/odoo/action-printnode_base.printnode_print_rule"
+                                   class="fw-bold text-info text-decoration-none">
+                                    Print Rules menu.
+                                </a>
+
+                                If you need assistance, please contact our
+                                <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/group/-1"
+                                   target="_blank"
+                                   class="fw-bold text-info text-decoration-none">
+                                    support team.
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+
+    </t>
+
+</templates>

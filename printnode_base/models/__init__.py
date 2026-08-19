@@ -5,6 +5,7 @@
 # in the other models
 from . import res_company
 from . import printnode_mixin
+from . import printnode_print_rule_mixin
 from . import printnode_logger
 from . import printnode_release
 from . import printnode_account
@@ -25,6 +26,7 @@ from . import printnode_rule
 from . import shipping_label
 from . import shipping_label_document
 from . import printnode_map_action_server
+from . import printnode_print_rule
 from . import printnode_workstation
 from . import printnode_base
 

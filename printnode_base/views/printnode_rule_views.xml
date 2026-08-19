@@ -7,7 +7,7 @@
             <field name="model">printnode.rule</field>
             <field name="type">list</field>
             <field name="arch" type="xml">
-                <list string="User Rules" editable="bottom" decoration-warning="error">
+                <list string="User Rules" create="0" editable="bottom" decoration-warning="error" js_class="printnode_rules_list">
                     <field name="user_id" options="{'no_create': True}" />
                     <field name="printer_id" options="{'no_create': True}" />
                     <field name="printer_bin" options="{'no_create': True}" />
@@ -30,9 +30,10 @@
 
         <menuitem id="menu_printnode_rules"
                   name="User Rules"
-                  parent="menu_printnode_policy"
+                  parent="menu_deprecated_rules"
                   sequence="34"
                   action="printnode_rules"
+                  groups="base.group_no_one"
         />
 
     </data>

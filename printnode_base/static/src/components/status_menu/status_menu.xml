@@ -116,36 +116,36 @@
                         </t>
 
                         <t t-if="state.releases.length">
-                            <a href="https://print.ventor.tech/faq#i-have-purchased-a-module-where-can-i-download-the-latest-odoo-direct-print-module-version" target="_blank">How to update the app?</a>
+                            <a href="https://print.ventor.tech/faq?utm_source=direct-print-module&amp;utm_medium=status-menu&amp;utm_campaign=direct-print-pro" target="_blank">How to update the app?</a>
                         </t>
                     </div>
 
                     <!-- Review credit block -->
-                    <t t-if="!state.isAdvertisingDisabled">
+                    <!-- <t t-if="!state.isAdvertisingDisabled">
                         <div class="DirectPrintStatusMenu_review_credit">
                             <div class="alert alert-info d-flex flex-column rounded py-1 mb-1" role="alert">
                                 <p class="fw-bold mb-1">
                                     🎁 <span class="text-danger">€30 Credit for Your Review</span>
                                 </p>
                                 <div>
-                                    Leave a review on the <a href="https://apps.odoo.com/apps/modules/19.0/printnode_base/#ratings" target="_blank">
+                                    Leave a review on the <a href="https://apps.odoo.com/apps/modules/19.0/printnode_base#ratings" target="_blank">
                                         <span class="text-info"><strong class="text-info">Odoo App Store</strong></span>
                                     </a> and get €30 as credits for your printing subscription.
                                 </div>
                                 <div>
-                                    <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/article/522453101" target="_blank">
+                                    <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/article/522453101/" target="_blank">
                                         <small class="text-info">How to leave your review? Check the FAQ</small>
                                     </a>
                                 </div>
                                 <div class="mt-1">
-                                    Just <a href="https://support.ventor.tech/" target="_blank"><strong class="text-info">contact us</strong></a> after posting - it's that simple!
+                                    Just <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/group/-1/" target="_blank"><strong class="text-info">contact us</strong></a> after posting - it's that simple!
                                 </div>
                                 <div class="fst-italic mb-0">
                                     Promo runs until 1 June 2026
                                 </div>
                             </div>
                         </div>
-                    </t>
+                    </t> -->
 
                     <!-- Rate Us block -->
                     <div class="DirectPrintStatusMenu_rate_us">

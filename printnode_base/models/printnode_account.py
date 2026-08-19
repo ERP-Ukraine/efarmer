@@ -1,6 +1,7 @@
 # Copyright 2021 VentorTech OU
 # See LICENSE file for full copyright and licensing details.
 
+import logging
 import re
 import requests
 import time
@@ -8,11 +9,23 @@ import time
 from odoo import api, exceptions, fields, models, _
 
 from .constants import Constants
+from ..tools import convert_iso_to_date
+
+_logger = logging.getLogger(__name__)
 
 
 # Retry configuration for PrintNode API rate limiting
 MAX_RETRIES = 3
 RETRY_DELAY_BASE = 1  # Base delay in seconds for exponential backoff
+SUPPORTED_SUBSCRIPTION_STATUSES = {
+    'incomplete',
+    'incomplete_expired',
+    'trialing',
+    'active',
+    'past_due',
+    'canceled',
+    'unpaid',
+}
 
 # Copied from request library to provide compatibility with the library
 try:
@@ -61,7 +74,7 @@ class PrintNodeAccount(models.Model):
     )
 
     printed = fields.Integer(
-        string='Printed Pages',
+        string='Printed',
         readonly=True,
     )
 
@@ -72,6 +85,36 @@ class PrintNodeAccount(models.Model):
         compute='_compute_account_status',
         store=True,
         readonly=True
+    )
+
+    subscription_plan = fields.Char(
+        string='Printing Plan',
+        readonly=True,
+    )
+
+    subscription_status = fields.Selection(
+        [
+            ('incomplete', 'Incomplete'),
+            ('incomplete_expired', 'Incomplete Expired'),
+            ('trialing', 'Trialing'),
+            ('active', 'Active'),
+            ('past_due', 'Past Due'),
+            ('canceled', 'Canceled'),
+            ('unpaid', 'Unpaid'),
+            ('unknown', 'Unknown'),
+        ],
+        string='Subscription Status',
+        readonly=True,
+    )
+
+    subscription_start_date = fields.Date(
+        string='Subscription Start Date',
+        readonly=True,
+    )
+
+    subscription_end_date = fields.Date(
+        string='Subscription End Date',
+        readonly=True,
     )
 
     api_key = fields.Char(
@@ -163,7 +206,7 @@ class PrintNodeAccount(models.Model):
 
             # But can try to activate through Direct Print
             if self._is_correct_dpc_api_key():
-                self.update_limits_for_account()
+                self.update_subscription_info_for_account()
                 self.import_devices()
 
                 return
@@ -179,7 +222,7 @@ class PrintNodeAccount(models.Model):
         # Everything is okay: the key is from DPC
         if response.get('status_code', 200) == 200:
             self.is_dpc_account = True
-            self.update_limits_for_account()
+            self.update_subscription_info_for_account()
             self.import_devices()
 
             return
@@ -190,7 +233,7 @@ class PrintNodeAccount(models.Model):
             self.is_dpc_account = False
 
             if self._is_correct_dpc_api_key():
-                self.update_limits_for_account()
+                self.update_subscription_info_for_account()
                 self.import_devices()
 
                 return
@@ -322,28 +365,122 @@ class PrintNodeAccount(models.Model):
                 printer.unlink()
             computer.unlink()
 
-    def update_limits_for_account(self):
+    @api.model
+    def run_maintenance(self):
         """
-        Update limits and number of printed documents through API
-        """
-        if self.is_dpc_account:
-            printed, limits = self._get_limits_dpc()
-        else:
-            printed, limits = self._get_limits_printnode()
+        Run Direct Print maintenance tasks.
 
-        # Update data
+        Each maintenance action is isolated in a savepoint, so a failed action
+        does not block the next maintenance actions.
+        """
+        def run_action(action_name, action_method, *args, **kwargs):
+            try:
+                with self.env.cr.savepoint():
+                    action_method(*args, **kwargs)
+            except Exception as err:
+                _logger.exception(
+                    'Direct Print Maintenance: action "%s" failed with error: %s',
+                    action_name,
+                    err,
+                )
+
+        run_action(
+            'update_subscription_info',
+            self.env['printnode.account'].update_subscription_info,
+        )
+        run_action(
+            'update_releases',
+            self.env['printnode.release'].update_releases,
+        )
+        run_action(
+            'clean_printjobs',
+            self.env['printnode.printjob'].clean_printjobs,
+            older_than_days=15,
+        )
+
+    @api.model
+    def update_subscription_info(self):
+        """
+        Update limits and subscription info through API.
+        """
+        main_account = self.get_main_printnode_account()
+
+        for rec in self.env['printnode.account'].search([]):
+            subscription_status = rec.update_subscription_info_for_account()
+
+            if subscription_status and rec == main_account:
+                self.env['ir.config_parameter'].sudo().set_param(
+                    'printnode_base.subscription_notification_required',
+                    'True' if subscription_status == 'past_due' else 'False',
+                )
+
+        self._notify_about_limits()
+
+    def update_subscription_info_for_account(self):
+        """
+        Update limits and subscription info through API.
+        """
+        self.ensure_one()
+
+        if self.is_dpc_account:
+            if not self.api_key:
+                return False
+
+            response = self._send_dpc_request(
+                'GET',
+                'api-keys',
+                headers={'DPC-API-Key': self.api_key},
+            )
+
+            if not response:
+                message = _('Failed to fetch subscription info')
+                self.status = message
+                _logger.warning(
+                    'Failed to update subscription info for account "%s": %s',
+                    self.name,
+                    message,
+                )
+                return False
+
+            if response.get('status_code') != 200:
+                message = response.get('message', _('Something went wrong'))
+                self.status = message
+                _logger.warning(
+                    'Failed to update subscription info for account "%s": %s',
+                    self.name,
+                    message,
+                )
+                return False
+
+            data = response.get('data') or {}
+            stats = data.get('stats') or {}
+            subscription_details = data.get('subscription_details') or {}
+
+            subscription_status = subscription_details.get('subscription_status')
+            if subscription_status not in SUPPORTED_SUBSCRIPTION_STATUSES:
+                subscription_status = 'unknown'
+
+            self.write({
+                'printed': stats.get('printed') or 0,
+                'limits': stats.get('limits') or 0,
+                'subscription_status': subscription_status,
+                'subscription_plan': subscription_details.get('subscription_plan') or False,
+                'subscription_start_date': convert_iso_to_date(
+                    subscription_details.get('subscription_start_date')
+                ),
+                'subscription_end_date': convert_iso_to_date(
+                    subscription_details.get('subscription_end_date')
+                ),
+            })
+
+            return subscription_status
+
+        printed, limits = self._get_limits_printnode()
+
         self.printed = printed
         self.limits = limits
 
-    def update_limits(self):
-        """
-        Update limits and number of printed documents through API
-        """
-        for rec in self.env['printnode.account'].search([]):
-            rec.update_limits_for_account()
-
-        # Notify user if number of available pages too low
-        self._notify_about_limits()
+        return False
 
     def update_main_account(self, api_key):
         """
@@ -591,25 +728,6 @@ class PrintNodeAccount(models.Model):
         """
         response = self._send_printnode_request('whoami')
         return bool(response)
-
-    def _get_limits_dpc(self):
-        """
-        Get status and limits (printed pages + total available pages)
-        for Direct Print Client account
-        """
-        printed = 0
-        limits = 0
-
-        response = self._send_dpc_request('GET', f'api-keys/{self.api_key}')
-
-        if response.get('status_code', 500) == 200:
-            stats = response['data']['stats']
-            printed = stats.get('printed', 0)
-            limits = stats.get('limits', 0)
-        else:
-            self.status = response.get('message', 'Something went wrong')
-
-        return printed, limits
 
     def _get_limits_printnode(self):
         """

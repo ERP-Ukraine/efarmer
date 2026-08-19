@@ -95,26 +95,90 @@ class User(models.Model):
 
         return printer
 
+    def _get_printing_rule(self, report_id):
+        """
+        Find the first active Print Rule that matches the current printing request.
+
+        User, Report, and Workstation are optional rule conditions:
+        - if a condition is set in the rule, it must match the current request;
+        - if a condition is empty in the rule, it matches any value.
+
+        If several rules match, the rule with the lowest sequence is used first.
+        """
+        self.ensure_one()
+
+        # Get the workstation selected for the current printing request.
+        workstation_id = False
+        workstation = self.env['printnode.workstation'].get_workstation()
+
+        if workstation:
+            workstation_id = workstation.id
+
+        domain = [
+            ('active', '=', True),
+        ]
+
+        # User, Report, and Workstation are optional conditions.
+        # Empty value in the rule means "any".
+        domain.append(self._get_optional_rule_field_condition(
+            'user_id',
+            self.id,
+        ))
+        domain.append(self._get_optional_rule_field_condition(
+            'report_id',
+            report_id,
+        ))
+        domain.append(self._get_optional_rule_field_condition(
+            'workstation_id',
+            workstation_id,
+        ))
+
+        # The first matching rule by sequence has the highest priority.
+        return self.env['printnode.print.rule'].search(
+            domain,
+            order='sequence asc, id asc',
+            limit=1,
+        )
+
+    @staticmethod
+    def _get_optional_rule_field_condition(field, value):
+        """
+        Return condition for optional rule field.
+        Empty value in the rule field means "any".
+        """
+        if value:
+            return (field, 'in', [value, False])
+
+        return (field, '=', False)
+
     def get_report_printer(self, report_id):
         """
         :param int report_id: ID of the report to searching
 
         Printer search sequence:
         1. Printer from Print Action Button or Print Scenario (if specified, out of this method)
-
-        2. Printer from User Rules (if exists)
-        3. Printer from Report Policy (if exists)
-        4. Default Workstation Printer (Settings)
-        5. Default printer for current user (User Preferences)
-        6. Default printer for current company (Settings)
+        2. Printer from Print Rules (if exists)
+        3. Printer from User Rules (if exists)
+        4. Printer from Report Policy (if exists)
+        5. Default Workstation Printer (Settings)
+        6. Default printer for current user (User Preferences)
+        7. Default printer for current company (Settings)
         """
         self.ensure_one()
 
+        # Print Rules menu
+        print_rule = self._get_printing_rule(report_id)
+
+        if print_rule.printer_id:
+            return print_rule.printer_id, print_rule.printer_bin
+
+        # User Rules menu
         rule = self.printnode_rule_ids.filtered(lambda r: r.report_id.id == report_id)[:1]
 
         if rule.printer_id:
             return rule.printer_id, rule.printer_bin
 
+        # Report Settings menu
         report_policy = self.env['printnode.report.policy'].search(
             [('report_id', '=', report_id)], limit=1)
 

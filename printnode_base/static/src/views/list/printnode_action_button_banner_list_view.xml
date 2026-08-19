@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="printnode_base.PrintNodeActionButtonListView"
+       t-inherit="web.ListRenderer"
+       t-inherit-mode="primary"
+       owl="1">
+
+        <xpath expr="//div[contains(@class, 'o_list_renderer') and contains(@class, 'table-responsive')]"
+               position="before">
+
+            <div class="o_onboarding_container collapse show w-100">
+                <div class="o_notification_alert alert alert-info mb-0 py-2 w-100"
+                     role="alert">
+
+                    <div class="d-flex align-items-center justify-content-between gap-3">
+
+                        <div class="d-flex align-items-start gap-2">
+                            <i class="fa fa-info-circle mt-1 flex-shrink-0"
+                               title="Information"></i>
+
+                            <div>
+                                <div>
+                                    Configure automatic printing when clicking standard
+                                    or custom buttons in Odoo.
+                                </div>
+
+                                <div class="mt-2">
+                                    For each button, choose which report to print and when printing should be triggered.
+                                    If the required method is missing, create it in the Button Methods menu.
+                                </div>
+                            </div>
+                        </div>
+
+                        <a href="https://ecosystem.ventor.tech/faq/direct-print/for-which-reports-can-i-automate-printing"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="btn btn-outline-info btn-sm flex-shrink-0">
+                            Learn More
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+
+        </xpath>
+
+    </t>
+
+</templates>
