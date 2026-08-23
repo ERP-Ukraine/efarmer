@@ -20,6 +20,11 @@
                            readonly="True"
                            invisible="hubspot_deal_name in (False, '')"
                            string="Deal Name"/>
+                    <field name="hubspot_deal_amount"
+                           readonly="True"
+                           invisible="hubspot_deal_name in (False, '')"
+                           string="Deal Amount"/>
+                    
                 </group>
             </xpath>
         </field>
