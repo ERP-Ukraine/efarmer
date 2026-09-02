@@ -132,3 +132,16 @@ class SaleOrderLine(models.Model):
             )
         else:
             return super(SaleOrderLine, self).write(values)
+
+    def action_propagate_tax_id(self):
+        """Copy this line's taxes to the other order lines and remove any
+        taxes those lines already had. Only relevant when the order's
+        automatic tax calculation is disabled."""
+        self.ensure_one()
+        if self.order_id.is_auto_calc_taxes:
+            return
+
+        other_lines = self.order_id.order_line.filtered(
+            lambda line: line.id != self.id and not line.display_type
+        )
+        other_lines.write({"tax_id": [fields.Command.set(self.tax_id.ids)]})

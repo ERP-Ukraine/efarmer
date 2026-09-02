@@ -24,6 +24,15 @@
             <xpath expr="//field[@name='date_order']" position="after">
                 <field name="product_vat_id" string="VAT ID"/>
             </xpath>
+            <xpath expr="//field[@name='order_line']/list/field[@name='tax_id']" position="after">
+                <button name="action_propagate_tax_id"
+                        type="object"
+                        icon="fa-share-square-o"
+                        title="Copy this line's taxes to all other order lines and remove any other taxes from them"
+                        class="btn-link"
+                        column_invisible="parent.is_auto_calc_taxes"
+                        invisible="display_type or is_downpayment or qty_invoiced > 0"/>
+            </xpath>
         </field>
     </record>
 </odoo>
