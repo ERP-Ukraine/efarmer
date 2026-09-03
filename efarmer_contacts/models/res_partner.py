@@ -22,8 +22,22 @@ class ResPartner(models.Model):
         pass
 
     def _inverse_vat_efarmer(self):
+        pass
+
+    def _update_vies_status(self, status):
+        # Called by base_vat right after a VIES check completes for a
+        # partner's VAT number (triggered automatically when vat/country
+        # change - see base_vat's `_compute_vies_valid`).
+        super()._update_vies_status(status)
+
+        eu_countries = self.env.ref('base.europe').country_ids
         for partner in self:
-            if partner.vat and not partner.is_company and not partner.parent_id:
+            if (
+                status == 'valid'
+                and partner.country_id in eu_countries
+                and not partner.is_company
+                and not partner.parent_id
+            ):
                 partner.is_company = True
 
     @api.model
