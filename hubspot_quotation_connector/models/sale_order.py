@@ -15,6 +15,11 @@ class SaleOrder(models.Model):
 
     hubspot_deal_object_id = BigInteger()
     hubspot_deal_name = fields.Char()
+    hubspot_deal_amount = fields.Monetary(
+        currency_field="currency_id",
+        compute="_compute_hubspot_deal_amount",
+        store=True,
+    )
 
     @api.model_create_multi
     def create(self, vals):
@@ -101,7 +106,7 @@ class SaleOrder(models.Model):
             return hubspot_id.notification(_("Is not active"), "warning")
         if not hubspot_id:
             return hubspot_id.notification(_("Is not active"), "warning")
-        hubspot_id.update_deal(self.hubspot_deal_object_id, {"order_number": ""})
+        hubspot_id.update_deal(self.hubspot_deal_object_id, {"order_number": "", "order_amount": ""})
         self.write(
             {
                 "hubspot_deal_object_id": None,
@@ -109,3 +114,12 @@ class SaleOrder(models.Model):
             }
         )
         return hubspot_id.notification(_("Successfully unassigned"))
+
+    @api.depends("order_line.price_subtotal")
+    def _compute_hubspot_deal_amount(self):
+        for order in self:
+            order.hubspot_deal_amount = sum(
+                line.price_subtotal
+                for line in order.order_line
+                if not line.is_delivery
+            )

@@ -103,7 +103,7 @@ class AssignSaleDealsWizard(models.TransientModel):
         self.hubspot_id.update_deal(
             deal_object_id=self.assigned_deal_object_id,
             values={
-                "order_amount": self.order_id.amount_untaxed,
+                "order_amount": self.order_id.hubspot_deal_amount,
                 "order_margin": self.order_id.margin,
                 "order_number": self.order_id.name,
             },

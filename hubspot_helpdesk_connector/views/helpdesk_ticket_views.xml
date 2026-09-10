@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="helpdesk_ticket_view_form_hubspot" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.form.hubspot</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_ticket_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='extra_info']" position="inside">
+                <group string="HubSpot">
+                    <field name="hubspot_synced" widget="boolean_toggle" readonly="1"/>
+                    <field name="hubspot_ticket_object_id" readonly="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_sync_hubspot_ticket_server" model="ir.actions.server">
+        <field name="name">Sync with HubSpot</field>
+        <field name="model_id" ref="helpdesk.model_helpdesk_ticket"/>
+        <field name="binding_model_id" ref="helpdesk.model_helpdesk_ticket"/>
+        <field name="binding_view_types">form,list</field>
+        <field name="state">code</field>
+        <field name="code">
+            records.action_sync_hubspot_ticket()
+        </field>
+    </record>
+
+</odoo>
