@@ -22,9 +22,28 @@ class ResPartner(models.Model):
         pass
 
     def _inverse_vat_efarmer(self):
-        for partner in self:
-            if partner.vat and not partner.is_company and not partner.parent_id:
-                partner.is_company = True
+        pass
+
+    def _apply_vies_classification(self):
+        """Switch Individual -> Company for EU partners whose VAT has just
+        been confirmed valid. One-directional by design: an invalid/removed
+        VAT afterwards does not revert the classification back."""
+        eu_countries = self.env.ref('base.europe').country_ids
+        to_switch = self.filtered(
+            lambda p: p.country_id in eu_countries
+            and not p.is_company
+            and not p.parent_id
+        )
+        if to_switch:
+            to_switch.write({'is_company': True})
+
+    def _update_vies_status(self, status):
+        # Called by base_vat right after its own VIES/IAP check completes -
+        # triggered automatically whenever vat/country change (base_vat's
+        # `_compute_vies_valid`), so this covers the "checked on entry" path.
+        super()._update_vies_status(status)
+        if status == 'valid':
+            self._apply_vies_classification()
 
     @api.model
     def _run_vat_test(self, vat_number, default_country, partner_is_company=True):
