@@ -1,12 +1,15 @@
 # Copyright 2026 VentorTech OU
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
+import logging
 
 import requests
 from datetime import datetime, timedelta, date
 
 from odoo import fields, models, _
 from odoo.exceptions import ValidationError
+
+_logger = logging.getLogger(__name__)
 
 PROJECT_KEY = "shortName"
 
@@ -80,6 +83,13 @@ class YoutrackIntegration(models.Model):
 
         request_url = "{}/{}".format(self.endpoint, uri)
         resp = requests.get(request_url, headers=headers)
+
+        if resp.status_code == 404:
+            _logger.warning(
+                "YouTrack request returned 404 (Not Found): %s | %s",
+                request_url, resp.text,
+            )
+            return None
 
         if resp.status_code != 200:
             resp.raise_for_status()
@@ -489,7 +499,8 @@ class YoutrackIntegration(models.Model):
             self._validate_work_items_request()
             start = self.date_from.strftime("%Y-%m-%d")
 
-        self.with_delay().api_get_work_items(start)
+        # self.with_delay().api_get_work_items(start)
+        self.api_get_work_items(start)
 
     def youtrackIntegrationApiGetEmployees(self):
         self.with_delay().api_get_employees()
