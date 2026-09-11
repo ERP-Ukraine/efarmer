@@ -24,8 +24,10 @@
                            readonly="True"
                            invisible="hubspot_deal_name in (False, '')"
                            string="Deal Amount"/>
-                    
                 </group>
+            </xpath>
+            <xpath expr="//field[@name='paid_on_date']" position="after">
+                <field name="bank_fee"/>
             </xpath>
         </field>
     </record>

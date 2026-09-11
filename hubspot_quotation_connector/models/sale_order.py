@@ -20,6 +20,11 @@ class SaleOrder(models.Model):
         compute="_compute_hubspot_deal_amount",
         store=True,
     )
+    bank_fee = fields.Monetary(
+        string="Bank fee",
+        currency_field="currency_id",
+        help="Fee the bank takes from the order.",
+    )
 
     @api.model_create_multi
     def create(self, vals):
@@ -33,6 +38,8 @@ class SaleOrder(models.Model):
         response = super(SaleOrder, self).write(values)
         if values.get("state") in ["to_confirm", "sale"]:
             self._update_hubspot_field()
+        if "hubspot_deal_amount" in values or "bank_fee" in values:
+            self._update_hubspot_amount()
         return response
 
     def _update_hubspot_field(self):
@@ -66,6 +73,26 @@ class SaleOrder(models.Model):
             }
             for order_id in self
             if order_id.hubspot_deal_object_id
+        ]
+        if inputs:
+            hubspot._client.crm.deals.batch_api.update(DealsBatchInput(inputs))
+
+    def _update_hubspot_amount(self):
+        if not self:
+            return None
+        if not self._active_hubspot_connector():
+            return None
+        hubspot = self.env[self._name]._get_hubspot_id()
+        if not hubspot:
+            return None
+
+        inputs = [
+            {
+                "id": order.hubspot_deal_object_id,
+                "properties": ({"amount": order.hubspot_deal_amount}),
+            }
+            for order in self
+            if order.hubspot_deal_object_id
         ]
         if inputs:
             hubspot._client.crm.deals.batch_api.update(DealsBatchInput(inputs))
@@ -115,11 +142,15 @@ class SaleOrder(models.Model):
         )
         return hubspot_id.notification(_("Successfully unassigned"))
 
-    @api.depends("order_line.price_subtotal")
+    @api.depends(
+        "order_line.price_subtotal",
+        "bank_fee",
+    )
     def _compute_hubspot_deal_amount(self):
         for order in self:
-            order.hubspot_deal_amount = sum(
+            product_total = sum(
                 line.price_subtotal
                 for line in order.order_line
                 if not line.is_delivery
             )
+            order.hubspot_deal_amount = product_total - order.bank_fee
