@@ -19,10 +19,11 @@ class HubspotConnector(models.Model):
                 properties={
                     "subject": ticket.name,
                     "content": ticket.description or "",
-                    "odoo_rma": ticket.stage_id.name or "",
-                    "odoo_status": ticket.name or "",
-                    "hs_pipeline": "0",
-                    "hs_pipeline_stage": "1",
+                    "odoo_name": f'#{ticket.id}' if ticket.id else "",
+                    "odoo_status": ticket.stage_id.name or "", 
+                    "content": "",
+                    "hs_pipeline": "296095218",
+                    "hs_pipeline_stage": "6012503277",
                 }
             )
         )
@@ -41,7 +42,7 @@ class HubspotConnector(models.Model):
             ticket_id=ticket.hubspot_ticket_object_id,
             simple_public_object_input=TicketInput(
                 properties={
-                    "odoo_rma": ticket.name or "",
+                    "odoo_name": f'#{ticket.id}' if ticket.id else "",
                     "odoo_status": ticket.stage_id.name or "",
                 }
             )
