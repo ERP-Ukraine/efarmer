@@ -499,8 +499,7 @@ class YoutrackIntegration(models.Model):
             self._validate_work_items_request()
             start = self.date_from.strftime("%Y-%m-%d")
 
-        # self.with_delay().api_get_work_items(start)
-        self.api_get_work_items(start)
+        self.with_delay().api_get_work_items(start)
 
     def youtrackIntegrationApiGetEmployees(self):
         self.with_delay().api_get_employees()
