@@ -229,7 +229,8 @@ class ShortTicketFormWizard(models.TransientModel):
     @api.onchange("email")
     def _onchange_email(self):
         if self.email:
-            if self.email.lower() == (self.sale_id.partner_id.email).lower():
+            partner_email = self.sale_id.partner_id.email
+            if partner_email and self.email.lower() == partner_email.lower():
                 self.partner_id = self.sale_id.partner_id
             else:
                 self.partner_id = self.env["res.partner"].search(
