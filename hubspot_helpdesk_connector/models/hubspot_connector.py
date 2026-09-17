@@ -1,13 +1,20 @@
 # Copyright 2026 VentorTech OU
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
-from odoo import models
+from odoo import fields, models
 
 from hubspot.crm.tickets import SimplePublicObjectInput as TicketInput
 
 
 class HubspotConnector(models.Model):
     _inherit = "hubspot.config"
+
+    hs_pipeline_id = fields.Char(
+        string="HS Ticket Pipeline",
+    )
+    hs_ticket_stage_id = fields.Char(
+        string="HS Ticket Status",
+    )
 
     def create_ticket(self, ticket):
         """Create a HubSpot ticket from an Odoo helpdesk ticket.
@@ -22,8 +29,8 @@ class HubspotConnector(models.Model):
                     "odoo_name": f'#{ticket.id}' if ticket.id else "",
                     "odoo_status": ticket.stage_id.name or "", 
                     "content": "",
-                    "hs_pipeline": "296095218",
-                    "hs_pipeline_stage": "6012503277",
+                    "hs_pipeline": self.hs_pipeline_id,
+                    "hs_pipeline_stage": self.hs_ticket_stage_id,
                 }
             )
         )
