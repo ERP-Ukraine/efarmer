@@ -13,7 +13,8 @@
         "hubspot_quotation_connector"
     ],
     "data": [
-        "views/helpdesk_ticket_views.xml"
+        "views/helpdesk_ticket_views.xml",
+        "views/hubspot_config_views.xml",
     ],
     "license": "LGPL-3",
     "auto_install": False,

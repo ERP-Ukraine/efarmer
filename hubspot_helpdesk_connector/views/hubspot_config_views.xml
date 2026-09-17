@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="hubspot_config_form_view_inherit" model="ir.ui.view">
+        <field name="name">hubspot.config.form.inherit</field>
+        <field name="model">hubspot.config</field>
+        <field name="inherit_id" ref="hubspot_quotation_connector.hubspot_config_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group>
+                    <group string="Ticket Configuration">
+                        <field name="hs_pipeline_id"/>
+                        <field name="hs_ticket_stage_id"/>                    
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
