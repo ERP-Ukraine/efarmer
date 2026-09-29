@@ -34,10 +34,9 @@ class InventoryLevel(GqlDict):
         self.ensure_one()
         return self._env.InventoryItem.set(**(self['item'] or {}))
 
-    @property
-    def variant(self):
+    def get_variants(self):
         self.ensure_one()
-        return self.item.variant
+        return self.item.get_variants()
 
     def get_quantity(self):
         self.ensure_one()

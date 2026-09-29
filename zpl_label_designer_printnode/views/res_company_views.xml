@@ -33,7 +33,7 @@
                 <group name="wizard_labels_settings" colspan="2">
                     <field name="print_wizard_label_format"
                             class="mt-2"
-                            options="{'no_open': [('printnode_enabled', '=', False)], 'avosave': false}"
+                            options="{'no_open': [('printnode_enabled', '=', False)], 'autosave': False}"
                             readonly="printnode_enabled == False" />
                     <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
                     <p class="mb-0 mt-0">

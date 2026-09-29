@@ -12,7 +12,7 @@ class IrActionsReport(models.Model):
     zld_label_ids = fields.One2many(
         comodel_name='zld.label',
         inverse_name='action_report_id',
-        string='ZPL Label Designer Labels',
+        string='Label Designer PRO Labels',
         readonly=True,
     )
 

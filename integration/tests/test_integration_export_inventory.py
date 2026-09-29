@@ -138,3 +138,40 @@ class TestIntegrationExportInventory(OdooIntegrationInit):
 
         exported_qty = inventory_data[self.external_product.code][0]['qty']
         self.assertEqual(exported_qty, 10)
+
+    def test_prepare_inventory_data_without_location_company_access(self):
+        """Inventory export works when the user cannot access the stock company."""
+        integration = self.integration_no_api_1
+        product = self.product_pt_1.product_variant_id
+        location = self.stock_location
+
+        restricted_company = (
+            self.company_id_2
+            if location.company_id != self.company_id_2
+            else self.company_id_1
+        )
+
+        restricted_user = self.integration_user.copy({
+            'name': 'Restricted Inventory User',
+            'login': 'restricted_inventory_user',
+            'company_id': restricted_company.id,
+            'company_ids': [(6, 0, [restricted_company.id])],
+        })
+
+        self.assertNotIn(
+            location.company_id,
+            restricted_user.company_ids,
+        )
+
+        self._set_product_qty(product, 7, location)
+
+        product = product.with_user(restricted_user)
+
+        data = integration._prepare_inventory_data(
+            product,
+            location,
+            self.external_pt_1_var,
+            'TEST_LOC',
+        )
+
+        self.assertEqual(data['qty'], 7)

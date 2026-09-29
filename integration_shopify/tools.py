@@ -10,6 +10,12 @@ from odoo.exceptions import ValidationError
 
 INT_PATTERN = re.compile(r'\d+')
 
+# TODO: placeholder — the support article has not been published yet.
+MISSING_SCOPES_ARTICLE_URL = (
+    'https://ecosystem.ventor.tech/faq/e-commerce-connectors/shopify/'
+    'placeholder-for-how-to-fix-missing-permissions-for-the-shopify-connector/'
+)
+
 
 def parse_int(value_str: str, index) -> int:
     if not isinstance(value_str, str) or not value_str:
@@ -44,6 +50,7 @@ class CheckScope:
                         'The scope "%s" is not permitted in the private app of your store. '
                         'Change it in the "Admin API" settings.' % scope
                     ))
+
             return method(instance, *args, **kw)
         return scope_checker
 

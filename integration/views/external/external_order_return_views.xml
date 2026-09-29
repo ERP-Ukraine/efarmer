@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="external_order_return_view_form" model="ir.ui.view">
+            <field name="name">external.order.return.view.form</field>
+            <field name="model">external.order.return</field>
+            <field name="arch" type="xml">
+                <form create="0" edit="0" delete="0">
+                    <header>
+                        <button name="action_validate" type="object" string="Apply"
+                                class="oe_highlight"
+                                invisible="internal_status in ('done', 'skipped') or not state"/>
+                        <button name="action_validate" type="object" string="Apply"
+                                confirm="This return was marked as skipped. Apply it anyway?"
+                                invisible="internal_status != 'skipped' or not state"/>
+                        <button name="action_skip" type="object" string="Skip"
+                                confirm="Mark this record as skipped? The connector will ignore it from now on."
+                                invisible="internal_status in ('done', 'skipped')"/>
+                        <field name="internal_status" widget="statusbar"
+                               statusbar_visible="draft,done"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="state" readonly="1" widget="badge"
+                                       decoration-success="state == 'closed'"
+                                       decoration-warning="state == 'open'"
+                                       decoration-danger="state in ('canceled', 'declined')"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Return Details">
+                                <field name="return_reason_summary" readonly="1"
+                                       string="Reasons"/>
+                                <field name="erp_order_id" readonly="1"
+                                       string="Sales Order"/>
+                                <field name="restocked_externally" readonly="1"
+                                       string="Already Restocked on Platform"/>
+                            </group>
+                            <group string="Return Shipping">
+                                <field name="reverse_tracking_carrier" readonly="1"
+                                       string="Carrier"/>
+                                <field name="reverse_tracking_number" readonly="1"
+                                       string="Tracking Number"/>
+                                <field name="reverse_tracking_url" readonly="1"
+                                       widget="url" string="Tracking Link"/>
+                            </group>
+                        </group>
+                        <group string="Return Pickings" groups="stock.group_stock_user">
+                            <field name="picking_ids" readonly="1" nolabel="1"
+                                   widget="many2many_tags"/>
+                        </group>
+                        <notebook>
+                            <page string="Returned Items" name="return_lines">
+                                <field name="line_ids" readonly="1">
+                                    <list>
+                                        <field name="external_sku" string="SKU"/>
+                                        <field name="quantity"
+                                               string="Returned Qty"/>
+                                        <field name="return_reason" string="Reason"/>
+                                        <field name="return_reason_note"
+                                               string="Customer Note"
+                                               optional="show"/>
+                                        <field name="refundable_qty"
+                                               string="Refundable"
+                                               optional="hide"/>
+                                        <field name="refunded_qty"
+                                               string="Refunded"
+                                               optional="hide"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Technical Details" name="technical"
+                                  groups="base.group_no_one">
+                                <group>
+                                    <group>
+                                        <field name="id" readonly="1" string="ID"/>
+                                        <field name="name" readonly="1"
+                                               string="Resource Name"/>
+                                        <field name="external_str_id" readonly="1"
+                                               string="External ID"/>
+                                    </group>
+                                    <group>
+                                        <field name="data_hash" readonly="1"/>
+                                        <field name="external_timestamp" readonly="1"/>
+                                        <field name="external_status" readonly="1"/>
+                                        <field name="is_ecommerce_ok" readonly="1"/>
+                                        <field name="internal_info" readonly="1"
+                                               string="Processing Notes"/>
+                                        <field name="integration_id" readonly="1"/>
+                                    </group>
+                                </group>
+                                <group string="Return Line Details">
+                                    <field name="line_ids" readonly="1" nolabel="1">
+                                        <list>
+                                            <field name="external_str_id"
+                                                   string="External Line ID"/>
+                                            <field name="external_line_str_id"
+                                                   string="Source Line ID"/>
+                                            <field name="external_fulfillment_str_id"
+                                                   string="Source Fulfillment ID"/>
+                                            <field name="external_sku" string="SKU"/>
+                                            <field name="quantity" string="Qty"/>
+                                        </list>
+                                    </field>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="external_order_return_view_tree" model="ir.ui.view">
+            <field name="name">external.order.return.view.list</field>
+            <field name="model">external.order.return</field>
+            <field name="arch" type="xml">
+                <list create="0" js_class="external_order_record_list_view"
+                      decoration-danger="internal_status == 'failed'"
+                      decoration-info="state == 'open' and internal_status not in ('failed', 'skipped')"
+                      decoration-muted="internal_status != 'failed' and (internal_status == 'skipped' or state in ('closed', 'canceled', 'declined'))">
+                    <field name="id" groups="base.group_no_one"/>
+                    <field name="integration_id"/>
+                    <field name="erp_order_id"/>
+                    <field name="external_str_id" optional="hide"/>
+                    <field name="state" string="Return Status"/>
+                    <field name="return_reason_summary" string="Reasons"/>
+                    <field name="reverse_tracking_carrier" string="Carrier" optional="show"/>
+                    <field name="reverse_tracking_number" string="Tracking Number" optional="show"/>
+                    <field name="picking_ids" widget="many2many_tags"
+                           groups="stock.group_stock_user" optional="hide"
+                           string="Return Pickings"/>
+                    <field name="internal_status" string="Processing Status"/>
+                    <button name="action_validate" type="object" string="Apply"
+                            invisible="internal_status in ('done', 'skipped') or not state"/>
+                    <button name="action_validate" type="object" string="Apply"
+                            confirm="This return was marked as skipped. Apply it anyway?"
+                            invisible="internal_status != 'skipped' or not state"/>
+                    <button name="action_skip" type="object" string="Skip"
+                            confirm="Mark this record as skipped? The connector will ignore it from now on."
+                            invisible="internal_status in ('done', 'skipped')"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="external_order_return_view_search" model="ir.ui.view">
+            <field name="name">external.order.return.view.search</field>
+            <field name="model">external.order.return</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="erp_order_id"/>
+                    <field name="external_str_id"/>
+                    <group>
+                        <filter string="Sales Order" name="group_by_erp_order_id" context="{'group_by': 'erp_order_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="external_order_return_action" model="ir.actions.act_window">
+            <field name="name">Order Returns</field>
+            <field name="path">eci-order-returns</field>
+            <field name="res_model">external.order.return</field>
+            <field name="view_mode">list,form</field>
+            <field name="group_ids" eval="[(4, ref('base.group_no_one'))]"/>
+        </record>
+
+    </data>
+</odoo>

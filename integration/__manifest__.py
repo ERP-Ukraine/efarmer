@@ -2,7 +2,7 @@
 
 {
     'name': 'Odoo E-Commerce Connector Core',
-    'version': '19.0.2.2.1',
+    'version': '19.0.2.3.0',
     'category': 'Sales',
     'author': 'VentorTech',
     'website': 'https://ventor.tech',
@@ -20,6 +20,7 @@ inventory, customers & more.''',
     'depends': [
         'web',
         'mrp',
+        'sale_mrp',
         'sale',
         'stock_delivery',
         'phone_validation',
@@ -82,6 +83,7 @@ inventory, customers & more.''',
         'views/account_move_views.xml',
         'views/account_payment_views.xml',
         'views/integration_logging_views.xml',
+        'views/stock_picking_views.xml',
 
         # External
         'views/external/integration_account_tax_group_external_views.xml',
@@ -105,6 +107,8 @@ inventory, customers & more.''',
         'views/external/integration_stock_location_external_views.xml',
         'views/external/external_order_transaction_views.xml',
         'views/external/external_order_fulfillment_views.xml',
+        'views/external/external_order_refund_views.xml',
+        'views/external/external_order_return_views.xml',
 
         # Mappings
         'views/mappings/integration_account_tax_mapping_views.xml',

@@ -158,14 +158,8 @@ class IntegrationProductTemplateMapping(models.Model):
         self.ensure_one()
 
         if not self.external_template_id:
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'message': _('No external product template found.'),
-                    'type': 'warning',
-                    'sticky': False,
-                }
-            }
+            return self.display_integration_notification(
+                _('No external product template found.'), title=_('View in Shop'), ttype='warning',
+            )
 
         return self.external_template_id.action_open_external_product()

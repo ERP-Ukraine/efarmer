@@ -74,13 +74,26 @@ class IntegrationEcommerceProductCategoryExternal(models.Model):
 
     def import_categories(self):
         integrations = self.mapped('integration_id')
+        processed = self.browse()
 
         for integration in integrations:
             # Import categories from E-Commerce System
             external_categories_data = integration.adapter.get_categories()
 
             for category in self.filtered(lambda x: x.integration_id == integration):
-                category.import_category(external_categories_data)
+                if category.import_category(external_categories_data):
+                    processed |= category
+
+        title = _('Import Categories')
+
+        if not processed:
+            return self.display_integration_notification(
+                _('No categories were imported: the selected categories are already mapped.'),
+                title=title, ttype='warning',
+            )
+
+        message = _('%s category processed.') if len(processed) == 1 else _('%s categories processed.')
+        return self.display_integration_notification(message % len(processed), title=title)
 
     def import_category(self, external_categories_data: List[Dict]):
         self.ensure_one()
@@ -116,7 +129,7 @@ class IntegrationEcommerceProductCategoryExternal(models.Model):
             )
 
             # There is nothing else to do
-            return
+            return True
 
         # If we didn't find category by name, we need to create it
         # This includes creating parent categories, excluding categories that already exist
@@ -183,6 +196,8 @@ class IntegrationEcommerceProductCategoryExternal(models.Model):
             odoo_category._compute_parents_and_self()
 
             parent = odoo_category
+
+        return True
 
     def _find_similar_odoo_category(self):
         # Bind the integration language so name matching (and the complete_name comparison below, which reads names

@@ -1,0 +1,1 @@
+UC-2b: Return without refund — finalized. Order #1643 from UC-2a, return now closed without refund. Expected: return state updated to `closed`, placeholder `external.order.refund` created with `total_refunded_amount=0` and `is_placeholder=True`, no credit note.

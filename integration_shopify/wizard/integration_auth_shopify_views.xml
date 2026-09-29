@@ -64,7 +64,7 @@
                         <h5 class="mb-3" colspan="2" invisible="not use_oauth">
                             <i class="fa fa-key me-2"/> Step 2: Enter Credentials
                         </h5>
-                        <field name="url" required="1" readonly="access_granted"/>
+                        <field name="url" required="not access_granted" readonly="access_granted"/>
 
                         <p class="o_wrap_label"/><!-- Do not remove - important for layout! -->
                         <div class="text-muted mt-1 mb-3 small">
@@ -73,9 +73,9 @@
                             enter <i>awesome-shop</i> here.
                         </div>
 
-                        <field name="client_id" required="1" invisible="not use_oauth" readonly="access_granted"/>
-                        <field name="key" required="1" invisible="use_oauth" readonly="access_granted" password="True"/>
-                        <field name="secret_key" required="1" password="True" readonly="access_granted"/>
+                        <field name="client_id" required="not access_granted" invisible="not use_oauth" readonly="access_granted"/>
+                        <field name="key" required="not access_granted" invisible="use_oauth" readonly="access_granted" password="True"/>
+                        <field name="secret_key" required="not access_granted" password="True" readonly="access_granted"/>
                     </group>
 
                     <!-- Section 3: Review Connection Status -->
@@ -231,6 +231,25 @@
                         Please ensure all permissions listed in the table above are granted
                         before continuing to configuration. Otherwise, you may encounter
                         errors during the connector's operation.
+                        <p class="mt-2 mb-1">
+                            If you are upgrading an existing connection, the returns permissions
+                            (Read Returns and Write Returns) are new in this version and will show
+                            as missing until you grant them. To fix this:
+                        </p>
+                        <ol class="mb-1">
+                            <li>In the Shopify Admin panel, go to Settings → Apps and sales channels
+                                → Develop apps → [Your App] → Configuration → Admin API integration
+                                → Edit, enable the missing permissions, and save changes.</li>
+                            <li>Reinstall the app so Shopify applies the new permissions.</li>
+                            <li>Generate a new Admin API access token and paste it into Odoo on the
+                                previous step of this wizard.</li>
+                            <li>Return here and press "Recheck Access Permissions".</li>
+                        </ol>
+                        <a href="https://ecosystem.ventor.tech/faq/e-commerce-connectors/shopify/placeholder-for-how-to-fix-missing-permissions-for-the-shopify-connector/" target="_blank">
+                            Step-by-step guide
+                        </a>
+                        <!-- TODO: placeholder URL — the support article has not been published yet. -->
+
                     </div>
                 </sheet>
                 <footer>

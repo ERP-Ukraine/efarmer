@@ -83,6 +83,14 @@ class GraphQLTemplate:
         zip
     """
 
+    SHOP_ADDRESS_BODY = """
+        country
+        countryCodeV2
+        city
+        zip
+        provinceCode
+    """
+
     SHOP_BODY = """
         id
         url
@@ -95,13 +103,10 @@ class GraphQLTemplate:
         taxesIncluded
         taxShipping
         currencyCode
-        billingAddress {
+        shopAddress {
             %s
         }
-        productTags(first: 250) {
-            nodes
-        }
-    """ % MAILING_ADDRESS_BODY
+    """ % SHOP_ADDRESS_BODY
 
     MEDIA_BODY = """
         id
@@ -224,12 +229,6 @@ class GraphQLTemplate:
         tracked
         harmonizedSystemCode
         countryCodeOfOrigin
-        variant {
-            id
-            product {
-                id
-            }
-        }
         unitCost {
             amount
             currencyCode
@@ -254,6 +253,24 @@ class GraphQLTemplate:
             }
         }
     """
+
+    # Only combined listings/bundles share one inventory item across variants, so this
+    # is appended just where that lookup is needed (INVENTORY_LEVEL_BODY, for stock sync),
+    # not on every query that embeds INVENTORY_ITEM_BODY. A result page this full is the
+    # signal InventoryItem.get_variants() uses to detect truncation -- keep this in sync
+    # with that check.
+    INVENTORY_ITEM_VARIANTS_PAGE_SIZE = 50
+
+    INVENTORY_ITEM_VARIANTS_BODY = """
+        variants(first: %d) {
+            nodes {
+                id
+                product {
+                    id
+                }
+            }
+        }
+    """ % INVENTORY_ITEM_VARIANTS_PAGE_SIZE
 
     METAFIELD_DEFINITION_BODY = """
         id
@@ -318,8 +335,9 @@ class GraphQLTemplate:
         }
         item {
             %s
+            %s
         }
-    """ % INVENTORY_ITEM_BODY
+    """ % (INVENTORY_ITEM_BODY, INVENTORY_ITEM_VARIANTS_BODY)
 
     LOCATION_BODY = """
         id
@@ -382,6 +400,18 @@ class GraphQLTemplate:
         enabled
     """
 
+    MARKET_REGION_COUNTRY_BODY = """
+        code
+    """
+
+    MARKET_REGION_SUBDIVISION_BODY = """
+        code
+        country {
+            code
+            name
+        }
+    """
+
     MARKET_BODY = """
         id
         name
@@ -395,13 +425,20 @@ class GraphQLTemplate:
             regionsCondition {
                 regions(first: 250) {
                     nodes {
+                        __typename
                         id
                         name
+                        ... on MarketRegionCountry {
+                            %s
+                        }
+                        ... on MarketRegionSubdivision {
+                            %s
+                        }
                     }
                 }
             }
         }
-    """ % CURRENCY_SETTING_BODY
+    """ % (CURRENCY_SETTING_BODY, MARKET_REGION_COUNTRY_BODY, MARKET_REGION_SUBDIVISION_BODY)
 
     CATALOG_BODY = """
         id
@@ -439,10 +476,16 @@ class GraphQLTemplate:
         }
     """ % CATALOG_BODY
 
-    # The `name` field is deprecated, use `catalog.title` instead. But the lack of the `catalog` FK happens..
+    # Publication.name is deprecated. The merchant-facing label is Channel.name;
+    # catalog.title is often a generated "Channel Catalog {id}" and is only a fallback.
     PUBLICATION_BODY = """
         id
-        name
+        channels(first: 1) {
+            nodes {
+                id
+                name
+            }
+        }
         catalog {
             %s
         }
@@ -474,16 +517,19 @@ class GraphQLTemplate:
         }
     """ % PRICE_LIST_PRICE_BODY
 
+    MONEY_V2_BODY = """
+        amount
+        currencyCode
+    """
+
     MONEY_BAG_BODY = """
         presentmentMoney {
-            amount
-            currencyCode
+            %s
         }
         shopMoney {
-            amount
-            currencyCode
+            %s
         }
-    """
+    """ % (MONEY_V2_BODY, MONEY_V2_BODY)
 
     DISCOUNT_ALLOCATION_BODY = """
         allocatedAmountSet {
@@ -733,19 +779,36 @@ class GraphQLTemplate:
         DISCOUNT_ALLOCATION_BODY,
     )
 
+    # A page this full is the truncation signal Customer.get_addresses() uses to
+    # decide whether to page a dedicated follow-up query -- keep in sync with it.
+    # Most customers have a handful of addresses, and each query is billed by the
+    # requested page size regardless of how many rows actually come back, so this
+    # stays small rather than defaulting to Shopify's 250-per-connection ceiling.
+    CUSTOMER_ADDRESSES_PAGE_SIZE = 10
+
+    CUSTOMER_ADDRESSES_BODY = """
+        addressesV2(first: %d) {
+            nodes {
+                %s
+            }
+        }
+    """ % (CUSTOMER_ADDRESSES_PAGE_SIZE, MAILING_ADDRESS_BODY)
+
     CUSTOMER_BODY = """
         id
-        email
         firstName
         lastName
         displayName
-        phone
         locale
         state
         taxExempt
-        addresses {
-            %s
+        defaultEmailAddress {
+            emailAddress
         }
+        defaultPhoneNumber {
+            phoneNumber
+        }
+        %s
         defaultAddress {
             id
         }
@@ -755,7 +818,7 @@ class GraphQLTemplate:
             }
         }
     """ % (
-        MAILING_ADDRESS_BODY,
+        CUSTOMER_ADDRESSES_BODY,
         METAFIELD_BODY,
     )
 
@@ -962,7 +1025,156 @@ class GraphQLTemplate:
         companyName
     """
 
-    ORDER_BODY = """
+    ORDER_REFUND_BODY = """
+        id
+        createdAt
+        note
+        totalRefundedSet {
+            %s
+        }
+        refundLineItems(first: 50) {
+            edges {
+                node {
+                    quantity
+                    restockType
+                    location {
+                        id
+                        name
+                    }
+                    lineItem {
+                        id
+                        name
+                        sku
+                        quantity
+                    }
+                    priceSet {
+                        %s
+                    }
+                    subtotalSet {
+                        %s
+                    }
+                    totalTaxSet {
+                        %s
+                    }
+                }
+            }
+        }
+        refundShippingLines(first: 10) {
+            edges {
+                node {
+                    id
+                    subtotalAmountSet {
+                        %s
+                    }
+                    taxAmountSet {
+                        %s
+                    }
+                }
+            }
+        }
+        transactions(first: 10) {
+            edges {
+                node {
+                    id
+                    kind
+                    status
+                    amountSet {
+                        %s
+                    }
+                    parentTransaction {
+                        id
+                        kind
+                    }
+                    gateway
+                    processedAt
+                }
+            }
+        }
+        return {
+            id
+            status
+            name
+        }
+    """ % (
+        MONEY_BAG_BODY,
+        MONEY_BAG_BODY,
+        MONEY_BAG_BODY,
+        MONEY_BAG_BODY,
+        MONEY_BAG_BODY,
+        MONEY_BAG_BODY,
+        MONEY_BAG_BODY,
+    )
+
+    ORDER_RETURN_BODY = """
+        edges {
+            node {
+                id
+                status
+                name
+                totalQuantity
+                returnLineItems(first: 50) {
+                    edges {
+                        node {
+                            ... on ReturnLineItem {
+                                id
+                                quantity
+                                refundableQuantity
+                                refundedQuantity
+                                returnReason
+                                returnReasonDefinition {
+                                    handle
+                                    name
+                                }
+                                returnReasonNote
+                                fulfillmentLineItem {
+                                    id
+                                    lineItem {
+                                        id
+                                        name
+                                        sku
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                reverseFulfillmentOrders(first: 10) {
+                    edges {
+                        node {
+                            id
+                            status
+                            reverseDeliveries(first: 10) {
+                                edges {
+                                    node {
+                                        id
+                                        deliverable {
+                                            ... on ReverseDeliveryShippingDeliverable {
+                                                tracking {
+                                                    number
+                                                    url
+                                                    carrierName
+                                                }
+                                                label {
+                                                    publicFileUrl
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    """
+
+    # Refund and return data is requested through a single slot so it can be left out entirely.
+    # Reading returns needs the read_returns access scope, which stores that never enabled
+    # returns sync have no reason to grant; refunds ride on read_orders but are parsed by the
+    # same switch, so asking for either without the feature would be dead payload.
+    # See ORDER_BODY / ORDER_BODY_NO_REFUNDS_RETURNS below.
+    _ORDER_BODY_TMPL = """
         id
         name
         sourceName
@@ -977,7 +1189,6 @@ class GraphQLTemplate:
         processedAt
         displayFulfillmentStatus
         displayFinancialStatus
-        returnStatus
         customerLocale
         taxesIncluded
         taxExempt
@@ -1015,6 +1226,9 @@ class GraphQLTemplate:
             %s
         }
         dutiesIncluded
+        totalPriceSet {
+            %s
+        }
         customer {
             %s
         }
@@ -1035,17 +1249,21 @@ class GraphQLTemplate:
         transactions(first: 10) {
             %s
         }
+        %s
         customAttributes {
             %s
         }
         merchantBusinessEntity {
             %s
         }
-    """ % (
+    """
+
+    ORDER_BODY = _ORDER_BODY_TMPL % (
         PUBLICATION_BODY,
         ORDER_RISK_SUMMARY_BODY,
         FULFILLMENT_BODY,
         FULFILLMENT_ORDER_BODY,
+        MONEY_BAG_BODY,
         MONEY_BAG_BODY,
         CUSTOMER_BODY,
         LINE_ITEM_BODY,
@@ -1053,6 +1271,34 @@ class GraphQLTemplate:
         MAILING_ADDRESS_BODY,
         SHIPPING_LINE_BODY,
         ORDER_TRANSACTION_BODY,
+        """
+        # Capped at 10 to limit GraphQL query cost; orders rarely exceed 3-4 refunds.
+        refunds(first: 10) {
+            %s
+        }
+        # Capped at 10 to limit GraphQL query cost; orders rarely exceed 3-4 returns.
+        returns(first: 10) {
+            %s
+        }
+        """ % (ORDER_REFUND_BODY, ORDER_RETURN_BODY),
+        ORDER_CUSTOM_ATTRIBUTE_BODY,
+        BUSINESS_ENTITY_BODY,
+    )
+
+    ORDER_BODY_NO_REFUNDS_RETURNS = _ORDER_BODY_TMPL % (
+        PUBLICATION_BODY,
+        ORDER_RISK_SUMMARY_BODY,
+        FULFILLMENT_BODY,
+        FULFILLMENT_ORDER_BODY,
+        MONEY_BAG_BODY,
+        MONEY_BAG_BODY,
+        CUSTOMER_BODY,
+        LINE_ITEM_BODY,
+        MAILING_ADDRESS_BODY,
+        MAILING_ADDRESS_BODY,
+        SHIPPING_LINE_BODY,
+        ORDER_TRANSACTION_BODY,
+        '',
         ORDER_CUSTOM_ATTRIBUTE_BODY,
         BUSINESS_ENTITY_BODY,
     )
@@ -1121,7 +1367,6 @@ class GraphQLTemplate:
         }
         displayFulfillmentStatus
         displayFinancialStatus
-        returnStatus
         cancelReason
         cancelledAt
         closedAt
@@ -1296,15 +1541,24 @@ class GraphQLTemplate:
         }
     """ % (ORDER_BODY, USER_ERRORS_BODY_1)
 
+    # refundMethod (OrderCancelRefundMethodInput) carries the "Original payment method / Store
+    # credit / Later" choice; omitting it means refund later (no refund issued now).
     MUTATION_CANCEL_ORDER = """
-        mutation OrderCancel {
+        mutation OrderCancel(
+            $orderId: ID!,
+            $reason: OrderCancelReason!,
+            $restock: Boolean!,
+            $notifyCustomer: Boolean,
+            $staffNote: String,
+            $refundMethod: OrderCancelRefundMethodInput
+        ) {
             orderCancel(
-                orderId: "gid://shopify/Order/%%s",
-                notifyCustomer: %%s,
-                refund: %%s,
-                restock: %%s,
-                reason: %%s,
-                staffNote: "%%s"
+                orderId: $orderId,
+                reason: $reason,
+                restock: $restock,
+                notifyCustomer: $notifyCustomer,
+                staffNote: $staffNote,
+                refundMethod: $refundMethod
             ) {
                 job {
                     id
@@ -1669,6 +1923,101 @@ class GraphQLTemplate:
         }
     """ % (FULFILLMENT_BODY, USER_ERRORS_BODY_1)
 
+    # Return export (Odoo → Shopify).
+    # returnCreate creates a Return on the storefront. Logistics-only: refund stays
+    # in Shopify. One returnCreate call → one Return node, with one
+    # reverseFulfillmentOrder needed for the follow-up tracking attachment.
+    MUTATION_RETURN_CREATE = """
+        mutation returnCreate($returnInput: ReturnInput!) {
+            returnCreate(returnInput: $returnInput) {
+                return {
+                    id
+                    status
+                    reverseFulfillmentOrders(first: 1) {
+                        edges {
+                            node {
+                                id
+                                lineItems(first: 50) {
+                                    edges {
+                                        node {
+                                            id
+                                            totalQuantity
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                userErrors {
+                    %s
+                }
+            }
+        }
+    """ % USER_ERRORS_BODY_1
+
+    # Attaches a ReverseDelivery (merchant-paid shipping with tracking info) to an existing
+    # reverseFulfillmentOrder produced by returnCreate. The trackingInput's carrierName is
+    # a free-text string that Shopify maps to its tracking-link database when recognised
+    # (UPS, FedEx, DHL, USPS, ...) — we send delivery.carrier.shopify_code so the merchant
+    # controls the mapping. Unrecognised names render as plain text in the customer email.
+    MUTATION_REVERSE_DELIVERY_CREATE_WITH_SHIPPING = """
+        mutation reverseDeliveryCreateWithShipping(
+            $reverseFulfillmentOrderId: ID!,
+            $reverseDeliveryLineItems: [ReverseDeliveryLineItemInput!]!,
+            $trackingInput: ReverseDeliveryTrackingInput,
+            $notifyCustomer: Boolean
+        ) {
+            reverseDeliveryCreateWithShipping(
+                reverseFulfillmentOrderId: $reverseFulfillmentOrderId,
+                reverseDeliveryLineItems: $reverseDeliveryLineItems,
+                trackingInput: $trackingInput,
+                notifyCustomer: $notifyCustomer
+            ) {
+                reverseDelivery {
+                    id
+                }
+                userErrors {
+                    %s
+                }
+            }
+        }
+    """ % USER_ERRORS_BODY_1
+
+    # Minimal query used at export time to build a
+    # {sale.order.line external id -> fulfillmentLineItem GID} lookup. Uses Shopify's own
+    # "returnable" endpoint rather than the order body's plain `fulfillments` connection
+    # (used elsewhere, e.g. ORDER_BODY): `returnableFulfillments` already excludes
+    # fulfillments that can't be returned (CANCELLED/ERROR/FAILURE — confirmed empirically
+    # against a live store: a cancelled fulfillment's line item never appears here, even
+    # with its full quantity never claimed by any return), so there is no client-side
+    # status filter to maintain. Its `returnableFulfillmentLineItems.quantity` is the
+    # quantity still available to be returned right now — net of every prior return
+    # against that line, open or closed — not the total ever fulfilled, so a return
+    # export can catch an over-claim here instead of learning about it only when
+    # Shopify's returnCreate mutation rejects the call.
+    QUERY_FULFILLMENT_LINE_ITEMS_FOR_EXPORT = """
+        query getReturnableFulfillmentLineItemsForExport($id: ID!) {
+            returnableFulfillments(orderId: $id, first: 50) {
+                nodes {
+                    returnableFulfillmentLineItems(first: 250) {
+                        edges {
+                            node {
+                                quantity
+                                fulfillmentLineItem {
+                                    id
+                                    lineItem {
+                                        id
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    """
+
     MUTATION_MARK_AS_PAID = """
         mutation orderMarkAsPaid($input: OrderMarkAsPaidInput!) {
             orderMarkAsPaid(input: $input) {
@@ -1683,8 +2032,8 @@ class GraphQLTemplate:
     """ % (ORDER_BODY, USER_ERRORS_BODY_1)
 
     MUTATION_COLLECTION_CREATE = """
-        mutation CollectionCreate($input: CollectionInput!) {
-            collectionCreate(input: $input) {
+        mutation CollectionCreate($collection: CollectionCreateInput!) {
+            collectionCreate(collection: $collection) {
                 collection {
                     id
                     title
@@ -1780,3 +2129,55 @@ class GraphQLTemplate:
             }
         }
     """ % (PUBLICATION_BODY, USER_ERRORS_BODY_1)
+
+    # --- Shopify Payments payouts (RDCN-1288) ---
+
+    SHOPIFY_PAYMENTS_ACCOUNT_BODY = """
+        id
+        defaultCurrency
+    """
+
+    SHOPIFY_PAYMENTS_PAYOUT_SUMMARY_BODY = """
+        chargesGross { %s }
+        chargesFee { %s }
+        refundsFeeGross { %s }
+        refundsFee { %s }
+        adjustmentsGross { %s }
+        adjustmentsFee { %s }
+        reservedFundsGross { %s }
+        reservedFundsFee { %s }
+        retriedPayoutsGross { %s }
+        retriedPayoutsFee { %s }
+        advanceGross { %s }
+        advanceFees { %s }
+        usdcRebateCreditAmount { %s }
+    """ % ((MONEY_V2_BODY,) * 13)
+
+    SHOPIFY_PAYMENTS_PAYOUT_BODY = """
+        id
+        legacyResourceId
+        issuedAt
+        status
+        transactionType
+        externalTraceId
+        net { %s }
+        summary {
+            %s
+        }
+    """ % (MONEY_V2_BODY, SHOPIFY_PAYMENTS_PAYOUT_SUMMARY_BODY)
+
+    SHOPIFY_PAYMENTS_BALANCE_TRANSACTION_BODY = """
+        id
+        type
+        sourceType
+        adjustmentReason
+        sourceId
+        sourceOrderTransactionId
+        test
+        transactionDate
+        amount { %s }
+        fee { %s }
+        net { %s }
+        associatedOrder { id name }
+        associatedPayout { id status }
+    """ % (MONEY_V2_BODY, MONEY_V2_BODY, MONEY_V2_BODY)

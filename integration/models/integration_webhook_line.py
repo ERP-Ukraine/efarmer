@@ -1,6 +1,6 @@
 #  See LICENSE file for full copyright and licensing details.
 
-from odoo import models, fields
+from odoo import models, fields, _
 
 
 class IntegrationWebhookLine(models.Model):
@@ -42,14 +42,26 @@ class IntegrationWebhookLine(models.Model):
         compute='_compute_is_valid_base_url',
     )
 
-    def mute_line(self):
-        for rec in self:
-            value = rec.is_active
-            rec.is_active = not value
+    def action_toggle_active(self):
+        self.ensure_one()
+        self.is_active = not self.is_active
+
+        if self.is_active:
+            message, title = _('The webhook has been activated.'), _('Activate')
+        else:
+            message, title = _('The webhook has been deactivated.'), _('Deactivate')
+        return self.display_integration_notification(message, title=title)
 
     def action_delete_webhook(self):
         self.ensure_one()
-        return self.integration_id.delete_webhook(self)
+        result = self.integration_id.delete_webhook(self)
+
+        if result is True:
+            return self.display_integration_notification(
+                _('The webhook has been deleted.'), title=_('Delete Webhook'),
+            )
+
+        return result
 
     def _compute_controller_route(self):
         for rec in self:

@@ -13,10 +13,73 @@ class InventoryItem(ShopifyResourceUpdate):
     MUTATION_UPDATE = ShopifyResourceUpdate._tmpl.MUTATION_INVENTORY_ITEM_UPDATE
     MUTATION_ACTIVATE_INVENTORY_ITEM = ShopifyResourceUpdate._tmpl.MUTATION_ACTIVATE_INVENTORY_ITEM
 
-    @property
-    def variant(self):
+    def get_variants(self):
+        """Every variant backed by this inventory item.
+
+        Usually one, but combined listings/bundles can share a single
+        inventory item across several variants, so the deprecated singular
+        `variant` field is no longer a reliable 1:1 lookup. Populated only
+        when the query body included INVENTORY_ITEM_VARIANTS_BODY (the
+        inventory-level/stock-sync path) -- empty otherwise.
+
+        The embedded page is capped at INVENTORY_ITEM_VARIANTS_PAGE_SIZE to
+        keep the batch query that fetches many inventory levels at once
+        cheap. A full page is the only sign there may be more, since that
+        batch query has no room for per-item cursors -- when it happens,
+        page through a dedicated query against this one item instead.
+
+        That signal is unreliable once resolved: a fully-fetched item can
+        itself legitimately hold exactly PAGE_SIZE variants, which would
+        keep looking "possibly truncated" forever. A context flag marks
+        the fetch as done so a repeated call reuses the cached result
+        instead of re-issuing it.
+        """
         self.ensure_one()
-        return self._env.ProductVariant.set(**(self['variant'] or {}))
+
+        if not self.ctx('variants_fetched', bool):
+            nodes = self['variants'] or []
+
+            if len(nodes) == self._tmpl.INVENTORY_ITEM_VARIANTS_PAGE_SIZE:
+                nodes = self._fetch_all_variant_nodes()
+
+            self.set(variants=nodes)
+            self.add_context(variants_fetched=True)
+
+        return [self._env.ProductVariant.set(**node) for node in (self['variants'] or [])]
+
+    def _fetch_all_variant_nodes(self):
+        query = '''
+            query($id: ID!, $cursor: String) {
+                inventoryItem(id: $id) {
+                    variants(first: 250, after: $cursor) {
+                        nodes {
+                            id
+                            product {
+                                id
+                            }
+                        }
+                        pageInfo {
+                            endCursor
+                            hasNextPage
+                        }
+                    }
+                }
+            }
+        '''
+        nodes = []
+        cursor = None
+
+        while True:
+            response = self.execute(query, variables={'id': self.gid, 'cursor': cursor})
+            data = self._extract(response, 'data.inventoryItem.variants', dict) or {}
+            nodes.extend(data.get('nodes') or [])
+
+            page_info = data.get('pageInfo') or {}
+            if not page_info.get('hasNextPage'):
+                break
+            cursor = page_info.get('endCursor')
+
+        return nodes
 
     @property
     def weight(self):

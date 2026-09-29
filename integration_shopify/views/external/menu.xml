@@ -25,11 +25,7 @@
             <field name="name">Categories (Collections)</field>
         </record>
 
-        <menuitem id="menu_order_fulfillments"
-                  name="Order Fulfillments"
-                  parent="integration.menu_external_shopify_only"
-                  action="integration.external_order_fulfillment_tree_action"
-                  sequence="30"/>
+        <!-- "Order Fulfillments" moved to the core External Records menu (not Shopify-specific). -->
 
         <menuitem id="menu_order_risk"
                   name="Order Risks"

@@ -30,6 +30,7 @@ from odoo.addons.integration.tools import (
 from .shopify.exceptions import ShopifyApiError
 from .tools import CheckScope as check_scope, lists_are_equal
 from .shopify.shopify_graphql import ShopifyGraphQL
+from .shopify.connection import ClientOptions
 
 from .shopify.resources.order_status import OrderStatus
 from .shopify.resources.order_display_financial_status import OrderDisplayFinancialStatus
@@ -39,6 +40,14 @@ from .shopify.resources.order_display_fulfillment_status import OrderDisplayFulf
 SHOPIFY = 'shopify'
 METAFIELDS_NAME = 'metafields'
 
+# Only the Returns & Refunds feature needs these. They stay part of REQUIRED_SCOPES rather than
+# forming an optional set: from this version the connector asks every store for them, so the
+# Quick Configuration wizard is what prompts existing stores to re-authorize.
+RETURNS_REQUIRED_SCOPES = (
+    'read_returns',
+    'write_returns',
+)
+
 REQUIRED_SCOPES = (
     'read_locales',
     'read_markets',
@@ -47,6 +56,7 @@ REQUIRED_SCOPES = (
     'write_products',
     'read_orders',
     'write_orders',
+    *RETURNS_REQUIRED_SCOPES,
     'read_locations',
     'read_shipping',
     'read_inventory',
@@ -111,6 +121,9 @@ class ShopifyAPIClient(AbsApiClient):
             settings['fields']['key']['value'],
             settings['graphql_version'],
             settings['debug_mode'],
+            ClientOptions(
+                enable_returns_refunds_sync=settings.get('enable_returns_refunds_sync', False),
+            ),
         )
 
         self.__shop = self.gql.Shop
@@ -925,6 +938,7 @@ class ShopifyAPIClient(AbsApiClient):
             use_customer_currency=self._settings['use_customer_currency'],
             personal_id_additional_field_name=self._settings.get('personal_id_additional_field_name', ''),
             vat_number_additional_field_name=self._settings.get('vat_number_additional_field_name', ''),
+            enable_returns_refunds_sync=self._settings.get('enable_returns_refunds_sync', False),
         )
 
         return result
@@ -1149,6 +1163,7 @@ class ShopifyAPIClient(AbsApiClient):
     def get_countries(self):
         _logger.info('Shopify "%s": get_countries()', self._integration_name)
         countries = self._get_delivery_countries()
+
         return [x.to_odoo_format() for x in countries]
 
     @check_scope('read_shipping')
@@ -1163,7 +1178,16 @@ class ShopifyAPIClient(AbsApiClient):
 
         return result
 
-    def _get_delivery_countries(self):
+    # Market-driven shipping (MDS) is a shop-level Shopify setting: on a shop that has
+    # it, shippable countries/regions live on Market.conditions.regionsCondition, and
+    # the legacy deliveryProfiles query can return stale or no-op data for that purpose
+    # (Shopify's own 2026-07 migration guide; broad merchant rollout starts 2026-10-01).
+    # A shop without it still has all its shipping destinations on delivery profiles,
+    # which is why _get_delivery_countries() branches on this flag.
+    def _is_market_driven_shipping(self):
+        return self.shop.market_driven_shipping
+
+    def _get_delivery_countries_from_profiles(self):
         delivery_profiles = self.gql.DeliveryProfile.get_batch()
 
         result = []
@@ -1171,6 +1195,40 @@ class ShopifyAPIClient(AbsApiClient):
             result.extend(profile.get_countries())
 
         return list(set(flatten_recursive(result)))
+
+    def _get_delivery_countries_from_markets(self):
+        """Merge delivery countries across all markets.
+
+        The same country can appear on more than one market (e.g. one market
+        scoped to New York, another to Texas, both under the US) -- each
+        yields its own DeliveryCountry(US) with only its own provinces, so
+        they have to be merged by country code rather than deduplicated by
+        keeping only the first one seen, or later markets' provinces would be
+        silently dropped.
+        """
+        unique = {}
+
+        for market in self.gql.Market.get_batch(limit=math.inf):
+            for country in market.to_delivery_countries():
+                code = country.external_reference
+
+                if code not in unique:
+                    unique[code] = country
+                    continue
+
+                existing_provinces = unique[code]['provinces'] or []
+                seen_ids = {p['id'] for p in existing_provinces}
+                existing_provinces.extend(
+                    p for p in (country['provinces'] or []) if p['id'] not in seen_ids
+                )
+
+        return list(unique.values())
+
+    def _get_delivery_countries(self):
+        if self._is_market_driven_shipping():
+            return self._get_delivery_countries_from_markets()
+
+        return self._get_delivery_countries_from_profiles()
 
     @check_scope('read_products')
     def get_categories(self):
@@ -1403,7 +1461,9 @@ class ShopifyAPIClient(AbsApiClient):
 
         result = dict()
         for record in inventory_levels:  # TODO: not checked existing product mappings
-            result[record.variant.external_id] = record.get_quantity()
+            quantity = record.get_quantity()
+            for variant in record.get_variants():
+                result[variant.external_id] = quantity
 
         return result
 
@@ -1454,19 +1514,50 @@ class ShopifyAPIClient(AbsApiClient):
     @check_scope('write_orders')
     def cancel_order(self, external_id: str, params: dict):
         order = self.gql.Order.set(id=external_id)
-        args = (
-            params['notify_cutomer'],
-            params['refund'],
-            params['restock'],
-            params['reason'],
-            params['staff_note'],
+        return order.cancel(
+            reason=params['reason'],
+            restock=params['restock'],
+            notify_customer=params['notify_customer'],
+            staff_note=params['staff_note'],
+            refund_method=params.get('refund_method'),
         )
-        return order.cancel(*args)
 
     @check_scope('write_merchant_managed_fulfillment_orders')
     def cancel_fulfillment(self, external_id: str):
         fulfillment = self.gql.Fulfillment.set(id=external_id)
         return fulfillment.cancel()
+
+    @check_scope('read_fulfillments', 'read_orders', 'read_returns')
+    def fetch_fulfillment_line_item_lookup(self, external_order_id: str):
+        """Return {LineItem GID -> [(FulfillmentLineItem GID, returnable qty), ...]} for an order."""
+        order = self.gql.Order.set(id=external_order_id)
+        return order.fetch_fulfillment_line_item_lookup()
+
+    @check_scope('write_returns')
+    def create_return_for_order(self, external_order_id: str, return_line_items: list, notify_customer: bool = True):
+        """Call returnCreate for an order. Returns the Shopify return node."""
+        order = self.gql.Order.set(id=external_order_id)
+        return order.create_return(return_line_items, notify_customer=notify_customer)
+
+    @check_scope('write_returns')
+    def attach_tracking_to_return(
+        self,
+        external_order_id: str,
+        reverse_fulfillment_order_id: str,
+        reverse_delivery_line_items: list,
+        tracking_number: str,
+        tracking_url: str = '',
+        notify_customer: bool = True,
+    ):
+        """Attach merchant-supplied tracking to a reverseFulfillmentOrder."""
+        order = self.gql.Order.set(id=external_order_id)
+        return order.create_reverse_delivery_with_shipping(
+            reverse_fulfillment_order_id,
+            reverse_delivery_line_items,
+            tracking_number,
+            tracking_url=tracking_url,
+            notify_customer=notify_customer,
+        )
 
     def _get_url_pattern(self, wrap_li=True):
         pattern = f'<a href="{self.admin_url}/products/%s/variants/%s" target="_blank">%s</a>'

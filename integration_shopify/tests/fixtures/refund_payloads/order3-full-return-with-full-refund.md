@@ -1,0 +1,1 @@
+UC-4: Full return + full refund. Order #1645 (2× T-shirt), return for all 2 units then processed with full refund. Expected: return record (state=closed, 1 line qty=2), draft return picking, refund record (`total_refunded_amount=39.68`), credit note + payment.

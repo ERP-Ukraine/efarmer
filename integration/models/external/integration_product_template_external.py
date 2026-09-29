@@ -128,16 +128,7 @@ class IntegrationProductTemplateExternal(models.Model):
         else:
             message = _('Queue Jobs "Product Import" are created')
 
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Import Product'),
-                'message': message,
-                'type': 'success',
-                'sticky': False,
-            }
-        }
+        return self.display_integration_notification(message, title=_('Create in Odoo'))
 
     def import_one_product_by_hook(self, check_hook_gap: bool = False):
         self.ensure_one()
@@ -273,18 +264,17 @@ class IntegrationProductTemplateExternal(models.Model):
         records = self.filtered(lambda x: not x.odoo_record)
         external_ids = records.mapped('code')
 
+        title = _('Refresh External Products')
+
+        if not external_ids:
+            return self.display_integration_notification(
+                _('All selected products are already linked to an Odoo product. Nothing to reimport.'),
+                title=title, ttype='warning',
+            )
+
         integration.import_products_in_background(external_ids)
 
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Reimport Product'),
-                'message': _('Products import jobs are created'),
-                'type': 'success',
-                'sticky': False,
-            }
-        }
+        return self.display_integration_notification(_('Products import jobs are created'), title=title)
 
     def _process_images_in(self, external_images: List[ExternalImage], receive_binaries=False):
         self._mark_image_mappings_as_pending()
@@ -868,17 +858,12 @@ class IntegrationProductTemplateExternal(models.Model):
         Open the product in the e-commerce system.
         """
         self.ensure_one()
+        title = _('View in Shop')
 
         if not self.code:
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'message': _('No external product code found.'),
-                    'type': 'warning',
-                    'sticky': False,
-                }
-            }
+            return self.display_integration_notification(
+                _('No external product code found.'), title=title, ttype='warning',
+            )
 
         try:
             url = self.integration_id.get_product_url(self.code)
@@ -889,12 +874,5 @@ class IntegrationProductTemplateExternal(models.Model):
             }
         except Exception as e:
             _logger.warning('Failed to get product URL: %s', str(e))
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'message': f'Unable to open product in e-commerce system: {str(e)}',
-                    'type': 'warning',
-                    'sticky': False,
-                }
-            }
+            message = _('Unable to open product in e-commerce system: %s') % str(e)
+            return self.display_integration_notification(message, title=title, ttype='warning')

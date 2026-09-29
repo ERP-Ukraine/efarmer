@@ -11,6 +11,7 @@ class OrderTransaction(GqlDict):
 
     PAYMENT_NOT_DEFINED = 'Not_Defined'
     SHOPIFY_PAYMENT_PREF = 'shopify-payment-'
+    SHOPIFY_PAYMENTS_GATEWAY = 'shopify_payments'
 
     @property
     def name(self):
@@ -82,3 +83,8 @@ class OrderTransaction(GqlDict):
         if name:
             return f'{cls.SHOPIFY_PAYMENT_PREF}{name}'
         return f'{cls.SHOPIFY_PAYMENT_PREF}{cls.PAYMENT_NOT_DEFINED}'
+
+    @classmethod
+    def shopify_payments_gateway_code(cls):
+        """External payment-method code for Shopify Payments."""
+        return cls.format_payment_code(cls.SHOPIFY_PAYMENTS_GATEWAY)

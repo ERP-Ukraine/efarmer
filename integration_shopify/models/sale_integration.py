@@ -7,8 +7,9 @@ from odoo.tools import ormcache, SQL
 from odoo.exceptions import UserError, ValidationError
 from odoo.addons.integration.tools import expose_for_testing
 
-from ..shopify_api import ShopifyAPIClient, SHOPIFY
+from ..shopify_api import ShopifyAPIClient, SHOPIFY, RETURNS_REQUIRED_SCOPES
 from ..shopify.connection import _SHOPIFY_BATCH_LIMIT
+from ..tools import MISSING_SCOPES_ARTICLE_URL
 
 
 _logger = logging.getLogger(__name__)
@@ -361,6 +362,7 @@ class SaleIntegration(models.Model):
                 debug_mode=bool(self.get_settings_value('debug_mode')),
                 graphql_version=self._get_graphql_version(),
                 use_customer_currency=self.use_customer_currency,
+                enable_returns_refunds_sync=self.enable_returns_refunds_sync,
                 vat_number_additional_field_name=self.shopify_vat_number_additional_field_name,
                 personal_id_additional_field_name=self.shopify_personal_id_additional_field_name,
             )
@@ -378,8 +380,12 @@ class SaleIntegration(models.Model):
 
     @expose_for_testing('Fetch Shopify Catalogs')
     def fetch_shopify_catalogs(self):
+        title = _('Import Markets and Catalogs')
+
         if not self.is_integration_shopify:
-            return
+            return self.display_integration_notification(
+                _('This action is only available for Shopify integrations.'), title=title, ttype='warning',
+            )
 
         data_list = self.adapter.get_catalogs()
 
@@ -387,7 +393,7 @@ class SaleIntegration(models.Model):
         for data in data_list:
             catalogs |= catalogs.browse().create_or_update(self.id, data)
 
-        return catalogs
+        return self.display_integration_notification(_('%s catalog(s) synced.') % len(catalogs), title=title)
 
     def export_sale_order_status(self, order):
         res = super(SaleIntegration, self).export_sale_order_status(order)
@@ -528,9 +534,99 @@ class SaleIntegration(models.Model):
 
         return result
 
+    def write(self, vals):
+        # Captured before the write so the transition off -> on can be told from a plain re-save.
+        enabling = self.env['sale.integration']
+        toggling = self.env['sale.integration']
+
+        if 'enable_returns_refunds_sync' in vals:
+            value = bool(vals['enable_returns_refunds_sync'])
+            toggling = self.filtered(
+                lambda rec: rec.is_integration_shopify and rec.enable_returns_refunds_sync != value
+            )
+            if value:
+                enabling = toggling
+
+        res = super(SaleIntegration, self).write(vals)
+
+        for integration in enabling:
+            integration._ensure_returns_scopes_granted()
+
+        for integration in toggling:
+            integration._refresh_returns_webhooks()
+
+        return res
+
+    def _ensure_returns_scopes_granted(self):
+        """Block enabling Returns & Refunds sync when the store has not granted the scopes.
+
+        Enabling the feature is the one moment the connector can tell the user about the missing
+        permission while they are still looking at the setting, rather than letting it surface
+        later as a failed import job.
+        """
+        self.ensure_one()
+
+        try:
+            granted = self.adapter.shop.get_access_scopes()
+        except Exception as error:
+            # An unreachable store must not stop the user from saving; it only means the check
+            # could not run. Say so where they will see it instead of failing silently.
+            _logger.warning(
+                '%s: could not verify the returns access scopes: %s', self.name, error, exc_info=True,
+            )
+            self.message_post(body=_(
+                'Returns & Refunds sync was enabled, but the Shopify access permissions could not '
+                'be verified (%s).\n\n'
+                'If the "%s" permission has not been granted, order imports will fail. Please open '
+                'the Quick Configuration wizard and check the access permissions.'
+            ) % (error, ', '.join(RETURNS_REQUIRED_SCOPES)))
+            return
+
+        missing = [scope for scope in RETURNS_REQUIRED_SCOPES if scope not in granted]
+
+        if missing:
+            raise UserError(_(
+                'Returns & Refunds sync needs the Shopify API permissions "%s", which your app has '
+                'not been granted.\n\n'
+                'To add them:\n'
+                '1. Go to your app settings on https://dev.shopify.com/\n'
+                '2. Create a new release and add needed permissions\n'
+                '3. Go to Shopify and update the app (Live link)\n\n'
+                'For a detailed step-by-step guide, see our article:\n'
+                '%s'
+            ) % (', '.join(missing), MISSING_SCOPES_ARTICLE_URL))
+
+    def _refresh_returns_webhooks(self):
+        """Re-register webhooks after the returns switch moved.
+
+        The subscribed topics depend on the setting, so leaving the old set in place would mean
+        either missing return events or subscriptions the store no longer has scope for. Only
+        integrations that already use webhooks are touched — registering them for someone who
+        deliberately has none is not this method's business.
+        """
+        self.ensure_one()
+
+        if not self.webhook_line_ids:
+            return
+
+        try:
+            self.create_webhooks(raise_original=True)
+        except Exception as error:
+            # Same reasoning as the scope check: visible, but not a blocked save.
+            _logger.warning(
+                '%s: could not re-register webhooks after the returns switch moved: %s',
+                self.name, error, exc_info=True,
+            )
+            self.message_post(body=_(
+                'The Returns & Refunds sync setting changed, but the Shopify webhooks could not be '
+                're-registered (%s).\n\n'
+                'Please press "Create Webhooks" on this integration so the subscribed topics match '
+                'the new setting.'
+            ) % error)
+
     def _retrieve_webhook_routes(self):
         if self.is_integration_shopify:
-            return {
+            routes = {
                 'orders': [
                     ('Order Create', 'ORDERS_CREATE'),
                     ('Order Paid', 'ORDERS_PAID'),
@@ -544,6 +640,24 @@ class SaleIntegration(models.Model):
                     ('Products Delete', 'PRODUCTS_DELETE'),
                 ],
             }
+
+            # Return topics need the returns access scopes, and their handlers do nothing while
+            # the feature is off. Refund topics need no extra scope but are kept on the same
+            # switch: one setting should not leave half the feature subscribed.
+            if self.enable_returns_refunds_sync:
+                routes['refunds'] = [
+                    ('Refund Create', 'REFUNDS_CREATE'),
+                ]
+                routes['returns'] = [
+                    ('Return Request', 'RETURNS_REQUEST'),
+                    ('Return Approve', 'RETURNS_APPROVE'),
+                    ('Return Cancel', 'RETURNS_CANCEL'),
+                    ('Return Close', 'RETURNS_CLOSE'),
+                    ('Return Decline', 'RETURNS_DECLINE'),
+                    ('Return Update', 'RETURNS_UPDATE'),
+                ]
+
+            return routes
 
         return super(SaleIntegration, self)._retrieve_webhook_routes()
 
@@ -588,11 +702,12 @@ class SaleIntegration(models.Model):
             ))
 
         metafield_list = self.adapter.get_metafields(meta_type)
+        title = _('Update Metafields')
 
         if not metafield_list:
-            return self._raise_notification(
-                'warning',
-                f'There are no {meta_type.title()} metafields in your Shopify store',
+            return self.display_integration_notification(
+                _('There are no %s metafields in your Shopify store.') % meta_type.title(),
+                title=title, ttype='warning',
             )
 
         MetaField = self.env['external.metafield']
@@ -616,9 +731,8 @@ class SaleIntegration(models.Model):
         # Delete meta fields that don't exist in Shopify
         (MetaField.search(domain) - actual_metafields).unlink()
 
-        return self._raise_notification(
-            'success',
-            _('%ss metafields were successfully updated') % meta_type.title(),
+        return self.display_integration_notification(
+            _('%s metafields have been updated.') % meta_type.title(), title=title,
         )
 
     def import_sale_channels(self, remove_existing_records=False):
@@ -646,6 +760,14 @@ class SaleIntegration(models.Model):
 
         return channels
 
+    def action_import_sale_channels(self):
+        """Button entry point for `import_sale_channels`: import and show a confirmation toast."""
+        self.ensure_one()
+        channels = self.import_sale_channels()
+        return self.display_integration_notification(
+            _('%s sales channel(s) imported.') % len(channels), title=_('Import Sales Channels'), reload=True,
+        )
+
     def import_business_entities(self, remove_existing_records=False):
         """BusinessEntity |=
         Import business entities from Shopify.
@@ -668,6 +790,20 @@ class SaleIntegration(models.Model):
             records |= BusinessEntity.create_or_update(self.id, entity.id_str, entity.name)
 
         return records
+
+    def action_import_business_entities(self):
+        """Button entry point for `import_business_entities`: import and show a confirmation toast."""
+        self.ensure_one()
+        entities = self.import_business_entities()
+
+        if len(entities) == 1:
+            message = _('1 business entity imported.')
+        else:
+            message = _('%s business entities imported.') % len(entities)
+
+        return self.display_integration_notification(
+            message, title=_('Import Merchant Business Entities'), reload=True,
+        )
 
     def _filter_orders_shopify(self, external_orders_data_list: list):
         """

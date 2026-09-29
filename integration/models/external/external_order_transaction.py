@@ -10,29 +10,6 @@ from ...exceptions import ErrorStore as es
 _logger = logging.getLogger(__name__)
 
 
-REFUND_FOUND_ERROR = """\n\n
-⚠️  REFUND TRANSACTION DETECTED ⚠️
-
-This order contains a refund transaction that cannot be processed automatically.
-
-To resolve this issue, please choose one of the following options:
-
-OPTION 1: Adjust Auto-Workflow Settings
-    • Go to E-Commerce Integrations → Stores → [Your Store] → Sales Orders tab
-    • Uncheck "Auto-Apply Payments from E-Commerce System"
-    • Re-run the integration job to validate invoices and register payments automatically
-    • The system will ignore e-commerce transaction details and use validated invoice data instead
-
-OPTION 2: Manual Transaction Processing
-    • Open the sales order in Odoo
-    • Review transaction details in the E-Commerce Integration tab
-    • Process payments and refunds manually in the associated invoice
-    • Mark auto-workflow steps as completed using the "Integration Workflow" button
-
-For assistance, contact your system administrator or refer to the integration documentation.
-"""
-
-
 class ExternalOrderTransaction(models.Model):
     _name = 'external.order.transaction'
     _inherit = 'external.order.resource'
@@ -83,6 +60,12 @@ class ExternalOrderTransaction(models.Model):
     external_parent_str_id = fields.Char(
         string='Parent Transaction ID',
         help='Reference to the original transaction for refunds or captures',
+    )
+    external_refund_id = fields.Many2one(
+        comodel_name='external.order.refund',
+        string='Linked Refund',
+        ondelete='set null',
+        help='Refund record this transaction belongs to (for kind=REFUND transactions).',
     )
     payment_ids = fields.One2many(
         comodel_name='account.payment',
@@ -148,6 +131,20 @@ class ExternalOrderTransaction(models.Model):
 
         if not self.is_ecommerce_ok:
             self.internal_info = _('Transaction skipped - external status does not allow processing')
+            self.mark_skipped()
+            return False, []
+
+        # Refund transactions (kind=refund) are not processed as standalone payments. When
+        # returns & refunds sync is enabled, they are handled by the refund flow:
+        # external.order.refund._register_refund_payment() links them to the refund payment
+        # and marks them done. Processing them here would fail (no unpaid invoices) and produce
+        # a confusing "skipped" status.
+        if self.is_refund and self.integration_id.enable_returns_refunds_sync:
+            self.internal_info = _(
+                'Refund transaction — will be processed automatically '
+                'when the linked refund record is applied. No manual '
+                'action needed.'
+            )
             self.mark_skipped()
             return False, []
 
@@ -328,6 +325,76 @@ class ExternalOrderTransaction(models.Model):
         self.payment_ids = [(4, id_, 0) for id_ in ids]
 
     def _raise_if_refund_found(self):
-        """Check for unprocessed refund transactions and raise user-friendly error"""
-        if any(x.is_refund for x in self if not x.is_done):
-            raise es.ValidationError(REFUND_FOUND_ERROR)
+        """Block auto-workflow payment registration when an unprocessed refund transaction
+        is present, unless the integration has Returns & Refunds Sync enabled (in which
+        case the refund will be handled by the refund pipeline downstream).
+        """
+        has_unprocessed_refund = any(x.is_refund for x in self if not x.is_done)
+        if not has_unprocessed_refund:
+            return
+
+        if self.integration_id.enable_returns_refunds_sync:
+            _logger.info(
+                'Integration %s: refund transaction detected; Returns & Refunds Sync is '
+                'enabled, deferring to the refund pipeline.',
+                self.integration_id.name,
+            )
+            return
+
+        raise es.ValidationError(self._refund_transaction_guidance_message())
+
+    def _without_refund_transactions(self):
+        """Return the same recordset minus unprocessed refund transactions.
+
+        The auto-workflow's register-payment step cannot handle refunds (it
+        registers customer payments against unpaid invoices — wrong direction
+        for a refund). Refund transactions belong to the refund pipeline when
+        Returns & Refunds Sync is enabled; otherwise they need manual action.
+
+        Filtering per record (rather than raising on the recordset) keeps the
+        rest of the payments flowing. The guidance message that used to be a
+        UserError is logged at INFO once per call when sync is off.
+        """
+        refund_txns = self.filtered(lambda x: x.is_refund and not x.is_done)
+        if not refund_txns:
+            return self
+
+        integration = self.integration_id
+        if integration.enable_returns_refunds_sync:
+            _logger.info(
+                'Integration %s: skipping %d refund transaction(s) on the payment loop; '
+                'they will be processed by the refund pipeline.',
+                integration.name, len(refund_txns),
+            )
+        else:
+            _logger.info(
+                'Integration %s: skipping %d refund transaction(s) on the payment loop. '
+                'Returns & Refunds Sync is disabled - the auto-workflow cannot register '
+                'refunds. %s',
+                integration.name, len(refund_txns),
+                self._refund_transaction_guidance_message(),
+            )
+        return self - refund_txns
+
+    def _refund_transaction_guidance_message(self):
+        return _(
+            "\n\n"
+            "REFUND TRANSACTION DETECTED\n\n"
+            "This order contains a refund transaction. The auto-workflow's payment step "
+            "cannot register refunds; pick one of the options below.\n\n"
+            "RECOMMENDED - Enable Returns & Refunds Sync\n"
+            "    - E-Commerce Integrations -> Stores -> [Your Store] -> Returns & Refunds tab\n"
+            "    - Turn on \"Enable Returns & Refunds Sync\" and fill in the refund settings\n"
+            "    - Refunds will be processed automatically: credit notes created, refund\n"
+            "      payments registered, and return pickings raised when applicable\n\n"
+            "ALTERNATIVE - Disable auto-apply of e-commerce payments\n"
+            "    - E-Commerce Integrations -> Stores -> [Your Store] -> Sales Orders tab\n"
+            "    - Uncheck \"Auto-Apply Payments from E-Commerce System\"\n"
+            "    - Validate invoices and register payments manually; refund transactions\n"
+            "      from the e-commerce side will be ignored by the auto-workflow\n\n"
+            "LAST RESORT - Manual processing\n"
+            "    - Open the sales order, review the E-Commerce Integration tab, and\n"
+            "      process payments and refunds manually on the related invoice\n"
+            "    - Mark the auto-workflow as completed via \"Integration Workflow\"\n\n"
+            "If unsure, contact support."
+        )

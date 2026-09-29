@@ -12,7 +12,26 @@ from typing import Type, NamedTuple, Optional, List
 
 
 _logger = getLogger(__name__)
-_lt = LazyTranslate(__name__)
+# ErrorStore's format methods are classmethods with no `self`/env in scope, so the frame-based
+# lang lookup in odoo.tools.translate can never resolve a language here. Without a default_lang
+# that logs a WARNING on every call and still falls back to English; with it, the same fallback
+# happens quietly at DEBUG level.
+_lt = LazyTranslate(__name__, default_lang='en_US')
+
+
+class PrerequisiteNotMet(Exception):
+    """Raised by external entity _process() when prerequisites are not yet met.
+
+    Examples: refund processing called before invoice is paid; return processing
+    called before outgoing picking is validated. The record stays in 'draft'
+    status — lifecycle hooks (or the next dispatch run) will retry when
+    prerequisites are met.
+
+    This is NOT a failure — it's deferred work. Calling code should NOT mark
+    the record as failed and should NOT propagate as job error. It should be
+    logged as info / debug so user understands why the record is pending.
+    """
+    pass
 
 
 class NotMappedFromExternal(Exception):
@@ -235,6 +254,8 @@ class ErrorStore:
     ApiImportError = ApiImportError
     ApiExportError = ApiExportError
 
+    PrerequisiteNotMet = PrerequisiteNotMet
+
     IntegrationNotImplementedError = IntegrationNotImplementedError
     JsonMissedKey = JsonMissedKey
 
@@ -382,6 +403,47 @@ class ErrorStore:
                 'product_name',
             ],
         ),
+        # E5xx — Returns & Refunds processing errors.
+        # No format_method: messages live next to the raise sites in
+        # external_order_refund.py / external_order_return.py and are passed
+        # to raise_error(err_msg=_(...)). raise_error injects the code into
+        # the final message, so tests assert on the code — the human-readable
+        # text is not a stable contract and is expected to change with
+        # rewording and translation.
+        # Ranges: E50x / E51x refund and return processing; E518a-c return
+        # conflict guard; E519-E523 return export and the pre-fulfillment
+        # safety net; E55x / E56x errors specific to refunds and returns
+        # respectively.
+        'E501': ErrorInfo(error_type=UserError),           # refund line not on posted invoice
+        'E502': ErrorInfo(error_type=PrerequisiteNotMet),  # draft invoice (soft)
+        'E503': ErrorInfo(error_type=PrerequisiteNotMet),  # no invoice (soft)
+        'E504': ErrorInfo(error_type=UserError),           # no refund journal
+        'E505': ErrorInfo(error_type=UserError),           # no restock location
+        'E506': ErrorInfo(error_type=UserError),           # currency mismatch
+        'E509': ErrorInfo(error_type=UserError),           # manual credit note
+        'E511': ErrorInfo(error_type=UserError),           # cancel after validated
+        'E513': ErrorInfo(error_type=UserError),           # zero amount no linked return
+        'E514': ErrorInfo(error_type=PrerequisiteNotMet),  # unpaid invoice (soft)
+        'E516': ErrorInfo(error_type=PrerequisiteNotMet),  # no done outgoing picking (soft)
+        'E517': ErrorInfo(error_type=UserError),           # unresolvable return line
+        'E551': ErrorInfo(error_type=UserError),           # restock_type=CANCEL with linked_return
+        'E552': ErrorInfo(error_type=UserError),           # credit note creation returned no moves
+        'E553': ErrorInfo(error_type=UserError),           # lineless refund without refund_product_id
+        'E554': ErrorInfo(error_type=UserError),           # no discount product configured
+        'E555': ErrorInfo(error_type=UserError),           # refund total mismatch, no adjustment product
+        'E561': ErrorInfo(error_type=UserError),           # unknown return state (defensive)
+        'E562': ErrorInfo(error_type=UserError),           # no outgoing picking for fulfillment
+        'E518a': ErrorInfo(error_type=UserError),          # return conflict: open return mismatch
+        'E518b': ErrorInfo(error_type=UserError),          # return conflict: over-return
+        'E518c': ErrorInfo(error_type=UserError),          # kit return could not be processed
+        'E519': ErrorInfo(error_type=UserError),           # kit return export not supported
+        'E520': ErrorInfo(error_type=UserError),           # duplicate return export attempt
+        # Return export pre-flight (non-Shopify, unresolved fulfillment line items)
+        'E521': ErrorInfo(error_type=UserError),
+        # No reverseFulfillmentOrder in the returnCreate response
+        'E522': ErrorInfo(error_type=UserError),
+        # Outgoing-picking validation blocked by pending external return
+        'E523': ErrorInfo(error_type=UserError),
     }
 
     def __new__(cls):
@@ -401,13 +463,11 @@ class ErrorStore:
     ):
         """
         Method to raise an error with a given error code or message.
-        """
-        if not err_code == 'E000' and err_msg:
-            _logger.warning(
-                '\n\tBoth error code and error message provided to ErrorStore.raise_error.'
-                '\n\tIn that case err_msg has higher priority than format_message.\n'
-            )
 
+        Passing both err_code and err_msg is intentional and expected: err_code gives tests a
+        stable identifier to assert on, err_msg carries the actionable, context-specific text.
+        In that case err_msg is used verbatim instead of the err_code's format_method.
+        """
         if not err_type:
             err_type = cls._error_codes.get(err_code).error_type
 
@@ -415,11 +475,17 @@ class ErrorStore:
             if not err_msg:
                 err_msg = cls.format_message(err_code, raise_from_none=raise_from_none, **kwargs)
             else:
-                err_msg = _('%(gap)sError %(err_code)s:\n%(err_msg)s\n') % {
+                # Concatenate prefix + err_msg + suffix. Prior implementation used
+                # a single template "%(gap)sError %(err_code)s:\n%(err_msg)s\n" %
+                # {...} which re-interprets percent-format codes inside the
+                # user-provided err_msg, breaking on any literal '%' character
+                # (e.g. when an upstream field value such as a refund note
+                # contained "50% off"). The prefix uses controlled values only.
+                prefix = str(_lt('%(gap)sError %(err_code)s:\n')) % {
                     'gap': '' if raise_from_none else '\n\n',
                     'err_code': err_code,
-                    'err_msg': err_msg,
                 }
+                err_msg = prefix + err_msg + '\n'
 
         if support_contact:
             err_msg += cls.format_support_contact_string()
@@ -441,9 +507,9 @@ class ErrorStore:
             )
 
         if error_info.format_method:
-            return _(
+            return str(_lt(
                 '%(gap)sError %(err_code)s:\n'
-            ) % {
+            )) % {
                 'gap': '' if raise_from_none else '\n\n',
                 'err_code': err_code,
             } + getattr(cls, error_info.format_method)(**kwargs) \

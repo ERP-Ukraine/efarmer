@@ -6,6 +6,7 @@ from odoo import models, fields, _
 from odoo.exceptions import UserError
 from odoo.tools.misc import groupby
 
+from ..exceptions import ErrorStore as es
 from ..tools import PickingLine, PickingSerializer, SaleTransferSerializer
 
 
@@ -35,6 +36,44 @@ class StockPicking(models.Model):
              'integration. And sometimes tracking reference is added to stock picking after it '
              'is validated and not at the same moment.',
     )
+
+    has_pending_external_returns = fields.Boolean(
+        compute='_compute_has_pending_external_returns',
+        help='True when the linked sales order has external returns that are '
+             'neither done nor skipped. Drives the unresolved-returns warning '
+             'panel on outgoing pickings and the validation block in '
+             'button_validate.',
+    )
+
+    def _compute_has_pending_external_returns(self):
+        """Delegate to the sale order computation — single query path, no
+        duplication. store=False keeps this off the DB layout; the field is
+        only evaluated when a form view renders it.
+        """
+        # Access orders as sudo to avoid issues with missed access rights
+        # Person who works with pickings can have no access to sales orders
+        for picking in self:
+            order = picking.sudo().sale_id
+            picking.has_pending_external_returns = bool(
+                order and order.has_pending_external_returns
+            )
+
+    def action_open_sale_order(self):
+        """Open the linked sales order form. Used by the unresolved-returns
+        warning panel on outgoing picking forms.
+        """
+        self.ensure_one()
+        order = self.sale_id
+        if not order:
+            return False
+        return {
+            'type': 'ir.actions.act_window',
+            'name': order.display_name,
+            'res_model': 'sale.order',
+            'res_id': order.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
 
     def write(self, vals):
         # if someone add `carrier_tracking_ref` after picking validation
@@ -271,10 +310,61 @@ class StockPicking(models.Model):
             self.mapped('display_name')
         )
 
+    def _action_done(self):
+        """Lifecycle hook: outgoing picking done → enqueue entity processing.
+
+        Returns require a done outgoing picking before they can be processed into a return
+        picking. When an outgoing picking moves to 'done', enqueue the order's processing job
+        so any pending returns get retried.
+
+        Filter on picking_type_id.code == 'outgoing' is intentional — incoming pickings (e.g.,
+        return receipts) and internal transfers must NOT trigger return processing. The hook
+        only triggers — all business logic lives in the processing job.
+        """
+        res = super(StockPicking, self)._action_done()
+        # Access orders as sudo to avoid issues with missed access rights
+        # Person who works with pickings can have no access to sales orders
+        for picking in self.sudo().filtered(
+            lambda p: p.picking_type_id.code == 'outgoing'
+        ):
+            order = picking.sale_id
+            if (order and order.integration_id
+                    and order.integration_id.enable_returns_refunds_sync):
+                order._enqueue_external_entities_processing()
+        return res
+
     def button_validate(self):
         """
         Override button_validate method to called method, that check order is shipped or not.
+
+        Pre-fulfillment safety net: outgoing pickings whose linked sale order
+        has unresolved external returns (internal_status not in done/skipped)
+        are blocked here. The merchant must either resolve each return
+        (mark_done) or explicitly Skip it via the external record's Skip
+        button before the delivery can be validated — otherwise they risk
+        over-shipping goods the customer was already refunded for. Only
+        outgoing pickings block; multi-step warehouse internal moves
+        (pick/pack with code='internal') pass through unchanged.
         """
+        for picking in self:
+            if (picking.picking_type_id.code == 'outgoing'
+                    and picking.has_pending_external_returns):
+                es.raise_error(
+                    err_code='E523',
+                    err_msg=_(
+                        'Cannot validate this delivery: the linked sales '
+                        'order %(order)s has returns that have not been '
+                        'processed yet. These may affect what should be '
+                        'shipped.\n\n'
+                        'Open the sales order, review the pending returns, '
+                        'and either resolve them (mark as done) or mark them '
+                        'as skipped if they do not apply to this shipment. '
+                        'Then come back here to validate.',
+                        order=picking.sudo().sale_id.display_name,
+                    ),
+                    support_contact=False,
+                )
+
         res = super(StockPicking, self).button_validate()
 
         if res is not True:

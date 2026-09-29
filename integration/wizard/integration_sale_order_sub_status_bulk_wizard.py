@@ -3,6 +3,8 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
+from ..exceptions import ErrorStore as es
+
 
 class IntegrationSaleOrderSubStatusBulkWizard(models.TransientModel):
     _name = 'integration.sale.order.sub.status.bulk.wizard'
@@ -11,7 +13,7 @@ class IntegrationSaleOrderSubStatusBulkWizard(models.TransientModel):
 
     company_id = fields.Many2one(
         comodel_name='res.company',
-        default=lambda self: self.env.company,
+        compute='_compute_company_id',
     )
     sub_status_ids = fields.Many2many(
         comodel_name='integration.sale.order.sub.status.external',
@@ -24,6 +26,19 @@ class IntegrationSaleOrderSubStatusBulkWizard(models.TransientModel):
     single_status_name = fields.Char(
         compute='_compute_single_status_info',
     )
+
+    @api.depends('sub_status_ids')
+    def _compute_company_id(self):
+        for rec in self:
+            rec.company_id = rec.sub_status_ids.company_id[:1]
+
+    @api.constrains('sub_status_ids')
+    def _check_single_integration(self):
+        for rec in self.filtered(lambda r: len(r.sub_status_ids.integration_id) > 1):
+            raise es.ValidationError(_(
+                'The selected order statuses belong to different stores (%s). Configure automation for '
+                'statuses from a single store at a time.'
+            ) % ', '.join(rec.sub_status_ids.integration_id.mapped('name')))
 
     @api.depends('sub_status_ids')
     def _compute_single_status_info(self):

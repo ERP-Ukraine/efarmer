@@ -26,3 +26,7 @@ from . import external_integration_tag
 from . import external_order_transaction
 from . import external_order_fulfillment_line
 from . import external_order_fulfillment
+from . import external_order_return
+from . import external_order_return_line
+from . import external_order_refund
+from . import external_order_refund_line

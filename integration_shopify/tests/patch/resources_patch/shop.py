@@ -5,9 +5,6 @@ from ....shopify.resources.shop import Shop as Shop_
 
 class Shop(Shop_):
 
-    def country_code(self):
-        return self['billingAddress']['countryCodeV2']
-
     def get_current(self):
 
         self.set(**{
@@ -21,22 +18,22 @@ class Shop(Shop_):
             'taxesIncluded': False,
             'taxShipping': True,
             'currencyCode': 'PLN',
-            'billingAddress': {
+            'shopAddress': {
                 'country': 'Poland',
-                'company': None,
                 'countryCodeV2': 'PL',
-                'formatted': [
-                    'Miczkewicza 10',
-                    '01-571 Warszawa',
-                    'Polska'
-                ]
+                'city': 'Warszawa',
+                'zip': '01-571',
+                'provinceCode': None,
             },
             'productTags': {
                 'nodes': [
                     'car',
                     'cat'
                 ]
-            }
+            },
+            'features': {
+                'marketDrivenShipping': False,
+            },
         })
 
         return self
@@ -52,6 +49,8 @@ class Shop(Shop_):
             'write_products',
             'read_products',
             'write_orders',
+            'read_returns',
+            'write_returns',
             'write_merchant_managed_fulfillment_orders',
             'read_merchant_managed_fulfillment_orders',
             'read_customers',

@@ -45,7 +45,7 @@ def validate(func):
         # Validate API Key
         if not hasattr(env['res.config.settings'], 'get_zld_api_key'):
             # Most likely that no module installed
-            raise NotFound('ZPL Label Designer module is not installed or need to be upgraded')
+            raise NotFound('Label Designer PRO module is not installed or need to be upgraded')
 
         key_from_odoo = (env['res.config.settings'].get_zld_api_key() or '').strip()
         key_from_request = (request.httprequest.headers.get('ZLD-API-KEY') or '').strip()

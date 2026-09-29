@@ -1,0 +1,442 @@
+{
+    "data": {
+        "order": {
+            "id": "gid://shopify/Order/6635893620950",
+            "name": "#1645",
+            "sourceName": "shopify_draft_order",
+            "email": "alexander@ventor.tech",
+            "phone": null,
+            "confirmed": true,
+            "cancelReason": null,
+            "cancelledAt": null,
+            "closedAt": "2026-05-01T11:58:46Z",
+            "createdAt": "2026-05-01T11:57:56Z",
+            "updatedAt": "2026-05-01T11:58:46Z",
+            "processedAt": "2026-05-01T11:57:56Z",
+            "displayFulfillmentStatus": "FULFILLED",
+            "displayFinancialStatus": "PARTIALLY_REFUNDED",
+            "returnStatus": "RETURNED",
+            "customerLocale": "en-PL",
+            "taxesIncluded": true,
+            "taxExempt": false,
+            "totalWeight": "600",
+            "confirmationNumber": "1YZ85WPA5",
+            "discountCode": null,
+            "discountCodes": [],
+            "currencyCode": "EUR",
+            "presentmentCurrencyCode": "EUR",
+            "requiresShipping": true,
+            "tags": [],
+            "note": null,
+            "fullyPaid": true,
+            "fulfillable": false,
+            "canMarkAsPaid": false,
+            "paymentGatewayNames": [
+                "Money Order"
+            ],
+            "billingAddressMatchesShippingAddress": true,
+            "poNumber": null,
+            "publication": null,
+            "fulfillments": [
+                {
+                    "id": "gid://shopify/Fulfillment/5903360295126",
+                    "name": "#1645-F1",
+                    "status": "SUCCESS",
+                    "displayStatus": "FULFILLED",
+                    "totalQuantity": 2,
+                    "trackingInfo": [
+                        {
+                            "number": "DD11199933388PL",
+                            "company": "DPD Belgium",
+                            "url": "https://tracking.dpd.de/status/en_BE/parcel/DD11199933388PL"
+                        }
+                    ],
+                    "order": {
+                        "id": "gid://shopify/Order/6635893620950"
+                    },
+                    "fulfillmentOrders": {
+                        "nodes": [
+                            {
+                                "id": "gid://shopify/FulfillmentOrder/7780888314070"
+                            }
+                        ]
+                    },
+                    "location": {
+                        "id": "gid://shopify/Location/70207045846"
+                    },
+                    "fulfillmentLineItems": {
+                        "nodes": [
+                            {
+                                "id": "gid://shopify/FulfillmentLineItem/13440221970646",
+                                "quantity": 2,
+                                "lineItem": {
+                                    "id": "gid://shopify/LineItem/15681127416022",
+                                    "sku": "demo_1_3",
+                                    "quantity": 2,
+                                    "nonFulfillableQuantity": 0,
+                                    "variant": {
+                                        "id": "gid://shopify/ProductVariant/47558128632022",
+                                        "product": {
+                                            "id": "gid://shopify/Product/9162547429590"
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "service": {
+                        "id": "gid://shopify/FulfillmentService/manual",
+                        "handle": "manual",
+                        "serviceName": "Manual",
+                        "trackingSupport": false,
+                        "type": "MANUAL"
+                    },
+                    "updatedAt": "2026-05-01T11:58:20Z"
+                }
+            ],
+            "fulfillmentOrders": {
+                "nodes": [
+                    {
+                        "id": "gid://shopify/FulfillmentOrder/7780888314070",
+                        "status": "CLOSED",
+                        "orderId": "gid://shopify/Order/6635893620950",
+                        "fulfillAt": "2026-05-01T11:00:00Z",
+                        "fulfillBy": null,
+                        "updatedAt": "2026-05-01T11:58:20Z",
+                        "lineItems": {
+                            "nodes": [
+                                {
+                                    "id": "gid://shopify/FulfillmentOrderLineItem/15939002466518",
+                                    "totalQuantity": 2,
+                                    "remainingQuantity": 0,
+                                    "sku": "demo_1_3",
+                                    "lineItem": {
+                                        "id": "gid://shopify/LineItem/15681127416022"
+                                    }
+                                }
+                            ]
+                        },
+                        "deliveryMethod": {
+                            "id": "gid://shopify/DeliveryMethod/1947822325974",
+                            "presentedName": "DPD",
+                            "methodType": "SHIPPING",
+                            "serviceCode": "custom"
+                        },
+                        "assignedLocation": {
+                            "location": {
+                                "id": "gid://shopify/Location/70207045846"
+                            }
+                        }
+                    }
+                ]
+            },
+            "currentTotalPriceSet": {
+                "presentmentMoney": {
+                    "amount": "14.0",
+                    "currencyCode": "EUR"
+                },
+                "shopMoney": {
+                    "amount": "14.0",
+                    "currencyCode": "EUR"
+                }
+            },
+            "lineItems": {
+                "nodes": [
+                    {
+                        "id": "gid://shopify/LineItem/15681127416022",
+                        "name": "Hummingbird printed t-shirt - White / M",
+                        "quantity": 2,
+                        "isGiftCard": false,
+                        "currentQuantity": 0,
+                        "taxable": true,
+                        "sku": "demo_1_3",
+                        "taxLines": [
+                            {
+                                "rate": 0.23,
+                                "ratePercentage": 23.0,
+                                "source": "Shopify",
+                                "title": "PL VAT",
+                                "priceSet": {
+                                    "presentmentMoney": {
+                                        "amount": "7.42",
+                                        "currencyCode": "EUR"
+                                    },
+                                    "shopMoney": {
+                                        "amount": "7.42",
+                                        "currencyCode": "EUR"
+                                    }
+                                }
+                            }
+                        ],
+                        "product": {
+                            "id": "gid://shopify/Product/9162547429590"
+                        },
+                        "variant": {
+                            "id": "gid://shopify/ProductVariant/47558128632022",
+                            "sku": "demo_1_3",
+                            "title": "White / M",
+                            "product": {
+                                "id": "gid://shopify/Product/9162547429590"
+                            }
+                        },
+                        "originalUnitPriceSet": {
+                            "presentmentMoney": {
+                                "amount": "19.84",
+                                "currencyCode": "EUR"
+                            },
+                            "shopMoney": {
+                                "amount": "19.84",
+                                "currencyCode": "EUR"
+                            }
+                        },
+                        "discountAllocations": []
+                    }
+                ]
+            },
+            "shippingLine": {
+                "id": "gid://shopify/ShippingLine/5418449699030",
+                "title": "DPD",
+                "code": "custom",
+                "carrierIdentifier": null,
+                "originalPriceSet": {
+                    "presentmentMoney": {
+                        "amount": "14.0",
+                        "currencyCode": "EUR"
+                    },
+                    "shopMoney": {
+                        "amount": "14.0",
+                        "currencyCode": "EUR"
+                    }
+                },
+                "currentDiscountedPriceSet": {
+                    "presentmentMoney": {
+                        "amount": "14.0",
+                        "currencyCode": "EUR"
+                    },
+                    "shopMoney": {
+                        "amount": "14.0",
+                        "currencyCode": "EUR"
+                    }
+                },
+                "taxLines": [
+                    {
+                        "rate": 0.23,
+                        "ratePercentage": 23.0,
+                        "source": "Shopify",
+                        "title": "PL VAT",
+                        "priceSet": {
+                            "presentmentMoney": {
+                                "amount": "2.62",
+                                "currencyCode": "EUR"
+                            },
+                            "shopMoney": {
+                                "amount": "2.62",
+                                "currencyCode": "EUR"
+                            }
+                        }
+                    }
+                ],
+                "discountAllocations": []
+            },
+            "transactions": [
+                {
+                    "id": "gid://shopify/OrderTransaction/8038109249750",
+                    "order": {
+                        "id": "gid://shopify/Order/6635893620950"
+                    },
+                    "paymentId": "rfOBAdmRMmUajr0NGNNocKIyU",
+                    "kind": "SALE",
+                    "status": "SUCCESS",
+                    "gateway": "Money Order",
+                    "formattedGateway": "Money Order",
+                    "amountSet": {
+                        "presentmentMoney": {
+                            "amount": "53.68",
+                            "currencyCode": "EUR"
+                        },
+                        "shopMoney": {
+                            "amount": "53.68",
+                            "currencyCode": "EUR"
+                        }
+                    },
+                    "parentTransaction": null,
+                    "processedAt": "2026-05-01T11:57:56Z"
+                },
+                {
+                    "id": "gid://shopify/OrderTransaction/8038110757078",
+                    "order": {
+                        "id": "gid://shopify/Order/6635893620950"
+                    },
+                    "paymentId": "#1645.1",
+                    "kind": "REFUND",
+                    "status": "SUCCESS",
+                    "gateway": "Money Order",
+                    "formattedGateway": "Money Order",
+                    "amountSet": {
+                        "presentmentMoney": {
+                            "amount": "39.68",
+                            "currencyCode": "EUR"
+                        },
+                        "shopMoney": {
+                            "amount": "39.68",
+                            "currencyCode": "EUR"
+                        }
+                    },
+                    "parentTransaction": {
+                        "id": "gid://shopify/OrderTransaction/8038109249750",
+                        "paymentId": "rfOBAdmRMmUajr0NGNNocKIyU"
+                    },
+                    "processedAt": "2026-05-01T11:58:45Z"
+                }
+            ],
+            "customAttributes": [],
+            "refunds": [
+                {
+                    "id": "gid://shopify/Refund/946849743062",
+                    "createdAt": "2026-05-01T11:58:45Z",
+                    "note": null,
+                    "totalRefundedSet": {
+                        "shopMoney": {
+                            "amount": "39.68",
+                            "currencyCode": "EUR"
+                        }
+                    },
+                    "refundLineItems": {
+                        "edges": [
+                            {
+                                "node": {
+                                    "quantity": 2,
+                                    "restockType": "RETURN",
+                                    "location": {
+                                        "id": "gid://shopify/Location/72493924566",
+                                        "name": "111"
+                                    },
+                                    "lineItem": {
+                                        "id": "gid://shopify/LineItem/15681127416022",
+                                        "name": "Hummingbird printed t-shirt - White / M",
+                                        "sku": "demo_1_3",
+                                        "quantity": 2
+                                    },
+                                    "priceSet": {
+                                        "shopMoney": {
+                                            "amount": "19.84",
+                                            "currencyCode": "EUR"
+                                        }
+                                    },
+                                    "subtotalSet": {
+                                        "shopMoney": {
+                                            "amount": "39.68",
+                                            "currencyCode": "EUR"
+                                        }
+                                    },
+                                    "totalTaxSet": {
+                                        "shopMoney": {
+                                            "amount": "7.42",
+                                            "currencyCode": "EUR"
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "transactions": {
+                        "edges": [
+                            {
+                                "node": {
+                                    "id": "gid://shopify/OrderTransaction/8038110757078",
+                                    "kind": "REFUND",
+                                    "status": "SUCCESS",
+                                    "amountSet": {
+                                        "shopMoney": {
+                                            "amount": "39.68",
+                                            "currencyCode": "EUR"
+                                        }
+                                    },
+                                    "parentTransaction": {
+                                        "id": "gid://shopify/OrderTransaction/8038109249750",
+                                        "kind": "SALE"
+                                    },
+                                    "gateway": "Money Order",
+                                    "processedAt": "2026-05-01T11:58:45Z"
+                                }
+                            }
+                        ]
+                    },
+                    "return": {
+                        "id": "gid://shopify/Return/19719553238",
+                        "status": "CLOSED",
+                        "name": "#1645-R1"
+                    }
+                }
+            ],
+            "returns": {
+                "edges": [
+                    {
+                        "node": {
+                            "id": "gid://shopify/Return/19719553238",
+                            "status": "CLOSED",
+                            "name": "#1645-R1",
+                            "totalQuantity": 2,
+                            "returnLineItems": {
+                                "edges": [
+                                    {
+                                        "node": {
+                                            "id": "gid://shopify/ReturnLineItem/29592781014",
+                                            "quantity": 2,
+                                            "refundableQuantity": 0,
+                                            "refundedQuantity": 2,
+                                            "returnReason": "SIZE_TOO_SMALL",
+                                            "returnReasonNote": "",
+                                            "fulfillmentLineItem": {
+                                                "id": "gid://shopify/FulfillmentLineItem/13440221970646",
+                                                "lineItem": {
+                                                    "id": "gid://shopify/LineItem/15681127416022",
+                                                    "name": "Hummingbird printed t-shirt - White / M",
+                                                    "sku": "demo_1_3"
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            "reverseFulfillmentOrders": {
+                                "edges": [
+                                    {
+                                        "node": {
+                                            "id": "gid://shopify/ReverseFulfillmentOrder/18488557782",
+                                            "status": "OPEN",
+                                            "reverseDeliveries": {
+                                                "edges": []
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            },
+            "totalPriceSet": {
+                "presentmentMoney": {
+                    "amount": "53.68",
+                    "currencyCode": "EUR"
+                },
+                "shopMoney": {
+                    "amount": "53.68",
+                    "currencyCode": "EUR"
+                }
+            }
+        }
+    },
+    "extensions": {
+        "cost": {
+            "requestedQueryCost": 640,
+            "actualQueryCost": 43,
+            "throttleStatus": {
+                "maximumAvailable": 2000.0,
+                "currentlyAvailable": 1957,
+                "restoreRate": 100.0
+            }
+        }
+    }
+}

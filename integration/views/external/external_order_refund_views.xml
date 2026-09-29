@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="external_order_refund_view_form" model="ir.ui.view">
+            <field name="name">external.order.refund.view.form</field>
+            <field name="model">external.order.refund</field>
+            <field name="arch" type="xml">
+                <form create="0" edit="0" delete="0">
+                    <header>
+                        <!-- is_ecommerce_ok also sits on the dev-only Technical page; the
+                             buttons below need it for every user. -->
+                        <field name="is_ecommerce_ok" invisible="1"/>
+                        <button name="action_validate" type="object" string="Apply"
+                                class="oe_highlight"
+                                invisible="internal_status in ('done', 'skipped') or not is_ecommerce_ok"/>
+                        <button name="action_validate" type="object" string="Apply"
+                                confirm="This refund was marked as skipped. Apply it anyway?"
+                                invisible="internal_status != 'skipped' or not is_ecommerce_ok"/>
+                        <button name="action_skip" type="object" string="Skip"
+                                confirm="Mark this record as skipped? The connector will ignore it from now on."
+                                invisible="internal_status in ('done', 'skipped')"/>
+                        <field name="internal_status" widget="statusbar"
+                               statusbar_visible="draft,done"/>
+                    </header>
+                    <sheet>
+                        <div class="alert alert-info" role="alert"
+                             invisible="not is_placeholder">
+                            <strong>No credit note needed yet — this is a "refund later" placeholder.</strong>
+                            The store recorded the return now and will issue the actual money
+                            refund afterwards as a separate refund. The amounts on the lines below
+                            describe the returned items; no money has moved yet. When the real
+                            refund is imported, Odoo will create the credit note then.
+                        </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="total_refunded_amount" readonly="1"
+                                       class="d-inline w-auto"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Refund Details">
+                                <field name="note" readonly="1" string="Reason"/>
+                                <field name="created_at_external" readonly="1"
+                                       string="Refund Date"/>
+                                <field name="is_placeholder" readonly="1"
+                                       help="Placeholder refunds have zero amount and are linked to a return request. They indicate the store recorded a return without a separate monetary refund."/>
+                                <field name="erp_order_id" readonly="1"
+                                       string="Sales Order"/>
+                            </group>
+                            <group string="Accounting">
+                                <field name="credit_note_id" readonly="1"
+                                       string="Credit Note"
+                                       groups="account.group_account_user"/>
+                                <field name="payment_ids" readonly="1"
+                                       widget="many2many_tags"
+                                       string="Refund Payments"
+                                       groups="account.group_account_user"/>
+                                <field name="linked_return_id" readonly="1"
+                                       string="Linked Return"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Refunded Items" name="refund_lines">
+                                <field name="line_ids" readonly="1">
+                                    <list>
+                                        <field name="external_sku" string="SKU"/>
+                                        <field name="is_shipping" string="Shipping"
+                                               optional="show"/>
+                                        <field name="quantity" string="Qty"/>
+                                        <field name="subtotal" string="Refund Amount"/>
+                                        <field name="total_tax" string="Tax"/>
+                                        <field name="currency_id" column_invisible="1"/>
+                                        <field name="original_unit_price"
+                                               string="Original Price"
+                                               optional="show"/>
+                                        <field name="discount_for_refund"
+                                               string="Discount"
+                                               optional="hide"/>
+                                        <field name="restock_type" string="Restock"
+                                               optional="show"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Linked Transactions" name="transactions"
+                                  groups="account.group_account_user">
+                                <field name="transaction_ids" readonly="1">
+                                    <list>
+                                        <field name="kind" string="Type"/>
+                                        <field name="gateway" string="Gateway"/>
+                                        <field name="amount" string="Amount"/>
+                                        <field name="currency" string="Currency"/>
+                                        <field name="internal_status"
+                                               string="Status"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Technical Details" name="technical"
+                                  groups="base.group_no_one">
+                                <group>
+                                    <group>
+                                        <field name="id" readonly="1" string="ID"/>
+                                        <field name="name" readonly="1"
+                                               string="Resource Name"/>
+                                        <field name="external_str_id" readonly="1"
+                                               string="External ID"/>
+                                        <field name="linked_return_str_id" readonly="1"/>
+                                        <field name="parent_refund_str_id" readonly="1"/>
+                                    </group>
+                                    <group>
+                                        <field name="data_hash" readonly="1"/>
+                                        <field name="external_timestamp" readonly="1"/>
+                                        <field name="external_status" readonly="1"/>
+                                        <field name="is_ecommerce_ok" readonly="1"/>
+                                        <field name="internal_info" readonly="1"
+                                               string="Processing Notes"/>
+                                        <field name="integration_id" readonly="1"/>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="external_order_refund_view_tree" model="ir.ui.view">
+            <field name="name">external.order.refund.view.list</field>
+            <field name="model">external.order.refund</field>
+            <field name="arch" type="xml">
+                <list create="0" js_class="external_order_record_list_view"
+                      decoration-danger="internal_status == 'failed'"
+                      decoration-info="is_placeholder or internal_status == 'draft'"
+                      decoration-muted="internal_status in ('done', 'skipped') and not is_placeholder">
+                    <field name="id" groups="base.group_no_one"/>
+                    <field name="integration_id"/>
+                    <field name="erp_order_id"/>
+                    <field name="external_str_id" optional="hide"/>
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="is_placeholder" column_invisible="1"/>
+                    <field name="total_refunded_amount" string="Refund Amount"/>
+                    <field name="note" string="Reason" optional="show"/>
+                    <field name="credit_note_id" string="Credit Note"
+                           groups="account.group_account_user" optional="show"/>
+                    <field name="internal_status" string="Processing Status"/>
+                    <field name="is_ecommerce_ok" column_invisible="1"/>
+                    <button name="action_validate" type="object" string="Apply"
+                            invisible="internal_status in ('done', 'skipped') or not is_ecommerce_ok"/>
+                    <button name="action_validate" type="object" string="Apply"
+                            confirm="This refund was marked as skipped. Apply it anyway?"
+                            invisible="internal_status != 'skipped' or not is_ecommerce_ok"/>
+                    <button name="action_skip" type="object" string="Skip"
+                            confirm="Mark this record as skipped? The connector will ignore it from now on."
+                            invisible="internal_status in ('done', 'skipped')"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="external_order_refund_view_search" model="ir.ui.view">
+            <field name="name">external.order.refund.view.search</field>
+            <field name="model">external.order.refund</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="erp_order_id"/>
+                    <field name="external_str_id"/>
+                    <group>
+                        <filter string="Sales Order" name="group_by_erp_order_id" context="{'group_by': 'erp_order_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="external_order_refund_action" model="ir.actions.act_window">
+            <field name="name">Order Refunds</field>
+            <field name="path">eci-order-refunds</field>
+            <field name="res_model">external.order.refund</field>
+            <field name="view_mode">list,form</field>
+            <field name="group_ids" eval="[(4, ref('base.group_no_one'))]"/>
+        </record>
+
+    </data>
+</odoo>

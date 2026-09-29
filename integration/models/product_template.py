@@ -665,13 +665,30 @@ class ProductTemplate(models.Model):
         We request `export_images=True`, but image export is still gated per integration by its `allow_export_images`
         setting (see `export_template`), so stores with image export disabled are not affected.
         """
-        return self.with_context(manual_trigger=True).trigger_export(export_images=True)
+        triggered = self.with_context(manual_trigger=True).trigger_export(export_images=True)
+        title = _('Export to Stores')
+
+        if not triggered:
+            return self.display_integration_notification(
+                _('Nothing was exported: no eligible products or active integrations were found.'),
+                title=title, ttype='warning',
+            )
+
+        message = _('Queue Job "Export to Stores" is created') if len(self) == 1 \
+            else _('Queue Jobs "Export to Stores" are created')
+        return self.display_integration_notification(message, title=title)
 
     def export_images_to_integration(self):
         self.ensure_one()
         integrations = self.mapped('product_variant_ids.integration_ids').filtered(
             lambda x: x.is_active and x.allow_export_images
         )
+
+        if not integrations:
+            return self.display_integration_notification(
+                _('There are no active stores with image export enabled for this product.'),
+                title=_('Export Images Only'), ttype='warning',
+            )
 
         for integration in integrations:
             kw = integration._job_kwargs_export_images(self)
@@ -689,7 +706,9 @@ class ProductTemplate(models.Model):
                     erase_mappings=self.env.context.get('integration_erase_mappings'),
                 )
 
-        return True
+        return self.display_integration_notification(
+            _('Queue Jobs "Export Images to Stores" are created'), title=_('Export Images Only'),
+        )
 
     def trigger_export(self, export_images=False, force_integrations=None):
         if self.env.context.get('skip_product_export'):
@@ -697,7 +716,7 @@ class ProductTemplate(models.Model):
                 'Integration export template: %s. Job skipped from context variable.',
                 self,
             )
-            return
+            return False
 
         # The `manual_trigger` flag have to be boolean (not None or something).
         # It used in the `queue.job` identity key formatting.
@@ -720,9 +739,10 @@ class ProductTemplate(models.Model):
 
         if not integrations:
             _logger.info('Integration `trigger_export` skipped. There are no active integrations.')
-            return
+            return False
 
         templates = self
+        queued = False
         while templates:
             block += 1
             templates_block = templates[:EXPORT_EXTERNAL_BLOCK]
@@ -734,18 +754,24 @@ class ProductTemplate(models.Model):
                     'job_related_record_model': self._name,
                     'job_related_record_ids': templates_block.ids,
                 }
-                templates_block = templates_block.with_context(**context).with_delay(
+                # Preparation itself is queued as a real job, so this is unconditionally "queued",
+                # regardless of whether any export job ends up created once it runs.
+                templates_block.with_context(**context).with_delay(
                     priority=11,
                     description=f'Export Templates. Prepare Templates ({block})',
-                )
-
-            templates_block.trigger_export_by_block(
-                export_images, integrations, manual_trigger,
-            )
+                ).trigger_export_by_block(export_images, integrations, manual_trigger)
+                queued = True
+            else:
+                queued = templates_block.trigger_export_by_block(
+                    export_images, integrations, manual_trigger,
+                ) or queued
 
             templates = templates[EXPORT_EXTERNAL_BLOCK:]
 
+        return queued
+
     def trigger_export_by_block(self, export_images, integrations, force_trigger):
+        queued = False
 
         for template in self:
             if force_trigger and not template.active:
@@ -792,6 +818,9 @@ class ProductTemplate(models.Model):
                 integration \
                     .with_context(**context) \
                     .with_delay(**job_kwargs).export_template(template, **kwargs)
+                queued = True
+
+        return queued
 
     def _check_filling_mandatory_fields(self, integration):
         variant_ids = self.product_variant_ids
@@ -1214,9 +1243,20 @@ class ProductTemplate(models.Model):
                     variant_vals['integration_ids'] = integration_ids
                 variants_to_create.append(variant_vals)
 
+        title = _('Generate Variants')
+
         if variants_to_create:
-            return Product.create(variants_to_create)
-        return Product
+            created = Product.create(variants_to_create)
+            return self.display_integration_notification(_('%s variant(s) generated.') % len(created), title=title)
+
+        if variants_to_unlink:
+            return self.display_integration_notification(
+                _('%s variant(s) unlinked from stores and archived; no new variants were needed.')
+                % len(variants_to_unlink),
+                title=title,
+            )
+
+        return self.display_integration_notification(_('No new variants were needed.'), title=title)
 
     def _prepare_integration_ids(self):
         if len(self.product_variant_ids) > 1:

@@ -50,6 +50,9 @@ class AccountMove(models.Model):
         return res
 
     def _invoice_paid_hook(self):
+        """Lifecycle hook: extends Odoo's account.move._invoice_paid_hook to fan
+        out to the integration's invoice-paid hooks on the invoice's sale orders.
+        """
         res = super(AccountMove, self)._invoice_paid_hook()
 
         self.filtered(lambda x: x.is_invoice())._run_integration_invoice_paid_hooks()
@@ -57,6 +60,13 @@ class AccountMove(models.Model):
         return res
 
     def _run_integration_invoice_paid_hooks(self):
+        """Lifecycle hook: invoice paid → enqueue entity processing.
+
+        Refunds attempted on invoice post may have been deferred (the invoice wasn't paid yet,
+        so credit-note auto-reconciliation would have eaten the invoice balance). Now that the
+        invoice is paid, enqueue processing to retry all pending entities. The hook only
+        triggers — all business logic lives in the processing job.
+        """
         total_result = list()
 
         for invoice in self:
@@ -67,20 +77,36 @@ class AccountMove(models.Model):
                     res = order._integration_paid_order_hook()
                     invoice_result.append((order, res))
 
+                    order._enqueue_external_entities_processing()
+
             total_result.append((invoice, invoice_result))
 
         return total_result
 
     def _integration_post_invoice_post(self):
+        """Lifecycle hook: invoice posted → enqueue entity processing.
+
+        Enqueues a job that processes all pending entities (fulfillments, payments, returns,
+        refunds) in dependency order. If the invoice is not yet paid, refunds will be deferred
+        and retried on the paid hook above. The hook only triggers — all business logic lives
+        in the processing job.
+        """
+        if self.env.context.get('skip_external_entity_dispatch'):
+            return
+
         for invoice in self:
             if not invoice.is_invoice():
                 continue
 
-            # This hook mark order as paid in e-commerce system (if payment method configured that way)
             if invoice.invoice_not_paid:
+                # Notify the e-commerce platform about the validated invoice
+                # (some payment methods mark the order as paid at this point).
                 for order in invoice.invoice_line_ids.mapped('sale_line_ids.order_id'):
                     order._integration_validate_invoice_order_hook()
 
-            # Register external payments against the freshly posted invoice (standard flow).
+            # Enqueue per-order processing for any external entities whose prerequisites the
+            # just-posted invoice may have unlocked. The dispatcher's transaction stage
+            # registers external payments against the freshly posted invoice, which is what
+            # the direct _integration_apply_external_payments() call used to do here.
             for order in invoice.invoice_line_ids.mapped('sale_line_ids.order_id'):
-                order._integration_apply_external_payments()
+                order._enqueue_external_entities_processing()

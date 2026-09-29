@@ -25,7 +25,7 @@ class ResConfigSettings(models.TransientModel):
     zld_api_key = fields.Char(
         string='ZLD API Key',
         compute='_compute_zld_api_key',
-        help='API key for the access from ZPL Label Designer',
+        help='API key for the access from Label Designer PRO',
     )
 
     zld_pdf_labelary_requests_today = fields.Integer(
@@ -97,7 +97,7 @@ class ResConfigSettings(models.TransientModel):
 
     def open_designer_connection(self):
         """
-        Open the ZPL Label Designer "new connection" page with the form
+        Open the Label Designer PRO "new connection" page with the form
         pre-filled (name, Odoo base URL, database, API key) via URL fragment.
         """
         ICP = self.env['ir.config_parameter'].sudo()

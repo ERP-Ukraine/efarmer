@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Export-to-Shopify button on the return picking form.
+         Visible when the picking is a return on a Shopify-linked sale order with
+         returns/refunds sync enabled AND not yet exported (see the
+         is_shopify_return_export_eligible compute, which hides it once an
+         external.order.return mapping exists). Placed at the very end of the
+         header button row, set off from the native buttons by a vertical rule.
+    -->
+    <record id="view_picking_form_shopify_return_export" model="ir.ui.view">
+        <field name="name">stock.picking.form.shopify.return.export</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='action_cancel']" position="after">
+                <field name="is_shopify_return_export_eligible" invisible="1"/>
+                <span class="vr mx-2"
+                      invisible="not is_shopify_return_export_eligible or state == 'cancel'"/>
+                <button name="action_export_return_to_shopify"
+                        string="Export to Shopify"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="not is_shopify_return_export_eligible or state == 'cancel'"
+                        groups="base.group_user"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

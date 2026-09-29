@@ -173,17 +173,8 @@ class ProductPricelist(models.Model):
         return _('Operation skipped. No pricelist items were found for export.')
 
     def _return_display_notification(self, msg=False):
-        message = msg or _('Queue Jobs "Find Products for Specific Prices" were created')
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Find Products for Specific Prices'),
-                'message': message,
-                'type': 'success',
-                'sticky': False,
-            }
-        }
+        message = msg or _('Queue Jobs "Find Products for Specific Prices" are created')
+        return self.display_integration_notification(message, title=_('Find Products for Specific Prices'))
 
 
 class ProductPricelistItem(models.Model):

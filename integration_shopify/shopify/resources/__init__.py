@@ -31,6 +31,10 @@ from .order_display_fulfillment_status import OrderDisplayFulfillmentStatus
 from .order_return_status import OrderReturnStatus
 from .file_status import FileStatus
 from .media_status import MediaStatus
+from .shopify_payments_payout_status import ShopifyPaymentsPayoutStatus
+from .shopify_payments_payout_transaction_type import ShopifyPaymentsPayoutTransactionType
+from .shopify_payments_source_type import ShopifyPaymentsSourceType
+from .shopify_payments_transaction_type import ShopifyPaymentsTransactionType
 
 # 2. Interfaces
 from .file import File
@@ -53,12 +57,21 @@ from .fulfillment_order_line_item import FulfillmentOrderLineItem
 from .inventory_level import InventoryLevel
 from .line_item import LineItem, OrderLineItem
 from .money_bag import MoneyBag
+from .money_v2 import MoneyV2
 from .market_catalog import MarketCatalog
+from .market_region_country import MarketRegionCountry
+from .market_region_subdivision import MarketRegionSubdivision
 from .company_location_catalog import CompanyLocationCatalog
 from .mailing_address import MailingAddress
+from .shop_address import ShopAddress
 from .media_image import MediaImage
 from .order_risk_summary import OrderRiskSummary
 from .order_transaction import OrderTransaction
+from .order_refund import Refund
+from .refund_line_item import RefundLineItem
+from .refund_shipping_line import RefundShippingLine
+from .order_return import Return
+from .return_line_item import ReturnLineItem
 from .shipping_line import ShippingLine
 from .tax_line import TaxLine
 from .product_option import ProductOption
@@ -92,3 +105,6 @@ from .webhook_subscription import WebhookSubscription
 from .fulfillment import Fulfillment
 from .fulfillment_order import FulfillmentOrder
 from .order import Order
+from .shopify_payments_account import ShopifyPaymentsAccount
+from .shopify_payments_payout import ShopifyPaymentsPayout
+from .shopify_payments_balance_transaction import ShopifyPaymentsBalanceTransaction

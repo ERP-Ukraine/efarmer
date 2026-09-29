@@ -8,7 +8,7 @@
             <field name="arch" type="xml">
                 <form string="Sales Order Raw Data">
                     <header>
-                        <button name="process" type="object" string="Process" class="btn-primary"/>
+                        <button name="action_process_order" type="object" string="Process" class="btn-primary"/>
                         <button name="open_pipeline_form" type="object" string="Order Automation" invisible="not order_id" class="btn-secondary"/>
                         <button type="object" name="action_open_related_jobs" string="View Related Jobs"/>
                         <span class="vr mx-3 align-self-center" style="height: 25px" groups="base.group_no_one"/>
@@ -175,7 +175,7 @@
                             domain="[]"
                             context="{'group_by': 'order_id'}"
                     />
-                    <filter string="Integration"
+                    <filter string="E-Commerce Store"
                             name="group_integration"
                             domain="[]"
                             context="{'group_by': 'si_id'}"
@@ -210,7 +210,7 @@
             <field name="binding_model_id" ref="integration.model_sale_integration_input_file" />
             <field name="binding_view_types">list</field>
             <field name="state">code</field>
-            <field name="code">action = records.process_all()</field>
+            <field name="code">action = records.action_process_all()</field>
         </record>
 
     </data>

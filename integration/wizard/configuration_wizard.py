@@ -274,6 +274,10 @@ class QuickConfiguration(models.AbstractModel):
         self.integration_id \
             .invalidate_integration_cache(erase_config_wizard=True)
 
+        return self.display_integration_notification(
+            _('The adapter cache has been cleared.'), title=_('Reset Wizard Progress'),
+        )
+
     def open_integration_view(self):
         return {
             'type': 'ir.actions.act_window',

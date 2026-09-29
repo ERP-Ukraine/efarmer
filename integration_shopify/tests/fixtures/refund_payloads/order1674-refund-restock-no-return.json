@@ -1,0 +1,384 @@
+{
+    "data": {
+        "order": {
+            "id": "gid://shopify/Order/6762388586710",
+            "name": "#1674",
+            "sourceName": "shopify_draft_order",
+            "email": "iamafruitbatman@gmail.com",
+            "phone": "+48123456789",
+            "confirmed": true,
+            "cancelReason": null,
+            "cancelledAt": null,
+            "closedAt": "2026-06-14T13:28:19Z",
+            "createdAt": "2026-06-14T13:26:57Z",
+            "updatedAt": "2026-06-14T13:29:21Z",
+            "processedAt": "2026-06-14T13:26:57Z",
+            "displayFulfillmentStatus": "FULFILLED",
+            "displayFinancialStatus": "PARTIALLY_REFUNDED",
+            "returnStatus": "NO_RETURN",
+            "customerLocale": "en",
+            "taxesIncluded": true,
+            "taxExempt": false,
+            "totalWeight": "0",
+            "confirmationNumber": "KEWNGH8EW",
+            "discountCode": null,
+            "discountCodes": [],
+            "currencyCode": "EUR",
+            "presentmentCurrencyCode": "EUR",
+            "requiresShipping": true,
+            "tags": [],
+            "note": null,
+            "fullyPaid": true,
+            "fulfillable": false,
+            "canMarkAsPaid": false,
+            "paymentGatewayNames": [
+                "manual"
+            ],
+            "billingAddressMatchesShippingAddress": true,
+            "poNumber": null,
+            "publication": null,
+            "fulfillments": [
+                {
+                    "id": "gid://shopify/Fulfillment/5980940501206",
+                    "name": "#1674-F1",
+                    "status": "SUCCESS",
+                    "displayStatus": "FULFILLED",
+                    "totalQuantity": 3,
+                    "trackingInfo": [
+                        {
+                            "number": "DPD123321123",
+                            "company": "DPD",
+                            "url": "https://www.dpdgroup.com/nl/mydpd/my-parcels/incoming"
+                        }
+                    ],
+                    "order": {
+                        "id": "gid://shopify/Order/6762388586710"
+                    },
+                    "fulfillmentOrders": {
+                        "nodes": [
+                            {
+                                "id": "gid://shopify/FulfillmentOrder/7901170073814"
+                            }
+                        ]
+                    },
+                    "location": {
+                        "id": "gid://shopify/Location/70207045846"
+                    },
+                    "fulfillmentLineItems": {
+                        "nodes": [
+                            {
+                                "id": "gid://shopify/FulfillmentLineItem/13574056739030",
+                                "quantity": 3,
+                                "lineItem": {
+                                    "id": "gid://shopify/LineItem/15868937732310",
+                                    "sku": "woo-beanie",
+                                    "quantity": 3,
+                                    "nonFulfillableQuantity": 0,
+                                    "variant": {
+                                        "id": "gid://shopify/ProductVariant/48358473433302",
+                                        "product": {
+                                            "id": "gid://shopify/Product/9382283509974"
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "service": {
+                        "id": "gid://shopify/FulfillmentService/manual",
+                        "handle": "manual",
+                        "serviceName": "Manual",
+                        "trackingSupport": false,
+                        "type": "MANUAL"
+                    },
+                    "updatedAt": "2026-06-14T13:28:19Z"
+                }
+            ],
+            "fulfillmentOrders": {
+                "nodes": [
+                    {
+                        "id": "gid://shopify/FulfillmentOrder/7901170073814",
+                        "status": "CLOSED",
+                        "orderId": "gid://shopify/Order/6762388586710",
+                        "fulfillAt": "2026-06-14T13:00:00Z",
+                        "fulfillBy": null,
+                        "updatedAt": "2026-06-14T13:28:19Z",
+                        "lineItems": {
+                            "nodes": [
+                                {
+                                    "id": "gid://shopify/FulfillmentOrderLineItem/16127505858774",
+                                    "totalQuantity": 3,
+                                    "remainingQuantity": 0,
+                                    "sku": "woo-beanie",
+                                    "lineItem": {
+                                        "id": "gid://shopify/LineItem/15868937732310"
+                                    }
+                                }
+                            ]
+                        },
+                        "deliveryMethod": {
+                            "id": "gid://shopify/DeliveryMethod/2067835158742",
+                            "presentedName": "DPD",
+                            "methodType": "SHIPPING",
+                            "serviceCode": "custom"
+                        },
+                        "assignedLocation": {
+                            "location": {
+                                "id": "gid://shopify/Location/70207045846"
+                            }
+                        }
+                    }
+                ]
+            },
+            "currentTotalPriceSet": {
+                "presentmentMoney": {
+                    "amount": "29.9",
+                    "currencyCode": "EUR"
+                },
+                "shopMoney": {
+                    "amount": "29.9",
+                    "currencyCode": "EUR"
+                }
+            },
+            "lineItems": {
+                "nodes": [
+                    {
+                        "id": "gid://shopify/LineItem/15868937732310",
+                        "name": "Beanie",
+                        "quantity": 3,
+                        "isGiftCard": false,
+                        "currentQuantity": 1,
+                        "taxable": true,
+                        "sku": "woo-beanie",
+                        "taxLines": [
+                            {
+                                "rate": 0.23,
+                                "ratePercentage": 23.0,
+                                "source": "Shopify",
+                                "title": "PL VAT",
+                                "priceSet": {
+                                    "presentmentMoney": {
+                                        "amount": "11.22",
+                                        "currencyCode": "EUR"
+                                    },
+                                    "shopMoney": {
+                                        "amount": "11.22",
+                                        "currencyCode": "EUR"
+                                    }
+                                }
+                            }
+                        ],
+                        "product": {
+                            "id": "gid://shopify/Product/9382283509974"
+                        },
+                        "variant": {
+                            "id": "gid://shopify/ProductVariant/48358473433302",
+                            "sku": "woo-beanie",
+                            "title": "Default Title",
+                            "product": {
+                                "id": "gid://shopify/Product/9382283509974"
+                            }
+                        },
+                        "originalUnitPriceSet": {
+                            "presentmentMoney": {
+                                "amount": "20.0",
+                                "currencyCode": "EUR"
+                            },
+                            "shopMoney": {
+                                "amount": "20.0",
+                                "currencyCode": "EUR"
+                            }
+                        },
+                        "discountAllocations": []
+                    }
+                ]
+            },
+            "shippingLine": {
+                "id": "gid://shopify/ShippingLine/5507221225686",
+                "title": "DPD",
+                "code": "custom",
+                "carrierIdentifier": null,
+                "originalPriceSet": {
+                    "presentmentMoney": {
+                        "amount": "9.9",
+                        "currencyCode": "EUR"
+                    },
+                    "shopMoney": {
+                        "amount": "9.9",
+                        "currencyCode": "EUR"
+                    }
+                },
+                "currentDiscountedPriceSet": {
+                    "presentmentMoney": {
+                        "amount": "9.9",
+                        "currencyCode": "EUR"
+                    },
+                    "shopMoney": {
+                        "amount": "9.9",
+                        "currencyCode": "EUR"
+                    }
+                },
+                "taxLines": [
+                    {
+                        "rate": 0.23,
+                        "ratePercentage": 23.0,
+                        "source": "Shopify",
+                        "title": "PL VAT",
+                        "priceSet": {
+                            "presentmentMoney": {
+                                "amount": "1.85",
+                                "currencyCode": "EUR"
+                            },
+                            "shopMoney": {
+                                "amount": "1.85",
+                                "currencyCode": "EUR"
+                            }
+                        }
+                    }
+                ],
+                "discountAllocations": []
+            },
+            "transactions": [
+                {
+                    "id": "gid://shopify/OrderTransaction/8187713913046",
+                    "order": {
+                        "id": "gid://shopify/Order/6762388586710"
+                    },
+                    "paymentId": "rzupzFpPuaf3CqQIuJVLMXt6g",
+                    "kind": "SALE",
+                    "status": "SUCCESS",
+                    "gateway": "manual",
+                    "formattedGateway": "Manual",
+                    "amountSet": {
+                        "presentmentMoney": {
+                            "amount": "69.9",
+                            "currencyCode": "EUR"
+                        },
+                        "shopMoney": {
+                            "amount": "69.9",
+                            "currencyCode": "EUR"
+                        }
+                    },
+                    "parentTransaction": null,
+                    "processedAt": "2026-06-14T13:26:57Z"
+                },
+                {
+                    "id": "gid://shopify/OrderTransaction/8187718631638",
+                    "order": {
+                        "id": "gid://shopify/Order/6762388586710"
+                    },
+                    "paymentId": "#1674.1",
+                    "kind": "REFUND",
+                    "status": "SUCCESS",
+                    "gateway": "manual",
+                    "formattedGateway": "Manual",
+                    "amountSet": {
+                        "presentmentMoney": {
+                            "amount": "40.0",
+                            "currencyCode": "EUR"
+                        },
+                        "shopMoney": {
+                            "amount": "40.0",
+                            "currencyCode": "EUR"
+                        }
+                    },
+                    "parentTransaction": {
+                        "id": "gid://shopify/OrderTransaction/8187713913046",
+                        "paymentId": "rzupzFpPuaf3CqQIuJVLMXt6g"
+                    },
+                    "processedAt": "2026-06-14T13:29:20Z"
+                }
+            ],
+            "customAttributes": [],
+            "refunds": [
+                {
+                    "id": "gid://shopify/Refund/950343270614",
+                    "createdAt": "2026-06-14T13:29:20Z",
+                    "note": "Customer requested refund",
+                    "totalRefundedSet": {
+                        "shopMoney": {
+                            "amount": "40.0",
+                            "currencyCode": "EUR"
+                        }
+                    },
+                    "refundLineItems": {
+                        "edges": [
+                            {
+                                "node": {
+                                    "quantity": 2,
+                                    "restockType": "RETURN",
+                                    "location": {
+                                        "id": "gid://shopify/Location/70207045846",
+                                        "name": "al. Jerozolimskie 81"
+                                    },
+                                    "lineItem": {
+                                        "id": "gid://shopify/LineItem/15868937732310",
+                                        "name": "Beanie",
+                                        "sku": "woo-beanie",
+                                        "quantity": 3
+                                    },
+                                    "priceSet": {
+                                        "shopMoney": {
+                                            "amount": "20.0",
+                                            "currencyCode": "EUR"
+                                        }
+                                    },
+                                    "subtotalSet": {
+                                        "shopMoney": {
+                                            "amount": "40.0",
+                                            "currencyCode": "EUR"
+                                        }
+                                    },
+                                    "totalTaxSet": {
+                                        "shopMoney": {
+                                            "amount": "7.48",
+                                            "currencyCode": "EUR"
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "transactions": {
+                        "edges": [
+                            {
+                                "node": {
+                                    "id": "gid://shopify/OrderTransaction/8187718631638",
+                                    "kind": "REFUND",
+                                    "status": "SUCCESS",
+                                    "amountSet": {
+                                        "shopMoney": {
+                                            "amount": "40.0",
+                                            "currencyCode": "EUR"
+                                        }
+                                    },
+                                    "parentTransaction": {
+                                        "id": "gid://shopify/OrderTransaction/8187713913046",
+                                        "kind": "SALE"
+                                    },
+                                    "gateway": "manual",
+                                    "processedAt": "2026-06-14T13:29:20Z"
+                                }
+                            }
+                        ]
+                    },
+                    "return": null
+                }
+            ],
+            "returns": {
+                "edges": []
+            }
+        }
+    },
+    "extensions": {
+        "cost": {
+            "requestedQueryCost": 640,
+            "actualQueryCost": 37,
+            "throttleStatus": {
+                "maximumAvailable": 2000.0,
+                "currentlyAvailable": 1963,
+                "restoreRate": 100.0
+            }
+        }
+    }
+}

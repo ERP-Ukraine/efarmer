@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!--
+        Unresolved-returns warning panel on outgoing customer-delivery
+        pickings. Visibility is computed from has_pending_external_returns
+        on the linked sale order; the picking_type_code filter keeps the
+        panel off internal moves (pick/pack steps in multi-step warehouse
+        configurations). picking_type_code (the stored related field) is used
+        rather than picking_type_id.code because the web client only evaluates
+        invisible expressions against loaded fields — the .code sub-field of the
+        m2o is not loaded, so picking_type_id.code reads as undefined client-side
+        and would hide the panel unconditionally. Mirrors the panel on the sale
+        order form.
+    -->
+    <record id="view_picking_form_pending_returns_alert" model="ir.ui.view">
+        <field name="name">stock.picking.form.pending.returns.alert</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/div[hasclass('oe_title')]" position="after">
+                <field name="has_pending_external_returns" invisible="1"/>
+                <field name="picking_type_code" invisible="1"/>
+                <div class="alert alert-warning" role="alert"
+                     invisible="not has_pending_external_returns or picking_type_code != 'outgoing' or state in ['done', 'cancel']">
+                    <strong>Unresolved returns on the source order</strong>
+                    <p class="mb-1">
+                        The sales order linked to this delivery has unresolved returns from
+                        the store. Validating this delivery without checking them may result
+                        in over-shipping. Open the sales order to review and resolve the
+                        pending returns before validating here.
+                    </p>
+                    <button name="action_open_sale_order" type="object"
+                            string="Open Sales Order"
+                            class="btn btn-outline-primary btn-sm"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

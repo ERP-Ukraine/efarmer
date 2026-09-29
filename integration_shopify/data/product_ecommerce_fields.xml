@@ -17,7 +17,23 @@
             <field name="is_translatable_field" eval="True"/>
             <field name="export_field_type">string</field>
             <field name="import_script"/>
-            <field name="export_script"/>
+            <field name="export_script">
+odoo_name = field.get_odoo_field_name()
+api_name = field.get_api_field_name()
+
+value_ = template.convert_field_value_to_external(
+    integration.id, odoo_name, translate=field.is_translatable_field,
+)
+value_ = field.convert_to_export_type(integration.id, value_)
+
+# Do not send empty product name
+if isinstance(value_, dict) and 'language' in value_:
+    is_empty_value = not any(value_['language'].values())
+else:
+    is_empty_value = not value_
+
+value = {} if is_empty_value else {api_name: value_}
+            </field>
         </record>
 
         <record id="shopify_ecommerce_field_title_website_product_name" model="product.ecommerce.field">
@@ -34,7 +50,23 @@
             <field name="is_translatable_field" eval="True"/>
             <field name="export_field_type">string</field>
             <field name="import_script"/>
-            <field name="export_script"/>
+            <field name="export_script">
+odoo_name = field.get_odoo_field_name()
+api_name = field.get_api_field_name()
+
+value_ = template.convert_field_value_to_external(
+    integration.id, odoo_name, translate=field.is_translatable_field,
+)
+value_ = field.convert_to_export_type(integration.id, value_)
+
+# Do not send empty product name
+if isinstance(value_, dict) and 'language' in value_:
+    is_empty_value = not any(value_['language'].values())
+else:
+    is_empty_value = not value_
+
+value = {} if is_empty_value else {api_name: value_}
+            </field>
         </record>
 
         <record id="shopify_ecommerce_field_description" model="product.ecommerce.field">
@@ -721,7 +753,8 @@ odoo_name = field.get_odoo_field_name()
 
 inventory_policy = product_variant.inventory_policy if product_variant else None
 
-if not inventory_policy:
+# Import inventory policy only when Shopify provides a value.
+if inventory_policy:
     value = {
         odoo_name: inventory_policy,
     }

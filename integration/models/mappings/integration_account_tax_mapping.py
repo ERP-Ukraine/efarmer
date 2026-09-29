@@ -1,7 +1,7 @@
 # See LICENSE file for full copyright and licensing details.
 
 from odoo.tools.sql import escape_psql
-from odoo import fields, models
+from odoo import fields, models, _
 
 
 class IntegrationAccountTaxMapping(models.Model):
@@ -15,7 +15,7 @@ class IntegrationAccountTaxMapping(models.Model):
         string='Odoo Tax',
         comodel_name='account.tax',
         ondelete='set null',
-        domain="[('type_tax_use','=','sale'), ('company_id', '=', company_id)]",
+        domain="[('type_tax_use','=','sale'), ('company_id', 'parent_of', company_id)]",
     )
     external_tax_id = fields.Many2one(
         string='External Tax',
@@ -33,6 +33,12 @@ class IntegrationAccountTaxMapping(models.Model):
 
     def action_import_taxes_from_mapping(self):
         tax_external_ids = self.filtered(lambda x: not x.tax_id).mapped('external_tax_id')
+
+        if not tax_external_ids:
+            return self.display_integration_notification(
+                _('There are no unmapped taxes to import.'), title=_('Import Taxes'), ttype='warning',
+            )
+
         return tax_external_ids.action_import_taxes_from_external()
 
     def _fix_unmapped_tax_one(self, external_data=None):
@@ -96,7 +102,10 @@ class IntegrationAccountTaxMapping(models.Model):
             ('type_tax_use', '=', 'sale'),
             ('amount_type', '=', 'percent'),
             ('name', '=ilike', escape_psql(self.external_tax_id.name)),
-            ('company_id', '=', self.integration_id.company_id.id),
+            # Odoo enforces tax-name uniqueness across the whole company branch tree, not per
+            # company (account.tax._constrains_name), so a tax with a matching name can live on
+            # this company or any of its ancestors — matching the "Odoo Tax" field's own domain.
+            ('company_id', 'parent_of', self.company_id.id),
         ]
         if external_data:
             domain.append(

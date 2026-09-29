@@ -49,7 +49,13 @@ class ResConfigSettings(models.TransientModel):
 
     def regenerate_integration_api_key(self):
         self.ensure_one()
-        return self.env['sale.integration'].generate_integration_api_key()
+        self.env['sale.integration'].generate_integration_api_key()
+
+        # The Settings screen doesn't refetch `get_values()` on its own, so without a reload the
+        # `integration_api_key` field would keep showing the now-stale key it loaded on page open.
+        return self.display_integration_notification(
+            _('A new API key has been generated.'), title=_('Regenerate API Key'), reload=True,
+        )
 
     def validate_configuration(self):
         self.ensure_one()

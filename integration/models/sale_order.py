@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 from odoo import fields, models, api, SUPERUSER_ID, _
 from odoo.tools.float_utils import float_compare
-from odoo.tools import float_is_zero
+from odoo.tools import float_is_zero, LazyTranslate
 from odoo.exceptions import UserError
 
 from .auto_workflow.integration_workflow_pipeline import SKIP, TO_DO, STATUS_FAILED
@@ -17,6 +17,17 @@ from ...integration.exceptions import ApiImportError, ErrorStore as es
 
 
 _logger = logging.getLogger(__name__)
+_lt = LazyTranslate(__name__)
+
+
+# User-facing labels for entity types in job processing summaries. Values are
+# lazy-translated so they're statically extractable and rendered per request.
+ENTITY_LABELS = {
+    'fulfillments': _lt('Deliveries'),
+    'transactions': _lt('Payments'),
+    'returns': _lt('Returns'),
+    'refunds': _lt('Refunds'),
+}
 
 
 def reset_next_value_if_not_previous(task_list):
@@ -100,6 +111,20 @@ class SaleOrder(models.Model):
         copy=False,
     )
 
+    external_refund_ids = fields.One2many(
+        comodel_name='external.order.refund',
+        inverse_name='erp_order_id',
+        string='Refunds',
+        copy=False,
+    )
+
+    external_return_ids = fields.One2many(
+        comodel_name='external.order.return',
+        inverse_name='erp_order_id',
+        string='Returns',
+        copy=False,
+    )
+
     related_input_files = fields.One2many(
         string='Related input files',
         comodel_name='sale.integration.input.file',
@@ -151,6 +176,15 @@ class SaleOrder(models.Model):
     integration_pipeline_failed = fields.Boolean(
         string='Order Automation Failed',
         compute='_compute_integration_pipeline_failed',
+    )
+
+    has_pending_external_returns = fields.Boolean(
+        compute='_compute_has_pending_external_returns',
+        help='True when this order has at least one external return that is '
+             'neither done nor skipped. Drives the unresolved-returns warning '
+             'panel and the outgoing-picking validation block — the merchant '
+             'must resolve or skip pending returns before validating delivery '
+             'to avoid over-shipping.',
     )
 
     @property
@@ -405,6 +439,21 @@ class SaleOrder(models.Model):
             external_locations = rec._integration_external_locations()
             rec.is_multi_stock = len(external_locations) > 1
 
+    def _compute_has_pending_external_returns(self):
+        """Single indexed search_count per order (erp_order_id is a M2O —
+        auto-indexed). limit=1 caps the COUNT to an existence check; SQL
+        short-circuits after the first matching row. store=False keeps the
+        field out of the DB column layout and out of init-time population
+        on module upgrade, so this is safe on installations with hundreds
+        of thousands of historical orders.
+        """
+        Return = self.env['external.order.return']
+        for order in self:
+            order.has_pending_external_returns = bool(Return.search_count([
+                ('erp_order_id', '=', order.id),
+                ('internal_status', 'not in', ['done', 'skipped']),
+            ], limit=1))
+
     @api.depends('amount_total', 'integration_amount_total')
     def _compute_is_total_amount_difference(self):
         for order in self:
@@ -438,6 +487,10 @@ class SaleOrder(models.Model):
         return False
 
     def _integration_cancel_order_hook(self):
+        """Lifecycle hook: order canceled in Odoo → run the connector's
+        cancel-order routine and, optionally, sync inventory levels back to
+        the e-commerce platform.
+        """
         self.ensure_one()
 
         if not self.integration_id:
@@ -464,6 +517,10 @@ class SaleOrder(models.Model):
         return result
 
     def _integration_shipped_order_hook(self):
+        """Lifecycle hook: order shipped in Odoo → if the integration has
+        tracking-export enabled, hand off to the connector's shipped-order
+        routine to push tracking info back to the e-commerce platform.
+        """
         self.ensure_one()
         if not self.integration_id.export_tracking_job_enabled:
             return None
@@ -473,6 +530,11 @@ class SaleOrder(models.Model):
             ._perform_method_by_name(f'_{self.type_api}_shipped_order')
 
     def _integration_validate_invoice_order_hook(self):
+        """Lifecycle hook: invoice validated → some payment methods mark the
+        order as paid on the e-commerce platform at validation time (configured
+        per payment method). If so, force-export the paid status now without
+        waiting for the actual payment.
+        """
         self.ensure_one()
         if not self.integration_id:
             return None
@@ -490,6 +552,10 @@ class SaleOrder(models.Model):
         return None
 
     def _integration_paid_order_hook(self):
+        """Lifecycle hook: order fully paid → push the paid status back to the
+        e-commerce platform via the connector-specific paid-order routine.
+        Optionally forced earlier by _integration_validate_invoice_order_hook.
+        """
         self.ensure_one()
         if not self.integration_id.run_action_on_so_invoice_status:
             return None
@@ -559,12 +625,22 @@ class SaleOrder(models.Model):
         Debug action (helper) for fetching external parameters handled by the
         `_adjust_integration_external_data` and `_apply_values_from_external` methods.
         """
-        for rec in self.filtered(lambda x: x.external_order_name):
+        records = self.filtered(lambda x: x.external_order_name)
 
+        for rec in records:
             vals = rec.with_context(skip_dispatch_to_external=True) \
                 ._adjust_integration_external_data(data or {})
 
             rec._apply_values_from_external(vals)
+
+        title = _('Refresh Data from Store')
+
+        if not records:
+            return self.display_integration_notification(
+                _('No linked external order found to refresh.'), title=title, ttype='warning',
+            )
+
+        return self.display_integration_notification(_('Data has been refreshed from the store.'), title=title)
 
     def _prepare_vals_for_sale_order_status(self):
         return {
@@ -580,9 +656,11 @@ class SaleOrder(models.Model):
         return external_data
 
     def _apply_values_from_external(self, external_data: dict) -> dict:
-        """
-        Hook method for redefining.
-        Invoked after creating an order from input-file and after receiving an order-webhook.
+        """Create/update external.order.{transaction,refund,return} records from
+        imported order data via _get_or_create_from_external. Processing is NOT
+        done here — it fires via lifecycle hooks (refunds on invoice posted/paid
+        in account_move.py, returns on outgoing picking done in stock_picking.py)
+        through a single processing job per order.
         """
         vals = dict()
 
@@ -595,9 +673,18 @@ class SaleOrder(models.Model):
             vals['sub_status_id'] = sub_status.id
 
         # 2. Update Order Transactions
+        # erp_order_id is pre-bound via context so each transaction's related (non-stored)
+        # integration_id resolves at create time. Without it, the transaction's integration_id
+        # stays False until the external_payment_ids O2M write below links it to the order —
+        # which is AFTER the refund loop runs. The refund's _prepare_vals_from_external resolves
+        # its transaction_ids with an integration_id-filtered search, so an unresolved
+        # integration_id here makes that search miss, leaving refund transactions unlinked
+        # (and therefore stuck in Draft on the dashboard).
         if external_data.get('payment_transactions'):
-            Transaction = self.env['external.order.transaction'] \
-                .with_context(integration_id=self.integration_id.id)
+            Transaction = self.env['external.order.transaction'].with_context(
+                integration_id=self.integration_id.id,
+                erp_order_id=self.id,
+            )
 
             txns = []
             for txn_data in external_data['payment_transactions']:
@@ -606,18 +693,54 @@ class SaleOrder(models.Model):
 
             vals['external_payment_ids'] = txns
 
+        # Returns are ingested before refunds so external.order.refund.linked_return_id
+        # can be resolved in _prepare_vals_from_external by looking up the just-created
+        # return record by external_str_id. erp_order_id is pre-bound via context so
+        # the return's related integration_id is set at create time (otherwise the
+        # refund's integration_id-filtered lookup misses the just-created return).
+        # 3. Update Order Returns
+        if external_data.get('order_returns'):
+            Return = self.env['external.order.return'].with_context(
+                integration_id=self.integration_id.id,
+                erp_order_id=self.id,
+            )
+            returns = []
+            for return_data in external_data['order_returns']:
+                record = Return._get_or_create_from_external(return_data)
+                returns.append((4, record.id, 0))
+            vals['external_return_ids'] = returns
+
+        # 4. Update Order Refunds
+        if external_data.get('order_refunds'):
+            Refund = self.env['external.order.refund'].with_context(
+                integration_id=self.integration_id.id,
+                erp_order_id=self.id,
+            )
+            refunds = []
+            for refund_data in external_data['order_refunds']:
+                record = Refund._get_or_create_from_external(refund_data)
+                refunds.append((4, record.id, 0))
+            vals['external_refund_ids'] = refunds
+
         if vals:
             self.with_context(skip_dispatch_to_external=True).write(vals)
 
-        # -- Post actions -- TODO: this actions have to be process by workflow tasks (integration.workflow.pipeline)
-        if self.env.context.get('skip_integration_order_post_action'):
+        # Enqueue a single job per order that processes all external entity
+        # types in the correct dependency order.
+        if self.env.context.get('skip_external_entity_dispatch'):
             return external_data
 
-        if self.order_is_confirmed:
-            # Apply fulfillments. Payments are not applied eagerly here: advance payments
-            # run in the `apply_advance_payment` workflow step, and payments against posted
-            # invoices run in the `register_payment` step / the invoice-post hook.
-            self._integration_apply_external_fulfillments()
+        # Confirmed orders run the full processing. Cancelled orders are included too — but
+        # _process_external_entities restricts them to refunds only — so a refund issued on the
+        # platform after the order was cancelled in Odoo still gets its credit note + payment
+        # mirrored. Without this the refund record is created but never dispatched, and its
+        # refund transaction stays stuck in Draft. Draft/sent orders are still skipped.
+        #
+        # Advance payments are still not applied eagerly here: the dispatcher's transaction
+        # stage validates without `integration_apply_advance_payment`, so advances remain
+        # owned by the `apply_advance_payment` workflow step.
+        if self.order_is_confirmed or self.order_is_cancelled:
+            self._enqueue_external_entities_processing()
 
         return external_data
 
@@ -695,7 +818,7 @@ class SaleOrder(models.Model):
             'priority': priority,
             'identity_key': f'integration_workflow_pipeline-{key}',
             'channel': self.sudo().env.ref('integration.channel_sale_order').complete_name,
-            'description': f'{self.integration_id.name}: Order № "{self.display_name}" >> RUN INTEGRATION WORKFLOW',
+            'description': f'{self.integration_id.name}: Order "{self.display_name}" — Prepare and Run Auto-Workflow',
         }
 
     def _job_kwargs_export_tracking(self, pickings):
@@ -1010,6 +1133,13 @@ class SaleOrder(models.Model):
             external_payments = self.external_payment_ids
             external_payments.filtered(lambda x: x.is_ecommerce_ok).mark_done()
             external_payments.filtered(lambda x: not x.is_done).mark_skipped()
+
+            # Once the invoice is fully paid, enqueue processing to retry pending entities.
+            # This is the reliable trigger when an invoice transitions from in_payment (with
+            # residual) to paid (residual=0); account_move._invoice_paid_hook does not fire in
+            # that case because payment_state was already 'in_payment' before reconciliation.
+            self._enqueue_external_entities_processing()
+
             return True, _('%s (id=%s) [%s]: the all successfully registered.') % args
 
         return False, _('%s (id=%s) [%s]: not the all payments were registered.') % args
@@ -1829,10 +1959,10 @@ class SaleOrder(models.Model):
         if values:
             self.picking_ids.write(values)
 
-        # Validate external fulfillments if the integration supports it
-        self._integration_apply_external_fulfillments()
-
-        # Advance payments are handled by the `apply_advance_payment` workflow step.
+        # Enqueue processing of all external entities (fulfillments,
+        # payments, returns, refunds) in the correct dependency order.
+        # Advance payments stay with the `apply_advance_payment` workflow step.
+        self._enqueue_external_entities_processing()
 
         return True
 
@@ -1858,15 +1988,403 @@ class SaleOrder(models.Model):
         if integration and integration.apply_external_payments:
             payments = self.external_payment_ids.filtered(lambda x: x.is_ecommerce_ok and not x.is_done)
 
-            if payments:
-                self.external_payment_ids._raise_if_refund_found()
+            # Drop refund transactions from the auto-workflow payment loop: one bad
+            # refund txn used to raise on the recordset and abort all downstream
+            # processing for the order. Refunds are handled by the refund pipeline
+            # (when sync is enabled) or skipped with a guidance log (when off).
+            payments = payments._without_refund_transactions()
 
-                # Only the `apply_advance_payment` step asks for advance; everyone else
-                # (e.g. the invoice-post hook) registers the payment against the invoice.
-                for payment in payments:
-                    payment \
-                        .with_context(integration_apply_advance_payment=as_advance) \
-                        .validate()
+            # Only the `apply_advance_payment` step asks for advance; everyone else
+            # (e.g. the invoice-post hook, the unified entity dispatcher) registers
+            # the payment against the invoice.
+            for payment in payments:
+                payment \
+                    .with_context(integration_apply_advance_payment=as_advance) \
+                    .validate()
+
+    # -----------------------------------------------------------------
+    # Unified external entity processing
+    # -----------------------------------------------------------------
+
+    def _process_external_entities(self):
+        """Process all external order entities for this order, in dependency order:
+        fulfillments → transactions → returns → refunds.
+
+        - Fulfillments first: returns and refunds may need 'done' outgoing pickings.
+        - Transactions second: refunds need invoice payments registered.
+        - Returns third: refunds may reference returns via linked_return.
+        - Refunds last: depend on all of the above.
+
+        Each helper iterates its records and calls record.validate(). When a record raises
+        PrerequisiteNotMet, it stays in draft for later retry — that is a soft failure, not a
+        job failure.
+
+        Returns aggregated dict with counts and errors for job reporting.
+        """
+        self.ensure_one()
+
+        # Prevent nested processing. Fulfillment processing calls button_validate() →
+        # _action_done() → _enqueue_external_entities_processing(). Without this guard, a
+        # duplicate job is created while the current processing is still running (identity_key
+        # only deduplicates pending jobs, not running ones). Similarly, credit note posting and
+        # payment registration trigger lifecycle hooks that would enqueue.
+        self = self.with_context(skip_external_entity_dispatch=True)
+
+        # A cancelled order processes refunds ONLY. A platform refund issued after the order was
+        # cancelled in Odoo (e.g. the cancel wizard refunds in Shopify) still needs its credit
+        # note + payment mirrored, and the original invoice stays posted + paid on a cancelled
+        # order so the refund is processable. Fulfillments, regular payments, and returns must
+        # NOT run on a cancelled order — it won't ship, its payment is already settled, and
+        # re-running them could revalidate cancelled pickings or re-touch the settled payment.
+        if self.order_is_cancelled:
+            results = {
+                'refunds': self._process_external_refunds(),
+            }
+        else:
+            results = {
+                'fulfillments': self._process_external_fulfillments(),
+                'transactions': self._process_external_payments(),
+                'returns': self._process_external_returns(),
+                'refunds': self._process_external_refunds(),
+            }
+
+        return self._aggregate_processing_results(results)
+
+    def _process_external_fulfillments(self):
+        """Dispatch fulfillment processing, return per-entity result dict."""
+        result = {'total': 0, 'done': 0, 'pending': 0, 'failed': 0,
+                  'records_pending': [], 'records_failed': []}
+
+        integration = self.integration_id
+        if not (integration and integration.apply_external_fulfillments):
+            return result
+        if not (integration.is_integration_shopify or integration.is_integration_magento_two):
+            return result
+
+        records = self.external_fulfillment_ids.filtered(
+            lambda x: x.is_ecommerce_ok and not x.is_done
+        )
+        result['total'] = len(records)
+
+        for record in records:
+            record.validate()
+            record.invalidate_recordset(['internal_status'])
+            if record.is_done:
+                result['done'] += 1
+            elif record.internal_status == 'failed':
+                result['failed'] += 1
+                result['records_failed'].append({
+                    'name': record.external_str_id,
+                    'reason': record.internal_info or 'unknown',
+                })
+            else:
+                result['pending'] += 1
+                result['records_pending'].append({
+                    'name': record.external_str_id,
+                    'reason': record.internal_info or 'pending',
+                })
+
+        return result
+
+    def _process_external_payments(self):
+        """Dispatch transaction/payment processing, return per-entity result dict."""
+        result = {'total': 0, 'done': 0, 'pending': 0, 'failed': 0,
+                  'records_pending': [], 'records_failed': []}
+
+        integration = self.integration_id
+        if not (integration and integration.apply_external_payments):
+            return result
+
+        payments = self.external_payment_ids.filtered(
+            lambda x: x.is_ecommerce_ok and not x.is_done
+        )
+
+        # Drop refund transactions from the auto-workflow payment loop. Raising on the
+        # whole recordset (the previous behaviour) aborted dispatch for fulfillments +
+        # returns + refunds whenever a single refund txn was present with sync disabled.
+        # Refunds are routed through the refund pipeline (sync on) or logged-and-skipped
+        # (sync off) — either way, the remaining payments must still process.
+        payments = payments._without_refund_transactions()
+        if not payments:
+            return result
+
+        result['total'] = len(payments)
+        for payment in payments:
+            payment.validate()
+            payment.invalidate_recordset(['internal_status'])
+            if payment.is_done:
+                result['done'] += 1
+            elif payment.internal_status == 'failed':
+                result['failed'] += 1
+                result['records_failed'].append({
+                    'name': payment.external_str_id,
+                    'reason': payment.internal_info or 'unknown',
+                })
+            else:
+                result['pending'] += 1
+                result['records_pending'].append({
+                    'name': payment.external_str_id,
+                    'reason': payment.internal_info or 'pending',
+                })
+
+        return result
+
+    def _process_external_returns(self):
+        """Dispatch return processing, return per-entity result dict."""
+        result = {'total': 0, 'done': 0, 'pending': 0, 'failed': 0, 'skipped': 0,
+                  'records_pending': [], 'records_failed': [], 'records_skipped': []}
+
+        integration = self.integration_id
+        if not (integration and integration.enable_returns_refunds_sync):
+            return result
+
+        records = self.external_return_ids.filtered(
+            lambda x: x.is_ecommerce_ok and not x.is_done
+        )
+        result['total'] = len(records)
+
+        for record in records:
+            record.validate()
+            record.invalidate_recordset(['internal_status'])
+            if record.is_done:
+                result['done'] += 1
+            elif record.internal_status == 'skipped':
+                result['skipped'] += 1
+                result['records_skipped'].append({
+                    'name': record.external_str_id,
+                    'reason': record.internal_info or 'skipped',
+                })
+            elif record.internal_status == 'failed':
+                result['failed'] += 1
+                result['records_failed'].append({
+                    'name': record.external_str_id,
+                    'reason': record.internal_info or 'unknown',
+                })
+            else:
+                result['pending'] += 1
+                result['records_pending'].append({
+                    'name': record.external_str_id,
+                    'reason': record.internal_info or 'pending',
+                })
+
+        return result
+
+    def _process_external_refunds(self):
+        """Dispatch refund processing, return per-entity result dict."""
+        result = {'total': 0, 'done': 0, 'pending': 0, 'failed': 0, 'skipped': 0,
+                  'records_pending': [], 'records_failed': [], 'records_skipped': []}
+
+        integration = self.integration_id
+        if not (integration and integration.enable_returns_refunds_sync):
+            return result
+
+        records = self.external_refund_ids.filtered(
+            lambda x: x.is_ecommerce_ok and not x.is_done
+        )
+        result['total'] = len(records)
+
+        for record in records:
+            record.validate()
+            record.invalidate_recordset(['internal_status'])
+            if record.is_done:
+                result['done'] += 1
+            elif record.internal_status == 'skipped':
+                result['skipped'] += 1
+                result['records_skipped'].append({
+                    'name': record.external_str_id,
+                    'reason': record.internal_info or 'skipped',
+                })
+            elif record.internal_status == 'failed':
+                result['failed'] += 1
+                result['records_failed'].append({
+                    'name': record.external_str_id,
+                    'reason': record.internal_info or 'unknown',
+                })
+            else:
+                result['pending'] += 1
+                result['records_pending'].append({
+                    'name': record.external_str_id,
+                    'reason': record.internal_info or 'pending',
+                })
+
+        return result
+
+    def _aggregate_processing_results(self, results):
+        """Aggregate per-entity dispatch results into job-level summary.
+
+        Returns dict with:
+            - total_processed: total records done
+            - total_pending: records waiting for prerequisites
+            - total_failed: records with hard errors
+            - has_failures: bool — used by caller to decide if job should fail
+            - summary: human-readable multi-line string for logs/notifications
+        """
+        total_processed = sum(r['done'] for r in results.values())
+        total_pending = sum(r['pending'] for r in results.values())
+        total_failed = sum(r['failed'] for r in results.values())
+        total_skipped = sum(r.get('skipped', 0) for r in results.values())
+        has_failures = total_failed > 0
+
+        if has_failures:
+            header = _(
+                'Order %(name)s — processing completed with errors. '
+                'Please review the details below.',
+                name=self.name,
+            )
+        elif total_pending:
+            header = _(
+                'Order %(name)s — processing completed. Some items are waiting '
+                'for prerequisites and will be retried automatically.',
+                name=self.name,
+            )
+        else:
+            header = _(
+                'Order %(name)s — all items processed successfully.',
+                name=self.name,
+            )
+
+        lines = [header, '']
+        for entity_key, r in results.items():
+            label = str(ENTITY_LABELS.get(entity_key) or entity_key.capitalize())
+            total = r['total']
+            if total == 0:
+                continue
+
+            # Skipped records are not "completed" work — exclude them from the
+            # X-of-Y count and report them on their own line so a non-technical
+            # user doesn't read a placeholder as a failure or a missing result.
+            skipped = r.get('skipped', 0)
+            actionable = total - skipped
+            if actionable > 0:
+                lines.append(_(
+                    '%(label)s: %(done)d of %(actionable)d completed.',
+                    label=label, done=r['done'], actionable=actionable,
+                ))
+            if skipped:
+                lines.append(_(
+                    '%(label)s: %(count)d recorded, no action needed.',
+                    label=label, count=skipped,
+                ))
+                for rec in r.get('records_skipped', []):
+                    lines.append(_(
+                        '    • %(name)s — %(reason)s',
+                        name=rec['name'], reason=' '.join((rec['reason'] or '').split()),
+                    ))
+
+            # internal_info is the full catalog error string (e.g.
+            # '\n\nError E516:\nCannot create return picking …\n'), formatted for
+            # standalone display. ' '.join(reason.split()) collapses every run of
+            # whitespace into a single space so the reason stays on the bullet line
+            # instead of spilling onto the following unindented lines and leaving
+            # the bullet empty.
+            if r['records_pending']:
+                lines.append(_('  Waiting (%(count)d):', count=len(r['records_pending'])))
+                for rec in r['records_pending']:
+                    lines.append(_(
+                        '    • %(name)s — %(reason)s',
+                        name=rec['name'], reason=' '.join((rec['reason'] or '').split()),
+                    ))
+
+            if r['records_failed']:
+                lines.append(_('  Errors (%(count)d):', count=len(r['records_failed'])))
+                for rec in r['records_failed']:
+                    lines.append(_(
+                        '    • %(name)s — %(reason)s',
+                        name=rec['name'], reason=' '.join((rec['reason'] or '').split()),
+                    ))
+
+        if total_pending or total_failed:
+            lines.append('')
+            parts = []
+            if total_pending:
+                parts.append(_('%(count)d waiting for prerequisites', count=total_pending))
+            if total_failed:
+                parts.append(_('%(count)d failed (requires attention)', count=total_failed))
+            lines.append(_('Summary: %(parts)s.', parts=', '.join(parts)))
+
+        summary = '\n'.join(lines)
+
+        return {
+            'total_processed': total_processed,
+            'total_pending': total_pending,
+            'total_failed': total_failed,
+            'total_skipped': total_skipped,
+            'has_failures': has_failures,
+            'summary': summary,
+        }
+
+    def _job_kwargs_process_external_entities(self):
+        """Job parameters for external entity dispatch.
+
+        Priority 8 is intentional: auto-workflow pipeline tasks run
+        at priority 9. External entity processing (especially
+        fulfillments) must complete before the pipeline's "Validate
+        Delivery" task — fulfillments set partial quantities and
+        tracking numbers that the pipeline's auto-validation consumes.
+        """
+        return {
+            'priority': 8,
+            'channel': self.sudo().env.ref('integration.channel_sale_order').complete_name,
+            'identity_key': 'process_order_external_data-%s-%s' % (
+                self.integration_id.id, self.id,
+            ),
+            'description': (
+                '%s: Process fulfillments, payments, returns & refunds '
+                'for order [%s]'
+                % (self.integration_id.name, self.name)
+            ),
+        }
+
+    def _enqueue_external_entities_processing(self):
+        """Enqueue background job that processes all external entities
+        (fulfillments, payments, returns, refunds) for this order.
+
+        Uses identity_key to prevent duplicate jobs — if a processing job
+        is already queued for this order, this call is a no-op.
+
+        Skipped when skip_external_entity_dispatch is set — this means we
+        are already inside a dispatch job (or credit note posting, or
+        other internal operation that should not trigger nested
+        dispatches).
+        """
+        self.ensure_one()
+        if not self.integration_id:
+            return False
+
+        if self.env.context.get('skip_external_entity_dispatch'):
+            _logger.debug(
+                'Skipping external entity dispatch for sale.order %s '
+                '(skip_external_entity_dispatch is set in context).',
+                self.id,
+            )
+            return False
+
+        context = {
+            'company_id': self.company_id.id,
+            'job_integration_id': self.integration_id.id,
+            'job_integration_job_type': 'order',
+        }
+        job_kwargs = self._job_kwargs_process_external_entities()
+
+        job = self \
+            .with_context(**context) \
+            .with_delay(**job_kwargs) \
+            ._process_external_entities_job()
+
+        return job
+
+    def _process_external_entities_job(self):
+        """Wrapper called by queue.job. Calls dispatch + raises if hard failures."""
+        self.ensure_one()
+        summary = self._process_external_entities()
+
+        if summary['has_failures']:
+            # Raise so job is marked as failed and user gets notified.
+            raise UserError(summary['summary'])
+
+        # Success (or pending records) — log summary at INFO level.
+        _logger.info(summary['summary'])
+        return summary['summary']
 
     def action_open_order_in_external_system(self):
         """

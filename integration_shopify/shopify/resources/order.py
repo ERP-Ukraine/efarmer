@@ -13,6 +13,7 @@ class OrderParseMixin:
             use_customer_currency=False,
             personal_id_additional_field_name='',
             vat_number_additional_field_name='',
+            enable_returns_refunds_sync=False,
         )
         self._order_line_items = []
 
@@ -54,6 +55,8 @@ class OrderParseMixin:
         integration_workflow_states = self.parse_workflow_states()
         currency_code = self.parse_currency_code()
         order_fulfillments = self.parse_fulfillments()
+        order_refunds = self.parse_refunds()
+        order_returns = self.parse_returns()
         sale_channel_data = self.parse_sale_channel()
         customer_data = self.parse_customer_data()
 
@@ -77,6 +80,8 @@ class OrderParseMixin:
             'integration_workflow_states': integration_workflow_states,
             'currency': currency_code,
             'order_fulfillments': order_fulfillments,
+            'order_refunds': order_refunds,
+            'order_returns': order_returns,
             'sale_channel_data': sale_channel_data,
             'order_source_name': self.source_name,
             'custom_attributes': self.custom_attributes,
@@ -100,6 +105,15 @@ class OrderParseMixin:
                 order_line = self._get_order_line_by_id(order_line_id)
 
                 available_qty = order_line.current_quantity_tmp
+                if self.props.enable_returns_refunds_sync:
+                    # When returns/refunds sync is enabled, ingest the *original* order in Odoo
+                    # (not Shopify's post-refund currentQuantity) so refund/return processing
+                    # can create correct credit notes. Covers both fully refunded
+                    # (currentQuantity=0) and partially returned (currentQuantity reduced) lines.
+                    original_qty = order_line['quantity'] or 0
+                    if original_qty > 0 and original_qty != available_qty:
+                        available_qty = original_qty
+                        order_line.set(current_quantity_tmp=available_qty)
                 if available_qty <= 0:
                     continue
 
@@ -128,7 +142,15 @@ class OrderParseMixin:
         return self.parse_payment_gateway_names()[-1]
 
     def parse_price_total(self):
-        money_bag = self.current_total_price_set
+        # When returns/refunds sync is enabled, parse_lines emits the *original* line
+        # quantities (see the equivalent branch above). The header total must follow: pick
+        # totalPriceSet (pre-refund) rather than currentTotalPriceSet (post-refund), otherwise
+        # the framework's total-amount-difference check rejects every partially or fully
+        # refunded order at import.
+        if self.props.enable_returns_refunds_sync:
+            money_bag = self.total_price_set
+        else:
+            money_bag = self.current_total_price_set
         return money_bag.get_amount(self.props.use_customer_currency)
 
     def parse_delivery_data(self):
@@ -286,6 +308,60 @@ class OrderParseMixin:
         self.ensure_one()
         return [x.to_odoo_format() for x in self.fulfillments]
 
+    @property
+    def returns_refunds_enabled(self):
+        """Whether refund and return data was requested for this order.
+
+        Read from the client rather than from `props` because the two callers of the parse methods
+        set props differently: `parse()` passes every setting, while `SaleOrder.
+        _adjust_integration_external_data` passes only the currency switch. The client carries the
+        same value that shaped the query body, so body and parsers can never disagree.
+        """
+        return self._env.options.enable_returns_refunds_sync
+
+    def parse_refunds(self):
+        if not self.returns_refunds_enabled:
+            return []
+
+        use_customer_currency = self.props.use_customer_currency
+        return [x.to_odoo_format(use_customer_currency) for x in self.refunds]
+
+    def parse_returns(self):
+        # Guarding here rather than inside `synthesizes_return` is deliberate. With the refund body
+        # omitted from the query, `Refund.linked_return` is falsy for every refund, which would
+        # flip `synthesizes_return` to True and fabricate synthetic returns that do not exist.
+        # One check at the source removes the whole class of problem.
+        if not self.returns_refunds_enabled:
+            return []
+
+        fulfillment_lookup = self._build_fulfillment_line_item_lookup()
+        returns = [x.to_odoo_format(fulfillment_lookup) for x in self.returns]
+        # Shopify's order-level "Refund" action with restock produces refunds carrying
+        # restockType=RETURN/LEGACY_RESTOCK but no separate Return entity. Synthesize a return
+        # for each such refund so the standard return pipeline creates the restock picking
+        # (mirrors the WooCommerce pattern in WooOrder._map_refund). The refund links to it via
+        # linked_return_str_id (set in Refund.to_odoo_format).
+        for refund in self.refunds:
+            synthetic_return = refund.synthetic_return_format()
+            if synthetic_return:
+                returns.append(synthetic_return)
+        return returns
+
+    def _build_fulfillment_line_item_lookup(self):
+        """Build lookup: FulfillmentLineItem GID → parent Fulfillment id_str.
+
+        Used by parse_returns() so the base flow can create one return picking
+        per parent outgoing fulfillment (multi-picking partition).
+        """
+        lookup = {}
+        for fulfillment in self.fulfillments:
+            parent_id_str = fulfillment.id_str
+            for fl_item in fulfillment.fulfillment_line_items:
+                fli_gid = fl_item['id'] or ''
+                if fli_gid:
+                    lookup[fli_gid] = parent_id_str
+        return lookup
+
     def parse_sale_channel(self):
         self.ensure_one()
         publication = self.publication
@@ -350,6 +426,7 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
     _gid_name = 'Order'
     _request_name = 'order'
     _body = ShopifyResourceUpdate._tmpl.ORDER_BODY
+    BODY_NO_REFUNDS_RETURNS = ShopifyResourceUpdate._tmpl.ORDER_BODY_NO_REFUNDS_RETURNS
 
     ORDER_GET_TAXES_BODY = ShopifyResourceUpdate._tmpl.ORDER_GET_TAXES_BODY
     ORDER_GET_DELIVERY_METHODS_BODY = ShopifyResourceUpdate._tmpl.ORDER_GET_DELIVERY_METHODS_BODY
@@ -359,11 +436,23 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
     MUTATION_UPDATE = ShopifyResourceUpdate._tmpl.MUTATION_UPDATE_ORDER
     MUTATION_CANCEL_ORDER = ShopifyResourceUpdate._tmpl.MUTATION_CANCEL_ORDER
     MUTATION_MARK_AS_PAID = ShopifyResourceUpdate._tmpl.MUTATION_MARK_AS_PAID
+    MUTATION_RETURN_CREATE = ShopifyResourceUpdate._tmpl.MUTATION_RETURN_CREATE
+    MUTATION_REVERSE_DELIVERY_CREATE_WITH_SHIPPING = (
+        ShopifyResourceUpdate._tmpl.MUTATION_REVERSE_DELIVERY_CREATE_WITH_SHIPPING
+    )
+    QUERY_FULFILLMENT_LINE_ITEMS_FOR_EXPORT = (
+        ShopifyResourceUpdate._tmpl.QUERY_FULFILLMENT_LINE_ITEMS_FOR_EXPORT
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         OrderParseMixin.__init__(self, *args, **kwargs)
+
+    def default_body(self):
+        if self.returns_refunds_enabled:
+            return self._body
+        return self.BODY_NO_REFUNDS_RETURNS
 
     def to_odoo_format(self):
         self.ensure_one()
@@ -430,6 +519,11 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
         return self._env.MoneyBag.set(**(self['currentTotalPriceSet'] or {}))
 
     @property
+    def total_price_set(self):
+        self.ensure_one()
+        return self._env.MoneyBag.set(**(self['totalPriceSet'] or {}))
+
+    @property
     def payment_gateway_names(self):
         self.ensure_one()
         return self.paymentGatewayNames or []
@@ -471,6 +565,16 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
             self.get_fulfillments()
 
         return [self._env.Fulfillment.set(**x) for x in (self['fulfillments'] or [])]
+
+    @property
+    def refunds(self):
+        self.ensure_one()
+        return [self._env.Refund.set(**x) for x in (self['refunds'] or [])]
+
+    @property
+    def returns(self):
+        self.ensure_one()
+        return [self._env.Return.set(**x) for x in (self['returns'] or [])]
 
     @property
     def shipping_line(self):
@@ -637,15 +741,180 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
 
         return True
 
-    def cancel(self, *args):
+    def cancel(self, reason, restock, notify_customer, staff_note, refund_method=None):
+        """Call Shopify's orderCancel mutation for this order.
+
+        `refund_method` is the OrderCancelRefundMethodInput dict (e.g.
+        {'originalPaymentMethodsRefund': True}) or None to refund later (no refund now).
+        `reason` is an OrderCancelReason enum value; `restock` / `notify_customer` are booleans.
+        """
         self.ensure_one()
 
+        variables = {
+            'orderId': self.gid,
+            'reason': reason,
+            'restock': restock,
+            'notifyCustomer': notify_customer,
+            'staffNote': staff_note or '',
+        }
+        if refund_method:
+            variables['refundMethod'] = refund_method
+
         response = self.execute(
-            self.MUTATION_CANCEL_ORDER % (self.id, *args),
+            self.MUTATION_CANCEL_ORDER,
+            variables=variables,
             user_errors_path='data.orderCancel.orderCancelUserErrors',
         )
 
-        result = self._extract(response, 'data.orderCancel.job', dict)
+        return self._extract(response, 'data.orderCancel.job', dict)
+
+    def fetch_fulfillment_line_item_lookup(self):
+        """Re-query the order's returnable fulfillments and build a
+        {LineItem GID -> [(FulfillmentLineItem GID, returnable quantity), ...]} lookup.
+
+        Used by the return export: returnCreate's ReturnLineItemInput requires
+        fulfillmentLineItemId, but the inbound parser stores only Fulfillment ids
+        and LineItem ids — never the FulfillmentLineItem id. One round-trip per
+        export click is the cost; the alternative is a stored field on
+        external.order.fulfillment.line that would need a backfill for historical
+        data.
+
+        A LineItem keeps one entry per fulfillment it was (partially) shipped in —
+        never collapsed to a single GID — because the caller must be able to split
+        a return across more than one fulfillment when the line was.
+
+        Queries `returnableFulfillments` rather than the order's plain `fulfillments`
+        connection, for two things confirmed empirically against a live store:
+        - It already excludes fulfillments returnCreate would reject (CANCELLED / ERROR /
+          FAILURE) — a cancelled fulfillment's line item never appears here even when its
+          full quantity was never claimed by any return, so there is no separate status
+          check to maintain here.
+        - Its per-line `quantity` is what's still available to return right now, net of
+          every prior return already claimed against that FulfillmentLineItem (open or
+          closed) — not the total ever fulfilled. So a return export that asks for more
+          than is actually left is caught here as E521 by the caller, instead of only
+          surfacing when Shopify's returnCreate mutation rejects the call.
+        """
+        self.ensure_one()
+
+        response = self.execute(
+            self.QUERY_FULFILLMENT_LINE_ITEMS_FOR_EXPORT,
+            variables={'id': self.gid},
+        )
+        returnable_data = self._extract(response, 'data.returnableFulfillments', dict) or {}
+
+        lookup = {}
+        for fulfillment in (returnable_data.get('nodes') or []):
+            fl_items_block = fulfillment.get('returnableFulfillmentLineItems') or {}
+            for edge in (fl_items_block.get('edges') or []):
+                node = edge.get('node') or {}
+                fli = node.get('fulfillmentLineItem') or {}
+                fli_gid = fli.get('id') or ''
+                line_item_gid = (fli.get('lineItem') or {}).get('id') or ''
+                quantity = node.get('quantity') or 0
+                if fli_gid and line_item_gid and quantity > 0:
+                    lookup.setdefault(line_item_gid, []).append((fli_gid, quantity))
+
+        return lookup
+
+    def create_return(self, return_line_items, notify_customer=True):
+        """Call Shopify's returnCreate mutation for this order.
+
+        `return_line_items` is a list of dicts:
+            {'fulfillmentLineItemId': <GID>, 'quantity': int,
+             'returnReason': <Shopify enum, e.g. 'UNKNOWN'>,
+             'returnReasonNote': <free text>}
+
+        Returns a flat dict pulled from the response via `_extract`:
+            {'id': <Return GID>, 'status': <Return status enum>,
+             'reverse_fulfillment_order_id': <rFO GID for tracking attachment>}
+
+        returnCreate always produces exactly one Return; its first
+        reverseFulfillmentOrder is the one to attach tracking to.
+        """
+        self.ensure_one()
+
+        response = self.execute(
+            self.MUTATION_RETURN_CREATE,
+            variables={
+                'returnInput': {
+                    'orderId': self.gid,
+                    'returnLineItems': return_line_items,
+                    'notifyCustomer': notify_customer,
+                },
+            },
+            user_errors_path='data.returnCreate.userErrors',
+        )
+
+        # The reverseFulfillmentOrder node carries the line items needed to attach tracking:
+        # reverseDeliveryCreateWithShipping requires reverseDeliveryLineItems (each a
+        # {reverseFulfillmentOrderLineItemId, quantity}). Build them here from the same
+        # returnCreate response so no extra round-trip is needed.
+        rfo = self._extract(
+            response,
+            'data.returnCreate.return.reverseFulfillmentOrders.edges.0.node',
+            dict,
+        ) or {}
+        rfo_line_items = [
+            {
+                'reverseFulfillmentOrderLineItemId': edge['node']['id'],
+                'quantity': edge['node']['totalQuantity'],
+            }
+            for edge in ((rfo.get('lineItems') or {}).get('edges') or [])
+            if edge.get('node') and edge['node'].get('id')
+        ]
+
+        return {
+            'id': self._extract(response, 'data.returnCreate.return.id', str),
+            'status': self._extract(response, 'data.returnCreate.return.status', str),
+            'reverse_fulfillment_order_id': rfo.get('id') or '',
+            'reverse_fulfillment_order_line_items': rfo_line_items,
+        }
+
+    def create_reverse_delivery_with_shipping(
+        self,
+        reverse_fulfillment_order_id,
+        reverse_delivery_line_items,
+        tracking_number,
+        tracking_url='',
+        notify_customer=True,
+    ):
+        """Attach a ReverseDelivery (merchant-supplied tracking) to an existing
+        reverseFulfillmentOrder.
+
+        `reverse_fulfillment_order_id` is the GID from the returnCreate response's
+        nested `reverseFulfillmentOrders.edges[0].node.id`. `reverse_delivery_line_items`
+        is the required, non-empty list of {reverseFulfillmentOrderLineItemId, quantity}
+        produced alongside it by create_return().
+
+        ReverseDeliveryTrackingInput only accepts `number` and `url` — there is no
+        carrier-name field (unlike fulfillment TrackingInput's `company`). The carrier is
+        conveyed to the customer via the tracking url. An empty url is dropped.
+
+        Returns the created reverseDelivery node (id).
+        """
+        self.ensure_one()
+
+        tracking_input = {'number': tracking_number}
+        if tracking_url:
+            tracking_input['url'] = tracking_url
+
+        response = self.execute(
+            self.MUTATION_REVERSE_DELIVERY_CREATE_WITH_SHIPPING,
+            variables={
+                'reverseFulfillmentOrderId': reverse_fulfillment_order_id,
+                'reverseDeliveryLineItems': reverse_delivery_line_items,
+                'trackingInput': tracking_input,
+                'notifyCustomer': notify_customer,
+            },
+            user_errors_path='data.reverseDeliveryCreateWithShipping.userErrors',
+        )
+
+        result = self._extract(
+            response,
+            'data.reverseDeliveryCreateWithShipping.reverseDelivery',
+            dict,
+        )
 
         return result
 

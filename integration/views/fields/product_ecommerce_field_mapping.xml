@@ -96,7 +96,7 @@
 
                     <!-- Group by -->
                     <group>
-                        <filter string="Store" name="group_integration_id"
+                        <filter string="E-Commerce Store" name="group_integration_id"
                                 context="{'group_by': 'integration_id'}"/>
                         <filter string="Field Definition" name="group_ecommerce_field_id"
                                 context="{'group_by': 'ecommerce_field_id'}"/>

@@ -55,7 +55,10 @@ class IntegrationAuthAbstract(models.AbstractModel):
             self.save_credentials()
 
             message = _('Connection test successful! Your connection to the e-commerce store is working correctly.')
-            return self._raise_client_notification('success', message)
+            # The wizard opens as a `target="new"` dialog, so neither the default `act_window_close` (would end
+            # the onboarding flow early) nor `reload=True`'s `soft_reload` (targets the background view behind
+            # the dialog, and can drop the dialog itself) is appropriate here — just show the toast.
+            return self.display_integration_notification(message, title=_('Test Connection'), next_action=False)
         except Exception as e:
             # Store error information
             error_msg = str(e)
@@ -149,14 +152,3 @@ class IntegrationAuthAbstract(models.AbstractModel):
         Should be implemented by integrations that support authorization.
         """
         raise NotImplementedError("This integration does not support authorization")
-
-    def _raise_client_notification(self, ttype: str, message: str):
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'message': message,
-                'type': ttype,
-                'sticky': False,
-            }
-        }

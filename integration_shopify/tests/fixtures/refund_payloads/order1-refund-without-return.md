@@ -1,0 +1,1 @@
+UC-1: Refund only, no return. Order #1642 fully refunded (€19.84) without restocking — customer keeps the item. The refund has `restock_type=NO_RESTOCK` and no linked return. Expected: credit note + payment, no return picking.

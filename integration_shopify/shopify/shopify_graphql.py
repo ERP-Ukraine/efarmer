@@ -21,7 +21,9 @@ class GQLModel:
     def __get__(self, instance: 'ShopifyGraphQL', owner):
         # Instantiate the ShopifyResourceRead inherited class
         if getattr(self._cls, '_api_callable', False):
-            record = self._cls(instance.url, instance.token, instance.version, instance._debug)
+            record = self._cls(
+                instance.url, instance.token, instance.version, instance._debug, instance.options,
+            )
         elif issubclass(self._cls, GQLEnum):
             record = self._cls
         else:

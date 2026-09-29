@@ -474,6 +474,43 @@ class SaleIntegration(models.Model):
         ),
     )
 
+    # Returns & Refunds settings
+    enable_returns_refunds_sync = fields.Boolean(
+        string='Enable Returns & Refunds Sync',
+        default=False,
+        help='Master switch for inbound returns and refunds synchronization.',
+    )
+    default_return_location_id = fields.Many2one(
+        comodel_name='stock.location',
+        string='Default Return Location',
+        domain="[('usage', '=', 'internal'), ('company_id', '=', company_id)]",
+        help='Fallback location for return pickings when no external location mapping exists.',
+    )
+    refund_product_id = fields.Many2one(
+        comodel_name='product.product',
+        string='Refund Product',
+        domain="[('type', '=', 'service')]",
+        help=(
+            'Service product used on credit note lines for flat-amount '
+            'refunds that have no line-item breakdown from the platform.'
+        ),
+    )
+
+    refund_adjustment_product_id = fields.Many2one(
+        comodel_name='product.product',
+        string='Refund Adjustment Product',
+        help='Product used to record the difference when a platform refund total '
+             'does not match the sum of its refunded line items. This happens '
+             'when the merchant manually adjusts the refund amount in the '
+             'platform — for example, refunding €20 for line items worth €29.\n\n'
+             'When set: the connector adds an adjustment line to the credit note '
+             'so accounting balances. Configure this product to point to the '
+             'income/expense account where you want refund adjustments tracked '
+             '(commonly "Sales Discounts" or "Customer Goodwill Adjustments").\n\n'
+             'When empty (default): refund jobs fail with an explicit error '
+             'when a mismatch is detected — recommended for strict accounting.',
+    )
+
     force_full_fulfillment = fields.Boolean(
         string='Force Shopify Order Fulfillment (Debug)',
         default=False,
@@ -1269,6 +1306,28 @@ class SaleIntegration(models.Model):
             'integration.integration_product_barcode_no_api_private').id
         return bool(self.product_barcode_id)
 
+    @api.constrains('default_return_location_id', 'company_id')
+    def _check_return_location_company(self):
+        for rec in self:
+            loc = rec.default_return_location_id
+            if not loc:
+                continue
+            if loc.usage != 'internal':
+                raise ValidationError(_(
+                    "Default Return Location must be an internal location, "
+                    "got usage='%(usage)s'.",
+                    usage=loc.usage,
+                ))
+            if loc.company_id and loc.company_id != rec.company_id:
+                raise ValidationError(_(
+                    "Default Return Location '%(loc)s' belongs to company '%(loc_co)s' "
+                    "but the integration belongs to '%(int_co)s'. Cross-company stock "
+                    "operations are not supported.",
+                    loc=loc.complete_name,
+                    loc_co=loc.company_id.name,
+                    int_co=rec.company_id.name,
+                ))
+
     @api.onchange('search_customer_fields_ids')
     def _onchange_search_customer_fields_ids(self):
         self.use_search_customer_fields_ids \
@@ -1647,7 +1706,13 @@ class SaleIntegration(models.Model):
             message = self._get_error_webhook_message(ex) if ex.args else ex
             return self.env['message.wizard'].create_html_and_run(message)
 
-        return self.create_integration_webhook_lines(data_dict)
+        title = _('Create Webhooks')
+
+        if not data_dict:
+            return self.display_integration_notification(_('No webhooks were created.'), title=title, ttype='warning')
+
+        self.create_integration_webhook_lines(data_dict)
+        return self.display_integration_notification(_('Webhooks have been created.'), title=title)
 
     def delete_webhook(self, webhook_line):
         self.ensure_one()
@@ -1666,23 +1731,30 @@ class SaleIntegration(models.Model):
         return True
 
     def drop_webhooks(self):
-        result = False
         external_ids = self.webhook_line_ids.mapped('external_ref')
+        title = _('Delete Webhooks')
 
         if not external_ids:
-            return result
+            return self.display_integration_notification(
+                _('There are no webhooks to delete.'), title=title, ttype='warning',
+            )
 
         try:
-            adapter = self.adapter
-            result = adapter.unlink_existing_webhooks(external_ids)
+            self.adapter.unlink_existing_webhooks(external_ids)
+        except NotImplementedError:
+            pass
         except Exception as ex:
-            if ex.args:
-                result = ex.args[0]
             _logger.error(ex)
-        finally:
-            self.webhook_line_ids.unlink()
+            return self.display_integration_notification(
+                _(
+                    'Failed to remove webhooks from the e-commerce system. The local webhook records '
+                    'were kept — please try again, or remove the webhooks in the store manually.'
+                ),
+                title=title, ttype='warning',
+            )
 
-        return result
+        self.webhook_line_ids.unlink()
+        return self.display_integration_notification(_('Webhooks have been deleted.'), title=title)
 
     def create_integration_webhook_lines(self, data_dict):
         vals_list = list()
@@ -1774,9 +1846,15 @@ class SaleIntegration(models.Model):
         self.action_test_connection(raise_success=False)
         self.state = 'active'
 
+        return self.display_integration_notification(_('The integration has been activated.'), title=_('Activate'))
+
     def action_draft(self):
         self.ensure_one()
         self.state = 'draft'
+
+        return self.display_integration_notification(
+            _('The integration has been deactivated.'), title=_('Deactivate'),
+        )
 
     def action_open_shop(self):
         return {
@@ -1806,15 +1884,7 @@ class SaleIntegration(models.Model):
         if connection_ok:
             if raise_success:
                 message = _("Connection test successful! Your connection to the e-commerce store is working correctly.")
-                return {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'message': message,
-                        'type': 'success',
-                        'sticky': False,
-                    }
-                }
+                return self.display_integration_notification(message, title=_('Test Connection'))
         else:
             # Raise a user-friendly message for connection failure
             raise UserError(_(
@@ -1827,23 +1897,17 @@ class SaleIntegration(models.Model):
         self.ensure_one()
         self._raise_if_not_access_granted()
 
-        input_files = self.import_orders()
+        imported_orders = self.import_orders()
+        title = _('Sync Orders')
 
-        if input_files:
-            message = _('%s order(s) received and queued for processing.') % len(input_files)
-        else:
-            message = _('No new orders to import since the last sync.')
+        if not imported_orders:
+            return self.display_integration_notification(
+                _('No new orders were found to import.'), title=title, ttype='warning',
+            )
 
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Import Orders'),
-                'message': message,
-                'type': 'success',
-                'sticky': False,
-            }
-        }
+        return self.display_integration_notification(
+            _('%s order(s) fetched from the store.') % len(imported_orders), title=title,
+        )
 
     def _raise_if_not_access_granted(self):
         if not self.api_access_granted:
@@ -2018,7 +2082,7 @@ class SaleIntegration(models.Model):
             'model_id': self.env.ref('integration.model_sale_integration').id,
             'interval_type': 'days',
             'interval_number': 1,
-            'code': f'model.browse({self.id}).integrationApiExportInventory()',
+            'code': f'model.browse({self.id}).export_inventory_cron()',
             'nextcall': nextcall.strftime('%Y-%m-%d %H:%M:%S'),
             'user_id': SUPERUSER_ID,
         })
@@ -2314,6 +2378,13 @@ class SaleIntegration(models.Model):
                 rec.env['configuration.wizard.' + integration_postfix].search([
                     ('integration_id', '=', rec.id),
                 ]).unlink()
+
+    def action_invalidate_integration_cache(self):
+        """Button entry point for `invalidate_integration_cache`: clear the cache and show a confirmation toast."""
+        self.invalidate_integration_cache()
+        return self.display_integration_notification(
+            _('The adapter cache has been cleared.'), title=_('Invalidate Adapter Cache'),
+        )
 
     def _truncate_settings_url(self):
         self.ensure_one()
@@ -2701,16 +2772,9 @@ class SaleIntegration(models.Model):
     def integrationApiImportData(self):
         self.import_master_data_in_background()
 
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Initial Import'),
-                'message': _('Import master data jobs are created'),
-                'type': 'success',
-                'sticky': False,
-            }
-        }
+        return self.display_integration_notification(
+            _('Import master data jobs are created'), title=_('Import Master Data'),
+        )
 
     def action_import_master_data(self):
         return self.integrationApiImportData()
@@ -3396,16 +3460,10 @@ class SaleIntegration(models.Model):
             return action
 
         # Show message if no errors found
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Products Validation'),
-                'message': _('No errors found. You can proceed with the import.'),
-                'type': 'success',
-                'sticky': False,
-            }
-        }
+        return self.display_integration_notification(
+            _('No errors found. You can proceed with the import.'),
+            title=_('Run Product Catalog Validation Test'),
+        )
 
     def run_import_customers_by_blocks(self, external_customer_ids):
         self.ensure_one()
@@ -5378,19 +5436,18 @@ class SaleIntegration(models.Model):
         }
         return InputFile.create(vals)
 
-    @expose_for_testing('Run Inventory Export for All Products')
-    def integrationApiExportInventory(self):
+    def _export_inventory(self):
         """
-        Method called by the scheduled action to export inventory.
-        This method checks if inventory sync should be performed before proceeding.
+        Core inventory-export logic shared by the cron entry point and the manual test button.
+
+        Returns `False` if the connection to the e-commerce store is not active, otherwise the
+        (possibly empty) recordset of products whose inventory was queued for export.
         """
         self.ensure_one()
 
-        # Check if periodic inventory sync is enabled and exit early if not
         if not self.is_active:
             _logger.info(
-                '%s: Periodic inventory sync skipped. '
-                'Connection to the e-commerce store is not active or periodic inventory sync is disabled.',
+                '%s: Periodic inventory sync skipped. Connection to the e-commerce store is not active.',
                 self.name
             )
             return False
@@ -5402,7 +5459,36 @@ class SaleIntegration(models.Model):
             ('exclude_from_synchronization', '=', False),
             ('exclude_from_synchronization_stock', '=', False),
         ])
-        return products.export_inventory_by_jobs(self, cron_operation=True)
+
+        if products:
+            products.export_inventory_by_jobs(self, cron_operation=True)
+
+        return products
+
+    def export_inventory_cron(self):
+        """Cron entry point for `_export_inventory`: run silently, no UI feedback."""
+        self.ensure_one()
+        return self._export_inventory()
+
+    @expose_for_testing('Run Inventory Export for All Products')
+    def integrationApiExportInventory(self):
+        """Button entry point for `_export_inventory`: run and show a confirmation toast."""
+        self.ensure_one()
+        products = self._export_inventory()
+        title = _('Export Inventory Now')
+
+        if products is False:
+            return self.display_integration_notification(
+                _('The connection to the e-commerce store is not active.'),
+                title=title, ttype='warning',
+            )
+
+        if not products:
+            return self.display_integration_notification(
+                _('There are no products to export inventory for.'), title=title, ttype='warning',
+            )
+
+        return self.display_integration_notification(_('Queue Jobs "Export Inventory" are created'), title=title)
 
     def is_canceled_order_status(self, status_code: str) -> bool:
         """
@@ -6822,6 +6908,9 @@ class SaleIntegration(models.Model):
 
         locations = locations.sudo()
 
+        # Stock may be calculated for a company unavailable to the user who triggered the real-time export.
+        product = product.sudo()
+
         # Detect KIT (phantom BOM) products
         is_kit = bool(product.bom_ids.filtered(lambda b: b.type == 'phantom'))
 
@@ -6930,23 +7019,6 @@ class SaleIntegration(models.Model):
         self.ensure_one()
 
         return self.adapter.get_product_url(external_product_code)
-
-    @staticmethod
-    def _raise_notification(ttype: str, message: str):
-        """
-        :ttype:
-            - success
-            - warning
-        """
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'message': message,
-                'type': ttype,
-                'sticky': False,
-            }
-        }
 
     def _get_input_file(self, external_order_id: str):
         input_file = self.env['sale.integration.input.file'].search([

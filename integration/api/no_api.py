@@ -167,7 +167,7 @@ class NoAPIClient(AbsApiClient):
         return dict()
 
     def unlink_existing_webhooks(self, external_ids=None):
-        return 'Not Implemented!'
+        raise NotImplementedError('This API client does not support removing existing webhooks.')
 
     def _convert_to_html(self, id_list):
         return

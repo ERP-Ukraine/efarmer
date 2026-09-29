@@ -1,0 +1,1 @@
+UC-3: Partial return + partial refund. Order #1644 (3× T-shirt), return requested for 1 unit then processed with refund. Expected: return record (state=closed, 1 line qty=1), draft return picking, refund record (`total_refunded_amount=19.84`, linked to return), credit note + payment.

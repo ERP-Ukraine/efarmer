@@ -7,6 +7,7 @@ from odoo import api, models, fields
 
 from ..shopify_api import REQUIRED_SCOPES
 from ..shopify.shopify_graphql import ShopifyGraphQL
+from ..shopify.connection import ClientOptions
 from ..tools import prepare_shopify_url
 
 
@@ -220,6 +221,7 @@ class IntegrationAuthShopify(models.TransientModel):
             self.key,
             self.integration_id._get_graphql_version(),
             True,
+            ClientOptions(),  # Connection test only reads the shop; it never fetches orders
         )
 
         shop = gql.Shop

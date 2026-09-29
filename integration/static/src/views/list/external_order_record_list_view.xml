@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="integration.ExternalOrderRecordListView" t-inherit="web.ListRenderer" t-inherit-mode="primary" owl="1">
+        <xpath expr="//div[@class='o_list_renderer o_renderer table-responsive']" position="before">
+            <div class="o_onboarding_container collapse show">
+                <div class="o_onboarding_main position-relative overflow-hidden py-3"
+                     style="background: linear-gradient(135deg, #A04A25 0%, #9A033F 25%, #5F7A2A 75%, #3A1F5A 100%);">
+                    <div class="o_onboarding_steps d-flex justify-content-center align-items-center">
+                        <div class="container-fluid px-4">
+                            <div class="card shadow-sm border-0 bg-white">
+                                <div class="card-body p-3">
+                                    <div class="row align-items-start">
+                                        <div class="col-md-6 mb-3 mb-md-0">
+                                            <h4 class="card-title mb-2 text-dark">
+                                                <i class="fa fa-info-circle text-primary me-2" title="Information"></i>
+                                                What is this?
+                                            </h4>
+                                            <p class="mb-0 text-dark">
+                                                These records mirror order events from your e-commerce store —
+                                                shipments, payments, returns and refunds. They are created
+                                                automatically as the connector syncs each order; you normally
+                                                only act on a row when its colour says so.
+                                            </p>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <h5 class="mb-2 text-dark">
+                                                <i class="fa fa-tasks text-success me-2" title="Colour key"></i>
+                                                Colour key
+                                            </h5>
+                                            <ul class="list-unstyled mb-0">
+                                                <li class="mb-1 text-dark">
+                                                    <span class="text-danger fw-bold me-2">●</span>
+                                                    <strong>Needs attention</strong> — processing failed or a payment did not go through; open the row to see why.
+                                                </li>
+                                                <li class="mb-1 text-dark">
+                                                    <span class="text-info fw-bold me-2">●</span>
+                                                    <strong>In progress / informational</strong> — being processed, waiting, or no money/goods moved yet. Nothing to do.
+                                                </li>
+                                                <li class="mb-1 text-dark">
+                                                    <span class="text-muted fw-bold me-2">●</span>
+                                                    <strong>Done / no action</strong> — completed, skipped, or canceled.
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </t>
+
+</templates>

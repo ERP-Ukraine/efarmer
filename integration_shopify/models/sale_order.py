@@ -171,11 +171,17 @@ class SaleOrder(models.Model):
                 external_data['payment_transactions'] = order.parse_payment_transactions()
             if 'order_fulfillments' not in external_data:
                 external_data['order_fulfillments'] = order.parse_fulfillments()
+            if 'order_refunds' not in external_data:
+                external_data['order_refunds'] = order.parse_refunds()
+            if 'order_returns' not in external_data:
+                external_data['order_returns'] = order.parse_returns()
         else:
             external_data.update({
                 'order_risks': [],
                 'payment_transactions': [],
                 'order_fulfillments': [],
+                'order_refunds': [],
+                'order_returns': [],
             })
 
         return external_data

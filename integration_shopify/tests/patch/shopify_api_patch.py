@@ -9,6 +9,7 @@ from .resources_patch import (
 
 from ...shopify_api import ShopifyAPIClient
 from ...shopify.shopify_graphql import ShopifyGraphQL
+from ...shopify.connection import ClientOptions
 
 
 class ShopifyGraphQLPatchTest(ShopifyGraphQL):
@@ -38,6 +39,9 @@ class ShopifyAPIClientPatchTest(ShopifyAPIClient):
             'shpat_blablablablablablabla',
             '2025-10',
             True,  # Debug mode
+            ClientOptions(
+                enable_returns_refunds_sync=settings.get('enable_returns_refunds_sync', False),
+            ),
         )
 
         self._ShopifyAPIClient__shop = self.gql.Shop

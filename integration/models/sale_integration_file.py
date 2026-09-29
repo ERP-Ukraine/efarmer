@@ -303,6 +303,17 @@ class SaleIntegrationInputFile(models.Model):
         for rec in self:
             rec.process()
 
+    def action_process_all(self):
+        """Server-action entry point for `process_all`: process the selected records and show a confirmation toast."""
+        self.process_all()
+
+        if len(self) == 1:
+            message = _('Queue Job "Process Order" is created')
+        else:
+            message = _('Queue Jobs "Process Order" are created')
+
+        return self.display_integration_notification(message, title=_('Process All'))
+
     def process(self):
         self.ensure_one()
 
@@ -316,7 +327,7 @@ class SaleIntegrationInputFile(models.Model):
                 'job_integration_job_type': 'order',
                 'job_input_file_id': self.id,
             }
-            job = self \
+            self \
                 .with_context(**context) \
                 .with_delay(**job_kwargs).run_current_pipeline()
         else:
@@ -331,9 +342,13 @@ class SaleIntegrationInputFile(models.Model):
             si = self.si_id.with_context(**context)
             job_kwargs = si._job_kwargs_create_order_from_input(self)
 
-            job = si.with_delay(**job_kwargs).create_order_from_input(self.id)
+            si.with_delay(**job_kwargs).create_order_from_input(self.id)
 
-        return job
+    def action_process_order(self):
+        """Button entry point for `process`: process this record and show a confirmation toast."""
+        self.process()
+
+        return self.display_integration_notification(_('Queue Job "Process Order" is created'), title=_('Process'))
 
     def process_no_job(self):
         self.ensure_one()
@@ -476,7 +491,7 @@ class SaleIntegrationInputFile(models.Model):
     def _job_kwargs_process_input_file(self):
         return {
             'priority': 9,
-            'description': f'{self.si_id.name}: "{self.name}" >> Create Order From input',
+            'description': f'{self.si_id.name}: "{self.name}" — Create Order From Input',
             'identity_key': f'process_input_file_{self.si_id}_{self.name}',
         }
 
@@ -488,7 +503,7 @@ class SaleIntegrationInputFile(models.Model):
             return False
 
         job_kwargs = order._job_kwargs_run_integration_workflow(task='cancel', priority=5)
-        job_kwargs['description'] = f'{self.si_id.name}: Order № "{order.display_name}" >> Cancel Order (by webhook)'
+        job_kwargs['description'] = f'{self.si_id.name}: Order "{order.display_name}" — Cancel Order (by webhook)'
 
         context = {
             'company_id': self.si_id.company_id.id,
@@ -507,7 +522,7 @@ class SaleIntegrationInputFile(models.Model):
 
         # Additional Order adjustments
         updated_data = order._adjust_integration_external_data(data)
-        order.with_context(skip_integration_order_post_action=True)._apply_values_from_external(updated_data)
+        order.with_context(skip_external_entity_dispatch=True)._apply_values_from_external(updated_data)
 
         # Cancel order without sending info to the e-commerce system
         order._integration_action_cancel_no_dispatch()

@@ -6,6 +6,7 @@ from odoo import api, models, fields, _
 from odoo.exceptions import UserError
 from odoo.tools.float_utils import float_round
 
+
 from ...shopify.connection import _SHOPIFY_BATCH_LIMIT as LIMIT
 
 
@@ -94,13 +95,13 @@ class IntegrationCatalogExternalLine(models.Model):
 
         job_kwargs = self._job_kwargs_create_price_batches()
 
-        job = self.with_context(
+        self.with_context(
             company_id=self.integration_id.company_id.id,
             job_integration_id=self.integration_id.id,
         ).with_delay(**job_kwargs) \
             .create_price_batches()
 
-        return job
+        return self.display_integration_notification(_('Queue Job "Send Prices" is created'), title=_('Send Prices'))
 
     def create_price_batches(self, run_export: bool = True):
         self.ensure_one()

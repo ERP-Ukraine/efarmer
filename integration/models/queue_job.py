@@ -476,6 +476,8 @@ class QueueJob(models.Model):
         except Exception as e:
             raise UserError(_('Job failed:\n\n%s') % str(e))
 
+        return self.display_integration_notification(_('The job has been executed.'), title=_('Run Now'))
+
     def action_toggle_exc(self):
         self.toggle_exc = not self.toggle_exc
         return self.action_open_lite_info()

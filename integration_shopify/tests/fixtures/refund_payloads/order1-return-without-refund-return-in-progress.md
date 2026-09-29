@@ -1,0 +1,1 @@
+UC-2a: Return without refund — in progress. Order #1643, return requested with status OPEN, no refund issued yet. Expected: `external.order.return` created (state=open), draft return picking with qty=1, no credit note or payment.

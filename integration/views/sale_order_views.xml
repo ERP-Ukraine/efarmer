@@ -27,10 +27,11 @@
                 </xpath>
 
                 <xpath expr="//sheet/div[@name='button_box']/." position="inside">
-                    <button class="oe_stat_button" type="object" name="action_external_order_form" icon="fa-external-link"
-                            invisible="not integration_id">
-                        <span invisible="not integration_id" class="o_stat_text">
-                            Imported Order
+                    <button class="oe_stat_button" type="object" name="action_open_order_in_external_system"
+                            icon="fa-shopping-cart"
+                            invisible="not external_sales_order_ref">
+                        <span class="o_stat_text">
+                            Open in Store
                         </span>
                     </button>
                     <button class="oe_stat_button" type="object" name="action_integration_pipeline_form" icon="fa-magic"
@@ -50,6 +51,22 @@
                     <div class="alert alert-warning" role="alert" style="margin-bottom:0px;"
                          invisible="not integration_id or not is_total_amount_difference">
                         <field name="total_amount_difference_error_message"/>
+                    </div>
+                    <field name="has_pending_external_returns" invisible="1"/>
+                    <div class="alert alert-warning" role="alert" style="margin-bottom:0px;"
+                         invisible="not integration_id or not has_pending_external_returns">
+                        <strong>Unresolved returns on this order</strong>
+                        <p class="mb-2">
+                            This order has returns from the store that arrived before the delivery was
+                            shipped, so there is nothing to receive back. Reduce this delivery's quantities
+                            to exclude what the return already covers, validate it, then click Skip on each
+                            return below. Skipping stops the connector from processing the return on its
+                            own; once the delivery is validated you can still apply a skipped return
+                            yourself with its Apply button.
+                        </p>
+                        <button name="action_open_order_in_external_system" type="object"
+                                string="Open Order in Store" class="btn btn-outline-primary btn-sm"
+                                invisible="not external_sales_order_ref"/>
                     </div>
                     <br/>
                 </xpath>
@@ -75,13 +92,12 @@
                                 <div class="o_row" colspan="1">
                                     <field name="external_sales_order_ref" class="oe_inline w-auto" style="max-width: 100px;"/>
                                     <button
-                                        name="action_open_order_in_external_system"
+                                        name="action_external_order_form"
                                         type="object"
-                                        string="Open Order in Store"
-                                        help="Open the order in the store"
+                                        string="View Imported Order Data"
+                                        help="Open the raw imported order record (support / debugging)"
                                         class="btn-link mb-1 px-0"
                                         icon="fa-external-link"
-                                        invisible="not external_sales_order_ref"
                                     />
                                 </div>
 
@@ -99,28 +115,46 @@
                             </group>
                         </group>
 
+                        <!--
+                            Row colour key for the external-record lists below. The three
+                            colours map to one merchant question — "do I need to do anything?":
+                            red = needs attention, blue = in progress / informational,
+                            grey = done / no action. Conditions on each list are kept mutually
+                            exclusive (failed always wins) so exactly one colour applies.
+                        -->
+                        <div class="text-muted small mb-2">
+                            <strong>Colour key:</strong>
+                            <span class="text-danger fw-bold"> ●</span> Needs attention
+                            <span class="text-info fw-bold"> ●</span> In progress / informational
+                            <span class="text-muted fw-bold"> ●</span> Done / no action needed
+                        </div>
+
                         <group name="external_fulfillment_info" string="Order Fulfillments">
                             <div colspan="2">
                                 <field name="external_fulfillment_ids">
                                     <list create="0" edit="0" delete="0"
-                                          decoration-muted="internal_status=='done'"
-                                          decoration-warning="is_ecommerce_ok==False"
-                                          decoration-danger="internal_status=='failed'">
-                                        <field name="tracking_company"/>
+                                          decoration-danger="internal_status == 'failed'"
+                                          decoration-info="internal_status == 'draft'"
+                                          decoration-muted="internal_status in ('done', 'skipped')">
+                                        <field name="tracking_company" string="Carrier"/>
                                         <field name="tracking_number"/>
-                                        <field name="internal_status"/>
-                                        <field name="name" optional="show"/>
-                                        <field name="external_str_id" optional="hide"/>
-                                        <field name="external_location_id" optional="hide"/>
-                                        <field name="external_status" optional="hide"/>
-                                        <field name="is_ecommerce_ok" optional="hide"/>
-                                        <field name="line_ids" optional="hide" widget="many2many_tags"/>
-                                        <button name="validate" type="object" string="Apply"
-                                                invisible="internal_status == 'done' or not external_status"
+                                        <field name="state" string="Shipment Status"
+                                               widget="badge"
+                                               decoration-success="state == 'success'"
+                                               decoration-danger="state in ('cancelled', 'error', 'failure')"/>
+                                        <field name="internal_status" string="Processing Status"/>
+                                        <field name="external_str_id"
+                                               groups="base.group_no_one"
+                                               optional="hide" string="External ID"/>
+                                        <button name="action_validate" type="object" string="Apply"
+                                                invisible="internal_status == 'done' or not state"
                                                 groups="base.group_no_one"/>
-                                        <button name="cancel_in_ecommerce_system" type="object" string="Cancel"
-                                                invisible="external_status == 'cancelled'"
+                                        <button name="action_cancel_in_ecommerce_system" type="object" string="Cancel"
+                                                invisible="state == 'cancelled'"
                                                 groups="base.group_no_one"/>
+                                        <button name="action_skip" type="object" string="Skip"
+                                                confirm="Mark this record as skipped? The connector will ignore it from now on."
+                                                invisible="internal_status in ('done', 'skipped')"/>
                                     </list>
                                 </field>
                             </div>
@@ -130,25 +164,99 @@
                             <div colspan="2">
                                 <field name="external_payment_ids" nolabel="1">
                                     <list create="0" edit="0" delete="0"
-                                          decoration-muted="internal_status=='done'"
-                                          decoration-warning="is_ecommerce_ok==False"
-                                          decoration-danger="internal_status=='failed'">
-                                        <field name="kind"/>
+                                          decoration-danger="internal_status == 'failed' or external_status in ('failure', 'error')"
+                                          decoration-info="internal_status == 'draft' and external_status not in ('failure', 'error')"
+                                          decoration-muted="internal_status in ('done', 'skipped') and external_status not in ('failure', 'error')">
+                                        <field name="kind" string="Type"/>
                                         <field name="gateway"/>
                                         <field name="amount"/>
                                         <field name="currency"/>
-                                        <field name="internal_status"/>
-                                        <field name="name" optional="hide"/>
-                                        <field name="transaction" optional="hide"/>
-                                        <field name="external_str_id" optional="hide"/>
-                                        <field name="external_parent_str_id" optional="hide"/>
-                                        <field name="external_order_str_id" optional="hide"/>
-                                        <field name="external_status" optional="hide"/>
-                                        <field name="is_ecommerce_ok" optional="hide"/>
-                                        <field name="payment_ids" widget="many2many_tags" groups="account.group_account_user" optional="hide"/>
-                                        <button name="validate" type="object" string="Apply"
+                                        <field name="internal_status"
+                                               string="Processing Status"/>
+                                        <field name="external_status" column_invisible="1"/>
+                                        <field name="external_str_id"
+                                               groups="base.group_no_one"
+                                               optional="hide" string="External ID"/>
+                                        <button name="action_validate" type="object" string="Apply"
                                                 invisible="internal_status == 'done' or not external_status"
                                                 groups="base.group_no_one"/>
+                                        <button name="action_skip" type="object" string="Skip"
+                                                confirm="Mark this record as skipped? The connector will ignore it from now on."
+                                                invisible="internal_status in ('done', 'skipped')"/>
+                                    </list>
+                                </field>
+                            </div>
+                        </group>
+
+                        <group name="external_returns" string="Order Returns">
+                            <div colspan="2">
+                                <field name="external_return_ids" nolabel="1">
+                                    <list create="0" edit="0" delete="0"
+                                          decoration-danger="internal_status == 'failed'"
+                                          decoration-info="state == 'open' and internal_status not in ('failed', 'skipped')"
+                                          decoration-muted="internal_status != 'failed' and (internal_status == 'skipped' or state in ('closed', 'canceled', 'declined'))">
+                                        <field name="state" string="Return Status"/>
+                                        <field name="return_reason_summary"
+                                               string="Reasons"/>
+                                        <field name="reverse_tracking_carrier"
+                                               string="Carrier" optional="show"/>
+                                        <field name="reverse_tracking_number"
+                                               string="Tracking Number"
+                                               optional="show"/>
+                                        <field name="internal_status"
+                                               string="Processing Status"/>
+                                        <field name="picking_ids"
+                                               widget="many2many_tags"
+                                               groups="stock.group_stock_user"
+                                               optional="hide"
+                                               string="Return Pickings"/>
+                                        <field name="external_str_id"
+                                               groups="base.group_no_one"
+                                               optional="hide" string="External ID"/>
+                                        <button name="action_validate" type="object" string="Apply"
+                                                invisible="internal_status in ('done', 'skipped') or not state"/>
+                                        <button name="action_validate" type="object" string="Apply"
+                                                confirm="This return was marked as skipped. Apply it anyway?"
+                                                invisible="internal_status != 'skipped' or not state"/>
+                                        <button name="action_skip" type="object" string="Skip"
+                                                confirm="Mark this record as skipped? The connector will ignore it from now on."
+                                                invisible="internal_status in ('done', 'skipped')"/>
+                                    </list>
+                                </field>
+                            </div>
+                        </group>
+
+                        <group name="external_refunds" string="Order Refunds">
+                            <div colspan="2">
+                                <field name="external_refund_ids" nolabel="1">
+                                    <list create="0" edit="0" delete="0"
+                                          decoration-danger="internal_status == 'failed'"
+                                          decoration-info="is_placeholder or internal_status == 'draft'"
+                                          decoration-muted="internal_status in ('done', 'skipped') and not is_placeholder">
+                                        <field name="total_refunded_amount"
+                                               string="Refund Amount"/>
+                                        <field name="currency_id" string="Currency"/>
+                                        <field name="note" string="Reason"
+                                               optional="show"/>
+                                        <field name="internal_status"
+                                               string="Processing Status"/>
+                                        <field name="is_placeholder" column_invisible="1"/>
+                                        <field name="is_ecommerce_ok" column_invisible="1"/>
+                                        <field name="credit_note_id"
+                                               groups="account.group_account_user"
+                                               optional="show"
+                                               string="Credit Note"/>
+                                        <field name="external_str_id"
+                                               groups="base.group_no_one"
+                                               optional="hide" string="External ID"/>
+                                        <button name="action_validate" type="object" string="Apply"
+                                                invisible="internal_status in ('done', 'skipped') or not is_ecommerce_ok"/>
+                                        <button name="action_validate" type="object" string="Apply"
+                                                confirm="This refund was marked as skipped. Apply it anyway?"
+                                                invisible="internal_status != 'skipped' or not is_ecommerce_ok"/>
+                                        <button name="action_skip" type="object" string="Skip"
+                                                confirm="Mark this record as skipped? The connector will ignore it from now on."
+                                                invisible="internal_status in ('done', 'skipped')"/>
                                     </list>
                                 </field>
                             </div>
@@ -161,7 +269,7 @@
                         <button type="object"
                                 name="action_refresh_data_from_external"
                                 string="Refresh Data from Store (Debug)"
-                                context="{'skip_integration_order_post_action': True}"
+                                context="{'skip_external_entity_dispatch': True}"
                                 groups="base.group_no_one"
                         />
                     </page>

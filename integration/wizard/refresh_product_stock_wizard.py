@@ -317,16 +317,7 @@ class RefreshProductStockWizard(models.TransientModel):
 
             notif_type = 'warning'
 
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Refresh Stock from Store'),
-                'message': message,
-                'type': notif_type,
-                'sticky': False,
-            },
-        }
+        return self.display_integration_notification(message, title=_('Refresh Stock from Store'), ttype=notif_type)
 
 
 class RefreshProductStockWizardLine(models.TransientModel):

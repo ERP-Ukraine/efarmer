@@ -1,0 +1,104 @@
+{
+    "_synthetic": "Hand-crafted fixture for the presentmentMoney coverage test. Store currency is EUR; customer (presentment) currency is USD. Each money node carries both shopMoney (EUR 100) and presentmentMoney (USD 108) so parsers can be exercised in both use_customer_currency modes without a real Shopify response.",
+    "data": {
+        "order": {
+            "id": "gid://shopify/Order/synthetic-multi-ccy-1",
+            "name": "#SYN-MULTI-CCY",
+            "currencyCode": "EUR",
+            "presentmentCurrencyCode": "USD",
+            "createdAt": "2026-05-31T12:00:00Z",
+            "refunds": [
+                {
+                    "id": "gid://shopify/Refund/synthetic-refund-1",
+                    "createdAt": "2026-05-31T12:30:00Z",
+                    "note": "Synthetic multi-currency refund",
+                    "totalRefundedSet": {
+                        "shopMoney": {
+                            "amount": "100.00",
+                            "currencyCode": "EUR"
+                        },
+                        "presentmentMoney": {
+                            "amount": "108.00",
+                            "currencyCode": "USD"
+                        }
+                    },
+                    "refundLineItems": {
+                        "edges": [
+                            {
+                                "node": {
+                                    "quantity": 1,
+                                    "restockType": "NO_RESTOCK",
+                                    "location": null,
+                                    "lineItem": {
+                                        "id": "gid://shopify/LineItem/synthetic-line-1",
+                                        "name": "Synthetic Product",
+                                        "sku": "SYN-PROD-1",
+                                        "quantity": 1
+                                    },
+                                    "priceSet": {
+                                        "shopMoney": {
+                                            "amount": "100.00",
+                                            "currencyCode": "EUR"
+                                        },
+                                        "presentmentMoney": {
+                                            "amount": "108.00",
+                                            "currencyCode": "USD"
+                                        }
+                                    },
+                                    "subtotalSet": {
+                                        "shopMoney": {
+                                            "amount": "100.00",
+                                            "currencyCode": "EUR"
+                                        },
+                                        "presentmentMoney": {
+                                            "amount": "108.00",
+                                            "currencyCode": "USD"
+                                        }
+                                    },
+                                    "totalTaxSet": {
+                                        "shopMoney": {
+                                            "amount": "0.00",
+                                            "currencyCode": "EUR"
+                                        },
+                                        "presentmentMoney": {
+                                            "amount": "0.00",
+                                            "currencyCode": "USD"
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "transactions": {
+                        "edges": [
+                            {
+                                "node": {
+                                    "id": "gid://shopify/OrderTransaction/synthetic-txn-1",
+                                    "kind": "REFUND",
+                                    "status": "SUCCESS",
+                                    "amountSet": {
+                                        "shopMoney": {
+                                            "amount": "100.00",
+                                            "currencyCode": "EUR"
+                                        },
+                                        "presentmentMoney": {
+                                            "amount": "108.00",
+                                            "currencyCode": "USD"
+                                        }
+                                    },
+                                    "parentTransaction": null,
+                                    "gateway": "manual",
+                                    "processedAt": "2026-05-31T12:30:00Z"
+                                }
+                            }
+                        ]
+                    },
+                    "return": null
+                }
+            ],
+            "returns": {
+                "edges": []
+            }
+        }
+    }
+}

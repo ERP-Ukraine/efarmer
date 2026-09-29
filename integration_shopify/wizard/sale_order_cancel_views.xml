@@ -20,11 +20,15 @@
                     <field name="do_cancel_order_fulfillments" widget="boolean_toggle"/>
                 </group>
                 <group string="Cancel E-Commerce Order: options">
+                    <field name="has_ecommerce_returns" invisible="1"/>
                     <div colspan="2">
-                        <div class="alert alert-warning" role="alert" invisible="context.get('cancel_integration_order_done')">
-                            Changes in this section affect the Shopify order only. If you refund an order here ("Refund" checkbox),
-                            it'll only be refunded within Shopify. You'll still have to handle the refund separately in Odoo.<br/>
-                            Why? Odoo offers lots of different ways to manage refunds, so connector let you choose what works best for your business
+                        <div class="alert alert-warning" role="alert"
+                             invisible="not has_ecommerce_returns or context.get('cancel_integration_order_done')">
+                            <i class="fa fa-exclamation-triangle"/> This order has return(s) in Shopify, and
+                            Shopify does not allow cancelling an order that has returns — so the "Cancel
+                            E-Commerce Order" step will be refused. Your Odoo order is already cancelled, so just
+                            click <strong>Skip</strong> to finish. (If a return is still open in Shopify, you can
+                            cancel or decline it there and retry; completed returns can't be removed.)
                         </div>
                         <div class="alert alert-info" role="alert" invisible="not context.get('cancel_integration_order_done')">
                             <i class="fa fa-star"/> E-commerce order already cancelled!
@@ -33,10 +37,10 @@
                     <group invisible="context.get('cancel_integration_order_done')">
                         <field name="reason_type" required="1"/>
                         <field name="staff_note"/>
+                        <field name="refund_method" widget="radio"/>
                     </group>
                     <group invisible="context.get('cancel_integration_order_done')">
                         <field name="do_restock" widget="boolean_toggle"/>
-                        <field name="do_refund" widget="boolean_toggle"/>
                         <field name="do_notify_customer" widget="boolean_toggle"/>
                     </group>
                 </group>

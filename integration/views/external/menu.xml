@@ -57,6 +57,27 @@
                   groups="base.group_no_one"
                   sequence="80"/>
 
+        <menuitem id="menu_external_fulfillments"
+                  name="Order Fulfillments"
+                  parent="menu_external"
+                  action="external_order_fulfillment_tree_action"
+                  groups="base.group_no_one"
+                  sequence="90"/>
+
+        <menuitem id="menu_external_refunds"
+                  name="Order Refunds"
+                  parent="menu_external"
+                  action="external_order_refund_action"
+                  groups="base.group_no_one"
+                  sequence="92"/>
+
+        <menuitem id="menu_external_returns"
+                  name="Order Returns"
+                  parent="menu_external"
+                  action="external_order_return_action"
+                  groups="base.group_no_one"
+                  sequence="94"/>
+
         <menuitem id="menu_order_statuses_external"
                   name="Order Statuses"
                   parent="menu_external"
@@ -70,7 +91,7 @@
                   sequence="110"/>
 
         <menuitem id="menu_external_transactions"
-                  name="Payments"
+                  name="Payment Transactions"
                   parent="menu_external"
                   action="external_order_transaction_action"
                   groups="base.group_no_one"

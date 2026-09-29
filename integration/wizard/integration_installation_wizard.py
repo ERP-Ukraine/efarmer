@@ -355,8 +355,8 @@ class IntegrationInstallationWizard(models.TransientModel):
 
         config_lines.extend([
             '\n',
-            '; Keep this section at the very end of the file: in an .ini file every\n',
-            '; key below a section header belongs to that section, so anything you\n',
+            '; Keep this section at the very end of the file:\n',
+            '; every key below a section header belongs to that section, so anything you\n',
             '; put after it stops being an [options] setting.\n',
             f'[{QUEUE_JOB_SECTION}]\n',
             'channels = root:1\n',

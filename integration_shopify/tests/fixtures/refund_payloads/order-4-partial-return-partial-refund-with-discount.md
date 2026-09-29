@@ -1,0 +1,1 @@
+UC-5: Refund with discount. Order #1646 (2× T-shirt @ €19.84 with €15 discount, total €24.68 + €20 shipping). Partial return + refund of 1 unit. Expected: credit note with two lines — T-shirt @ €19.84 and Discount @ -€7.50 — net total €12.34. `discount_for_refund = 19.84 × 1 - 12.34 = 7.50`.

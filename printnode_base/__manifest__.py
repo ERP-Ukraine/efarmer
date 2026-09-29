@@ -20,7 +20,8 @@
         Print Barcode | Print Picking | Print Package | Print Lot | Print Serial | Auto Print |
         Auto Printing | Print Scenario | Warehouse Printing | Remote Printing | Network Printing |
         Print Agent | Print Assistant | Advanced Printing | POS | Multi Printing | Print Attachment |
-        POS Print | Print Serial Number | Direct Print POS | Odoo POS Printing Solution | Print POS
+        POS Print | Print Serial Number | Print Anything | Print One Click | Direct Print POS |
+        Odoo POS Printing Solution | Print POS
     ''',
     'version': '19.0.2.9.0',
     'category': 'Tools',
@@ -30,7 +31,7 @@
     'support': 'support@ventor.tech',
     'license': 'OPL-1',
     'live_test_url': 'https://go.ventor.tech/dpm-demo-direct-print/',
-    'price': 199.00,
+    'price': 99.00,
     'currency': 'EUR',
     'depends': [
         'web',

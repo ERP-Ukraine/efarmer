@@ -364,7 +364,14 @@ class AbsApiClient(ABC):
         return dict()
 
     def unlink_existing_webhooks(self, external_ids=None):
-        return 'Not Implemented!'
+        """Remove the given webhooks from the e-commerce system.
+
+        The caller (`SaleIntegration.drop_webhooks`) treats "no exception raised" as success — return
+        values are not inspected, since adapters differ (bool, list, ...). Raise on failure instead of
+        returning a falsy value. `NotImplementedError` (the default here) is treated separately as
+        "this adapter doesn't manage webhooks remotely", not as a failure.
+        """
+        raise NotImplementedError('This API client does not support removing existing webhooks.')
 
     @abstractmethod
     def _convert_to_html(self, id_list):

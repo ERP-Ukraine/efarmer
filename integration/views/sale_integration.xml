@@ -270,6 +270,74 @@
                                 </group>
                             </page>
 
+                            <page string="Returns &amp; Refunds" name="returns_refunds_page">
+                                <div class="alert alert-info" role="status"
+                                     invisible="not enable_returns_refunds_sync or not (is_integration_shopify or is_integration_woocommerce)">
+                                    <strong>Important:</strong> Refund processing requires that the original invoice
+                                    is paid (or at least has "In Payment" status) before a credit note can be created.
+                                    This is an Odoo accounting requirement — when a credit note is posted, Odoo
+                                    auto-reconciles it with the reversed invoice's receivable line. If the invoice is
+                                    unpaid, the credit note silently consumes the invoice balance instead of creating
+                                    a proper refund payment.
+                                    <br/><br/>
+                                    <strong>Journal configuration:</strong> Refund payments use the journal configured
+                                    on the order's payment method — the same journal that received the original payment.
+                                    That journal must have an <em>Outstanding Receipts account</em> set on its Incoming
+                                    Payments tab (typically Bank Suspense for Bank journals, the Cash account for Cash
+                                    journals). Without it, payments record but generate no journal entries — accounting
+                                    won't reconcile.
+                                </div>
+                                <group invisible="not (is_integration_shopify or is_integration_woocommerce)">
+                                    <group string="General" name="returns_refunds_general">
+                                        <field name="enable_returns_refunds_sync" widget="boolean_toggle"/>
+                                    </group>
+                                </group>
+                                <group invisible="not enable_returns_refunds_sync or not (is_integration_shopify or is_integration_woocommerce)">
+                                    <group string="Refund Settings" name="refund_settings">
+                                        <field name="refund_product_id"
+                                               domain="[('type', '=', 'service')]"
+                                               context="{'default_type': 'service', 'default_taxes_id': []}"/>
+                                        <field name="refund_adjustment_product_id"
+                                               context="{'default_type': 'service', 'default_taxes_id': []}"/>
+                                    </group>
+                                    <group string="Return Settings" name="return_settings">
+                                        <field name="default_return_location_id"
+                                               domain="[('usage', '=', 'internal')]"/>
+                                    </group>
+                                </group>
+
+                                <group name="returns_refunds_coming_soon"
+                                       invisible="is_integration_shopify or is_integration_woocommerce">
+                                    <div class="alert alert-info" role="alert" colspan="4">
+                                        <div>
+                                            <h3 class="mt-3 mb-3">🔜 Returns &amp; Refunds — Coming Soon</h3>
+                                        </div>
+                                        <div>
+                                            <p>Returns &amp; Refunds synchronization isn't available for this connector yet.</p>
+
+                                            <div class="mb-3">
+                                                <a href="https://ventortech.atlassian.net/servicedesk/customer/portal/1/group/1/create/4" target="_blank" class="btn btn-primary" role="button">✉️ Tell Us What You'd Expect</a>
+                                            </div>
+
+                                            <div>
+                                                <p class="text-muted"><em>Interested in this feature? Let us know what you'd expect from it — your feedback shapes what we build next.</em></p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Empty content placeholder -->
+                                    <div class="text-center py-3" colspan="4">
+                                        <div class="py-3">
+                                            <i class="fa fa-undo fa-3x text-muted mb-3"
+                                               aria-hidden="true"
+                                               title="Placeholder icon for returns and refunds"/>
+                                            <h5 class="text-muted">Not available for this connector yet</h5>
+                                            <p class="text-muted small">Returns &amp; Refunds sync will appear here once supported</p>
+                                        </div>
+                                    </div>
+                                </group>
+                            </page>
+
                             <page string="Customers" name="customer_default_page">
                                 <group>
                                     <group string="E-Commerce Fields Mappings" name="ecommerce_fields_mappings">
@@ -487,16 +555,16 @@
                                             <field name="integration_id" column_invisible="1"/> <!-- Required because it is used in the fields domains in the model -->
                                             <field name="is_active" column_invisible="1"/> <!-- Required because it is used in list view decoration -->
                                             <field name="is_valid_base_url" column_invisible="1"/> <!-- Required because it is used in list view decoration -->
-                                            <button name="mute_line"
+                                            <button name="action_toggle_active"
                                                     type="object"
                                                     string="Activate"
-                                                    class="btn-info"
+                                                    class="btn btn-primary"
                                                     invisible="is_active"
                                             />
-                                            <button name="mute_line"
+                                            <button name="action_toggle_active"
                                                     type="object"
                                                     string="Deactivate"
-                                                    class="btn-warning"
+                                                    class="btn-outline-secondary"
                                                     invisible="not is_active"
                                             />
                                             <button name="action_delete_webhook"
@@ -823,7 +891,7 @@
                                         </p>
                                     </div>
                                     <div colspan="2">
-                                        <button name="invalidate_integration_cache"
+                                        <button name="action_invalidate_integration_cache"
                                                 type="object"
                                                 string="Invalidate Adapter Cache"
                                                 class="btn btn-outline-primary"
@@ -1065,7 +1133,7 @@
                                             <button string="Activate"
                                                     name="action_active"
                                                     type="object"
-                                                    invisible="state == 'active'"
+                                                    invisible="state in ('active', 'new')"
                                                     class="btn btn-primary btn-sm px-3"/>
                                             <button name="action_import_orders"
                                                     type="object"

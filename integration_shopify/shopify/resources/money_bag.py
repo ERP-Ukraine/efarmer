@@ -13,18 +13,15 @@ class MoneyBag(GqlDict):
 
         self._set_pseudo_id()
 
-    def get_amount(self, use_customer_currency: bool = False) -> float:
+    def _money(self, use_customer_currency: bool = False):
+        """Return the nested MoneyV2 (presentment or shop)."""
         self.ensure_one()
+        raw = self.presentmentMoney if use_customer_currency else self.shopMoney
 
-        if use_customer_currency:
-            return float(self.presentmentMoney and self.presentmentMoney['amount'] or 0)
+        return self._env.MoneyV2.set(**(raw or {}))
 
-        return float(self.shopMoney and self.shopMoney['amount'] or 0)
+    def get_amount(self, use_customer_currency: bool = False) -> float:
+        return self._money(use_customer_currency).amount
 
     def get_currency(self, use_customer_currency: bool = False) -> str:
-        self.ensure_one()
-
-        if use_customer_currency:
-            return self.presentmentMoney and self.presentmentMoney['currencyCode'] or ''
-
-        return self.shopMoney and self.shopMoney['currencyCode'] or ''
+        return self._money(use_customer_currency).currency_code or ''

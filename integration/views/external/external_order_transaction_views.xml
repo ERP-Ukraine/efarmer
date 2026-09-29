@@ -1,20 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
+
+        <record id="external_order_transaction_view_form" model="ir.ui.view">
+            <field name="name">external.order.transaction.view.form</field>
+            <field name="model">external.order.transaction</field>
+            <field name="arch" type="xml">
+                <form create="0" edit="0" delete="0">
+                    <header>
+                        <button name="action_skip" type="object" string="Skip"
+                                confirm="Mark this record as skipped? The connector will ignore it from now on."
+                                invisible="internal_status in ('done', 'skipped')"/>
+                        <field name="internal_status" widget="statusbar"
+                               statusbar_visible="draft,done"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <span class="d-inline"><field name="amount" readonly="1" class="d-inline w-auto"/></span>
+                                <span class="d-inline ms-1"><field name="currency" readonly="1" class="d-inline w-auto"/></span>
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Payment Details">
+                                <field name="kind" readonly="1" string="Type"/>
+                                <field name="gateway" readonly="1"/>
+                                <field name="external_process_date" readonly="1"
+                                       string="Date"/>
+                                <field name="erp_order_id" readonly="1"
+                                       string="Sales Order"/>
+                            </group>
+                            <group string="Odoo Records">
+                                <field name="payment_ids" readonly="1"
+                                       widget="many2many_tags"
+                                       string="Payments"
+                                       groups="account.group_account_user"/>
+                                <field name="external_refund_id" readonly="1"
+                                       string="Linked Refund"/>
+                                <field name="internal_info" readonly="1"
+                                       string="Processing Notes"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Technical Details" name="technical"
+                                  groups="base.group_no_one">
+                                <group>
+                                    <group>
+                                        <field name="id" readonly="1" string="ID"/>
+                                        <field name="name" readonly="1"
+                                               string="Resource Name"/>
+                                        <field name="transaction" readonly="1"
+                                               string="Transaction ID"/>
+                                        <field name="external_str_id" readonly="1"
+                                               string="External ID"/>
+                                    </group>
+                                    <group>
+                                        <field name="external_parent_str_id" readonly="1"
+                                               string="Parent Transaction ID"/>
+                                        <field name="external_order_str_id" readonly="1"
+                                               string="External Order ID"/>
+                                        <field name="external_status" readonly="1"/>
+                                        <field name="is_ecommerce_ok" readonly="1"/>
+                                        <field name="integration_id" readonly="1"/>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
         <record id="external_order_transaction_view_tree" model="ir.ui.view">
             <field name="name">external.order.transaction.list</field>
             <field name="model">external.order.transaction</field>
             <field name="arch" type="xml">
-                <list editable="bottom" create="0">
+                <list create="0" js_class="external_order_record_list_view"
+                      decoration-danger="internal_status == 'failed' or external_status in ('failure', 'error')"
+                      decoration-info="internal_status == 'draft' and external_status not in ('failure', 'error')"
+                      decoration-muted="internal_status in ('done', 'skipped') and external_status not in ('failure', 'error')">
                     <field name="id" groups="base.group_no_one"/>
+                    <field name="external_status" column_invisible="1"/>
                     <field name="integration_id"/>
                     <field name="erp_order_id"/>
                     <field name="external_str_id" optional="hide"/>
                     <field name="external_parent_str_id" optional="hide"/>
                     <field name="external_order_str_id" optional="hide"/>
+                    <field name="kind" string="Type"/>
                     <field name="gateway"/>
                     <field name="amount"/>
                     <field name="currency"/>
+                    <field name="internal_status" string="Processing Status"/>
+                    <button name="action_skip" type="object" string="Skip"
+                            confirm="Mark this record as skipped? The connector will ignore it from now on."
+                            invisible="internal_status in ('done', 'skipped')"/>
                 </list>
             </field>
         </record>
@@ -35,10 +114,10 @@
         </record>
 
         <record id="external_order_transaction_action" model="ir.actions.act_window">
-            <field name="name">External Order Payments</field>
+            <field name="name">Payment Transactions</field>
             <field name="path">eci-external-order-payments</field>
             <field name="res_model">external.order.transaction</field>
-            <field name="view_mode">list</field>
+            <field name="view_mode">list,form</field>
             <field name="group_ids" eval="[(4, ref('base.group_no_one'))]"/>
         </record>
 

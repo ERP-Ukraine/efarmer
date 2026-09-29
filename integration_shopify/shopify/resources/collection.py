@@ -15,7 +15,7 @@ class Collection(ShopifyResourceRead, CreateMixin):
         response = self.execute(
             self.MUTATION_CREATE,
             variables={
-                'input': {
+                'collection': {
                     'title': name,
                 }
             },

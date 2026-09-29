@@ -136,6 +136,9 @@ class TestIntegrationShopify(IntegrationShopifyBase):
         self.assertEqual(round(data1['variant_extra_price'], 2), 543.0)
         self.assertEqual(round(data1['standard_price'], 1), 490.0)
 
+        # Regression: Shopify inventory policy must be imported.
+        self.assertEqual(data1['continue_selling_without_stock'], 'DENY')
+
         data2 = v2.calculate_import_fields_data()
 
         self.assertEqual(data2['barcode'], '321321321322')
@@ -143,6 +146,8 @@ class TestIntegrationShopify(IntegrationShopifyBase):
         self.assertEqual(data2['default_code'], 'e-guitar-gold-wood-test_mdx3xoxx')
         self.assertEqual(round(data2['variant_extra_price'], 1), 542.0)
         self.assertEqual(round(data2['standard_price'], 1), 485.0)
+
+        self.assertEqual(data2['continue_selling_without_stock'], 'CONTINUE')
 
         data3 = v3.calculate_import_fields_data()
 
@@ -397,6 +402,10 @@ class TestIntegrationShopify(IntegrationShopifyBase):
         self.assertEqual(len(order.line_items), 2)
 
     @mute_logger('odoo.addons.integration.tools')
+    # The freshly-imported payment transaction is validated before the invoice exists (task3,
+    # further down, creates it) — _validate() correctly skips it ("No unpaid invoices found
+    # for this order"), which the base validate() logs as a WARNING. Expected here, not a bug.
+    @mute_logger('odoo.addons.integration.models.external.external_order_resource')
     def test_create_order_from_input(self):
         # `_run_and_call_next` (used by `_run_step_sync()` now) would otherwise cascade through
         # the whole remaining pipeline on success under `queue_job__no_delay` - this
@@ -490,7 +499,7 @@ class TestIntegrationShopify(IntegrationShopifyBase):
         self.assertEqual(len(order.external_fulfillment_ids), 2)
         self.assertEqual(order.external_fulfillment_ids.integration_id, self.integration)
         self.assertEqual(set(order.external_fulfillment_ids.mapped('name')), {'#1166-F1', '#1166-F2'})
-        self.assertEqual(set(order.external_fulfillment_ids.mapped('external_status')), {'success'})
+        self.assertEqual(set(order.external_fulfillment_ids.mapped('state')), {'success'})
         self.assertEqual(set(order.external_fulfillment_ids.mapped('internal_status')), {'draft'})
 
         self.assertEqual(len(order.external_payment_ids), 1)

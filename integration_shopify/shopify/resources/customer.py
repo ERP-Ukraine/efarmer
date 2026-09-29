@@ -27,10 +27,61 @@ class Customer(ShopifyResourceRead, MetafieldMixin):
         self.ensure_one()
         return self._env.CustomerState(self['state']).to_odoo_format()
 
-    @property
-    def addresses(self):
+    def get_addresses(self):
+        """Every address on the customer.
+
+        The embedded page is capped at CUSTOMER_ADDRESSES_PAGE_SIZE to keep
+        each customer query cheap (Shopify bills by the requested page size,
+        not by what actually comes back). A full page is the only sign there
+        may be more -- when it happens, page through a dedicated query
+        against this one customer instead. Cached after the first call so a
+        repeated call does not refetch, the same way InventoryItem.get_variants()
+        does for the same reason: a full page can also legitimately be the
+        real, complete count.
+        """
         self.ensure_one()
-        return [self._env.MailingAddress.set(**values) for values in (self['addresses'] or [])]
+
+        if not self.ctx('addresses_fetched', bool):
+            nodes = self['addressesV2'] or []
+
+            if len(nodes) == self._tmpl.CUSTOMER_ADDRESSES_PAGE_SIZE:
+                nodes = self._fetch_all_address_nodes()
+
+            self.set(addressesV2=nodes)
+            self.add_context(addresses_fetched=True)
+
+        return [self._env.MailingAddress.set(**values) for values in (self['addressesV2'] or [])]
+
+    def _fetch_all_address_nodes(self):
+        query = '''
+            query($id: ID!, $cursor: String) {
+                customer(id: $id) {
+                    addressesV2(first: 250, after: $cursor) {
+                        nodes {
+                            %s
+                        }
+                        pageInfo {
+                            endCursor
+                            hasNextPage
+                        }
+                    }
+                }
+            }
+        ''' % self._tmpl.MAILING_ADDRESS_BODY
+        nodes = []
+        cursor = None
+
+        while True:
+            response = self.execute(query, variables={'id': self.gid, 'cursor': cursor})
+            data = self._extract(response, 'data.customer.addressesV2', dict) or {}
+            nodes.extend(data.get('nodes') or [])
+
+            page_info = data.get('pageInfo') or {}
+            if not page_info.get('hasNextPage'):
+                break
+            cursor = page_info.get('endCursor')
+
+        return nodes
 
     @property
     def display_name(self):
@@ -54,12 +105,16 @@ class Customer(ShopifyResourceRead, MetafieldMixin):
     @property
     def email(self):
         self.ensure_one()
-        return self['email'] or ''
+        data = self['defaultEmailAddress'] or {}
+
+        return (data.get('emailAddress') or '') if isinstance(data, dict) else ''
 
     @property
     def phone(self):
         self.ensure_one()
-        return self['phone'] or ''
+        data = self['defaultPhoneNumber'] or {}
+
+        return (data.get('phoneNumber') or '') if isinstance(data, dict) else ''
 
     @property
     def locale(self):
@@ -67,7 +122,7 @@ class Customer(ShopifyResourceRead, MetafieldMixin):
         return self['locale'] or ''
 
     def parse(self):
-        addresses = [x.to_odoo_format() for x in self.addresses]
+        addresses = [x.to_odoo_format() for x in self.get_addresses()]
         return self.to_odoo_format(), [self._update_with_defaults(x) for x in addresses]
 
     def parse_default_address(self):
@@ -75,7 +130,7 @@ class Customer(ShopifyResourceRead, MetafieldMixin):
 
         customer = self.to_odoo_format()
 
-        if not self.default_address or not self.addresses:
+        if not self.default_address or not self.get_addresses():
             return {}
 
         return {**customer, **self.default_address.to_odoo_format()}
@@ -120,7 +175,7 @@ class Customer(ShopifyResourceRead, MetafieldMixin):
         if not address_id:
             return None
 
-        result = list(filter(lambda x: x.id_str == address_id, self.addresses))
+        result = list(filter(lambda x: x.id_str == address_id, self.get_addresses()))
 
         if not result:
             raise ValueError(f'Address with id={address_id} not found')

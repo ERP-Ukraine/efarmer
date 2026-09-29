@@ -268,7 +268,9 @@ class IntegrationWorkflowPipelineLine(models.Model):
         self.mark_process()
         self.update_info()
         self.run_with_delay()
-        return self.open_form()
+        return self.display_integration_notification(
+            _('Queue Job "Retry Step" is created'), title=_('Retry From Here'), next_action=self.open_form(),
+        )
 
     def _execute_order_method(self):
         """Run the current step's order method, capturing any failure.
@@ -635,7 +637,9 @@ class IntegrationWorkflowPipeline(models.Model):
             .with_delay(**job_kwargs) \
             .run_actual_pipeline(skip_dispatch=self.skip_dispatch)
 
-        return self.open_form()
+        return self.display_integration_notification(
+            _('Queue Job "Run Automation" is created'), title=_('Run Again'), next_action=self.open_form(),
+        )
 
     def run_from_failed_step(self):
         return self.failed_task.action_retry_step()

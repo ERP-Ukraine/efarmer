@@ -126,6 +126,7 @@ STORAGE_STR = """
                 "nodes": [
                     {
                         "id": "gid://shopify/ProductVariant/51158197731620",
+                        "inventoryPolicy": "DENY",
                         "product": {
                             "id": "gid://shopify/Product/10203545100500",
                             "hasOnlyDefaultVariant": false,
@@ -216,8 +217,13 @@ STORAGE_STR = """
                                 "amount": "490.0",
                                 "currencyCode": "PLN"
                             },
-                            "variant": {
-                                "id": "gid://shopify/ProductVariant/51158197731620"
+                            "variants": {
+                                "nodes": [{
+                                    "id": "gid://shopify/ProductVariant/51158197731620",
+                                    "product": {
+                                        "id": "gid://shopify/Product/10203545100500"
+                                    }
+                                }]
                             }
                         },
                         "selectedOptions": [
@@ -244,6 +250,7 @@ STORAGE_STR = """
                     },
                     {
                         "id": "gid://shopify/ProductVariant/51158197764388",
+                        "inventoryPolicy": "CONTINUE",
                         "product": {
                             "id": "gid://shopify/Product/10203545100500",
                             "hasOnlyDefaultVariant": false,
@@ -343,8 +350,13 @@ STORAGE_STR = """
                                 "amount": "485.0",
                                 "currencyCode": "PLN"
                             },
-                            "variant": {
-                                "id": "gid://shopify/ProductVariant/51158197764388"
+                            "variants": {
+                                "nodes": [{
+                                    "id": "gid://shopify/ProductVariant/51158197764388",
+                                    "product": {
+                                        "id": "gid://shopify/Product/10203545100500"
+                                    }
+                                }]
                             }
                         },
                         "selectedOptions": [
@@ -470,8 +482,13 @@ STORAGE_STR = """
                                 "amount": "480.0",
                                 "currencyCode": "PLN"
                             },
-                            "variant": {
-                                "id": "gid://shopify/ProductVariant/51158197797156"
+                            "variants": {
+                                "nodes": [{
+                                    "id": "gid://shopify/ProductVariant/51158197797156",
+                                    "product": {
+                                        "id": "gid://shopify/Product/10203545100500"
+                                    }
+                                }]
                             }
                         },
                         "selectedOptions": [
@@ -597,8 +614,13 @@ STORAGE_STR = """
                                 "amount": "475.0",
                                 "currencyCode": "PLN"
                             },
-                            "variant": {
-                                "id": "gid://shopify/ProductVariant/51158197829924"
+                            "variants": {
+                                "nodes": [{
+                                    "id": "gid://shopify/ProductVariant/51158197829924",
+                                    "product": {
+                                        "id": "gid://shopify/Product/10203545100500"
+                                    }
+                                }]
                             }
                         },
                         "selectedOptions": [
@@ -914,16 +936,21 @@ STORAGE_STR = """
             "billingAddressMatchesShippingAddress": true,
             "customer": {
                 "id": "gid://shopify/Customer/6670178025000",
-                "email": "przecietny-kowalski@mail.pl",
+                "defaultEmailAddress": {
+                    "emailAddress": "przecietny-kowalski@mail.pl"
+                },
                 "firstName": "Przeciętny",
                 "lastName": "Kowalski",
                 "displayName": "Przeciętny Kowalski",
-                "phone": "+48123234456",
+                "defaultPhoneNumber": {
+                    "phoneNumber": "+48123234456"
+                },
                 "locale": "pl",
                 "createdAt": "2022-11-09T18:09:56Z",
                 "updatedAt": "2025-08-27T14:39:09Z",
                 "tags": [],
-                "addresses": [
+                "addressesV2": {
+                    "nodes": [
                     {
                         "id": "gid://shopify/MailingAddress/8941943193892?model_name=CustomerAddress",
                         "address1": "Księdza Pawła Lexa 100",
@@ -986,7 +1013,8 @@ STORAGE_STR = """
                             "Polska"
                         ]
                     }
-                ],
+                    ]
+                },
                 "defaultAddress": {
                     "id": "gid://shopify/MailingAddress/9180037251364?model_name=CustomerAddress"
                 }
@@ -1285,16 +1313,21 @@ STORAGE_STR = """
             "billingAddressMatchesShippingAddress": false,
             "customer": {
                 "id": "gid://shopify/Customer/22299318910000",
-                "email": "j.hatf.shopify.test@myshopify.test.com",
+                "defaultEmailAddress": {
+                    "emailAddress": "j.hatf.shopify.test@myshopify.test.com"
+                },
                 "firstName": "James",
                 "lastName": "Hatf",
                 "displayName": "James Hatf",
-                "phone": "+48534612001",
+                "defaultPhoneNumber": {
+                    "phoneNumber": "+48534612001"
+                },
                 "locale": "pl",
                 "createdAt": "2024-10-24T09:23:57Z",
                 "updatedAt": "2025-06-05T08:19:26Z",
                 "tags": [],
-                "addresses": [
+                "addressesV2": {
+                    "nodes": [
                     {
                         "id": "gid://shopify/MailingAddress/32514576089380?model_name=CustomerAddress",
                         "address1": "Trojanowska 71",
@@ -1337,7 +1370,8 @@ STORAGE_STR = """
                             "Polska"
                         ]
                     }
-                ],
+                    ]
+                },
                 "defaultAddress": {
                     "id": "gid://shopify/MailingAddress/32514576089380?model_name=CustomerAddress"
                 }

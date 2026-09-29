@@ -188,7 +188,8 @@ class IntegrationProductProductExternal(models.Model):
         return router.get(self.external_reference)
 
     def _filter_variants_by_barcode(self, odoo_records):
-        if not self.external_barcode:
+        # Barcode validation must disable barcode matching in all lookup paths.
+        if not self.external_barcode or not self.integration_id.is_barcode_validation_required():
             return self.env[self._odoo_model]
 
         barcode_field = self.integration_id.product_barcode_name

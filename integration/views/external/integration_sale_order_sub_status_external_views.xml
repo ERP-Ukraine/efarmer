@@ -47,14 +47,5 @@
             <field name="view_id" ref="integration_sale_order_sub_status_external_view_tree"/>
         </record>
 
-        <record id="integration_sale_order_sub_status_external_action_import_statuses" model="ir.actions.server">
-            <field name="name">Import Order Statuses</field>
-            <field name="model_id" ref="integration.model_integration_sale_order_sub_status_external"/>
-            <field name="binding_model_id" ref="integration.model_integration_sale_order_sub_status_external"/>
-            <field name="binding_view_types">list</field>
-            <field name="state">code</field>
-            <field name="code">action = records.import_statuses()</field>
-        </record>
-
     </data>
 </odoo>

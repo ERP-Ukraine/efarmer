@@ -82,19 +82,9 @@ class ImportStockLevelsWizard(models.TransientModel):
                 .with_delay(**job_kwargs) \
                 .import_stock_levels_integration(line)
 
-        return self.raise_notification()
-
-    def raise_notification(self):
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Import Stock Levels'),
-                'message': _('Queue Jobs "Import Stock Levels" are created'),
-                'type': 'success',
-                'sticky': False,
-            },
-        }
+        return self.display_integration_notification(
+            _('Queue Jobs "Import Stock Levels" are created'), title=_('Import Stock Levels'),
+        )
 
 
 class ImportStockLevelsWizardLine(models.TransientModel):

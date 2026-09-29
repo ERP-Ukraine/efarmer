@@ -16,12 +16,42 @@
             </field>
         </record>
 
+        <record id="integration_sale_order_sub_status_external_auto_workflow_view_search" model="ir.ui.view">
+            <field name="name">integration.sale.order.sub.status.external.auto.workflow.view.search</field>
+            <field name="model">integration.sale.order.sub.status.external</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <filter name="has_auto_workflow_step"
+                            string="With Auto-Workflow Step"
+                            domain="['|', '|', '|', '|', '|',
+                                     ('validate_order', '=', True),
+                                     ('validate_picking', '=', True),
+                                     ('create_invoice', '=', True),
+                                     ('validate_invoice', '=', True),
+                                     ('send_invoice', '=', True),
+                                     ('register_payment', '=', True)]"/>
+                    <group>
+                        <filter name="group_by_company"
+                                string="Company"
+                                context="{'group_by': 'company_id'}"
+                                groups="base.group_multi_company"/>
+                        <filter name="group_by_integration"
+                                string="E-Commerce Store"
+                                context="{'group_by': 'integration_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
         <record id="integration_sale_order_sub_status_external_auto_workflow_action" model="ir.actions.act_window">
             <field name="name">Order Statuses</field>
             <field name="path">eci-order-sub-statuses</field>
             <field name="res_model">integration.sale.order.sub.status.external</field>
             <field name="view_mode">list</field>
             <field name="view_id" ref="integration_sale_order_sub_status_external_auto_workflow_view_tree"/>
+            <field name="search_view_id" ref="integration_sale_order_sub_status_external_auto_workflow_view_search"/>
         </record>
 
     </data>

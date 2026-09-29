@@ -283,16 +283,9 @@ class ProductProduct(models.Model):
                 variants |= tempates_related_to_components.product_variant_ids
             variants.export_inventory_by_jobs(integration)
 
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Export Stock to Stores'),
-                'message': _('Queue Jobs "Export Stock to Stores" are created'),
-                'type': 'success',
-                'sticky': False,
-            }
-        }
+        return self.display_integration_notification(
+            _('Queue Jobs "Export Stock to Stores" are created'), title=_('Export Stock to Stores'),
+        )
 
     def export_inventory_by_jobs(self, integration, cron_operation=False):
         integration.ensure_one()

@@ -1,6 +1,6 @@
 # See LICENSE file for full copyright and licensing details.
 
-from odoo import fields, models
+from odoo import fields, models, _
 
 
 class IntegrationECommerceProductCategoryMapping(models.Model):
@@ -32,3 +32,7 @@ class IntegrationECommerceProductCategoryMapping(models.Model):
 
         if category_external:
             return category_external.import_categories()
+
+        return self.display_integration_notification(
+            _('There are no external categories to import.'), title=_('Import Categories'), ttype='warning',
+        )

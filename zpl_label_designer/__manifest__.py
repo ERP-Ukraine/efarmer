@@ -2,9 +2,9 @@
 # See LICENSE file for full copyright and licensing details.
 
 {
-    'name': 'ZPL Label Designer PRO',
+    'name': 'Label Designer PRO (ZPL + PDF)',
     'summary': """
-        No-code ZPL label designer for Odoo. Design and print labels for products,
+        No-code Label Designer PRO (ZPL + PDF) for Odoo. Design and print labels for products,
         inventory, sales, manufacturing, and barcode operations. Supports one-to-many,
         many-to-many fields, dynamic content, and custom formats. Works with Zebra and
         other ZPL-compatible printers. Integrates with Odoo Direct Print PRO for automated printing

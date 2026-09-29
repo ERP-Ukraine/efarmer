@@ -14,7 +14,7 @@ from odoo.addons.integration.tools import flatten_recursive
 
 from ..graphql_templates import GraphQLTemplate
 from ..exceptions import ShopifyResourceNotFoundError
-from ..connection import es, GraphQLClient, ExtractNode, _SHOPIFY_BATCH_LIMIT
+from ..connection import es, GraphQLClient, ClientOptions, ExtractNode, _SHOPIFY_BATCH_LIMIT
 from ...tools import parse_int, parse_gql_json
 
 
@@ -223,12 +223,18 @@ class GqlDict:
 
 class ShopifyResourceBase:
 
-    def __init__(self, url: str, token: str, version: str, debug: bool):
-        self._client = GraphQLClient(url, token, version, debug)
+    def __init__(self, url: str, token: str, version: str, debug: bool, options: ClientOptions):
+        self._client = GraphQLClient(url, token, version, debug, options)
         self._env = None
 
     def new(self, **kwargs: dict):
-        instance = self.__class__(self._client.url, self._client.token, self._client.version, self._client._debug)
+        instance = self.__class__(
+            self._client.url,
+            self._client.token,
+            self._client.version,
+            self._client._debug,
+            self._client.options,
+        )
         instance._env = self._env
 
         if kwargs:
@@ -453,9 +459,9 @@ class ShopifyResourceRead(GqlDict, ShopifyResourceBase, ReadMixin):
 
     _api_callable = True
 
-    def __init__(self, url: str, token: str, version: str, debug: bool):
+    def __init__(self, url: str, token: str, version: str, debug: bool, options: ClientOptions):
         GqlDict.__init__(self)
-        ShopifyResourceBase.__init__(self, url, token, version, debug)
+        ShopifyResourceBase.__init__(self, url, token, version, debug, options)
 
 
 class ShopifyResourceUpdate(ShopifyResourceRead, UpdateMixin):

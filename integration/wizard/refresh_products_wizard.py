@@ -60,3 +60,7 @@ class RefreshProductsWizard(models.TransientModel):
                 ) % (template.name, self.integration_id.name))
 
             external_template.run_import_products(trigger_export_other=self.export_to_other)
+
+        message = _('Queue Job "Product Import" is created') if len(self.template_ids) == 1 \
+            else _('Queue Jobs "Product Import" are created')
+        return self.display_integration_notification(message, title=_('Refresh from Store'))

@@ -402,7 +402,10 @@ class ProductEcommerceField(models.Model):
         """
         Duplicate the selected field configurations.
         """
-        return self.copy()
+        copies = self.copy()
+        message = _('Field configuration has been duplicated.') if len(copies) == 1 \
+            else _('Field configurations have been duplicated.')
+        return self.display_integration_notification(message, title=_('Duplicate to Edit'), reload=True)
 
     def _get_mapping_for_integration(self, integration_id: int, mark_active: bool = True):
         """
@@ -525,7 +528,11 @@ class ProductEcommerceField(models.Model):
         }
 
     def action_unlink(self):
-        return self.unlink()
+        count = len(self)
+        self.unlink()
+        message = _('Field configuration has been deleted.') if count == 1 \
+            else _('Field configurations have been deleted.')
+        return self.display_integration_notification(message, title=_('Delete'), reload=True)
 
     def action_open_form(self, **context):
         """

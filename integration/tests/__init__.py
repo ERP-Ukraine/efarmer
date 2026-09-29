@@ -15,6 +15,8 @@ from . import test_external_integration_wizard
 from . import test_auto_export_new_products
 from . import test_order_status_export
 from . import test_product_product
+from . import test_product_product_external
+from . import test_pricelist_special_price
 from . import test_tools
 from . import test_transfer
 from . import test_is_importable_order_date
@@ -27,3 +29,11 @@ from . import test_webhooks
 from . import test_receive_orders_pagination
 from . import test_integration_logging
 from . import test_import_orders_by_id
+from . import test_integration_sale_order_sub_status_bulk_wizard
+from . import test_returns_refunds_models
+from . import test_integration_account_tax_mapping
+from . import test_refund_processing
+from . import test_return_processing
+from . import test_return_conflict_and_kit
+from . import test_refund_return_lifecycle
+from . import test_pending_returns_safety_net

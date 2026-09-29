@@ -105,10 +105,7 @@ class IntegrationSaleOrderFactory(models.TransientModel):
             order_vals['name'] = order_name
 
         order = self.env['sale.order'] \
-            .with_context(
-                skip_dispatch_to_external=True,
-                skip_integration_order_post_action=True,
-            ) \
+            .with_context(skip_dispatch_to_external=True) \
             .create(order_vals)
 
         # Create order lines
@@ -568,6 +565,8 @@ class IntegrationSaleOrderFactory(models.TransientModel):
             if line_data.get('price_unit_tax_incl'):
                 vals['price_unit'] = line_data['price_unit_tax_incl']
 
+        vals['price_unit'] = self._prepare_order_line_price(order, vals['price_unit'])
+
         # Create discount included in the line
         if not integration.separate_discount_line and line_data.get('discount'):
             vals['discount'] = line_data['discount']['discount_percent']
@@ -579,6 +578,14 @@ class IntegrationSaleOrderFactory(models.TransientModel):
             vals['name'] = self._update_order_description(product, additional_description_data)
 
         return vals
+
+    def _prepare_order_line_price(self, order, price):
+        """Prepare external unit price before writing it to a sale order line.
+
+        Connector-specific factories can override this hook when the external
+        platform requires additional price normalization.
+        """
+        return price
 
     def _update_order_description(self, product, additional_data):
         description = product.get_product_multiline_description_sale()

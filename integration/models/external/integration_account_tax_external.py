@@ -2,7 +2,7 @@
 
 import logging
 
-from odoo import models, fields
+from odoo import models, fields, _
 
 
 _logger = logging.getLogger(__name__)
@@ -51,11 +51,24 @@ class IntegrationAccountTaxExternal(models.Model):
         self.create_or_update_mapping()
 
     def action_import_taxes_from_external(self):
+        processed = self.browse()
+
         for integration in self.mapped('integration_id'):
             adapter_data_list = integration.adapter.get_taxes()
 
             for tax in self.filtered(lambda x: x.integration_id == integration):
-                tax.import_tax(adapter_data_list)
+                if tax.import_tax(adapter_data_list):
+                    processed |= tax
+
+        title = _('Import Taxes')
+
+        if not processed:
+            return self.display_integration_notification(
+                _('No taxes were imported: the selected taxes are already mapped.'), title=title, ttype='warning',
+            )
+
+        message = _('%s tax processed.') if len(processed) == 1 else _('%s taxes processed.')
+        return self.display_integration_notification(message % len(processed), title=title)
 
     def import_tax(self, adapter_data_list):
         self.ensure_one()
@@ -70,6 +83,9 @@ class IntegrationAccountTaxExternal(models.Model):
             return
 
         mapping = self.create_or_update_mapping()
+
+        if mapping.tax_id:
+            return
 
         return mapping \
             .with_context(force_create_tax=True) \

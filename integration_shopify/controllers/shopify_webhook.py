@@ -6,6 +6,8 @@ from hashlib import sha256
 import logging
 from werkzeug.wrappers import Response
 
+from odoo import _
+from odoo.exceptions import ValidationError
 from odoo.http import Controller, route, request
 from odoo.addons.integration.controllers.integration_webhook import IntegrationWebhook
 from odoo.addons.integration.controllers.utils import build_environment, validate_integration, with_webhook_context
@@ -156,6 +158,13 @@ class ShopifyWebhook(Controller, IntegrationWebhook):
             'PRODUCTS_CREATE': '_process_create_product',
             'PRODUCTS_UPDATE': '_process_update_product',
             'PRODUCTS_DELETE': '_process_delete_product',
+            'REFUNDS_CREATE': '_process_refund_create',
+            'RETURNS_REQUEST': '_process_return_event',
+            'RETURNS_APPROVE': '_process_return_event',
+            'RETURNS_CANCEL': '_process_return_event',
+            'RETURNS_CLOSE': '_process_return_event',
+            'RETURNS_DECLINE': '_process_return_event',
+            'RETURNS_UPDATE': '_process_return_event',
         }
 
     # Handle orders
@@ -262,6 +271,97 @@ class ShopifyWebhook(Controller, IntegrationWebhook):
         # Order exists, proceed with partially fulfill order processing
         integration.process_pipeline_by_id_with_delay(external_order_id, data, build_and_run=True)
         return Response(f'Job created for order with code={external_order_id}. Action: process partially fulfill order')
+
+    # Handle refunds
+    @route(
+        [
+            f'/integration/<string:dbname>/{SHOPIFY}/<int:integration_id>/refunds',
+            f'/<string:dbname>/integration/{SHOPIFY}/<int:integration_id>/refunds',
+        ],
+        **_kwargs,
+    )
+    @build_environment
+    @validate_integration
+    def shopify_receive_refunds(self, *args, **kw):
+        """
+        Expected methods:
+            REFUNDS_CREATE
+        """
+        _logger.info('Call shopify webhook controller method: shopify_receive_refunds()')
+        integration = request.env['sale.integration'].browse(kw['integration_id'])
+        external_order_id = self._get_value_from_post_data('order_id')
+        return self._process_event(integration, external_order_id)
+
+    @with_webhook_context
+    def _process_refund_create(self, integration, external_order_id):
+        _logger.info(f'Call {integration.name} webhook controller method: _process_refund_create')
+        data = self._prepare_pipeline_data(integration, external_order_id)
+
+        should_import, message = integration._handle_missing_order(
+            external_order_id,
+            data['integration_workflow_states'],
+        )
+        if should_import is not None:
+            return Response(message)
+
+        integration.process_pipeline_by_id_with_delay(external_order_id, data, build_and_run=True)
+        return Response(f'Job created for order with code={external_order_id}. Action: process refund create')
+
+    # Handle returns
+    @route(
+        [
+            f'/integration/<string:dbname>/{SHOPIFY}/<int:integration_id>/returns',
+            f'/<string:dbname>/integration/{SHOPIFY}/<int:integration_id>/returns',
+        ],
+        **_kwargs,
+    )
+    @build_environment
+    @validate_integration
+    def shopify_receive_returns(self, *args, **kw):
+        """
+        Expected methods:
+            RETURNS_REQUEST
+            RETURNS_APPROVE
+            RETURNS_CANCEL
+            RETURNS_CLOSE
+            RETURNS_DECLINE
+            RETURNS_UPDATE
+        """
+        _logger.info('Call shopify webhook controller method: shopify_receive_returns()')
+        integration = request.env['sale.integration'].browse(kw['integration_id'])
+        # Shopify is inconsistent across returns/* topics: some (e.g. returns/cancel) deliver a
+        # flat top-level "order_id", others (e.g. returns/approve) nest it as "order": {"id": ...}
+        # with no "order_id". Accept both. The payload's own top-level "id" is always the Return id,
+        # never the order id. (Read the dict directly — _get_value_from_post_data raises on a missing
+        # key, so it can't be used to probe one form then fall back to the other.)
+        post_data = self._get_post_data()
+        external_order_id = post_data.get('order_id')
+        if not external_order_id:
+            order_obj = post_data.get('order')
+            if isinstance(order_obj, dict):
+                external_order_id = order_obj.get('id')
+        if not external_order_id:
+            raise ValidationError(
+                _('%s: neither "order_id" nor "order.id" found in the returns webhook post data')
+                % self.integration_type
+            )
+        return self._process_event(integration, external_order_id)
+
+    @with_webhook_context
+    def _process_return_event(self, integration, external_order_id):
+        topic = self.get_webhook_topic()
+        _logger.info(f'Call {integration.name} webhook controller method: _process_return_event (topic={topic})')
+        data = self._prepare_pipeline_data(integration, external_order_id)
+
+        should_import, message = integration._handle_missing_order(
+            external_order_id,
+            data['integration_workflow_states'],
+        )
+        if should_import is not None:
+            return Response(message)
+
+        integration.process_pipeline_by_id_with_delay(external_order_id, data, build_and_run=True)
+        return Response(f'Job created for order with code={external_order_id}. Action: process {topic}')
 
     # Handle products
     @route(

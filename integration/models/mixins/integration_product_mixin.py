@@ -213,6 +213,11 @@ class IntegrationProductMixin(models.AbstractModel):
             .with_context(skip_pricelist_date_validation=True)\
             ._compute_price_rule(self, 0)[self.id]
 
+        # Odoo returns the product's fallback price when no pricelist rule matches.
+        # A sale pricelist must only produce a promotional price when an actual rule was applied.
+        if not item_id:
+            return '', '', ''
+
         item = self.env['product.pricelist.item'].browse(item_id)
         price = self.get_price_by_send_tax_incl(integration_id, price)
 

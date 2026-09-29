@@ -20,7 +20,7 @@ class Company(models.Model):
         relation='ir_model_res_company_zld_rel',
         column1='company_id',
         column2='model_id',
-        string='Allowed models to "ZPL Label Designer"',
+        string='Allowed models to "Label Designer PRO"',
     )
 
     @api.model

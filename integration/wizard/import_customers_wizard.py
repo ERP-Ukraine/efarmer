@@ -42,25 +42,33 @@ class ImportCustomersWizard(models.TransientModel):
         limit = integration.get_external_block_limit()
 
         customer_ids = integration.adapter.get_customer_ids(self.date_since)
+        title = _('Import Customers')
+
+        if not customer_ids:
+            return self.display_integration_notification(
+                _('No customers were found to import for the selected period.'), title=title, ttype='warning',
+            )
 
         job_kwargs = dict(
             priority=3,
             description='Import Customers: Prepare Customers',
         )
 
-        result = []
+        jobs_created = 0
         while customer_ids:
             context = {
                 'company_id': integration.company_id.id,
                 'job_integration_id': integration.id,
                 'job_integration_job_type': 'customer',
             }
-            job = integration \
+            integration \
                 .with_context(**context) \
                 .with_delay(**job_kwargs) \
                 .run_import_customers_by_blocks(customer_ids[:limit])
 
-            result.append(job)
+            jobs_created += 1
             customer_ids = customer_ids[limit:]
 
-        return result
+        message = _('Queue Job "Import Customers" is created') if jobs_created == 1 \
+            else _('Queue Jobs "Import Customers" are created')
+        return self.display_integration_notification(message, title=title)

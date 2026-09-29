@@ -1,6 +1,7 @@
 # See LICENSE file for full copyright and licensing details.
 
 import logging
+from typing import NamedTuple
 
 import requests
 
@@ -24,6 +25,19 @@ requests.exceptions.ConnectionError
 """
 
 
+class ClientOptions(NamedTuple):
+    """Integration settings the resource layer reads off the client.
+
+    Immutable and hashable on purpose: GraphQLClient caches instances keyed on its constructor
+    arguments, and one Shopify store may back several Odoo integrations (one per company, filtered
+    by business entity) whose settings differ. Options that are part of the key keep those
+    integrations on separate clients. Add new switches as fields with a default rather than as
+    further constructor parameters.
+    """
+
+    enable_returns_refunds_sync: bool = False
+
+
 class GraphQLClient:
 
     _instance = {}
@@ -38,11 +52,15 @@ class GraphQLClient:
 
         return instance
 
-    def __init__(self, url: str, token: str, version: str, debug: bool):
+    def __init__(self, url: str, token: str, version: str, debug: bool, options: ClientOptions):
         self.url = prepare_shopify_url(url)
         self.token = token.strip()
         self.version = version.strip()
         self._debug = debug
+        # Resources read the options to shape the query body. Keeping them here rather than on the
+        # parse-time props means the body and the parsers cannot disagree: whatever left fields out
+        # of the query is what decides not to parse them.
+        self.options = options
 
         self.headers = {
             'Accept-Language': 'en',  # Receive API messages in English
