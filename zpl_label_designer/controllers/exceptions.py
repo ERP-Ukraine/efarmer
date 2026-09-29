@@ -27,7 +27,7 @@ class InvalidAPIKey(exceptions.Unauthorized):
 
 class MissedModule(exceptions.NotFound):
     code = 404
-    name = 'ZPL Label Designer module is not installed or need to be upgraded'
+    name = 'Label Designer PRO (ZPL + PDF) module is not installed or need to be upgraded'
 
     def __str__(self) -> str:
         return f'{self.name}'
@@ -35,7 +35,7 @@ class MissedModule(exceptions.NotFound):
 
 class ModelNotAllowed(exceptions.BadRequest):
     code = 400
-    name = 'Model is not allowed. Please add it in ZPL Label Designer / Settings'
+    name = 'Model is not allowed. Please add it in Label Designer PRO / Settings'
 
     def __str__(self) -> str:
         return f'{self.name}'

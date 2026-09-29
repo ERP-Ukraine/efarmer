@@ -1,5 +1,5 @@
-ZPL Label Designer
-========================
+Label Designer PRO (ZPL + PDF)
+==============================
 
 
 Change Log

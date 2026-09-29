@@ -144,7 +144,7 @@ class Label(models.Model):
 
     def copy(self, default=None):
         raise exceptions.UserError(_(
-            "You can't duplicate a label. Please, go to the ZPL Label Designer to create labels."
+            "You can't duplicate a label. Please, go to the Label Designer PRO to create labels."
         ))
 
     def unlink(self):
@@ -636,7 +636,7 @@ class Label(models.Model):
         if has_formulas and not self.env.company.sudo().enable_formulas:
             raise exceptions.UserError(_(
                 "This label contains formulas, but formula support is currently disabled.\n\n"
-                "Please enable formula support in the ZPL Label Designer settings in Odoo."
+                "Please enable formula support in the Label Designer PRO settings in Odoo."
             ))
 
     #

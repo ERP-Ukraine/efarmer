@@ -2,9 +2,9 @@
 # See LICENSE file for full copyright and licensing details.
 
 {
-    'name': 'Odoo Direct Print PRO + ZPL Label Designer PRO',
+    'name': 'Odoo Direct Print PRO + Label Designer PRO (ZPL + PDF)',
     'summary': """
-        Bridge module to connect Odoo Direct Print PRO with ZPL Label Designer.
+        Bridge module to connect Odoo Direct Print PRO with Label Designer PRO (ZPL + PDF).
         Enables automatic printing of ZPL labels (Zebra, thermal, network printers) without IoT Box.
         Supports label printing from Inventory, Sales, Barcode, Manufacturing. Includes print automation,
         multi-language printing, and compatibility with USB, Wi-Fi, and network printers. Works on Odoo Community,

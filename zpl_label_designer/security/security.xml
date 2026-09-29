@@ -3,7 +3,7 @@
     <data noupdate="1">
 
         <record id="zld_security_category" model="ir.module.category">
-            <field name="name">ZPL Label Designer</field>
+            <field name="name">Label Designer PRO</field>
             <field name="sequence">90</field>
         </record>
 

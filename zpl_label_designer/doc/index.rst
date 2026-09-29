@@ -1,12 +1,12 @@
 ===================
- ZPL Label Designer
+Label Designer PRO (ZPL + PDF)
 ===================
 
 
 On-premise installation
 =======================
 
-1. Our ZPL Label Designer is need to be installed as server wide module. Below is quick summary of what you need to add or modify in your odoo.conf file:
+1. Our Label Designer PRO (ZPL + PDF) is need to be installed as server wide module. Below is quick summary of what you need to add or modify in your odoo.conf file:
 
 | ``server_wide_modules = base,web,zpl_label_designer``
 

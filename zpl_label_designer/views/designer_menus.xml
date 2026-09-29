@@ -3,7 +3,7 @@
     <data>
 
         <menuitem id="menu_zld"
-                  name="ZPL Label Designer"
+                  name="Label Designer PRO"
                   sequence="80"
                   web_icon="zpl_label_designer,static/description/icon.png"
                   groups="base.group_user"
