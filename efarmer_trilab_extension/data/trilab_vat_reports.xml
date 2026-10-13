@@ -25,4 +25,18 @@
         <field name="jpk_apply_to">1</field>
     </record>
 
+    <record id="pl_jpk_K_44_KOR" model="account.account.tag">
+        <field name="name">P_Z_ST_KOR</field>
+        <field name="applicability">taxes</field>
+        <field name="country_id" ref="base.pl"/>
+    </record>
+
+    <record id="pl_jpk_VAT7_K_44_KOR" model="jpk.account.tag">
+        <field name="account_tag_id" ref="pl_jpk_K_44_KOR"/>
+        <field name="jpk_document_type" ref="trilab_jpk_base.jpk_v7m_1_2_doc_type"/>
+        <field name="jpk_markup">K_44</field>
+        <field name="jpk_v7_group">P_44</field>
+        <field name="jpk_section">ZakupWiersz</field>
+    </record>
+
 </odoo>
