@@ -5,7 +5,7 @@ from odoo import models
 
 
 class ReturnPicking(models.TransientModel):
-    _inherit = 'stock.return.picking'
+    _inherit = "stock.return.picking"
 
     def _prepare_picking_default_values_based_on(self, picking):
         res = super()._prepare_picking_default_values_based_on(picking)
