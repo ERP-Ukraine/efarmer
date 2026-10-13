@@ -5,7 +5,8 @@ from odoo import models, fields, _
 
 
 class ProductionLot(models.Model):
-    _inherit = 'stock.production.lot'
+    _inherit = "stock.production.lot"
 
-    is_assigned = fields.Boolean(string='Assigned', help='Technical field to mark assigned serial numbers')
-
+    is_assigned = fields.Boolean(
+        string="Assigned", help="Technical field to mark assigned serial numbers"
+    )
