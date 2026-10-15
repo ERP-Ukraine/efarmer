@@ -4,7 +4,7 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
 {
-    'name': 'Copy Odoo.sh Backups to SFTP / FTP',
+    'name': 'Odoo.sh db Backups to SFTP / FTP',
     'version': '18.0.1.0.0',
     'category': 'Extra Tools',
     'author': 'VentorTech',

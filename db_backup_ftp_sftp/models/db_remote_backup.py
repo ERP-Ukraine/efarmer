@@ -71,7 +71,6 @@ class DbRemoteBackup(models.Model):
              "after this many days. 0 = keep forever. Other files in the "
              "folder are never touched.")
 
-    # ---------------------------------------------------------- connection
     protocol = fields.Selection([('sftp', 'SFTP (SSH)'),
                                  ('ftp', 'FTP / FTPS')],
                                 required=True, default='sftp')
@@ -103,7 +102,6 @@ class DbRemoteBackup(models.Model):
              "odoo-backups/2026-10-14/<file>. Relative to the login folder, "
              "or absolute when it starts with '/'.")
 
-    # ---------------------------------------------------------- monitoring
     notify_on_failure = fields.Boolean(string='Email on Failure', default=True)
     notify_email = fields.Char(
         string='Notification Email',
@@ -130,7 +128,6 @@ class DbRemoteBackup(models.Model):
                               string='History')
     log_count = fields.Integer(compute='_compute_log_count')
 
-    # ------------------------------------------------------------ computes
     @api.depends('private_key')
     def _compute_private_key_input(self):
         for rec in self:
@@ -194,7 +191,6 @@ class DbRemoteBackup(models.Model):
             f"<th>{esc(_('Modified'))}</th><th>{esc(_('Status'))}</th>"
             f"</tr></thead><tbody>{''.join(rows)}</tbody></table>{more}")
 
-    # -------------------------------------------------------------- source
     def _source_base(self):
         return os.path.abspath(os.path.expanduser(
             (self.source_path or '~/backup.daily').strip()))
@@ -291,7 +287,6 @@ class DbRemoteBackup(models.Model):
         prefix = '/' if folder.startswith('/') else ''
         return prefix + '/'.join(parts)
 
-    # ------------------------------------------------------------- actions
     @staticmethod
     def _notification(title, message, kind='success', sticky=False):
         return {
@@ -350,7 +345,6 @@ class DbRemoteBackup(models.Model):
             'view_mode': 'form',
         }
 
-    # ----------------------------------------------------------------- run
     @api.model
     def _cron_run(self):
         for config in self.search([]):
@@ -474,8 +468,6 @@ class DbRemoteBackup(models.Model):
                   'last_run_message': message}
         if uploaded and status == 'success':
             values['last_success_date'] = fields.Datetime.now()
-        # the job runs hourly: alert when it starts failing, then at most
-        # once a day while it keeps failing
         if status == 'failed' and (
                 self.last_run_status != 'failed' or not self.last_alert_date
                 or self.last_alert_date < fields.Datetime.now()

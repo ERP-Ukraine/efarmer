@@ -1,4 +1,4 @@
-# Copy Odoo.sh Backups to SFTP / FTP (Odoo 18)
+# Odoo.sh db Backups to SFTP / FTP (Odoo 18)
 
 Odoo.sh keeps its daily backups in `~/backup.daily` inside the production
 container. This module copies those files to your own SFTP or FTP/FTPS server.

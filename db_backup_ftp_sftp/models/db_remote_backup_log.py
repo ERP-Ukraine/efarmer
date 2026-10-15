@@ -9,7 +9,7 @@ from .db_remote_backup import human_size
 class DbRemoteBackupLog(models.Model):
     """One upload of one backup file."""
     _name = 'db.remote.backup.log'
-    _description = 'Backup Copy History'
+    _description = 'Backup History'
     _order = 'upload_date desc, id desc'
 
     config_id = fields.Many2one('db.remote.backup', string='Destination',

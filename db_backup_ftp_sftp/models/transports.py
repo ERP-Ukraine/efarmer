@@ -2,7 +2,6 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
 """SFTP and FTP/FTPS upload adapters.
-
 Usage::
 
     with config._get_transport() as transport:
@@ -37,7 +36,7 @@ class BaseTransport:
     def __exit__(self, *exc):
         try:
             self.close()
-        except Exception:  # never hide the original error
+        except Exception:
             _logger.debug("Error while closing transport", exc_info=True)
 
     def open(self):
@@ -175,7 +174,7 @@ class FtpTransport(BaseTransport):
             try:
                 self.ftp.mkd(current)
             except ftplib.error_perm:
-                pass  # already exists
+                pass
 
     def test(self):
         folder = self.config.remote_folder or ''
@@ -213,7 +212,6 @@ class FtpTransport(BaseTransport):
         except ftplib.error_perm as error:
             if not str(error).startswith('550'):  # 550 = not found
                 raise
-
 
 TRANSPORTS = {
     'sftp': SftpTransport,

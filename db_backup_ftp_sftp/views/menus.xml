@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <menuitem id="menu_db_remote_backup_root" name="Backup Copy"
+    <menuitem id="menu_db_remote_backup_root" name="Backup Settings"
               parent="base.menu_administration" sequence="110"
               groups="base.group_system"/>
     <menuitem id="menu_db_remote_backup" name="Destinations"
