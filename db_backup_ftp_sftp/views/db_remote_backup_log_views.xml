@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_db_remote_backup_log_search" model="ir.ui.view">
+        <field name="name">db.remote.backup.log.search</field>
+        <field name="model">db.remote.backup.log</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="config_id"/>
+                <filter name="uploaded" string="Uploaded" domain="[('state', '=', 'uploaded')]"/>
+                <filter name="failed" string="Failed" domain="[('state', '=', 'failed')]"/>
+                <filter name="deleted" string="Deleted" domain="[('state', '=', 'deleted')]"/>
+                <group>
+                    <filter name="group_config" string="Destination"
+                            context="{'group_by': 'config_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_db_remote_backup_log_list" model="ir.ui.view">
+        <field name="name">db.remote.backup.log.list</field>
+        <field name="model">db.remote.backup.log</field>
+        <field name="arch" type="xml">
+            <list create="false" edit="false"
+                  decoration-danger="state == 'failed'"
+                  decoration-muted="state == 'deleted'">
+                <field name="upload_date"/>
+                <field name="config_id"/>
+                <field name="name"/>
+                <field name="size_display"/>
+                <field name="remote_path" optional="show"/>
+                <field name="duration" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'uploaded'"
+                       decoration-danger="state == 'failed'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_db_remote_backup_log_form" model="ir.ui.view">
+        <field name="name">db.remote.backup.log.form</field>
+        <field name="model">db.remote.backup.log</field>
+        <field name="arch" type="xml">
+            <form create="false" edit="false">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="config_id"/>
+                            <field name="name"/>
+                            <field name="remote_path"/>
+                            <field name="size_display"/>
+                        </group>
+                        <group>
+                            <field name="state"/>
+                            <field name="upload_date"/>
+                            <field name="duration"/>
+                            <field name="deleted_date" invisible="not deleted_date"/>
+                        </group>
+                    </group>
+                    <group string="Error" invisible="not message">
+                        <field name="message" nolabel="1" colspan="2"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_db_remote_backup_log" model="ir.actions.act_window">
+        <field name="name">Upload History</field>
+        <field name="res_model">db.remote.backup.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">Nothing uploaded yet</p>
+        </field>
+    </record>
+</odoo>

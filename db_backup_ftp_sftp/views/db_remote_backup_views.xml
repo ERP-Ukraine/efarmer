@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_db_remote_backup_search" model="ir.ui.view">
+        <field name="name">db.remote.backup.search</field>
+        <field name="model">db.remote.backup</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="host"/>
+                <filter name="failed" string="Failed"
+                        domain="[('last_run_status', '=', 'failed')]"/>
+                <separator/>
+                <filter name="archived" string="Archived"
+                        domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_db_remote_backup_list" model="ir.ui.view">
+        <field name="name">db.remote.backup.list</field>
+        <field name="model">db.remote.backup</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="not active">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="protocol"/>
+                <field name="host"/>
+                <field name="remote_folder" optional="show"/>
+                <field name="keep_days" optional="show"/>
+                <field name="last_run_date"/>
+                <field name="last_run_status" widget="badge"
+                       decoration-success="last_run_status == 'success'"
+                       decoration-info="last_run_status == 'nothing'"
+                       decoration-danger="last_run_status == 'failed'"/>
+                <field name="last_success_date" optional="show"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_db_remote_backup_form" model="ir.ui.view">
+        <field name="name">db.remote.backup.form</field>
+        <field name="model">db.remote.backup</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_run_now" type="object"
+                            string="Run Now" class="btn-primary"
+                            invisible="not id or not active"/>
+                    <button name="action_test_connection" type="object"
+                            string="Test Connection" invisible="not id"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_logs" type="object"
+                                class="oe_stat_button" icon="fa-history"
+                                invisible="not id">
+                            <field name="log_count" widget="statinfo"
+                                   string="History"/>
+                        </button>
+                        <button name="action_view_cron" type="object"
+                                class="oe_stat_button" icon="fa-clock-o">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Schedule</span>
+                            </div>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived"
+                            bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Office NAS"/></h1>
+                    </div>
+                    <div class="alert alert-danger" role="alert"
+                         invisible="last_run_status != 'failed'">
+                        <strong>Last run failed:</strong>
+                        <field name="last_run_message" readonly="1" nolabel="1"/>
+                    </div>
+                    <group>
+                        <group string="Server">
+                            <field name="protocol" widget="radio"
+                                   options="{'horizontal': true}"/>
+                            <field name="host" placeholder="backup.example.com"/>
+                            <field name="port"/>
+                            <field name="username"/>
+                            <field name="auth_method" widget="radio"
+                                   options="{'horizontal': true}"
+                                   invisible="protocol != 'sftp'"/>
+                            <field name="password" password="True"
+                                   invisible="protocol == 'sftp' and auth_method == 'key'"/>
+                            <field name="key_passphrase" password="True"
+                                   invisible="protocol != 'sftp' or auth_method != 'key'"/>
+                            <field name="ftp_tls" invisible="protocol != 'ftp'"/>
+                            <field name="ftp_active_mode" invisible="protocol != 'ftp'"/>
+                            <field name="remote_folder"/>
+                        </group>
+                        <group string="Copy">
+                            <field name="source_path"/>
+                            <label for="keep_days"/>
+                            <div>
+                                <field name="keep_days" class="oe_inline"/>
+                                <span class="text-muted"> days (0 = keep forever)</span>
+                            </div>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    <group invisible="protocol != 'sftp' or auth_method != 'key'">
+                        <field name="private_key_set" invisible="1"/>
+                        <div colspan="2" class="text-success" invisible="not private_key_set">
+                            <i class="fa fa-check"/> Private key saved (hidden).
+                            Paste a new one below only to replace it.
+                        </div>
+                        <field name="private_key_input" colspan="2" nolabel="1"
+                               placeholder="-----BEGIN OPENSSH PRIVATE KEY-----"/>
+                    </group>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="protocol != 'ftp' or ftp_tls">
+                        Plain FTP sends the password and the backups
+                        unencrypted. Use SFTP or FTPS whenever possible.
+                    </div>
+                    <notebook>
+                        <page string="Source Files" name="source">
+                            <group>
+                                <group>
+                                    <field name="file_pattern"/>
+                                    <field name="min_file_age"/>
+                                </group>
+                                <group>
+                                    <field name="include_subfolders"/>
+                                    <field name="pack_folders"
+                                           invisible="not include_subfolders"/>
+                                </group>
+                            </group>
+                            <field name="source_preview" readonly="1" nolabel="1"/>
+                        </page>
+                        <page string="Last Run" name="last_run">
+                            <group>
+                                <group>
+                                    <field name="last_run_date"/>
+                                    <field name="last_run_status" widget="badge"
+                                           decoration-success="last_run_status == 'success'"
+                                           decoration-info="last_run_status == 'nothing'"
+                                           decoration-danger="last_run_status == 'failed'"/>
+                                </group>
+                                <group>
+                                    <field name="last_success_date"/>
+                                </group>
+                                <field name="last_run_message" colspan="2" nolabel="1"/>
+                            </group>
+                        </page>
+                        <page string="Monitoring" name="monitoring">
+                            <group>
+                                <group>
+                                    <field name="notify_on_failure"/>
+                                    <field name="notify_email" invisible="not notify_on_failure"
+                                           placeholder="admin@example.com"/>
+                                </group>
+                                <group>
+                                    <field name="healthcheck_url"
+                                           placeholder="https://hc-ping.com/your-uuid"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_db_remote_backup" model="ir.actions.act_window">
+        <field name="name">Backup Destinations</field>
+        <field name="path">db-backup</field>
+        <field name="res_model">db.remote.backup</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Add an SFTP or FTP server for your Odoo.sh backups</p>
+            <p>New files from ~/backup.daily are copied to every active destination every hour.</p>
+        </field>
+    </record>
+</odoo>
