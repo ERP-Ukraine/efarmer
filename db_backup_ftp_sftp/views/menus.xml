@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_db_remote_backup_root" name="Backup Copy"
+              parent="base.menu_administration" sequence="110"
+              groups="base.group_system"/>
+    <menuitem id="menu_db_remote_backup" name="Destinations"
+              parent="menu_db_remote_backup_root" sequence="10"
+              action="action_db_remote_backup"/>
+    <menuitem id="menu_db_remote_backup_log" name="Upload History"
+              parent="menu_db_remote_backup_root" sequence="20"
+              action="action_db_remote_backup_log"/>
+</odoo>
