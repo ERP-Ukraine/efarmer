@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_mrp_label_print">
+            <t t-foreach="docs" t-as="wizard">
+                <t t-foreach="wizard._get_printable_lines()" t-as="label_line">
+                    <t t-foreach="label_line._get_label_docs()" t-as="label_data">
+                        <t t-if="label_data[0] == 'efarmer_sale_workflow.stock_quant_without_qty'">
+                            <t t-call="efarmer_sale_workflow.stock_quant_without_qty">
+                                <t t-set="docs" t-value="label_data[1]"/>
+                            </t>
+                        </t>
+                        <t t-else="">
+                            <t t-call="efarmer_sale_workflow.stock_label_product_product">
+                                <t t-set="docs" t-value="label_data[1]"/>
+                            </t>
+                        </t>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+        <record id="action_report_mrp_label_print" model="ir.actions.report">
+            <field name="name">MO Labels</field>
+            <field name="model">mrp.label.print.wizard</field>
+            <field name="report_type">qweb-text</field>
+            <field name="report_name">efarmer_mrp_label_print.report_mrp_label_print</field>
+            <field name="report_file">efarmer_mrp_label_print.report_mrp_label_print</field>
+            <field name="print_report_name">'MO Labels - %s' % ', '.join(object.production_ids.mapped('name'))</field>
+        </record>
+    </data>
+</odoo>
