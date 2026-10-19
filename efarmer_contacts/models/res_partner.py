@@ -48,7 +48,10 @@ class ResPartner(models.Model):
     @api.model
     def _run_vat_test(self, vat_number, default_country, partner_is_company=True):
         if default_country and default_country.code == 'PL':
-            _logger.info(f'VIES check was skipped for polish company {self.name} with VAT {vat_number}')
+            _logger.info(
+                'VIES check was skipped for polish partners [%s] with VAT %s',
+                ', '.join(self.mapped('display_name')), vat_number,
+            )
             return True
         return super()._run_vat_test(vat_number, default_country, partner_is_company)
 
