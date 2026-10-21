@@ -4,6 +4,10 @@ eFarmer Account module
 Change Log
 ##########
 
+* 18.0.1.0.1 (2026-10-21)
+    - Added security group that may reset to draft or cancel "
+        "customer invoices that have ever been posted.
+
 * 18.0.1.0.0 (2026-02-11)
     - Migrated to ODOO 18
 

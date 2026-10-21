@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Shown on the user form under "Extra Rights". -->
+    <record id="group_cancel_posted_customer_invoice" model="res.groups">
+        <field name="name">Allow cancellation of posted customer invoices</field>
+        <field name="category_id" ref="base.module_category_usability"/>
+        <field name="comment">Members may reset to draft or cancel customer invoices that have been posted at least once.</field>
+    </record>
+
+</odoo>
