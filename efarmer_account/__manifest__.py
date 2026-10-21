@@ -2,7 +2,7 @@
 # Part of Ventor modules. See LICENSE file for full copyright and licensing details.
 {
     "name": "Efarmer Account",
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.0.1",
     "author": "VentorTech",
     "website": "https://ventor.tech/",
     "license": "LGPL-3",
@@ -13,8 +13,10 @@
     ],
     "description": "",
     "data": [
+        "security/security.xml",
         "views/account_account_views.xml",
         "views/account_bank_statement_views.xml",
+        "views/account_move_views.xml",
     ],
     "installable": True,
     "application": False,
