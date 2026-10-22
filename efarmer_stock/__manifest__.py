@@ -12,6 +12,7 @@
         "views/stock_production_lot_views.xml",
         "views/mrp_production_form_views.xml",
         "views/res_users_views.xml",
+        "views/stock_move_line_views.xml",
     ],
     "auto_install": False,
     "installable": True,
