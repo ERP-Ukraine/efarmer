@@ -4,6 +4,7 @@
 from . import test_account
 from . import test_activate_account
 from . import test_action_button
+from . import test_device_sync
 from . import test_ir_attachment
 from . import test_ir_cron
 from . import test_logging

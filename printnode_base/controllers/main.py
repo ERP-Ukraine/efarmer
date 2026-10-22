@@ -7,7 +7,6 @@ import hashlib
 import hmac
 import json
 import logging
-import werkzeug
 
 from copy import deepcopy
 from datetime import datetime
@@ -384,28 +383,6 @@ class ReportControllerProxy(ReportController):
             model.browse(ids).write({
                 'printnode_printed': True,
             })
-
-
-class DPCCallbackController(http.Controller):
-    @http.route('/dpc-callback', type='http', auth='user')
-    def callback(self, **kwargs):
-        """
-        Callback method to update main account with current api_key.
-
-        When the user following the link in the wizard gets to "print.ventor.tech" and registers
-        there, he gets an API key, after that he will be redirected back to Oduu to this controller.
-        This method will first update the API key for the current account, and then redirect the
-        user to the settings page.
-        """
-        if 'api_key' not in kwargs:
-            return _('No API Key returned. Please, copy the key and paste in the module settings')
-
-        request.env['printnode.account'].update_main_account(kwargs['api_key'])
-
-        settings_action_id = request.env.ref('printnode_base.printnode_config_action').id
-        return werkzeug.utils.redirect(
-            f'/web?view_type=form&model=res.config.settings#action={settings_action_id}'
-        )
 
 
 class DPCJobContentController(http.Controller):

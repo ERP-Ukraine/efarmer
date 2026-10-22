@@ -23,7 +23,7 @@
         POS Print | Print Serial Number | Print Anything | Print One Click | Direct Print POS |
         Odoo POS Printing Solution | Print POS
     ''',
-    'version': '19.0.2.9.0',
+    'version': '19.0.2.9.1',
     'category': 'Tools',
     "images": ["static/description/images/banner.gif"],
     'author': 'VentorTech',

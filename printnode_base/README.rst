@@ -7,6 +7,9 @@ Change Log
 
 |
 
+* 2.9.1 (2026-10-22)
+    - [IMP] Improved API key replacement to preserve existing printers and print settings when updating the key
+
 * 2.9.0 (2026-08-19)
     - [NEW] Added a Manufacturing add-on with a new printing scenario for the Manufacturing module
     - [NEW] Implemented the new Unified Print Rules Builder, providing a single place to configure print rules and report settings. The new menu replaces the previous User Rules and Report Settings menus

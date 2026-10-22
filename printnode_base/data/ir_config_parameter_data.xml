@@ -7,11 +7,6 @@
             <field name="value">create,write,unlink,read,onchange,load_views,check_access_rights</field>
         </record>
 
-        <record model="ir.config_parameter" id="dpc_url">
-            <field name="key">printnode_base.dpc_url</field>
-            <field name="value">https://print.ventor.tech</field>
-        </record>
-
         <record model="ir.config_parameter" id="dpc_api_url">
             <field name="key">printnode_base.dpc_api_url</field>
             <field name="value">https://print.api.ventor.tech</field>

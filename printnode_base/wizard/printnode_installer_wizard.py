@@ -6,8 +6,6 @@ import requests
 from odoo import api, exceptions, fields, models, _
 from odoo.exceptions import UserError
 
-from requests.models import PreparedRequest
-
 CONFIGURATION_STEPS = {
     'step_0': 'Introduction',
     'step_1': 'Printing Subscription',
@@ -123,26 +121,6 @@ class PrintnodeInstaller(models.TransientModel):
         )
 
         return self.go_to_step('step_5')
-
-    def get_api_key(self):
-        """
-        Redirect the user to the Direct Print Client platform
-        """
-        portal_base_url = self.env['ir.config_parameter'].sudo().get_param('printnode_base.dpc_url')
-        odoo_base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
-
-        portal_url = f'{portal_base_url}/get-api-key'
-        controller_url = f'{odoo_base_url}/dpc-callback'
-
-        # Requests lib used to simplicity
-        request = PreparedRequest()
-        request.prepare_url(portal_url, {'redirect_url': controller_url})
-
-        return {
-            'type': 'ir.actions.act_url',
-            'url': request.url,
-            'target': 'self',
-        }
 
     def get_client_apps(self):
         for record in self:

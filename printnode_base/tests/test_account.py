@@ -112,7 +112,7 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
         self.account._deactivate_printers()
         self.assertEqual(self.printer.status, 'offline', "Deactivation of printers failed")
 
-    def test_deactivate_devices(self):
+    def test_deactivate_scales(self):
         """
         Test for correct deactivation of scales
         """
@@ -120,7 +120,7 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
         self.scales.status = 'online'
         self.assertEqual(self.scales.status, 'online')
 
-        self.account._deactivate_devices()
+        self.account._deactivate_scales()
         self.assertEqual(self.scales.status, 'offline', "Deactivation of scales failed")
 
     def test_send_printnode_request(self):
@@ -182,6 +182,7 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
         test_scales_1 = {
             'productId': '1',
             'deviceName': 'Local Test Scales 1',
+            'deviceNum': 7,
         }
         self.assertNotEqual(self.scales.name, 'Local Test Scales 1')
 
@@ -195,6 +196,7 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
             self.scales
         )
         self.assertEqual(self.scales.name, 'Local Test Scales 1')
+        self.assertEqual(self.scales.device_num, 7)
 
         # Create new scales
         test_scales_2 = TEST_SCALES_FROM_PRINTNODE[0]
@@ -393,17 +395,16 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
         self.assertEqual(self.scenario.printer_id, self.printer)
         self.assertEqual(self.delivery_carrier.printer_id, self.printer)
 
-        mock_import_devices = \
-            self._create_patch_object(type(self.account), 'import_devices')
-        mock_import_devices.return_value = None
-
         with self.cr.savepoint(), patch.object(type(self.account), '_send_printnode_request') as \
                 mock_send_printnode_request:
             def side_effect_send_printnode_request(uri: str, params=None):
                 if uri == 'computers':
                     return TEST_COMPUTERS_FROM_PRINTNODE
 
-                return TEST_PRINTERS_FROM_PRINTNODE
+                if uri == 'computer/413/scales':
+                    return TEST_SCALES_FROM_PRINTNODE
+
+                return [{**printer, 'capabilities': None} for printer in TEST_PRINTERS_FROM_PRINTNODE]
 
             mock_send_printnode_request.side_effect = side_effect_send_printnode_request
 
@@ -420,7 +421,7 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
             self.assertFalse(self.action_button.printer_id)
             self.assertFalse(self.delivery_carrier.printer_id)
             self.assertFalse(self.scenario.printer_id)
-            mock_import_devices.assert_called_once()
+            self.assertEqual(mock_send_printnode_request.call_count, 3)
 
     def test_account_write(self):
         """
@@ -435,7 +436,7 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
         with self.cr.savepoint(), patch.object(type(self.account), 'activate_account') \
                 as mock_activate_account:
             self.account.api_key = 'test_apikey'
-            mock_activate_account.assert_called_once()
+            mock_activate_account.assert_called_once_with(reconcile_devices=True)
             self.assertEqual(self.account.id, account_id)
             self.assertNotEqual(self.account.api_key, account_api_key)
 
@@ -451,7 +452,7 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
         with self.cr.savepoint(), patch.object(type(self.account), 'activate_account') \
                 as mock_activate_account:
             self.account.update_main_account('test_apikey')
-            mock_activate_account.assert_called_once()
+            mock_activate_account.assert_called_once_with(reconcile_devices=True)
             self.assertEqual(self.env['printnode.account'].search([]), self.account)
             self.assertEqual(self.env['printnode.account'].search([]).api_key, 'test_apikey')
 
@@ -460,8 +461,9 @@ class TestPrintNodeAccount(TestPrintNodeCommon):
         self.assertEqual(self.env['printnode.account'].search_count([]), 0)
 
         # Check update_main_account() with another correct key
-        with self.cr.savepoint(), patch.object(type(self.account), 'activate_account') \
-                as mock_activate_account:
+        with self.cr.savepoint(), \
+                patch.object(type(self.account), '_send_printnode_request', return_value=[]), \
+                patch.object(type(self.account), 'activate_account') as mock_activate_account:
             self.account.update_main_account('test_apikey_2')
             mock_activate_account.assert_called_once()
             self.assertEqual(self.env['printnode.account'].search([]).api_key, 'test_apikey_2')

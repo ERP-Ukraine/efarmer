@@ -86,9 +86,11 @@ class TestPrintNodeCommon(common.TransactionCase):
         })
 
         # PN account
-        self.account = self.env['printnode.account'].create({
-            'api_key': 'apikey',
-        })
+        with patch.object(type(self.env['printnode.account']), '_send_printnode_request', return_value=[]):
+            self.account = self.env['printnode.account'].create({
+                'api_key': 'apikey',
+            })
+            self.account.flush_recordset(['status'])
 
         # Devices
         self.computer = self.env['printnode.computer'].create({

@@ -1,7 +1,7 @@
 # Copyright 2021 VentorTech OU
 # See LICENSE file for full copyright and licensing details.
 
-from unittest.mock import call
+from unittest.mock import call, patch
 
 from odoo.exceptions import UserError
 from odoo.tests import tagged
@@ -66,6 +66,10 @@ class TestPrintNodeAccountActivation(TestPrintNodeCommon):
             'update_subscription_info_for_account'
         )
         self.mock_import_devices = self._create_patch_object(type(self.account), 'import_devices')
+        self.mock_clear_devices_from_odoo = self._create_patch_object(
+            type(self.account),
+            'clear_devices_from_odoo',
+        )
         self.mock_unlink_devices = self._create_patch_object(type(self.account), 'unlink_devices')
 
     def test_account_activation_case_1(self):
@@ -91,6 +95,7 @@ class TestPrintNodeAccountActivation(TestPrintNodeCommon):
         self.mock_is_correct_dpc_api_key.assert_called_once()
         self.mock_update_subscription_info_for_account.assert_called_once()
         self.mock_import_devices.assert_called_once()
+        self.mock_clear_devices_from_odoo.assert_not_called()
 
     def test_account_activation_case_2(self):
         """
@@ -113,7 +118,7 @@ class TestPrintNodeAccountActivation(TestPrintNodeCommon):
             self.mock_send_dpc_request.call_args_list,
             [self.call_args, ],
         )
-        self.mock_unlink_devices.assert_called_once()
+        self.mock_unlink_devices.assert_not_called()
         self.mock_is_correct_dpc_api_key.assert_called_once()
         self.mock_update_subscription_info_for_account.assert_not_called()
         self.mock_import_devices.assert_not_called()
@@ -138,6 +143,7 @@ class TestPrintNodeAccountActivation(TestPrintNodeCommon):
         self.mock_unlink_devices.assert_called_once()
         self.mock_update_subscription_info_for_account.assert_called_once()
         self.mock_import_devices.assert_called_once()
+        self.mock_clear_devices_from_odoo.assert_not_called()
 
     def test_account_activation_case_4(self):
         """
@@ -165,3 +171,53 @@ class TestPrintNodeAccountActivation(TestPrintNodeCommon):
         self.mock_is_correct_dpc_api_key.assert_called_once()
         self.mock_update_subscription_info_for_account.assert_called_once()
         self.mock_import_devices.assert_called_once()
+        self.mock_clear_devices_from_odoo.assert_not_called()
+
+    def test_account_activation_reconcile_devices(self):
+        """
+        When API key is changed, keep existing devices and remove only devices
+        that are no longer connected to the PrintNode account.
+        """
+        self.mock_send_dpc_request.return_value = DPC_RESPONSE
+
+        self.assertIsNone(self.account.activate_account(reconcile_devices=True))
+
+        self.mock_unlink_devices.assert_not_called()
+        self.mock_update_subscription_info_for_account.assert_called_once()
+        self.mock_import_devices.assert_not_called()
+        self.mock_clear_devices_from_odoo.assert_called_once()
+
+    def test_account_activation_reconcile_fallbacks(self):
+        for response in (None, {**DPC_RESPONSE, 'status_code': 404}):
+            with self.subTest(response=response):
+                self.mock_send_dpc_request.return_value = response
+                self.mock_is_correct_dpc_api_key.return_value = True
+                self.mock_is_correct_dpc_api_key.reset_mock()
+                self.mock_update_subscription_info_for_account.reset_mock()
+                self.mock_clear_devices_from_odoo.reset_mock()
+
+                self.assertIsNone(self.account.activate_account(reconcile_devices=True))
+
+                self.assertFalse(self.account.is_dpc_account)
+                self.mock_is_correct_dpc_api_key.assert_called_once()
+                self.mock_update_subscription_info_for_account.assert_called_once()
+                self.mock_clear_devices_from_odoo.assert_called_once()
+                self.mock_unlink_devices.assert_not_called()
+                self.mock_import_devices.assert_not_called()
+
+    def test_account_activation_invalid_key_preserves_devices(self):
+        for reconcile_devices in (False, True):
+            for response in (None, {**DPC_RESPONSE, 'status_code': 404}, {'status_code': 400}):
+                with self.subTest(reconcile=reconcile_devices, response=response), \
+                        patch.object(self.cr, 'commit') as mock_commit:
+                    self.mock_send_dpc_request.return_value = response
+                    self.mock_is_correct_dpc_api_key.return_value = False
+
+                    with self.assertRaises(UserError):
+                        self.account.activate_account(reconcile_devices=reconcile_devices)
+
+                    self.mock_unlink_devices.assert_not_called()
+                    self.mock_import_devices.assert_not_called()
+                    self.mock_clear_devices_from_odoo.assert_not_called()
+                    self.mock_update_subscription_info_for_account.assert_not_called()
+                    mock_commit.assert_not_called()
