@@ -45,6 +45,26 @@ class StockPicking(models.Model):
              'button_validate.',
     )
 
+    @property
+    def is_done(self):
+        self.ensure_one()
+        return self.state == 'done'
+
+    @property
+    def is_cancel(self):
+        self.ensure_one()
+        return self.state == 'cancel'
+
+    @property
+    def is_outgoing_type(self):
+        self.ensure_one()
+        return self.picking_type_id.code == 'outgoing'
+
+    @property
+    def is_incoming_type(self):
+        self.ensure_one()
+        return self.picking_type_id.code == 'incoming'
+
     def _compute_has_pending_external_returns(self):
         """Delegate to the sale order computation — single query path, no
         duplication. store=False keeps this off the DB layout; the field is
@@ -78,12 +98,12 @@ class StockPicking(models.Model):
     def write(self, vals):
         # if someone add `carrier_tracking_ref` after picking validation
         picking_done_ids = self.filtered(
-            lambda x: x.state == 'done' and not x.carrier_tracking_ref
+            lambda x: x.is_done and not x.carrier_tracking_ref
         )
         res = super(StockPicking, self).write(vals)
 
         picking_done_update_ids = picking_done_ids.filtered(
-            lambda x: x.state == 'done' and x.carrier_tracking_ref
+            lambda x: x.is_done and x.carrier_tracking_ref
         )
         for order in picking_done_update_ids.mapped('sale_id'):
             # It seems it may trigger the parallel picking export during picking validation
@@ -317,16 +337,14 @@ class StockPicking(models.Model):
         picking. When an outgoing picking moves to 'done', enqueue the order's processing job
         so any pending returns get retried.
 
-        Filter on picking_type_id.code == 'outgoing' is intentional — incoming pickings (e.g.,
+        Filter on outgoing pickings is intentional — incoming pickings (e.g.,
         return receipts) and internal transfers must NOT trigger return processing. The hook
         only triggers — all business logic lives in the processing job.
         """
         res = super(StockPicking, self)._action_done()
         # Access orders as sudo to avoid issues with missed access rights
         # Person who works with pickings can have no access to sales orders
-        for picking in self.sudo().filtered(
-            lambda p: p.picking_type_id.code == 'outgoing'
-        ):
+        for picking in self.sudo().filtered(lambda p: p.is_outgoing_type):
             order = picking.sale_id
             if (order and order.integration_id
                     and order.integration_id.enable_returns_refunds_sync):
@@ -347,8 +365,7 @@ class StockPicking(models.Model):
         (pick/pack with code='internal') pass through unchanged.
         """
         for picking in self:
-            if (picking.picking_type_id.code == 'outgoing'
-                    and picking.has_pending_external_returns):
+            if picking.is_outgoing_type and picking.has_pending_external_returns:
                 es.raise_error(
                     err_code='E523',
                     err_msg=_(
@@ -367,20 +384,14 @@ class StockPicking(models.Model):
 
         res = super(StockPicking, self).button_validate()
 
-        if res is not True:
-            return res
-
-        self._run_integration_picking_hooks()
+        self.filtered(lambda x: x.is_done)._run_integration_picking_hooks()
 
         return res
 
     def action_cancel(self):
         res = super(StockPicking, self).action_cancel()
 
-        if res is not True:
-            return res
-
-        self._run_integration_picking_hooks()
+        self.filtered(lambda x: x.is_cancel)._run_integration_picking_hooks()
 
         return res
 
@@ -415,9 +426,9 @@ class StockPicking(models.Model):
 
     def _filter_pickings(self):
         return self.filtered(
-            lambda x: x.state == 'done' and not x.tracking_exported
+            lambda x: x.is_done and not x.tracking_exported
             and (
-                x.picking_type_id.code == 'outgoing'
+                x.is_outgoing_type
                 or getattr(x, 'is_dropship', False)
             )
         )

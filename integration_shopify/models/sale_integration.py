@@ -81,6 +81,18 @@ class SaleIntegration(models.Model):
         help='Select the merchant business entities you want to import orders from in this e-commerce store.',
     )
 
+    # Used only in the form view domains of the two fields above. A domain listing these ids changes after an import,
+    # so the tags autocomplete stops reusing its cached empty result and shows the new records without a form reload.
+    available_channel_ids = fields.One2many(
+        comodel_name='external.sale.channel',
+        inverse_name='integration_id',
+    )
+
+    available_business_entity_ids = fields.One2many(
+        comodel_name='external.business.entity',
+        inverse_name='integration_id',
+    )
+
     shopify_customer_language = fields.Selection(
         selection=lambda self: self.env['res.lang'].get_installed(),
         string='Default Customer Language',
@@ -765,7 +777,7 @@ class SaleIntegration(models.Model):
         self.ensure_one()
         channels = self.import_sale_channels()
         return self.display_integration_notification(
-            _('%s sales channel(s) imported.') % len(channels), title=_('Import Sales Channels'), reload=True,
+            _('%s sales channel(s) imported.') % len(channels), title=_('Import Sales Channels'),
         )
 
     def import_business_entities(self, remove_existing_records=False):
@@ -802,7 +814,7 @@ class SaleIntegration(models.Model):
             message = _('%s business entities imported.') % len(entities)
 
         return self.display_integration_notification(
-            message, title=_('Import Merchant Business Entities'), reload=True,
+            message, title=_('Import Merchant Business Entities'),
         )
 
     def _filter_orders_shopify(self, external_orders_data_list: list):

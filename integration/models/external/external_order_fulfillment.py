@@ -138,8 +138,7 @@ class ExternalOrderFulfillment(models.Model):
 
         order = self.erp_order_id
         done_outgoing = order.picking_ids.filtered(
-            lambda p: p.state == 'done'
-            and p.picking_type_id.code == 'outgoing'
+            lambda p: p.is_done and p.is_outgoing_type
         )
 
         if order.is_available_multi_stock_for_so:

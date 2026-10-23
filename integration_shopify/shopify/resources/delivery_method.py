@@ -28,6 +28,19 @@ class DeliveryMethod(GqlDict):
         self.ensure_one()
         return self._env.DeliveryMethodType(self['methodType'])
 
+    @property
+    def is_pickup(self):
+        """Whether the customer collects the goods from the store (`PICK_UP`).
+
+        A `PICKUP_POINT` is not one: the goods are shipped to the point, so it is fulfilled like a shipment.
+        """
+        self.ensure_one()
+
+        if not self['methodType']:
+            return False
+
+        return self.method_type.is_pick_up
+
     def to_odoo_format(self, to_tuple: bool = False):
         self.ensure_one()
 

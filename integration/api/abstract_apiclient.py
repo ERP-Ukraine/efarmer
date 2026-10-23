@@ -199,6 +199,24 @@ class AbsApiClient(ABC):
 
     @abstractmethod
     def get_customer_and_addresses(self, customer_id):
+        """
+        Fetch a customer together with all available addresses.
+
+        Returns:
+            tuple: Customer data and a sequence of address dictionaries. The address
+                ``type`` controls how a customer import handles each address:
+
+                - ``invoice``: the first one is the primary billing address; any
+                  remaining invoice addresses are imported as additional invoice addresses.
+                - ``delivery``: the first one is the primary shipping address; any
+                  remaining delivery addresses are imported as additional delivery addresses.
+                - missing or ``None``: used as a billing fallback when no invoice address
+                  exists; otherwise imported as ``other``.
+                - ``other``, ``False``, or an empty string: imported as an additional
+                  ``other`` address.
+
+                Any other type is rejected with import error ``E116``.
+        """
         return
 
     @abstractmethod

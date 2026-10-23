@@ -920,7 +920,7 @@ class GraphQLTemplate:
         order {
             id
         }
-        fulfillmentOrders(first: 1) {
+        fulfillmentOrders(first: 10) {
             nodes {
                 id
             }
@@ -1246,6 +1246,11 @@ class GraphQLTemplate:
         shippingLine {
             %s
         }
+        shippingLines(first: 5) {
+            nodes {
+                %s
+            }
+        }
         transactions(first: 10) {
             %s
         }
@@ -1269,6 +1274,7 @@ class GraphQLTemplate:
         LINE_ITEM_BODY,
         MAILING_ADDRESS_BODY,
         MAILING_ADDRESS_BODY,
+        SHIPPING_LINE_BODY,
         SHIPPING_LINE_BODY,
         ORDER_TRANSACTION_BODY,
         """
@@ -1296,6 +1302,7 @@ class GraphQLTemplate:
         LINE_ITEM_BODY,
         MAILING_ADDRESS_BODY,
         MAILING_ADDRESS_BODY,
+        SHIPPING_LINE_BODY,
         SHIPPING_LINE_BODY,
         ORDER_TRANSACTION_BODY,
         '',
@@ -1896,6 +1903,16 @@ class GraphQLTemplate:
             }
         }
     """ % (FULFILLMENT_ORDER_BODY, USER_ERRORS_BODY_1)
+
+    MUTATION_FULFILLMENT_ORDER_PREPARED_FOR_PICKUP = """
+        mutation fulfillmentOrderLineItemsPreparedForPickup($input: FulfillmentOrderLineItemsPreparedForPickupInput!) {
+            fulfillmentOrderLineItemsPreparedForPickup(input: $input) {
+                userErrors {
+                    %s
+                }
+            }
+        }
+    """ % USER_ERRORS_BODY_2
 
     MUTATION_FULFILLMENT_CREATE = """
         mutation fulfillmentCreate($fulfillment: FulfillmentInput!, $message: String) {

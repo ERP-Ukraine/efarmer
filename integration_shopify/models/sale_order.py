@@ -229,12 +229,37 @@ class SaleOrder(models.Model):
 
                 fulfillments = list()
                 for fulfill_data in external_data['order_fulfillments']:
+                    if 'prepared_fulfillment_order_ids' in fulfill_data:
+                        # Not a fulfillment: the export of a pickup picking reports the fulfillment orders it marked
+                        # ready, see `ShopifyAPIClient.send_picking`
+                        self._keep_ready_fulfillment_orders(
+                            fulfill_data['picking_id'],
+                            fulfill_data['prepared_fulfillment_order_ids'],
+                        )
+                        continue
+
                     record = Fulfillment._get_or_create_from_external(fulfill_data)
                     fulfillments.append((4, record.id, 0))
 
-                vals['external_fulfillment_ids'] = fulfillments
+                if fulfillments:
+                    vals['external_fulfillment_ids'] = fulfillments
 
             if vals:
                 self.with_context(skip_dispatch_to_external=True).write(vals)
 
         return super(SaleOrder, self)._apply_values_from_external(external_data)
+
+    def _keep_ready_fulfillment_orders(self, picking_id: int, fulfillment_order_ids: list[str]):
+        """Keep on a pickup picking the Shopify fulfillment orders its export marked ready for pickup.
+
+        Args:
+            picking_id (int): id of the exported `stock.picking` of this order
+            fulfillment_order_ids (list[str]): numeric ids of the Shopify fulfillment orders, as strings
+        """
+        picking = self.picking_ids.filtered(lambda x: x.id == picking_id)
+
+        if not picking:
+            return
+
+        known = picking.shopify_ready_fulfillment_orders or []
+        picking.shopify_ready_fulfillment_orders = known + [x for x in fulfillment_order_ids if x not in known]

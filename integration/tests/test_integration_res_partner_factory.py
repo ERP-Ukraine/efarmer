@@ -60,17 +60,23 @@ class TestIntegrationResPartnerFactory(TestIntegrationResPartnerFactoryCommon):
         customer_data = {'person_name': 'John Doe', 'email': 'john@example.com'}
         billing_data = {'company_name': 'Billing Co', 'street': 'Billing St 1', 'email': 'billing@example.com'}
         shipping_data = {'company_name': 'Shipping Co', 'street': 'Shipping St 2', 'email': 'shipping@example.com'}
+        additional_addresses = [
+            {'company_name': 'Other Co', 'street': 'Other St 3', 'email': 'other@example.com'},
+        ]
 
         factory = self._create_factory(
             customer_data=customer_data,
             billing_data=billing_data,
             shipping_data=shipping_data,
+            additional_addresses_data=additional_addresses,
         )
 
-        self.assertEqual(len(factory.proxy_ids), 3)
+        self.assertEqual(len(factory.proxy_ids), 4)
         self.assertTrue(factory.customer_proxy)
         self.assertTrue(factory.billing_proxy)
         self.assertTrue(factory.shipping_proxy)
+        self.assertEqual(len(factory.additional_proxies), 1)
+        self.assertEqual(factory.additional_proxies.company_name, 'Other Co')
 
     def test_create_factory_fallback_shipping_to_billing(self):
         """If billing_data is empty, shipping_data should be used as billing."""
@@ -248,6 +254,7 @@ class TestIntegrationResPartnerFactory(TestIntegrationResPartnerFactoryCommon):
         self.assertEqual(customer.name, 'Bob')
         self.assertEqual(addresses['billing'], customer)
         self.assertEqual(addresses['shipping'], customer)
+        self.assertFalse(addresses['additional'])
 
     def test_manual_mapping_initial_import_raises_not_mapped(self):
         """Initial import with manual mapping and no existing partner raises NotMappedFromExternal."""
@@ -419,3 +426,192 @@ class TestIntegrationResPartnerFactory(TestIntegrationResPartnerFactoryCommon):
         self.assertEqual(customer, default_partner)
         self.assertEqual(addrs['billing'], default_partner)
         self.assertEqual(addrs['shipping'], default_partner)
+        self.assertFalse(addrs['additional'])
+
+    def test_shipping_address_of_another_company_is_not_merged_into_customer(self):
+        for name, billing_company, shipping_company in (
+            ('John Doe', 'Smallco', 'Bigco'),
+            ('Jane Roe', None, 'Bigco B2C'),
+        ):
+            with self.subTest(billing_company=billing_company):
+                email = f'{name.split()[0].lower()}@example.com'
+                address = {
+                    'person_name': name,
+                    'email': email,
+                    'street': 'Same St 1',
+                }
+                billing_data = (
+                    dict(address, company_name=billing_company)
+                    if billing_company
+                    else dict(address)
+                )
+                factory = self._create_factory(
+                    customer_data={'person_name': name, 'email': email},
+                    billing_data=billing_data,
+                    shipping_data=dict(address, company_name=shipping_company),
+                )
+
+                customer, addresses = factory.get_partner_and_addresses()
+
+                self.assertEqual(customer.parent_id.name, billing_company or False)
+                self.assertEqual(addresses['billing'], customer)
+                self.assertNotEqual(addresses['shipping'], customer)
+                self.assertEqual(addresses['shipping'].type, 'delivery')
+                self.assertEqual(addresses['shipping'].parent_id.name, shipping_company)
+
+    def test_additional_proxies_keep_types_and_primary_proxies(self):
+        additional_addresses = [
+            {'person_name': 'Additional', 'type': address_type, 'street': str(index)}
+            for index, address_type in enumerate(('invoice', 'delivery', 'other', None, '', False))
+        ]
+        additional_addresses.extend([{}, None, {'street': ''}])
+        factory = self._create_factory(
+            customer_data={'person_name': 'Customer'},
+            billing_data={'person_name': 'Primary billing'},
+            shipping_data={'person_name': 'Primary shipping'},
+            additional_addresses_data=additional_addresses,
+        )
+
+        self.assertEqual(len(factory.billing_proxy), 1)
+        self.assertEqual(factory.billing_proxy.person_name, 'Primary billing')
+        self.assertEqual(len(factory.shipping_proxy), 1)
+        self.assertEqual(factory.shipping_proxy.person_name, 'Primary shipping')
+        self.assertEqual(len(factory.additional_proxies), 6)
+        self.assertEqual(factory.additional_proxies.mapped('type'), [
+            'billing_address', 'shipping_address', 'other_address',
+            'other_address', 'other_address', 'other_address',
+        ])
+        self.assertFalse(factory.customer_proxy.is_additional_address)
+        self.assertFalse(factory.billing_proxy.is_additional_address)
+        self.assertFalse(factory.shipping_proxy.is_additional_address)
+
+    def test_additional_address_with_unknown_type_is_rejected(self):
+        for address_type in ('unsupported', ['invoice'], 0):
+            with self.subTest(address_type=address_type):
+                with self.assertRaises(ApiImportError) as error:
+                    self._create_factory(
+                        customer_data={'person_name': 'Customer'},
+                        additional_addresses_data=[{
+                            'person_name': 'Additional',
+                            'type': address_type,
+                        }],
+                    )
+
+                self.assertIn('E116', str(error.exception))
+
+    def test_additional_addresses_reuse_matching_customer(self):
+        address = {'person_name': 'Customer', 'email': 'customer@example.com', 'street': 'Same Street'}
+        factory = self._create_factory(
+            customer_data=address,
+            billing_data=address,
+            shipping_data=address,
+            additional_addresses_data=[dict(address, type='delivery')],
+        )
+        customer, addresses = factory.get_partner_and_addresses()
+
+        self.assertEqual(addresses['billing'], customer)
+        self.assertEqual(addresses['shipping'], customer)
+        self.assertEqual(addresses['additional'], customer)
+        self.assertFalse(customer.child_ids)
+
+    def test_additional_company_address_in_company_only_mode(self):
+        self.integration_no_api_1.skip_individual_contacts = True
+        factory = self._create_factory(
+            customer_data={'id': 'company-only', 'person_name': 'Customer'},
+            billing_data={'person_name': 'Customer', 'company_name': 'Primary Co', 'street': 'Primary St'},
+            additional_addresses_data=[{
+                'type': 'delivery',
+                'person_name': 'Receiver',
+                'company_name': 'Secondary Co',
+                'street': 'Secondary St',
+            }],
+            is_initial_import=True,
+        )
+        customer, addresses = factory.get_partner_and_addresses()
+
+        self.assertTrue(customer.is_company)
+        self.assertEqual(customer.name, 'Primary Co')
+        self.assertEqual(addresses['additional'].parent_id.name, 'Secondary Co')
+        self.assertEqual(addresses['additional'].type, 'delivery')
+        self.assertEqual(
+            self.env['res.partner'].from_external(self.integration_no_api_1, 'company-only'),
+            customer,
+        )
+
+    def test_additional_address_respects_manual_customer_mapping(self):
+        integration = self.integration_no_api_1
+        integration.write({
+            'use_manual_customer_mapping': True,
+            'skip_individual_contacts': True,
+        })
+
+        partner = self.env['res.partner'].create({
+            'name': 'Mapped Customer',
+            'street': 'Original St',
+        })
+        partner.create_mapping(integration, 'manual-additional')
+
+        factory = self._create_factory(
+            customer_data={
+                'id': 'manual-additional',
+                'person_name': 'Customer',
+            },
+            additional_addresses_data=[{
+                'person_name': 'Receiver',
+                'type': 'delivery',
+                'company_name': 'Other Company',
+                'street': 'Different St',
+            }],
+            is_initial_import=True,
+        )
+
+        customer, addresses = factory.get_partner_and_addresses()
+
+        self.assertEqual(customer, partner)
+        self.assertEqual(addresses['additional'].parent_id, partner)
+        self.assertEqual(addresses['additional'].type, 'delivery')
+        self.assertFalse(self.env['res.partner'].search([
+            ('name', '=', 'Other Company'),
+            ('is_company', '=', True),
+            ('company_id', '=', integration.company_id.id),
+        ]))
+        self.assertEqual(
+            self.env['res.partner'].from_external(integration, 'manual-additional'),
+            partner,
+        )
+
+    def test_additional_address_respects_vat_only_company_search(self):
+        integration = self.integration_no_api_1
+        integration.write({
+            'customer_company_vat_field': self.env['ir.model.fields']._get('res.partner', 'ref').id,
+            'use_vat_only_company_search': True,
+            'ignore_vat_validation': True,
+        })
+        company = self.env['res.partner'].create({
+            'name': 'Existing Company',
+            'is_company': True,
+            'company_id': integration.company_id.id,
+            'ref': 'REG123',
+        })
+        factory = self._create_factory(
+            customer_data={'person_name': 'Customer', 'email': 'customer@example.com'},
+            billing_data={
+                'person_name': 'Customer',
+                'email': 'customer@example.com',
+                'company_name': 'Existing Company',
+                'company_reg_number': 'REG123',
+                'street': 'Primary St',
+            },
+            additional_addresses_data=[{
+                'person_name': 'Receiver',
+                'type': 'delivery',
+                'company_name': 'Different API Name',
+                'company_reg_number': 'REG123',
+                'street': 'Additional St',
+            }],
+        )
+        customer, addresses = factory.get_partner_and_addresses()
+
+        self.assertEqual(customer.parent_id, company)
+        self.assertEqual(addresses['additional'].parent_id, company)
+        self.assertFalse(self.env['res.partner'].search([('name', '=', 'Different API Name')]))

@@ -11,17 +11,19 @@
                     <field name="use_customer_currency" invisible="not is_integration_shopify" widget="boolean_toggle"/>
                 </group>
                 <group name="advanced_sales_order_settings" position="inside">
+                    <field name="available_channel_ids" invisible="1"/> <!-- Required because it is used in the integration_channel_ids domain -->
+                    <field name="available_business_entity_ids" invisible="1"/> <!-- Required because it is used in the integration_business_entity_ids domain -->
                     <label for="integration_channel_ids" string="Sales Channels" />
                     <div class="o_row" colspan="1">
                         <div class="flex-grow-1">
-                            <field name="integration_channel_ids" widget="many2many_tags" invisible="not is_integration_shopify" options="{'no_create': True, 'no_edit': True}"/>
+                            <field name="integration_channel_ids" widget="many2many_tags" invisible="not is_integration_shopify" options="{'no_create': True, 'no_edit': True}" domain="[('id', 'in', available_channel_ids)]"/>
                             <button name="action_import_sale_channels" string="Import Sales Channels" type="object" class="btn btn-outline-primary mb-2" invisible="not is_integration_shopify"/>
                         </div>
                     </div>
                     <label for="integration_business_entity_ids" string="Merchant Business Entities" />
                     <div class="o_row" colspan="1">
                         <div class="flex-grow-1">
-                            <field name="integration_business_entity_ids" widget="many2many_tags" options="{'no_create': True, 'no_edit': True}" />
+                            <field name="integration_business_entity_ids" widget="many2many_tags" options="{'no_create': True, 'no_edit': True}" domain="[('id', 'in', available_business_entity_ids)]"/>
                             <button name="action_import_business_entities" string="Import Merchant Business Entities" type="object" class="btn btn-outline-primary mb-2"/>
                         </div>
                     </div>

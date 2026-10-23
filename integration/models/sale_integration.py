@@ -3416,36 +3416,6 @@ class SaleIntegration(models.Model):
 
         return '\n'.join(report)
 
-    def run_create_products_in_odoo_by_blocks(self, external_templates):
-        return external_templates.run_import_products()
-
-    @expose_for_testing('Create Products in Odoo (Using External Records)')
-    def integrationApiCreateProductsInOdoo(self):
-        block = 1
-        limit = self.get_external_block_limit()
-        external_templates = self.env['integration.product.template.external'].search([
-            ('integration_id', '=', self.id),
-        ])
-
-        context = {
-            'company_id': self.company_id.id,
-            'job_integration_id': self.id,
-            'job_integration_job_type': 'product',
-        }
-        self = self.with_context(**context)
-        description_ = _('%s: Create Products In Odoo. Prepare Products For Creating [block %s]') % self.name
-
-        while external_templates:
-            _external_ids = external_templates[:limit]
-
-            self.with_delay(
-                priority=5,
-                description=(description_ % block),
-            ).run_create_products_in_odoo_by_blocks(_external_ids)
-
-            block += 1
-            external_templates = external_templates[limit:]
-
     @expose_for_testing('Run Product Catalog Validation Test')
     def integrationApiProductsValidationTest(self):
         validation_results = self._get_product_validation_report_html()
@@ -3489,7 +3459,7 @@ class SaleIntegration(models.Model):
         Args:
             external_customer_id (str): External ID of the customer.
         Returns:
-            List: Imported partners (customer and their addresses).
+            Recordset: Imported partners (customer and their addresses).
         """
         adapter = self.adapter
 
@@ -3502,38 +3472,37 @@ class SaleIntegration(models.Model):
                 ) % external_customer_id
             )
 
-        # Ensure 'invoice' type addresses come first, then others (type is None).
-        # This guarantees that the main billing address is processed first and linked as primary.
+        # Prefer explicit invoice addresses; keep untyped addresses as the billing fallback.
         billing_addresses = (
             [a for a in addresses if a.get('type') == 'invoice'] +  # NOQA
             [a for a in addresses if a.get('type') is None]
         )
-        shipping_addresses = list(filter(lambda x: x.get('type') == 'delivery', addresses))
+        shipping_addresses = [address for address in addresses if address.get('type') == 'delivery']
+        other_addresses = [
+            address for address in addresses
+            if address.get('type') not in ('invoice', 'delivery', None)
+        ]
 
-        imported_contacts = self.env['res.partner']
+        billing_address = billing_addresses[0] if billing_addresses else None
+        shipping_address = shipping_addresses[0] if shipping_addresses else None
 
-        # Always guarantee a factory call
-        billing_list = billing_addresses or [None]
+        # Only primary addresses define the customer; import the rest without remapping it.
+        PartnerFactory = self.env['integration.res.partner.factory'].create_factory(
+            self.id,
+            customer_data=customer,
+            billing_data=billing_address,
+            shipping_data=shipping_address,
+            additional_addresses_data=billing_addresses[1:] + shipping_addresses[1:] + other_addresses,
+            is_initial_import=True,
+        )
+        partner, resolved_addresses = PartnerFactory.get_partner_and_addresses()
 
-        # Process billing + shipping pairs
-        for i, billing_address in enumerate(billing_list):
-            shipping_address = shipping_addresses[i] if i < len(shipping_addresses) else None
-
-            PartnerFactory = self.env['integration.res.partner.factory'].create_factory(
-                self.id,
-                customer_data=customer,
-                billing_data=billing_address,
-                shipping_data=shipping_address,
-                is_initial_import=True,
-            )
-
-            partner, addresses = PartnerFactory.get_partner_and_addresses()
-
-            imported_contacts |= partner
-            imported_contacts |= addresses['billing']
-            imported_contacts |= addresses['shipping']
-
-        return imported_contacts
+        return (
+            partner
+            | resolved_addresses['billing']
+            | resolved_addresses['shipping']
+            | resolved_addresses['additional']
+        )
 
     def _import_external_tax(self, tax_id):
         adapter_external_data = self.adapter.get_single_tax(tax_id)

@@ -39,6 +39,12 @@ class Fulfillment(ShopifyResourceUpdate):
         return self['trackingInfo'] or []
 
     @property
+    def fulfillment_orders(self):
+        """The fulfillment orders this fulfillment closed: one fulfillment may take lines of several of them."""
+        self.ensure_one()
+        return [self._env.FulfillmentOrder.set(**x) for x in (self['fulfillmentOrders'] or [])]
+
+    @property
     def tracking_numbers(self):
         self.ensure_one()
         return [x['number'] for x in self.tracking_info]
@@ -143,5 +149,6 @@ class Fulfillment(ShopifyResourceUpdate):
             tracking_number=', '.join(self.tracking_numbers),
             tracking_company=self.tracking_company,
             external_location_id=self.location.id_str,
+            shopify_fulfillment_orders=[x.id_str for x in self.fulfillment_orders],
             lines=[x.to_odoo_format() for x in self.fulfillment_line_items],
         )

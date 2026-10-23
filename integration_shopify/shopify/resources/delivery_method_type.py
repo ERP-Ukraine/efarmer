@@ -49,3 +49,8 @@ class DeliveryMethodType(StatusAbstract):
     @property
     def mapping(self):
         return DELIVERY_METHOD_TYPE_MAP
+
+    @classmethod
+    def non_shipping_values(cls) -> set:
+        """Values of all the types but shipping, those that are imported as a carrier coded by the type itself."""
+        return {x.value for x in cls if not x.is_shipping}

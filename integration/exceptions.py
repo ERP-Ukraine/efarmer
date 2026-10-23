@@ -403,6 +403,9 @@ class ErrorStore:
                 'product_name',
             ],
         ),
+        'E116': ErrorInfo(
+            error_type=ApiImportError,
+        ),
         # E5xx — Returns & Refunds processing errors.
         # No format_method: messages live next to the raise sites in
         # external_order_refund.py / external_order_return.py and are passed

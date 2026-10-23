@@ -229,7 +229,7 @@ class ExternalOrderReturn(models.Model):
 
         # Idempotency: check if a return picking already exists
         existing_return_pickings = self.picking_ids.filtered(
-            lambda p: p.picking_type_id.code == 'incoming' and p.state != 'cancel'
+            lambda p: p.is_incoming_type and not p.is_cancel
         )
         if existing_return_pickings:
             _logger.info(
@@ -245,8 +245,7 @@ class ExternalOrderReturn(models.Model):
         # Retried when the outgoing picking moves to 'done' via the lifecycle hook on
         # stock.picking._action_done.
         done_outgoing = order.picking_ids.filtered(
-            lambda p: p.state == 'done'
-            and p.picking_type_id.code == 'outgoing'
+            lambda p: p.is_done and p.is_outgoing_type
         )
         if not done_outgoing:
             es.raise_error(
@@ -341,7 +340,7 @@ class ExternalOrderReturn(models.Model):
         receives the goods.
         """
         pickings = self.picking_ids.filtered(
-            lambda p: p.picking_type_id.code == 'incoming'
+            lambda p: p.is_incoming_type
             and p.state not in ('done', 'cancel')
         )
         for picking in pickings:
@@ -379,7 +378,7 @@ class ExternalOrderReturn(models.Model):
             )
             return
 
-        if picking.state != 'done':
+        if not picking.is_done:
             _logger.warning(
                 'Return %s: return picking %s did not reach "done" after '
                 'auto-validation (still "%s"); leaving for manual completion.',
@@ -427,15 +426,13 @@ class ExternalOrderReturn(models.Model):
             return self._find_matching_outgoing_picking_legacy(done_outgoing)
 
         # Primary path: use cached picking_id
-        if fulfillment.picking_id and fulfillment.picking_id.state == 'done':
+        if fulfillment.picking_id and fulfillment.picking_id.is_done:
             return fulfillment.picking_id
 
         # Secondary fallback: re-derive via existing chain. Note that _get_pickings() filters
         # for confirmed/assigned pickings only, so this only succeeds in rare timing windows.
         # Most cases where picking_id is empty fall through to the legacy fallback below.
-        pickings = fulfillment._get_pickings().filtered(
-            lambda p: p.state == 'done'
-        )
+        pickings = fulfillment._get_pickings().filtered(lambda p: p.is_done)
         if pickings:
             return pickings[:1]
 
@@ -839,9 +836,7 @@ class ExternalOrderReturn(models.Model):
             return
 
         # done picking = goods received, can't auto-cancel.
-        done_pickings = self.picking_ids.filtered(
-            lambda p: p.state == 'done'
-        )
+        done_pickings = self.picking_ids.filtered(lambda p: p.is_done)
         if done_pickings:
             es.raise_error(
                 err_code='E511',

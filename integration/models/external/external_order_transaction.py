@@ -244,10 +244,13 @@ class ExternalOrderTransaction(models.Model):
         return True, new_payments.ids
 
     def _integration_payment_method_line(self):
-        """Resolve the Odoo payment method line mapped to this transaction's gateway."""
+        """Resolve the Odoo payment method line mapped to this transaction's gateway.
+
+        Without a gateway, fall back to the order's payment method, matching `get_journal`.
+        """
         self.ensure_one()
         if not self.gateway:
-            return self.env['account.payment.method.line']
+            return self.erp_order_id.integration_pipeline.payment_method_line
 
         payment_method = self.env['sale.order.payment.method'].from_external(
             self.integration_id, self.gateway, raise_error=False)

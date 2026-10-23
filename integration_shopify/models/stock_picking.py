@@ -19,6 +19,14 @@ SHOPIFY_RETURN_REASON_DEFAULT = 'UNKNOWN'
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
+    shopify_ready_fulfillment_orders = fields.Json(
+        string='Shopify Ready Fulfillment Orders',
+        copy=False,
+        readonly=True,
+        help='Ids of the Shopify pickup fulfillment orders this delivery marked ready for pickup. A pickup delivery '
+             'creates no Shopify fulfillment; the one the merchant records when the customer collects the goods is '
+             'matched to this delivery through these ids.',
+    )
     is_shopify_return_export_eligible = fields.Boolean(
         compute='_compute_is_shopify_return_export_eligible',
         help='True when this picking is a return on a Shopify-linked order '
@@ -54,11 +62,6 @@ class StockPicking(models.Model):
         self.ensure_one()
         return self.carrier_id.integration_send_tracking_url and self.carrier_tracking_url or False
 
-    @property
-    def is_done(self):
-        self.ensure_one()
-        return self.state == 'done'
-
     def to_export_format(self, integration: 'models.Model'):
         result = super().to_export_format(integration)
 
@@ -76,18 +79,6 @@ class StockPicking(models.Model):
                 data['carrier_tracking_url'] = picking.carrier_tracking_url_prop
 
         return result
-
-    def button_validate(self):
-        """
-        Override button_validate method to called method, that check order is shipped or not.
-        """
-        res = super(StockPicking, self).button_validate()
-
-        for record in self:
-            if record.is_done:
-                record._run_integration_picking_hooks()
-
-        return res
 
     # ------------------------------------------------------------------
     # Return export to Shopify (logistics-only).

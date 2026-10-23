@@ -765,10 +765,18 @@ class ShopifyAPIClient(AbsApiClient):
             fulfill_orders.sort(key=lambda x: x.location.id == location_id, reverse=True)
 
         fulfillments = []
+        prepared_ids = []
 
         # Start for fulfilling orders (lines from picking data must fit existing fulfill orders)
         for fulfill_order in fulfill_orders:
             lines_data = []
+
+            # A prepared pickup fulfillment order is `IN_PROGRESS`: its goods are ready already, and Shopify offers
+            # neither a split nor a second preparation for it. That is also how it looks when the merchant marked it
+            # ready before the picking was validated. Its quantities are not for the picking to use up, so a
+            # backorder reaches the open rest of the order whichever fulfillment order Shopify lists first.
+            if fulfill_order.is_pickup and fulfill_order.status.is_in_progress:
+                continue
 
             if force_done:
                 lines_data = fulfill_order._prepare_fulfillment_lines_data()
@@ -780,7 +788,9 @@ class ShopifyAPIClient(AbsApiClient):
                         lines_data.append(data)
                         line['qty'] -= data['quantity']
 
-            if lines_data:
+            if lines_data and fulfill_order.is_pickup:
+                prepared_ids.append(self._prepare_pickup_fulfillment_order(fulfill_order, lines_data))
+            elif lines_data:
                 fulfillment = fulfill_order.fulfill(
                     carrier=picking_data_orig['carrier_code'] or '',
                     tracking_numbers=picking_data_orig['tracking'] and [picking_data_orig['tracking']] or '',
@@ -794,7 +804,36 @@ class ShopifyAPIClient(AbsApiClient):
                 if not any(x['qty'] for x in picking_data['lines']):
                     break
 
-        return [x.to_odoo_format() for x in fulfillments]
+        result = [x.to_odoo_format() for x in fulfillments]
+
+        if prepared_ids:
+            # A pickup leaves no fulfillment until the customer collects the goods. The picking keeps the fulfillment
+            # orders it marked ready, so that collection is matched to it, and the picking counts as sent.
+            result.append({
+                'picking_id': picking_data_orig.get('picking_id'),
+                'prepared_fulfillment_order_ids': prepared_ids,
+            })
+
+        return result
+
+    def _prepare_pickup_fulfillment_order(self, fulfill_order, lines_data):
+        """Mark the picked goods of a pickup fulfillment order as ready for the customer to collect.
+
+        A pickup is not fulfilled from here: Shopify closes it when the customer collects the goods and the
+        merchant records that, and fulfilling it now would send the "picked up" receipt before anything
+        was handed over. That later pickup is imported back like any other fulfillment of the order.
+        Shopify prepares a whole fulfillment order, so when the picking covers only a part of it, that
+        part is split off and prepared on its own, and the rest is prepared by a later picking.
+
+        Returns:
+            str: the id of the fulfillment order that was marked ready
+        """
+        if not lists_are_equal(lines_data, fulfill_order._prepare_fulfillment_lines_data()):
+            fulfill_order = fulfill_order.split(lines_data)
+
+        fulfill_order.prepare_for_pickup()
+
+        return fulfill_order.id_str
 
     def _prepare_fulfillment_orders(self, fulfill_orders, picking_data):
         # If there is location ID, we need to find out which items must be moved before fulfilling
@@ -802,7 +841,14 @@ class ShopifyAPIClient(AbsApiClient):
         location_id = picking_data_copy['external_location_id']
 
         fulfill_orders_with_same_location = [x for x in fulfill_orders if x.location.id == location_id]
-        fulfill_orders_with_different_location = [x for x in fulfill_orders if x.location.id != location_id]
+
+        # A pickup fulfillment order is tied to the point the customer chose, so it is never moved or split to
+        # follow the warehouse the goods were picked in: Shopify would accept the move and the customer would be
+        # told to collect the order somewhere else. Its lines are still fulfilled where they are (see `send_picking`).
+        fulfill_orders_with_different_location = [
+            x for x in fulfill_orders
+            if x.location.id != location_id and not x.is_pickup
+        ]
 
         # Step 1. Check orders with the same location
         for fulfill_order in fulfill_orders_with_same_location:

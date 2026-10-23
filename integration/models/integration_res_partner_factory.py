@@ -5,7 +5,7 @@ from typing import Dict, Optional, Tuple
 from odoo import api, fields, models, _
 from odoo.modules.registry import Registry
 
-from ..exceptions import ApiImportError, NotMappedFromExternal
+from ..exceptions import ApiImportError, ErrorStore as es, NotMappedFromExternal
 from ..tools import freeze_arguments
 
 
@@ -50,11 +50,19 @@ class IntegrationResPartnerFactory(models.TransientModel):
 
     @property
     def shipping_proxy(self):
-        return self.proxy_ids.filtered(lambda r: r.type == 'shipping_address')
+        return self.proxy_ids.filtered(
+            lambda proxy: proxy.type == 'shipping_address' and not proxy.is_additional_address
+        )
 
     @property
     def billing_proxy(self):
-        return self.proxy_ids.filtered(lambda r: r.type == 'billing_address')
+        return self.proxy_ids.filtered(
+            lambda proxy: proxy.type == 'billing_address' and not proxy.is_additional_address
+        )
+
+    @property
+    def additional_proxies(self):
+        return self.proxy_ids.filtered('is_additional_address')
 
     @property
     def customer_id(self):
@@ -73,10 +81,11 @@ class IntegrationResPartnerFactory(models.TransientModel):
         )
 
     @api.model
-    @freeze_arguments('customer_data', 'billing_data', 'shipping_data')
+    @freeze_arguments('customer_data', 'billing_data', 'shipping_data', 'additional_addresses_data')
     def create_factory(
             self, integration_id: int, customer_data: Optional[Dict], *,
             billing_data: Optional[Dict] = None, shipping_data: Optional[Dict] = None,
+            additional_addresses_data: Optional[list[Dict]] = None,
             is_initial_import: bool = False, input_file_id: Optional[int] = None,
     ) -> models.Model:
         """
@@ -87,6 +96,8 @@ class IntegrationResPartnerFactory(models.TransientModel):
             customer_data: Customer data for creating customer proxy.
             billing_data: Billing data for creating billing proxy.
             shipping_data: Shipping data for creating shipping proxy.
+            additional_addresses_data: Additional addresses with invoice, delivery, or other type.
+                Missing or empty types default to other.
             is_initial_import: Flag indicating if this is an initial import.
         Returns:
             models.Model: The created factory instance.
@@ -99,8 +110,8 @@ class IntegrationResPartnerFactory(models.TransientModel):
         })
 
         # Helper function to create proxy
-        def create_proxy_from_data(proxy_type: str, data: Dict) -> None:
-            Proxy.create_proxy(proxy_type, integration_id, factory.id, data)
+        def create_proxy_from_data(proxy_type: str, data: Dict) -> models.Model:
+            return Proxy.create_proxy(proxy_type, integration_id, factory.id, data)
 
         # If the data is empty, we consider that there is no data
         if billing_data and all(not v for v in billing_data.values()):
@@ -129,6 +140,33 @@ class IntegrationResPartnerFactory(models.TransientModel):
 
         if shipping_data:
             create_proxy_from_data('shipping_address', shipping_data)
+
+        address_proxy_types = {
+            'invoice': 'billing_address',
+            'delivery': 'shipping_address',
+            'other': 'other_address',
+        }
+        for address_data in additional_addresses_data or []:
+            if not address_data or not any(address_data.values()):
+                continue
+
+            address_type = address_data.get('type')
+            if address_type is None or address_type is False or address_type == '':
+                address_type = 'other'
+
+            if (
+                not isinstance(address_type, str)
+                or address_type not in address_proxy_types
+            ):
+                es.raise_error(
+                    err_code='E116',
+                    err_msg=_('Unsupported additional address type: %s') % address_type,
+                    support_contact=False,
+                )
+
+            proxy = create_proxy_from_data(address_proxy_types[address_type], address_data)
+            if proxy:
+                proxy.is_additional_address = True
 
         return factory
 
@@ -178,21 +216,30 @@ class IntegrationResPartnerFactory(models.TransientModel):
     @api.model
     def get_partner_and_addresses(self) -> Tuple[models.Model, Dict]:
         """
-        Create or retrieve customer and contact addresses.
+        Create or retrieve the customer and all related address records.
+
         Returns:
-            A tuple containing the customer partner record and a dictionary containing shipping,
-            billing addresses.
+            Tuple[models.Model, Dict]:
+                Customer partner and a dictionary containing:
+                - billing: billing address partner
+                - shipping: shipping address partner
+                - additional: additional address partners of any supported type
         """
         self.validate_data()
 
-        self._log_factory_trace(
-            'Contact handling started',
+        start_message = (
             f'Customer external_id: {self.customer_proxy.external_id or "N/A"}\n'
             f'Customer name: {self.customer_proxy.person_name or "N/A"}\n'
-            f'Company name: {self.customer_proxy.company_name or "N/A"}\n'
+            f'Customer company: {self.customer_proxy.company_name or "N/A"}\n'
             f'Has billing proxy: {bool(self.billing_proxy)}\n'
-            f'Has shipping proxy: {bool(self.shipping_proxy)}',
+            f'Has shipping proxy: {bool(self.shipping_proxy)}'
         )
+
+        additional_proxies = self.additional_proxies
+        if additional_proxies:
+            start_message += f'\nAdditional proxies: {len(additional_proxies)}'
+
+        self._log_factory_trace('Contact handling started', start_message)
 
         customer = self.integration_id.default_customer
 
@@ -204,6 +251,9 @@ class IntegrationResPartnerFactory(models.TransientModel):
 
             self.customer_proxy._post_update_partner(customer)
 
+        # Resolve the customer once. Billing, shipping, and additional addresses
+        # reuse matching contacts or resolve their own company/contact according
+        # to the integration settings, without changing the customer mapping.
         if self.billing_proxy:
             billing = self.billing_proxy._get_or_create_address()
         else:
@@ -214,15 +264,27 @@ class IntegrationResPartnerFactory(models.TransientModel):
         else:
             shipping = customer
 
-        self._log_factory_trace(
-            'Contact handling complete',
+        additional = self.env['res.partner']
+        for proxy in additional_proxies:
+            additional |= proxy._get_or_create_address()
+
+        complete_message = (
             f'Customer: {customer.display_name} (ID: {customer.id}) '
             f'{"[default]" if customer == self.integration_id.default_customer else ""}\n'
             f'Billing:  {billing.display_name} (ID: {billing.id})\n'
-            f'Shipping: {shipping.display_name} (ID: {shipping.id})',
+            f'Shipping: {shipping.display_name} (ID: {shipping.id})'
         )
 
-        return customer, {'shipping': shipping, 'billing': billing}
+        if additional:
+            additional_info = ', '.join(
+                f'{partner.display_name} (ID: {partner.id})'
+                for partner in additional
+            )
+            complete_message += f'\nAdditional: {additional_info}'
+
+        self._log_factory_trace('Contact handling complete', complete_message)
+
+        return customer, {'shipping': shipping, 'billing': billing, 'additional': additional}
 
     def validate_data(self):
         """

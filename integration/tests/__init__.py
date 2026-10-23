@@ -29,6 +29,7 @@ from . import test_webhooks
 from . import test_receive_orders_pagination
 from . import test_integration_logging
 from . import test_import_orders_by_id
+from . import test_import_single_customer
 from . import test_integration_sale_order_sub_status_bulk_wizard
 from . import test_returns_refunds_models
 from . import test_integration_account_tax_mapping

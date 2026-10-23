@@ -523,6 +523,10 @@ class IntegrationWorkflowPipeline(models.Model):
     def failed_task(self):
         return self.pipeline_task_ids.filtered(lambda x: x.state == FAILED)[:1]
 
+    @property
+    def payment_method_line(self):
+        return self.payment_method_external_id.payment_method_line_id
+
     def get_invoice_date(self):
         """Resolve invoice date from ``invoice_date_source`` for this pipeline's order."""
         self.ensure_one()
@@ -742,12 +746,14 @@ class IntegrationWorkflowPipeline(models.Model):
         return self.order_id.get_formview_action()
 
     def open_form(self):
+        view_id = self.env.ref('integration.integration_workflow_pipeline_form_view').id
         return {
             'type': 'ir.actions.act_window',
             'name': _('Order Automation'),
             'res_model': self._name,
             'view_mode': 'form',
-            'view_id': self.env.ref('integration.integration_workflow_pipeline_form_view').id,
+            'view_id': view_id,
+            'views': [(view_id, 'form')],
             'res_id': self.id,
             'target': 'new',
         }

@@ -81,7 +81,6 @@ class IntegrationResPartnerProxy(models.TransientModel):
 
     # Fields that should be ignored when comparing addresses for uniqueness
     ADDRESS_UNIQUENESS_IGNORED_FIELDS = [
-        'parent_id',
         'type',
         'external_company_name',
         'category_id',
@@ -100,6 +99,12 @@ class IntegrationResPartnerProxy(models.TransientModel):
         ],
         string='Proxy Type',
         required=True,
+    )
+
+    is_additional_address = fields.Boolean(
+        string='Additional Address',
+        default=False,
+        help='Keep this address separate from the primary billing and shipping proxies.',
     )
 
     factory_id = fields.Many2one(
@@ -997,25 +1002,29 @@ class IntegrationResPartnerProxy(models.TransientModel):
             self, partner: models.Model, new_address_vals: Dict,
     ) -> Tuple[bool, List[str]]:
         """
-        Compare existing partner's address fields with new address values to determine
-        if a new address record is needed.
+        Check whether the partner can be reused as the requested address.
 
-        This method checks if there are any differences between the existing partner's address fields
-        and the new address values that would warrant creating a new address record. It handles both
-        relational fields (like country_id, state_id) and text fields with special comparison rules.
-        Certain fields are ignored during comparison as they don't affect the address uniqueness.
+        Differences in address fields or parent association require a separate
+        address lookup, not necessarily creation of a new record.
 
         Args:
-            partner: The existing partner record to compare against
-            new_address_vals: Dictionary containing new address values to compare with
+            partner: The existing partner record to compare against.
+            new_address_vals: Prepared values of the requested address.
 
         Returns:
-            Tuple[bool, List[str]]: (True, [changed fields]) if there are significant differences
-                 that require a new address record, (False, []) if the existing address can be reused
+            Tuple[bool, List[str]]: Whether a separate address lookup is needed
+                and the list of significant differences.
         """
         changed_fields = []
 
         for field, new_value in new_address_vals.items():
+            if field == 'parent_id':
+                address_parent_id = new_value
+                # The address may belong to the contact itself or its current parent.
+                if address_parent_id and address_parent_id not in (partner.id, partner.parent_id.id):
+                    changed_fields.append(field)
+                continue
+
             # Skip fields that don't affect address uniqueness
             if field in self.ADDRESS_UNIQUENESS_IGNORED_FIELDS:
                 continue
@@ -1073,51 +1082,31 @@ class IntegrationResPartnerProxy(models.TransientModel):
 
         address_vals = self._prepare_address_vals()
 
-        # Remove keys from address_vals as it is not needed for the validation.
-        vals = address_vals.copy()
-        vals.pop('type', None)
-        vals.pop('parent_id', None)
-
         address_type = self.type  # e.g. 'billing_address' / 'shipping_address'
 
-        # If address_vals is written on the partner, return the partner
-        if (
-            # If the option to skip individual contacts is enabled, we should use the
-            # company as a contact.
-            not self.integration_id.skip_individual_contacts
-            or not self.company_name
-        ):
-            has_changes, changed_fields = self._has_address_changes(partner, address_vals)
-            if not has_changes:
-                self._log_partner_trace(
-                    f'[{address_type}] Address unchanged',
-                    f'No differences found vs "{partner.display_name}" (ID: {partner.id}) '
-                    f'→ reusing existing contact as address',
-                )
-                return partner
-            self._log_partner_trace(
-                f'[{address_type}] Address changed',
-                f'Differs in fields: {changed_fields} vs "{partner.display_name}" '
-                f'(ID: {partner.id}) → searching for separate address record',
-            )
-        elif self.company_name:
-            company = self._get_or_create_company_contact()
+        # Manual mapping explicitly defines the customer and must take precedence over
+        # automatic company resolution, including company-only mode.
+        if self.integration_id.use_manual_customer_mapping:
+            address_candidate = partner
+        elif self.integration_id.skip_individual_contacts and self.company_name:
+            address_candidate = self._get_or_create_company_contact()
+        else:
+            address_candidate = partner
 
-            # In most cases it makes no sense to do this check because name in company contact
-            # and name in address are not the same (address will have person name)
-            has_changes, changed_fields = self._has_address_changes(company, address_vals)
-            if not has_changes:
-                self._log_partner_trace(
-                    f'[{address_type}] Address unchanged',
-                    f'No differences found vs company "{company.display_name}" (ID: {company.id}) '
-                    f'→ reusing company as address',
-                )
-                return company
+        has_changes, changed_fields = self._has_address_changes(address_candidate, address_vals)
+        if not has_changes:
             self._log_partner_trace(
-                f'[{address_type}] Address changed',
-                f'Differs in fields: {changed_fields} vs company "{company.display_name}" '
-                f'(ID: {company.id}) → searching for separate address record',
+                f'[{address_type}] Address unchanged',
+                f'No differences found vs "{address_candidate.display_name}" '
+                f'(ID: {address_candidate.id}) → reusing existing partner as address',
             )
+            return address_candidate
+
+        self._log_partner_trace(
+            f'[{address_type}] Address changed',
+            f'Differs in fields: {changed_fields} vs "{address_candidate.display_name}" '
+            f'(ID: {address_candidate.id}) → searching for separate address record',
+        )
 
         domain = self._collect_address_search_domain(address_vals)
         address = ResPartner.search(domain)

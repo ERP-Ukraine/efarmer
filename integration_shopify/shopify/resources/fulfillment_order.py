@@ -1,5 +1,6 @@
 # See LICENSE file for full copyright and licensing details.
 
+from ..exceptions import ShopifyApiError
 from .base import ShopifyResourceUpdate
 
 
@@ -11,6 +12,11 @@ class FulfillmentOrder(ShopifyResourceUpdate):
 
     MUTATION_FULFILLMENT_ORDER_MOVE = ShopifyResourceUpdate._tmpl.MUTATION_FULFILLMENT_ORDER_MOVE
     MUTATION_FULFILLMENT_ORDER_SPLIT = ShopifyResourceUpdate._tmpl.MUTATION_FULFILLMENT_ORDER_SPLIT
+    MUTATION_FULFILLMENT_ORDER_PREPARED_FOR_PICKUP = ShopifyResourceUpdate._tmpl \
+        .MUTATION_FULFILLMENT_ORDER_PREPARED_FOR_PICKUP
+
+    # Shopify's answer to preparing a fulfillment order that is already marked ready for pickup.
+    PREPARED_FOR_PICKUP_ALREADY_DONE = 'NO_LINE_ITEMS_TO_PREPARE_FOR_FULFILLMENT_ORDER'
 
     FULFILLMENT_ORDER_GET_DELIVERY_METHODS_BODY = ShopifyResourceUpdate._tmpl \
         .FULFILLMENT_ORDER_GET_DELIVERY_METHODS_BODY
@@ -39,6 +45,11 @@ class FulfillmentOrder(ShopifyResourceUpdate):
     def delivery_method(self):
         self.ensure_one()
         return self._env.DeliveryMethod.set(**(self['deliveryMethod'] or {}))
+
+    @property
+    def is_pickup(self):
+        self.ensure_one()
+        return self.delivery_method.is_pickup
 
     @property
     def location(self):
@@ -130,7 +141,38 @@ class FulfillmentOrder(ShopifyResourceUpdate):
             notify_customer=notify_customer,
         )
 
+    def prepare_for_pickup(self):
+        """Mark all the line items of a pickup fulfillment order as ready for the customer to collect.
+
+        Shopify sends the "ready for pickup" e-mail and moves the fulfillment order to `IN_PROGRESS`; it
+        is closed only when the merchant records the pickup. The mutation takes a whole fulfillment order
+        and no quantities, so a part of an order has to be `split` off first. Preparing an order that is
+        already prepared makes Shopify answer with a user error, which only confirms the state wanted here.
+        """
+        self.ensure_one()
+
+        try:
+            self.execute(
+                self.MUTATION_FULFILLMENT_ORDER_PREPARED_FOR_PICKUP,
+                variables={
+                    'input': {
+                        'lineItemsByFulfillmentOrder': [{'fulfillmentOrderId': self.gid}],
+                    },
+                },
+                user_errors_path='data.fulfillmentOrderLineItemsPreparedForPickup.userErrors',
+            )
+        except ShopifyApiError as ex:
+            if self.PREPARED_FOR_PICKUP_ALREADY_DONE not in str(ex):
+                raise
+
+        return self
+
     def split(self, lines_data: list):
+        """Split the given lines off this fulfillment order and return the new fulfillment order holding them.
+
+        Shopify calls the new order `remainingFulfillmentOrder`, but it is the one that gets the lines and
+        quantities asked for; the original keeps the rest.
+        """
         self.ensure_one()
 
         response = self.execute(

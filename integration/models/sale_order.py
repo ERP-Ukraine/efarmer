@@ -233,7 +233,7 @@ class SaleOrder(models.Model):
             if warehouse:
                 warehouse_ids.append(warehouse.id)
 
-        pickings = self.picking_ids.filtered(lambda x: x.state != 'cancel')
+        pickings = self.picking_ids.filtered(lambda x: not x.is_cancel)
 
         return len(set(pickings.mapped('location_id.warehouse_id'))) == len(warehouse_ids)
 
@@ -749,7 +749,7 @@ class SaleOrder(models.Model):
         delivery_date = False
 
         if self.check_is_order_shipped():
-            pickings_done = self.picking_ids.filtered(lambda p: p.state == 'done')
+            pickings_done = self.picking_ids.filtered(lambda p: p.is_done)
             if pickings_done:
                 last_delivery_date = max(pickings_done.mapped('date_done'))
                 delivery_date = last_delivery_date.strftime(self.integration_id.datetime_format)
@@ -1010,6 +1010,12 @@ class SaleOrder(models.Model):
 
         journal = self.integration_pipeline.get_payment_journal_or_raise()
 
+        # Use the payment method mapped to the external payment method, if any.
+        # The OCA wizard has no such field, but the context default reaches the payment it creates.
+        payment_method_line = self.integration_pipeline.payment_method_line
+        if payment_method_line:
+            self = self.with_context(default_payment_method_line_id=payment_method_line.id)
+
         wizard = self.env['account.voucher.wizard'] \
             .with_context(
                 active_ids=self.ids,
@@ -1174,7 +1180,7 @@ class SaleOrder(models.Model):
         journal = self.integration_pipeline.get_payment_journal_or_raise()
 
         # Use the payment method mapped to the external payment method, if any.
-        payment_method_line = self.integration_pipeline.payment_method_external_id.payment_method_line_id
+        payment_method_line = self.integration_pipeline.payment_method_line
         if payment_method_line:
             self = self.with_context(default_payment_method_line_id=payment_method_line.id)
 

@@ -167,6 +167,15 @@ class OrderParseMixin:
         `ShopifyAPIClient.get_delivery_methods`), so the carrier can be mapped manually
         and does not depend on the `auto_create_delivery_carrier_on_so` flag.
 
+        Cost, taxes and discount come from the order's shipping lines, never from the fulfillment
+        orders. When the order has several shipping lines, Shopify returns in `shippingLine` a
+        summary of them (summed prices, joined titles, no id or code) whose tax lines and discount
+        allocations are always empty. So the summary supplies the cost and the fallback carrier,
+        while taxes and discount allocations are collected from the real lines of `shippingLines`.
+        Reading them from the summary made a discounted shipping (e.g. a free-shipping code) import
+        without its discount, and the framework levelled the order total with a price-difference
+        line instead.
+
         For example a marketplace order with an unusable delivery method:
 
             shippingLine = {
@@ -211,20 +220,26 @@ class OrderParseMixin:
             original_price = shipping_line.get_original_price(use_customer_currency)
             shipping_cost = original_price or shipping_line.get_price(use_customer_currency)
 
+            # With several shipping lines `shippingLine` is a summary: it carries the summed prices but
+            # never any tax lines or discount allocations, so those are read from the real lines. Orders
+            # stored before the real lines were requested only have the summary. Removed lines are falsy
+            # (see `ShippingLine.__bool__`), so they neither add a tax nor a discount.
+            billed_lines = [x for x in self.shipping_lines if x] or [shipping_line]
+
             if self.tax_exempt:
                 taxes = []
             else:
                 # The tax lines were computed on the discounted price, so that - not the
                 # original one used as `shipping_cost` above - is the base to validate against.
-                taxable_base = shipping_line.get_price(use_customer_currency)
-                taxes = [
+                taxes = list(dict.fromkeys(
                     x.to_odoo_format(self.taxes_included_in_price)
-                    for x in shipping_line.tax_lines
-                    if not x.is_rate_amount_mismatch(taxable_base)
-                ]
+                    for line in billed_lines
+                    for x in line.tax_lines
+                    if not x.is_rate_amount_mismatch(line.get_price(use_customer_currency))
+                ))
             note = self.note or ''
 
-            discount_allocations = shipping_line.discount_allocations
+            discount_allocations = sum([x.discount_allocations for x in billed_lines], [])
             if discount_allocations:
                 parsed_allocations = []
                 for allocation in discount_allocations:
@@ -238,6 +253,8 @@ class OrderParseMixin:
                     })
                 if parsed_allocations:
                     total_discount = sum(a['discount_amount'] for a in parsed_allocations)
+                    # Both sides are sums over all shipping lines (`shipping_cost` comes from the summary),
+                    # so this is the discounted share of the whole shipping, not of a single line.
                     discount_percent = (total_discount / shipping_cost * 100) if shipping_cost else 0
                     discount = {
                         'discount_allocations': parsed_allocations,
@@ -578,11 +595,21 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
 
     @property
     def shipping_line(self):
+        """The order's shipping summary, good for the total cost and for the carrier title.
+
+        With several shipping lines Shopify synthesizes it: prices are summed, titles joined, `id` and
+        `code` are empty, and tax lines and discount allocations are always empty. For those use
+        `shipping_lines`.
+        """
         self.ensure_one()
         return self._env.ShippingLine.set(**(self['shippingLine'] or {}))
 
     @property
     def shipping_lines(self):
+        """The real shipping lines - the only place holding per-line tax lines and discount allocations.
+
+        Requested as `shippingLines(first: 5)`; empty for orders stored before it was requested.
+        """
         self.ensure_one()
         return [self._env.ShippingLine.set(**x) for x in (self['shippingLines'] or [])]
 
@@ -600,7 +627,14 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
     def delivery_method(self):
         self.ensure_one()
 
-        fulfillment_orders = self.fulfillment_orders
+        # Cancelled fulfillment orders and the ones closed before anything shipped never reach the
+        # customer, so their carrier is stale - the same rule `_group_lines_by_location` applies to the
+        # order lines. The carrier discovery query loads fulfillment orders without a status (and
+        # without line quantities, which are too costly to request there), so those are kept as they are.
+        fulfillment_orders = [
+            x for x in self.fulfillment_orders
+            if not x.key_exist('status') or not (x.is_cancelled or x.closed_before_fulfill)
+        ]
         default_delivery_method = self._env.DeliveryMethod
 
         # If there is no fulfillment orders, return the default delivery method.
@@ -971,6 +1005,15 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
 
     def mark_as_paid(self):
         self.ensure_one()
+
+        self.read(body='displayFinancialStatus')
+
+        if (
+            self.financial_status.is_paid
+            or self.financial_status.is_partially_refunded
+            or self.financial_status.is_refunded
+        ):
+            return True
 
         response = self.execute(
             self.MUTATION_MARK_AS_PAID,

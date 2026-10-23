@@ -20,3 +20,5 @@ from . import test_shopify_shop_contact
 from . import test_shopify_inventory_item_variants
 from . import test_shopify_return_reason_definition
 from . import test_shopify_publication_name
+from . import test_shopify_shipping_discount
+from . import test_shopify_pickup_fulfillment

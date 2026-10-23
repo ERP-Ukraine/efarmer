@@ -684,6 +684,7 @@ class TestIntegrationResPartnerProxy(OdooIntegrationInit):
         })
 
         new_vals = {
+            'parent_id': contact.id,
             'street': 'Old St',
             'lang': 'en_US',
             'category_id': [(6, 0, [])],
@@ -698,6 +699,46 @@ class TestIntegrationResPartnerProxy(OdooIntegrationInit):
         has_changes, changed_fields = proxy._has_address_changes(contact, new_vals)
         self.assertFalse(has_changes)
         self.assertEqual(changed_fields, [])
+
+    def test_address_uniqueness_detects_different_parent_company(self):
+        company_a = self.env['res.partner'].create({
+            'name': 'Company A',
+            'is_company': True,
+            'company_id': self.company_id_1.id,
+        })
+        company_b = self.env['res.partner'].create({
+            'name': 'Company B',
+            'is_company': True,
+            'company_id': self.company_id_1.id,
+        })
+        contact = self.env['res.partner'].create({
+            'name': 'John Doe',
+            'parent_id': company_a.id,
+            'company_id': self.company_id_1.id,
+            'street': 'Same Street 1',
+        })
+        proxy = self._create_proxy('other_address', {
+            'person_name': 'John Doe',
+            'street': 'Same Street 1',
+        })
+
+        for parent_id, expected_fields in (
+            (company_b.id, ['parent_id']),
+            (company_a.id, []),
+            (contact.id, []),
+            (False, []),
+            (None, []),
+        ):
+            with self.subTest(parent_id=parent_id):
+                has_changes, changed_fields = proxy._has_address_changes(contact, {
+                    'name': 'John Doe',
+                    'parent_id': parent_id,
+                    'company_id': self.company_id_1.id,
+                    'street': 'Same Street 1',
+                })
+
+                self.assertEqual(has_changes, bool(expected_fields))
+                self.assertEqual(changed_fields, expected_fields)
 
     def test_multi_company_isolation(self):
         """Test that integration respects company boundaries."""
