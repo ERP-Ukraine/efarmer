@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        VAT summary table (VAT rate / NET / VAT / GROSS), like trilab_invoice.document_tax_totals.
+        Expects: o, ef_tax_totals (tax_totals structure), ef_show_pln.
+    -->
+    <template id="downpayment_tax_table">
+        <table class="table table-sm o_main_table table-borderless avoid-page-break-inside mb-3">
+            <thead>
+                <tr>
+                    <th class="text-start"><span>VAT Rate</span></th>
+                    <th class="text-end"><span>NET Amount</span></th>
+                    <th class="text-end"><span>VAT Amount</span></th>
+                    <th t-if="ef_show_pln" class="text-end"><span>VAT Amount in PLN</span></th>
+                    <th class="text-end"><span>GROSS Amount</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <t t-foreach="ef_tax_totals['subtotals']" t-as="subtotal">
+                    <tr t-foreach="subtotal['tax_groups']" t-as="tax_group">
+                        <td><span t-out="tax_group['group_name']">VAT 21%</span></td>
+                        <td class="text-end">
+                            <span class="text-nowrap" t-out="tax_group['base_amount_currency']"
+                                  t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">100.00</span>
+                        </td>
+                        <td class="text-end">
+                            <span class="text-nowrap" t-out="tax_group['tax_amount_currency']"
+                                  t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">21.00</span>
+                        </td>
+                        <td t-if="ef_show_pln" class="text-end">
+                            <span class="text-nowrap"><t t-out="round(tax_group['tax_amount_currency'] * o.current_rate_pln, 2)"/> zł</span>
+                        </td>
+                        <td class="text-end">
+                            <span class="text-nowrap" t-out="tax_group['base_amount_currency'] + tax_group['tax_amount_currency']"
+                                  t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">121.00</span>
+                        </td>
+                    </tr>
+                </t>
+                <tr class="border-black o_total fw-bold">
+                    <td><span>Total</span></td>
+                    <td class="text-end">
+                        <span class="text-nowrap" t-out="ef_tax_totals['base_amount_currency']"
+                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">100.00</span>
+                    </td>
+                    <td class="text-end">
+                        <span class="text-nowrap" t-out="ef_tax_totals['tax_amount_currency']"
+                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">21.00</span>
+                    </td>
+                    <td t-if="ef_show_pln" class="text-end">
+                        <span class="text-nowrap"><t t-out="round(ef_tax_totals['tax_amount_currency'] * o.current_rate_pln, 2)"/> zł</span>
+                    </td>
+                    <td class="text-end">
+                        <span class="text-nowrap" t-out="ef_tax_totals['total_amount_currency']"
+                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">121.00</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </template>
+
+    <!--
+        Final invoice with deducted down payments. Primary copy of the standard invoice,
+        so the eF changes of account.report_invoice_document are kept while ordinary
+        invoices, advance invoices and the Trilab (FB) report are not touched.
+        Selected by account.move._get_name_invoice_report().
+    -->
+    <template id="report_invoice_document" inherit_id="account.report_invoice_document" primary="True">
+
+        <xpath expr="//table[@name='invoice_line_table']" position="before">
+            <t t-set="ef_split_lines" t-value="o._ef_split_invoice_lines()"/>
+        </xpath>
+
+        <!-- main lines table: products only, down payment lines are printed below the products summary -->
+        <xpath expr="//t[@t-set='lines']" position="attributes">
+            <attribute name="t-value">ef_split_lines[0]</attribute>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_line_table']" position="after">
+            <!-- same rule as the "VAT Amount in PLN" row of efarmer_sale_workflow -->
+            <t t-set="ef_show_pln"
+               t-value="o.currency_id.name != 'PLN' and o.partner_id.country_id.code == 'PL' and o.product_vat_id.name == 'PL'"/>
+
+            <!-- 1. invoiced lines, before deducting the down payments -->
+            <div name="ef_lines_summary" class="row mt-4 avoid-page-break-inside">
+                <div class="col-8 offset-4">
+                    <strong>Invoiced products:</strong>
+                    <t t-call="efarmer_invoice_downpayment_summary.downpayment_tax_table">
+                        <t t-set="ef_tax_totals" t-value="o._ef_get_lines_tax_totals()"/>
+                    </t>
+                </div>
+            </div>
+
+            <!-- down payment lines of the invoice (with their section), same columns as the lines table -->
+            <table class="table table-sm o_main_table table-borderless mb-0 avoid-page-break-inside" name="ef_downpayment_line_table">
+                <thead>
+                    <tr>
+                        <th name="th_description" class="text-start"><span>Description</span></th>
+                        <th name="th_quantity" class="text-end"><span>Quantity</span></th>
+                        <th name="th_priceunit" class="text-end text-nowrap"><span>Unit Price</span></th>
+                        <th name="th_discount" t-if="display_discount" class="text-end"><span>Disc.%</span></th>
+                        <th name="th_taxes" class="text-end"><span>Taxes</span></th>
+                        <th name="th_subtotal" class="text-end"><span>Amount</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-set="ef_dp_subtotal" t-value="0"/>
+                    <t t-foreach="ef_split_lines[1]" t-as="line">
+                        <t t-set="ef_dp_subtotal" t-value="ef_dp_subtotal + line.price_subtotal"/>
+                        <tr t-att-class="'fw-bold o_line_section' if line.display_type == 'line_section' else 'fst-italic o_line_note' if line.display_type == 'line_note' else ''">
+                            <t t-if="line.display_type == 'product'">
+                                <td><span t-field="line.name" t-options="{'widget': 'text'}">Down payment</span></td>
+                                <td class="text-end">
+                                    <span t-field="line.quantity" class="text-nowrap">-1.00</span>
+                                    <span t-field="line.product_uom_id" groups="uom.group_uom">Units</span>
+                                </td>
+                                <td class="text-end"><span class="text-nowrap" t-field="line.price_unit">100.00</span></td>
+                                <td t-if="display_discount" class="text-end"><span class="text-nowrap" t-field="line.discount">0</span></td>
+                                <td class="text-end">
+                                    <span t-out="', '.join([(tax.invoice_label or tax.name) for tax in line.tax_ids])">VAT 0%</span>
+                                </td>
+                                <td class="text-end o_price_total"><span class="text-nowrap" t-field="line.price_subtotal">-100.00</span></td>
+                            </t>
+                            <t t-else="">
+                                <td colspan="99"><span t-field="line.name" t-options="{'widget': 'text'}">Down Payments</span></td>
+                            </t>
+                        </tr>
+                    </t>
+                    <tr class="is-subtotal text-end">
+                        <td colspan="99">
+                            <strong class="mr16">Subtotal</strong>
+                            <span t-out="ef_dp_subtotal"
+                                  t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">-100.00</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div name="ef_downpayment_summary" class="row mt-4">
+                <div class="col-8 offset-4">
+
+                    <!-- 2. down payments deducted on this invoice -->
+                    <div name="ef_downpayments" class="avoid-page-break-inside">
+                        <t t-set="ef_downpayments" t-value="o._ef_get_applied_downpayments()"/>
+                        <strong>Applied down payments:</strong>
+                        <table class="table table-sm o_main_table table-borderless mb-3">
+                            <thead>
+                                <tr>
+                                    <th class="text-start"><span>Invoice Number</span></th>
+                                    <th class="text-start"><span>Invoice Date</span></th>
+                                    <th class="text-end"><span>NET Amount</span></th>
+                                    <th class="text-end"><span>VAT Amount</span></th>
+                                    <th class="text-end"><span>GROSS Amount</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="ef_downpayments" t-as="downpayment">
+                                    <td><span t-out="downpayment['name']">INV/2026/0001</span></td>
+                                    <td>
+                                        <span t-if="downpayment['date']" t-out="downpayment['date']"
+                                              t-options="{'widget': 'date'}">01/01/2026</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="text-nowrap" t-out="downpayment['net']"
+                                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">100.00</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="text-nowrap" t-out="downpayment['tax']"
+                                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">21.00</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="text-nowrap" t-out="downpayment['gross']"
+                                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">121.00</span>
+                                    </td>
+                                </tr>
+                                <tr class="border-black o_total fw-bold">
+                                    <td colspan="2"><span>Total</span></td>
+                                    <td class="text-end">
+                                        <span class="text-nowrap" t-out="sum(dp['net'] for dp in ef_downpayments)"
+                                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">100.00</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="text-nowrap" t-out="sum(dp['tax'] for dp in ef_downpayments)"
+                                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">21.00</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="text-nowrap" t-out="sum(dp['gross'] for dp in ef_downpayments)"
+                                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">121.00</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 3. the rest: the invoice itself = lines - down payments -->
+                    <div name="ef_rest_summary" class="avoid-page-break-inside">
+                        <strong>Settlement:</strong>
+                        <t t-call="efarmer_invoice_downpayment_summary.downpayment_tax_table">
+                            <t t-set="ef_tax_totals" t-value="o.tax_totals"/>
+                        </t>
+                        <table class="table table-sm table-borderless mb-3" name="ef_amount_due">
+                            <tr class="border-black o_total fw-bold">
+                                <td><span>Amount Due</span></td>
+                                <td class="text-end">
+                                    <span class="text-nowrap" t-field="o.amount_residual">0.00</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </xpath>
+
+        <!-- replaced by the tables above -->
+        <xpath expr="//div[@id='total']" position="replace"/>
+
+    </template>
+
+    <template id="report_invoice" inherit_id="account.report_invoice">
+        <xpath expr="//t[@t-call='account.report_invoice_document']" position="after">
+            <t t-if="o._get_name_invoice_report() == 'efarmer_invoice_downpayment_summary.report_invoice_document'"
+               t-call="efarmer_invoice_downpayment_summary.report_invoice_document" t-lang="lang"/>
+        </xpath>
+    </template>
+
+</odoo>
