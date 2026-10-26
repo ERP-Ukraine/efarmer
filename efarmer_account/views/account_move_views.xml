@@ -12,9 +12,6 @@
             <xpath expr="//header/button[@name='button_cancel'][contains(@invisible, &quot;move_type == 'entry'&quot;)]" position="attributes">
                 <attribute name="invisible" add="restrict_customer_invoice_cancel" separator=" or "/>
             </xpath>
-            <xpath expr="//header/button[@name='button_draft']" position="attributes">
-                <attribute name="invisible" add="restrict_customer_invoice_cancel" separator=" or "/>
-            </xpath>
             <xpath expr="//header/button[@name='button_request_cancel']" position="attributes">
                 <attribute name="invisible" add="restrict_customer_invoice_cancel" separator=" or "/>
             </xpath>
