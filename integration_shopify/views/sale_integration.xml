@@ -249,9 +249,18 @@
                 <xpath expr="//group[@name='inventory_location_mapping']/field[@name='location_line_ids']/." position="before">
                     <field name="invalid_location_mapping" invisible="1"/> <!-- Required because it is used in the invisible condition below -->
                     <div class="alert alert-warning mb-1" role="alert" invisible="not invalid_location_mapping" colspan="2">
-                        <h4 style="color: inherit"><i class="fa fa-gear" title="Invalid Location Mapping"/> Invalid Location Mapping</h4>
-                        All e-commerce locations must be mapped to unique Odoo warehouses. Duplicate warehouse mappings are not allowed.
-                        Please ensure that each e-commerce location is associated with a distinct Odoo warehouse to avoid configuration issue.
+                        <h4 style="color: inherit"><i class="fa fa-gear" title="Check Location Mapping"/> Check Location Mapping</h4>
+                        <p class="mb-1">
+                            Different Shopify locations are mapped to locations of the same Odoo warehouse.
+                            Orders from all of these Shopify locations go to this one warehouse, so after a sale the stock
+                            of the Shopify location may not decrease and it can be oversold. A delivery from the warehouse
+                            is also reported to Shopify from only one of these locations, so Shopify takes the stock from
+                            the wrong one.
+                        </p>
+                        <p class="mb-0">
+                            To fix it, map each Shopify location to its own Odoo warehouse. To add up the stock of several
+                            Odoo locations, map all of them to the same Shopify location.
+                        </p>
                     </div>
                 </xpath>
 

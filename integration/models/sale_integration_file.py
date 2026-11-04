@@ -199,6 +199,11 @@ class SaleIntegrationInputFile(models.Model):
             order_reference = input_file._get_external_reference() if input_file.si_id else ''
             input_file.order_reference = order_reference
 
+    @api.depends('name')
+    def _compute_display_name(self):
+        for input_file in self:
+            input_file.display_name = input_file.name or _('External Order')
+
     @api.depends('file', 'raw_data')
     def _compute_display_data(self):
         for input_file in self:

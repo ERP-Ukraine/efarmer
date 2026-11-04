@@ -76,6 +76,12 @@
                         <field name="client_id" required="not access_granted" invisible="not use_oauth" readonly="access_granted"/>
                         <field name="key" required="not access_granted" invisible="use_oauth" readonly="access_granted" password="True"/>
                         <field name="secret_key" required="not access_granted" password="True" readonly="access_granted"/>
+
+                        <p class="o_wrap_label" invisible="not use_oauth"/><!-- Do not remove - important for layout! -->
+                        <div class="text-muted mt-1 small" invisible="not use_oauth">
+                            Copy the Client ID and Secret from the Settings page of the app you created
+                            in the Shopify Dev Dashboard in Step 1.
+                        </div>
                     </group>
 
                     <!-- Section 3: Review Connection Status -->

@@ -54,10 +54,21 @@ class IntegrationAccountTaxExternal(models.Model):
         processed = self.browse()
 
         for integration in self.mapped('integration_id'):
-            adapter_data_list = integration.adapter.get_taxes()
+            adapter = integration.adapter
+            full_tax_list = None
 
             for tax in self.filtered(lambda x: x.integration_id == integration):
-                if tax.import_tax(adapter_data_list):
+                # Only the selected tax is requested: the whole tax table of a store can have thousands of rates
+                try:
+                    adapter_data = adapter.get_single_tax(tax.code)
+                except NotImplementedError:
+                    # The store has no taxes of its own to request one by one (BaseLinker takes them from
+                    # products and orders), so the full list is requested once for the whole selection
+                    if full_tax_list is None:
+                        full_tax_list = adapter.get_taxes()
+                    adapter_data = full_tax_list
+
+                if adapter_data and tax.import_tax(adapter_data):
                     processed |= tax
 
         title = _('Import Taxes')

@@ -4,6 +4,7 @@
 import json
 
 from odoo.tests import tagged
+from odoo.tools import mute_logger
 
 from .init_integration_shopify import IntegrationShopifyBase
 from .json_data import fulfillment_list_1, fulfillment_list_2
@@ -517,6 +518,7 @@ class TestShopifyPickupCollectionImport(TestIntegrationShopifyFulfillmentsCommon
         self.assertEqual(collection.picking_id, first)
         self.assertEqual(len(order.picking_ids), 2)
 
+    @mute_logger('odoo.addons.integration.models.external.external_order_resource')
     def test_collection_of_a_ready_and_an_open_fulfillment_order_is_not_taken_as_the_pickings(self):
         """The customer took the ready part and the part still on the shelf in one collection.
 

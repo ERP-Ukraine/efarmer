@@ -1,6 +1,8 @@
 #  See LICENSE file for full copyright and licensing details.
 
+import hmac
 import re
+from hashlib import sha256
 from typing import Union
 from urllib.parse import urlparse
 
@@ -9,6 +11,7 @@ from odoo.exceptions import ValidationError
 
 
 INT_PATTERN = re.compile(r'\d+')
+SHOP_DOMAIN_PATTERN = re.compile(r'[a-z0-9][a-z0-9\-]*\.myshopify\.com')
 
 # TODO: placeholder — the support article has not been published yet.
 MISSING_SCOPES_ARTICLE_URL = (
@@ -152,3 +155,36 @@ def prepare_shopify_url(url):  # Based on python-shopify lib
         return None
 
     return f'{shop}.myshopify.com'
+
+
+def is_valid_shop_domain(shop) -> bool:
+    """
+    Check that the value is a plain `<store>.myshopify.com` hostname, the only form Shopify sends in the OAuth callback.
+    """
+    return isinstance(shop, str) and bool(SHOP_DOMAIN_PATTERN.fullmatch(shop))
+
+
+def compute_oauth_hmac(params: dict, secret: str) -> str:
+    """
+    Compute the signature Shopify puts into the `hmac` parameter of the OAuth callback.
+
+    The `hmac` parameter itself is left out, the rest is sorted and signed with HMAC-SHA256 using the app's client
+    secret. The delimiters inside keys and values are escaped the same way python-shopify does it.
+    Reference: https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps
+
+    :param params: query parameters of the callback request
+    :param secret: client secret of the Shopify app
+    :return: hex digest
+    """
+    pairs = []
+    for key, value in params.items():
+        if key == 'hmac':
+            continue
+
+        key = str(key).replace('%', '%25').replace('=', '%3D')
+        value = str(value).replace('%', '%25')
+        pairs.append(f'{key}={value}'.replace('&', '%26'))
+
+    message = '&'.join(sorted(pairs))
+
+    return hmac.new(secret.encode('utf-8'), message.encode('utf-8'), sha256).hexdigest()

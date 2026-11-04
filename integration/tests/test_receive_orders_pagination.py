@@ -4,6 +4,8 @@ import logging
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
+from odoo.tests import tagged
+
 from odoo.addons.integration.models import sale_integration as si
 
 from .config.integration_init import OdooIntegrationInit
@@ -11,6 +13,7 @@ from .config.integration_init import OdooIntegrationInit
 _LOGGER_PATH = 'odoo.addons.integration.models.integration_logging'
 
 
+@tagged('post_install', '-at_install')
 class TestReceiveOrdersPagination(OdooIntegrationInit):
     """The resume date (last_receive_orders_datetime) moves forward only when the whole
     import run is complete, and to max(updated_at) across ALL pages of the run. Pages are

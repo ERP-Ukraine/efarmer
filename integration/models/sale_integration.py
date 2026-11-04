@@ -714,16 +714,6 @@ class SaleIntegration(models.Model):
         ),
     )
 
-    is_import_dynamic_attribute = fields.Boolean(
-        string='Dynamic Attribute Import Mode',
-        help=(
-            'Enable this to allow the e-commerce connector to import product '
-            'attributes dynamically, creating only the necessary variants in Odoo '
-            'based on the available combinations in the external system, '
-            'and avoiding the generation of non-existent variants.'
-        ),
-    )
-
     integration_pricelist_id = fields.Many2one(
         string='Regular Pricelist for Product Export',
         comodel_name='product.pricelist',
@@ -1220,6 +1210,12 @@ class SaleIntegration(models.Model):
         help='Supports stock synchronization for selected products only.',
     )
 
+    supports_returns_refunds = fields.Boolean(
+        string='Supports Returns & Refunds',
+        compute='_compute_supports_returns_refunds',
+        help='The connector can synchronize returns and refunds, so the Returns & Refunds tab is available.',
+    )
+
     @api.depends('name', 'type_api')
     def _compute_display_name(self):
         for rec in self:
@@ -1246,6 +1242,10 @@ class SaleIntegration(models.Model):
     def _compute_supports_stock_fetch_by_product(self):
         for rec in self:
             rec.supports_stock_fetch_by_product = False
+
+    def _compute_supports_returns_refunds(self):
+        for rec in self:
+            rec.supports_returns_refunds = rec.is_integration_shopify or rec.is_integration_woocommerce
 
     @property
     def is_no_api(self):
@@ -1464,10 +1464,10 @@ class SaleIntegration(models.Model):
                 integration.check_weight_uoms = True
                 continue
             try:
-                adapter = self.adapter
+                adapter = integration.adapter
                 ext_weight_uom = adapter.get_weight_uoms()
             except Exception:
-                integration.check_weight_uoms = True
+                integration.check_weight_uoms = False
                 continue
 
             ext_weight_uom = [normalize_uom_name(x) for x in ext_weight_uom]
@@ -4035,13 +4035,21 @@ class SaleIntegration(models.Model):
                 })
                 external_record.create_or_update_mapping(odoo_id=template.id)
 
-                job_kwargs = self._job_kwargs_import_product(external_record.code, external_record.name)
-                self.with_delay(**job_kwargs).import_product(external_record.id)
+                if existing_template.get('resume_export'):
+                    # The product is what an earlier export of this same template left in the store
+                    # when it stopped part-way (the adapter checked that it holds only this template's
+                    # variants). Importing it would cut the Odoo product down to that part, so the
+                    # export goes on into it, as if the earlier export had kept its mapping.
+                    template_data['external_id'] = external_record.code
+                    template_data['odoo_external_id'] = external_record.id
+                else:
+                    job_kwargs = self._job_kwargs_import_product(external_record.code, external_record.name)
+                    self.with_delay(**job_kwargs).import_product(external_record.id)
 
-                return _(
-                    'Existing Product found in external system with id %s. Triggering job to '
-                    'import product instead of exporting it.'
-                ) % existing_template['id']
+                    return _(
+                        'Existing Product found in external system with id %s. Triggering job to '
+                        'import product instead of exporting it.'
+                    ) % existing_template['id']
 
         # 0. START EXPORT
         results_list = []
@@ -4605,9 +4613,24 @@ class SaleIntegration(models.Model):
         attribute_value_data = attribute_value.to_export_format(self)
         attribute_value_code = adapter.export_attribute_value(attribute_value_data)
 
+        self._create_attribute_value_mapping(attribute_value, external_attribute, attribute_value_code)
+
+        return attribute_value_code
+
+    def _create_attribute_value_mapping(self, attribute_value, external_attribute, code: str):
+        """Map an exported attribute value to its external record `code` under `external_attribute`.
+
+        Keep this a separate method, do not inline it back into `export_attribute_value`. It is also
+        called by connectors that export all the values of an attribute in one request instead of one
+        `export_attribute_value` per value: WooCommerce does it in `export_attribute_values_woocommerce`
+        (RDSE-157). Such a connector gets the codes from its own batch call, so it cannot go through
+        `export_attribute_value`, yet its mappings must be the same as the ones made here, including
+        the link to `external_attribute`. One method keeps the two paths from drifting apart; inlined,
+        every such connector would need its own copy of these lines.
+        """
         mapping = attribute_value.create_mapping(
             self,
-            attribute_value_code,
+            code,
             extra_vals={
                 'name': attribute_value.name,
             },
@@ -4615,7 +4638,7 @@ class SaleIntegration(models.Model):
 
         mapping.external_attribute_value_id.external_attribute_id = external_attribute.id  # TODO: Bad pattern
 
-        return attribute_value_code
+        return mapping
 
     def export_category(self, category: 'models.Model'):
         self.ensure_one()
@@ -5233,7 +5256,9 @@ class SaleIntegration(models.Model):
                 '%s: Failed to receive order. External order with ID "%s" was not found.\n\n'
                 'This could be due to one of the following reasons:\n'
                 '- The order ID is incorrect (please double-check the ID).\n'
-                '- The order has been removed from the external system.\n\n'
+                '- The order has been removed from the external system.\n'
+                '- The order belongs to a store view, channel or shop that is not selected '
+                'in this integration (see the server log for the exact reason).\n\n'
                 'Please verify the external order ID or check the order in the external system.'
             ) % (self.name, external_order_id)
             _logger.info(message)
@@ -5769,8 +5794,10 @@ class SaleIntegration(models.Model):
         return TemplateHub
 
     def _get_product_validation_domain(self):
+        # Same company rule as Auto-Link: the store's company plus shared products without a company.
         return [
             ('product_tmpl_id.exclude_from_synchronization', '=', False),
+            ('company_id', 'in', [False, self.company_id.id]),
         ]
 
     def is_barcode_validation_required(self):
@@ -5992,7 +6019,8 @@ class SaleIntegration(models.Model):
         field_list = [  # Don't touch fields sequence
             'id', 'name', barcode_field, ref_field, 'product_tmpl_id',
         ]
-        odoo_variant_ids = self.env['product.product'].search_read(
+        # with_company keeps the store's company among the allowed ones, so the record rules never hide its products
+        odoo_variant_ids = self.env['product.product'].with_company(self.company_id).search_read(
             search_product_domain,
             fields=field_list,
         )
@@ -6581,8 +6609,9 @@ class SaleIntegration(models.Model):
             'description': f'{self.name}: Export Specific Prices ({idx})',
         }
 
-    def _job_kwargs_apply_stock_single(self, external_id, location):
-        name = f'{external_id} → {location.display_name}'
+    def _job_kwargs_apply_stock_single(self, external_id, location, product_name=None):
+        product = f'{external_id} ({product_name})' if product_name else external_id
+        name = f'{product} → {location.display_name}'
         return {
             'priority': 4,
             'identity_key': f'integration-apply-stock-single_{self.id}-{external_id}-{location.id}',
@@ -6780,7 +6809,7 @@ class SaleIntegration(models.Model):
             return False
 
         if delay:
-            job_kwargs = self._job_kwargs_apply_stock_single(external_code, location)
+            job_kwargs = self._job_kwargs_apply_stock_single(external_code, location, external_id.name)
             context = {
                 'company_id': self.company_id.id,
                 'job_integration_id': self.id,

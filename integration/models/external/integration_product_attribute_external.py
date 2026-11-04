@@ -41,8 +41,6 @@ class IntegrationProductAttributeExternal(models.Model):
         return self._run_import_attributes(link_to_existing=True)
 
     def _get_mode_create_variant(self, *args, **kw):
-        if self.integration_id.is_import_dynamic_attribute:
-            return 'dynamic'
         return 'always'
 
     def try_map_by_external_reference(self, odoo_search_domain=False):

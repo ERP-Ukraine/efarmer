@@ -2,10 +2,13 @@
 
 from datetime import datetime
 
+from odoo.tests import tagged
+
 from .init_integration_shopify import IntegrationShopifyBase
 from ..shopify.connection import GraphQLClient
 
 
+@tagged('post_install', '-at_install')
 class TestShopifyReceiveOrdersPagination(IntegrationShopifyBase):
     """Shopify cursor pagination: more pages -> endCursor token, last page -> None,
     and a page_token becomes the `after:` cursor of the next query."""

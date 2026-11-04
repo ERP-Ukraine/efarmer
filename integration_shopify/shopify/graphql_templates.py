@@ -453,16 +453,30 @@ class GraphQLTemplate:
 
     """ % PRICELIST_BODY
 
+    # Not MARKET_BODY: Shopify bills a query by the page sizes it requests, and its
+    # regions(first: 250) nested under catalogs(first: 250) exceeds the single-query cost limit.
+    # Catalog import needs only these fields; delivery countries read regions via the markets query.
+    CATALOG_MARKET_BODY = """
+        id
+        name
+        type
+        currencySettings {
+            baseCurrency {
+                %s
+            }
+        }
+    """ % CURRENCY_SETTING_BODY
+
     MARKET_CATALOG_BODY = """
         %s
         ... on MarketCatalog {
-            markets(first: 12) {
+            markets(first: 250) {
                 nodes {
                     %s
                 }
             }
         }
-    """ % (CATALOG_BODY, MARKET_BODY)
+    """ % (CATALOG_BODY, CATALOG_MARKET_BODY)
 
     COMPANY_LOCATION_CATALOG_BODY = """
         %s
@@ -620,6 +634,7 @@ class GraphQLTemplate:
     PRODUCT_BODY = """
         id
         title
+        handle
         status
         productType
         tags
@@ -1535,18 +1550,19 @@ class GraphQLTemplate:
         }
     """ % USER_ERRORS_BODY_1
 
+    # Order body is filled in at call time from Order.default_body(), see ORDER_BODY_NO_REFUNDS_RETURNS.
     MUTATION_UPDATE_ORDER = """
         mutation OrderUpdate($input: OrderInput!) {
             orderUpdate(input: $input) {
                 order {
-                    %s
+                    %%s
                 }
                 userErrors {
                     %s
                 }
             }
         }
-    """ % (ORDER_BODY, USER_ERRORS_BODY_1)
+    """ % USER_ERRORS_BODY_1
 
     # refundMethod (OrderCancelRefundMethodInput) carries the "Original payment method / Store
     # credit / Later" choice; omitting it means refund later (no refund issued now).
@@ -2035,18 +2051,19 @@ class GraphQLTemplate:
         }
     """
 
+    # Order body is filled in at call time from Order.default_body(), see ORDER_BODY_NO_REFUNDS_RETURNS.
     MUTATION_MARK_AS_PAID = """
         mutation orderMarkAsPaid($input: OrderMarkAsPaidInput!) {
             orderMarkAsPaid(input: $input) {
                 order {
-                    %s
+                    %%s
                 }
                 userErrors {
                     %s
                 }
             }
         }
-    """ % (ORDER_BODY, USER_ERRORS_BODY_1)
+    """ % USER_ERRORS_BODY_1
 
     MUTATION_COLLECTION_CREATE = """
         mutation CollectionCreate($collection: CollectionCreateInput!) {

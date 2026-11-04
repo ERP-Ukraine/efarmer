@@ -11,6 +11,13 @@
                     <field name="continue_selling_without_stock"/>
                 </group>
             </xpath>
+            <xpath expr="//group[@name='product_variant_images']/div[1]" position="inside">
+                <div class="alert alert-warning" role="alert">
+                    <i class="fa fa-warning me-1" title="Warning"/>
+                    <strong>Shopify:</strong> a variant holds one image, its main image. Extra Variant Media are added
+                    to the product gallery in Shopify and are not linked to the variant.
+                </div>
+            </xpath>
         </field>
     </record>
 
@@ -20,11 +27,13 @@
         <field name="inherit_id" ref="integration.product_normal_form_view_integration"/>
         <field name="priority">99</field>
         <field name="arch" type="xml">
-            <group name="integrations" position="after">
-                <group name="shopify_settings" string="Shopify Specific Settings">
-                    <field name="continue_selling_without_stock"/>
-                </group>
-            </group>
+            <xpath expr="//group[@name='product_variant_images']/div[1]" position="inside">
+                <div class="alert alert-warning" role="alert">
+                    <i class="fa fa-warning me-1" title="Warning"/>
+                    <strong>Shopify:</strong> a variant holds one image, its main image. Extra Variant Media are added
+                    to the product gallery in Shopify and are not linked to the variant.
+                </div>
+            </xpath>
         </field>
     </record>
 

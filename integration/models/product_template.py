@@ -219,6 +219,25 @@ class ProductTemplate(models.Model):
 
         return group
 
+    def has_synchronizable_attributes(self):
+        self.ensure_one()
+        return bool(
+            self.attribute_line_ids.filtered(
+                lambda line: not line.exclude_from_synchronization
+            )
+        )
+
+    def has_synchronizable_variant_attributes(self):
+        self.ensure_one()
+        return bool(
+            self.attribute_line_ids.filtered(
+                lambda line: (
+                    not line.exclude_from_synchronization
+                    and line.attribute_id.creates_variants
+                )
+            )
+        )
+
     def get_integration_kits(self, integration_id: int, limit=1):
         self.ensure_one()
 
@@ -276,6 +295,9 @@ class ProductTemplate(models.Model):
             ('external_template_id', 'in', externals.ids),
             ('template_id', '=', self.id),
         ])
+        # Stock export jobs ("Export Stock to Stores", the scheduled export) are linked to batches of variants
+        variants = self.with_context(active_test=False).product_variant_ids
+        jobs |= self.env['queue.job']._search_by_related_records(variants)
 
         view_ids = [
             (0, 0, {'view_mode': 'list', 'view_id': self.env.ref('integration.view_integration_queue_job_list').id}),
@@ -931,7 +953,7 @@ class ProductTemplate(models.Model):
             'kits': self._get_kits(integration.id),
             'products': products,
             'variants_count': len(variants),
-            'has_attributes': bool(self.attribute_line_ids.filtered(lambda x: not x.exclude_from_synchronization)),
+            'has_attributes': self.has_synchronizable_attributes(),
             'fields': self.calculate_export_fields_data(integration.id),
         }
 

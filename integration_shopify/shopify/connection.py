@@ -16,6 +16,12 @@ _logger = logging.getLogger(__name__)
 
 _SHOPIFY_BATCH_LIMIT = 250
 
+# Not in Shopify's documentation, verified live on API 2026-07: with this header `extensions.cost`
+# also carries `fields`, the requested cost of every field in the query. Undocumented, so nothing
+# may depend on it; it only feeds debug logging and GraphQLClient.get_query_cost().
+_COST_DEBUG_HEADER = 'Shopify-GraphQL-Cost-Debug'
+_COST_LOG_FIELDS_LIMIT = 10
+
 """
 http.client.RemoteDisconnected
     ↓
@@ -70,6 +76,9 @@ class GraphQLClient:
             'User-Agent': 'Odoo-Integration-Shopify/1.0',
         }
 
+        if self._debug:
+            self.headers[_COST_DEBUG_HEADER] = '1'
+
         self.admin_url = f'https://admin.shopify.com/store/{self.url.replace(".myshopify.com", "")}'
         self.api_point = f'https://{self.url}/admin/api/{self.version}/graphql.json'
 
@@ -102,6 +111,9 @@ class GraphQLClient:
         # Extract response
         data = response.json()
 
+        if self._debug:
+            self._log_query_cost(data)
+
         # Handle shopify graphql errors. It's possible even if the response status-code is 200
         self._handle_graphql_errors(data)
 
@@ -112,6 +124,62 @@ class GraphQLClient:
                 raise ShopifyApiError(str(error))
 
         return data
+
+    def get_query_cost(self, query: str, variables: dict = None) -> dict:
+        """Run a query with the cost debug header and return its cost. A diagnostic for the shell.
+
+        The query is executed, so never pass a mutation that is not meant to run. Shopify rejects a
+        query over the single-query limit unexecuted and without the per-field breakdown; lower its
+        page sizes (`first`) to see which fields make it expensive.
+
+        :param query: GraphQL query
+        :param variables: query variables
+        :return: `extensions.cost` of the response, with `fields` while Shopify still honours the
+            header, or the extensions of the MAX_COST_EXCEEDED error
+        """
+        payload = {'query': query}
+
+        if variables:
+            payload['variables'] = variables
+
+        headers = dict(self.headers, **{_COST_DEBUG_HEADER: '1'})
+        response = requests.post(self.api_point, json=payload, headers=headers)
+        self._handle_http_error(response)
+        data = response.json()
+
+        cost = (data.get('extensions') or {}).get('cost')
+        if cost:
+            return cost
+
+        for error in data.get('errors') or []:
+            extensions = error.get('extensions') or {}
+            if extensions.get('code') == 'MAX_COST_EXCEEDED':
+                return extensions
+
+        raise ShopifyApiError(str(data.get('errors') or data))
+
+    def _log_query_cost(self, data: dict):
+        cost = (data.get('extensions') or {}).get('cost')
+        if not cost:
+            return
+
+        fields = sorted(
+            [x for x in (cost.get('fields') or []) if x.get('requestedTotalCost')],
+            key=lambda x: x['requestedTotalCost'],
+            reverse=True,
+        )
+        expensive = ', '.join(
+            '%s=%s' % ('.'.join(str(x) for x in field['path']), field['requestedTotalCost'])
+            for field in fields[:_COST_LOG_FIELDS_LIMIT]
+        )
+
+        _logger.info(
+            '%s GQL-COST --> requested %s, actual %s; most expensive fields: %s',
+            self,
+            cost.get('requestedQueryCost'),
+            cost.get('actualQueryCost'),
+            expensive or 'n/a',
+        )
 
     def _handle_http_error(self, response):
         try:

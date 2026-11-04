@@ -31,7 +31,7 @@ FIELDS_TO_EXPORT = [
     # Product export / images / pricing
     'allow_import_images', 'allow_export_images', 'send_inactive_product',
     'select_send_sale_price', 'price_including_taxes', 'pricelist_integration',
-    'validate_barcode', 'is_import_dynamic_attribute', 'synchronise_qty_field',
+    'validate_barcode', 'synchronise_qty_field',
     'change_advanced_fields', 'apply_company_on_product',
     'update_stock_for_manufacture_boms', 'ignore_boms_for_product_export',
     # Discounts / bundles

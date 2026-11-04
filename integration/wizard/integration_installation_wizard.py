@@ -12,6 +12,16 @@ from odoo.tools.config import DEFAULT_SERVER_WIDE_MODULES
 
 REQUIRED_MODULES = DEFAULT_SERVER_WIDE_MODULES + ['integration', 'integration_queue_job']
 
+# Connectors are required as server-wide only when installed. Anything else, our extensions and customer
+# customizations included, is never required, whatever its name.
+CONNECTOR_MODULES = [
+    'integration_baselinker',
+    'integration_magento2',
+    'integration_prestashop',
+    'integration_shopify',
+    'integration_woocommerce',
+]
+
 # The job runner reads its settings from a [queue_job] section of odoo.conf.
 # Odoo itself only ever parses the [options] section and logs a warning for every
 # key it does not recognise, so settings kept there cost a warning apiece on every
@@ -268,64 +278,20 @@ class IntegrationInstallationWizard(models.TransientModel):
         error_necessary_module_msg = 'The necessary module is not set as a server-wide module in the "odoo.conf"'
         config = odoo.tools.config
 
-        # Separate standard modules from custom modules to maintain order
-        standard_modules = list(DEFAULT_SERVER_WIDE_MODULES)
-        custom_modules = ['integration', 'integration_queue_job']
-        required_modules = standard_modules + custom_modules
-
         server_wide_modules = set(config.options.get('server_wide_modules', []))
-        required_modules_set = set(required_modules)
 
-        # Identify missing and extra modules
-        missing_required_modules = required_modules_set - server_wide_modules
-        extra_required_modules = server_wide_modules - required_modules_set
+        connectors = self.env['ir.module.module'].search([
+            ('name', 'in', CONNECTOR_MODULES),
+            ('state', '=', 'installed'),
+        ])
+        connector_names = sorted(connectors.mapped('name'))
 
-        # Report errors for missing modules
-        if missing_required_modules:
+        if (set(REQUIRED_MODULES) | set(connector_names)) - server_wide_modules:
             errors.append(error_necessary_module_msg)
 
-        # Check installed modules
-        installed_modules = self.env['ir.module.module'].search([('state', '=', 'installed')])
-        integration_modules = installed_modules.filtered(
-            lambda m: m.name.startswith('integration_') and 'extension' not in m.name
-        )
-
-        integration_modules_list = integration_modules.mapped('name')
-        integration_modules_set = set(integration_modules_list)
-        missing_integration_modules = integration_modules_set - server_wide_modules
-
-        if missing_integration_modules:
-            if error_necessary_module_msg not in errors:
-                errors.append(error_necessary_module_msg)
-
-        # Build modules string in correct order: standard modules first, then custom modules
-        modules_list = []
-
-        # 1. Add all standard modules (from DEFAULT_SERVER_WIDE_MODULES) in order
-        for module in standard_modules:
-            modules_list.append(module)
-
-        # 2. Add custom required modules (integration, integration_queue_job)
-        for module in custom_modules:
-            modules_list.append(module)
-
-        # 3. Add other integration modules (excluding integration and integration_queue_job)
-        other_integration_modules = [
-            m for m in integration_modules_list
-            if m not in custom_modules
-        ]
-        # Sort for consistency
-        other_integration_modules.sort()
-        modules_list.extend(other_integration_modules)
-
-        # 4. Add any extra modules that are not standard or integration modules
-        extra_modules = [
-            m for m in extra_required_modules
-            if m not in standard_modules and m not in integration_modules_set
-        ]
-        # Sort for consistency
-        extra_modules.sort()
-        modules_list.extend(extra_modules)
+        # Modules the admin listed beyond the required ones are kept, so a working config never has to be edited back
+        extra_modules = sorted(server_wide_modules - set(REQUIRED_MODULES) - set(connector_names))
+        modules_list = REQUIRED_MODULES + connector_names + extra_modules
 
         modules_str = ','.join(modules_list)
 

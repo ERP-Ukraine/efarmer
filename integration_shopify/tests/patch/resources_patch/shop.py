@@ -10,6 +10,7 @@ class Shop(Shop_):
         self.set(**{
             'id': 'gid://shopify/Shop/100500100500',
             'url': 'https://vendevstore2.myshopify.com',
+            'myshopifyDomain': 'vendevstore2.myshopify.com',
             'name': 'vendevstore2',
             'email': 'ventormailtrap@gmail.com',
             'weightUnit': 'KILOGRAMS',
@@ -48,6 +49,8 @@ class Shop(Shop_):
             'read_orders',
             'write_products',
             'read_products',
+            'read_files',
+            'write_files',
             'write_orders',
             'read_returns',
             'write_returns',

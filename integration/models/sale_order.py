@@ -160,7 +160,8 @@ class SaleOrder(models.Model):
     )
 
     is_total_amount_difference = fields.Boolean(
-        compute='_compute_is_total_amount_difference'
+        compute='_compute_is_total_amount_difference',
+        search='_search_is_total_amount_difference',
     )
 
     total_amount_difference_error_message = fields.Text(
@@ -465,6 +466,34 @@ class SaleOrder(models.Model):
                     value2=order.amount_total,
                     precision_digits=self.env['decimal.precision'].precision_get('Product Price'),
                 ) != 0
+
+    def _search_is_total_amount_difference(self, operator, value):
+        """Search counterpart of `_compute_is_total_amount_difference`, so the field can be used in a filter.
+
+        The compare is done in SQL with the same rounding as `float_compare` and returns only the orders that
+        differ, which is a short list. The field stays non-stored on purpose.
+
+        :param str operator: only `=` and `!=` are supported
+        :param bool value: the value to compare with
+        :return: domain for the orders where the amounts differ (or do not differ)
+        """
+        if operator not in ('=', '!=') or not isinstance(value, bool):
+            raise UserError(_('Operation not supported'))
+
+        precision = self.env['decimal.precision'].precision_get('Product Price')
+        self.flush_model(['amount_total', 'integration_amount_total'])
+        self.env.cr.execute(
+            'SELECT id FROM %s '
+            'WHERE COALESCE(integration_amount_total, 0) != 0 '
+            'AND ROUND(integration_amount_total::numeric, %%s) != ROUND(amount_total::numeric, %%s)' % self._table,
+            (precision, precision),
+        )
+        different_ids = [row[0] for row in self.env.cr.fetchall()]
+
+        if (operator == '=') == value:
+            return [('id', 'in', different_ids)]
+
+        return [('id', 'not in', different_ids)]
 
     @api.depends('related_input_files')
     def _compute_external_sales_order_ref(self):

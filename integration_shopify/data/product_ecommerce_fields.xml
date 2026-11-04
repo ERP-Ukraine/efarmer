@@ -367,6 +367,29 @@ value = {}
             </field>
         </record>
 
+        <!-- Not default: no mapping is created with the store; the customer picks the Odoo field -->
+        <record id="shopify_ecommerce_field_handle" model="product.ecommerce.field">
+            <field name="name">Product Handle</field>
+            <field name="technical_name">handle</field>
+            <field name="type_api">shopify</field>
+            <field name="odoo_model_id" ref="product.model_product_template"/>
+            <field name="mapping_active_by_default" eval="False"/>
+            <field name="is_default" eval="False"/>
+            <field name="default_for_update" eval="False"/>
+            <field name="default_for_import" eval="True"/>
+            <field name="import_script"/>
+            <field name="export_script">
+# The handle is part of the product URL in the online store, so it is never sent to Shopify.
+value = {}
+            </field>
+            <field name="description">
+                Shopify product handle: the last part of the product page address in the online store.
+            </field>
+            <field name="requirements">
+                Import only. Select the Odoo field to store the handle in, then create a mapping for the store.
+            </field>
+        </record>
+
         <!-- Product Variant Fields -->
         <record id="shopify_ecommerce_field_variant_barcode" model="product.ecommerce.field">
             <field name="name">Product Variant Barcode</field>

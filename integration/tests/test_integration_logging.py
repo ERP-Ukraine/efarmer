@@ -2,6 +2,8 @@
 
 import logging
 
+from odoo.tests import tagged
+
 from .config.integration_init import OdooIntegrationInit
 
 # NOTE on assertLogs level: Odoo remaps the level *name* "INFO" to 25 via
@@ -12,6 +14,7 @@ from .config.integration_init import OdooIntegrationInit
 _LOGGER_PATH = 'odoo.addons.integration.models.integration_logging'
 
 
+@tagged('post_install', '-at_install')
 class TestIntegrationLoggingWriteLog(OdooIntegrationInit):
     """write_log() always emits to the server log, and additionally persists a row in the
     integration.logging model only when 'Save Logs' is on AND the event type is selected.

@@ -760,7 +760,7 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
         self.ensure_one()
 
         response = self.execute(
-            self.MUTATION_UPDATE,
+            self.MUTATION_UPDATE % self.default_body(),
             variables={
                 'input': {
                     'id': self.gid,
@@ -1016,7 +1016,7 @@ class Order(ShopifyResourceUpdate, MetafieldMixin, OrderParseMixin):
             return True
 
         response = self.execute(
-            self.MUTATION_MARK_AS_PAID,
+            self.MUTATION_MARK_AS_PAID % self.default_body(),
             variables={
                 'input': {
                     'id': self.gid,

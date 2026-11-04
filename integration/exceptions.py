@@ -406,6 +406,10 @@ class ErrorStore:
         'E116': ErrorInfo(
             error_type=ApiImportError,
         ),
+        # Connector-specific validation errors. No format_method, so raise_error()
+        # must always carry err_msg - without it format_message() fails on E000.
+        'E117': ErrorInfo(error_type=ValidationError),
+        'E118': ErrorInfo(error_type=ValidationError),
         # E5xx — Returns & Refunds processing errors.
         # No format_method: messages live next to the raise sites in
         # external_order_refund.py / external_order_return.py and are passed

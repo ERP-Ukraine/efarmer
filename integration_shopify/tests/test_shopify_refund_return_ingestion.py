@@ -2,10 +2,12 @@
 
 import json
 import os
+from unittest.mock import patch as mock_patch
 
 from odoo.tests import tagged
 
 from .init_integration_shopify import IntegrationShopifyBase
+from ..shopify.resources.order import Order
 
 
 FIXTURE_DIR = os.path.join(
@@ -850,3 +852,61 @@ class TestShopifyReturnsRefundsDisabled(IntegrationShopifyBase):
 
         self.assertFalse(sale_order.external_return_ids)
         self.assertFalse(sale_order.external_refund_ids)
+
+    def _patch_order_execute(self, financial_status):
+        """Fake Shopify: the order read reports `financial_status`, mutations echo the order back.
+        Transactions come back only when the query asks for them."""
+        gid = 'gid://shopify/Order/9000000000002'
+        queries = []
+
+        def _execute(_self, query, variables=None, user_errors_path=''):
+            queries.append(query)
+            order = {'id': gid, 'displayFinancialStatus': financial_status}
+            if 'transactions(first' in query:
+                order['transactions'] = [{'id': 'gid://shopify/OrderTransaction/9000000000003', 'kind': 'SALE'}]
+            for mutation in ('orderMarkAsPaid', 'orderUpdate'):
+                if mutation in query:
+                    return {'data': {mutation: {'order': order, 'userErrors': []}}}
+            return {'data': {'order': order}}
+
+        return gid, queries, mock_patch.object(Order, 'execute', new=_execute)
+
+    def test_mark_as_paid_omits_refunds_and_returns(self):
+        """RDSE-178: the mutation's order payload must follow the switch like the order query does."""
+        gid, queries, patcher = self._patch_order_execute('PENDING')
+        with patcher:
+            self.adapter.gql.Order.set(id=gid).mark_as_paid()
+
+        mutation = next(x for x in queries if 'orderMarkAsPaid' in x)
+        self.assertIn('fullyPaid', mutation)
+        self.assertNotIn('returns(first: 10)', mutation)
+        self.assertNotIn('refunds(first: 10)', mutation)
+
+    def test_mark_as_paid_requests_refunds_and_returns_when_enabled(self):
+        self.integration.write({'enable_returns_refunds_sync': True})
+        gid, queries, patcher = self._patch_order_execute('PENDING')
+        with patcher:
+            self.adapter.gql.Order.set(id=gid).mark_as_paid()
+
+        mutation = next(x for x in queries if 'orderMarkAsPaid' in x)
+        self.assertIn('returns(first: 10)', mutation)
+        self.assertIn('refunds(first: 10)', mutation)
+
+    def test_order_update_omits_refunds_and_returns(self):
+        gid, queries, patcher = self._patch_order_execute('PENDING')
+        with patcher:
+            self.adapter.gql.Order.set(id=gid).update(note='RDSE-178')
+
+        self.assertIn('fullyPaid', queries[0])
+        self.assertNotIn('returns(first: 10)', queries[0])
+        self.assertNotIn('refunds(first: 10)', queries[0])
+
+    def test_paid_export_on_paid_order_returns_no_transactions(self):
+        """An order already paid in Shopify (e.g. a retried job): no mutation, and its existing
+        transactions are not returned, since Odoo would mark them done as the export's result."""
+        gid, queries, patcher = self._patch_order_execute('PAID')
+        with patcher:
+            result = self.adapter._send_sub_status_paid(gid)
+
+        self.assertFalse([x for x in queries if 'orderMarkAsPaid' in x])
+        self.assertEqual(result, [])

@@ -20,5 +20,15 @@ from . import test_shopify_shop_contact
 from . import test_shopify_inventory_item_variants
 from . import test_shopify_return_reason_definition
 from . import test_shopify_publication_name
+from . import test_shopify_catalog_pricelist_min_qty
+from . import test_shopify_market_catalogs
+from . import test_shopify_query_cost_debug
+from . import test_location_mapping_warning
 from . import test_shopify_shipping_discount
 from . import test_shopify_pickup_fulfillment
+from . import test_shopify_auth_wizard
+from . import test_shopify_oauth_callback
+from . import test_shopify_webhook_shop_domain
+from . import test_shopify_original_url_fill
+from . import test_shopify_variant_images
+from . import test_shopify_product_handle

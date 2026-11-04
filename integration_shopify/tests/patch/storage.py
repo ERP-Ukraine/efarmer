@@ -11,6 +11,7 @@ STORAGE_STR = """
         "10203545100500": {
             "id": "gid://shopify/Product/10203545100500",
             "title": "E-guitar-test_az1u28399",
+            "handle": "e-guitar-test-az1u28399",
             "status": "ACTIVE",
             "productType": "",
             "tags": [

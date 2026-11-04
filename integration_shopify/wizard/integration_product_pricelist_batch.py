@@ -17,7 +17,8 @@ EMPTY_BATCH_PATTERN = """
   </p>
   <p>
     Products are included in the catalog if they have an active price rule in the mapped Odoo pricelist.
-    If no such rule is found, the product is excluded from the Shopify catalog.
+    The price is calculated for a quantity of one unit, so rules with a Min. Quantity above 1 are not taken into
+    account. If no such rule is found, the product is excluded from the Shopify catalog.
   </p>
   <p class="mb-0">
     These changes help ensure that only priced products appear in your store catalog.

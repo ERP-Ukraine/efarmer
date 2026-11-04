@@ -721,9 +721,9 @@ class ProductEcommerceField(models.Model):
         return self._build_script_context(
             template=template,
             variant=variant,
-            external_data=data,
-            external_code=code,
             integration=self.env['sale.integration'].browse(integration_id),
+            external_data=data,
+            EXTERNAL_CODE=code,
             VARIANTS_COUNT=template_data['_variants_count'],
             FIRST_TIME_IMPORT=bool(self.env.context.get('integration_first_time_import')),
         )

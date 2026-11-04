@@ -117,6 +117,15 @@ class IntegrationAuthShopify(models.TransientModel):
                 rec.redirect_url = False
                 rec.access_scopes = False
 
+    @api.onchange('use_oauth')
+    def _onchange_use_oauth(self):
+        # Basic collects only the legacy app's API secret and never a Client ID. That secret does not belong to the
+        # Dev Dashboard app the OAuth flow needs, so offering it as prefilled would make the token exchange fail
+        # with no hint why. Store ID stays; Client ID and Secret Key have to be entered by hand.
+        for rec in self:
+            if rec.use_oauth and not rec.client_id:
+                rec.secret_key = False
+
     def set_authentication_state(self):
         self.state = 'authentication'
 

@@ -163,14 +163,16 @@ class IntegrationCatalogExternalLine(models.Model):
         return items
 
     def _prepare_prices(self, variant: 'models.Model'):
-        price, rule = self.pricelist_id._get_product_price_rule(variant, 0)
+        # Catalog price is the price of one unit, as Odoo eCommerce shows it. Quantity 0 would skip every rule with
+        # Min. Quantity above 0, so a product priced by such a rule would drop out of the catalog.
+        price, rule = self.pricelist_id._get_product_price_rule(variant, 1)
 
         if not rule:
             return None, None
 
         pricelist_compare_at = self.pricelist_compare_at_id
         if pricelist_compare_at:
-            compare_at_price, rule = pricelist_compare_at._get_product_price_rule(variant, 0)
+            compare_at_price, rule = pricelist_compare_at._get_product_price_rule(variant, 1)
 
             if not rule:
                 compare_at_price = None

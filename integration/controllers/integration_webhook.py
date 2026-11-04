@@ -9,7 +9,13 @@ from odoo import _
 from odoo.http import request
 from odoo.exceptions import ValidationError
 
-from .utils import with_webhook_context
+from .utils import (
+    with_webhook_context,
+    WEBHOOK_OK,
+    WEBHOOK_SKIPPED,
+    WEBHOOK_BAD_REQUEST,
+    WEBHOOK_UNAUTHORIZED,
+)
 
 
 _logger = logging.getLogger(__name__)
@@ -60,37 +66,44 @@ class IntegrationWebhook:
         return True, '%s webhook shop domain verified.' % name
 
     def verify_webhook(self, integration):
+        """
+        Check whether the incoming request may be processed.
+
+        :return: tuple (is_verified, message, http_status). States Odoo is in on purpose
+            answer 2xx, so the store keeps the subscription.
+        """
         name = integration.name
         # 1. Verify integration activation
         if not integration.is_active:
-            return False, '%s integration is inactive.' % name
+            return False, '%s integration is inactive.' % name, WEBHOOK_SKIPPED
 
         # 2. Verify headers
         missing_headers = self._get_missing_headers()
         if missing_headers:
-            return False, '%s webhook missing required headers: %s.' % (name, ', '.join(missing_headers))
+            message = '%s webhook missing required headers: %s.' % (name, ', '.join(missing_headers))
+            return False, message, WEBHOOK_BAD_REQUEST
 
         # 3. Verify forwarded host
         domain_ok, domain_msg = self._verify_shop_domain(integration)
         if not domain_ok:
-            return False, domain_msg
+            return False, domain_msg, WEBHOOK_BAD_REQUEST
 
         # 4. Verify integration webhook-lines
         if not integration.webhook_line_ids:
-            return False, '%s webhooks not specified.' % name
+            return False, '%s webhooks not specified.' % name, WEBHOOK_SKIPPED
 
         # 5. Verify webhook-line activation
         topic = self.get_webhook_topic()
         webhook_line_id = integration.webhook_line_ids.filtered(lambda x: x.technical_name == topic)
         if not webhook_line_id.is_active:
-            return False, 'Disabled %s webhook in Odoo "%s".' % (name, topic)
+            return False, 'Disabled %s webhook in Odoo "%s".' % (name, topic), WEBHOOK_SKIPPED
 
         # 6. Verify webhook digital sign
         sign_ok = self._check_webhook_digital_sign(integration)
         if not sign_ok:
-            return False, 'Wrong %s webhook digital signature.' % name
+            return False, 'Wrong %s webhook digital signature.' % name, WEBHOOK_UNAUTHORIZED
 
-        return True, '%s: webhook has been verified.' % name
+        return True, '%s: webhook has been verified.' % name, WEBHOOK_OK
 
     def _get_headers(self):
         return request.httprequest.headers

@@ -12,6 +12,20 @@
             <field name="code">action = records.open_related_jobs()</field>
         </record>
 
+        <record id="view_sales_order_filter_total_amount_difference" model="ir.ui.view">
+            <field name="name">sale.order.list.select.total.amount.difference</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='my_sale_orders_filter']" position="after">
+                    <separator/>
+                    <filter string="Total Mismatch with Store" name="total_amount_difference"
+                            domain="[('integration_id', '!=', False), ('is_total_amount_difference', '=', True)]"
+                            help="Orders where the total amount in the store differs from the total amount in Odoo"/>
+                </xpath>
+            </field>
+        </record>
+
         <record id="view_order_from_inherit" model="ir.ui.view">
             <field name="name">sale.order.form.view</field>
             <field name="model">sale.order</field>

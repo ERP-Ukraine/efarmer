@@ -93,6 +93,12 @@ export class IntegrationStatusMenu extends Component {
         this.state.activityVisible = this.state.activityCounterFailed > 0 || this.state.activityCounterUnprocessed > 0;
     }
 
+    async openStores() {
+        this.close();
+        // The action is loaded by the action service on click: the empty state itself costs no extra request
+        await this.action.doAction("integration.integrations_list_action", { clearBreadcrumbs: true });
+    }
+
     async openIntegration(integrationId) {
         this.close();
         await this.action.doAction({
@@ -101,7 +107,7 @@ export class IntegrationStatusMenu extends Component {
             res_model: 'sale.integration',
             res_id: integrationId,
             views: [[false, 'form']],
-        });
+        }, { clearBreadcrumbs: true });
     }
 
     async openOrders(integrationId) {
@@ -114,7 +120,7 @@ export class IntegrationStatusMenu extends Component {
             domain: [
                 ['si_id', '=', integrationId],
             ],
-        });
+        }, { clearBreadcrumbs: true });
     }
 
     async openProducts(integrationId) {
@@ -130,7 +136,7 @@ export class IntegrationStatusMenu extends Component {
             context: {
                 default_integration_id: integrationId,
             },
-        });
+        }, { clearBreadcrumbs: true });
     }
 
     async openFailedJobs(integrationId) {
@@ -141,7 +147,7 @@ export class IntegrationStatusMenu extends Component {
             'get_failed_jobs_action',
             [integrationId],
         );
-        await this.action.doAction(action);
+        await this.action.doAction(action, { clearBreadcrumbs: true });
     }
 
     async openUnprocessedOrders(integrationId) {
@@ -157,7 +163,7 @@ export class IntegrationStatusMenu extends Component {
             context: {
                 search_default_without_sales_order: true,
             },
-        });
+        }, { clearBreadcrumbs: true });
     }
 
     async openMissingMappings(integrationId, modelName) {
@@ -175,7 +181,7 @@ export class IntegrationStatusMenu extends Component {
             context: {
                 default_integration_id: integrationId,
             },
-        });
+        }, { clearBreadcrumbs: true });
     }
 
     close() {

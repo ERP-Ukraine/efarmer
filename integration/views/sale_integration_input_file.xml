@@ -23,8 +23,11 @@
                             <span invisible="not order_id">
                                 Order <field name="order_id" readonly="1" nolabel="1" class="oe_inline" options="{'no_open': True}"/>
                             </span>
-                            <span invisible="order_id">
+                            <span invisible="order_id or not order_reference">
                                 Reference <field name="order_reference" readonly="1" nolabel="1" class="oe_inline"/>
+                            </span>
+                            <span invisible="order_id or order_reference">
+                                <field name="display_name" readonly="1" nolabel="1" class="oe_inline"/>
                             </span>
                         </h1>
                         <field name="pipeline_ids" invisible="1"/>
@@ -46,7 +49,7 @@
                             <span class="badge rounded-pill text-bg-dark" invisible="pipeline_status != 'cancelled'">
                                 <i class="fa fa-ban me-1" title="Cancelled"/>Cancelled
                             </span>
-                            <span class="badge rounded-pill text-bg-light text-dark" invisible="pipeline_status != 'none'">
+                            <span class="badge rounded-pill text-bg-light text-dark" invisible="pipeline_status and pipeline_status != 'none'">
                                 <i class="fa fa-circle-o-notch me-1" title="Not processed"/>Not processed yet
                             </span>
                         </div>

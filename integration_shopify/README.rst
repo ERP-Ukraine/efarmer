@@ -16,6 +16,29 @@ Change Log
 
 |
 
+* 2.4.0 (2026-11-03)
+    - [NEW] Added a "Product Handle" field definition in Product Fields to import the Shopify product handle into an Odoo field of your choice. It is import only and not mapped by default.
+    - [NEW] Added a "Total Mismatch with Store" filter to Quotations and Sales Orders, listing the orders whose total differs from the total in the store.
+    - [IMP] Improved the warning in "Inventory Location Mapping": it now appears only when one Odoo warehouse is mapped to several Shopify locations, and explains the risks and how to fix the mapping.
+    - [IMP] Improved webhook handling: when Odoo cannot process a webhook, it now returns an error to the store instead of reporting success. Shopify and WooCommerce switch a webhook off after repeated failures: if that happens, fix the cause and click "Create Webhooks".
+    - [IMP] Removed the "Dynamic Attribute Import Mode" setting. Variant attributes created by import now always use "Instantly", and existing attributes keep their mode. To keep an attribute dynamic, create it in Odoo before the import.
+    - [IMP] Improved the background jobs that apply imported stock levels: the title names the product and location, and the result shows the new stock level or why the product was skipped (kit, not tracked, tracked by lots or serial numbers).
+    - [FIX] Fixed webhooks being rejected with "webhook invalid shop domain" for stores connected with a short Store ID, so orders, fulfillments and other updates stopped reaching Odoo.
+    - [FIX] Fixed a security issue in the OAuth connection: the callback is now accepted only when Shopify signed it for the store and user of the open authentication wizard.
+    - [FIX] Fixed marking an order as paid in Shopify failing with "Access denied for returns field" when the app has no permissions for returns.
+    - [FIX] Fixed "Import Markets and Catalogs" failing with "Query cost is 1366, which exceeds the single query max cost limit (1000)".
+    - [FIX] Fixed Catalogs & Markets excluding products priced by a pricelist rule with "Min. Quantity" 1. Catalog prices are now calculated for one unit and may change on the next price export.
+    - [FIX] Fixed re-export of products whose variants have extra images failing in Shopify or replacing the variant's main image. Extra variant images now go to the product gallery only.
+    - [FIX] Fixed credit notes created from refunds being lower than the refund by the tax amount when the product's tax is included in the price.
+    - [FIX] Fixed the authentication wizard offering the old Basic API secret as "Secret Key" when switching to OAuth after "Reset Credentials".
+    - [FIX] Fixed "Export Stock to Stores" on a product sending stock to stores where stock synchronization is turned off. The notification now lists the skipped stores.
+    - [FIX] Fixed "Run Validation Test" checking the products of all companies in multi-company databases, which could time out and report false duplicated references.
+    - [FIX] Fixed stock export jobs started by "Export Stock to Stores" or by the scheduled stock export not being listed in "View Synchronization History" of the product.
+    - [FIX] Fixed the status menu in the top bar stacking breadcrumbs with every click, and showing an empty frame when there are no active stores. It now offers a "Go to Stores" button in that case.
+    - [FIX] Fixed the configuration check asking to add extension modules, such as Shopify Payout Reports, to "server_wide_modules" in "odoo.conf".
+    - [FIX] Fixed the empty "External Company Name" field being shown when adding a contact or address on the partner form.
+    - [FIX] Other improvements and fixes implemented to boost overall performance, stability, and reliability.
+
 * 2.3.1 (2026-10-22)
     - [IMP] Pickup orders: validating the delivery of an order that the customer collects in store now marks the goods as ready for pickup in Shopify, and the customer receives Shopify's "ready for pickup" e-mail. Before, the delivery closed the order as picked up, which sent the "picked up" receipt before anything was handed over and never told the customer the goods could be collected. This is a change of behaviour: such an order is no longer fulfilled in Shopify when the delivery is validated, it stays unfulfilled until the merchant records the pickup in Shopify ("Mark as picked up"). With "Auto-Apply Fulfillments from E-Commerce System" enabled, the recorded pickup is brought back to Odoo and linked to the delivery that marked those goods ready, so a backorder of goods still on the shelf stays open. A delivery that covers only a part of the order marks only that part ready, so two partial deliveries send two accurate e-mails, and only goods delivered in Odoo are marked ready, also when a delivery is exported again. If the order was already marked as ready for pickup in Shopify, validating the delivery leaves it as it is. Orders delivered by shipping, local delivery or to a pickup point are fulfilled as before.
     - [IMP] "Import Sales Channels" and "Import Merchant Business Entities" no longer reload the store form. The imported sales channels and business entities can be selected right away.

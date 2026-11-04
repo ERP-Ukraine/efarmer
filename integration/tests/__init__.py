@@ -12,6 +12,7 @@ from . import test_import_external_product_batch
 from . import test_is_importable_order_status
 from . import test_product_create_write_export
 from . import test_external_integration_wizard
+from . import test_dynamic_attribute_import_mode_removed
 from . import test_auto_export_new_products
 from . import test_order_status_export
 from . import test_product_product
@@ -33,8 +34,18 @@ from . import test_import_single_customer
 from . import test_integration_sale_order_sub_status_bulk_wizard
 from . import test_returns_refunds_models
 from . import test_integration_account_tax_mapping
+from . import test_import_taxes_button
+from . import test_res_partner_form
 from . import test_refund_processing
+from . import test_refund_tax_included
 from . import test_return_processing
 from . import test_return_conflict_and_kit
 from . import test_refund_return_lifecycle
 from . import test_pending_returns_safety_net
+from . import test_product_sync_history
+from . import test_catalog_validation_company
+from . import test_installation_wizard_server_wide
+from . import test_product_force_export_inventory
+from . import test_job_import_buttons
+from . import test_supports_returns_refunds
+from . import test_total_amount_difference_filter

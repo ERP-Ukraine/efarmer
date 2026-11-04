@@ -104,7 +104,10 @@
                                     <group>
                                         <field name="integration_exception_name" readonly="1"/>
                                         <field name="integration_model_view_name" readonly="1"/>
-                                        <field name="is_import_from_external_available" invisible="1"/> <!-- Required because it is used in invisible condition below -->
+                                        <!-- Required because they are used in the invisible conditions below -->
+                                        <field name="is_import_from_external_available" invisible="1"/>
+                                        <field name="is_open_external_available" invisible="1"/>
+                                        <field name="is_open_mapping_available" invisible="1"/>
                                         <field name="integration_external_id" invisible="integration_exception_name == 'NotMappedToExternal'"/>
                                         <field name="integration_odoo_id" invisible="integration_exception_name != 'NotMappedToExternal'"/>
                                         <field name="integration_external_name" invisible="integration_exception_name == 'NotMappedToExternal'"/>
@@ -114,11 +117,13 @@
                                         <button name="action_open_external_view"
                                                 type="object"
                                                 string="Open External"
-                                                colspan="12"/>
+                                                colspan="12"
+                                                invisible="not is_open_external_available"/>
                                         <button name="action_open_mapping_view"
                                                 type="object"
                                                 string="Open Mappings"
-                                                colspan="12"/>
+                                                colspan="12"
+                                                invisible="not is_open_mapping_available"/>
                                         <button name="action_import_from_external_system"
                                                 type="object"
                                                 string="Import External Records From E-Commerce System"

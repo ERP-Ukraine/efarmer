@@ -1,28 +1,31 @@
 # See LICENSE file for full copyright and licensing details.
 
+import json
 import re
 
 from odoo import api, models, fields, _
 from odoo.exceptions import UserError
 from odoo.modules.registry import Registry
+from odoo.tools import SQL
 from odoo.addons.integration_queue_job.job import Job
 
 
-MODELS_WITH_IMPORT_AVAILABLE = [
-    'product.attribute.value',
-    'res.country',
-    'account.tax',
-    'res.lang',
-    'sale.order.payment.method',
-    'product.product',
-    'ecommerce.product.category',
-    'product.template',
-    'delivery.carrier',
-    'res.country.state',
-    'account.tax.group',
-    'sale.order.sub.status',
-    'product.attribute',
-]
+# Import methods of the models owned by the core. A connector declares the import of its own models
+# in `integration.import.entity`, which `QueueJob._get_import_method` uses for everything not listed here.
+CORE_IMPORT_METHODS = {
+    'product.attribute.value': 'integrationApiImportAttributeValues',
+    'res.country': 'integrationApiImportCountries',
+    'account.tax': 'integrationApiImportTaxes',
+    'res.lang': 'integrationApiImportLanguages',
+    'sale.order.payment.method': 'integrationApiImportPaymentMethods',
+    'product.product': 'integrationApiImportProducts',
+    'ecommerce.product.category': 'integrationApiImportCategories',
+    'product.template': 'integrationApiImportProducts',
+    'delivery.carrier': 'integrationApiImportDeliveryMethods',
+    'res.country.state': 'integrationApiImportStates',
+    'sale.order.sub.status': 'integrationApiImportSaleOrderStatuses',
+    'product.attribute': 'integrationApiImportAttributes',
+}
 JOB_STATE_FAILED = 'failed'
 
 # Mapping from job context keys to corresponding field names
@@ -177,12 +180,81 @@ class QueueJob(models.Model):
         ),
     )
 
+    is_open_external_available = fields.Boolean(
+        string='Open External Available',
+        compute='_compute_is_open_external_available',
+        help='Indicates whether the "Open External" button should be visible.',
+    )
+
+    is_open_mapping_available = fields.Boolean(
+        string='Open Mappings Available',
+        compute='_compute_is_open_mapping_available',
+        help='Indicates whether the "Open Mappings" button should be visible.',
+    )
+
     @api.depends('integration_id', 'integration_model_name')
     def _compute_is_import_from_external_available(self):
         for record in self:
-            model = record.get_model_from_integration_model_name()
-            record.is_import_from_external_available = self.integration_id \
-                and model in MODELS_WITH_IMPORT_AVAILABLE
+            record.is_import_from_external_available = bool(record._get_import_method())
+
+    @api.depends('integration_model_name')
+    def _compute_is_open_external_available(self):
+        for record in self:
+            record.is_open_external_available = bool(record._get_integration_action('external'))
+
+    @api.depends('integration_model_name')
+    def _compute_is_open_mapping_available(self):
+        for record in self:
+            record.is_open_mapping_available = bool(record._get_integration_action('mapping'))
+
+    def _get_import_method(self):
+        """Find the integration method that imports the external records of the model from the error.
+
+        :return: bound method of `sale.integration` or None when the model has no import
+        """
+        self.ensure_one()
+        model = self.get_model_from_integration_model_name()
+
+        if not model or not self.integration_id:
+            return None
+
+        method_name = CORE_IMPORT_METHODS.get(model)
+        if not method_name:
+            # The connector-specific models are declared by their connector module
+            entities = self.env['integration.import.entity'].sudo().search([
+                ('external_model', '=', 'integration.%s.external' % model),
+                ('integration_type', 'in', [self.integration_id.type_api, False]),
+            ])
+            # The declaration of the store type wins over the generic one
+            method_name = entities.sorted(lambda e: not e.integration_type)[:1].method_name
+
+        return getattr(self.integration_id, method_name, None) if method_name else None
+
+    def _get_integration_action(self, kind):
+        """Find the window action that opens the external or mapping records of the model from the error.
+
+        The actions of the connector models are declared in the connector module, so they are looked up by
+        the name only and not by the module. The core one is preferred when the name is not unique.
+
+        :param str kind: `external` or `mapping`
+        :return: `ir.actions.act_window` record, empty when the model has no such action
+        """
+        self.ensure_one()
+        model = self.get_model_from_integration_model_name()
+
+        if not model:
+            return self.env['ir.actions.act_window']
+
+        # Not very reliable: it works only if the action follows the naming pattern
+        # `integration_<model>_<external|mapping>_action`. A connector that names its action differently gets
+        # no button, so keep to the pattern when adding the action of a new model.
+        xml_names = self.env['ir.model.data'].sudo().search([
+            ('model', '=', 'ir.actions.act_window'),
+            ('name', '=', 'integration_%s_%s_action' % (model.replace('.', '_'), kind)),
+        ])
+        xml_name = xml_names.sorted(lambda d: d.module != 'integration')[:1]
+
+        return self.env['ir.actions.act_window'].browse(xml_name.res_id).exists()
 
     def _compute_exc_info_lite(self):
         for rec in self:
@@ -268,6 +340,31 @@ class QueueJob(models.Model):
 
         if jobs:
             jobs.requeue()
+
+    @api.model
+    def _search_by_related_records(self, records):
+        """
+        Find the jobs whose related records include any of the given records.
+
+        :param records: recordset the jobs were dispatched for
+        :type records: odoo.models.BaseModel
+        :return: queue.job recordset
+        """
+        if not records:
+            return self.browse()
+
+        # The ORM cannot search a JSON list by its elements, so match it with jsonb containment:
+        # the job of a batch is found by any one record of the batch.
+        self.flush_model(['related_record_model', 'related_record_ids'])
+        self.env.cr.execute(SQL(
+            'SELECT id FROM %s WHERE related_record_model = %s AND related_record_ids @> ANY(%s::jsonb[])',
+            SQL.identifier(self._table),
+            records._name,
+            [json.dumps([record_id]) for record_id in records.ids],
+        ))
+        job_ids = [row[0] for row in self.env.cr.fetchall()]
+
+        return self.search([('id', 'in', job_ids)])
 
     def get_model_from_integration_model_name(self):
         if not self.integration_model_name:
@@ -363,55 +460,25 @@ class QueueJob(models.Model):
         }
 
     def action_open_mapping_view(self):
-        model = self.get_model_from_integration_model_name()
+        action = self._get_integration_action('mapping')
 
-        if model:
-            action_name = 'integration.integration_%s_mapping_action' % model.replace('.', '_')
-
-            return self.env.ref(action_name).read()[0]
+        if action:
+            return action.read()[0]
 
     def action_open_external_view(self):
-        model = self.get_model_from_integration_model_name()
+        action = self._get_integration_action('external')
 
-        if model:
-            action_name = 'integration.integration_%s_external_action' % model.replace('.', '_')
-
-            return self.env.ref(action_name).read()[0]
+        if action:
+            return action.read()[0]
 
     def action_import_from_external_system(self):
         """
         The `Import External Records From E-Commerce System` button.
         """
         model = self.get_model_from_integration_model_name()
-        external_model_name = 'integration.%s.external' % model
-        external_model = self.env[external_model_name]
+        import_method = self._get_import_method()
 
-        # Fetch the old records before the import
-        external_old = external_model.search([
-            ('integration_id', '=', self.integration_id.id)
-        ])
-
-        # Map models to their corresponding import methods
-        import_methods = {
-            'product.attribute.value': self.integration_id.integrationApiImportAttributeValues,
-            'res.country': self.integration_id.integrationApiImportCountries,
-            'account.tax': self.integration_id.integrationApiImportTaxes,
-            'res.lang': self.integration_id.integrationApiImportLanguages,
-            'sale.order.payment.method': self.integration_id.integrationApiImportPaymentMethods,
-            'product.product': self.integration_id.integrationApiImportProducts,
-            'ecommerce.product.category': self.integration_id.integrationApiImportCategories,
-            'product.template': self.integration_id.integrationApiImportProducts,
-            'delivery.carrier': self.integration_id.integrationApiImportDeliveryMethods,
-            'res.country.state': self.integration_id.integrationApiImportStates,
-            'sale.order.sub.status': self.integration_id.integrationApiImportSaleOrderStatuses,
-            'product.attribute': self.integration_id.integrationApiImportAttributes,
-        }
-
-        # Run the corresponding import method based on the model
-        import_method = import_methods.get(model)
-        if import_method:
-            import_method()
-        else:
+        if not import_method:
             raise UserError(_(
                 'The model "%s" is not supported for direct import.\n\n'
                 'It is possible that this model can only be imported as part of the "Import Master Data" process.\n\n'
@@ -419,6 +486,15 @@ class QueueJob(models.Model):
                 'the "%s" integration settings. '
                 'If you encounter this error, please contact our support team: https://support.ventor.tech/'
             ) % (model, self.integration_id.name))
+
+        external_model = self.env['integration.%s.external' % model]
+
+        # Fetch the old records before the import
+        external_old = external_model.search([
+            ('integration_id', '=', self.integration_id.id)
+        ])
+
+        import_method()
 
         # Fetch new records after the import
         external_new = external_model.search([

@@ -13,7 +13,8 @@
                 <page string="E-Commerce Integration" name="partner_integration"/>
             </xpath>
             <xpath expr="//page[@name='contact_addresses']/field[@name='child_ids']/form//field[@name='name']" position="after">
-                <field name="external_company_name" placeholder="External Company Name"/>
+                <field name="external_company_name" placeholder="External Company Name"
+                       invisible="not external_company_name"/>
             </xpath>
             <xpath expr="//page[@name='partner_integration']" position="inside">
                 <group name="external_customers" string="External Customers" groups="base.group_no_one">

@@ -2,11 +2,14 @@
 
 from unittest.mock import MagicMock, patch
 
+from odoo.tests import tagged
+
 from odoo.addons.integration.exceptions import ApiImportError
 
 from .config.integration_init import OdooIntegrationInit
 
 
+@tagged('post_install', '-at_install')
 class TestImportOrdersById(OdooIntegrationInit):
     """fetch_order_by_id()/import_orders() must always yield a recordset, never a bool.
 

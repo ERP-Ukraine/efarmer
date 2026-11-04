@@ -6,13 +6,13 @@ from hashlib import sha256
 import logging
 from werkzeug.wrappers import Response
 
-from odoo import _
-from odoo.exceptions import ValidationError
 from odoo.http import Controller, route, request
 from odoo.addons.integration.controllers.integration_webhook import IntegrationWebhook
 from odoo.addons.integration.controllers.utils import build_environment, validate_integration, with_webhook_context
 
 from ..shopify_api import SHOPIFY
+from ..tools import prepare_shopify_url
+from ..shopify.exceptions import ShopifyResourceNotFoundError
 
 
 _logger = logging.getLogger(__name__)
@@ -21,7 +21,8 @@ _logger = logging.getLogger(__name__)
 class ShopifyWebhook(Controller, IntegrationWebhook):
 
     _kwargs = {
-        'type': 'jsonrpc',
+        # Not `jsonrpc`: it answers every outcome, errors included, with 200, so Shopify never retries.
+        'type': 'http',
         'auth': 'none',
         'methods': ['POST'],
         'csrf': False,
@@ -62,6 +63,43 @@ class ShopifyWebhook(Controller, IntegrationWebhook):
             return topic
 
         return '_'.join(topic.split('/')).upper()
+
+    def _verify_shop_domain(self, integration):
+        """
+        Also accept the <id>.myshopify.com domain the API client builds from the stored Shop ID.
+
+        The header always carries the full domain, while many integrations store only the short ID
+        in `url`, and `original_url` is filled only by Test Connection. The derived domain is the one
+        the connector already talks to, so no shop is accepted that the integration is not connected to.
+
+        :param integration: sale.integration record
+        :return: tuple (bool, str) — verified flag and log message
+        """
+        verified, message = super()._verify_shop_domain(integration)
+        if verified:
+            return verified, message
+
+        shop_domain = self.get_shop_domain(integration)
+        api_domain = prepare_shopify_url(integration.get_settings_value('url', ''))
+
+        if shop_domain and shop_domain == api_domain:
+            return True, '%s webhook shop domain verified.' % integration.name
+
+        # Name both sides of the comparison: a bare "invalid shop domain" gives support nothing to debug with
+        accepted_domains = [
+            domain for domain in (
+                integration._truncate_settings_url(),
+                integration.get_settings_value('original_url', ''),
+                api_domain,
+            ) if domain
+        ]
+        message = '%s webhook invalid shop domain "%s", expected one of: %s.' % (
+            integration.name,
+            shop_domain,
+            ', '.join('"%s"' % domain for domain in dict.fromkeys(accepted_domains)) or 'none (Shop ID is empty)',
+        )
+
+        return False, message
 
     def _check_webhook_digital_sign(self, integration):
         """
@@ -166,6 +204,22 @@ class ShopifyWebhook(Controller, IntegrationWebhook):
             'RETURNS_DECLINE': '_process_return_event',
             'RETURNS_UPDATE': '_process_return_event',
         }
+
+    def _process_event(self, integration, external_id):
+        try:
+            return super(ShopifyWebhook, self)._process_event(integration, external_id)
+        except ShopifyResourceNotFoundError as ex:
+            # Shopify returned no such order: deleted, or older than 60 days without read_all_orders.
+            # A retry cannot change that, and an error answer would get the subscription deleted.
+            message = f'Webhook skipped: {ex}'
+            integration.env['integration.logging'].write_log(
+                integration,
+                'webhook',
+                'order_not_found',
+                message,
+                log_level='warning',
+            )
+            return Response(message)
 
     # Handle orders
     @route(
@@ -341,10 +395,11 @@ class ShopifyWebhook(Controller, IntegrationWebhook):
             if isinstance(order_obj, dict):
                 external_order_id = order_obj.get('id')
         if not external_order_id:
-            raise ValidationError(
-                _('%s: neither "order_id" nor "order.id" found in the returns webhook post data')
-                % self.integration_type
-            )
+            # returns/update carries neither. An error answer would only make Shopify retry the
+            # event and then delete the subscription, so acknowledge it.
+            message = f'Webhook skipped: no order reference in the "{self.get_webhook_topic()}" payload.'
+            _logger.info(message)
+            return Response(message)
         return self._process_event(integration, external_order_id)
 
     @with_webhook_context

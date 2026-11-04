@@ -603,7 +603,9 @@ class ShopifyAPIClient(AbsApiClient):
                     if (image_gid == datacls.code) and (image_gid != template.featured_media_gid):
                         template.set_image_as_cover(image_gid)
 
-            if not datacls.variant_code:
+            # A Shopify variant holds one image. Extra variant images stay in the product gallery only: appending
+            # one names the variant twice, which Shopify rejects, or replaces the main image on the variant.
+            if not datacls.is_variant_cover:
                 continue
 
             variants_append_media.append({

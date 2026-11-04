@@ -276,16 +276,49 @@ class ProductProduct(models.Model):
         ])
 
         variants = self.filtered(lambda x: x.integration_should_export_inventory)
+        title = _('Export Stock to Stores')
+        has_jobs = False
+        skipped = self.env['sale.integration']
 
         for integration in integrations:
+            # A store with both stock syncs off has not asked for stock to be written to it, and a manual
+            # export would overwrite whatever the merchant maintains there. The store-level
+            # "Export Inventory Now" button is the explicit way to push stock to such a store.
+            if not (
+                integration.is_real_time_inventory_export_enabled or integration.is_periodic_inventory_sync_enabled
+            ):
+                if any(integration in x.integration_ids for x in variants):
+                    skipped |= integration
+                continue
+
             if integration.update_stock_for_manufacture_boms:
                 tempates_related_to_components = self.get_bom_parent_templates_recursively(variants)
                 variants |= tempates_related_to_components.product_variant_ids
-            variants.export_inventory_by_jobs(integration)
+            has_jobs = bool(variants.export_inventory_by_jobs(integration)) or has_jobs
 
-        return self.display_integration_notification(
-            _('Queue Jobs "Export Stock to Stores" are created'), title=_('Export Stock to Stores'),
-        )
+        if not skipped and has_jobs:
+            return self.display_integration_notification(
+                _('Queue Jobs "Export Stock to Stores" are created'), title=title,
+            )
+
+        if skipped:
+            skipped_names = ', '.join(skipped.mapped('name'))
+            if has_jobs:
+                message = _(
+                    'Queue Jobs "Export Stock to Stores" are created. Skipped stores with stock synchronization '
+                    'turned off: %s.'
+                ) % skipped_names
+            else:
+                message = _(
+                    'No jobs were created. Stock synchronization is turned off in: %s.'
+                ) % skipped_names
+        else:
+            message = _(
+                'No jobs were created. The products are not linked to any active store '
+                'or are excluded from stock synchronization.'
+            )
+
+        return self.display_integration_notification(message, title=title, ttype='warning', sticky=True)
 
     def export_inventory_by_jobs(self, integration, cron_operation=False):
         integration.ensure_one()

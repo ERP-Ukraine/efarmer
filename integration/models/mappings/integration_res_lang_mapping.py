@@ -31,6 +31,42 @@ class IntegrationResLangMapping(models.Model):
     )
 
     @api.model
+    def to_external_record(self, integration, odoo_value, raise_error=True):
+        """Resolve an Odoo language to the external language to export it as.
+
+        Args:
+            integration (recordset): the store the mapping belongs to.
+            odoo_value (recordset): `res.lang` to resolve.
+            raise_error (bool): raise when the language was never mapped.
+
+        Returns:
+            recordset: single `integration.res.lang.external`.
+
+        Several external languages may point at one Odoo language — two Magento store views
+        with `en_US` and `en_GB` locales both map to Odoo `en_US` when `en_GB` is not
+        installed. The mixin picks `id desc`, i.e. whichever mapping happened to be created
+        last, so the store could receive `en_GB` content for `en_US`. Prefer the external
+        whose code equals the Odoo language code, then the oldest mapping, which is stable
+        across re-imports. This applies to every connector, not only Magento.
+        """
+        internal_field_name, external_field_name = self._mapping_fields
+
+        mappings = self.search([
+            ('integration_id', '=', integration.id),
+            (internal_field_name, '=', odoo_value.id),
+        ], order='id asc')
+
+        if not mappings:
+            return super().to_external_record(integration, odoo_value, raise_error=raise_error)
+
+        preferred = mappings.filtered(
+            lambda m: m[external_field_name].code == odoo_value.code
+        )[:1]
+        mapping = preferred or mappings[:1]
+
+        return mapping[external_field_name]
+
+    @api.model
     def convert_external_translations(self, integration_id: int, value: str):
         if not is_translated_value(value):
             return value

@@ -4,7 +4,7 @@ import logging
 from functools import wraps
 
 from psycopg2 import Error
-from werkzeug.exceptions import BadRequest
+from werkzeug.wrappers import Response
 
 from odoo import SUPERUSER_ID
 from odoo.api import Environment
@@ -13,6 +13,34 @@ from odoo.modules.registry import Registry
 
 
 _logger = logging.getLogger(__name__)
+
+# Only a 2xx tells the store the event was consumed; anything else gets it retried and, after repeated
+# failures, the subscription deleted or disabled. States Odoo is in on purpose therefore answer 2xx.
+WEBHOOK_OK = 200
+WEBHOOK_SKIPPED = 200
+WEBHOOK_BAD_REQUEST = 400
+WEBHOOK_UNAUTHORIZED = 401
+WEBHOOK_UNAVAILABLE = 503
+
+
+def webhook_response(message, status=WEBHOOK_OK):
+    """
+    Build the plain-text reply for a webhook request.
+    """
+    return Response(message, status=status, content_type='text/plain; charset=utf-8')
+
+
+def _unpack_verification(result):
+    """
+    Unpack the result of `IntegrationWebhook.verify_webhook()`.
+
+    Overrides may still return the old `(is_verified, message)`; their failures answer 400.
+    """
+    if len(result) == 3:
+        return result
+
+    is_verified, message = result
+    return is_verified, message, WEBHOOK_OK if is_verified else WEBHOOK_BAD_REQUEST
 
 
 def build_environment(func):
@@ -25,19 +53,21 @@ def build_environment(func):
         if not db:
             message = 'Database name is missing.'
             _logger.error(message)
-            return BadRequest(message)
+            return webhook_response(message, WEBHOOK_BAD_REQUEST)
 
         kw['dbname'] = db
         if db not in db_list(force=True):
             message = f'Database "{db}" not found!'
             _logger.error(message)
-            return BadRequest(message)
+            return webhook_response(message, WEBHOOK_BAD_REQUEST)
 
         if not request.env or request.db != db:
             try:
                 registry = Registry(db).check_signaling()
             except Error as ex:
-                return BadRequest(ex.args[0])
+                # Database-level failures are transient, ask for a retry.
+                _logger.error('Cannot reach the registry of database "%s": %s', db, ex.args[0])
+                return webhook_response(ex.args[0], WEBHOOK_UNAVAILABLE)
 
             with registry.cursor() as cr:
                 env = Environment(cr, SUPERUSER_ID, {})
@@ -66,7 +96,7 @@ def validate_integration(func):
         if not integration:
             message = 'Webhook unrecognized integration.'
             _logger.error(message)
-            return BadRequest(message)
+            return webhook_response(message, WEBHOOK_BAD_REQUEST)
 
         if not integration.is_active:
             message = f'{integration.name}: Integration is inactive.'
@@ -74,15 +104,16 @@ def validate_integration(func):
                 integration, 'webhook', 'Webhook Validation Failed', message,
                 log_level='error',
             )
-            return BadRequest(message)
+            # A deliberate state: answer 2xx so the store keeps the subscription.
+            return webhook_response(message, WEBHOOK_SKIPPED)
 
-        is_verified, message = self.verify_webhook(integration)
+        is_verified, message, status = _unpack_verification(self.verify_webhook(integration))
         if not is_verified:
             request.env['integration.logging'].write_log(
                 integration, 'webhook', 'Webhook Verification Failed', message,
                 log_level='error',
             )
-            return BadRequest(message)
+            return webhook_response(message, status)
 
         event_name, log_message = self._prepare_webhook_log_data(*args, **kw)
         request.env['integration.logging'].write_log(

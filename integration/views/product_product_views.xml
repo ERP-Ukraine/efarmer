@@ -170,6 +170,29 @@ if records:
             <div name="list_price_uom" position="after">
                 <field name="variant_extra_price" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}"/>
             </div>
+            <!-- Template images are managed on the template; a variant form shows only its own media. -->
+            <group name="media_section" position="replace">
+                <group name="product_variant_images" string="Extra Variant Media">
+                    <div colspan="2">
+                        <div class="alert alert-info" role="alert">
+                            <p class="mb-0">
+                                <i class="fa fa-info-circle" title="Information"/>
+                                Add additional images for your product.
+                                These will be synchronized to your e-commerce stores to showcase your product.
+                            </p>
+                        </div>
+                    </div>
+
+                    <field name="integration_variant_image_ids"
+                           colspan="2"
+                           context="{'default_name': name}"
+                           mode="kanban"
+                           options="{'create_text':'Add Image'}"
+                           nolabel="1"
+                           widget="x2_many_media_viewer"
+                    />
+                </group>
+            </group>
         </field>
     </record>
 

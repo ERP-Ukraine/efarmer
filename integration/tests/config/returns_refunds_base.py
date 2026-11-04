@@ -34,25 +34,48 @@ class ReturnsRefundsAccountingTestBase(TransactionCase):
         resource_logger.__enter__()
         cls.addClassCleanup(resource_logger.__exit__)
 
-        # Run all enqueued jobs synchronously for the entire test class
-        cls.env = cls.env(context=dict(cls.env.context, queue_job__no_delay=1))
-
         cls.company = cls.env.ref('base.main_company')
 
-        cls.bank_journal = cls.env['account.journal'].search([
-            ('type', '=', 'bank'),
-            ('company_id', '=', cls.company.id),
-        ], limit=1)
-        if not cls.bank_journal:
-            # Derive a per-class code so two classes inheriting from this base
-            # never collide on `unique_code_company_id` should both ever hit
-            # the create-fallback branch in the same DB.
-            cls.bank_journal = cls.env['account.journal'].create({
-                'name': 'Test Returns/Refunds Bank',
-                'type': 'bank',
-                'code': ('TRR%s' % cls.__name__)[:5],
-                'company_id': cls.company.id,
-            })
+        # Pin the class env for the whole test class:
+        # - queue_job__no_delay runs enqueued jobs synchronously in test context.
+        # - allowed_company_ids lists every company with `cls.company` FIRST. The first entry makes
+        #   `env.company` resolve to `cls.company`, so company-dependent reads (notably
+        #   `product.taxes_id`) return this company's values. Listing all companies makes
+        #   `env.companies` span the whole DB, so `product.template.create` finds no "other"
+        #   companies and skips `_force_default_tax` (account/models/product.py). Otherwise, on a
+        #   multi-company DB, every other company's default sale tax is force-added to the
+        #   company-shared products created here, lands on a `cls.company` order line and trips
+        #   `_check_company` with a company-crossover error.
+        other_company_ids = cls.env['res.company'].sudo().search([('id', '!=', cls.company.id)]).ids
+        cls.env = cls.env(context=dict(
+            cls.env.context,
+            queue_job__no_delay=1,
+            allowed_company_ids=cls.company.ids + other_company_ids,
+        ))
+        cls.company = cls.company.with_env(cls.env)
+
+        # Always a dedicated journal: reusing an existing one ties the tests to the DB's own
+        # setup. With Enterprise `accountant` installed, a payment method line without an
+        # outstanding account registers payments without a journal entry (Community forces a
+        # fallback account instead), leaving the invoice 'in_payment' with its full residual,
+        # so every refund would soft-fail with E514. The journal code is left to Odoo's
+        # compute so it never collides with an existing one.
+        cls.bank_journal = cls.env['account.journal'].create({
+            'name': 'Test Returns/Refunds Bank',
+            'type': 'bank',
+            'company_id': cls.company.id,
+        })
+        Account = cls.env['account.account'].with_company(cls.company)
+        outstanding_account = Account.create({
+            'name': 'Test Returns/Refunds Outstanding',
+            'code': Account._search_new_account_code('999900'),
+            'account_type': 'asset_current',
+            'reconcile': True,
+        })
+        (
+            cls.bank_journal.inbound_payment_method_line_ids
+            | cls.bank_journal.outbound_payment_method_line_ids
+        ).payment_account_id = outstanding_account
 
         cls.tax = cls.env['account.tax'].search([
             ('type_tax_use', '=', 'sale'),

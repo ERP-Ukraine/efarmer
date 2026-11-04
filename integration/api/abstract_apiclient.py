@@ -295,6 +295,10 @@ class AbsApiClient(ABC):
 
         :param template: serialized template prepared for export to external system
         :return: if of the product in external system (aka. code)
+
+        A connector may add ``resume_export: True`` to the result when the product is the remainder
+        of an earlier, interrupted export of this same template rather than a product of the store:
+        the export then maps it and continues exporting into it instead of importing it.
         """
         return None
 

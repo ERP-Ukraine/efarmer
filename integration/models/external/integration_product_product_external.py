@@ -37,6 +37,14 @@ class IntegrationProductProductExternal(models.Model):
     )
 
     def apply_stock_levels(self, qty, location):
+        """
+        Set the stock level of the mapped product in the given location.
+
+        :param qty: stock level received from the store
+        :param location: `stock.location` where the level is set
+        :return: str, human-readable outcome. It is stored as the job result, so a skipped product
+            must say why it was skipped.
+        """
         self.ensure_one()
 
         variant = self.mapping_model.to_odoo(
@@ -51,10 +59,22 @@ class IntegrationProductProductExternal(models.Model):
                 variant.display_name,
                 self.code,
             )
-            return variant, location, False
+            return _(
+                'Skipped: "%s" is a kit, its stock level is calculated from its components '
+                'and cannot be set directly.'
+            ) % variant.display_name
 
-        if not variant.is_consumable_storable or variant.tracking != 'none':
-            return variant, location, False
+        if not variant.is_consumable_storable:
+            return _(
+                'Skipped: "%s" is not a storable product ("Track Inventory" is off), '
+                'so it has no stock level to update.'
+            ) % variant.display_name
+
+        if variant.tracking != 'none':
+            return _(
+                'Skipped: "%s" is tracked by lots or serial numbers, its stock level cannot be set '
+                'from a quantity alone. Update it in Odoo with an inventory adjustment.'
+            ) % variant.display_name
 
         StockQuant = self.env['stock.quant'].with_context(skip_inventory_export=True)
 
@@ -88,7 +108,13 @@ class IntegrationProductProductExternal(models.Model):
         inventory_quant.inventory_quantity = float_qty
         inventory_quant.action_apply_inventory()
 
-        return variant, location, float_qty
+        return _(
+            'Stock level of "%(product)s" in "%(location)s" is set to %(qty)s.'
+        ) % {
+            'product': variant.display_name,
+            'location': location.display_name,
+            'qty': float_qty,
+        }
 
     def _fix_unmapped(self, adapter_external_data):
         # We can't use this method, because products are imported by blocks

@@ -174,13 +174,24 @@ class SaleIntegration(models.Model):
 
             super(SaleIntegration, integration)._compute_orders_cut_off_datetime_str()
 
-    @api.depends('location_line_ids')
+    @api.depends('location_line_ids.erp_location_id', 'location_line_ids.external_location_id')
     def _compute_invalid_location_mapping(self):
+        """Flag a warehouse whose locations are mapped to more than one Shopify location.
+
+        Several Odoo locations of one warehouse mapped to the same Shopify location is a valid way to add up
+        their stock, so only different Shopify locations behind one warehouse are reported.
+        """
         for rec in self:
+            value = False
+
             if rec.is_integration_shopify:
-                value = len(rec.location_line_ids.mapped('warehouse_id')) < len(rec.location_line_ids)
-            else:
-                value = False
+                external_by_warehouse = {}
+
+                for line in rec.location_line_ids:
+                    if line.warehouse_id and line.external_location_id:
+                        external_by_warehouse.setdefault(line.warehouse_id.id, set()).add(line.external_location_id.id)
+
+                value = any(len(external_ids) > 1 for external_ids in external_by_warehouse.values())
 
             rec.invalid_location_mapping = value
 
@@ -684,6 +695,18 @@ class SaleIntegration(models.Model):
         if self.is_integration_shopify:
             return {'status': 'draft'}
         return super(SaleIntegration, self).force_set_inactive()
+
+    def fill_original_url(self):
+        """Store the myshopify domain Shopify signs webhooks with, as Test Connection does.
+
+        Runs as a job queued by the upgrade, so a failing request is retried instead of stopping it.
+        """
+        self.ensure_one()
+
+        if not self.is_integration_shopify:
+            raise NotImplementedError
+
+        self.set_settings_value('original_url', self.adapter.shop.myshopifyDomain)
 
     def _get_error_webhook_message(self, error):
         if not self.is_integration_shopify:

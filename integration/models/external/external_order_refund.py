@@ -668,7 +668,9 @@ class ExternalOrderRefund(models.Model):
                 refund_line = refund_line_map[product_id]
                 cn_line.write({
                     'quantity': refund_line.quantity,
-                    'price_unit': refund_line.original_unit_price,
+                    'price_unit': self._get_credit_note_price(
+                        refund_line, cn_line.tax_ids, refund_line.original_unit_price,
+                    ),
                 })
                 lines_matched.add(product_id)
             else:
@@ -699,14 +701,55 @@ class ExternalOrderRefund(models.Model):
                     if matching_cn_line:
                         tax_ids = matching_cn_line[0].tax_ids.ids
 
+                discount = self._get_credit_note_price(
+                    refund_line, self.env['account.tax'].browse(tax_ids), refund_line.discount_for_refund,
+                )
                 credit_note.write({
                     'invoice_line_ids': [(0, 0, {
                         'product_id': discount_product.id,
                         'quantity': 1,
-                        'price_unit': -refund_line.discount_for_refund,
+                        'price_unit': -discount,
                         'tax_ids': [(6, 0, tax_ids)],
                     })],
                 })
+
+    def _get_credit_note_price(self, refund_line: models.Model, taxes: models.Model, amount: float) -> float:
+        """Express a refund line amount the way a credit note line with these taxes expects it.
+
+        A price-included tax makes Odoo derive the net from ``price_unit``, so the unit price must
+        carry the tax. Platforms differ in what their line amounts mean: WooCommerce (and Shopify
+        with taxes excluded) send them without tax and the tax as a separate amount, while Shopify
+        with taxes included sends them with the tax already in. Taking an amount without tax as
+        ``price_unit`` of a price-included tax would shrink the credit note by the tax.
+
+        :param refund_line: external.order.refund.line the amount belongs to
+        :param taxes: account.tax of the credit note line
+        :param amount: unit price or discount of the refund line, in the platform's shape
+        :return: float, ``amount`` with the tax added when it came without tax and the taxes are
+            price-included, otherwise ``amount`` unchanged
+        """
+        if not any(taxes.mapped('price_include')) or not self._is_amount_without_tax(refund_line, taxes):
+            return amount
+
+        return taxes.compute_all(
+            amount, currency=self.currency_id, handle_price_include=False,
+        )['total_included']
+
+    def _is_amount_without_tax(self, refund_line: models.Model, taxes: models.Model) -> bool:
+        """Tell whether the platform sent the amounts of the refund line without the tax in them.
+
+        The platform does not say it, so it is derived from the line itself: ``total_tax`` is
+        the tax Odoo computes on ``subtotal`` when the subtotal has no tax in it, or the tax
+        contained in it when it has. Whichever is closer wins. A line without tax information
+        (``total_tax`` of 0) is closer to the second one, so it keeps its amounts as they are.
+        """
+        currency = self.currency_id
+        without_tax = taxes.compute_all(refund_line.subtotal, currency=currency, handle_price_include=False)
+        with_tax = taxes.compute_all(refund_line.subtotal, currency=currency)
+        tax_on_net = without_tax['total_included'] - without_tax['total_excluded']
+        tax_in_gross = with_tax['total_included'] - with_tax['total_excluded']
+
+        return abs(refund_line.total_tax - tax_on_net) < abs(refund_line.total_tax - tax_in_gross)
 
     def _adjust_credit_note_lines_lineless(self, credit_note):
         """Handle a refund with an amount but no line-item breakdown.

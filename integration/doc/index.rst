@@ -10,6 +10,23 @@ Having trouble or want to explore detailed documentation? Visit our support port
 Release Notes
 -------------
 
+* 2.4.0 (2026-11-03)
+    - [NEW] Added a "Total Mismatch with Store" filter to Quotations and Sales Orders, listing the orders whose total differs from the total in the store.
+    - [IMP] Improved webhook handling: when Odoo cannot process a webhook, it now returns an error to the store instead of reporting success. Shopify and WooCommerce switch a webhook off after repeated failures: if that happens, fix the cause and click "Create Webhooks".
+    - [IMP] Improved order import on stores with many tax rates: a tax unknown to Odoo is now requested on its own instead of downloading the whole tax table. The same applies to Action > "Import Taxes" on External Taxes.
+    - [IMP] Removed the "Dynamic Attribute Import Mode" setting. Variant attributes created by import now always use "Instantly", and existing attributes keep their mode. To keep an attribute dynamic, create it in Odoo before the import.
+    - [IMP] Improved the background jobs that apply imported stock levels: the title names the product and location, and the result shows the new stock level or why the product was skipped (kit, not tracked, tracked by lots or serial numbers).
+    - [FIX] Fixed credit notes created from refunds being lower than the refund by the tax amount when the product's tax is included in the price.
+    - [FIX] Fixed "Export Stock to Stores" on a product sending stock to stores where stock synchronization is turned off. The notification now lists the skipped stores.
+    - [FIX] Fixed "Run Validation Test" checking the products of all companies in multi-company databases, which could time out and report false duplicated references.
+    - [FIX] Fixed "Open External", "Open Mappings" and "Import External Records From E-Commerce System" on a failed job not working for connector-specific records, such as PrestaShop feature values. Buttons that cannot work are now hidden.
+    - [FIX] Fixed stock export jobs started by "Export Stock to Stores" or by the scheduled stock export not being listed in "View Synchronization History" of the product.
+    - [FIX] Fixed translations being exported in the wrong language when two store languages, such as en_US and en_GB, are mapped to the same Odoo language. The store language with the same code as the Odoo language is now used.
+    - [FIX] Fixed the status menu in the top bar stacking breadcrumbs with every click, and showing an empty frame when there are no active stores. It now offers a "Go to Stores" button in that case.
+    - [FIX] Fixed the configuration check asking to add extension modules, such as Shopify Payout Reports, to "server_wide_modules" in "odoo.conf".
+    - [FIX] Fixed the empty "External Company Name" field being shown when adding a contact or address on the partner form.
+    - [FIX] Other improvements and fixes implemented to boost overall performance, stability, and reliability.
+
 * 2.3.1 (2026-10-22)
     - [FIX] The "Payment Method" set on an external payment method is now also used for advance payments registered by "Register Advance Payment" when the store sends no payment transactions, and for store transactions that do not name a payment gateway, which now take the payment method of the order. Before, these payments were registered with the default payment method of the journal.
     - [FIX] Importing a customer whose addresses belong to different companies no longer moves the customer to the company of its last address. The customer and its company are now decided by its default billing and shipping addresses, and each further address is imported as an address of type "Other" under its own company. If a customer was already imported with this problem, importing it again moves it back to its main company and adds the address of the other company once more, as an "Other" address next to the contact created earlier.
