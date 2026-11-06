@@ -8,14 +8,16 @@
             <xpath expr="//field[@name='vat']" position="after">
                 <field name="pl_tax_office_id"/>
             </xpath>
+
             <xpath expr="//div[hasclass('o_address_format')]" position="after">
                 <field name="pl_county"/>
                 <field name="pl_community"/>
                 <field name="pl_post"/>
             </xpath>
-            <field name="email" position="after">
+
+            <xpath expr="//field[@name='email']" position="after">
                 <field name="x_jpk_email"/>
-            </field>
+            </xpath>
         </field>
     </record>
 </odoo>

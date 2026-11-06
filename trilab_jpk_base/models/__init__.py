@@ -1,5 +1,6 @@
 from . import product_template  # isort: skip
 from . import (
+    account_account,
     account_journal,
     account_move,
     account_move_line,

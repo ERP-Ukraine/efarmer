@@ -1,0 +1,479 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* trilab_jpk_kr_pd
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-11 12:59+0000\n"
+"PO-Revision-Date: 2026-08-11 12:59+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Account Name"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Account Tag"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Account Tag 2"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Additional Off-Book Revenue"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model,name:trilab_jpk_kr_pd.model_account_analytic_plan
+msgid "Analytic Plans"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_kr_pd.jpk_kr_pd_report_wizard
+msgid "Cancel"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields,field_description:trilab_jpk_kr_pd.field_jpk_kr_pd_report_wizard__company_id
+msgid "Company"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields.selection,name:trilab_jpk_kr_pd.selection__jpk_kr_pd_report_wizard__purpose_type__2
+msgid "Correction"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Costs Deferred to Future Years"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Costs Recognized from Previous Years"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields,field_description:trilab_jpk_kr_pd.field_jpk_kr_pd_report_wizard__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields,field_description:trilab_jpk_kr_pd.field_jpk_kr_pd_report_wizard__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Credit Amount"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Credit Amount in Foreign Currency"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Credit Balance"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Credit Currency"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Credit Turnover"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Cumulative Credit Turnover"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Cumulative Debit Turnover"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Debit Amount"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Debit Amount in Foreign Currency"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Debit Balance"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Debit Currency"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Debit Turnover"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields,field_description:trilab_jpk_kr_pd.field_jpk_kr_pd_report_wizard__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Document Date"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Document Number"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Document Type"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields,field_description:trilab_jpk_kr_pd.field_jpk_kr_pd_report_wizard__date_to
+msgid "End Date"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Entered By"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Entry Line Description"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Entry Number"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_kr_pd.jpk_kr_pd_report_wizard
+msgid "Export XLSX"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_kr_pd.jpk_kr_pd_report_wizard
+msgid "Export XML"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_kr_pd.jpk_kr_pd_report_wizard
+msgid "Export XML and send"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields,field_description:trilab_jpk_kr_pd.field_jpk_kr_pd_report_wizard__id
+msgid "ID"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields,field_description:trilab_jpk_kr_pd.field_jpk_kr_pd_report_wizard__is_jpk_transfer_installed
+msgid "Is Jpk Transfer Installed"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.actions.act_window,name:trilab_jpk_kr_pd.action_jpk_kr_pd_report_wizard
+#: model:ir.actions.report,name:trilab_jpk_kr_pd.action_print_report_jpk_kr_pd_report_html
+#: model:ir.actions.report,name:trilab_jpk_kr_pd.action_print_report_jpk_kr_pd_report_pdf
+#: model:ir.actions.report,name:trilab_jpk_kr_pd.action_print_report_jpk_kr_pd_report_xlsx
+#: model:ir.actions.report,name:trilab_jpk_kr_pd.action_print_report_jpk_kr_pd_report_xml
+#: model:ir.ui.menu,name:trilab_jpk_kr_pd.menu_jpk_kr_pd_report_wizard
+msgid "JPK KR PD"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model,name:trilab_jpk_kr_pd.model_report_trilab_jpk_kr_pd_jpk_kr_pd_report
+msgid "JPK KR PD Report"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_kr_pd.report_jpk_kr_pd_report_base
+msgid "JPK KR PD Report -"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model,name:trilab_jpk_kr_pd.model_jpk_kr_pd_report_wizard
+msgid "JPK KR PD Report Wizard"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_kr_pd.view_account_form_inherit
+msgid "JPK KR PD Tags"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Journal Description"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Journal Entry"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields,field_description:trilab_jpk_kr_pd.field_jpk_kr_pd_report_wizard__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields,field_description:trilab_jpk_kr_pd.field_jpk_kr_pd_report_wizard__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Line of Journal Entry"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Off-Book Recognized Costs"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Opening Credit Balance"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Opening Debit Balance"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Parent Account"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Partner"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Partner Code"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_kr_pd.jpk_kr_pd_report_wizard
+msgid "Period"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Permanently Exempt Revenue"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Permanently Non-Deductible Costs"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Posting Date"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields,field_description:trilab_jpk_kr_pd.field_jpk_kr_pd_report_wizard__purpose_type
+msgid "Purpose Type"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_kr_pd.jpk_kr_pd_report_wizard
+msgid "Report Options"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Revenue Deferred to Future Years"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Revenue Recognized from Previous Years"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields,field_description:trilab_jpk_kr_pd.field_jpk_kr_pd_report_wizard__date_from
+msgid "Start Date"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields.selection,name:trilab_jpk_kr_pd.selection__jpk_kr_pd_report_wizard__purpose_type__1
+msgid "Submission"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Tax Tag"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Transaction Amount"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Transaction Date"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Transaction Description"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields,help:trilab_jpk_kr_pd.field_account_analytic_plan__x_pl_jpk_kr_pd
+msgid ""
+"Use analytic accounts from this plan as PD classification in JPK KR PD."
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "Country Code"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#. odoo-python
+#: code:addons/trilab_jpk_kr_pd/report/jpk_kr_pd_report.py:0
+msgid "VAT Number"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model_terms:ir.ui.view,arch_db:trilab_jpk_kr_pd.jpk_kr_pd_report_wizard
+msgid "View Transactions"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields,field_description:trilab_jpk_kr_pd.field_jpk_kr_pd_report_wizard__zois_type
+msgid "ZOiS Type"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields.selection,name:trilab_jpk_kr_pd.selection__jpk_kr_pd_report_wizard__zois_type__zois1
+msgid "ZOiS1"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields,help:trilab_jpk_kr_pd.field_jpk_kr_pd_report_wizard__zois_type
+msgid ""
+"ZOiS1 - Banks trial balance\n"
+"ZOiS2 - Insurance and reinsurance companies trial balance\n"
+"ZOiS3 - Public benefit and volunteer organizations trial balance\n"
+"ZOiS4 - Investment funds trial balance\n"
+"ZOiS5 - Brokerage houses trial balance\n"
+"ZOiS6 - SKOK trial balance\n"
+"ZOiS7 - Other entities trial balance\n"
+"ZOiS8 - Entities applying IFRS trial balance"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields.selection,name:trilab_jpk_kr_pd.selection__jpk_kr_pd_report_wizard__zois_type__zois2
+msgid "ZOiS2"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields.selection,name:trilab_jpk_kr_pd.selection__jpk_kr_pd_report_wizard__zois_type__zois3
+msgid "ZOiS3"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields.selection,name:trilab_jpk_kr_pd.selection__jpk_kr_pd_report_wizard__zois_type__zois4
+msgid "ZOiS4"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields.selection,name:trilab_jpk_kr_pd.selection__jpk_kr_pd_report_wizard__zois_type__zois5
+msgid "ZOiS5"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields.selection,name:trilab_jpk_kr_pd.selection__jpk_kr_pd_report_wizard__zois_type__zois6
+msgid "ZOiS6"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields.selection,name:trilab_jpk_kr_pd.selection__jpk_kr_pd_report_wizard__zois_type__zois7
+msgid "ZOiS7"
+msgstr ""
+
+#. module: trilab_jpk_kr_pd
+#: model:ir.model.fields.selection,name:trilab_jpk_kr_pd.selection__jpk_kr_pd_report_wizard__zois_type__zois8
+msgid "ZOiS8"
+msgstr ""

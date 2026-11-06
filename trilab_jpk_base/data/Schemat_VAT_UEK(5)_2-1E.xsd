@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:etd="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2020/03/11/eD/DefinicjeTypy/" xmlns:kue="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2021/01/04/eD/KodyUE/" xmlns:tns="http://crd.gov.pl/wzor/2021/01/26/10316/" targetNamespace="http://crd.gov.pl/wzor/2021/01/26/10316/" elementFormDefault="qualified" attributeFormDefault="unqualified" xml:lang="pl">
-	<xsd:import namespace="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2020/03/11/eD/DefinicjeTypy/" schemaLocation="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2020/03/11/eD/DefinicjeTypy/StrukturyDanych_v6-0E.xsd"/>
-	<xsd:import namespace="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2021/01/04/eD/KodyUE/" schemaLocation="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2021/01/04/eD/KodyUE/KodyKrajowUE_v3-0E.xsd"/>
+	<xsd:import namespace="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2020/03/11/eD/DefinicjeTypy/" schemaLocation="StrukturyDanych_v6-0E.xsd"/>
+	<xsd:import namespace="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2021/01/04/eD/KodyUE/" schemaLocation="KodyKrajowUE_v3-0E.xsd"/>
 	<!--Informacja jest składana wyłącznie za pomocą środków komunikacji elektronicznej-->
 	<!-- -->
 	<!--Przez urząd skarbowy, do którego jest adresowana korekta informacji, rozumie się urząd skarbowy, przy pomocy którego właściwy dla podatnika naczelnik urzędu skarbowego wykonuje swoje zadania.-->

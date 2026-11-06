@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:etd="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2018/08/24/eD/DefinicjeTypy/" xmlns:tns="http://jpk.mf.gov.pl/wzor/2022/02/17/02171/" targetNamespace="http://jpk.mf.gov.pl/wzor/2022/02/17/02171/" elementFormDefault="qualified" attributeFormDefault="unqualified" xml:lang="pl">
-	<xsd:import namespace="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2018/08/24/eD/DefinicjeTypy/" schemaLocation="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2018/08/24/eD/DefinicjeTypy/StrukturyDanych_v5-0E.xsd"/>
+	<xsd:import namespace="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2018/08/24/eD/DefinicjeTypy/" schemaLocation="StrukturyDanych_v5-0E.xsd"/>
 	<xsd:simpleType name="TKodWaluty">
 		<xsd:annotation>
 			<xsd:documentation>Słownik kodów walut</xsd:documentation>

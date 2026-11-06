@@ -1,12 +1,9 @@
-import requests
 from lxml import etree
 from odoo import fields, models
 from odoo.tools import file_path
 
-# noinspection HttpUrlsUsage
-MF_TAX_OFFICE_URL = (
-    'http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2016/01/25/eD/DefinicjeTypy/KodyUrzedowSkarbowych_v4-0E.xsd'
-)
+# latest bundled schema with definitions
+TAX_OFFICE_XSD = 'trilab_jpk_base/data/KodyUrzedowSkarbowych_v8-0E.xsd'
 
 
 class JPKTaxOffice(models.Model):
@@ -18,12 +15,8 @@ class JPKTaxOffice(models.Model):
     code = fields.Char(required=True, size=10, index=True)
 
     def load_from_xml(self):
-        try:
-            response = requests.get(MF_TAX_OFFICE_URL)
-            response.raise_for_status()
-            tree = etree.fromstring(response.content)
-        except requests.RequestException:
-            tree = etree.parse(file_path('trilab_jpk_base/data/KodyUrzedowSkarbowych_v4-0E.xsd'))
+        # loaded from the bundled schema only, no external call to MF servers
+        tree = etree.parse(file_path(TAX_OFFICE_XSD))
 
         ns = {'xsd': 'http://www.w3.org/2001/XMLSchema'}
 

@@ -10,49 +10,45 @@ from odoo.tools.safe_eval import safe_eval, time
 
 _logger = logging.getLogger(__name__)
 
+JPK_RENDER_METHODS = {
+    'jpk_xlsx': '_render_jpk_xlsx',
+    'jpk_xml': '_render_jpk_xml',
+}
+
+CONTENT_TYPES = {
+    'jpk_xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'jpk_xml': 'text/xml',
+}
+
 
 class JpkReportController(ReportController):
     @route()
     def report_routes(self, reportname, docids=None, converter=None, **data):
-        if converter == 'jpk_xlsx':
-            report = request.env['ir.actions.report']._get_report_from_name(reportname)
+        if converter in JPK_RENDER_METHODS:
             context = dict(request.env.context)
 
             if docids:
-                docids = [int(i) for i in docids.split(',')]
+                docids = [int(docid) for docid in docids.split(',')]
 
-            if data.get('options'):
-                data.update(json.loads(data.pop('options')))
+            if _options := data.pop('options', None):
+                data |= json.loads(_options)
 
-            if data.get('context'):
-                data['context'] = json.loads(data['context'])
-                context.update(data['context'])
+            if _context := data.pop('context', None):
+                data['context'] = json.loads(_context)
+                context |= data['context']
 
-            xlsx = report.with_context(**context)._render_jpk_xlsx(reportname, docids, data=data)[0]
-            xlsxhttpheaders = [
-                ('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
-                ('Content-Length', len(xlsx)),
-            ]
+            _data = getattr(
+                request.env['ir.actions.report']._get_report_from_name(reportname).with_context(**context),
+                JPK_RENDER_METHODS[converter],
+            )(reportname, docids, data=data)[0]
 
-            return request.make_response(xlsx, headers=xlsxhttpheaders)
-
-        elif converter == 'jpk_xml':
-            report = request.env['ir.actions.report']._get_report_from_name(reportname)
-            context = dict(request.env.context)
-
-            if docids:
-                docids = [int(i) for i in docids.split(',')]
-
-            if data.get('options'):
-                data.update(json.loads(data.pop('options')))
-
-            if data.get('context'):
-                data['context'] = json.loads(data['context'])
-                context.update(data['context'])
-
-            xml = report.with_context(**context)._render_jpk_xml(reportname, docids, data=data)[0]
-            httpheaders = [('Content-Type', 'text/xml'), ('Content-Length', len(xml))]
-            return request.make_response(xml, headers=httpheaders)
+            return request.make_response(
+                _data,
+                headers=[
+                    ('Content-Type', CONTENT_TYPES[converter]),
+                    ('Content-Length', len(_data)),
+                ],
+            )
 
         return super().report_routes(reportname, docids, converter, **data)
 
@@ -62,50 +58,47 @@ class JpkReportController(ReportController):
         url, report_type = request_content[0], request_content[1]
 
         if report_type.startswith('jpk_'):
-            reportname = None
+            report_name = None
 
             try:
-                reportname = url.split(f'/report/{report_type}/')[1].split('?')[0]
+                report_name = url.split(f'/report/{report_type}/')[1].split('?')[0]
                 docids = None
 
-                if '/' in reportname:
-                    reportname, docids = reportname.split('/')
+                if '/' in report_name:
+                    report_name, docids = report_name.split('/')
 
-                if docids:
-                    # Generic report:
-                    response = self.report_routes(reportname, docids=docids, converter=report_type, context=context)
-
-                else:
-                    # Particular report:
-                    data = dict(
-                        parse_qsl(urlparse(url).query, keep_blank_values=True)
-                    )  # decoding the args represented in JSON
-                    if 'context' in data:
-                        context = json.dumps(json.loads(context or '{}') | json.loads(data.pop('context')))
-                    response = self.report_routes(reportname, converter=report_type, context=context, **data)
-
-                report = request.env['ir.actions.report']._get_report_from_name(reportname)
+                report = request.env['ir.actions.report']._get_report_from_name(report_name)
                 extension = report_type.removeprefix('jpk_')
                 filename = f'{report.name}.{extension}'
 
                 if docids:
-                    ids = [int(x) for x in docids.split(',')]
-                    obj = request.env[report.model].browse(ids)
+                    response = self.report_routes(report_name, docids=docids, converter=report_type, context=context)
+
+                    obj = request.env[report.model].browse([int(docid) for docid in docids.split(',')])
 
                     if report.print_report_name and not len(obj) > 1:
-                        report_name = safe_eval(report.print_report_name, {'object': obj, 'time': time})
-                        filename = f'{report_name}.{extension}'
+                        filename = f'{safe_eval(report.print_report_name, {"object": obj, "time": time})}.{extension}'
+
+                else:
+                    url_data = dict(parse_qsl(urlparse(url).query, keep_blank_values=True))
+
+                    if 'context' in url_data:
+                        context = json.dumps(json.loads(context or '{}') | json.loads(url_data.pop('context')))
+
+                    response = self.report_routes(report_name, converter=report_type, context=context, **url_data)
 
                 if not response.headers.get('Content-Disposition'):
                     response.headers.add('Content-Disposition', content_disposition(filename))
 
                 return response
 
-            except Exception as e:
-                _logger.exception('Error while generating report %s', reportname)
-                se = _serialize_exception(e)
-                error = {'code': 200, 'message': 'Odoo Server Error', 'data': se}
-                return request.make_response(html_escape(json.dumps(error)))
+            except Exception as error:
+                _logger.exception(f'Cannot generate report {report_name}')
 
-        else:
-            return super().report_download(data, context=context, token=token)
+                return request.make_response(
+                    html_escape(
+                        json.dumps({'code': 200, 'message': 'Odoo Server Error', 'data': _serialize_exception(error)})
+                    )
+                )
+
+        return super().report_download(data, context=context, token=token)

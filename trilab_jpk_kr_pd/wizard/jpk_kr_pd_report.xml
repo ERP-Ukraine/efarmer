@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="jpk_kr_pd_report_wizard" model="ir.ui.view">
+        <field name="name">jpk_kr_pd_report_wizard</field>
+        <field name="model">jpk.kr.pd.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Report Options">
+                <div class="row gx-1">
+                    <div class="col-6">
+                        <group name="main_info">
+                            <field name="is_jpk_transfer_installed" invisible="True"/>
+                            <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
+                            <field name="zois_type"/>
+                        </group>
+
+                        <group name="date_range">
+                            <field name="date_from" string="Period" required="True" widget="daterange"
+                                   options="{'end_date_field': 'date_to'}"/>
+                            <field name="date_to" required="True" invisible="True"/>
+                        </group>
+
+                        <group name="purpose">
+                            <field name="purpose_type" widget="radio" required="True" options="{'horizontal': True}"/>
+                        </group>
+                    </div>
+                </div>
+
+                <footer>
+                    <button name="button_export_html" string="View Transactions" type="object" default_focus="True"
+                            class="oe_highlight"/>
+
+                    <button name="button_transfer_xml" string="Export XML and send" class="oe_highlight" type="object"
+                            invisible="not is_jpk_transfer_installed"/>
+
+                    <button string="Cancel" class="oe_link" special="cancel"/>
+                    <button name="button_export_xlsx" string="Export XLSX" type="object"/>
+                    <button name="button_export_xml" string="Export XML" type="object"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_jpk_kr_pd_report_wizard" model="ir.actions.act_window">
+        <field name="name">JPK KR PD</field>
+        <field name="res_model">jpk.kr.pd.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="jpk_kr_pd_report_wizard"/>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem parent="trilab_jpk_base.menu_report_jpk" action="trilab_jpk_kr_pd.action_jpk_kr_pd_report_wizard"
+              id="menu_jpk_kr_pd_report_wizard" sequence="70"/>
+</odoo>
