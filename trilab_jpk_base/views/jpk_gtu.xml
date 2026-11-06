@@ -17,8 +17,12 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
-                    <h1><field name="name"/></h1>
-                    <field name="description"/>
+                    <div>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                        <field name="description"/>
+                    </div>
                 </sheet>
             </form>
         </field>

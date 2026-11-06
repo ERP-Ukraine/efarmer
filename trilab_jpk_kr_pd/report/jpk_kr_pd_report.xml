@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="trilab_jpk_kr_pd.jpk_kr_pd_report">
+        <t t-call="web.html_container">
+            <t t-call="trilab_jpk_base.internal_layout">
+                <t t-call="trilab_jpk_kr_pd.report_jpk_kr_pd_report_base"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_jpk_kr_pd_report_base">
+        <t t-set="title">JPK KR PD Report -
+            <t t-out="company_name"/>
+        </t>
+        <div class="page">
+            <div class="row">
+                <h4 class="mt0 text-center" t-out="title"/>
+            </div>
+
+            <t t-foreach="doc['sections']" t-as="section">
+                <div class="page_break"/>
+                <div class="act_as_table data_table w-100">
+                    <table class="table act_as_table">
+                        <thead>
+                            <tr class="act_as_row" t-translation="off">
+                                <th class="text-start"
+                                    t-att-colspan="len(section.columns) + (len(section.sub_section.columns) if section.sub_section else 0)"
+                                    t-out="section.title"/>
+                            </tr>
+                            <tr class="act_as_row" t-translation="off">
+                                <t t-foreach="section.columns" t-as="column">
+                                    <th class="text-center fw-bold">
+                                        <span t-out="column.name"/>
+                                        <br/>
+                                        <span t-out="column.label"/>
+                                    </th>
+                                </t>
+
+                                <t t-if="section.sub_section">
+                                    <t t-foreach="section.sub_section.columns" t-as="column">
+                                        <th t-att-class="'text-center fw-bold border-start' if column_first else 'text-center fw-bold'">
+                                            <span t-out="column.name"/>
+                                            <br/>
+                                            <span t-out="column.label"/>
+                                        </th>
+                                    </t>
+                                </t>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <t t-foreach="doc['sections'][section]['lines']" t-as="line">
+                                <t t-if="section.sub_section">
+                                    <t t-foreach="line['lines']" t-as="subline">
+                                        <tr class="act_as_row"
+                                            t-translation="off"
+                                            t-att-style="subline_first and 'border-top: 3px solid #000;' or ''">
+                                            <t t-foreach="line['values']" t-as="value">
+                                                <td>
+                                                    <t t-out="value if value is not None else '-'"/>
+                                                </td>
+                                            </t>
+
+                                            <t t-foreach="subline['values']" t-as="value">
+                                                <td t-att-class="'border-start' if value_first else ''">
+                                                    <t t-if="value is not None and not (isinstance(value, int) and value == 0)">
+                                                        <t t-out="value"/>
+                                                    </t>
+                                                    <t t-else="">-</t>
+                                                </td>
+                                            </t>
+                                        </tr>
+                                    </t>
+                                </t>
+
+                                <t t-else="">
+                                    <tr class="act_as_row" t-translation="off"
+                                        t-att-style="line_odd and 'background-color: #f8f9fa;' or ''">
+                                        <t t-foreach="line['values']" t-as="value">
+                                            <td>
+                                                <t t-out="value if value is not None else '-'"/>
+                                            </td>
+                                        </t>
+                                    </tr>
+                                </t>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </div>
+    </template>
+</odoo>

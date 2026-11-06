@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-20 13:48+0000\n"
-"PO-Revision-Date: 2026-02-20 13:48+0000\n"
+"POT-Creation-Date: 2026-08-15 11:21+0000\n"
+"PO-Revision-Date: 2026-08-15 11:21+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,9 +16,28 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: trilab_jpk_base
+#. odoo-python
+#: code:addons/trilab_jpk_base/models/jpk_document_type.py:0
+msgid ""
+"%(level)s %(message)s\n"
+"%(path)s%(position)s: %(line)s"
+msgstr ""
+
+#. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_type__gate_type
 msgid "API Gate Type"
 msgstr "Typ Bramki API"
+
+#. module: trilab_jpk_base
+#: model:ir.model,name:trilab_jpk_base.model_account_account
+msgid "Account"
+msgstr "Konto"
+
+#. module: trilab_jpk_base
+#. odoo-python
+#: code:addons/trilab_jpk_base/models/account_account.py:0
+msgid "Account %s can have only one %s tag."
+msgstr "Konto %s może mieć przypisany tylko jeden tag %s."
 
 #. module: trilab_jpk_base
 #: model:ir.model,name:trilab_jpk_base.model_account_account_tag
@@ -35,6 +54,12 @@ msgstr "Aktywny"
 #: model:ir.model,name:trilab_jpk_base.model_ir_attachment
 msgid "Attachment"
 msgstr "Załącznik"
+
+#. module: trilab_jpk_base
+#. odoo-python
+#: code:addons/trilab_jpk_base/models/ir_attachment.py:0
+msgid "Attachment %s is not stored on the filesystem."
+msgstr "Załącznik %s nie jest przechowywany w systemie plików."
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields.selection,name:trilab_jpk_base.selection__account_move__x_pl_ksef_invoice_proof__bfk
@@ -170,6 +195,18 @@ msgid ""
 msgstr ""
 
 #. module: trilab_jpk_base
+#. odoo-python
+#: code:addons/trilab_jpk_base/models/jpk_document_type.py:0
+msgid "Errors: %s"
+msgstr "Błędy: %s"
+
+#. module: trilab_jpk_base
+#. odoo-python
+#: code:addons/trilab_jpk_base/models/jpk_document_type.py:0
+msgid "Failed to load schema: %s"
+msgstr "Nie udało się wczytać schematu: %s"
+
+#. module: trilab_jpk_base
 #: model_terms:ir.ui.view,arch_db:trilab_jpk_base.product_template_form_view
 #: model_terms:ir.ui.view,arch_db:trilab_jpk_base.view_move_form_trilab
 msgid "GTU"
@@ -209,9 +246,19 @@ msgstr ""
 
 #. module: trilab_jpk_base
 #. odoo-python
-#: code:addons/trilab_jpk_base/models/res_partner.py:0
-msgid "Invalid VAT number (missing country code)"
-msgstr "Niepoprawny numer VAT (brakujący kod kraju)"
+#: code:addons/trilab_jpk_base/models/account_move.py:0
+msgid ""
+"Invalid KSeF invoice numbers:\n"
+"%s"
+msgstr ""
+"Nieprawidłowe numery faktur KSeF:\n"
+"%s"
+
+#. module: trilab_jpk_base
+#. odoo-python
+#: code:addons/trilab_jpk_base/models/jpk_document_type.py:0
+msgid "Invalid source xml: %s"
+msgstr "Nieprawidłowy źródłowy plik XML: %s"
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_mixin__is_jpk_transfer_installed
@@ -247,7 +294,7 @@ msgstr "Znacznik konta JPK"
 #. module: trilab_jpk_base
 #: model:ir.model,name:trilab_jpk_base.model_jpk_document_mixin
 msgid "JPK Document Mixin"
-msgstr ""
+msgstr "Mixin dla dokumentów JPK"
 
 #. module: trilab_jpk_base
 #: model:ir.model,name:trilab_jpk_base.model_jpk_document_type
@@ -312,12 +359,12 @@ msgstr "Zapis dziennika"
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_account_bank_statement_line__x_journal_entry_number
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_account_move__x_journal_entry_number
 msgid "Journal Entry Number"
-msgstr "Pozycja zapisu dziennika"
+msgstr "Numer zapisu w dzienniku"
 
 #. module: trilab_jpk_base
 #: model:ir.model.constraint,message:trilab_jpk_base.constraint_account_move_unique_journal_entry_number
 msgid "Journal Entry Number must be unique."
-msgstr "Pozycja zapisu dziennika musi być unikalna."
+msgstr "Numer zapisu w dzienniku musi być unikalny."
 
 #. module: trilab_jpk_base
 #: model:ir.model,name:trilab_jpk_base.model_account_move_line
@@ -412,8 +459,20 @@ msgstr "Menedżer"
 #. module: trilab_jpk_base
 #. odoo-python
 #: code:addons/trilab_jpk_base/models/res_partner.py:0
+msgid "Missing VAT"
+msgstr "Brak numeru VAT"
+
+#. module: trilab_jpk_base
+#. odoo-python
+#: code:addons/trilab_jpk_base/models/res_partner.py:0
 msgid "Missing VAT number"
-msgstr "Brakujący numer VAT"
+msgstr "Brak numeru VAT"
+
+#. module: trilab_jpk_base
+#. odoo-python
+#: code:addons/trilab_jpk_base/models/jpk_document_type.py:0
+msgid "Missing XML schema"
+msgstr "Brak schematu XML"
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_mixin__month
@@ -432,6 +491,18 @@ msgstr "Nazwa"
 #: code:addons/trilab_jpk_base/models/jpk_document_type.py:0
 msgid "Name must be unique"
 msgstr "Nazwa musi być unikalna"
+
+#. module: trilab_jpk_base
+#. odoo-python
+#: code:addons/trilab_jpk_base/models/res_partner.py:0
+msgid "Not a PL VAT: %s"
+msgstr "Nie jest polskim numerem VAT: %s"
+
+#. module: trilab_jpk_base
+#. odoo-python
+#: code:addons/trilab_jpk_base/models/res_partner.py:0
+msgid "Not an EU VAT: %s"
+msgstr "Nie jest unijnym numerem VAT: %s"
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields.selection,name:trilab_jpk_base.selection__account_move__x_pl_ksef_invoice_proof__off
@@ -521,6 +592,2451 @@ msgid "Run"
 msgstr "Uruchom"
 
 #. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAI1_A
+msgid "S_12_1__BAAI1_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAI1_U
+msgid "S_12_1__BAAI1_U"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAI1_W
+msgid "S_12_1__BAAI1_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAI2_A
+msgid "S_12_1__BAAI2_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAI2_U
+msgid "S_12_1__BAAI2_U"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAI2_W
+msgid "S_12_1__BAAI2_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAI3_A
+msgid "S_12_1__BAAI3_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAI3_U
+msgid "S_12_1__BAAI3_U"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAI3_W
+msgid "S_12_1__BAAI3_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAI4_A
+msgid "S_12_1__BAAI4_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAI4_W
+msgid "S_12_1__BAAI4_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAII1a_A
+msgid "S_12_1__BAAII1a_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAII1a_U
+msgid "S_12_1__BAAII1a_U"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAII1a_W
+msgid "S_12_1__BAAII1a_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAII1b_A
+msgid "S_12_1__BAAII1b_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAII1b_U
+msgid "S_12_1__BAAII1b_U"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAII1b_W
+msgid "S_12_1__BAAII1b_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAII1c_A
+msgid "S_12_1__BAAII1c_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAII1c_U
+msgid "S_12_1__BAAII1c_U"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAII1c_W
+msgid "S_12_1__BAAII1c_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAII1d_A
+msgid "S_12_1__BAAII1d_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAII1d_U
+msgid "S_12_1__BAAII1d_U"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAII1d_W
+msgid "S_12_1__BAAII1d_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAII1e_A
+msgid "S_12_1__BAAII1e_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAII1e_U
+msgid "S_12_1__BAAII1e_U"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAII1e_W
+msgid "S_12_1__BAAII1e_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAII2_A
+msgid "S_12_1__BAAII2_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAII2_W
+msgid "S_12_1__BAAII2_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAII3_A
+msgid "S_12_1__BAAII3_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAII3_W
+msgid "S_12_1__BAAII3_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIII1_A
+msgid "S_12_1__BAAIII1_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIII1_W
+msgid "S_12_1__BAAIII1_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIII2_A
+msgid "S_12_1__BAAIII2_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIII2_W
+msgid "S_12_1__BAAIII2_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIII3_A
+msgid "S_12_1__BAAIII3_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIII3_W
+msgid "S_12_1__BAAIII3_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV1_A
+msgid "S_12_1__BAAIV1_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV1_U
+msgid "S_12_1__BAAIV1_U"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV1_W
+msgid "S_12_1__BAAIV1_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV2_A
+msgid "S_12_1__BAAIV2_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV2_U
+msgid "S_12_1__BAAIV2_U"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV2_W
+msgid "S_12_1__BAAIV2_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3a_IDAF_A
+msgid "S_12_1__BAAIV3a_IDAF_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3a_IDAF_W
+msgid "S_12_1__BAAIV3a_IDAF_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3a_IPW_A
+msgid "S_12_1__BAAIV3a_IPW_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3a_IPW_W
+msgid "S_12_1__BAAIV3a_IPW_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3a_ULA_A
+msgid "S_12_1__BAAIV3a_ULA_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3a_ULA_W
+msgid "S_12_1__BAAIV3a_ULA_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3a_UP_A
+msgid "S_12_1__BAAIV3a_UP_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3a_UP_W
+msgid "S_12_1__BAAIV3a_UP_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3b_IDAF_A
+msgid "S_12_1__BAAIV3b_IDAF_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3b_IDAF_W
+msgid "S_12_1__BAAIV3b_IDAF_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3b_IPW_A
+msgid "S_12_1__BAAIV3b_IPW_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3b_IPW_W
+msgid "S_12_1__BAAIV3b_IPW_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3b_ULA_A
+msgid "S_12_1__BAAIV3b_ULA_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3b_ULA_W
+msgid "S_12_1__BAAIV3b_ULA_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3b_UP_A
+msgid "S_12_1__BAAIV3b_UP_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3b_UP_W
+msgid "S_12_1__BAAIV3b_UP_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3c_IDAF_A
+msgid "S_12_1__BAAIV3c_IDAF_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3c_IDAF_W
+msgid "S_12_1__BAAIV3c_IDAF_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3c_IPW_A
+msgid "S_12_1__BAAIV3c_IPW_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3c_IPW_W
+msgid "S_12_1__BAAIV3c_IPW_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3c_ULA_A
+msgid "S_12_1__BAAIV3c_ULA_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3c_ULA_W
+msgid "S_12_1__BAAIV3c_ULA_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3c_UP_A
+msgid "S_12_1__BAAIV3c_UP_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV3c_UP_W
+msgid "S_12_1__BAAIV3c_UP_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV4_A
+msgid "S_12_1__BAAIV4_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAIV4_W
+msgid "S_12_1__BAAIV4_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAV1_A
+msgid "S_12_1__BAAV1_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAV1_W
+msgid "S_12_1__BAAV1_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAV2_A
+msgid "S_12_1__BAAV2_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAAV2_W
+msgid "S_12_1__BAAV2_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABI1
+msgid "S_12_1__BABI1"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABI1_A
+msgid "S_12_1__BABI1_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABI1_O
+msgid "S_12_1__BABI1_O"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABI2
+msgid "S_12_1__BABI2"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABI2_A
+msgid "S_12_1__BABI2_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABI2_O
+msgid "S_12_1__BABI2_O"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABI3
+msgid "S_12_1__BABI3"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABI3_A
+msgid "S_12_1__BABI3_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABI3_O
+msgid "S_12_1__BABI3_O"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABI4
+msgid "S_12_1__BABI4"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABI4_A
+msgid "S_12_1__BABI4_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABI4_O
+msgid "S_12_1__BABI4_O"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABI5
+msgid "S_12_1__BABI5"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABI5_A
+msgid "S_12_1__BABI5_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII1a_D12
+msgid "S_12_1__BABII1a_D12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII1a_D12_A
+msgid "S_12_1__BABII1a_D12_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII1a_P12
+msgid "S_12_1__BABII1a_P12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII1a_P12_A
+msgid "S_12_1__BABII1a_P12_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII1b
+msgid "S_12_1__BABII1b"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII1b_A
+msgid "S_12_1__BABII1b_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII2a_D12
+msgid "S_12_1__BABII2a_D12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII2a_D12_A
+msgid "S_12_1__BABII2a_D12_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII2a_P12
+msgid "S_12_1__BABII2a_P12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII2a_P12_A
+msgid "S_12_1__BABII2a_P12_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII2b
+msgid "S_12_1__BABII2b"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII2b_A
+msgid "S_12_1__BABII2b_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII3a_D12
+msgid "S_12_1__BABII3a_D12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII3a_D12_A
+msgid "S_12_1__BABII3a_D12_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII3a_P12
+msgid "S_12_1__BABII3a_P12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII3a_P12_A
+msgid "S_12_1__BABII3a_P12_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII3b
+msgid "S_12_1__BABII3b"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII3b_A
+msgid "S_12_1__BABII3b_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII3c_A
+msgid "S_12_1__BABII3c_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII3c_W
+msgid "S_12_1__BABII3c_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII3d_A
+msgid "S_12_1__BABII3d_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABII3d_W
+msgid "S_12_1__BABII3d_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1a1_ULA_A
+msgid "S_12_1__BABIII1a1_ULA_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1a1_ULA_W
+msgid "S_12_1__BABIII1a1_ULA_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1a2_IPW_A
+msgid "S_12_1__BABIII1a2_IPW_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1a2_IPW_W
+msgid "S_12_1__BABIII1a2_IPW_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1a3_UP_A
+msgid "S_12_1__BABIII1a3_UP_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1a3_UP_W
+msgid "S_12_1__BABIII1a3_UP_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1a4_IKAF_A
+msgid "S_12_1__BABIII1a4_IKAF_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1a4_IKAF_W
+msgid "S_12_1__BABIII1a4_IKAF_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1b1_ULA_A
+msgid "S_12_1__BABIII1b1_ULA_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1b1_ULA_W
+msgid "S_12_1__BABIII1b1_ULA_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1b2_IPW_A
+msgid "S_12_1__BABIII1b2_IPW_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1b2_IPW_W
+msgid "S_12_1__BABIII1b2_IPW_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1b3_UP_A
+msgid "S_12_1__BABIII1b3_UP_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1b3_UP_W
+msgid "S_12_1__BABIII1b3_UP_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1b4_IKAF_A
+msgid "S_12_1__BABIII1b4_IKAF_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1b4_IKAF_W
+msgid "S_12_1__BABIII1b4_IKAF_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1c1_SPKR
+msgid "S_12_1__BABIII1c1_SPKR"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1c2_ISP
+msgid "S_12_1__BABIII1c2_ISP"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1c2_ISP_A
+msgid "S_12_1__BABIII1c2_ISP_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1c3_IAP
+msgid "S_12_1__BABIII1c3_IAP"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII1c3_IAP_A
+msgid "S_12_1__BABIII1c3_IAP_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII2_A
+msgid "S_12_1__BABIII2_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIII2_W
+msgid "S_12_1__BABIII2_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIV
+msgid "S_12_1__BABIV"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BABIV_A
+msgid "S_12_1__BABIV_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAC
+msgid "S_12_1__BAC"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BAD
+msgid "S_12_1__BAD"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPAI
+msgid "S_12_1__BPAI"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPAIIIAWG
+msgid "S_12_1__BPAIIIAWG"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPAIII_INN
+msgid "S_12_1__BPAIII_INN"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPAIIWS
+msgid "S_12_1__BPAIIWS"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPAII_ES_ZP
+msgid "S_12_1__BPAII_ES_ZP"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPAII_ES_ZR
+msgid "S_12_1__BPAII_ES_ZR"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPAII_INN
+msgid "S_12_1__BPAII_INN"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPAIVU
+msgid "S_12_1__BPAIVU"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPAIVUW
+msgid "S_12_1__BPAIVUW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPAIV_ES_ZP
+msgid "S_12_1__BPAIV_ES_ZP"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPAIV_ES_ZR
+msgid "S_12_1__BPAIV_ES_ZR"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPAIV_INN
+msgid "S_12_1__BPAIV_INN"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPAV
+msgid "S_12_1__BPAV"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPAVI
+msgid "S_12_1__BPAVI"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPAVII
+msgid "S_12_1__BPAVII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPAV_ES_NPR
+msgid "S_12_1__BPAV_ES_NPR"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPAV_ES_NSP
+msgid "S_12_1__BPAV_ES_NSP"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPAV_ES_NSR
+msgid "S_12_1__BPAV_ES_NSR"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPAV_ES_NZP
+msgid "S_12_1__BPAV_ES_NZP"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBI1
+msgid "S_12_1__BPBI1"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBI2_D
+msgid "S_12_1__BPBI2_D"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBI2_K
+msgid "S_12_1__BPBI2_K"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBI3_D
+msgid "S_12_1__BPBI3_D"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBI3_K
+msgid "S_12_1__BPBI3_K"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBII1
+msgid "S_12_1__BPBII1"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBII2
+msgid "S_12_1__BPBII2"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBII3a
+msgid "S_12_1__BPBII3a"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBII3b
+msgid "S_12_1__BPBII3b"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBII3c
+msgid "S_12_1__BPBII3c"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBII3d
+msgid "S_12_1__BPBII3d"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBII3e
+msgid "S_12_1__BPBII3e"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBIII1a_D12
+msgid "S_12_1__BPBIII1a_D12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBIII1a_P12
+msgid "S_12_1__BPBIII1a_P12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBIII1b
+msgid "S_12_1__BPBIII1b"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBIII2a_D12
+msgid "S_12_1__BPBIII2a_D12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBIII2a_P12
+msgid "S_12_1__BPBIII2a_P12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBIII2b
+msgid "S_12_1__BPBIII2b"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBIII3a
+msgid "S_12_1__BPBIII3a"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBIII3b
+msgid "S_12_1__BPBIII3b"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBIII3c
+msgid "S_12_1__BPBIII3c"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBIII3d_D12
+msgid "S_12_1__BPBIII3d_D12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBIII3d_P12
+msgid "S_12_1__BPBIII3d_P12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBIII3e
+msgid "S_12_1__BPBIII3e"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBIII3f
+msgid "S_12_1__BPBIII3f"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBIII3g
+msgid "S_12_1__BPBIII3g"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBIII3h
+msgid "S_12_1__BPBIII3h"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBIII3i
+msgid "S_12_1__BPBIII3i"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBIII4
+msgid "S_12_1__BPBIII4"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBIV1
+msgid "S_12_1__BPBIV1"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBIV2_D
+msgid "S_12_1__BPBIV2_D"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_BPBIV2_K
+msgid "S_12_1__BPBIV2_K"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_INNE
+msgid "S_12_1__INNE"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RKBI_POW
+msgid "S_12_1__RKBI_POW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RKBI_POZ
+msgid "S_12_1__RKBI_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RKD
+msgid "S_12_1__RKD"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RKE
+msgid "S_12_1__RKE"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPAII
+msgid "S_12_1__RPAII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPAIII
+msgid "S_12_1__RPAIII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPAIV_RKAII_POW
+msgid "S_12_1__RPAIV_RKAII_POW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPAIV_RKAII_POZ
+msgid "S_12_1__RPAIV_RKAII_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPAI_RKAI_POW
+msgid "S_12_1__RPAI_RKAI_POW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPAI_RKAI_POZ
+msgid "S_12_1__RPAI_RKAI_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPBI
+msgid "S_12_1__RPBI"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPBII
+msgid "S_12_1__RPBII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPBIII
+msgid "S_12_1__RPBIII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPBIV_AKC
+msgid "S_12_1__RPBIV_AKC"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPBIV_POZ
+msgid "S_12_1__RPBIV_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPBV
+msgid "S_12_1__RPBV"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPBVI
+msgid "S_12_1__RPBVI"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPBVII
+msgid "S_12_1__RPBVII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPBVIII_RKBII_POW
+msgid "S_12_1__RPBVIII_RKBII_POW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPBVIII_RKBII_POZ
+msgid "S_12_1__RPBVIII_RKBII_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPBVI_E
+msgid "S_12_1__RPBVI_E"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPDIII_RKGIII
+msgid "S_12_1__RPDIII_RKGIII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPDII_RKGII
+msgid "S_12_1__RPDII_RKGII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPDIV_RKGIV
+msgid "S_12_1__RPDIV_RKGIV"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPDIV_RKGIV_P
+msgid "S_12_1__RPDIV_RKGIV_P"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPDIV_RKGIV_WF
+msgid "S_12_1__RPDIV_RKGIV_WF"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPDIV_RKGIV_ZCP
+msgid "S_12_1__RPDIV_RKGIV_ZCP"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPDI_RKGI_POW
+msgid "S_12_1__RPDI_RKGI_POW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPDI_RKGI_POZ
+msgid "S_12_1__RPDI_RKGI_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPEIII_RKHIII
+msgid "S_12_1__RPEIII_RKHIII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPEIII_RKHIII_P
+msgid "S_12_1__RPEIII_RKHIII_P"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPEIII_RKHIII_WF
+msgid "S_12_1__RPEIII_RKHIII_WF"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPEIII_RKHIII_ZCP
+msgid "S_12_1__RPEIII_RKHIII_ZCP"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPEII_RKHII
+msgid "S_12_1__RPEII_RKHII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPEI_RKHI_POW
+msgid "S_12_1__RPEI_RKHI_POW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPEI_RKHI_POZ
+msgid "S_12_1__RPEI_RKHI_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPGIII_RKJIII_POW
+msgid "S_12_1__RPGIII_RKJIII_POW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPGIII_RKJIII_POZ
+msgid "S_12_1__RPGIII_RKJIII_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPGII_RKJII_POW
+msgid "S_12_1__RPGII_RKJII_POW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPGII_RKJII_POZ
+msgid "S_12_1__RPGII_RKJII_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPGIV_RKJIV
+msgid "S_12_1__RPGIV_RKJIV"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPGIa_RKJIa_POW_k
+msgid "S_12_1__RPGIa_RKJIa_POW_k"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPGIa_RKJIa_POW_p
+msgid "S_12_1__RPGIa_RKJIa_POW_p"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPGIb_RKJIb_POZ_k
+msgid "S_12_1__RPGIb_RKJIb_POZ_k"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPGIb_RKJIb_POZ_p
+msgid "S_12_1__RPGIb_RKJIb_POZ_p"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPGV_RKJV_POZ
+msgid "S_12_1__RPGV_RKJV_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPGV_RKJV_RK
+msgid "S_12_1__RPGV_RKJV_RK"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPHIII_RKKIII
+msgid "S_12_1__RPHIII_RKKIII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPHII_RKKII_POW
+msgid "S_12_1__RPHII_RKKII_POW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPHII_RKKII_POZ
+msgid "S_12_1__RPHII_RKKII_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPHIV_RKKIV_POZ
+msgid "S_12_1__RPHIV_RKKIV_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPHIV_RKKIV_RK
+msgid "S_12_1__RPHIV_RKKIV_RK"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPHI_RKKI_POW
+msgid "S_12_1__RPHI_RKKI_POW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPHI_RKKI_POZ
+msgid "S_12_1__RPHI_RKKI_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPJ_RKM_B
+msgid "S_12_1__RPJ_RKM_B"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPJ_RKM_O
+msgid "S_12_1__RPJ_RKM_O"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_1_RPK_RKN
+msgid "S_12_1__RPK_RKN"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAI1_A
+msgid "S_12_2__BAAI1_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAI1_U
+msgid "S_12_2__BAAI1_U"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAI1_W
+msgid "S_12_2__BAAI1_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAI2_A
+msgid "S_12_2__BAAI2_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAI2_U
+msgid "S_12_2__BAAI2_U"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAI2_W
+msgid "S_12_2__BAAI2_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAI3_A
+msgid "S_12_2__BAAI3_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAI3_U
+msgid "S_12_2__BAAI3_U"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAI3_W
+msgid "S_12_2__BAAI3_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAI4_A
+msgid "S_12_2__BAAI4_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAI4_W
+msgid "S_12_2__BAAI4_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAII1a_A
+msgid "S_12_2__BAAII1a_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAII1a_U
+msgid "S_12_2__BAAII1a_U"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAII1a_W
+msgid "S_12_2__BAAII1a_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAII1b_A
+msgid "S_12_2__BAAII1b_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAII1b_U
+msgid "S_12_2__BAAII1b_U"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAII1b_W
+msgid "S_12_2__BAAII1b_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAII1c_A
+msgid "S_12_2__BAAII1c_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAII1c_U
+msgid "S_12_2__BAAII1c_U"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAII1c_W
+msgid "S_12_2__BAAII1c_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAII1d_A
+msgid "S_12_2__BAAII1d_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAII1d_U
+msgid "S_12_2__BAAII1d_U"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAII1d_W
+msgid "S_12_2__BAAII1d_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAII1e_A
+msgid "S_12_2__BAAII1e_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAII1e_U
+msgid "S_12_2__BAAII1e_U"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAII1e_W
+msgid "S_12_2__BAAII1e_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAII2_A
+msgid "S_12_2__BAAII2_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAII2_W
+msgid "S_12_2__BAAII2_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAII3_A
+msgid "S_12_2__BAAII3_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAII3_W
+msgid "S_12_2__BAAII3_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIII1_A
+msgid "S_12_2__BAAIII1_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIII1_W
+msgid "S_12_2__BAAIII1_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIII2_A
+msgid "S_12_2__BAAIII2_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIII2_W
+msgid "S_12_2__BAAIII2_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIII3_A
+msgid "S_12_2__BAAIII3_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIII3_W
+msgid "S_12_2__BAAIII3_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV1_A
+msgid "S_12_2__BAAIV1_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV1_U
+msgid "S_12_2__BAAIV1_U"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV1_W
+msgid "S_12_2__BAAIV1_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV2_A
+msgid "S_12_2__BAAIV2_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV2_U
+msgid "S_12_2__BAAIV2_U"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV2_W
+msgid "S_12_2__BAAIV2_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3a_IDAF_A
+msgid "S_12_2__BAAIV3a_IDAF_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3a_IDAF_W
+msgid "S_12_2__BAAIV3a_IDAF_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3a_IPW_A
+msgid "S_12_2__BAAIV3a_IPW_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3a_IPW_W
+msgid "S_12_2__BAAIV3a_IPW_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3a_ULA_A
+msgid "S_12_2__BAAIV3a_ULA_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3a_ULA_W
+msgid "S_12_2__BAAIV3a_ULA_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3a_UP_A
+msgid "S_12_2__BAAIV3a_UP_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3a_UP_W
+msgid "S_12_2__BAAIV3a_UP_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3b_IDAF_A
+msgid "S_12_2__BAAIV3b_IDAF_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3b_IDAF_W
+msgid "S_12_2__BAAIV3b_IDAF_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3b_IPW_A
+msgid "S_12_2__BAAIV3b_IPW_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3b_IPW_W
+msgid "S_12_2__BAAIV3b_IPW_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3b_ULA_A
+msgid "S_12_2__BAAIV3b_ULA_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3b_ULA_W
+msgid "S_12_2__BAAIV3b_ULA_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3b_UP_A
+msgid "S_12_2__BAAIV3b_UP_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3b_UP_W
+msgid "S_12_2__BAAIV3b_UP_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3c_IDAF_A
+msgid "S_12_2__BAAIV3c_IDAF_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3c_IDAF_W
+msgid "S_12_2__BAAIV3c_IDAF_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3c_IPW_A
+msgid "S_12_2__BAAIV3c_IPW_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3c_IPW_W
+msgid "S_12_2__BAAIV3c_IPW_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3c_ULA_A
+msgid "S_12_2__BAAIV3c_ULA_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3c_ULA_W
+msgid "S_12_2__BAAIV3c_ULA_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3c_UP_A
+msgid "S_12_2__BAAIV3c_UP_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV3c_UP_W
+msgid "S_12_2__BAAIV3c_UP_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV4_A
+msgid "S_12_2__BAAIV4_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAIV4_W
+msgid "S_12_2__BAAIV4_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAV1_A
+msgid "S_12_2__BAAV1_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAV1_W
+msgid "S_12_2__BAAV1_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAV2_A
+msgid "S_12_2__BAAV2_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAAV2_W
+msgid "S_12_2__BAAV2_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABI1
+msgid "S_12_2__BABI1"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABI1_A
+msgid "S_12_2__BABI1_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABI1_O
+msgid "S_12_2__BABI1_O"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABI2
+msgid "S_12_2__BABI2"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABI2_A
+msgid "S_12_2__BABI2_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABI2_O
+msgid "S_12_2__BABI2_O"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABI3
+msgid "S_12_2__BABI3"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABI3_A
+msgid "S_12_2__BABI3_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABI3_O
+msgid "S_12_2__BABI3_O"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABI4
+msgid "S_12_2__BABI4"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABI4_A
+msgid "S_12_2__BABI4_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABI4_O
+msgid "S_12_2__BABI4_O"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABI5
+msgid "S_12_2__BABI5"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABI5_A
+msgid "S_12_2__BABI5_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII1a_D12
+msgid "S_12_2__BABII1a_D12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII1a_D12_A
+msgid "S_12_2__BABII1a_D12_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII1a_P12
+msgid "S_12_2__BABII1a_P12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII1a_P12_A
+msgid "S_12_2__BABII1a_P12_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII1b
+msgid "S_12_2__BABII1b"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII1b_A
+msgid "S_12_2__BABII1b_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII2a_D12
+msgid "S_12_2__BABII2a_D12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII2a_D12_A
+msgid "S_12_2__BABII2a_D12_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII2a_P12
+msgid "S_12_2__BABII2a_P12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII2a_P12_A
+msgid "S_12_2__BABII2a_P12_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII2b
+msgid "S_12_2__BABII2b"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII2b_A
+msgid "S_12_2__BABII2b_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII3a_D12
+msgid "S_12_2__BABII3a_D12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII3a_D12_A
+msgid "S_12_2__BABII3a_D12_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII3a_P12
+msgid "S_12_2__BABII3a_P12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII3a_P12_A
+msgid "S_12_2__BABII3a_P12_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII3b
+msgid "S_12_2__BABII3b"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII3b_A
+msgid "S_12_2__BABII3b_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII3c_A
+msgid "S_12_2__BABII3c_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII3c_W
+msgid "S_12_2__BABII3c_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII3d_A
+msgid "S_12_2__BABII3d_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABII3d_W
+msgid "S_12_2__BABII3d_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1a1_ULA_A
+msgid "S_12_2__BABIII1a1_ULA_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1a1_ULA_W
+msgid "S_12_2__BABIII1a1_ULA_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1a2_IPW_A
+msgid "S_12_2__BABIII1a2_IPW_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1a2_IPW_W
+msgid "S_12_2__BABIII1a2_IPW_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1a3_UP_A
+msgid "S_12_2__BABIII1a3_UP_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1a3_UP_W
+msgid "S_12_2__BABIII1a3_UP_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1a4_IKAF_A
+msgid "S_12_2__BABIII1a4_IKAF_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1a4_IKAF_W
+msgid "S_12_2__BABIII1a4_IKAF_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1b1_ULA_A
+msgid "S_12_2__BABIII1b1_ULA_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1b1_ULA_W
+msgid "S_12_2__BABIII1b1_ULA_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1b2_IPW_A
+msgid "S_12_2__BABIII1b2_IPW_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1b2_IPW_W
+msgid "S_12_2__BABIII1b2_IPW_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1b3_UP_A
+msgid "S_12_2__BABIII1b3_UP_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1b3_UP_W
+msgid "S_12_2__BABIII1b3_UP_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1b4_IKAF_A
+msgid "S_12_2__BABIII1b4_IKAF_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1b4_IKAF_W
+msgid "S_12_2__BABIII1b4_IKAF_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1c1_SPKR
+msgid "S_12_2__BABIII1c1_SPKR"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1c2_ISP
+msgid "S_12_2__BABIII1c2_ISP"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1c2_ISP_A
+msgid "S_12_2__BABIII1c2_ISP_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1c3_IAP
+msgid "S_12_2__BABIII1c3_IAP"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII1c3_IAP_A
+msgid "S_12_2__BABIII1c3_IAP_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII2_A
+msgid "S_12_2__BABIII2_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIII2_W
+msgid "S_12_2__BABIII2_W"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIV
+msgid "S_12_2__BABIV"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BABIV_A
+msgid "S_12_2__BABIV_A"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAC
+msgid "S_12_2__BAC"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BAD
+msgid "S_12_2__BAD"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPAI
+msgid "S_12_2__BPAI"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPAIIIAWG
+msgid "S_12_2__BPAIIIAWG"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPAIII_INN
+msgid "S_12_2__BPAIII_INN"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPAIIWS
+msgid "S_12_2__BPAIIWS"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPAII_ES_ZP
+msgid "S_12_2__BPAII_ES_ZP"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPAII_ES_ZR
+msgid "S_12_2__BPAII_ES_ZR"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPAII_INN
+msgid "S_12_2__BPAII_INN"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPAIVU
+msgid "S_12_2__BPAIVU"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPAIVUW
+msgid "S_12_2__BPAIVUW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPAIV_ES_ZP
+msgid "S_12_2__BPAIV_ES_ZP"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPAIV_ES_ZR
+msgid "S_12_2__BPAIV_ES_ZR"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPAIV_INN
+msgid "S_12_2__BPAIV_INN"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPAV
+msgid "S_12_2__BPAV"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPAVI
+msgid "S_12_2__BPAVI"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPAVII
+msgid "S_12_2__BPAVII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPAV_ES_NPR
+msgid "S_12_2__BPAV_ES_NPR"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPAV_ES_NSP
+msgid "S_12_2__BPAV_ES_NSP"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPAV_ES_NSR
+msgid "S_12_2__BPAV_ES_NSR"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPAV_ES_NZP
+msgid "S_12_2__BPAV_ES_NZP"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBI1
+msgid "S_12_2__BPBI1"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBI2_D
+msgid "S_12_2__BPBI2_D"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBI2_K
+msgid "S_12_2__BPBI2_K"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBI3_D
+msgid "S_12_2__BPBI3_D"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBI3_K
+msgid "S_12_2__BPBI3_K"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBII1
+msgid "S_12_2__BPBII1"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBII2
+msgid "S_12_2__BPBII2"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBII3a
+msgid "S_12_2__BPBII3a"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBII3b
+msgid "S_12_2__BPBII3b"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBII3c
+msgid "S_12_2__BPBII3c"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBII3d
+msgid "S_12_2__BPBII3d"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBII3e
+msgid "S_12_2__BPBII3e"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBIII1a_D12
+msgid "S_12_2__BPBIII1a_D12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBIII1a_P12
+msgid "S_12_2__BPBIII1a_P12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBIII1b
+msgid "S_12_2__BPBIII1b"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBIII2a_D12
+msgid "S_12_2__BPBIII2a_D12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBIII2a_P12
+msgid "S_12_2__BPBIII2a_P12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBIII2b
+msgid "S_12_2__BPBIII2b"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBIII3a
+msgid "S_12_2__BPBIII3a"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBIII3b
+msgid "S_12_2__BPBIII3b"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBIII3c
+msgid "S_12_2__BPBIII3c"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBIII3d_D12
+msgid "S_12_2__BPBIII3d_D12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBIII3d_P12
+msgid "S_12_2__BPBIII3d_P12"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBIII3e
+msgid "S_12_2__BPBIII3e"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBIII3f
+msgid "S_12_2__BPBIII3f"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBIII3g
+msgid "S_12_2__BPBIII3g"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBIII3h
+msgid "S_12_2__BPBIII3h"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBIII3i
+msgid "S_12_2__BPBIII3i"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBIII4
+msgid "S_12_2__BPBIII4"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBIV1
+msgid "S_12_2__BPBIV1"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBIV2_D
+msgid "S_12_2__BPBIV2_D"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_BPBIV2_K
+msgid "S_12_2__BPBIV2_K"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_INNE
+msgid "S_12_2__INNE"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RKBI_POW
+msgid "S_12_2__RKBI_POW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RKBI_POZ
+msgid "S_12_2__RKBI_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RKD
+msgid "S_12_2__RKD"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RKE
+msgid "S_12_2__RKE"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPAII
+msgid "S_12_2__RPAII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPAIII
+msgid "S_12_2__RPAIII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPAIV_RKAII_POW
+msgid "S_12_2__RPAIV_RKAII_POW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPAIV_RKAII_POZ
+msgid "S_12_2__RPAIV_RKAII_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPAI_RKAI_POW
+msgid "S_12_2__RPAI_RKAI_POW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPAI_RKAI_POZ
+msgid "S_12_2__RPAI_RKAI_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPBI
+msgid "S_12_2__RPBI"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPBII
+msgid "S_12_2__RPBII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPBIII
+msgid "S_12_2__RPBIII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPBIV_AKC
+msgid "S_12_2__RPBIV_AKC"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPBIV_POZ
+msgid "S_12_2__RPBIV_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPBV
+msgid "S_12_2__RPBV"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPBVI
+msgid "S_12_2__RPBVI"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPBVII
+msgid "S_12_2__RPBVII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPBVIII_RKBII_POW
+msgid "S_12_2__RPBVIII_RKBII_POW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPBVIII_RKBII_POZ
+msgid "S_12_2__RPBVIII_RKBII_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPBVI_E
+msgid "S_12_2__RPBVI_E"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPDIII_RKGIII
+msgid "S_12_2__RPDIII_RKGIII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPDII_RKGII
+msgid "S_12_2__RPDII_RKGII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPDIV_RKGIV
+msgid "S_12_2__RPDIV_RKGIV"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPDIV_RKGIV_P
+msgid "S_12_2__RPDIV_RKGIV_P"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPDIV_RKGIV_WF
+msgid "S_12_2__RPDIV_RKGIV_WF"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPDIV_RKGIV_ZCP
+msgid "S_12_2__RPDIV_RKGIV_ZCP"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPDI_RKGI_POW
+msgid "S_12_2__RPDI_RKGI_POW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPDI_RKGI_POZ
+msgid "S_12_2__RPDI_RKGI_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPEIII_RKHIII
+msgid "S_12_2__RPEIII_RKHIII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPEIII_RKHIII_P
+msgid "S_12_2__RPEIII_RKHIII_P"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPEIII_RKHIII_WF
+msgid "S_12_2__RPEIII_RKHIII_WF"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPEIII_RKHIII_ZCP
+msgid "S_12_2__RPEIII_RKHIII_ZCP"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPEII_RKHII
+msgid "S_12_2__RPEII_RKHII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPEI_RKHI_POW
+msgid "S_12_2__RPEI_RKHI_POW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPEI_RKHI_POZ
+msgid "S_12_2__RPEI_RKHI_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPGIII_RKJIII_POW
+msgid "S_12_2__RPGIII_RKJIII_POW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPGIII_RKJIII_POZ
+msgid "S_12_2__RPGIII_RKJIII_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPGII_RKJII_POW
+msgid "S_12_2__RPGII_RKJII_POW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPGII_RKJII_POZ
+msgid "S_12_2__RPGII_RKJII_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPGIV_RKJIV
+msgid "S_12_2__RPGIV_RKJIV"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPGIa_RKJIa_POW_k
+msgid "S_12_2__RPGIa_RKJIa_POW_k"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPGIa_RKJIa_POW_p
+msgid "S_12_2__RPGIa_RKJIa_POW_p"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPGIb_RKJIb_POZ_k
+msgid "S_12_2__RPGIb_RKJIb_POZ_k"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPGIb_RKJIb_POZ_p
+msgid "S_12_2__RPGIb_RKJIb_POZ_p"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPGV_RKJV_POZ
+msgid "S_12_2__RPGV_RKJV_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPGV_RKJV_RK
+msgid "S_12_2__RPGV_RKJV_RK"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPHIII_RKKIII
+msgid "S_12_2__RPHIII_RKKIII"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPHII_RKKII_POW
+msgid "S_12_2__RPHII_RKKII_POW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPHII_RKKII_POZ
+msgid "S_12_2__RPHII_RKKII_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPHIV_RKKIV_POZ
+msgid "S_12_2__RPHIV_RKKIV_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPHIV_RKKIV_RK
+msgid "S_12_2__RPHIV_RKKIV_RK"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPHI_RKKI_POW
+msgid "S_12_2__RPHI_RKKI_POW"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPHI_RKKI_POZ
+msgid "S_12_2__RPHI_RKKI_POZ"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPJ_RKM_B
+msgid "S_12_2__RPJ_RKM_B"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPJ_RKM_O
+msgid "S_12_2__RPJ_RKM_O"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:account.account.tag,name:trilab_jpk_base.s_12_2_RPK_RKN
+msgid "S_12_2__RPK_RKN"
+msgstr ""
+
+#. module: trilab_jpk_base
+#: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_type__schema_path
+msgid "Schema Path"
+msgstr "Ścieżka schematu"
+
+#. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_type__schema_version
 msgid "Schema Version"
 msgstr "Wersja schematu"
@@ -529,7 +3045,7 @@ msgstr "Wersja schematu"
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_bank_statement_line__x_journal_entry_number
 #: model:ir.model.fields,help:trilab_jpk_base.field_account_move__x_journal_entry_number
 msgid "Sequential journal entry number."
-msgstr "Numer sekwencji wpisów dziennika."
+msgstr "Unikalny numer wpisu do dziennika."
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_mixin__source_xml
@@ -556,6 +3072,18 @@ msgstr "Kod systemowy i wersja schemy muszą być unikalne"
 #: model:ir.model.constraint,message:trilab_jpk_base.constraint_jpk_taxoffice__jpk_tax_office_code_unique_constraint
 msgid "Tax Office code must me unique"
 msgstr "Kod urzędu skarbowego musi być unikalny"
+
+#. module: trilab_jpk_base
+#. odoo-python
+#: code:addons/trilab_jpk_base/models/jpk_document_type.py:0
+msgid "The file is %(file_type)s, but the document type is %(document_type)s"
+msgstr "Plik jest w formacie %(file_type)s, a rodzaj dokumentu to %(document_type)s"
+
+#. module: trilab_jpk_base
+#. odoo-python
+#: code:addons/trilab_jpk_base/models/jpk_document_type.py:0
+msgid "The file namespace %(namespace)s does not match the document type %(document_type)s"
+msgstr "Przestrzeń nazw pliku %(namespace)s nie pasuje do rodzaju dokumentu %(document_type)s"
 
 #. module: trilab_jpk_base
 #. odoo-python
@@ -602,7 +3130,7 @@ msgstr "Pomocnik eksportu Trilab"
 #. module: trilab_jpk_base
 #: model:ir.model,name:trilab_jpk_base.model_trilab_jpk_base_move_resequence
 msgid "Trilab JPK Base Move Resequence Wizard"
-msgstr ""
+msgstr "Wizard renumeracji zapisów Trilab JPK Base"
 
 #. module: trilab_jpk_base
 #: model:res.groups,name:trilab_jpk_base.jpk_user
@@ -650,21 +3178,6 @@ msgstr "Pełna ścieżka"
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_product_document__x_size
 msgid "X Size"
 msgstr "Rozmiar"
-
-#. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_type__xsd_id_datas
-msgid "XSD File"
-msgstr "Plik XSD"
-
-#. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_type__xsd_id_name
-msgid "XSD Filename"
-msgstr "Nazwa pliku XSD"
-
-#. module: trilab_jpk_base
-#: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_type__xsd_id
-msgid "Xsd"
-msgstr ""
 
 #. module: trilab_jpk_base
 #: model:ir.model.fields,field_description:trilab_jpk_base.field_jpk_document_mixin__year

@@ -1,19 +1,20 @@
 from io import BytesIO
-from typing import Any, Iterable, Optional
+from typing import Any, Iterable
 
 import xlsxwriter
 from odoo import models
+from odoo.tools.translate import LazyGettext
 from xlsxwriter.worksheet import Worksheet
 
 
 class CellDefinition:
     def __init__(
         self,
-        field: Optional[str],
-        name: str,
+        field: str,
+        name: str | LazyGettext,
         data_type: str = 'text',
-        style: Optional[str] = None,
-        width: Optional[int] = None,
+        style: str | None = None,
+        width: int | None = None,
     ):
         self.field = field
         self.name = name
@@ -22,11 +23,34 @@ class CellDefinition:
         self.width = width
 
 
+class StyledWorkbook(xlsxwriter.Workbook):
+    def __init__(self, filename=None, options=None, styles: dict | None = None):
+        super().__init__(filename, options)
+        self._style_props = styles or {}
+        self._style_formats = {}
+
+    def add_worksheet(self, *args, **kwargs):
+        worksheet = super().add_worksheet(*args, **kwargs)
+        worksheet.styled_workbook = self
+        return worksheet
+
+    def get_style_format(self, style: str, is_date: bool = False):
+        key = (style, is_date)
+
+        if key not in self._style_formats:
+            props = self._style_props.get(style)
+
+            if props is not None and is_date:
+                props = {**props, 'num_format': 'yyyy-mm-dd'}
+
+            self._style_formats[key] = self.add_format(props) if props is not None else None
+
+        return self._style_formats[key]
+
+
 class XlsxHelper(models.AbstractModel):
     _name = 'jpk.trilab.export_helper'
     _description = 'Trilab Export Helper'
-
-    _xlsx_styles = {}
 
     xlsx_styles = {
         'default': {'font_size': 12},
@@ -34,28 +58,22 @@ class XlsxHelper(models.AbstractModel):
         'title': {'bold': True, 'bottom': 2},
     }
 
-    # noinspection PyMethodMayBeStatic,PyUnusedLocal
+    # noinspection PyMethodMayBeStatic,unused-parameter
     def get_workbook_options(self, options):
         return {}
 
     def _get_report_data(self, doc_ids, options):
         raise NotImplementedError()
 
-    def generate_xlsx_report(self, workbook: xlsxwriter.Workbook, doc_ids: Optional[Iterable[int]], options: dict):
+    def generate_xlsx_report(self, workbook: xlsxwriter.Workbook, doc_ids: Iterable[int] | None, options: dict):
         raise NotImplementedError()
 
-    def generate_xml_report(self, file_data: BytesIO, doc_ids: Optional[Iterable[int]], options: dict):
+    def generate_xml_report(self, file_data: BytesIO, doc_ids: Iterable[int] | None, options: dict):
         raise NotImplementedError()
-
-    def generate_xlsx_styles(self, workbook: xlsxwriter.Workbook):
-        for style_name, style_props in self.xlsx_styles.items():
-            self._xlsx_styles[style_name] = workbook.add_format(style_props)
-            self._xlsx_styles[f'{style_name}_date'] = workbook.add_format({**style_props, 'num_format': 'yyyy-mm-dd'})
 
     def create_xlsx_report(self, doc_ids, options):
         file_data = BytesIO()
-        workbook = xlsxwriter.Workbook(file_data, self.get_workbook_options(options))
-        self.generate_xlsx_styles(workbook)
+        workbook = StyledWorkbook(file_data, self.get_workbook_options(options), styles=self.xlsx_styles)
         self.generate_xlsx_report(workbook, doc_ids, options)
         workbook.close()
         return file_data.getvalue(), 'xlsx'
@@ -66,8 +84,8 @@ class XlsxHelper(models.AbstractModel):
         ypos: int,
         xpos: int,
         value: Any,
-        definition: Optional[CellDefinition] = None,
-        style: Optional[str] = None,
+        definition: CellDefinition | None = None,
+        style: str | None = None,
         colspan: int = 1,
     ):
         if not style and definition and definition.style:
@@ -76,18 +94,19 @@ class XlsxHelper(models.AbstractModel):
         if not style:
             style = 'default'
 
-        if style and definition and definition.data_type == 'date':
-            style = f'{style}_date'
-
         if definition and definition.data_type == 'text' and not isinstance(value, str):
             if not value:
                 value = None
 
+        cell_format = worksheet.styled_workbook.get_style_format(
+            style, is_date=bool(definition and definition.data_type == 'date')
+        )
+
         if colspan == 1:
-            worksheet.write(ypos, xpos, value, self._xlsx_styles.get(style))
+            worksheet.write(ypos, xpos, value, cell_format)
 
         else:
-            worksheet.merge_range(ypos, xpos, ypos, ypos + colspan - 1, value, self._xlsx_styles.get(style))
+            worksheet.merge_range(ypos, xpos, ypos, xpos + colspan - 1, value, cell_format)
 
     def create_xml_report(self, doc_ids, options):
         file_data = BytesIO()

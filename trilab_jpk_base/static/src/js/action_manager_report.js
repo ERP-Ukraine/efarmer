@@ -19,7 +19,7 @@ registry.category("ir.actions.report handlers").add("jpk_xlsx_handler", async fu
             if (actionContext.active_ids) {
                 url += `/${actionContext.active_ids.join(",")}`
             }
-            if (type === "xlsx") {
+            if (type === "jpk_xlsx") {
                 const context = encodeURIComponent(JSON.stringify(user.context))
                 url += `?context=${context}`
             }

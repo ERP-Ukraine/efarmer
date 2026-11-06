@@ -12,6 +12,7 @@ def post_init_handler(env):
     # hide main menu icon
     try:
         env.ref('trilab_jpk_base.jpk_main_menu').write({'active': False})
+
     except ValueError:
         pass
 
