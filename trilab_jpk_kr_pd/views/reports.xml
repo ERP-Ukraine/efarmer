@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="action_print_report_jpk_kr_pd_report_html" model="ir.actions.report">
+        <field name="name">JPK KR PD</field>
+        <field name="model">jpk.kr.pd.report.wizard</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">trilab_jpk_kr_pd.jpk_kr_pd_report</field>
+        <field name="report_file">jpk_kr_pd_report</field>
+    </record>
+
+    <record id="action_print_report_jpk_kr_pd_report_pdf" model="ir.actions.report">
+        <field name="name">JPK KR PD</field>
+        <field name="model">jpk.kr.pd.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">trilab_jpk_kr_pd.jpk_kr_pd_report</field>
+        <field name="report_file">jpk_kr_pd_report</field>
+        <field name="paperformat_id" ref="trilab_jpk_base.paperformat_euro_landscape"/>
+    </record>
+
+    <record id="action_print_report_jpk_kr_pd_report_xml" model="ir.actions.report">
+        <field name="name">JPK KR PD</field>
+        <field name="model">jpk.kr.pd.report.wizard</field>
+        <field name="report_type">jpk_xml</field>
+        <field name="report_name">trilab_jpk_kr_pd.jpk_kr_pd_report</field>
+        <field name="report_file">jpk_kr_pd_report</field>
+    </record>
+
+    <record id="action_print_report_jpk_kr_pd_report_xlsx" model="ir.actions.report">
+        <field name="name">JPK KR PD</field>
+        <field name="model">jpk.kr.pd.report.wizard</field>
+        <field name="report_type">jpk_xlsx</field>
+        <field name="report_name">trilab_jpk_kr_pd.jpk_kr_pd_report</field>
+        <field name="report_file">jpk_kr_report</field>
+    </record>
+</odoo>

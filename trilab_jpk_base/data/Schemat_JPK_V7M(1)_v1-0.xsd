@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:etd="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2018/08/24/eD/DefinicjeTypy/" xmlns:tns="http://jpk.mf.gov.pl/wzor/2019/10/16/10167/" targetNamespace="http://jpk.mf.gov.pl/wzor/2019/10/16/10167/" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0" xml:lang="pl">
-	<xsd:import namespace="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2018/08/24/eD/DefinicjeTypy/" schemaLocation="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2018/08/24/eD/DefinicjeTypy/StrukturyDanych_v5-0E.xsd"/>
+	<xsd:import namespace="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2018/08/24/eD/DefinicjeTypy/" schemaLocation="StrukturyDanych_v5-0E.xsd"/>
 	<xsd:simpleType name="TKodFormularza">
 		<xsd:annotation>
 			<xsd:documentation>Symbol wzoru formularza</xsd:documentation>

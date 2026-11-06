@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_jpk_kr_pd_report_wizard,access_jpk_kr_pd_report_wizard,model_jpk_kr_pd_report_wizard,account.group_account_user,1,1,1,1

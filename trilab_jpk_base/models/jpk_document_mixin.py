@@ -5,11 +5,11 @@ class JpkDocumentMixin(models.AbstractModel):
     _name = 'jpk.document.mixin'
     _description = 'JPK Document Mixin'
 
-    year = fields.Integer(string='Year', required=True)
-    month = fields.Integer(string='Month', required=True)
+    year = fields.Integer('Year', required=True)
+    month = fields.Integer('Month', required=True)
 
-    cel_zlozenia = fields.Integer(string='Cel złożenia')
-    version = fields.Char(string='JPK Version', required=True)
+    cel_zlozenia = fields.Integer('Cel złożenia', export_string_translation=False)
+    version = fields.Char('JPK Version', required=True)
 
     document_type_id = fields.Many2one('jpk.document.type', required=True)
 
@@ -26,8 +26,10 @@ class JpkDocumentMixin(models.AbstractModel):
         self.ensure_one()
 
         if self.is_jpk_transfer_installed and (
-            transfer_id := self.env['jpk.transfer'].search(
-                [('reference_document', '=', f'{self._name},{self.id}'), ('confirmation_id', '!=', False)], limit=1
+            transfer_id := self.env['jpk.transfer'].search_fetch(
+                [('reference_document', '=', f'{self._name},{self.id}'), ('confirmation_id', '!=', False)],
+                ['reference_number'],
+                limit=1,
             )
         ):
             return {'reference_number': transfer_id.reference_number}
