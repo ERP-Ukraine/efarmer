@@ -116,7 +116,7 @@ class ZLDController(Controller):
             raise ModelNotAllowed()
 
         try:
-            data_for_preview = request.env['zld.label'].get_preview_data(model, fields)
+            data_for_preview = request.env['zld.label']._get_preview_data(model, fields)
         except Exception as e:
             raise PreviewError(str(e))
 
@@ -143,7 +143,7 @@ class ZLDController(Controller):
             raise ModelNotAllowed()
 
         try:
-            label_id = request.env['zld.label'].create_label(data)
+            label_id = request.env['zld.label']._create_label(data)
         except Exception as e:
             raise CreateLabelError(str(e))
 
@@ -163,7 +163,7 @@ class ZLDController(Controller):
         data = {field: kwargs.get(field) for field in UPDATE_LABEL_REQUIRED_FIELDS}
 
         try:
-            label_id = request.env['zld.label'].update_label(label_id, data)
+            label_id = request.env['zld.label']._update_label(label_id, data)
         except Exception as e:
             raise UpdateLabelError(str(e))
 
@@ -180,7 +180,7 @@ class ZLDController(Controller):
         Delete label and return label ID.
         """
         try:
-            request.env['zld.label'].delete_label(label_id)
+            request.env['zld.label']._delete_label(label_id)
         except Exception as e:
             raise DeleteLabelError(str(e))
 

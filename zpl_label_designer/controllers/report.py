@@ -95,6 +95,10 @@ class ReportController(ReportController):
     def _generate_pdf_for_zpl_report(self, label, reportname, docids=None, **data):
         """
         Generate PDF for ZPL report using the centralized method in ir.actions.report.
+
+        _get_report() returns the report as the superuser, so it has to go back to the rights of
+        the user, as for ZPL. Otherwise any logged-in user gets the values of the label for any
+        record, including users who can't read that record.
         """
         context = dict(request.env.context)
 
@@ -108,6 +112,6 @@ class ReportController(ReportController):
 
         # Get the report record and use the centralized PDF generation method
         report = request.env['ir.actions.report'].with_context(context)._get_report_from_name(reportname)
-        pdf = report._generate_pdf_from_zpl_label(res_ids=docids, data=data)
+        pdf = report.sudo(False)._generate_pdf_from_zpl_label(res_ids=docids, data=data)
 
         return pdf

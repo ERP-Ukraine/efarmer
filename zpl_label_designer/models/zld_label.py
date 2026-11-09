@@ -1,15 +1,50 @@
+import ast
 import re
+import string
 
+from lxml import etree
 from typing import Any, Dict, List, Union
 
 from odoo import api, exceptions, fields, models, _
-from odoo.tools.safe_eval import safe_eval
+from odoo.tools.safe_eval import safe_eval, time
 
 
 LABEL_VIEW_XMLID = 'zpl_label_designer.{model}_label_{label_id}'
 LABEL_ACTION_REPORT_XMLID = 'zpl_label_designer.{model}_label_action_{label_id}'
 FORMULA_PREFIX = 'FORMULA:'
 FORMULA_DOC_FIELD_REGEX = re.compile(r'\bdoc\.([a-zA-Z_][a-zA-Z0-9_]*)')
+
+# What formulas and template expressions can't reach: other models, raw SQL, the rights of
+# other users and writes. safe_eval allows all of it and only the environment limits it
+# This Odoo version renders reports with sudo, and a template gets these variables with it
+EXPRESSION_FORBIDDEN_NAMES = {'env', 'request', 'res_company', 'user', 'user_id', 'website'}
+EXPRESSION_FORBIDDEN_ATTRIBUTES = {
+    'cr', 'env', 'pool', 'registry', 'sudo', 'with_env', 'with_user',
+    'copy', 'create', 'unlink', 'write',
+    'action_archive', 'action_unarchive', 'copy_translations', 'load', 'name_create', 'toggle_active', 'update',
+    'update_field_translations', 'web_override_translations', 'web_resequence', 'web_save', 'web_save_multi',
+    'web_unlink',
+    'format_map',
+}
+# The directives a label template can use, all others are refused. t-set holds an expression too:
+# QWeb reads a dictionary from it
+TEMPLATE_NAME_DIRECTIVES = {'t-as', 't-name'}
+TEMPLATE_EXPRESSION_DIRECTIVES = {
+    't-att', 't-elif', 't-else', 't-esc', 't-field', 't-foreach', 't-if', 't-options', 't-out', 't-raw', 't-set',
+    't-value',
+}
+TEMPLATE_EXPRESSION_PREFIXES = ('t-att-', 't-options-')
+TEMPLATE_FORMAT_DIRECTIVES = {'t-valuef'}
+TEMPLATE_FORMAT_PREFIX = 't-attf-'
+TEMPLATE_TRANSLATE_SUFFIX = '.translate'
+# The same as in QWeb, without re.DOTALL: another split would hide an expression from the check
+TEMPLATE_FORMAT_REGEX = re.compile(r'\{\{(.+?)\}\}|#\{(.+?)\}')
+# What the designer API can set on a label. The rest, such as the related view, is managed by the module
+LABEL_API_FIELDS = ('name', 'width', 'height', 'dpi', 'orientation', 'designer_label_id')
+
+
+class _ReadOnlyCallDone(Exception):
+    """Leaves the savepoint of a read-only call: rolling it back restores writing."""
 
 
 class Label(models.Model):
@@ -122,25 +157,46 @@ class Label(models.Model):
     @api.depends('name', 'print_report_name')
     def _compute_print_report_name_preview(self):
         for rec in self:
-            if rec.print_report_name:
-                random_record = rec.env[rec.model_id.model].search([], limit=1)
-                rec.print_report_name_preview = safe_eval(
-                    rec.print_report_name,
-                    {'object': random_record}
-                )
-            else:
+            if not rec.print_report_name:
                 rec.print_report_name_preview = rec.name
+                continue
+
+            try:
+                rec._check_expression(rec.print_report_name)
+            except exceptions.UserError:
+                # An error here would keep the form of a label saved earlier from opening
+                rec.print_report_name_preview = _('Expression is not allowed')
+                continue
+
+            random_record = rec.env[rec.model_id.model].search([], limit=1)
+            rec.print_report_name_preview = safe_eval(
+                rec.print_report_name,
+                {'object': random_record}
+            )
 
     @api.onchange('print_report_name')
     def _onchange_print_report_name(self):
         if self.print_report_name:
             # Check if expression is valid
             try:
+                self._check_expression(self.print_report_name)
                 self._compute_print_report_name_preview()
             except Exception as e:
                 raise exceptions.ValidationError(
                     _('Invalid Print Report Name expression: {}').format(e)
                 )
+
+    @api.constrains('print_report_name')
+    def _check_print_report_name(self):
+        """
+        Reject report name expressions that do more than read and format values of the record.
+
+        The expression runs with the rights of whoever opens the label or downloads its report.
+        Without this check a label manager could make an administrator run any code just by
+        getting them to open the label.
+        """
+        for rec in self.filtered('print_report_name'):
+            rec._check_expression(rec.print_report_name)
 
     def copy(self, default=None):
         raise exceptions.UserError(_(
@@ -180,7 +236,7 @@ class Label(models.Model):
         if self.action_report_id:
             # Update action report
             self.action_report_id.name = self.name
-            self.action_report_id.print_report_name = self.print_report_name or f"'{self.name}'"
+            self.action_report_id.print_report_name = self.print_report_name or repr(self.name)
         else:
             # Create action report
             self.action_report_id = self._create_label_action_report()
@@ -244,10 +300,11 @@ class Label(models.Model):
         }
 
     #
-    # Public methods
+    # Methods of the designer API. Private so they can't be called over RPC: they evaluate
+    # expressions from the request, and the controllers are the only callers
     #
     @api.model
-    def create_label(self, attrs):
+    def _create_label(self, attrs):
         qweb_xml, label_fields, prepared_attrs = self._prepare_data_for_label(attrs)
 
         label = self.create([prepared_attrs])
@@ -257,13 +314,13 @@ class Label(models.Model):
         return label.id
 
     @api.model
-    def update_label(self, label_id, attrs):
+    def _update_label(self, label_id, attrs):
         # Use exists to make sure that label really exists
         label = self.browse(label_id).exists()
 
         if not label:
             # Create new label if it doesn't exist
-            label_id = self.create_label(attrs)
+            label_id = self._create_label(attrs)
             return label_id
 
         qweb_xml, label_fields, prepared_attrs = self._prepare_data_for_label(attrs)
@@ -275,7 +332,7 @@ class Label(models.Model):
         return label.id
 
     @api.model
-    def delete_label(self, label_id):
+    def _delete_label(self, label_id):
         label = self.browse(label_id).exists()
 
         if not label:
@@ -286,10 +343,12 @@ class Label(models.Model):
         label.unlink()
 
     @api.model
-    def get_preview_data(self, model_name, fields):
+    def _get_preview_data(self, model_name, fields):
         """
         Returns example of data to populate label for preview
         """
+        self._check_formula_support(fields)
+
         # Validate fields
         self._validate_label_fields(model_name, fields)
 
@@ -305,7 +364,7 @@ class Label(models.Model):
 
         # Example of fields: [{"order_line": ["product_id.name", "product_uom_qty"]}, "state"]
         # We need to leave only fields that are in fields list
-        data = self._get_data_from_record(random_record, fields)
+        data = self._call_read_only(self._get_data_from_record, random_record, fields)
 
         return data
 
@@ -317,7 +376,27 @@ class Label(models.Model):
         Generate label preview from Qweb template based on random record
         """
         random_record_id = self._get_random_record(self.model_id.model, label_fields)
-        self.preview = self._render_qweb_text([random_record_id.id]).decode("utf-8")
+        self.preview = self._call_read_only(self._render_qweb_text, [random_record_id.id]).decode("utf-8")
+
+    def _call_read_only(self, function, *args):
+        """
+        Call a function that evaluates label expressions so that they can't change data, even
+        though the designer API runs them as the superuser.
+
+        :param function: function to call
+        :return: result of the function
+        """
+        result = None
+
+        try:
+            with self.env.cr.savepoint():
+                self.env.cr.execute('SET LOCAL transaction_read_only = on')
+                result = function(*args)
+                raise _ReadOnlyCallDone()
+        except _ReadOnlyCallDone:
+            pass
+
+        return result
 
     def _publish_label(self, qweb_xml: str):
         """ Internal method to create report and view for label
@@ -394,7 +473,7 @@ class Label(models.Model):
             'report_type': 'qweb-text',
             'report_name': view_xmlid,
             'report_file': view_xmlid,
-            'print_report_name': self.print_report_name or f"'{self.name}'",
+            'print_report_name': self.print_report_name or repr(self.name),
             'binding_model_id': self.model_id.id,
             'binding_type': 'report',
         })
@@ -421,15 +500,114 @@ class Label(models.Model):
         if not model_name:
             raise exceptions.UserError(_('Model is not specified'))
 
+        prepared_attrs = {field: attrs[field] for field in LABEL_API_FIELDS if field in attrs}
+
         # Replace model with model_id. It's a bit hacky but for now it's the easiest way
-        attrs['model_id'] = self.env['ir.model'].search([('model', '=', model_name)]).id
+        prepared_attrs['model_id'] = self.env['ir.model'].search([('model', '=', model_name)]).id
 
         label_fields = attrs.pop('label_fields', None)
 
         self._check_formula_support(label_fields)
         self._validate_label_fields(model_name, label_fields)
+        self._check_template_expressions(qweb_xml)
 
-        return qweb_xml, label_fields, attrs
+        return qweb_xml, label_fields, prepared_attrs
+
+    @api.model
+    def _check_template_expressions(self, qweb_xml):
+        """
+        Check every expression of a template: QWeb renders the template as it is, whatever
+        the label fields declare.
+        """
+        for node in etree.fromstring(qweb_xml.encode()).iter():
+            for directive, value in node.attrib.items():
+                for expression in self._get_directive_expressions(directive, value):
+                    self._check_expression(expression)
+
+    @api.model
+    def _get_directive_expressions(self, directive, value):
+        """
+        Get Python expressions from the value of a template attribute.
+
+        An unknown directive is refused: QWeb compiles attributes to code in ways that differ
+        between Odoo versions, so what it does with such a directive can't be checked.
+        """
+        if not directive.startswith('t-'):
+            return []
+
+        if directive.endswith(TEMPLATE_TRANSLATE_SUFFIX):
+            directive = directive[:-len(TEMPLATE_TRANSLATE_SUFFIX)]
+
+        if directive in TEMPLATE_NAME_DIRECTIVES:
+            return []
+
+        if directive in TEMPLATE_FORMAT_DIRECTIVES or directive.startswith(TEMPLATE_FORMAT_PREFIX):
+            return [first or second for first, second in TEMPLATE_FORMAT_REGEX.findall(value)]
+
+        if directive in TEMPLATE_EXPRESSION_DIRECTIVES or directive.startswith(TEMPLATE_EXPRESSION_PREFIXES):
+            return [value] if value.strip() else []
+
+        raise exceptions.UserError(_(
+            "Templates can't use '{}'. Labels can only read and format values of the record."
+        ).format(directive))
+
+    @api.model
+    def _check_expression(self, expression):
+        """
+        Raise an error if an expression does more than read and format values of the record.
+
+        Expressions come from the designer, not from an administrator, and run as the superuser
+        or as whoever prints the label. safe_eval and QWeb don't limit what they do with the ORM.
+        """
+        try:
+            tree = ast.parse(expression.strip(), mode='eval')
+        except (SyntaxError, ValueError) as e:
+            raise exceptions.UserError(_("Expression '{}' is invalid: {}").format(expression, e))
+
+        for node in ast.walk(tree):
+            forbidden = None
+
+            if isinstance(node, ast.Name) and node.id in EXPRESSION_FORBIDDEN_NAMES:
+                forbidden = node.id
+            elif isinstance(node, ast.Attribute) and self._is_forbidden_attribute(node):
+                forbidden = node.attr
+
+            if forbidden:
+                raise exceptions.UserError(_(
+                    "Expression '{}' can't use '{}'. Labels can only read and format values of the record."
+                ).format(expression, forbidden))
+
+    @classmethod
+    def _is_forbidden_attribute(cls, node):
+        """
+        Check if an attribute of an expression can't be used.
+        """
+        if node.attr == 'format':
+            return not cls._is_plain_format_string(node.value)
+
+        return node.attr.startswith('_') or node.attr in EXPRESSION_FORBIDDEN_ATTRIBUTES
+
+    @staticmethod
+    def _is_plain_format_string(node):
+        """
+        Check if a node is a format string that reads no attributes: '{0.env}'.format(doc) reads
+        them from a string, where the names of an expression can't be checked.
+        """
+        # ast.Constant keeps the text in value, ast.Str of Python 3.7 in s
+        value = node.value if hasattr(node, 'value') else getattr(node, 's', None)
+        if not isinstance(value, str):
+            return False
+
+        try:
+            parts = list(string.Formatter().parse(value))
+        except ValueError:
+            return False
+
+        for _literal, field, spec, _conversion in parts:
+            if '.' in (field or '') or '[' in (field or '') or '{' in (spec or ''):
+                return False
+
+        return True
 
     def _render_qweb_text(self, docids: list):
         """
@@ -490,6 +668,8 @@ class Label(models.Model):
                 if subfields is not None:
                     raise ValueError('Formula field should not have subfields')
 
+                self._check_expression(self._get_formula_expression(field))
+
                 formula_fields = self._get_formula_field_names(field)
                 if not formula_fields:
                     raise exceptions.UserError(
@@ -539,6 +719,24 @@ class Label(models.Model):
         Check if field is a formula expression.
         """
         return isinstance(field, str) and field.startswith(FORMULA_PREFIX)
+
+    @classmethod
+    def _has_formula_fields(cls, label_fields):
+        """
+        Check if label fields use a formula at any depth: a formula of a related record runs
+        the same way, so it must not get past the Enable Formulas setting.
+        """
+        for field, subfields in label_fields.items():
+            if cls._is_formula_field(field):
+                return True
+
+            if isinstance(subfields, list) and subfields:
+                subfields = subfields[0]
+
+            if isinstance(subfields, dict) and cls._has_formula_fields(subfields):
+                return True
+
+        return False
 
     @classmethod
     def _get_formula_expression(cls, formula):
@@ -604,7 +802,7 @@ class Label(models.Model):
         formula_expression = cls._get_formula_expression(formula)
 
         try:
-            value = safe_eval(formula_expression, {'doc': random_record})
+            value = safe_eval(formula_expression, {'doc': random_record, 'time': time})
         except Exception as e:
             raise exceptions.UserError(
                 _("Formula '{}' cannot be evaluated: {}").format(formula_expression, e)
@@ -631,9 +829,7 @@ class Label(models.Model):
         if not label_fields:
             return
 
-        has_formulas = any(self._is_formula_field(field) for field in label_fields)
-
-        if has_formulas and not self.env.company.sudo().enable_formulas:
+        if self._has_formula_fields(label_fields) and not self.env.company.sudo().enable_formulas:
             raise exceptions.UserError(_(
                 "This label contains formulas, but formula support is currently disabled.\n\n"
                 "Please enable formula support in the Label Designer PRO settings in Odoo."
