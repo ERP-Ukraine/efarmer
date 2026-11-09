@@ -15,6 +15,9 @@ PRODUCT_LABEL_MODELS_MAPPING = {
 class ProductLabelLayout(models.TransientModel):
     _inherit = 'product.label.layout'
 
+    # Some fields below are part of the Ventor PRO API contract,
+    # see tests/test_ventor_api_contract.py for details
+
     print_format = fields.Selection(
         selection_add=[('zld_label', 'Label From ZPL Designer')],
         ondelete={'zld_label': 'set default'},

@@ -93,9 +93,13 @@
 
                         <notebook>
                             <page string="Preview" name="preview">
-                                <group>
+                                <group invisible="not preview">
                                     <field name="preview" nolabel="1" readonly="1" widget="zld_label_preview" colspan="2" />
                                 </group>
+                                <div class="alert alert-info" role="alert" invisible="preview">
+                                    There are no records to generate the preview with. Create at least one record
+                                    of the label model and save the label in the Designer again.
+                                </div>
                                 <div>
                                     <small>
                                         The preview may have inaccuracies in the display of elements due

@@ -1,7 +1,7 @@
 import secrets
 import urllib.parse
 
-from odoo import api, fields, models
+from odoo import api, exceptions, fields, models, _
 
 
 API_KEY_SIZE = 20  # in bytes
@@ -53,7 +53,13 @@ class ResConfigSettings(models.TransientModel):
     def generate_zld_api_key(self):
         """
         Generate API key to use for API requests from designer to Odoo.
+
+        Public because of the button in Settings, so any user can call it over RPC. It checks
+        the rights itself: replacing the key disconnects the database from the designer.
         """
+        if not self.env.is_system():
+            raise exceptions.AccessError(_('Only administrators can update the API key.'))
+
         api_key = secrets.token_hex(API_KEY_SIZE)
         self.env['ir.config_parameter'].sudo().set_param('zpl_label_designer.api_key', api_key)
         return
@@ -75,8 +81,15 @@ class ResConfigSettings(models.TransientModel):
     @api.model
     def get_zld_api_key(self):
         """
-        Get API key for the installed integration.
+        Get API key for the installed integration, for administrators and the designer API only.
+
+        The key opens the designer API, which runs as the superuser, and any user can call this
+        method over RPC. Every other way to the key ends here too: the field, get_values() and
+        read() of a record with id 0, which skips the access rights of the model.
         """
+        if not self.env.is_system():
+            return False
+
         return self.env['ir.config_parameter'].sudo().get_param('zpl_label_designer.api_key')
 
     def get_zld_pdf_labelary_requests_today(self):

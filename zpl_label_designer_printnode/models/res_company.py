@@ -19,6 +19,9 @@ WIZARD_LABEL_FORMAT_SELECTION = [
 class Company(models.Model):
     _inherit = 'res.company'
 
+    # Some fields below are part of the Ventor PRO API contract,
+    # see tests/test_ventor_api_contract.py for details
+
     print_labels_format = fields.Selection(
         selection_add=[('zld_label', 'Label From ZPL Designer')],
     )

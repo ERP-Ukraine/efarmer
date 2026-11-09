@@ -16,11 +16,21 @@ _logger = logging.getLogger(__name__)
 
 
 class ReportController(ReportController):
+    # The route below is part of the Ventor PRO API contract,
+    # see tests/test_ventor_api_contract.py for details
     @http.route(['/report/download'], type='http', auth="user")
     # pylint: disable=unused-argument
     def report_download(self, data, context=None, token=None, readonly=True):
         """
-        TODO: Add docstring
+        Download a report, converting ZPL Designer labels to PDF when the label asks for it.
+
+        A report linked to a label with "Convert Label to PDF" enabled is rendered to ZPL and
+        converted to PDF through the Labelary API. Every other report goes through the standard
+        Odoo download.
+
+        :param data: JSON array with the report URL ([0]) and the report type ([1])
+        :param context: JSON-encoded context
+        :returns: Response with an attachment header
         """
         requestcontent = json.loads(data)
         url, type_ = requestcontent[0], requestcontent[1]
@@ -95,6 +105,10 @@ class ReportController(ReportController):
     def _generate_pdf_for_zpl_report(self, label, reportname, docids=None, **data):
         """
         Generate PDF for ZPL report using the centralized method in ir.actions.report.
+
+        _get_report() returns the report as the superuser, so it has to go back to the rights of
+        the user, as for ZPL. Otherwise any logged-in user gets the values of the label for any
+        record, including users who can't read that record.
         """
         context = dict(request.env.context)
 
@@ -108,6 +122,6 @@ class ReportController(ReportController):
 
         # Get the report record and use the centralized PDF generation method
         report = request.env['ir.actions.report'].with_context(context)._get_report(reportname)
-        pdf = report._generate_pdf_from_zpl_label(res_ids=docids, data=data)
+        pdf = report.sudo(False)._generate_pdf_from_zpl_label(res_ids=docids, data=data)
 
         return pdf

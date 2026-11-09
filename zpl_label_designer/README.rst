@@ -7,6 +7,18 @@ Change Log
 
 |
 
+* 2.1.0 (2026-11-09)
+    - [BREAKING] ACTION REQUIRED: After the upgrade, copy the new key from "API key for the integration with Label Designer PRO" in the settings into "API key" of your connection in the designer: the upgrade replaces the key, and the designer can't connect until it has the new one. Do not use "Connect to Designer" for this: it creates a new connection. Printing is not affected.
+    - [BREAKING] Changed formulas to only read and format values of the record and its related records: a formula that does more can be refused when the label is saved. Labels saved earlier keep printing.
+    - [NEW] Added product attributes to product labels: use doc._get_attribute('Size') in a formula to print the value of an attribute, in any installed language. Formulas need "Enable Formulas" in the settings.
+    - [NEW] Added alignment of Code 128 barcodes: "Alignment" of a barcode in the designer now places it at the left, center or right of its field.
+    - [FIX] Fixed a security issue: we recommend updating as soon as possible.
+    - [FIX] Fixed formulas that use time, such as time.strftime('%Y'), failing in the label preview of the designer.
+    - [FIX] Fixed labels with an apostrophe in the name failing to download when "Report Name" is empty.
+    - [FIX] Other improvements and fixes implemented to boost overall performance, stability, and reliability.
+    - [NOTE] Run "Publish" from the "Action" menu once on published labels with an apostrophe in the name, so that the fix reaches them.
+    - [NOTE] Barcodes that already have "Center" or "Right" alignment set start following it after the label is published again.
+
 * 2.0.0 (2026-06-02)
     - [NEW] Added support for Python formulas, enabling advanced formatting, data transformations, calculations, and date formatting directly within labels.
     - [NEW] Introduced ZPL Label Designer + PDF Converter for generating PDF versions of ZPL labels.

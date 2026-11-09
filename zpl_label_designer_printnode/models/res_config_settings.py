@@ -7,6 +7,9 @@ from odoo import fields, models
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
+    # Some fields below are part of the Ventor PRO API contract,
+    # see tests/test_ventor_api_contract.py for details
+
     print_labels_format = fields.Selection(
         readonly=False,
         related='company_id.print_labels_format',

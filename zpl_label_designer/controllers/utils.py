@@ -3,6 +3,7 @@ import functools
 from odoo import api, SUPERUSER_ID
 from odoo.modules.registry import Registry
 from odoo.http import request, db_filter
+from odoo.tools import consteq
 from werkzeug.exceptions import BadRequest, NotFound, Unauthorized
 
 
@@ -28,6 +29,10 @@ def validate(func):
     Does a basic validation of request. Validates:
     - API Keys
     - Database
+
+    The key goes through consteq(): `!=` stops at the first different character, so the time of
+    an answer could reveal the key character by character. It compares bytes, because consteq()
+    raises an error on non-ASCII text and the header comes from the client.
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
@@ -53,7 +58,7 @@ def validate(func):
         if not key_from_request or not key_from_odoo:
             raise Unauthorized('API key is required')
 
-        if key_from_odoo != key_from_request:
+        if not consteq(key_from_odoo.encode(), key_from_request.encode()):
             raise Unauthorized('Invalid API key')
 
         return func(*args, **kwargs)

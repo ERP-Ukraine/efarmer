@@ -24,6 +24,15 @@ class IrActionsReport(models.Model):
         self.ensure_one()
         return self.zld_label_ids[:1] if self.zld_label_ids else self.env['zld.label']
 
+    def _get_rendering_context(self, report, docids, data):
+        values = super()._get_rendering_context(report, docids, data)
+
+        # Generated ZPL QWeb templates use zld_label to calculate
+        # dynamic barcode positions during report rendering.
+        # _get_report() gives the report as the superuser, a template must not get those rights with it
+        values['zld_label'] = report.zld_label_id.sudo(False)
+        return values
+
     @api.model
     def _render_qweb_text(self, report_ref, docids, data=None):
         """
@@ -67,7 +76,10 @@ class IrActionsReport(models.Model):
         """
         self.ensure_one()
 
-        label = self.zld_label_id
+        # Whoever can print the record needs the settings of the report and the label, the record itself
+        # is rendered with the rights of self: a controller drops sudo, a print scenario keeps it
+        report_sudo = self.sudo()
+        label = report_sudo.zld_label_id
         if not label:
             raise ValueError("No associated ZPL label found for this report")
 
@@ -77,7 +89,7 @@ class IrActionsReport(models.Model):
         # Render ZPL content
         # Use report_name instead of xml_id for consistency
         zpl_content = self._render_qweb_text(
-            self.report_name, res_ids, data=data)[0]
+            report_sudo.report_name, res_ids, data=data)[0]
 
         # Get label parameters
         width_in = label.width
