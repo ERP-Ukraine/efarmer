@@ -106,7 +106,7 @@
                 <tbody>
                     <t t-set="ef_dp_subtotal" t-value="0"/>
                     <t t-foreach="ef_split_lines[1]" t-as="line">
-                        <t t-set="ef_dp_subtotal" t-value="ef_dp_subtotal + line.price_subtotal"/>
+                        <t t-set="ef_dp_subtotal" t-value="ef_dp_subtotal + line.price_total"/>
                         <tr t-att-class="'fw-bold o_line_section' if line.display_type == 'line_section' else 'fst-italic o_line_note' if line.display_type == 'line_note' else ''">
                             <t t-if="line.display_type == 'product'">
                                 <td><span t-field="line.name" t-options="{'widget': 'text'}">Down payment</span></td>
@@ -119,7 +119,7 @@
                                 <td class="text-end">
                                     <span t-out="', '.join([(tax.invoice_label or tax.name) for tax in line.tax_ids])">VAT 0%</span>
                                 </td>
-                                <td class="text-end o_price_total"><span class="text-nowrap" t-field="line.price_subtotal">-100.00</span></td>
+                                <td class="text-end o_price_total"><span class="text-nowrap" t-field="line.price_total">-100.00</span></td>
                             </t>
                             <t t-else="">
                                 <td colspan="99"><span t-field="line.name" t-options="{'widget': 'text'}">Down Payments</span></td>
@@ -128,7 +128,7 @@
                     </t>
                     <tr class="is-subtotal text-end">
                         <td colspan="99">
-                            <strong class="mr16">Subtotal</strong>
+                            <strong class="mr16">Total</strong> 
                             <span t-out="ef_dp_subtotal"
                                   t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">-100.00</span>
                         </td>
