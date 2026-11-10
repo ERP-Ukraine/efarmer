@@ -1,0 +1,97 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* efarmer_invoice_downpayment_summary
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-10\n"
+"PO-Revision-Date: 2026-11-10\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+
+#. module: efarmer_invoice_downpayment_summary
+#: model_terms:ir.ui.view,arch_db:efarmer_invoice_downpayment_summary.report_invoice_document
+msgid "<span>Description</span>"
+msgstr "<span>Opis</span>"
+
+#. module: efarmer_invoice_downpayment_summary
+#: model_terms:ir.ui.view,arch_db:efarmer_invoice_downpayment_summary.report_invoice_document
+msgid "<span>Quantity</span>"
+msgstr "<span>Ilość</span>"
+
+#. module: efarmer_invoice_downpayment_summary
+#: model_terms:ir.ui.view,arch_db:efarmer_invoice_downpayment_summary.report_invoice_document
+msgid "<span>Unit Price</span>"
+msgstr "<span>Cena jednostkowa</span>"
+
+#. module: efarmer_invoice_downpayment_summary
+#: model_terms:ir.ui.view,arch_db:efarmer_invoice_downpayment_summary.report_invoice_document
+msgid "<span>Disc.%</span>"
+msgstr "<span>Rabat %</span>"
+
+#. module: efarmer_invoice_downpayment_summary
+#: model_terms:ir.ui.view,arch_db:efarmer_invoice_downpayment_summary.report_invoice_document
+msgid "<span>Taxes</span>"
+msgstr "<span>Podatki</span>"
+
+#. module: efarmer_invoice_downpayment_summary
+#: model_terms:ir.ui.view,arch_db:efarmer_invoice_downpayment_summary.report_invoice_document
+msgid "<span>Amount</span>"
+msgstr "<span>Kwota</span>"
+
+#. module: efarmer_invoice_downpayment_summary
+#: model_terms:ir.ui.view,arch_db:efarmer_invoice_downpayment_summary.report_invoice_document
+msgid "<span>Invoice Number</span>"
+msgstr "<span>Numer faktury</span>"
+
+#. module: efarmer_invoice_downpayment_summary
+#: model_terms:ir.ui.view,arch_db:efarmer_invoice_downpayment_summary.report_invoice_document
+msgid "<span>Invoice Date</span>"
+msgstr "<span>Data faktury</span>"
+
+#. module: efarmer_invoice_downpayment_summary
+#: model_terms:ir.ui.view,arch_db:efarmer_invoice_downpayment_summary.downpayment_tax_table
+msgid "<span>VAT Rate</span>"
+msgstr "<span>Stawka VAT</span>"
+
+#. module: efarmer_invoice_downpayment_summary
+#: model_terms:ir.ui.view,arch_db:efarmer_invoice_downpayment_summary.downpayment_tax_table model_terms:ir.ui.view,arch_db:efarmer_invoice_downpayment_summary.report_invoice_document
+msgid "<span>NET Amount</span>"
+msgstr "<span>Wartość netto</span>"
+
+#. module: efarmer_invoice_downpayment_summary
+#: model_terms:ir.ui.view,arch_db:efarmer_invoice_downpayment_summary.downpayment_tax_table model_terms:ir.ui.view,arch_db:efarmer_invoice_downpayment_summary.report_invoice_document
+msgid "<span>VAT Amount</span>"
+msgstr "<span>Kwota VAT</span>"
+
+#. module: efarmer_invoice_downpayment_summary
+#: model_terms:ir.ui.view,arch_db:efarmer_invoice_downpayment_summary.downpayment_tax_table
+msgid "<span>VAT Amount in PLN</span>"
+msgstr "<span>Kwota VAT w PLN</span>"
+
+#. module: efarmer_invoice_downpayment_summary
+#: model_terms:ir.ui.view,arch_db:efarmer_invoice_downpayment_summary.downpayment_tax_table model_terms:ir.ui.view,arch_db:efarmer_invoice_downpayment_summary.report_invoice_document
+msgid "<span>GROSS Amount</span>"
+msgstr "<span>Wartość brutto</span>"
+
+#. module: efarmer_invoice_downpayment_summary
+#: model_terms:ir.ui.view,arch_db:efarmer_invoice_downpayment_summary.downpayment_tax_table
+msgid "<span>Total</span>"
+msgstr "<span>Razem</span>"
+
+#. module: efarmer_invoice_downpayment_summary
+#: model_terms:ir.ui.view,arch_db:efarmer_invoice_downpayment_summary.report_invoice_document
+msgid "<strong>Applied down payments:</strong>"
+msgstr "<strong>Rozliczone zaliczki:</strong>"
+
+#. module: efarmer_invoice_downpayment_summary
+#: model_terms:ir.ui.view,arch_db:efarmer_invoice_downpayment_summary.report_invoice_document
+msgid "<strong>Invoiced products:</strong>"
+msgstr "<strong>Zafakturowane produkty:</strong>"
