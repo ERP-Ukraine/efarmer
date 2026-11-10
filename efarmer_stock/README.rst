@@ -4,6 +4,11 @@ eFarmer Stock
 Changelog
 ---------
 
+18.0.1.3.0 (2026-11-09)
+***********************
+    - Added Additional S/N and Firmware fields on Lots / Serial Numbers
+    - Added Serial Metadata Editor group
+
 18.0.1.2.0 (2026-10-22)
 ***********************
     - Returns: only serial numbers from the original delivery can be selected.
