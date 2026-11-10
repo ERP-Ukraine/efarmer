@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_lot_additional_sn_user,stock.lot.additional.sn user,model_stock_lot_additional_sn,stock.group_stock_user,1,0,0,0
+access_lot_additional_sn_editor,stock.lot.additional.sn editor,model_stock_lot_additional_sn,group_serial_metadata_editor,1,0,1,0
+access_lot_additional_sn_admin,stock.lot.additional.sn admin,model_stock_lot_additional_sn,base.group_system,1,1,1,1
+access_lot_firmware_user,stock.lot.firmware user,model_stock_lot_firmware,stock.group_stock_user,1,0,0,0
+access_lot_firmware_editor,stock.lot.firmware editor,model_stock_lot_firmware,group_serial_metadata_editor,1,0,1,0
+access_lot_firmware_admin,stock.lot.firmware admin,model_stock_lot_firmware,base.group_system,1,1,1,1

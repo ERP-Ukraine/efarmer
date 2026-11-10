@@ -9,6 +9,8 @@
     "depends": ["stock", "mrp"],
     "description": "",
     "data": [
+        "security/security.xml",
+        "security/ir.model.access.csv",
         "views/stock_production_lot_views.xml",
         "views/mrp_production_form_views.xml",
         "views/res_users_views.xml",
