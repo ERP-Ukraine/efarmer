@@ -8,6 +8,34 @@
             <xpath expr="//field[@name='company_id']" position="after">
                 <field name="is_assigned" string="Assigned" groups="base.group_no_one"/>
             </xpath>
+            <xpath expr="//field[@name='standard_price']/.." position="after">
+                <field name="can_edit_metadata" invisible="1"/>
+                <field name="additional_sn_ids" widget="many2many_tags"
+                       options="{'no_create_edit': True}"
+                       readonly="not can_edit_metadata"/>
+                <field name="firmware_ids" widget="many2many_tags"
+                       options="{'no_create_edit': True}"
+                       readonly="not can_edit_metadata"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Search: search and group by -->
+    <record id="view_lot_search_fieldbee" model="ir.ui.view">
+        <field name="name">stock.lot.search.fieldbee</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.search_product_lot_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <field name="additional_sn_ids"/>
+                <field name="firmware_ids"/>
+                <group>
+                    <filter name="group_additional_sn" string="Additional S/N"
+                            context="{'group_by': 'additional_sn_ids'}"/>
+                    <filter name="group_firmware" string="Firmware"
+                            context="{'group_by': 'firmware_ids'}"/>
+                </group>
+            </xpath>
         </field>
     </record>
 </odoo>
