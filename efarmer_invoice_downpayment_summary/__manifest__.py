@@ -8,7 +8,7 @@
         lines, applied down payments and the remaining amount (as in the
         Trilab FB final invoice).
     """,
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.0.1",
     "category": "Accounting",
     "author": "VentorTech",
     "website": "https://ventor.tech",
