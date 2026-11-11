@@ -1,9 +1,4 @@
-import logging
-
 from odoo import api, SUPERUSER_ID
-
-
-_logger = logging.getLogger(__name__)
 
 
 def migrate(cr, version):
@@ -19,12 +14,3 @@ def migrate(cr, version):
         cron = env.ref(xml_id, raise_if_not_found=False)
         if cron:
             cron.action_archive()
-
-    try:
-        with env.cr.savepoint():
-            env['printnode.account'].update_subscription_info()
-    except Exception as error:
-        _logger.exception(
-            'Failed to update Direct Print subscription info during migration: %s',
-            error,
-        )
