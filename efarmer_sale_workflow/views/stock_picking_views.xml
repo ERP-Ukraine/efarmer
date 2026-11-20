@@ -9,6 +9,11 @@
                 <xpath expr="//page[@name='extra']/group/group[@name='other_infos']/field[@name='company_id']" position="after">
                     <field name="sale_priority" widget="priority" readonly="1" />
                 </xpath>
+                <xpath expr="//group[@name='other_infos']" position="inside">
+                    <field name="commercial_invoice_note"
+                        invisible="picking_type_code != 'outgoing'"
+                        readonly="state == 'cancel'"/>
+                </xpath>
             </field>
         </record>
 
