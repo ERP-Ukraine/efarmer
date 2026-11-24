@@ -24,6 +24,12 @@ class StockPicking(models.Model):
         string="Sale Priority",
     )
 
+    commercial_invoice_note = fields.Text(
+        string="Commercial Invoice Note",
+        copy=False,
+        help="Printed on the Commercial Invoice generated from this transfer.",
+    )
+
     def button_validate(self):
         res = super(StockPicking, self).button_validate()
         if res is True:

@@ -48,6 +48,7 @@
         <t t-call="web.external_layout">
 
             <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+            <t t-set="ci_currency" t-value="doc.sale_id.currency_id or doc.company_id.currency_id"/>
             <div class="row">
                 <div class="col-6">
                     <ul class="list-unstyled">
@@ -153,7 +154,6 @@
                         </t>
                     </tbody>
                 </table>
-
                 <div class="clearfix" name="so_total_summary">
                     <div id="total" class="row" name="total">
                         <div t-attf-class="#{'col-6' if report_type != 'html' else 'col-sm-7 col-md-6'} ml-auto">
@@ -161,15 +161,13 @@
                                 <tr class="border-black o_total">
                                     <td><strong>Total</strong></td>
                                     <td class="text-right">
-                                        <span t-esc="tax_totals" t-options='{"widget": "monetary", "display_currency": doc.sale_id.currency_id}'/>
+                                        <span t-esc="tax_totals" t-options='{"widget": "monetary", "display_currency": ci_currency}'/>
                                     </td>
                                 </tr>
                             </table>
                         </div>
                     </div>
                 </div>
-
-
                 <div class="oe_structure"/>
                 <p>
                     <strong>Net Weight: </strong>
@@ -193,6 +191,12 @@
                     </p>
                 </t>
                 <br>
+
+                <div t-if="doc.commercial_invoice_note" class="mt-4" name="commercial_invoice_note">
+                    <strong>Notes:</strong>
+                    <p t-field="doc.commercial_invoice_note" style="white-space: pre-line;"/>
+                </div>
+
                 </br>
                 <p>
                     <strong>This Invoice is for Customs Purposes</strong>
@@ -200,8 +204,6 @@
             </div>
         </t>
     </template>
-
-
 
     <template id="picking_report_commercial_invoice">
         <t t-call="web.html_container">
