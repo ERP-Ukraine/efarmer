@@ -4,6 +4,10 @@ Efarmer Sale Workflow
 Change Log
 ##########
 
+* 18.0.1.0.1 (2026-11-24)
+    - Add Commercial Invoice Note field on transfers and print it on the Commercial Invoice.
+    - Fix Commercial Invoice crash on transfers without a sale order (fall back to company currency).
+
 * 18.0.1.0.0 (2026-10-02)
     - Migrated to ODOO 18
 
