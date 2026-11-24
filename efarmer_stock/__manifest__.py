@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "eFarmer Stock",
-    "version": "1.0",
+    "version": "18.0.1.2.1",
     "category": "Inventory",
     "author": "VentorTech",
     "website": "https://ventor.tech/",
